@@ -1,76 +1,122 @@
 #!/usr/bin/env node
 /**
- * check-duplicate-migrations.mjs
- *
- * Verifies that no two Prisma migration directories share the same timestamp
- * prefix. Prisma orders migrations alphabetically; two migrations with the
- * same numeric prefix can be silently reordered between machines, which leads
- * to non-deterministic schema drift and is exactly the failure mode that
- * produced the `fix_schema_drift_*` rescue migrations in this repo
- * (PLAN-2026-Q3 §0 / AUDIT-2026-05-16 §C-D3).
- *
- * Exit 0 if all timestamps are unique. Exit 1 with a clear message and the
- * conflicting paths otherwise.
- *
- * Standalone script — wired into pre-commit when husky is installed, and
- * safe to call from CI directly:
- *   node scripts/check-duplicate-migrations.mjs
+ * Reject new Prisma timestamp collisions while preserving exact historical SQL.
+ * The reviewed baseline is not a migration replay or database recovery baseline.
+ * Run directly or through npm run check-migrations; no database is contacted.
  */
-
-import { readdirSync, statSync, existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { lstatSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const REPO_ROOT = resolve(__dirname, '..');
-const MIGRATIONS_DIR = join(REPO_ROOT, 'prisma', 'migrations');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const MIGRATIONS = join(ROOT, 'prisma', 'migrations');
+const BASELINE = join(ROOT, 'scripts', 'migration-collision-baseline.json');
+// Two existing migrations use date-only prefixes. Detect their collisions too;
+// do not silently ignore a shorter numeric prefix or rename historical files.
+const TIMESTAMP = /^(\d+)_/;
 
-if (!existsSync(MIGRATIONS_DIR)) {
-  console.error(`check-duplicate-migrations: ${MIGRATIONS_DIR} does not exist`);
-  process.exit(0);
+function requireDirectory(path) {
+  if (!lstatSync(path).isDirectory()) throw new Error(`Expected a real directory: ${path}`);
 }
 
-const TIMESTAMP_RE = /^(\d{14})_/;
+function readPlainFile(path) {
+  if (!lstatSync(path).isFile()) throw new Error(`Expected a regular file: ${path}`);
+  return readFileSync(path);
+}
 
-const entries = readdirSync(MIGRATIONS_DIR);
-const byTimestamp = new Map(); // timestamp -> [dirname, ...]
+function loadBaseline() {
+  const baseline = JSON.parse(readPlainFile(BASELINE).toString('utf8'));
+  if (
+    baseline?.schemaVersion !== 1 ||
+    !/^[a-f0-9]{40}$/.test(baseline.sourceCommit ?? '') ||
+    !Array.isArray(baseline.groups)
+  ) throw new Error('Invalid migration collision baseline: expected schemaVersion 1, sourceCommit and groups.');
 
-for (const name of entries) {
-  const full = join(MIGRATIONS_DIR, name);
-  let st;
-  try {
-    st = statSync(full);
-  } catch {
-    continue;
+  const groups = new Map();
+  for (const group of baseline.groups) {
+    if (
+      !group || !/^\d{14}$/.test(group.timestamp ?? '') ||
+      groups.has(group.timestamp) || !Array.isArray(group.migrations) || group.migrations.length < 2
+    ) throw new Error('Invalid or duplicate historical collision group.');
+
+    const members = new Map();
+    for (const migration of group.migrations) {
+      const name = migration?.directory;
+      if (
+        typeof name !== 'string' || /[/\\]/.test(name) ||
+        TIMESTAMP.exec(name)?.[1] !== group.timestamp || name.length <= 15 ||
+        members.has(name) || !/^[a-f0-9]{64}$/.test(migration.sha256 ?? '')
+      ) throw new Error(`Invalid or duplicate baseline member for ${group.timestamp}.`);
+      members.set(name, migration.sha256);
+    }
+    groups.set(group.timestamp, members);
   }
-  if (!st.isDirectory()) continue;
-  const m = TIMESTAMP_RE.exec(name);
-  if (!m) continue;
-  const ts = m[1];
-  const list = byTimestamp.get(ts) ?? [];
-  list.push(name);
-  byTimestamp.set(ts, list);
+  return groups;
 }
 
-const dupes = [...byTimestamp.entries()].filter(([, list]) => list.length > 1);
-
-if (dupes.length === 0) {
-  process.exit(0);
-}
-
-console.error('Duplicate migration timestamp detected — re-timestamp the second migration.');
-console.error('Prisma orders alphabetically and may silently reorder.');
-console.error('');
-for (const [ts, list] of dupes) {
-  console.error(`  timestamp ${ts}:`);
-  for (const name of list) {
-    console.error(`    prisma/migrations/${name}`);
+function readMigrations() {
+  requireDirectory(join(ROOT, 'prisma'));
+  requireDirectory(MIGRATIONS);
+  const groups = new Map();
+  for (const name of readdirSync(MIGRATIONS).sort()) {
+    const timestamp = TIMESTAMP.exec(name)?.[1];
+    if (!timestamp) continue; // Naming/schema policy is separate; migration_lock.toml is not a migration.
+    const directory = join(MIGRATIONS, name);
+    requireDirectory(directory);
+    const hash = createHash('sha256').update(readPlainFile(join(directory, 'migration.sql'))).digest('hex');
+    const members = groups.get(timestamp) ?? new Map();
+    members.set(name, hash);
+    groups.set(timestamp, members);
   }
+  return groups;
 }
-console.error('');
-console.error('Fix: rename the later migration directory to bump its timestamp prefix,');
-console.error('then update prisma/migrations/migration_lock.toml if needed.');
 
-process.exit(1);
+function check() {
+  if (process.argv.length !== 2) throw new Error('Usage: node scripts/check-duplicate-migrations.mjs (no baseline update mode).');
+  const baseline = loadBaseline();
+  const current = readMigrations();
+  const failures = [];
+
+  // Validate every baseline group, even if a deletion/rename would hide its collision.
+  for (const [timestamp, expected] of baseline) {
+    const actual = current.get(timestamp) ?? new Map();
+    const expectedNames = [...expected.keys()].sort();
+    const actualNames = [...actual.keys()].sort();
+    if (JSON.stringify(expectedNames) !== JSON.stringify(actualNames)) {
+      failures.push(
+        `Historical collision membership changed at ${timestamp}.\n` +
+        `  expected: ${expectedNames.join(', ')}\n  actual: ${actualNames.join(', ') || '(missing)'}`,
+      );
+    }
+    for (const [name, checksum] of expected) {
+      if (actual.has(name) && actual.get(name) !== checksum) {
+        failures.push(`Historical SQL checksum changed: prisma/migrations/${name}/migration.sql`);
+      }
+    }
+  }
+
+  for (const [timestamp, members] of current) {
+    if (members.size > 1 && !baseline.has(timestamp)) {
+      failures.push(`Unrecognized collision at ${timestamp}: ${[...members.keys()].sort().join(', ')}`);
+    }
+  }
+
+  if (failures.length) {
+    console.error(failures.join('\n'));
+    console.error(
+      'Preserve historical migration directories and SQL bytes. Choose a unique timestamp only for a new, unapplied migration.\n' +
+      'Do not regenerate the historical exceptions to accept a new collision. See docs/DATABASE-RECOVERY.md.',
+    );
+    process.exitCode = 1;
+    return;
+  }
+  console.log(`Migration timestamps verified: ${baseline.size} historical collision group(s) unchanged; no new collisions.`);
+}
+
+try {
+  check();
+} catch (error) {
+  console.error(`check-duplicate-migrations: ${error instanceof Error ? error.message : String(error)}`);
+  process.exitCode = 1;
+}

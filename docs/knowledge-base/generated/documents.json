@@ -15956,23 +15956,28 @@
       },
       {
         "level": 2,
-        "title": "Preflight for an existing database",
+        "title": "Repository migration collision gate",
         "line": 30
       },
       {
         "level": 2,
+        "title": "Preflight for an existing database",
+        "line": 55
+      },
+      {
+        "level": 2,
         "title": "What is still needed for reproducible recovery",
-        "line": 69
+        "line": 94
       },
       {
         "level": 2,
         "title": "Backup evidence and limits",
-        "line": 100
+        "line": 125
       },
       {
         "level": 2,
         "title": "Existing production migration-history differences",
-        "line": 110
+        "line": 135
       }
     ],
     "datedFilename": false,
@@ -28705,27 +28710,27 @@
       {
         "level": 2,
         "title": "Build routing",
-        "line": 59
+        "line": 60
       },
       {
         "level": 2,
         "title": "Database and rollback",
-        "line": 84
+        "line": 85
       },
       {
         "level": 2,
         "title": "Scheduled work",
-        "line": 96
+        "line": 97
       },
       {
         "level": 2,
         "title": "Health and observability",
-        "line": 139
+        "line": 140
       },
       {
         "level": 2,
         "title": "Provisioning names and execution ownership",
-        "line": 155
+        "line": 156
       }
     ],
     "datedFilename": false,

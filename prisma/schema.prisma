@@ -2818,7 +2818,12 @@ model PlacementSurvey {
   userId          String   @map("user_id")
   placementId     String   @map("placement_id")
   wave            PlacementSurveyWave @default(thirty_day) @map("wave")
-  sentAt          DateTime @default(now()) @map("sent_at")
+  // Null until the first Resend acceptance is stamped.
+  sentAt          DateTime? @map("sent_at")
+  // Frozen per delivery attempt so ambiguous retries preserve the exact URL.
+  tokenExpiresAt  DateTime @map("token_expires_at")
+  deliveryAttempt Int @default(1) @map("delivery_attempt")
+  acceptedAttempt Int @default(0) @map("accepted_attempt")
   completedAt     DateTime? @map("completed_at")
   escalatedAt     DateTime? @map("escalated_at")
 

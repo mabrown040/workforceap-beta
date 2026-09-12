@@ -1054,6 +1054,8 @@ export async function sendPlacementSurveyEmail(params: {
   programName: string | null;
   surveyUrl: string;
   wave?: 'thirty_day' | 'sixty_day' | 'ninety_day' | 'hundred_eighty_day';
+  /** Stable across retries so provider acceptance can be reconciled safely. */
+  idempotencyKey: string;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1082,6 +1084,7 @@ export async function sendPlacementSurveyEmail(params: {
       to: params.to,
       subject: sanitizeEmailSubjectLine(subject),
       html,
+      idempotencyKey: params.idempotencyKey,
     });
     return { ok: true };
   } catch (err) {

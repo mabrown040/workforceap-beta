@@ -134,19 +134,19 @@ Declared Prisma schema only. Migration SQL, RLS, triggers, and actual production
 | AtRiskAlert | model | at_risk_alerts | 13 | [schema:2757](../../../prisma/schema.prisma#L2757) |
 | MemberNudgeLog | model | member_nudge_logs | 7 | [schema:2783](../../../prisma/schema.prisma#L2783) |
 | PlacementSurveyWave | enum | placement_survey_wave | 4 | [schema:2799](../../../prisma/schema.prisma#L2799) |
-| PlacementSurvey | model | placement_surveys | 17 | [schema:2816](../../../prisma/schema.prisma#L2816) |
-| TestimonialSource | enum | testimonial_source | 3 | [schema:2853](../../../prisma/schema.prisma#L2853) |
-| TestimonialStatus | enum | testimonial_status | 4 | [schema:2861](../../../prisma/schema.prisma#L2861) |
-| Testimonial | model | testimonials | 18 | [schema:2870](../../../prisma/schema.prisma#L2870) |
-| CourseraSkillsetProgress | model | coursera_skillset_progress | 9 | [schema:2904](../../../prisma/schema.prisma#L2904) |
-| MilestoneCascade | model | milestone_cascades | 23 | [schema:2931](../../../prisma/schema.prisma#L2931) |
-| MemberFeedback | model | member_feedback | 8 | [schema:2977](../../../prisma/schema.prisma#L2977) |
-| FeatureFlag | model | feature_flags | 9 | [schema:2997](../../../prisma/schema.prisma#L2997) |
-| WebhookEvent | model | webhook_events | 13 | [schema:3021](../../../prisma/schema.prisma#L3021) |
-| EmailTemplate | model | email_templates | 9 | [schema:3046](../../../prisma/schema.prisma#L3046) |
-| Notification | model | notifications | 9 | [schema:3064](../../../prisma/schema.prisma#L3064) |
-| PushSubscription | model | push_subscriptions | 8 | [schema:3086](../../../prisma/schema.prisma#L3086) |
-| SavedJob | model | saved_jobs | 6 | [schema:3101](../../../prisma/schema.prisma#L3101) |
-| WapJob | model | wap_jobs | 8 | [schema:3118](../../../prisma/schema.prisma#L3118) |
-| TokenLinkType | enum | Prisma default | 3 | [schema:3137](../../../prisma/schema.prisma#L3137) |
-| TokenizedLink | model | tokenized_link | 10 | [schema:3143](../../../prisma/schema.prisma#L3143) |
+| PlacementSurvey | model | placement_surveys | 20 | [schema:2816](../../../prisma/schema.prisma#L2816) |
+| TestimonialSource | enum | testimonial_source | 3 | [schema:2858](../../../prisma/schema.prisma#L2858) |
+| TestimonialStatus | enum | testimonial_status | 4 | [schema:2866](../../../prisma/schema.prisma#L2866) |
+| Testimonial | model | testimonials | 18 | [schema:2875](../../../prisma/schema.prisma#L2875) |
+| CourseraSkillsetProgress | model | coursera_skillset_progress | 9 | [schema:2909](../../../prisma/schema.prisma#L2909) |
+| MilestoneCascade | model | milestone_cascades | 23 | [schema:2936](../../../prisma/schema.prisma#L2936) |
+| MemberFeedback | model | member_feedback | 8 | [schema:2982](../../../prisma/schema.prisma#L2982) |
+| FeatureFlag | model | feature_flags | 9 | [schema:3002](../../../prisma/schema.prisma#L3002) |
+| WebhookEvent | model | webhook_events | 13 | [schema:3026](../../../prisma/schema.prisma#L3026) |
+| EmailTemplate | model | email_templates | 9 | [schema:3051](../../../prisma/schema.prisma#L3051) |
+| Notification | model | notifications | 9 | [schema:3069](../../../prisma/schema.prisma#L3069) |
+| PushSubscription | model | push_subscriptions | 8 | [schema:3091](../../../prisma/schema.prisma#L3091) |
+| SavedJob | model | saved_jobs | 6 | [schema:3106](../../../prisma/schema.prisma#L3106) |
+| WapJob | model | wap_jobs | 8 | [schema:3123](../../../prisma/schema.prisma#L3123) |
+| TokenLinkType | enum | Prisma default | 3 | [schema:3142](../../../prisma/schema.prisma#L3142) |
+| TokenizedLink | model | tokenized_link | 10 | [schema:3148](../../../prisma/schema.prisma#L3148) |

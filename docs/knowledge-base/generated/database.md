@@ -182,7 +182,7 @@
 | [prisma/migrations/20260909180000_milestone_dispatch_state/migration.sql](../../../prisma/migrations/20260909180000_milestone_dispatch_state/migration.sql) | 3 | database |  |
 | [prisma/migrations/20260909224000_member_message_current_assignment/migration.sql](../../../prisma/migrations/20260909224000_member_message_current_assignment/migration.sql) | 143 | database |  |
 | [prisma/migrations/migration_lock.toml](../../../prisma/migrations/migration_lock.toml) | 3 | database |  |
-| [prisma/schema.prisma](../../../prisma/schema.prisma) | 3159 | database |  |
+| [prisma/schema.prisma](../../../prisma/schema.prisma) | 3164 | database |  |
 | [prisma/seed-automation-rules.ts](../../../prisma/seed-automation-rules.ts) | 46 | database |  |
 | [prisma/seed-blog.ts](../../../prisma/seed-blog.ts) | 377 | database | seedBlogPosts:350 |
 | [prisma/seed-demo.ts](../../../prisma/seed-demo.ts) | 546 | database |  |

@@ -124,6 +124,22 @@ describe('Placement Survey Token', () => {
     }
   });
 
+  it('reissues the same token when a retry uses the same frozen expiry', async () => {
+    const expiresAt = new Date('2030-01-01T00:00:00Z');
+    const first = await issuePlacementSurveyToken({ surveyId: 'survey-stable', expiresAt });
+    const second = await issuePlacementSurveyToken({ surveyId: 'survey-stable', expiresAt });
+
+    expect(second).toBe(first);
+  });
+
+  it('rejects ambiguous expiry inputs', async () => {
+    await expect(issuePlacementSurveyToken({
+      surveyId: 'survey-invalid',
+      ttlSeconds: 60,
+      expiresAt: new Date('2030-01-01T00:00:00Z'),
+    })).rejects.toThrow('mutually exclusive');
+  });
+
   it('rejects an expired token', async () => {
     const token = await issuePlacementSurveyToken({ surveyId: 'survey-2', ttlSeconds: -1 });
     const verify = await verifyPlacementSurveyToken(token);
@@ -623,6 +639,12 @@ describe('GET /api/admin/placement-surveys', () => {
     const body = await res.json();
     expect(body.surveys).toHaveLength(2);
     expect(body.total).toBe(2);
+    expect(prisma.placementSurvey.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ sentAt: { not: null } }),
+    }));
+    expect(prisma.placementSurvey.count).toHaveBeenNthCalledWith(1, {
+      where: expect.objectContaining({ sentAt: { not: null } }),
+    });
     expect(body.stats).toMatchObject({
       completed: 1,
       pending: 1,
@@ -645,7 +667,7 @@ describe('GET /api/admin/placement-surveys', () => {
     expect(res.status).toBe(200);
     expect(prisma.placementSurvey.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { completedAt: { not: null } },
+        where: { sentAt: { not: null }, completedAt: { not: null } },
       })
     );
   });
@@ -693,10 +715,16 @@ describe('POST /api/admin/placement-surveys/resend', () => {
       id: 'pl1',
       userId: 'user-1',
       user: { id: 'user-1', email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'CNA' },
-      placementSurveys: [{ id: 'survey-pending', wave: 'thirty_day', completedAt: null }],
+      placementSurveys: [{ id: 'survey-pending', wave: 'thirty_day', sentAt: new Date(), tokenExpiresAt: new Date('2026-10-01T00:00:00Z'), deliveryAttempt: 1, acceptedAttempt: 1, completedAt: null }],
     } as any);
     vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({ ok: true });
-    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({ id: 'survey-pending' } as any);
+    vi.mocked(prisma.placementSurvey.update)
+      .mockResolvedValueOnce({
+        id: 'survey-pending',
+        tokenExpiresAt: new Date('2026-11-11T00:00:00Z'),
+        deliveryAttempt: 2,
+      } as any)
+      .mockResolvedValueOnce({ id: 'survey-pending' } as any);
 
     const res = await resendSurvey(makeRequest({ placementId: 'pl1' }));
     expect(res.status).toBe(200);
@@ -706,12 +734,25 @@ describe('POST /api/admin/placement-surveys/resend', () => {
     expect(body.wave).toBe('thirty_day');
 
     expect(prisma.placementSurvey.create).not.toHaveBeenCalled();
+    expect(prisma.placementSurvey.update).toHaveBeenNthCalledWith(1, {
+      where: { id: 'survey-pending' },
+      data: {
+        deliveryAttempt: { increment: 1 },
+        tokenExpiresAt: expect.any(Date),
+      },
+      select: { id: true, tokenExpiresAt: true, deliveryAttempt: true },
+    });
+    expect(prisma.placementSurvey.update).toHaveBeenNthCalledWith(2, {
+      where: { id: 'survey-pending' },
+      data: { sentAt: expect.any(Date), acceptedAttempt: 2 },
+    });
     expect(sendPlacementSurveyEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'alice@example.com',
         fullName: 'Alice',
         programName: 'CNA',
         wave: 'thirty_day',
+        idempotencyKey: 'placement-survey/survey-pending/2',
       })
     );
   });
@@ -723,9 +764,13 @@ describe('POST /api/admin/placement-surveys/resend', () => {
       id: 'pl1',
       userId: 'user-1',
       user: { id: 'user-1', email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'CNA' },
-      placementSurveys: [{ id: 'survey-done', wave: 'thirty_day', completedAt: new Date() }],
+      placementSurveys: [{ id: 'survey-done', wave: 'thirty_day', sentAt: new Date(), tokenExpiresAt: new Date('2026-10-01T00:00:00Z'), deliveryAttempt: 1, acceptedAttempt: 1, completedAt: new Date() }],
     } as any);
-    vi.mocked(prisma.placementSurvey.create).mockResolvedValue({ id: 'survey-new' } as any);
+    vi.mocked(prisma.placementSurvey.create).mockResolvedValue({
+      id: 'survey-new',
+      tokenExpiresAt: new Date('2026-11-11T00:00:00Z'),
+      deliveryAttempt: 1,
+    } as any);
     vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({ ok: true });
     vi.mocked(prisma.placementSurvey.update).mockResolvedValue({ id: 'survey-new' } as any);
 
@@ -733,7 +778,49 @@ describe('POST /api/admin/placement-surveys/resend', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.surveyId).toBe('survey-new');
-    expect(prisma.placementSurvey.create).toHaveBeenCalled();
+    expect(prisma.placementSurvey.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        sentAt: null,
+        deliveryAttempt: 1,
+        acceptedAttempt: 0,
+        tokenExpiresAt: expect.any(Date),
+      }),
+    }));
+    expect(prisma.placementSurvey.update).toHaveBeenCalledWith({
+      where: { id: 'survey-new' },
+      data: { sentAt: expect.any(Date), acceptedAttempt: 1 },
+    });
+  });
+
+  it('reuses an unsent row and its stable idempotency key after provider acceptance but sentAt stamp failure', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
+      id: 'pl1',
+      userId: 'user-1',
+      user: { id: 'user-1', email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'CNA' },
+      placementSurveys: [{ id: 'survey-unsent', wave: 'thirty_day', sentAt: null, tokenExpiresAt: new Date('2026-10-01T00:00:00Z'), deliveryAttempt: 1, acceptedAttempt: 0, completedAt: null }],
+    } as any);
+    vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({ ok: true });
+    vi.mocked(prisma.placementSurvey.update)
+      .mockRejectedValueOnce(new Error('stamp failed'))
+      .mockResolvedValueOnce({ id: 'survey-unsent' } as any);
+
+    const first = await resendSurvey(makeRequest({ placementId: 'pl1' }));
+    const second = await resendSurvey(makeRequest({ placementId: 'pl1' }));
+
+    expect(first.status).toBe(500);
+    expect(second.status).toBe(200);
+    expect(prisma.placementSurvey.create).not.toHaveBeenCalled();
+    expect(sendPlacementSurveyEmail).toHaveBeenCalledTimes(2);
+    expect(sendPlacementSurveyEmail).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      idempotencyKey: 'placement-survey/survey-unsent/1',
+    }));
+    expect(sendPlacementSurveyEmail).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      idempotencyKey: 'placement-survey/survey-unsent/1',
+    }));
+    expect(vi.mocked(sendPlacementSurveyEmail).mock.calls[0][0].surveyUrl)
+      .toBe(vi.mocked(sendPlacementSurveyEmail).mock.calls[1][0].surveyUrl);
   });
 });
 
@@ -757,7 +844,12 @@ describe('sendDuePlacementSurveys', () => {
         : [])) as any,
     );
     vi.mocked(prisma.placementSurvey.findMany).mockResolvedValue([] as any);
-    vi.mocked(prisma.placementSurvey.create).mockResolvedValue({ id: 'survey-due' } as any);
+    vi.mocked(prisma.placementSurvey.create).mockResolvedValue({
+      id: 'survey-due',
+      tokenExpiresAt: new Date('2026-10-01T00:00:00Z'),
+      deliveryAttempt: 1,
+      acceptedAttempt: 0,
+    } as any);
     vi.mocked(prisma.placementSurvey.delete).mockResolvedValue({ id: 'survey-due' } as any);
     vi.mocked(prisma.placementSurvey.update).mockResolvedValue({ id: 'survey-due' } as any);
   });
@@ -784,7 +876,7 @@ describe('sendDuePlacementSurveys', () => {
     const result = await sendDuePlacementSurveys(pacer);
 
     expect(prisma.placementSurvey.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({ sentAt: new Date(0) }),
+      data: expect.objectContaining({ sentAt: null }),
     }));
     expect(prisma.placementSurvey.update).not.toHaveBeenCalled();
     expect(prisma.placementSurvey.delete).toHaveBeenCalledWith({ where: { id: 'survey-due' } });
@@ -794,8 +886,8 @@ describe('sendDuePlacementSurveys', () => {
     expect(vi.mocked(prisma.placementRecord.findMany).mock.calls[0][0]).toMatchObject({
       where: {
         OR: [
-          { placementSurveys: { none: { wave: 'thirty_day', sentAt: { gt: new Date(0) } } } },
-          { placementSurveys: { some: { wave: 'thirty_day', sentAt: new Date(0) } } },
+          { placementSurveys: { none: { wave: 'thirty_day', sentAt: { not: null } } } },
+          { placementSurveys: { some: { wave: 'thirty_day', sentAt: null } } },
         ],
       },
     });
@@ -832,13 +924,67 @@ describe('sendDuePlacementSurveys', () => {
     expect(prisma.placementSurvey.update).not.toHaveBeenCalled();
   });
 
+  it('does not delete a reused ambiguous row when pacing skips the retry', async () => {
+    const { sendDuePlacementSurveys } = (await vi.importActual(
+      '@/lib/cron/placement-surveys'
+    )) as typeof import('@/lib/cron/placement-surveys');
+    vi.mocked(prisma.placementSurvey.findMany).mockImplementation((({ where }: any) =>
+      Promise.resolve(where.wave === 'thirty_day'
+        ? [{
+            id: 'survey-unsent',
+            placementId: 'placement-due',
+            sentAt: null,
+            tokenExpiresAt: new Date('2026-10-01T00:00:00Z'),
+            deliveryAttempt: 1,
+            acceptedAttempt: 0,
+          }]
+        : [])) as any,
+    );
+    const pacer = {
+      run: vi.fn(async () => ({ ok: false, skipped: true, error: 'request_deadline_exhausted' })),
+      deadlineAtMs: Date.now(),
+      waitForSendSlot: vi.fn(),
+      summary: vi.fn(),
+    } as any;
+
+    const result = await sendDuePlacementSurveys(pacer);
+
+    expect(prisma.placementSurvey.delete).not.toHaveBeenCalled();
+    expect(sendPlacementSurveyEmail).not.toHaveBeenCalled();
+    expect(result[0].skipped).toEqual([{
+      userId: 'member-due',
+      reason: 'request_deadline_exhausted',
+    }]);
+  });
+
+  it('keeps an accepted row retryable with one stable key when sentAt stamping fails', async () => {
+    const { sendDuePlacementSurveys } = (await vi.importActual(
+      '@/lib/cron/placement-surveys'
+    )) as typeof import('@/lib/cron/placement-surveys');
+    vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({ ok: true } as any);
+    vi.mocked(prisma.placementSurvey.update).mockRejectedValueOnce(new Error('stamp failed'));
+    const pacer = {
+      run: vi.fn(async (operation: () => Promise<unknown>) => operation()),
+      deadlineAtMs: Date.now() + 60_000,
+      waitForSendSlot: vi.fn(),
+      summary: vi.fn(),
+    } as any;
+
+    await expect(sendDuePlacementSurveys(pacer)).rejects.toThrow('stamp failed');
+
+    expect(prisma.placementSurvey.delete).not.toHaveBeenCalled();
+    expect(sendPlacementSurveyEmail).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'placement-survey/survey-due/1',
+    }));
+  });
+
   it('reuses an unsent row after a prior rollback failure and stamps acceptance once', async () => {
     const { sendDuePlacementSurveys } = (await vi.importActual(
       '@/lib/cron/placement-surveys'
     )) as typeof import('@/lib/cron/placement-surveys');
     vi.mocked(prisma.placementSurvey.findMany).mockImplementation((({ where }: any) =>
       Promise.resolve(where.wave === 'thirty_day'
-        ? [{ id: 'survey-unsent', placementId: 'placement-due', sentAt: new Date(0) }]
+        ? [{ id: 'survey-unsent', placementId: 'placement-due', sentAt: null, tokenExpiresAt: new Date('2026-10-01T00:00:00Z'), deliveryAttempt: 1, acceptedAttempt: 0 }]
         : [])) as any,
     );
     vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({ ok: true } as any);
@@ -852,9 +998,12 @@ describe('sendDuePlacementSurveys', () => {
     const result = await sendDuePlacementSurveys(pacer);
 
     expect(prisma.placementSurvey.create).not.toHaveBeenCalled();
+    expect(sendPlacementSurveyEmail).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'placement-survey/survey-unsent/1',
+    }));
     expect(prisma.placementSurvey.update).toHaveBeenCalledWith({
       where: { id: 'survey-unsent' },
-      data: { sentAt: expect.any(Date) },
+      data: { sentAt: expect.any(Date), acceptedAttempt: 1 },
     });
     expect(result[0].sent).toEqual([{
       userId: 'member-due',

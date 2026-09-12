@@ -99,40 +99,42 @@ A failed build can already have changed the database before compilation fails. A
 
 | Scheduled route | Cron expression (UTC) |
 | --- | --- |
-| [/api/cron/applicant-followup](../../app/api/cron/applicant-followup/route.ts#L1) | `0 11 */3 * *` |
-| [/api/cron/at-risk-alerts](../../app/api/cron/at-risk-alerts/route.ts#L1) | `0 13 * * 1` |
-| [/api/cron/at-risk-check](../../app/api/cron/at-risk-check/route.ts#L1) | `0 6 * * *` |
+| [/api/cron/applicant-followup](../../app/api/cron/applicant-followup/route.ts#L1) | `7 11 */3 * *` |
+| [/api/cron/at-risk-alerts](../../app/api/cron/at-risk-alerts/route.ts#L1) | `7 13 * * 1` |
+| [/api/cron/at-risk-check](../../app/api/cron/at-risk-check/route.ts#L1) | `11 6 * * *` |
 | [/api/cron/coursera-auto-heal](../../app/api/cron/coursera-auto-heal/route.ts#L1) | `15 * * * *` |
 | [/api/cron/coursera-b4b-sync](../../app/api/cron/coursera-b4b-sync/route.ts#L1) | `30 */6 * * *` |
 | [/api/cron/coursera-sync](../../app/api/cron/coursera-sync/route.ts#L1) | `0 */6 * * *` |
-| [/api/cron/coursera-training-sync](../../app/api/cron/coursera-training-sync/route.ts#L1) | `0 * * * *` |
-| [/api/cron/course-accountability](../../app/api/cron/course-accountability/route.ts#L1) | `0 15 * * *` |
+| [/api/cron/coursera-training-sync](../../app/api/cron/coursera-training-sync/route.ts#L1) | `5 * * * *` |
+| [/api/cron/course-accountability](../../app/api/cron/course-accountability/route.ts#L1) | `13 15 * * *` |
 | [/api/cron/data-cleanup](../../app/api/cron/data-cleanup/route.ts#L1) | `30 7 * * *` |
 | [/api/cron/deploy-health](../../app/api/cron/deploy-health/route.ts#L1) | `0 * * * *` |
-| [/api/cron/inactive-nudge](../../app/api/cron/inactive-nudge/route.ts#L1) | `0 10 * * 1` |
-| [/api/cron/inactivity-nudge](../../app/api/cron/inactivity-nudge/route.ts#L1) | `0 10 * * 3` |
+| [/api/cron/inactive-nudge](../../app/api/cron/inactive-nudge/route.ts#L1) | `23 10 * * 1` |
+| [/api/cron/inactivity-nudge](../../app/api/cron/inactivity-nudge/route.ts#L1) | `29 10 * * 3` |
 | [/api/cron/interview-reminders](../../app/api/cron/interview-reminders/route.ts#L1) | `30 14 * * *` |
 | [/api/cron/onboarding-stalls](../../app/api/cron/onboarding-stalls/route.ts#L1) | `30 15 * * 2` |
-| [/api/cron/employer-pending-applicants](../../app/api/cron/employer-pending-applicants/route.ts#L1) | `0 16 * * 2` |
+| [/api/cron/employer-pending-applicants](../../app/api/cron/employer-pending-applicants/route.ts#L1) | `17 16 * * 2` |
 | [/api/cron/job-expiry](../../app/api/cron/job-expiry/route.ts#L1) | `45 7 * * *` |
 | [/api/cron/retention-decisions](../../app/api/cron/retention-decisions/route.ts#L1) | `30 13 * * 4` |
-| [/api/cron/job-alerts](../../app/api/cron/job-alerts/route.ts#L1) | `0 9 * * 1` |
+| [/api/cron/job-alerts](../../app/api/cron/job-alerts/route.ts#L1) | `37 9 * * 1` |
 | [/api/cron/milestone-cascade-draft](../../app/api/cron/milestone-cascade-draft/route.ts#L1) | `0 * * * *` |
 | [/api/cron/milestone-cascade-expire](../../app/api/cron/milestone-cascade-expire/route.ts#L1) | `0 9 * * *` |
-| [/api/cron/milestone-celebration](../../app/api/cron/milestone-celebration/route.ts#L1) | `0 11 * * *` |
-| [/api/cron/partner-outcome-digest](../../app/api/cron/partner-outcome-digest/route.ts#L1) | `0 13 * * 1` |
-| [/api/cron/placement-survey](../../app/api/cron/placement-survey/route.ts#L1) | `0 14 * * *` |
+| [/api/cron/milestone-celebration](../../app/api/cron/milestone-celebration/route.ts#L1) | `43 11 * * *` |
+| [/api/cron/partner-outcome-digest](../../app/api/cron/partner-outcome-digest/route.ts#L1) | `47 13 * * 1` |
+| [/api/cron/placement-survey](../../app/api/cron/placement-survey/route.ts#L1) | `41 14 * * *` |
 | [/api/cron/smoke-test](../../app/api/cron/smoke-test/route.ts#L1) | `0 * * * *` |
 | [/api/cron/stale-training-check](../../app/api/cron/stale-training-check/route.ts#L1) | `30 12 * * *` |
 | [/api/cron/verification](../../app/api/cron/verification/route.ts#L1) | `0 11 * * *` |
-| [/api/cron/weekly-recap](../../app/api/cron/weekly-recap/route.ts#L1) | `0 18 * * 0` |
-| [/api/cron/weekly-recap-email](../../app/api/cron/weekly-recap-email/route.ts#L1) | `0 22 * * 5` |
-| [/api/cron/wioa-report](../../app/api/cron/wioa-report/route.ts#L1) | `0 14 1 * *` |
+| [/api/cron/weekly-recap](../../app/api/cron/weekly-recap/route.ts#L1) | `53 18 * * 0` |
+| [/api/cron/weekly-recap-email](../../app/api/cron/weekly-recap-email/route.ts#L1) | `19 22 * * 5` |
+| [/api/cron/wioa-report](../../app/api/cron/wioa-report/route.ts#L1) | `31 14 1 * *` |
 | [/api/admin/webhooks/process-retries](../../app/api/admin/webhooks/process-retries/route.ts#L1) | `*/10 * * * *` |
 
 Most jobs use [withCronLogging](../../lib/cron/withCronLogging.ts#L20): authorize first, create a `CronExecution`, inspect the [workflow toggle](../../lib/cron/isCronEnabled.ts#L7), run with system GUC context, and record success/failure. A missing toggle defaults to enabled. [authorizeCronRequest](../../lib/cron/authorizeCronRequest.ts#L28) accepts `CRON_SECRET` via Bearer or `x-cron-secret`; its optional User-Agent compatibility mode is not the wrapper's default. [At-risk alerts](../../app/api/cron/at-risk-alerts/route.ts#L15) has its own secret comparison, [at-risk check](../../app/api/cron/at-risk-check/route.ts#L29) explicitly calls the shared helper, and [webhook retries](../../app/api/admin/webhooks/process-retries/route.ts#L20) accepts admin or cron authorization. Inspect the specific route before manually invoking it: these jobs can mutate state and send messages.
 
-**Notification refresh pending:** final delivery, retry and post-response guarantees must be refreshed after the parallel WAP14 / PR2258 change. Current entry points are [notification creation](../../lib/notifications/create.ts), [email sending](../../lib/email/send.ts), [Discord](../../lib/notify/discord.ts), [Web Push](../../lib/push/sendWebPush.ts), and [post-commit notification tests](../../tests/lib/admin-post-commit-notifications.spec.ts). A scheduled invocation or in-app record is not proof of external delivery.
+**Reviewed notification policy (WAP-14 / PR 2258).** The shared email wrapper suppresses reserved fixture domains (`example.com`, `.test`, `.invalid`, `localhost`) plus configured `EMAIL_FIXTURE_DOMAINS` across `to`, `cc`, and `bcc`; callers must account for that result as **skipped**, never sent or failed. Bulk scheduled entrypoints use one shared [bulk email pacer](../../lib/email/pacing.ts) across route-local and delegated sends, admit provider calls at the reviewed cadence, inherit one absolute request deadline for provider retries, and reserve the final 30 seconds for response/accounting. Single-provider-request scheduled jobs are explicitly inventoried exemptions. Bulk email schedules are intentionally staggered away from minute `:00`; the table above is generated from the checked-in schedule authority.
+
+[Notification creation](../../lib/notifications/create.ts) synchronously registers its full database → aggregated Discord operation with Next `after()` before returning, while preserving an awaitable promise for scripts and tests. Browser push remains best effort. An in-app `Notification` row proves app-inbox persistence only; a Resend success proves provider acceptance only; Discord/Web Push acceptance and user inbox/display receipt are separate boundaries. Placement-survey rows use nullable `sentAt` as pre-acceptance retry state, a frozen per-attempt token expiry, and a stable row-and-attempt-derived provider idempotency key; admin readers and counters exclude that state until acceptance is stamped, while member exports represent it truthfully with `sentAt: null`. Review [sender tests](../../lib/email/send.test.ts), [bulk cron guard](../../lib/email/bulkCronGuard.test.ts), [request-lifetime guard](../../lib/email/serverlessAfterGuard.test.ts), [notification tests](../../tests/lib/notifications/create.spec.ts), and the changed workflow suite. Two naturally scheduled Sunday weekly-recap runs without relevant 429s remain timed operational acceptance; CI or synthetic sends cannot satisfy that gate.
 
 ## Health and observability
 

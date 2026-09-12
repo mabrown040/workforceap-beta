@@ -456,7 +456,7 @@
 | [app/admin/pipeline/loading.tsx](../../../app/admin/pipeline/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/pipeline/page.tsx](../../../app/admin/pipeline/page.tsx) | 179 | administration | dynamic:14, generateMetadata:16, default:27 |
 | [app/admin/pipeline/remindAction.ts](../../../app/admin/pipeline/remindAction.ts) | 82 | administration | remindStaleApplication:13 |
-| [app/admin/placement-surveys/page.tsx](../../../app/admin/placement-surveys/page.tsx) | 304 | administration | generateMetadata:17, default:113 |
+| [app/admin/placement-surveys/page.tsx](../../../app/admin/placement-surveys/page.tsx) | 306 | administration | generateMetadata:17, default:113 |
 | [app/admin/placements/loading.tsx](../../../app/admin/placements/loading.tsx) | 5 | jobs-employers | default:3 |
 | [app/admin/placements/new/loading.tsx](../../../app/admin/placements/new/loading.tsx) | 6 | jobs-employers | default:3 |
 | [app/admin/placements/new/page.tsx](../../../app/admin/placements/new/page.tsx) | 342 | jobs-employers | default:10 |

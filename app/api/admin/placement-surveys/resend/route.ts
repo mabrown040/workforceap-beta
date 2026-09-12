@@ -8,7 +8,10 @@ import { sendPlacementSurveyEmail } from '@/lib/email';
 import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';export const POST = withApiGuc(async (req: NextRequest) => {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const SURVEY_TOKEN_TTL_MS = 60 * 24 * 60 * 60 * 1000;
+
+export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -32,7 +35,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
         },
         placementSurveys: {
           orderBy: { sentAt: 'desc' },
-          take: 1,
+          take: 10,
         },
       },
     }));
@@ -45,29 +48,54 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       return NextResponse.json({ error: 'Member has no email' }, { status: 400 });
     }
 
-    // Use the most recent survey wave, or default to thirty_day
-    const latestSurvey = placement.placementSurveys[0];
+    // A provider-ambiguous attempt is the retry target even if an older
+    // acceptance exists. Reuse its attempt number, token expiry, and complete
+    // payload. Otherwise an intentional resend advances the persisted attempt
+    // before egress so any later retry can recover the same provider key.
+    const retryableSurvey = placement.placementSurveys.find(
+      (candidate) => candidate.acceptedAttempt < candidate.deliveryAttempt,
+    );
+    const latestSurvey = retryableSurvey ?? placement.placementSurveys[0];
     const wave = latestSurvey?.wave ?? 'thirty_day';
 
-    let surveyId: string;
-    if (latestSurvey && !latestSurvey.completedAt) {
-      // Re-use existing pending survey, just refresh the token
-      surveyId = latestSurvey.id;
+    let survey: { id: string; tokenExpiresAt: Date; deliveryAttempt: number };
+    if (retryableSurvey) {
+      survey = {
+        id: retryableSurvey.id,
+        tokenExpiresAt: retryableSurvey.tokenExpiresAt,
+        deliveryAttempt: retryableSurvey.deliveryAttempt,
+      };
+    } else if (latestSurvey && !latestSurvey.completedAt) {
+      const tokenExpiresAt = new Date(Date.now() + SURVEY_TOKEN_TTL_MS);
+      survey = await prisma.$transaction((tx) => tx.placementSurvey.update({
+        where: { id: latestSurvey.id },
+        data: {
+          deliveryAttempt: { increment: 1 },
+          tokenExpiresAt,
+        },
+        select: { id: true, tokenExpiresAt: true, deliveryAttempt: true },
+      }));
     } else {
-      // Create a new survey row if the latest is completed or none exists
-      const created = await prisma.$transaction((tx) => tx.placementSurvey.create({
+      // Create the initial attempt if the latest survey is completed or absent.
+      survey = await prisma.$transaction((tx) => tx.placementSurvey.create({
         data: {
           userId: placement.userId,
           placementId: placement.id,
           wave,
-          sentAt: new Date(),
+          sentAt: null,
+          tokenExpiresAt: new Date(Date.now() + SURVEY_TOKEN_TTL_MS),
+          deliveryAttempt: 1,
+          acceptedAttempt: 0,
         },
-        select: { id: true },
+        select: { id: true, tokenExpiresAt: true, deliveryAttempt: true },
       }));
-      surveyId = created.id;
     }
 
-    const token = await issuePlacementSurveyToken({ surveyId, ttlSeconds: 60 * 24 * 60 * 60 });
+    const surveyId = survey.id;
+    const token = await issuePlacementSurveyToken({
+      surveyId,
+      expiresAt: survey.tokenExpiresAt,
+    });
     const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
 
     const result = await sendPlacementSurveyEmail({
@@ -76,16 +104,21 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       programName: placement.user.enrolledProgram,
       surveyUrl,
       wave,
+      idempotencyKey: `placement-survey/${surveyId}/${survey.deliveryAttempt}`,
     });
 
     if (!result.ok) {
       return NextResponse.json({ error: result.error ?? 'Send failed' }, { status: 502 });
     }
 
-    // Update sentAt on the survey row
+    // Stamp exactly the accepted attempt. If this write fails, the persisted
+    // attempt remains retryable with the same provider key and payload.
     await prisma.$transaction((tx) => tx.placementSurvey.update({
       where: { id: surveyId },
-      data: { sentAt: new Date() },
+      data: {
+        sentAt: new Date(),
+        acceptedAttempt: survey.deliveryAttempt,
+      },
     }));
 
     auditLog({

@@ -52,7 +52,7 @@ async function loadSurveyStats(scope: import("@/lib/tenant/adminPageScope").Admi
       avgTrainingRelevanceAgg,
     ] = await withAdminPageScope(scope, (db) => Promise.all([
       db.placementSurvey.findMany({
-        where: { ...userOrg },
+        where: { sentAt: { not: null }, ...userOrg },
         orderBy: { sentAt: 'desc' },
         take: 100,
         select: {
@@ -70,9 +70,9 @@ async function loadSurveyStats(scope: import("@/lib/tenant/adminPageScope").Admi
           },
         },
       }),
-      db.placementSurvey.count({ where: { ...userOrg } }),
-      db.placementSurvey.count({ where: { completedAt: { not: null }, ...userOrg } }),
-      db.placementSurvey.count({ where: { completedAt: null, ...userOrg } }),
+      db.placementSurvey.count({ where: { sentAt: { not: null }, ...userOrg } }),
+      db.placementSurvey.count({ where: { sentAt: { not: null }, completedAt: { not: null }, ...userOrg } }),
+      db.placementSurvey.count({ where: { sentAt: { not: null }, completedAt: null, ...userOrg } }),
       db.placementSurvey.count({
         where: { completedAt: { not: null }, stillEmployed: true, ...userOrg },
       }),
@@ -269,7 +269,9 @@ export default async function PlacementSurveysPage({
     id: s.id,
     student: s.user?.fullName?.trim() || '—',
     stage: waveLabel(s.wave),
-    sent: shortDate(new Date(s.sentAt)),
+    // The query excludes pre-acceptance rows; guard keeps the nullable schema
+    // truthful even if a test double returns one.
+    sent: s.sentAt ? shortDate(new Date(s.sentAt)) : '—',
     status: s.completedAt ? 'Complete' : 'Sent',
     stillEmployed:
       s.stillEmployed === true ? 'Yes' : s.stillEmployed === false ? 'No' : '—',

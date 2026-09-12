@@ -22205,13 +22205,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 11,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 97,
+        "line": 102,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 98,
+        "line": 103,
         "kind": "Variable"
       }
     ],
@@ -22219,7 +22224,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22231,22 +22238,22 @@
     "exports": [
       {
         "name": "runtime",
-        "line": 10,
-        "kind": "Variable"
-      },
-      {
-        "name": "maxDuration",
         "line": 11,
         "kind": "Variable"
       },
       {
+        "name": "maxDuration",
+        "line": 12,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 54,
+        "line": 56,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 55,
+        "line": 57,
         "kind": "Variable"
       }
     ],
@@ -22312,13 +22319,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 14,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 152,
+        "line": 158,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 153,
+        "line": 159,
         "kind": "Variable"
       }
     ],
@@ -22326,7 +22338,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22337,13 +22351,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 16,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 128,
+        "line": 134,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 129,
+        "line": 135,
         "kind": "Variable"
       }
     ],
@@ -22351,7 +22370,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22412,15 +22433,22 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 10,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 34,
+        "line": 38,
         "kind": "Variable"
       }
     ],
     "methods": [
       "GET"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22481,13 +22509,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 12,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 164,
+        "line": 171,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 165,
+        "line": 172,
         "kind": "Variable"
       }
     ],
@@ -22495,7 +22528,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22506,13 +22541,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 14,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 92,
+        "line": 104,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 93,
+        "line": 105,
         "kind": "Variable"
       }
     ],
@@ -22520,7 +22560,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22531,13 +22573,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 14,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 88,
+        "line": 95,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 89,
+        "line": 96,
         "kind": "Variable"
       }
     ],
@@ -22545,7 +22592,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22556,15 +22605,22 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 11,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 93,
+        "line": 98,
         "kind": "Variable"
       }
     ],
     "methods": [
       "GET"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22575,13 +22631,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 12,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 118,
+        "line": 132,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 119,
+        "line": 133,
         "kind": "Variable"
       }
     ],
@@ -22589,7 +22650,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22600,13 +22663,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 14,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 102,
+        "line": 109,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 103,
+        "line": 110,
         "kind": "Variable"
       }
     ],
@@ -22614,7 +22682,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22675,13 +22745,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 13,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 130,
+        "line": 136,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 131,
+        "line": 137,
         "kind": "Variable"
       }
     ],
@@ -22689,7 +22764,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22725,13 +22802,18 @@
     "routing": "filesystem",
     "exports": [
       {
+        "name": "maxDuration",
+        "line": 16,
+        "kind": "Variable"
+      },
+      {
         "name": "GET",
-        "line": 187,
+        "line": 194,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 188,
+        "line": 195,
         "kind": "Variable"
       }
     ],
@@ -22739,7 +22821,9 @@
       "GET",
       "POST"
     ],
-    "configuration": {},
+    "configuration": {
+      "maxDuration": 300
+    },
     "boundaryReferences": []
   },
   {
@@ -22895,17 +22979,17 @@
     "exports": [
       {
         "name": "maxDuration",
-        "line": 13,
+        "line": 12,
         "kind": "Variable"
       },
       {
         "name": "GET",
-        "line": 132,
+        "line": 133,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 133,
+        "line": 134,
         "kind": "Variable"
       }
     ],

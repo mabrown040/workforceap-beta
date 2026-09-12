@@ -9,7 +9,7 @@
 | [.gitattributes](../../../.gitattributes) | 1 | root |  |
 | [.gitignore](../../../.gitignore) | 117 | root |  |
 | [.vercelignore](../../../.vercelignore) | 8 | root |  |
-| [AGENTS.md](../../../AGENTS.md) | 200 | root |  |
+| [AGENTS.md](../../../AGENTS.md) | 210 | root |  |
 | [AI-TOOLS-BACKLOG.md](../../../AI-TOOLS-BACKLOG.md) | 12 | root |  |
 | [AUDIT-2026-05-16.md](../../../AUDIT-2026-05-16.md) | 490 | root |  |
 | [CEO-ANALYSIS-3-7-10-STAR.md](../../../CEO-ANALYSIS-3-7-10-STAR.md) | 213 | root |  |

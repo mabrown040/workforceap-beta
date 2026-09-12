@@ -1,7 +1,7 @@
 [
   {
     "path": "/api/cron/applicant-followup",
-    "schedule": "0 11 */3 * *",
+    "schedule": "7 11 */3 * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/applicant-followup/route.ts",
@@ -11,13 +11,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 97,
+          "line": 102,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 98,
+          "line": 103,
           "kind": "Variable"
         }
       ],
@@ -25,13 +30,15 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
   {
     "path": "/api/cron/at-risk-alerts",
-    "schedule": "0 13 * * 1",
+    "schedule": "7 13 * * 1",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/at-risk-alerts/route.ts",
@@ -42,22 +49,22 @@
       "exports": [
         {
           "name": "runtime",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "maxDuration",
           "line": 11,
           "kind": "Variable"
         },
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 54,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 55,
+          "line": 57,
           "kind": "Variable"
         }
       ],
@@ -74,7 +81,7 @@
   },
   {
     "path": "/api/cron/at-risk-check",
-    "schedule": "0 6 * * *",
+    "schedule": "11 6 * * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/at-risk-check/route.ts",
@@ -133,13 +140,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 128,
+          "line": 134,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 129,
+          "line": 135,
           "kind": "Variable"
         }
       ],
@@ -147,7 +159,9 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -213,7 +227,7 @@
   },
   {
     "path": "/api/cron/coursera-training-sync",
-    "schedule": "0 * * * *",
+    "schedule": "5 * * * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/coursera-training-sync/route.ts",
@@ -223,21 +237,28 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 34,
+          "line": 38,
           "kind": "Variable"
         }
       ],
       "methods": [
         "GET"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
   {
     "path": "/api/cron/course-accountability",
-    "schedule": "0 15 * * *",
+    "schedule": "13 15 * * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/course-accountability/route.ts",
@@ -247,13 +268,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 152,
+          "line": 158,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 153,
+          "line": 159,
           "kind": "Variable"
         }
       ],
@@ -261,7 +287,9 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -327,7 +355,7 @@
   },
   {
     "path": "/api/cron/inactive-nudge",
-    "schedule": "0 10 * * 1",
+    "schedule": "23 10 * * 1",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/inactive-nudge/route.ts",
@@ -337,13 +365,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 92,
+          "line": 104,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 93,
+          "line": 105,
           "kind": "Variable"
         }
       ],
@@ -351,13 +384,15 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
   {
     "path": "/api/cron/inactivity-nudge",
-    "schedule": "0 10 * * 3",
+    "schedule": "29 10 * * 3",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/inactivity-nudge/route.ts",
@@ -367,13 +402,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 88,
+          "line": 95,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 89,
+          "line": 96,
           "kind": "Variable"
         }
       ],
@@ -381,7 +421,9 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -397,15 +439,22 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 93,
+          "line": 98,
           "kind": "Variable"
         }
       ],
       "methods": [
         "GET"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -441,7 +490,7 @@
   },
   {
     "path": "/api/cron/employer-pending-applicants",
-    "schedule": "0 16 * * 2",
+    "schedule": "17 16 * * 2",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/employer-pending-applicants/route.ts",
@@ -451,13 +500,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 164,
+          "line": 171,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 165,
+          "line": 172,
           "kind": "Variable"
         }
       ],
@@ -465,7 +519,9 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -481,13 +537,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 102,
+          "line": 109,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 103,
+          "line": 110,
           "kind": "Variable"
         }
       ],
@@ -495,7 +556,9 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -531,7 +594,7 @@
   },
   {
     "path": "/api/cron/job-alerts",
-    "schedule": "0 9 * * 1",
+    "schedule": "37 9 * * 1",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/job-alerts/route.ts",
@@ -541,13 +604,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 118,
+          "line": 132,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 119,
+          "line": 133,
           "kind": "Variable"
         }
       ],
@@ -555,7 +623,9 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
@@ -621,7 +691,7 @@
   },
   {
     "path": "/api/cron/milestone-celebration",
-    "schedule": "0 11 * * *",
+    "schedule": "43 11 * * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/milestone-celebration/route.ts",
@@ -631,13 +701,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 130,
+          "line": 136,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 131,
+          "line": 137,
           "kind": "Variable"
         }
       ],
@@ -645,13 +720,15 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
   {
     "path": "/api/cron/partner-outcome-digest",
-    "schedule": "0 13 * * 1",
+    "schedule": "47 13 * * 1",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/partner-outcome-digest/route.ts",
@@ -661,13 +738,18 @@
       "routing": "filesystem",
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 187,
+          "line": 194,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 188,
+          "line": 195,
           "kind": "Variable"
         }
       ],
@@ -675,13 +757,15 @@
         "GET",
         "POST"
       ],
-      "configuration": {},
+      "configuration": {
+        "maxDuration": 300
+      },
       "boundaryReferences": []
     }
   },
   {
     "path": "/api/cron/placement-survey",
-    "schedule": "0 14 * * *",
+    "schedule": "41 14 * * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/placement-survey/route.ts",
@@ -795,7 +879,7 @@
   },
   {
     "path": "/api/cron/weekly-recap",
-    "schedule": "0 18 * * 0",
+    "schedule": "53 18 * * 0",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/weekly-recap/route.ts",
@@ -806,17 +890,17 @@
       "exports": [
         {
           "name": "maxDuration",
-          "line": 13,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "GET",
-          "line": 132,
+          "line": 133,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 133,
+          "line": 134,
           "kind": "Variable"
         }
       ],
@@ -832,7 +916,7 @@
   },
   {
     "path": "/api/cron/weekly-recap-email",
-    "schedule": "0 22 * * 5",
+    "schedule": "19 22 * * 5",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/weekly-recap-email/route.ts",
@@ -862,7 +946,7 @@
   },
   {
     "path": "/api/cron/wioa-report",
-    "schedule": "0 14 1 * *",
+    "schedule": "31 14 1 * *",
     "timezone": "UTC",
     "route": {
       "file": "app/api/cron/wioa-report/route.ts",

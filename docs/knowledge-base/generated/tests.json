@@ -4678,6 +4678,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/cron/placementSurveySentStatePolicy.test.ts",
+    "area": "libraries",
+    "domain": "communications",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/cron/wioa-report.test.ts",
     "area": "libraries",
     "domain": "communications",
@@ -5094,6 +5113,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/email/bulkCronGuard.test.ts",
+    "area": "libraries",
+    "domain": "communications",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/email/escapeHtml.test.ts",
     "area": "libraries",
     "domain": "communications",
@@ -5128,6 +5166,14 @@
       {
         "file": "lib/email/pacing.ts",
         "line": 4
+      },
+      {
+        "file": "lib/email/pacing.ts",
+        "line": 77
+      },
+      {
+        "file": "lib/email/pacing.ts",
+        "line": 108
       }
     ],
     "kind": "test-candidate",
@@ -5152,6 +5198,10 @@
       {
         "file": "lib/email/send.ts",
         "line": 4
+      },
+      {
+        "file": "lib/email/pacing.ts",
+        "line": 5
       }
     ],
     "kind": "test-candidate",
@@ -6729,6 +6779,25 @@
         "line": 7
       }
     ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/notify/discord.test.ts",
+    "area": "libraries",
+    "domain": "communications",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
     "kind": "test-candidate",
     "declaredRunners": [
       {
@@ -9586,35 +9655,35 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 27
+        "line": 32
       },
       {
         "file": "lib/cron/authorizeCronRequest.ts",
-        "line": 53
+        "line": 62
       },
       {
         "file": "app/api/cron/at-risk-alerts/route.ts",
-        "line": 66
+        "line": 75
       },
       {
         "file": "lib/cron/authorizeCronRequest.ts",
-        "line": 67
+        "line": 76
       },
       {
         "file": "lib/member/atRiskScoring.ts",
-        "line": 68
+        "line": 77
       },
       {
         "file": "lib/email.ts",
-        "line": 69
+        "line": 78
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 70
+        "line": 79
       },
       {
         "file": "emails/counselor-at-risk-alert.ts",
-        "line": 71
+        "line": 80
       }
     ],
     "kind": "test-candidate",
@@ -9839,6 +9908,34 @@
       {
         "file": "app/api/billing-packets/[packetId]/pdf/route.ts",
         "line": 55
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/bulk-email-fixture-accounting.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/cron/partner-outcome-digest/route.ts",
+        "line": 48
+      },
+      {
+        "file": "app/api/cron/job-alerts/route.ts",
+        "line": 49
       }
     ],
     "kind": "test-candidate",
@@ -10255,6 +10352,38 @@
       {
         "file": "lib/content/programs.ts",
         "line": 247
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/coursera-replay-email-pacing.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/cron/coursera-training-sync/route.ts",
+        "line": 27
+      },
+      {
+        "file": "app/api/cron/coursera-auto-heal/route.ts",
+        "line": 28
+      },
+      {
+        "file": "vercel.json",
+        "line": 29
       }
     ],
     "kind": "test-candidate",
@@ -10909,39 +11038,39 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 119
+        "line": 124
       },
       {
         "file": "app/api/employer/signup/route.ts",
-        "line": 177
-      },
-      {
-        "file": "app/api/auth/login/route.ts",
-        "line": 178
-      },
-      {
-        "file": "middleware.ts",
-        "line": 179
-      },
-      {
-        "file": "lib/employer/service.ts",
-        "line": 181
-      },
-      {
-        "file": "lib/rate-limit.ts",
         "line": 182
       },
       {
-        "file": "lib/email.ts",
-        "line": 188
+        "file": "app/api/auth/login/route.ts",
+        "line": 183
       },
       {
-        "file": "lib/supabase-admin.ts",
+        "file": "middleware.ts",
+        "line": 184
+      },
+      {
+        "file": "lib/employer/service.ts",
+        "line": 186
+      },
+      {
+        "file": "lib/rate-limit.ts",
+        "line": 187
+      },
+      {
+        "file": "lib/email.ts",
         "line": 193
       },
       {
+        "file": "lib/supabase-admin.ts",
+        "line": 198
+      },
+      {
         "file": "lib/db/prisma.ts",
-        "line": 194
+        "line": 199
       }
     ],
     "kind": "test-candidate",
@@ -12544,19 +12673,19 @@
     "localReferences": [
       {
         "file": "app/api/auth/forgot-password/route.ts",
-        "line": 26
+        "line": 29
       },
       {
         "file": "lib/auth/passwordReset.ts",
-        "line": 27
+        "line": 30
       },
       {
         "file": "lib/rate-limit.ts",
-        "line": 28
+        "line": 31
       },
       {
         "file": "lib/observability/logger.ts",
-        "line": 29
+        "line": 32
       }
     ],
     "kind": "test-candidate",
@@ -12640,59 +12769,83 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 64
+        "line": 66
       },
       {
         "file": "lib/security/placementSurveyToken.ts",
-        "line": 85
+        "line": 100
       },
       {
         "file": "app/api/placement-survey/route.ts",
-        "line": 89
+        "line": 104
       },
       {
         "file": "app/api/admin/placement-surveys/route.ts",
-        "line": 90
+        "line": 105
       },
       {
         "file": "app/api/admin/placement-surveys/resend/route.ts",
-        "line": 91
+        "line": 106
       },
       {
         "file": "app/api/cron/placement-survey/route.ts",
-        "line": 92
+        "line": 107
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 93
+        "line": 108
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 94
+        "line": 109
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 95
+        "line": 110
       },
       {
         "file": "lib/cron/placement-surveys.ts",
-        "line": 96
+        "line": 111
       },
       {
         "file": "lib/email.ts",
-        "line": 97
+        "line": 112
       },
       {
         "file": "lib/cron/placement-surveys.ts",
-        "line": 814
+        "line": 927
       },
       {
         "file": "lib/cron/placement-surveys.ts",
-        "line": 871
+        "line": 961
       },
       {
         "file": "lib/cron/placement-surveys.ts",
-        "line": 889
+        "line": 994
+      },
+      {
+        "file": "lib/cron/placement-surveys.ts",
+        "line": 1037
+      },
+      {
+        "file": "lib/cron/placement-surveys.ts",
+        "line": 1057
+      },
+      {
+        "file": "lib/cron/placement-surveys.ts",
+        "line": 1185
+      },
+      {
+        "file": "lib/cron/placement-surveys.ts",
+        "line": 1242
+      },
+      {
+        "file": "lib/cron/placement-surveys.ts",
+        "line": 1267
+      },
+      {
+        "file": "lib/cron/placement-surveys.ts",
+        "line": 1285
       }
     ],
     "kind": "test-candidate",
@@ -15982,23 +16135,23 @@
     "localReferences": [
       {
         "file": "emails/course-accountability.ts",
-        "line": 5
+        "line": 15
       },
       {
         "file": "emails/course-kickoff.ts",
-        "line": 6
+        "line": 16
       },
       {
         "file": "emails/course-enrolled.ts",
-        "line": 7
+        "line": 17
       },
       {
         "file": "lib/email.ts",
-        "line": 8
+        "line": 18
       },
       {
         "file": "lib/email/send.ts",
-        "line": 9
+        "line": 19
       }
     ],
     "kind": "test-candidate",
@@ -17097,23 +17250,23 @@
       },
       {
         "file": "lib/cron/placement-surveys.ts",
-        "line": 34
+        "line": 49
       },
       {
         "file": "lib/notifications/create.ts",
-        "line": 35
+        "line": 50
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 41
+        "line": 56
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 73
+        "line": 88
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 105
+        "line": 120
       }
     ],
     "kind": "test-candidate",
@@ -17137,15 +17290,15 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 5
-      },
-      {
-        "file": "lib/notifications/create.ts",
         "line": 13
       },
       {
+        "file": "lib/notifications/create.ts",
+        "line": 21
+      },
+      {
         "file": "lib/db/prisma.ts",
-        "line": 14
+        "line": 22
       }
     ],
     "kind": "test-candidate",
@@ -17263,6 +17416,30 @@
       "vitest"
     ],
     "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/placement-survey-email-provider.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/email.ts",
+        "line": 9
+      }
+    ],
     "kind": "test-candidate",
     "declaredRunners": [
       {
@@ -17845,7 +18022,7 @@
     "localReferences": [
       {
         "file": "lib/xapi/inboundStatementPipeline.ts",
-        "line": 132
+        "line": 136
       }
     ],
     "kind": "test-candidate",

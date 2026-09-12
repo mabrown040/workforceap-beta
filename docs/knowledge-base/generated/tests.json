@@ -9427,23 +9427,47 @@
     "localReferences": [
       {
         "file": "app/api/admin/users/[id]/route.ts",
-        "line": 66
+        "line": 78
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 67
+        "line": 79
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 68
+        "line": 80
       },
       {
         "file": "lib/tenant/organization.ts",
-        "line": 69
+        "line": 81
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 70
+        "line": 82
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/admin-user-reset-password.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/users/[id]/reset-password/route.ts",
+        "line": 29
       }
     ],
     "kind": "test-candidate",

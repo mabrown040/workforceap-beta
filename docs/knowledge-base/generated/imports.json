@@ -39073,8 +39073,16 @@
   },
   {
     "from": "app/api/admin/users/[id]/reset-password/route.ts",
-    "specifier": "@/lib/tenant/withTenantScope",
+    "specifier": "@/lib/auth/roleAccess",
     "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roleAccess.ts"
+  },
+  {
+    "from": "app/api/admin/users/[id]/reset-password/route.ts",
+    "specifier": "@/lib/tenant/withTenantScope",
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -39082,7 +39090,7 @@
   {
     "from": "app/api/admin/users/[id]/reset-password/route.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -39090,7 +39098,7 @@
   {
     "from": "app/api/admin/users/[id]/reset-password/route.ts",
     "specifier": "@/lib/auth/passwordReset",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/auth/passwordReset.ts"
@@ -39098,7 +39106,7 @@
   {
     "from": "app/api/admin/users/[id]/reset-password/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -39106,7 +39114,7 @@
   {
     "from": "app/api/admin/users/[id]/reset-password/route.ts",
     "specifier": "@/lib/audit",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -39114,7 +39122,7 @@
   {
     "from": "app/api/admin/users/[id]/reset-password/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -39153,8 +39161,16 @@
   },
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
-    "specifier": "@/lib/db/prisma",
+    "specifier": "@/lib/auth/roleAccess",
     "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roleAccess.ts"
+  },
+  {
+    "from": "app/api/admin/users/[id]/restore/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -39162,7 +39178,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/tenant/withTenantScope",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -39170,7 +39186,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -39178,7 +39194,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/audit",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -39186,7 +39202,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -39194,7 +39210,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "../../_deletedEmail",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "app/api/admin/users/_deletedEmail.ts"
@@ -39202,7 +39218,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/supabase-admin",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/supabase-admin.ts"
@@ -39210,7 +39226,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/admin/authUserLifecycle",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/admin/authUserLifecycle.ts"
@@ -39218,7 +39234,7 @@
   {
     "from": "app/api/admin/users/[id]/restore/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -39257,8 +39273,16 @@
   },
   {
     "from": "app/api/admin/users/[id]/route.ts",
-    "specifier": "@/lib/db/prisma",
+    "specifier": "@/lib/auth/roleAccess",
     "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roleAccess.ts"
+  },
+  {
+    "from": "app/api/admin/users/[id]/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -39266,7 +39290,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/supabase-admin",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/supabase-admin.ts"
@@ -39274,7 +39298,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/tenant/withTenantScope",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -39282,7 +39306,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -39290,7 +39314,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/admin/adminUserProvisioning",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/admin/adminUserProvisioning.ts"
@@ -39298,7 +39322,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/admin/userDeleteResponse",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/admin/userDeleteResponse.ts"
@@ -39306,7 +39330,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "../_deletedEmail",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "app/api/admin/users/_deletedEmail.ts"
@@ -39314,7 +39338,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/admin/authUserLifecycle",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/admin/authUserLifecycle.ts"
@@ -39322,7 +39346,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -39330,7 +39354,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/audit",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -39338,7 +39362,7 @@
   {
     "from": "app/api/admin/users/[id]/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -108730,7 +108754,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/app/api/admin/users/[id]/route",
-    "line": 66,
+    "line": 78,
     "kind": "import",
     "external": false,
     "target": "app/api/admin/users/[id]/route.ts"
@@ -108738,7 +108762,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 67,
+    "line": 79,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -108746,7 +108770,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 68,
+    "line": 80,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -108754,7 +108778,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 69,
+    "line": 81,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -108762,10 +108786,26 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 70,
+    "line": 82,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/admin-user-reset-password.spec.ts",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-user-reset-password.spec.ts",
+    "specifier": "@/app/api/admin/users/[id]/reset-password/route",
+    "line": 29,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/users/[id]/reset-password/route.ts"
   },
   {
     "from": "tests/api/agent-gateway-route.spec.ts",

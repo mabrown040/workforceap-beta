@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { hasSuperAdminAccess } from '@/lib/auth/roleAccess';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -134,12 +135,26 @@ async function _PATCH(
     const existing = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
         where: { id },
-        select: { id: true, email: true },
+        select: {
+          id: true,
+          email: true,
+          profile: { select: { role: true } },
+          userRoles: { select: { role: { select: { name: true } } } },
+        },
       }),
     );
     if (!existing) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  
-    if (role && !(await isSuperAdmin(admin.id))) {
+
+    const actorIsSuperAdmin = await isSuperAdmin(admin.id);
+    const targetIsSuperAdmin = hasSuperAdminAccess(
+      existing.profile?.role ?? 'member',
+      existing.userRoles.map((entry) => entry.role.name),
+    );
+    if (targetIsSuperAdmin && !actorIsSuperAdmin) {
+      return NextResponse.json({ error: 'Super admin required.' }, { status: 403 });
+    }
+
+    if (role && !actorIsSuperAdmin) {
       return NextResponse.json({ error: 'Only super admins can change roles.' }, { status: 403 });
     }
   

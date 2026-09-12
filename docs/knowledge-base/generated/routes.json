@@ -19337,7 +19337,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 60,
+        "line": 74,
         "kind": "Variable"
       }
     ],
@@ -19357,23 +19357,28 @@
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/withTenantScope",
+        "specifier": "@/lib/auth/roleAccess",
         "line": 4,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/organization",
+        "specifier": "@/lib/tenant/withTenantScope",
         "line": 5,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/auth/passwordReset",
+        "specifier": "@/lib/tenant/organization",
         "line": 6,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/auth/passwordReset",
+        "line": 7,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 9,
+        "line": 10,
         "kind": "import"
       }
     ]
@@ -19387,7 +19392,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 15,
+        "line": 16,
         "kind": "Variable"
       }
     ],
@@ -19407,23 +19412,28 @@
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/withTenantScope",
-        "line": 6,
+        "specifier": "@/lib/auth/roleAccess",
+        "line": 5,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/organization",
+        "specifier": "@/lib/tenant/withTenantScope",
         "line": 7,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/tenant/organization",
+        "line": 8,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/admin/authUserLifecycle",
-        "line": 12,
+        "line": 13,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 14,
+        "line": 15,
         "kind": "import"
       }
     ]
@@ -19437,12 +19447,12 @@
     "exports": [
       {
         "name": "DELETE",
-        "line": 88,
+        "line": 89,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 239,
+        "line": 254,
         "kind": "Variable"
       }
     ],
@@ -19463,23 +19473,28 @@
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/withTenantScope",
-        "line": 7,
+        "specifier": "@/lib/auth/roleAccess",
+        "line": 5,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/organization",
+        "specifier": "@/lib/tenant/withTenantScope",
         "line": 8,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/tenant/organization",
+        "line": 9,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/admin/authUserLifecycle",
-        "line": 12,
+        "line": 13,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 14,
+        "line": 15,
         "kind": "import"
       }
     ]

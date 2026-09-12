@@ -11,7 +11,7 @@ The original ten typed claims, evidence, frozen ranker output and historical gra
 | Order | Tracking ID | Workstream | Status and acceptance |
 | ---: | --- | --- | --- |
 | 1 | KB-01 | Billing state consistency | Open; restricted reproducer and event/state acceptance cases in the private bundle. |
-| 2 | KB-02 | Privileged-account administration | Open; restricted target/actor authorization cases in the private bundle. |
+| 2 | KB-02 | Privileged-account administration | **Source-fixed in Draft [PR 2262](https://github.com/mabrown040/workforceap-beta/pull/2262), deployment pending.** The prior exact head `fd9f66d8eeb74d22801142446eba8568b4afef29` passed GitHub Typecheck & Build and Knowledge Base checks, then auditor15 returned `CHANGES_REQUIRED` for a complete direct hierarchy matrix and this human status update. The superseding head adds those acceptance cases and requires fresh exact-head CI plus independent approval before merge or release. Original restricted evidence remains private in KB-AUDIT-20260912. |
 | 3 | KB-03 | Tenant-safe administrative responses | Open; restricted response-boundary cases in the private bundle. |
 | 4 | KB-04 | Tenant-safe candidate access | Open; restricted data-scope and cache cases in the private bundle. |
 | 5 | KB-05 | Consent workflow recovery | Open; failure/retry and dependent-workflow acceptance in the private bundle. |

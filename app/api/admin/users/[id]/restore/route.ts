@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { hasSuperAdminAccess } from '@/lib/auth/roleAccess';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -27,10 +28,27 @@ export const POST = withApiGuc(async (
     const target = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
         where: { id },
-        select: { id: true, email: true, deletedAt: true, fullName: true, phone: true },
+        select: {
+          id: true,
+          email: true,
+          deletedAt: true,
+          fullName: true,
+          phone: true,
+          profile: { select: { role: true } },
+          userRoles: { select: { role: { select: { name: true } } } },
+        },
       }),
     );
     if (!target) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (
+      hasSuperAdminAccess(
+        target.profile?.role ?? 'member',
+        target.userRoles.map((entry) => entry.role.name),
+      ) &&
+      !(await isSuperAdmin(actor.id))
+    ) {
+      return NextResponse.json({ error: 'Super admin required.' }, { status: 403 });
+    }
     if (!target.deletedAt) {
       return NextResponse.json({ error: 'User is not soft-deleted; nothing to restore.' }, { status: 400 });
     }
@@ -52,9 +70,7 @@ export const POST = withApiGuc(async (
       );
       if (colliding) {
         return NextResponse.json(
-          {
-            error: `Cannot restore: another user (${colliding.id.slice(0, 8)}…) is currently using ${candidate}. Free or delete that account first.`,
-          },
+          { error: 'Account cannot be restored because its sign-in email is unavailable.' },
           { status: 409 },
         );
       }

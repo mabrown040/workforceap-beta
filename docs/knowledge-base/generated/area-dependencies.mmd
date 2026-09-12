@@ -17,10 +17,10 @@ flowchart LR
   root["root: 54 files"]
   styles["styles: 16 files"]
   supporting_files["supporting-files: 71 files"]
-  tests["tests: 295 files"]
+  tests["tests: 296 files"]
   api -->|"8 static references"| communications
   api -->|"1 static references"| content
-  api -->|"3428 static references"| libraries
+  api -->|"3431 static references"| libraries
   astro_marketing -->|"3 static references"| libraries
   audit_graph -->|"2 static references"| api
   audit_graph -->|"1 static references"| root
@@ -48,7 +48,7 @@ flowchart LR
   root -->|"22 static references"| libraries
   root -->|"2 static references"| operations
   supporting_files -->|"2 static references"| libraries
-  tests -->|"209 static references"| api
+  tests -->|"210 static references"| api
   tests -->|"4 static references"| astro_marketing
   tests -->|"4 static references"| communications
   tests -->|"34 static references"| components

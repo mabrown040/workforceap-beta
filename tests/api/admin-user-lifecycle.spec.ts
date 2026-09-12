@@ -44,6 +44,13 @@ function deletedRow() {
 }
 const req = () => new Request('http://localhost/api/admin/users/fixture', { method: 'POST' });
 const ctx = (id = ID) => ({ params: Promise.resolve({ id }) });
+type PrivilegedTargetCase = {
+  name: string;
+  profile: { role: string } | null;
+  userRoles: readonly { role: { name: string } }[];
+  self?: boolean;
+};
+
 const privilegedTargets = [
   { name: 'profile only', profile: { role: 'super_admin' }, userRoles: [] },
   { name: 'UserRole grant only', profile: null, userRoles: [{ role: { name: 'super_admin' } }] },
@@ -51,7 +58,7 @@ const privilegedTargets = [
   { name: 'stale privileged profile with ordinary grant', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'member' } }] },
   { name: 'stale ordinary profile with privileged grant', profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
   { name: 'privileged self', profile: { role: 'super_admin' }, userRoles: [], self: true },
-] as const;
+] satisfies readonly PrivilegedTargetCase[];
 
 beforeEach(() => {
   vi.resetAllMocks();

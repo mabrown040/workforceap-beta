@@ -47,22 +47,29 @@ export function createBoundedPacer(options: BoundedPacerOptions): () => Promise<
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   let nextSlotAt = now();
   let totalWaitMs = 0;
+  let admissionTail: Promise<void> = Promise.resolve();
 
-  return async () => {
-    const currentTime = now();
-    const waitMs = Math.max(0, nextSlotAt - currentTime);
-    if (options.deadlineAtMs !== undefined && currentTime + waitMs >= options.deadlineAtMs) {
-      return { ok: false, reason: 'request_deadline_exhausted', requiredWaitMs: waitMs };
-    }
-    if (options.maxTotalWaitMs !== undefined && totalWaitMs + waitMs > options.maxTotalWaitMs) {
-      return { ok: false, reason: 'pacing_budget_exhausted', requiredWaitMs: waitMs };
-    }
-    if (waitMs > 0) {
-      await sleep(waitMs);
-      totalWaitMs += waitMs;
-    }
-    nextSlotAt = Math.max(nextSlotAt, now()) + options.intervalMs;
-    return { ok: true, waitedMs: waitMs };
+  return () => {
+    // Serialize slot assignment itself. Callers may classify/query concurrently,
+    // but simultaneous provider sends must not observe and claim the same slot.
+    const admission = admissionTail.then(async (): Promise<PaceResult> => {
+      const currentTime = now();
+      const waitMs = Math.max(0, nextSlotAt - currentTime);
+      if (options.deadlineAtMs !== undefined && currentTime + waitMs >= options.deadlineAtMs) {
+        return { ok: false, reason: 'request_deadline_exhausted', requiredWaitMs: waitMs };
+      }
+      if (options.maxTotalWaitMs !== undefined && totalWaitMs + waitMs > options.maxTotalWaitMs) {
+        return { ok: false, reason: 'pacing_budget_exhausted', requiredWaitMs: waitMs };
+      }
+      if (waitMs > 0) {
+        await sleep(waitMs);
+        totalWaitMs += waitMs;
+      }
+      nextSlotAt = Math.max(nextSlotAt, now()) + options.intervalMs;
+      return { ok: true, waitedMs: waitMs };
+    });
+    admissionTail = admission.then(() => undefined, () => undefined);
+    return admission;
   };
 }
 

@@ -4,6 +4,7 @@ import { test } from 'node:test';
 
 const bulkEmailCronRoutes = [
   'app/api/cron/applicant-followup/route.ts',
+  'app/api/cron/at-risk-alerts/route.ts',
   'app/api/cron/course-accountability/route.ts',
   'app/api/cron/employer-pending-applicants/route.ts',
   'app/api/cron/inactive-nudge/route.ts',
@@ -22,7 +23,9 @@ test('every actual bulk email cron uses the shared bounded pacer', () => {
     const source = readFileSync(path, 'utf8');
     const pacingSource = path.endsWith('/placement-survey/route.ts')
       ? source + readFileSync('lib/cron/placement-surveys.ts', 'utf8')
-      : source;
+      : path.endsWith('/at-risk-alerts/route.ts')
+        ? source + readFileSync('lib/cron/at-risk-alerts.ts', 'utf8')
+        : source;
     assert.match(pacingSource, /createBulkEmailCronPacer/, `${path} must use the shared bulk email pacer`);
     assert.doesNotMatch(source, /setTimeout\s*\(/, `${path} must not carry a local pacing loop`);
   }

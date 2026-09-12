@@ -25,6 +25,9 @@ import {
   sendMemberComeBackEmail,
   sendMemberStuckEmail,
 } from '@/lib/email';
+import type { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+type BulkEmailCronPacer = ReturnType<typeof createBulkEmailCronPacer>;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 const NUDGE_COOLDOWN_DAYS = 7;
@@ -75,6 +78,7 @@ export type RetentionNudgeResult = {
   skippedCooldown: number;
   skippedNoEmail: number;
   errors: number;
+  skippedPacing: number;
 };
 
 /**
@@ -84,7 +88,7 @@ export type RetentionNudgeResult = {
  * Idempotent — re-running within the cooldown window is a no-op for any
  * member who already received a nudge of that tier in the window.
  */
-export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> {
+export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promise<RetentionNudgeResult> {
   const candidates = await prisma.user.findMany({
     take: 500,
     where: {
@@ -128,6 +132,7 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
   let skippedCooldown = 0;
   let skippedNoEmail = 0;
   let errors = 0;
+  let skippedPacing = 0;
 
   const cooldownCutoff = new Date(Date.now() - NUDGE_COOLDOWN_MS);
 
@@ -138,6 +143,7 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
     sentCheckIn?: boolean;
     sentComeBack?: boolean;
     sentStuck?: boolean;
+    skippedPacing?: boolean;
   };
 
   const processMember = async (
@@ -181,32 +187,35 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
     const outcome: NudgeOutcome = {};
     try {
       if (choice.kind === 'check_in') {
-        const result = await sendMemberCheckInEmail({
+        const result = await pacer.run(() => sendMemberCheckInEmail({
           to: member.email,
           firstName,
           dashboardUrl: `${SITE_URL}/dashboard`,
-        });
+        }));
+        if ('skipped' in result) return { skippedPacing: true };
         if (result.ok) {
           outcome.sentCheckIn = true;
           sent = true;
         } else outcome.errors = 1;
       } else if (choice.kind === 'come_back') {
-        const result = await sendMemberComeBackEmail({
+        const result = await pacer.run(() => sendMemberComeBackEmail({
           to: member.email,
           firstName,
           counselorName,
           nextBestActionUrl: `${SITE_URL}/dashboard`,
-        });
+        }));
+        if ('skipped' in result) return { skippedPacing: true };
         if (result.ok) {
           outcome.sentComeBack = true;
           sent = true;
         } else outcome.errors = 1;
       } else {
-        const result = await sendMemberStuckEmail({
+        const result = await pacer.run(() => sendMemberStuckEmail({
           to: member.email,
           firstName,
           counselorName,
-        });
+        }));
+        if ('skipped' in result) return { skippedPacing: true };
         if (result.ok) {
           outcome.sentStuck = true;
           sent = true;
@@ -246,6 +255,7 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
       if (outcome.sentComeBack) sentComeBack++;
       if (outcome.sentStuck) sentStuck++;
       if (outcome.errors) errors += outcome.errors;
+      if (outcome.skippedPacing) skippedPacing++;
     }
   }
 
@@ -258,6 +268,7 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
     skippedCooldown,
     skippedNoEmail,
     errors,
+    skippedPacing,
   };
 }
 
@@ -276,10 +287,11 @@ export type DailyAtRiskAlertRunResult = {
   membersFlagged: number;
   skippedNoCounselor: number;
   skippedAlreadyNotified: number;
+  skippedPacing: number;
   results: CounselorAlertResult[];
 };
 
-export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertRunResult> {
+export async function runDailyAtRiskCounselorAlerts(pacer: BulkEmailCronPacer): Promise<DailyAtRiskAlertRunResult> {
   const scores = await calculateAllAtRiskScores();
   const criticalScores = scores.filter((s) => s.score >= THRESHOLDS.CRITICAL);
 
@@ -290,6 +302,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
       membersFlagged: 0,
       skippedNoCounselor: 0,
       skippedAlreadyNotified: 0,
+      skippedPacing: 0,
       results: [],
     };
   }
@@ -435,11 +448,12 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
   }
 
   const results: CounselorAlertResult[] = [];
+  let skippedPacing = 0;
 
   for (const batch of counselorBatches.values()) {
     if (batch.members.length === 0) continue;
 
-    const result = await sendCounselorAtRiskAlertEmail({
+    const result = await pacer.run(() => sendCounselorAtRiskAlertEmail({
       to: batch.counselorEmail,
       counselorName: batch.counselorName,
       members: batch.members.map((m) => ({
@@ -452,7 +466,20 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
         profileUrl: `${SITE_URL}/counselor/students/${m.userId}`,
       })),
       dashboardUrl: `${SITE_URL}/counselor/at-risk`,
-    });
+    }));
+
+    if ('skipped' in result) {
+      skippedPacing++;
+      results.push({
+        counselorId: batch.counselorId,
+        counselorEmail: batch.counselorEmail,
+        counselorName: batch.counselorName,
+        sent: false,
+        memberCount: batch.members.length,
+        error: result.error,
+      });
+      continue;
+    }
 
     if (result.ok) {
       const alertIds = batch.members.map((m) => m.alertId).filter(Boolean);
@@ -480,6 +507,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
     membersFlagged: results.reduce((sum, r) => sum + r.memberCount, 0),
     skippedNoCounselor,
     skippedAlreadyNotified,
+    skippedPacing,
     results,
   };
 }

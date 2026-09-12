@@ -71,7 +71,8 @@ export async function createNotification(
       metadata: { type: input.type },
     });
   }
-  // Operator-visibility bridge (fire-and-forget, never blocks).
+  // Await the operator-visibility bridge so callers and Next after() retain it
+  // until the Discord attempt settles; notifyDiscord remains best-effort.
   await notifyDiscord({
     title: input.title,
     body: input.body,

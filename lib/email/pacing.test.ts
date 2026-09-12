@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, test } from 'node:test';
 
-import { createBoundedPacer } from '@/lib/email/pacing';
+import { createBoundedPacer, createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 describe('createBoundedPacer', () => {
   it('shares one deterministic cadence across successive sends', async () => {
@@ -117,4 +117,25 @@ describe('bulk email cron default cadence', () => {
     await pacer.run(async () => true);
     assert.deepEqual(sleeps, [125, 125]);
   });
+});
+
+
+test('bulk cron run serializes concurrent send admissions at the shared cadence', async () => {
+  let nowMs = 0;
+  const sleeps: number[] = [];
+  const pacer = createBulkEmailCronPacer({
+    maxDurationSeconds: 10,
+    reserveMs: 0,
+    intervalMs: 125,
+    now: () => nowMs,
+    sleep: async (ms) => { sleeps.push(ms); nowMs += ms; },
+  });
+  const starts: number[] = [];
+  await Promise.all([
+    pacer.run(async () => { starts.push(nowMs); }),
+    pacer.run(async () => { starts.push(nowMs); }),
+    pacer.run(async () => { starts.push(nowMs); }),
+  ]);
+  assert.deepEqual(starts, [0, 125, 250]);
+  assert.deepEqual(sleeps, [125, 125]);
 });

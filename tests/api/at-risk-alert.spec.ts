@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+const pacing = vi.hoisted(() => ({
+  create: vi.fn(),
+  run: vi.fn<(operation: () => Promise<unknown>) => Promise<unknown>>(),
+}));
+
 // ─── Mocks ───
 vi.mock('next/server', () => ({
   NextResponse: {
@@ -47,6 +52,10 @@ vi.mock('@/lib/email', () => ({
   sendMemberStuckEmail: vi.fn(async () => ({ ok: true })),
 }));
 
+vi.mock('@/lib/email/pacing', () => ({
+  createBulkEmailCronPacer: pacing.create,
+}));
+
 vi.mock('@/lib/cron/withCronLogging', () => ({
   withCronLogging: vi.fn((_key: string, handler: any) => {
     return async function(request: Request) {
@@ -65,8 +74,8 @@ vi.mock('@/lib/admin/logCronRun', () => ({
 // ─── Imports after mocks ───
 import { GET as runAtRiskAlerts } from '@/app/api/cron/at-risk-alerts/route';
 import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
-import { calculateAllAtRiskScores, getRiskLevel } from '@/lib/member/atRiskScoring';
-import { sendCounselorAtRiskAlertEmail } from '@/lib/email';
+import { calculateAllAtRiskScores, classifyMember, getRiskLevel } from '@/lib/member/atRiskScoring';
+import { sendCounselorAtRiskAlertEmail, sendMemberCheckInEmail } from '@/lib/email';
 import { prisma } from '@/lib/db/prisma';
 import { counselorAtRiskBatchHtml } from '@/emails/counselor-at-risk-alert';
 
@@ -123,6 +132,13 @@ function mockAlerts(overrides: Array<Partial<{ id: string; userId: string; notif
 describe('GET /api/cron/at-risk-alerts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    pacing.run.mockImplementation(async (operation) => operation());
+    pacing.create.mockReturnValue({
+      run: pacing.run,
+      deadlineAtMs: Date.now() + 270_000,
+      waitForSendSlot: vi.fn(),
+      summary: vi.fn(() => ({ admitted: pacing.run.mock.calls.length, skipped: 0 })),
+    });
     process.env.CRON_SECRET = 'super-secret-cron-key';
   });
 
@@ -212,6 +228,7 @@ describe('GET /api/cron/at-risk-alerts', () => {
         membersFlagged: 0,
         skippedNoCounselor: 0,
         skippedAlreadyNotified: 0,
+        skippedPacing: 0,
         results: [],
       });
       expect(sendCounselorAtRiskAlertEmail).not.toHaveBeenCalled();
@@ -274,6 +291,36 @@ describe('GET /api/cron/at-risk-alerts', () => {
 
       expect(body.counselorAlerts.skippedAlreadyNotified).toBe(0);
       expect(body.counselorAlerts.membersFlagged).toBe(1);
+    });
+  });
+
+  describe('shared provider pacing', () => {
+    it('routes counselor and member sends through one request-scoped pacer', async () => {
+      vi.mocked(calculateAllAtRiskScores).mockResolvedValue(mockScores([
+        { userId: 'user-1', score: 75, factors: [{ description: 'No login' }], recommendedAction: 'Call' },
+      ]));
+      vi.mocked(prisma.user.findMany)
+        .mockResolvedValueOnce(mockMembers([
+          { id: 'user-1', fullName: 'Alice Smith', email: 'alice@example.com', counselorAssignments: [{ counselor: { id: 'counselor-1', user: { email: 'c1@example.com', fullName: 'Counselor One' } } }] },
+        ]))
+        .mockResolvedValueOnce(mockMembers([
+          { id: 'user-2', fullName: 'Bob Jones', email: 'bob@example.com', counselorAssignments: [] },
+        ]));
+      vi.mocked(prisma.atRiskAlert.findMany)
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ id: 'alert-1', userId: 'user-1', notifiedCounselorAt: null }] as any);
+      vi.mocked(prisma.atRiskAlert.createMany).mockResolvedValue({ count: 1 } as any);
+      vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 1 } as any);
+      vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: true });
+      vi.mocked(classifyMember).mockReturnValue({ tier: 'yellow', reasons: ['inactive'], daysSinceLogin: 11 } as any);
+      vi.mocked(sendMemberCheckInEmail).mockResolvedValue({ ok: true });
+
+      const result = await runAtRiskAlerts(makeRequest({ 'x-cron-secret': 'super-secret-cron-key' }));
+      expect(result.status).toBe(200);
+      expect(pacing.create).toHaveBeenCalledOnce();
+      expect(pacing.run).toHaveBeenCalledTimes(2);
+      expect(sendCounselorAtRiskAlertEmail).toHaveBeenCalledOnce();
+      expect(sendMemberCheckInEmail).toHaveBeenCalledOnce();
     });
   });
 

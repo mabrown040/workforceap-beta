@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const discord = vi.hoisted(() => ({ notify: vi.fn() }));
+vi.mock('@/lib/notify/discord', () => ({ notifyDiscord: discord.notify }));
+vi.mock('@/lib/push/sendWebPush', () => ({ sendWebPushToUser: vi.fn(async () => undefined) }));
+vi.mock('@/lib/diagnostics', () => ({ recordWorkflowDiagnostic: vi.fn(async () => undefined) }));
+vi.mock('@/lib/observability/captureApiError', () => ({ captureApiError: vi.fn() }));
+
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
@@ -17,6 +23,7 @@ const prisma = _prisma as any;
 describe('createNotification', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    discord.notify.mockResolvedValue(undefined);
   });
 
   it('creates a single notification', async () => {
@@ -69,11 +76,27 @@ describe('createNotification', () => {
     ).resolves.toBeUndefined();
     expect(prisma.notification.create).toHaveBeenCalled();
   });
+
+
+  it('remains pending until its Discord companion settles', async () => {
+    prisma.notification.create.mockResolvedValue({ id: 'notif-1' });
+    let settle!: () => void;
+    discord.notify.mockImplementationOnce(() => new Promise<void>((resolve) => { settle = resolve; }));
+    let completed = false;
+    const pending = createNotification({ userId: 'user-1', type: 'message', title: 'Test', body: 'Hello' })
+      .then(() => { completed = true; });
+    await vi.waitFor(() => expect(discord.notify).toHaveBeenCalledOnce());
+    expect(completed).toBe(false);
+    settle();
+    await pending;
+    expect(completed).toBe(true);
+  });
 });
 
 describe('createBulkNotifications', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    discord.notify.mockResolvedValue(undefined);
   });
 
   it('creates bulk notifications', async () => {
@@ -109,4 +132,26 @@ describe('createBulkNotifications', () => {
     ).resolves.toBeUndefined();
     expect(prisma.notification.createMany).toHaveBeenCalled();
   });
+
+  it('emits one aggregated Discord notification and remains pending until it settles', async () => {
+    const items = [
+      { userId: 'user-1', type: 'broadcast' as const, title: 'A', body: 'B' },
+      { userId: 'user-2', type: 'broadcast' as const, title: 'A', body: 'B' },
+    ];
+    prisma.notification.createMany.mockResolvedValue({ count: 2 });
+    let settle!: () => void;
+    discord.notify.mockImplementationOnce(() => new Promise<void>((resolve) => { settle = resolve; }));
+    let completed = false;
+    const pending = createBulkNotifications(items).then(() => { completed = true; });
+    await vi.waitFor(() => expect(discord.notify).toHaveBeenCalledOnce());
+    expect(discord.notify).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Bulk notification: A',
+      fields: [{ name: 'recipients', value: '2' }],
+    }));
+    expect(completed).toBe(false);
+    settle();
+    await pending;
+    expect(completed).toBe(true);
+  });
+
 });

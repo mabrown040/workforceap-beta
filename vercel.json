@@ -8,7 +8,7 @@
     },
     {
       "path": "/api/cron/at-risk-alerts",
-      "schedule": "0 13 * * 1"
+      "schedule": "7 13 * * 1"
     },
     {
       "path": "/api/cron/at-risk-check",

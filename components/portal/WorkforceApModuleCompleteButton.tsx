@@ -7,17 +7,21 @@ export default function WorkforceApModuleCompleteButton({
   courseSlug,
   programSlug,
   completed,
+  label = 'Mark lab complete',
+  completedLabel = 'Completed',
 }: {
   courseSlug: string;
   programSlug: string;
   completed: boolean;
+  label?: string;
+  completedLabel?: string;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (completed) {
-    return <span className="btn btn-outline" role="status">Completed</span>;
+    return <span className="btn btn-outline" role="status">{completedLabel}</span>;
   }
 
   const complete = async () => {
@@ -51,7 +55,7 @@ export default function WorkforceApModuleCompleteButton({
         disabled={saving}
         aria-busy={saving}
       >
-        {saving ? 'Saving…' : 'Mark lab complete'}
+        {saving ? 'Saving…' : label}
       </button>
       {error ? <p role="alert" style={{ marginTop: 8, color: 'var(--color-error)' }}>{error}</p> : null}
     </div>

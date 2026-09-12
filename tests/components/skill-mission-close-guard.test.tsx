@@ -75,7 +75,7 @@ describe('native practice close protection', () => {
     await userEvent.keyboard('{Escape}'); fireEvent.click(screen.getByRole('dialog'));
     await userEvent.click(screen.getByRole('button', { name: 'Close mission' }));
     expect(onClose).not.toHaveBeenCalled(); expect(confirm).not.toHaveBeenCalled();
-    expect(screen.getByText('Your practice is still being reviewed. Please wait for the result before closing.')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Your practice is still being reviewed. Please wait for the result before closing.');
     const unloading = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(unloading);
     expect(unloading.defaultPrevented).toBe(true);
     await act(async () => resolve(new Response(JSON.stringify({ ok: false, error: 'Coaching unavailable. Try again.' }), { status: 503 })));

@@ -4930,6 +4930,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/db/transactionPolicy.test.ts",
+    "area": "libraries",
+    "domain": "libraries",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/transactionPolicy.ts",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/db/withDbRetry.test.ts",
     "area": "libraries",
     "domain": "libraries",
@@ -11247,20 +11271,24 @@
     ],
     "localReferences": [
       {
-        "file": "app/api/consent/[token]/route.ts",
-        "line": 32
+        "file": "lib/admin/courseraConsentGate.ts",
+        "line": 2
       },
       {
-        "file": "lib/tokenizedLink.ts",
-        "line": 33
+        "file": "app/api/consent/[token]/route.ts",
+        "line": 108
       },
       {
         "file": "lib/rate-limit.ts",
-        "line": 34
+        "line": 109
       },
       {
-        "file": "lib/db/prisma.ts",
-        "line": 35
+        "file": "lib/audit.ts",
+        "line": 110
+      },
+      {
+        "file": "lib/audit/log.ts",
+        "line": 111
       }
     ],
     "kind": "test-candidate",

@@ -647,7 +647,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/careers/occupation/\[onetCode\] | route | GET | [app/api/careers/occupation/\[onetCode\]/route.ts](../../../app/api/careers/occupation/%5BonetCode%5D/route.ts) | @/lib/rate-limit:6, @/lib/db/withRequestGuc:9 |
 | /api/careers/program-matches/\[programSlug\] | route | GET | [app/api/careers/program-matches/\[programSlug\]/route.ts](../../../app/api/careers/program-matches/%5BprogramSlug%5D/route.ts) | @/lib/rate-limit:4, @/lib/db/withRequestGuc:8 |
 | /api/careers/recommend | route | POST | [app/api/careers/recommend/route.ts](../../../app/api/careers/recommend/route.ts) | @/lib/rate-limit:2 |
-| /api/consent/\[token\] | route | POST | [app/api/consent/\[token\]/route.ts](../../../app/api/consent/%5Btoken%5D/route.ts) | @/lib/db/withRequestGuc:4, @/lib/rate-limit:6 |
+| /api/consent/\[token\] | route | POST | [app/api/consent/\[token\]/route.ts](../../../app/api/consent/%5Btoken%5D/route.ts) | @/lib/db/withRequestGuc:4, @/lib/rate-limit:5, @/lib/consent/guardianConsentPersistence:8 |
 | /api/contact | route | POST | [app/api/contact/route.ts](../../../app/api/contact/route.ts) | @/lib/rate-limit:3 |
 | /api/counselor/analytics | route | GET | [app/api/counselor/analytics/route.ts](../../../app/api/counselor/analytics/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:6 |
 | /api/counselor/bulk-followup | route | POST | [app/api/counselor/bulk-followup/route.ts](../../../app/api/counselor/bulk-followup/route.ts) | @/lib/auth/server:3, @/lib/auth/roles:4, @/lib/db/withRequestGuc:5 |

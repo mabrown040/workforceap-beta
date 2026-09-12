@@ -52,7 +52,7 @@ Read [tenant scope](../../lib/tenant/withTenantScope.ts), [organization helpers]
 - Resolve the actor from a verified session and application account state. Resolve a subject's organization only after authorizing the actor to operate on that subject.
 - `crossTenantOK` names an intentional escape hatch; it does not by itself authorize a caller. Review the gate and the returned data.
 - GUC context uses `AsyncLocalStorage`; database-local settings and RLS enforcement depend on the configured Prisma path, transaction scope, database role and deployed policies. The normal client returns without installing the GUC layer unless explicitly enabled. Do not infer database-enforced tenant isolation from the presence of `withApiGuc` in a route.
-- The preview transaction-flattening path replaces transactions with ordinary operations. Review its environment enforcement before relying on transaction semantics; the detailed controlled audit proof is retained privately. Deployed flags were not inspected, and no live data-loss claim is made.
+- The preview transaction-flattening path replaces transactions with ordinary operations. `lib/db/transactionPolicy.ts` is the source contract for this mode: preview/development may flatten for non-atomic callers, atomic guardian-consent writes refuse that mode, and an explicit production flatten flag fails during Prisma initialization. Deployed flags were not inspected, and no live data-loss claim is made.
 - A Supabase Auth operation, a Prisma transaction, a Stripe request and an email send do not share one atomic transaction. Changes that cross these boundaries need idempotency, reconciliation and a durable outcome appropriate to the feature.
 
 ## Recovery and schema changes

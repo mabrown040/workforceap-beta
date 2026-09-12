@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "337618689fa47a8a78dca11f7a345f54aeeaaa41bff5bb9ad7bfc4d134038808",
+  "inputTreeSha256": "4b79260b8c87d83c4cf5c85c9807e8f96ab3bf6b903847c41e9b7fecc991b2e1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1445,9 +1445,9 @@
       "path": ".github/workflows/ci-gate.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 4985,
-      "lines": 133,
-      "sha256": "5504c30a429984fbad66fc009473aaddec81bb5e1cfec9f82500d28585234e84",
+      "bytes": 4878,
+      "lines": 130,
+      "sha256": "3b23418a4ec513e50192c1f1c1f77a9926e3fd9318239642fac2c52ab148c68e",
       "binary": false
     },
     {
@@ -28367,26 +28367,26 @@
       "path": "app/api/admin/users/[id]/reset-password/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2960,
-      "lines": 74,
-      "sha256": "b24af66e092829d8bf3bcf2b0b8cd4dea32b0004f0cd1b6fc7dd81ebf836c397",
+      "bytes": 2470,
+      "lines": 60,
+      "sha256": "8f3b29bf578931aae7209ee18c0ef438cbd36084742f1e4e7bab9d383658ba25",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 74,
+          "line": 60,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 18,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 74,
+          "line": 60,
           "kind": "Variable"
         }
       ],
@@ -28396,21 +28396,21 @@
       "path": "app/api/admin/users/[id]/restore/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7547,
-      "lines": 182,
-      "sha256": "aa7ebbf08987ceb696a9ea3d4742df3e5c4f60d658990701820c0c1a613d0a71",
+      "bytes": 7109,
+      "lines": 166,
+      "sha256": "c915b13a2ad9a04de2bf65795a5574d770026cc10f1ce33bfd3c97c820bf7b2f",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 16,
+          "line": 15,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 16,
+          "line": 15,
           "kind": "Variable"
         }
       ],
@@ -28420,51 +28420,51 @@
       "path": "app/api/admin/users/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 10071,
-      "lines": 254,
-      "sha256": "bd65def7bfb08c41acacd88d3155e886ae703ff63d8282b05a981e72ef0685cb",
+      "bytes": 9515,
+      "lines": 239,
+      "sha256": "165bede4ab3981fcbf64e8123278278babbcebbcb5c689f87d0a996329e0e46c",
       "binary": false,
       "exports": [
         {
           "name": "DELETE",
-          "line": 89,
+          "line": 88,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 254,
+          "line": 239,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_DELETE",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 89,
+          "line": 88,
           "kind": "Variable"
         },
         {
           "name": "schema",
-          "line": 91,
+          "line": 90,
           "kind": "Variable"
         },
         {
           "name": "rollbackSupabaseEmailChange",
-          "line": 97,
+          "line": 96,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_PATCH",
-          "line": 109,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 254,
+          "line": 239,
           "kind": "Variable"
         }
       ],
@@ -30026,31 +30026,31 @@
       "path": "app/api/consent/[token]/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4246,
-      "lines": 121,
-      "sha256": "9b315e675e016a4fa9c70c805d0d879272bf26b678d2ffba72c871fa9a7d140a",
+      "bytes": 4094,
+      "lines": 116,
+      "sha256": "8fae9004af68eeb7be34f5bfd8975322d752c771f32880b53150937580f18493",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "submitSchema",
-          "line": 17,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "getClientIp",
-          "line": 24,
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         }
       ],
@@ -74775,9 +74775,9 @@
       "path": "docs/DATABASE-RECOVERY.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10206,
-      "lines": 155,
-      "sha256": "105c59f9eb5a5e14c866b6c0c59fbf71bed30678fae660a8cfed60d6c5ce3bd0",
+      "bytes": 8164,
+      "lines": 125,
+      "sha256": "150924dc152c00e42763b92673d50666ce7a2e74f4b1ea040bc36e2a50788a1b",
       "binary": false
     },
     {
@@ -76917,9 +76917,9 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 6963,
+      "bytes": 7077,
       "lines": 62,
-      "sha256": "bb167a18f703636f79675aab027d0a5afe1ecb8ac2e9946e9ffab2f6b3b4acd5",
+      "sha256": "42ab99e1a9f2e3f7b1c79d0aa42ac783cb3bd1dbb854960394b7685c965a5732",
       "binary": false
     },
     {
@@ -76953,18 +76953,18 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 23115,
-      "lines": 164,
-      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
+      "bytes": 22534,
+      "lines": 163,
+      "sha256": "63297db1a9641230318b54f29fd081aa1aa43e5388c836d30496962353a1e60b",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8887,
+      "bytes": 8895,
       "lines": 52,
-      "sha256": "2aa27fe02cfa86621a404d8b53a9f023b7135f747ae83c84dddd621d37863b95",
+      "sha256": "5c7edd75d0225ba42e4ee2db16d9db4bdc2bcc15c3fa4f9c4f5f616a6c707384",
       "binary": false
     },
     {
@@ -96076,6 +96076,55 @@
       "directive": null
     },
     {
+      "path": "lib/consent/guardianConsentPersistence.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 2610,
+      "lines": 87,
+      "sha256": "029ae6ef4dab954451003fcfd3b202ec076aebb192fade3013f88493aa2e26b5",
+      "binary": false,
+      "exports": [
+        {
+          "name": "GuardianConsentInput",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentOutcome",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "persistGuardianConsent",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "TransactionRoot",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentInput",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentOutcome",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "persistGuardianConsent",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/consent/state.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -107109,71 +107158,76 @@
       "path": "lib/db/prisma.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 11067,
-      "lines": 245,
-      "sha256": "bfb0c444813826254dbd0a34797c673c8fc04ae25e162ce96b4605c63450aa77",
+      "bytes": 11116,
+      "lines": 244,
+      "sha256": "50abfd262e760c49d511eeeb405df72faa70f6b105922b52b0a76a5a07557e48",
       "binary": false,
       "exports": [
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 21,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 25,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "globalForPrisma",
-          "line": 5,
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "TRANSACTION_POLICY",
+          "line": 9,
           "kind": "Variable"
         },
         {
           "name": "FLATTEN_TX",
-          "line": 8,
+          "line": 10,
           "kind": "Variable"
         },
         {
           "name": "escapeSqlString",
-          "line": 13,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isGucSetupQuery",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 21,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 25,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "installFlattenTxOverride",
-          "line": 58,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createPrismaClient",
-          "line": 76,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
@@ -107532,6 +107586,78 @@
         {
           "name": "sqlCount",
           "line": 59,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/transactionPolicy.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1727,
+      "lines": 49,
+      "sha256": "a80360c59ea3776acd295c44e7c43bc03b59709e57338feea50c36bb64ae1bef",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "env",
+          "line": 10,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/transactionPolicy.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1426,
+      "lines": 42,
+      "sha256": "13ba2a3ce8869e90466426d3a8ccfbe816987388a9246cad087626088732372f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PrismaTransactionPolicy",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolvePrismaTransactionPolicy",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "interactiveTransactionsGuaranteed",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertPrismaTransactionPolicySafe",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PrismaTransactionPolicy",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolvePrismaTransactionPolicy",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "interactiveTransactionsGuaranteed",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertPrismaTransactionPolicySafe",
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -139181,154 +139307,51 @@
       "path": "scripts/check-duplicate-migrations.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 5806,
-      "lines": 134,
-      "sha256": "92e8fba08284550f24e42070c0936c8ffaf3d66f5485a515228e1e23f7272348",
+      "bytes": 2461,
+      "lines": 76,
+      "sha256": "d040159c2e130fd15f9cef061a92f043bc2493c82439b1d9821f097bae8822ce",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "ROOT",
-          "line": 12,
+          "name": "__filename",
+          "line": 25,
           "kind": "Variable"
         },
         {
-          "name": "MIGRATIONS",
-          "line": 13,
+          "name": "__dirname",
+          "line": 26,
           "kind": "Variable"
         },
         {
-          "name": "BASELINE",
-          "line": 14,
+          "name": "REPO_ROOT",
+          "line": 27,
           "kind": "Variable"
         },
         {
-          "name": "REVIEWED_SOURCE_COMMIT",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "REVIEWED_BASELINE_SHA256",
-          "line": 19,
-          "kind": "Variable"
-        },
-        {
-          "name": "TIMESTAMP",
-          "line": 22,
-          "kind": "Variable"
-        },
-        {
-          "name": "requireDirectory",
-          "line": 24,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "readPlainFile",
+          "name": "MIGRATIONS_DIR",
           "line": 28,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "loadBaseline",
-          "line": 33,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "readMigrations",
-          "line": 70,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "check",
-          "line": 87,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "scripts/check-duplicate-migrations.test.cjs",
-      "area": "operations",
-      "domain": "operations",
-      "bytes": 10457,
-      "lines": 252,
-      "sha256": "d80a56e630a55ac5cf96a25573272a909b3216eae108259b9be4843b143116c9",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "test",
-          "line": 1,
           "kind": "Variable"
         },
         {
-          "name": "assert",
-          "line": 2,
+          "name": "TIMESTAMP_RE",
+          "line": 35,
           "kind": "Variable"
         },
         {
-          "name": "fs",
-          "line": 3,
+          "name": "entries",
+          "line": 37,
           "kind": "Variable"
         },
         {
-          "name": "os",
-          "line": 4,
+          "name": "byTimestamp",
+          "line": 38,
           "kind": "Variable"
         },
         {
-          "name": "path",
-          "line": 5,
+          "name": "dupes",
+          "line": 57,
           "kind": "Variable"
-        },
-        {
-          "name": "createHash",
-          "line": 6,
-          "kind": "Variable"
-        },
-        {
-          "name": "spawnSync",
-          "line": 7,
-          "kind": "Variable"
-        },
-        {
-          "name": "checker",
-          "line": 9,
-          "kind": "Variable"
-        },
-        {
-          "name": "reviewedBytes",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "reviewed",
-          "line": 11,
-          "kind": "Variable"
-        },
-        {
-          "name": "legacyPrefix",
-          "line": 12,
-          "kind": "Variable"
-        },
-        {
-          "name": "first",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
-          "name": "second",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
-          "name": "sha256",
-          "line": 14,
-          "kind": "Variable"
-        },
-        {
-          "name": "fixture",
-          "line": 16,
-          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -142626,15 +142649,6 @@
       "directive": null
     },
     {
-      "path": "scripts/migration-collision-baseline.json",
-      "area": "operations",
-      "domain": "operations",
-      "bytes": 4626,
-      "lines": 137,
-      "sha256": "ba13bd4c04fcfa182335b2f6d717eb318ac36f1106bb0c8a3777c83c5543189e",
-      "binary": false
-    },
-    {
       "path": "scripts/p1/test-force-rls.ts",
       "area": "operations",
       "domain": "operations",
@@ -145472,9 +145486,9 @@
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 14006,
-      "lines": 280,
-      "sha256": "2ac9d2253791a81a0d7d06264d443a64039cbeca5440f85cf0790f5697790dbf",
+      "bytes": 11421,
+      "lines": 222,
+      "sha256": "9489cdc39738d91ae047fe29ee95b7aa19e7fa511ef7cf3d65b1541d731866e1",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145522,16 +145536,6 @@
           "name": "ctx",
           "line": 46,
           "kind": "Variable"
-        },
-        {
-          "name": "PrivilegedTargetCase",
-          "line": 47,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "privilegedTargets",
-          "line": 54,
-          "kind": "Variable"
         }
       ],
       "directive": null
@@ -145540,84 +145544,21 @@
       "path": "tests/api/admin-user-patch-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7485,
-      "lines": 215,
-      "sha256": "3deb68f8d9124dcab61e561ee11304d9f89b5237bedbb3574a401950892a1f2c",
+      "bytes": 3256,
+      "lines": 110,
+      "sha256": "e5393c84766982e1671f6a6694d45486d6c0ec8ef4b24bef1a01bcf166d229fb",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "routeMocks",
-          "line": 3,
-          "kind": "Variable"
-        },
-        {
           "name": "updateUserById",
-          "line": 51,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "patchReq",
-          "line": 84,
+          "line": 72,
           "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "PrivilegedTargetCase",
-          "line": 92,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "privilegedTargets",
-          "line": 99,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/api/admin-user-reset-password.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 4645,
-      "lines": 117,
-      "sha256": "1c35103882ccac6b30315c110761dfecd3979cdf407b6873c4d65540b0840789",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "mocks",
-          "line": 4,
-          "kind": "Variable"
-        },
-        {
-          "name": "ACTOR",
-          "line": 31,
-          "kind": "Variable"
-        },
-        {
-          "name": "TARGET",
-          "line": 32,
-          "kind": "Variable"
-        },
-        {
-          "name": "request",
-          "line": 33,
-          "kind": "Variable"
-        },
-        {
-          "name": "context",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "PrivilegedTargetCase",
-          "line": 52,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "privilegedTargets",
-          "line": 59,
-          "kind": "Variable"
         }
       ],
       "directive": null
@@ -146571,21 +146512,36 @@
       "path": "tests/api/guardian-consent.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3821,
-      "lines": 117,
-      "sha256": "d62b1d6d213daea92c22cf30f928ef6ff2d2f5879650aee6b94c9b78fe32d4f6",
+      "bytes": 9283,
+      "lines": 249,
+      "sha256": "25d08351c2ce2c820c427ce1449ebdf2466996c8e3987b5267a55463444dd2d6",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "db",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
           "name": "postReq",
-          "line": 37,
+          "line": 113,
           "kind": "Variable"
         },
         {
           "name": "validBody",
-          "line": 44,
+          "line": 120,
           "kind": "Variable"
+        },
+        {
+          "name": "submit",
+          "line": 127,
+          "kind": "Variable"
+        },
+        {
+          "name": "addLink",
+          "line": 130,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "58a77fb80d9e2b1d2d7cff1d9467bf8654b2bd5876419cbdf6d799b3e28e0000",
+  "inputTreeSha256": "56b7c7190f8d2ab6a62c862c1c75faa209638b70e9f99f694de2a597a084f748",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -10,8 +10,8 @@
   "counts": {
     "files": 4473,
     "sourceModules": 3156,
-    "importReferences": 14960,
-    "resolvedLocalReferences": 9974,
+    "importReferences": 14961,
+    "resolvedLocalReferences": 9975,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1045,
     "nextRouteFiles": 1013,
@@ -305,6 +305,10 @@
       "lines": 1426
     },
     {
+      "file": "tests/api/placement-survey.spec.ts",
+      "lines": 1396
+    },
+    {
       "file": "app/(portal)/partner/page.tsx",
       "lines": 1387
     },
@@ -323,10 +327,6 @@
     {
       "file": "lib/content/checkpoints/businessAndDesign.ts",
       "lines": 1334
-    },
-    {
-      "file": "tests/api/placement-survey.spec.ts",
-      "lines": 1320
     },
     {
       "file": "components/portal/tools/SkillMapperClient.tsx",

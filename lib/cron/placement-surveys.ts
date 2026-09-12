@@ -145,13 +145,10 @@ export async function sendDuePlacementSurveys(
 
     for (const placement of placements) {
       const user = placement.user;
-      if (!user?.email) {
-        skipped.push({ userId: placement.userId, reason: 'No email on user' });
-        continue;
-      }
 
-      // Idempotency check (in-memory). A null-sentAt row is not a sent
-      // survey; reuse its stable id and signed-token target on this attempt.
+      // Resolve persisted state before consulting mutable profile fields. A
+      // pre-acceptance row owns the complete provider request for its attempt,
+      // including the recipient; retries must not depend on current contact data.
       const existingSurvey = existingByPlacementId.get(placement.id);
       if (existingSurvey?.sentAt) {
         skipped.push({ userId: placement.userId, reason: `Survey already exists for ${wave}` });
@@ -181,6 +178,10 @@ export async function sendDuePlacementSurveys(
       if (existingSurvey) {
         survey = existingSurvey;
       } else {
+        if (!user?.email) {
+          skipped.push({ userId: placement.userId, reason: 'No email on user' });
+          continue;
+        }
         const surveyId = randomUUID();
         const tokenExpiresAt = new Date(now.getTime() + SURVEY_TOKEN_TTL_MS);
         const token = await issuePlacementSurveyToken({
@@ -284,7 +285,7 @@ export async function sendDuePlacementSurveys(
           body: `Your ${wave.replace('_', '-day ')} placement survey is ready. It only takes 2 minutes.`,
           data: { surveyId: survey.id, wave },
         });
-        sent.push({ userId: placement.userId, email: user.email, surveyId: survey.id });
+        sent.push({ userId: placement.userId, email: deliveryPayload.to, surveyId: survey.id });
       } else {
         // A provider error can be ambiguous (the request may have been
         // accepted before the response was lost). Keep the row and its stable

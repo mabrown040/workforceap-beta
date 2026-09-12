@@ -108,7 +108,7 @@
 | [tests/api/partner-signup.spec.ts](../../../tests/api/partner-signup.spec.ts) | 526 | tests |  |
 | [tests/api/password-recovery-destination.spec.ts](../../../tests/api/password-recovery-destination.spec.ts) | 172 | tests |  |
 | [tests/api/pathway-progress.spec.ts](../../../tests/api/pathway-progress.spec.ts) | 713 | tests |  |
-| [tests/api/placement-survey.spec.ts](../../../tests/api/placement-survey.spec.ts) | 1320 | tests |  |
+| [tests/api/placement-survey.spec.ts](../../../tests/api/placement-survey.spec.ts) | 1396 | tests |  |
 | [tests/api/points-routes.spec.ts](../../../tests/api/points-routes.spec.ts) | 451 | tests |  |
 | [tests/api/portal-nav-badges.spec.ts](../../../tests/api/portal-nav-badges.spec.ts) | 69 | tests |  |
 | [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 347 | tests |  |

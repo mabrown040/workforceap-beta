@@ -415,7 +415,7 @@
 | [lib/cron/cronExecution.ts](../../../lib/cron/cronExecution.ts) | 59 | communications | CronStatus:4, startCronExecution:8, setCronRecordsProcessed:19, completeCronExecution:28, getCurrentCronExecutionId:53, runWithCronExecution:57 |
 | [lib/cron/isCronEnabled.ts](../../../lib/cron/isCronEnabled.ts) | 19 | communications | isCronEnabled:7 |
 | [lib/cron/nudgeThrottle.ts](../../../lib/cron/nudgeThrottle.ts) | 69 | communications | NUDGE_LOG_COOLDOWN_DAYS:23, filterNudgeEligibleUserIds:30, recordNudgeSent:51 |
-| [lib/cron/placement-surveys.ts](../../../lib/cron/placement-surveys.ts) | 435 | communications | SurveySendResult:47, EscalationResult:54, DailySurveyRunResult:60, sendDuePlacementSurveys:85, escalateStalePlacementSurveys:310, runDailyPlacementSurveyCron:430 |
+| [lib/cron/placement-surveys.ts](../../../lib/cron/placement-surveys.ts) | 436 | communications | SurveySendResult:47, EscalationResult:54, DailySurveyRunResult:60, sendDuePlacementSurveys:85, escalateStalePlacementSurveys:311, runDailyPlacementSurveyCron:431 |
 | [lib/cron/placementSurveySentStatePolicy.test.ts](../../../lib/cron/placementSurveySentStatePolicy.test.ts) | 47 | communications |  |
 | [lib/cron/wioa-report.test.ts](../../../lib/cron/wioa-report.test.ts) | 43 | communications |  |
 | [lib/cron/wioa-report.ts](../../../lib/cron/wioa-report.ts) | 129 | communications | WioaReportProgram:11, WioaReport:19, generateWioaReport:39 |

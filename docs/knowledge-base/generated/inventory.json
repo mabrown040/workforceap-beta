@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "58a77fb80d9e2b1d2d7cff1d9467bf8654b2bd5876419cbdf6d799b3e28e0000",
+  "inputTreeSha256": "56b7c7190f8d2ab6a62c862c1c75faa209638b70e9f99f694de2a597a084f748",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -76890,9 +76890,9 @@
       "path": "docs/knowledge-base/architecture.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 16237,
+      "bytes": 16370,
       "lines": 193,
-      "sha256": "8e20cae83b05f6735840b117cbbecb7cf83670955d2e8aa6c504379f2658832e",
+      "sha256": "52de220284da62260c98a15a60ed424d293b9c3dc704e9aa092987cfa9dff96d",
       "binary": false
     },
     {
@@ -76935,9 +76935,9 @@
       "path": "docs/knowledge-base/integrations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 31959,
+      "bytes": 32056,
       "lines": 133,
-      "sha256": "bd9d5aba20b228f42a349da28bd18628ab079b36a3142fb250b728278608d20d",
+      "sha256": "2f6b0af9207d885c4ee2cc9a5a9517e4f712a6769d95466cd7049d26827f2f83",
       "binary": false
     },
     {
@@ -76953,9 +76953,9 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 22413,
+      "bytes": 22534,
       "lines": 163,
-      "sha256": "bb3aee874d1a0a8a2e454deaa0ceb36d183bd5e53689d2dc6d8d6791229aadff",
+      "sha256": "63297db1a9641230318b54f29fd081aa1aa43e5388c836d30496962353a1e60b",
       "binary": false
     },
     {
@@ -106508,9 +106508,9 @@
       "path": "lib/cron/placement-surveys.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 15515,
-      "lines": 435,
-      "sha256": "b4c360a57fb8ab0c4301f75220fab044538b155c87ad5ef496d1f0921d43969c",
+      "bytes": 15621,
+      "lines": 436,
+      "sha256": "f4e695534bf374a1f248d99584bf3f26317593ce27231c6247bafa7aa46088e0",
       "binary": false,
       "exports": [
         {
@@ -106535,12 +106535,12 @@
         },
         {
           "name": "escalateStalePlacementSurveys",
-          "line": 310,
+          "line": 311,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runDailyPlacementSurveyCron",
-          "line": 430,
+          "line": 431,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -106607,12 +106607,12 @@
         },
         {
           "name": "escalateStalePlacementSurveys",
-          "line": 310,
+          "line": 311,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runDailyPlacementSurveyCron",
-          "line": 430,
+          "line": 431,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -147281,9 +147281,9 @@
       "path": "tests/api/placement-survey.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 50290,
-      "lines": 1320,
-      "sha256": "abe458917b14be237e81147928836d7875de87c984e77435639d6b8b325a7ddd",
+      "bytes": 53708,
+      "lines": 1396,
+      "sha256": "d324edecf713a6a322624674a439f8b0e2e10b6805ca1d01cc0d8b416de55739",
       "binary": false,
       "exports": [],
       "declarations": [],

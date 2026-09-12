@@ -1051,6 +1051,82 @@ describe('sendDuePlacementSurveys', () => {
     expect(sendPreparedPlacementSurveyEmail).toHaveBeenCalledWith(persistedPayload);
   });
 
+  it.each([
+    ['removed', null],
+    ['changed', 'changed@workforceap.org'],
+  ])(
+    'retries one frozen complete request and accounts for its recipient when current email is %s',
+    async (_label, currentEmail) => {
+      const { sendDuePlacementSurveys } = (await vi.importActual(
+        '@/lib/cron/placement-surveys'
+      )) as typeof import('@/lib/cron/placement-surveys');
+      const placement = {
+        id: 'placement-due',
+        userId: 'member-due',
+        placedAt: new Date(),
+        user: {
+          id: 'member-due',
+          email: 'original@workforceap.org' as string | null,
+          fullName: 'Original Member',
+          enrolledProgram: 'original-program',
+        },
+      };
+      vi.mocked(prisma.placementRecord.findMany).mockImplementation((({ where }: any) =>
+        Promise.resolve(where.OR[0].placementSurveys.none.wave === 'thirty_day' ? [placement] : [])) as any);
+      const frozenPayload = {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'frozen-recipient@workforceap.org',
+        subject: 'Frozen placement survey',
+        html: '<p>Frozen Original Member|original-program|signed-url</p>',
+        text: 'Frozen Original Member|original-program|signed-url',
+        headers: { 'List-Unsubscribe': '<https://frozen.example/unsubscribe>' },
+        idempotencyKey: 'placement-survey/survey-unsent/1',
+      };
+      vi.mocked(prisma.placementSurvey.findMany).mockImplementation((({ where }: any) =>
+        Promise.resolve(where.wave === 'thirty_day'
+          ? [{
+              id: 'survey-unsent',
+              placementId: 'placement-due',
+              sentAt: null,
+              tokenExpiresAt: new Date('2026-10-01T00:00:00Z'),
+              deliveryAttempt: 1,
+              acceptedAttempt: 0,
+              deliveryPayload: frozenPayload,
+            }]
+          : [])) as any);
+      vi.mocked(sendPreparedPlacementSurveyEmail).mockResolvedValue({ ok: true } as any);
+      vi.mocked(prisma.placementSurvey.update).mockReset();
+      vi.mocked(prisma.placementSurvey.update)
+        .mockRejectedValueOnce(new Error('stamp failed'))
+        .mockResolvedValueOnce({ id: 'survey-unsent' } as any);
+      const pacer = {
+        run: vi.fn(async (operation: () => Promise<unknown>) => operation()),
+        deadlineAtMs: Date.now() + 60_000,
+        waitForSendSlot: vi.fn(),
+        summary: vi.fn(),
+      } as any;
+
+      await expect(sendDuePlacementSurveys(pacer)).rejects.toThrow('stamp failed');
+      placement.user.email = currentEmail;
+      placement.user.fullName = 'Changed Member';
+      placement.user.enrolledProgram = 'changed-program';
+      const retryResult = await sendDuePlacementSurveys(pacer);
+
+      expect(sendPreparedPlacementSurveyEmail).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(sendPreparedPlacementSurveyEmail).mock.calls[0][0]).toEqual(frozenPayload);
+      expect(vi.mocked(sendPreparedPlacementSurveyEmail).mock.calls[1][0]).toEqual(frozenPayload);
+      expect(vi.mocked(sendPreparedPlacementSurveyEmail).mock.calls[1][0])
+        .toEqual(vi.mocked(sendPreparedPlacementSurveyEmail).mock.calls[0][0]);
+      expect(retryResult[0].sent).toEqual([{
+        userId: 'member-due',
+        email: frozenPayload.to,
+        surveyId: 'survey-unsent',
+      }]);
+      expect(retryResult[0].skipped).toEqual([]);
+      expect(prisma.placementSurvey.create).not.toHaveBeenCalled();
+    },
+  );
+
   it('reuses an unsent row after a prior rollback failure and stamps acceptance once', async () => {
     const { sendDuePlacementSurveys } = (await vi.importActual(
       '@/lib/cron/placement-surveys'
@@ -1096,7 +1172,7 @@ describe('sendDuePlacementSurveys', () => {
     });
     expect(result[0].sent).toEqual([{
       userId: 'member-due',
-      email: 'member@example.com',
+      email: 'original@workforceap.org',
       surveyId: 'survey-unsent',
     }]);
   });

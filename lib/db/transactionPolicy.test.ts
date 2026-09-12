@@ -7,7 +7,10 @@ import {
   resolvePrismaTransactionPolicy,
 } from './transactionPolicy';
 
-const env = (values: Record<string, string | undefined> = {}): NodeJS.ProcessEnv => ({ ...values });
+const env = (values: Partial<NodeJS.ProcessEnv> = {}): NodeJS.ProcessEnv => ({
+  NODE_ENV: 'test',
+  ...values,
+});
 
 test('default policy guarantees interactive transactions', () => {
   assert.deepEqual(resolvePrismaTransactionPolicy(env()), Object.freeze({

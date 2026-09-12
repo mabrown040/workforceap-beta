@@ -70,9 +70,7 @@ export const POST = withApiGuc(async (
       );
       if (colliding) {
         return NextResponse.json(
-          {
-            error: `Cannot restore: another user (${colliding.id.slice(0, 8)}…) is currently using ${candidate}. Free or delete that account first.`,
-          },
+          { error: 'Account cannot be restored because its sign-in email is unavailable.' },
           { status: 409 },
         );
       }

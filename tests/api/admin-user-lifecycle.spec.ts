@@ -133,13 +133,20 @@ describe('administrator account restore', () => {
     expect(mocks.updateMany).toHaveBeenCalledTimes(1);
   });
 
-  it('checks global email collisions case-insensitively before restoring Auth', async () => {
-    mocks.collision.mockResolvedValue({ id: 'other-identity' });
+  it('checks global email collisions before Auth without exposing the foreign identity or address', async () => {
+    const foreignId = 'foreign-user-private-identifier';
+    mocks.collision.mockResolvedValue({ id: foreignId });
+
     const response = await restore(req(), ctx());
+
     expect(response.status).toBe(409);
     expect(mocks.collision).toHaveBeenCalledWith({
       where: { email: { equals: 'member@example.com', mode: 'insensitive' }, NOT: { id: ID } }, select: { id: true },
     });
+    const body = await response.json();
+    expect(body).toEqual({ error: 'Account cannot be restored because its sign-in email is unavailable.' });
+    expect(JSON.stringify(body)).not.toContain(foreignId.slice(0, 8));
+    expect(JSON.stringify(body)).not.toContain('member@example.com');
     expect(mocks.restoreAuth).not.toHaveBeenCalled();
     expect(mocks.updateMany).not.toHaveBeenCalled();
   });

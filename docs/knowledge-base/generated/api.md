@@ -201,7 +201,7 @@
 | [app/api/admin/training-progress/items/route.ts](../../../app/api/admin/training-progress/items/route.ts) | 199 | administration | dynamic:23, TrainingProgressItemRow:25, GET:71 |
 | [app/api/admin/users/\[id\]/free-email/route.ts](../../../app/api/admin/users/%5Bid%5D/free-email/route.ts) | 95 | administration | POST:95 |
 | [app/api/admin/users/\[id\]/reset-password/route.ts](../../../app/api/admin/users/%5Bid%5D/reset-password/route.ts) | 74 | administration | POST:74 |
-| [app/api/admin/users/\[id\]/restore/route.ts](../../../app/api/admin/users/%5Bid%5D/restore/route.ts) | 184 | administration | POST:16 |
+| [app/api/admin/users/\[id\]/restore/route.ts](../../../app/api/admin/users/%5Bid%5D/restore/route.ts) | 182 | administration | POST:16 |
 | [app/api/admin/users/\[id\]/route.ts](../../../app/api/admin/users/%5Bid%5D/route.ts) | 254 | administration | DELETE:89, PATCH:254 |
 | [app/api/admin/users/_deletedEmail.test.ts](../../../app/api/admin/users/_deletedEmail.test.ts) | 31 | administration |  |
 | [app/api/admin/users/_deletedEmail.ts](../../../app/api/admin/users/_deletedEmail.ts) | 21 | administration | buildDeletedEmail:6, parseDeletedEmail:11, isDeletedEmail:15, isDeletedEmailMarker:19 |

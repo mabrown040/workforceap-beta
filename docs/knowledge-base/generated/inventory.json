@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "8f236cc266491009d56e4e17f1331962eba71add4e7159e5b118d71e727a899a",
+  "inputTreeSha256": "413b7330db7a43d81812695b7dfd98793f41367d3c7beefec01691913b229339",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -28396,9 +28396,9 @@
       "path": "app/api/admin/users/[id]/restore/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7631,
-      "lines": 184,
-      "sha256": "fbaad99f80d7995eb80eef75bfa6462e870c3ab55ddee2feb34f8d8c62bd42cb",
+      "bytes": 7547,
+      "lines": 182,
+      "sha256": "aa7ebbf08987ceb696a9ea3d4742df3e5c4f60d658990701820c0c1a613d0a71",
       "binary": false,
       "exports": [
         {
@@ -145360,9 +145360,9 @@
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 12417,
-      "lines": 250,
-      "sha256": "3491e3fd03c7d57fa4d0ba6f5a24387c6c9eaeb9b6bdecf2350b5a3c2979ad3f",
+      "bytes": 12779,
+      "lines": 257,
+      "sha256": "8a07337001d8b3d9ab4950355dedf04182955bb57f7e277cedbf2ccfdba4b8d9",
       "binary": false,
       "exports": [],
       "declarations": [

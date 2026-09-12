@@ -269,8 +269,12 @@ test('Lilley explores adjacent possibilities without weakening truth or student 
   assert.match(prompt, /brainstorm rather than immediately make a plan/);
   assert.match(prompt, /suggestions—not verified account facts, guaranteed outcomes/);
   assert.match(prompt, /summarize the strongest possibilities without pretending they made a decision/);
+  assert.match(prompt, /do not interrupt the conversation with an account lookup unless the student explicitly asks/);
+  assert.match(prompt, /call the matching approved read-only tool before making any account-specific claim/);
 
   assert.match(prompt, /You do not assist counselors with caseloads, staff operations, or administrative work/);
+  assert.match(prompt, /briefly name the boundary without scolding or ending the conversation/);
+  assert.match(prompt, /Offer a related career-focused question, safe alternative, or the correct WorkforceAP or qualified human destination/);
   assert.match(prompt, /Get member-specific program, progress, and next-step facts only from the approved read-only tools/);
   assert.match(prompt, /Do not claim you submitted, changed, approved, contacted, escalated, remembered, or saved anything/);
   assert.match(prompt, /Safety support takes priority/);

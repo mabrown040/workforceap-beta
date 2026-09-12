@@ -36,9 +36,24 @@ vi.mock('@/lib/tenant/organization', () => ({
   getActorOrganizationId: vi.fn(),
 }));
 
+const { tenantUserFindFirst, globalUserFindFirst } = vi.hoisted(() => ({
+  tenantUserFindFirst: vi.fn(),
+  globalUserFindFirst: vi.fn(),
+}));
+
 vi.mock('@/lib/tenant/withTenantScope', () => ({
+  crossTenantOK: vi.fn((fn: () => unknown) => fn()),
   withTenantScope: vi.fn((_orgId: string, fn: (db: unknown) => Promise<unknown>) =>
-    fn({ user: { findFirst: routeMocks.target } }),
+    fn({
+      user: {
+        findFirst: (...args: unknown[]) => {
+          const where = (args[0] as { where?: { id?: string } } | undefined)?.where;
+          return where?.id === 'user-1' || where?.id === 'admin-1'
+            ? routeMocks.target(...args)
+            : tenantUserFindFirst(...args);
+        },
+      },
+    }),
   ),
 }));
 
@@ -63,6 +78,7 @@ vi.mock('@/lib/supabase-admin', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    user: { findFirst: globalUserFindFirst },
     $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
         user: { updateMany: routeMocks.updateMany },
@@ -124,6 +140,48 @@ describe('PATCH /api/admin/users/[id]', () => {
     routeMocks.audit.mockResolvedValue(undefined);
     routeMocks.event.mockResolvedValue(undefined);
     vi.mocked(updateUserById).mockResolvedValue({ error: null });
+    globalUserFindFirst.mockResolvedValue(null);
+    tenantUserFindFirst.mockResolvedValue({ id: 'user-1', email: 'old@example.com' });
+  });
+
+  it('hides a foreign-tenant email collision before changing Supabase auth', async () => {
+    globalUserFindFirst.mockResolvedValue({ id: 'foreign-uuid', organizationId: 'org-2' });
+
+    const res = await PATCH(
+      patchReq({ fullName: 'User One', email: 'new@example.com', role: 'member' }),
+      { params: Promise.resolve({ id: 'user-1' }) },
+    );
+    const text = await res.text();
+
+    expect(res.status).toBe(409);
+    expect(JSON.parse(text)).toEqual({ error: 'That email already has an account.' });
+    for (const secret of ['foreign-uuid', 'Foreign Name', 'new@example.com', 'admin']) {
+      expect(text).not.toContain(secret);
+    }
+    expect(updateUserById).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('returns an own-tenant collision projection before changing Supabase auth', async () => {
+    globalUserFindFirst.mockResolvedValue({ id: 'own-uuid', organizationId: 'org-1' });
+    tenantUserFindFirst
+      .mockResolvedValueOnce({ id: 'user-1', email: 'old@example.com' })
+      .mockResolvedValueOnce({
+        id: 'own-uuid', fullName: 'Own Name', email: 'new@example.com', profile: { role: 'member' },
+      });
+
+    const res = await PATCH(
+      patchReq({ fullName: 'User One', email: 'new@example.com', role: 'member' }),
+      { params: Promise.resolve({ id: 'user-1' }) },
+    );
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({
+      error: 'That email already has an account. Use the edit or reset tools on the existing user.',
+      user: { id: 'own-uuid', fullName: 'Own Name', email: 'new@example.com', role: 'member' },
+    });
+    expect(updateUserById).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it.each(privilegedTargets)('denies ordinary admin full-name-only mutation for privileged target: $name', async ({ self, ...roles }) => {

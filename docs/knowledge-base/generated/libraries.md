@@ -11,9 +11,9 @@
 | [lib/admin-coursera-subject-scope-structure.test.ts](../../../lib/admin-coursera-subject-scope-structure.test.ts) | 89 | learning-coursera |  |
 | [lib/admin-job-ready-query-structure.test.ts](../../../lib/admin-job-ready-query-structure.test.ts) | 34 | libraries |  |
 | [lib/admin-programs-structure.test.ts](../../../lib/admin-programs-structure.test.ts) | 18 | libraries |  |
-| [lib/admin/adminJobMatchesPrismaDeps.ts](../../../lib/admin/adminJobMatchesPrismaDeps.ts) | 101 | administration | createAdminJobMatchesPrismaDeps:45 |
+| [lib/admin/adminJobMatchesPrismaDeps.ts](../../../lib/admin/adminJobMatchesPrismaDeps.ts) | 121 | administration | createAdminJobMatchesPrismaDeps:49 |
 | [lib/admin/adminUserProvisioning.ts](../../../lib/admin/adminUserProvisioning.ts) | 111 | administration | ADMIN_USER_ROLES:5, AdminUserRole:6, ensureAppUser:8, ensureProfileRole:55, syncManagedUserRoles:86 |
-| [lib/admin/aiJobMatchCompute.ts](../../../lib/admin/aiJobMatchCompute.ts) | 49 | administration | JobMatchInput:3, AI_JOB_MATCH_EMPTY_COOLDOWN_MS:11, getOrComputeAiJobMatches:16, markAiJobMatchEmptyCooldown:43, clearAiJobMatchEmptyCooldown:47 |
+| [lib/admin/aiJobMatchCompute.ts](../../../lib/admin/aiJobMatchCompute.ts) | 54 | administration | JobMatchInput:3, AI_JOB_MATCH_EMPTY_COOLDOWN_MS:11, getOrComputeAiJobMatches:16, markAiJobMatchEmptyCooldown:48, clearAiJobMatchEmptyCooldown:52 |
 | [lib/admin/analytics.ts](../../../lib/admin/analytics.ts) | 258 | administration | MemberStatusCounts:14, EnrollmentTrend:21, ProgramProgress:27, PlacementRate:33, CounselorLoad:39, AnalyticsOverview:44, getAnalyticsOverview:61 |
 | [lib/admin/analyticsOverview.ts](../../../lib/admin/analyticsOverview.ts) | 298 | administration | AnalyticsFunnel:15, AnalyticsEngagement:22, AnalyticsOutcomes:30, AnalyticsFundingRow:38, AnalyticsProgramRow:44, AnalyticsAcquisitionStep:50, AnalyticsAcquisition:59, AnalyticsOverview:65, loadAnalyticsOverview:89 |
 | [lib/admin/applicationReview.ts](../../../lib/admin/applicationReview.ts) | 141 | administration | ApplicationReviewResult:20, changeApplicationStatus:30 |
@@ -66,8 +66,8 @@
 | [lib/admin/overviewOrgFilter.test.ts](../../../lib/admin/overviewOrgFilter.test.ts) | 47 | administration |  |
 | [lib/admin/overviewOrgFilter.ts](../../../lib/admin/overviewOrgFilter.ts) | 75 | administration | trainingDashboardMemberWhere:5, triageDigestMemberWhere:17, triageDigestNewApplicantWhere:27, triageDigestStaleTrainingWhere:38, triageDigestEventWhere:48, triageDigestAssignmentWhere:58, analyticsOverviewUserWhere:67 |
 | [lib/admin/roleLabels.ts](../../../lib/admin/roleLabels.ts) | 18 | administration | directoryRoleLabel:14 |
-| [lib/admin/runAdminJobMatchesGet.test.ts](../../../lib/admin/runAdminJobMatchesGet.test.ts) | 133 | administration |  |
-| [lib/admin/runAdminJobMatchesGet.ts](../../../lib/admin/runAdminJobMatchesGet.ts) | 107 | administration | AdminJobMatchRow:5, RunAdminJobMatchesDeps:21, serializeAdminJobMatchRow:39, runAdminJobMatchesGet:52 |
+| [lib/admin/runAdminJobMatchesGet.test.ts](../../../lib/admin/runAdminJobMatchesGet.test.ts) | 135 | administration |  |
+| [lib/admin/runAdminJobMatchesGet.ts](../../../lib/admin/runAdminJobMatchesGet.ts) | 105 | administration | AdminJobMatchRow:5, RunAdminJobMatchesDeps:21, serializeAdminJobMatchRow:39, runAdminJobMatchesGet:52 |
 | [lib/admin/studentStatus.ts](../../../lib/admin/studentStatus.ts) | 122 | administration | StudentStatus:4, STUDENT_STATUS_LABELS:6, StudentStatusContext:14, getStudentStatus:35, buildStatusWhere:55 |
 | [lib/admin/studentsRosterEnrichment.ts](../../../lib/admin/studentsRosterEnrichment.ts) | 233 | administration | StudentRosterEnrichmentRow:16, loadStudentRosterEnrichment:78 |
 | [lib/admin/trainingDashboard.ts](../../../lib/admin/trainingDashboard.ts) | 315 | administration | TrainingDashboardMetrics:20, TrainingDashboardRow:29, TrainingDashboardData:56, loadTrainingDashboardData:70 |
@@ -482,7 +482,7 @@
 | [lib/employer/rankProgramsForEmployerJob.test.ts](../../../lib/employer/rankProgramsForEmployerJob.test.ts) | 73 | jobs-employers |  |
 | [lib/employer/rankProgramsForEmployerJob.ts](../../../lib/employer/rankProgramsForEmployerJob.ts) | 510 | jobs-employers | ProgramMatchConfidence:3, RankedProgramMatch:5, rankProgramsForEmployerJob:479, __rankProgramsForEmployerJob:503 |
 | [lib/employer/service.ts](../../../lib/employer/service.ts) | 54 | jobs-employers | CreateEmployerUserOptions:7, createEmployerUser:12 |
-| [lib/employer/triggerEmployerJobAiMatch.ts](../../../lib/employer/triggerEmployerJobAiMatch.ts) | 40 | jobs-employers | runAiMatchForLiveJob:9 |
+| [lib/employer/triggerEmployerJobAiMatch.ts](../../../lib/employer/triggerEmployerJobAiMatch.ts) | 38 | jobs-employers | runAiMatchForLiveJob:10 |
 | [lib/employer/workQueue.ts](../../../lib/employer/workQueue.ts) | 78 | jobs-employers | getEmployerWorkQueueSlices:11, countEmployerQueueBadges:69 |
 | [lib/enroll/enrollmentPath.ts](../../../lib/enroll/enrollmentPath.ts) | 10 | applications-enrollment | enrollmentPathSegment:4, enrollmentPathForSlug:8 |
 | [lib/enroll/resolveEnrollmentPartner.test.ts](../../../lib/enroll/resolveEnrollmentPartner.test.ts) | 31 | applications-enrollment |  |

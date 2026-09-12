@@ -139,6 +139,49 @@ describe('sendBrandedEmail', () => {
     assert.deepEqual(delays, []);
   });
 
+  it('does not consume a provider retry delay beyond the caller request deadline', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const nowMs = 1_000;
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: {
+              name: 'rate_limit_exceeded',
+              message: 'Rate limited beyond remaining request time',
+              headers: { 'Retry-After': '60' },
+            },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    await assert.rejects(
+      sendBrandedEmail(
+        resend,
+        {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'applicant@example.com',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        },
+        {
+          now: () => nowMs,
+          sleep: async (ms) => { delays.push(ms); },
+          deadlineAtMs: nowMs + 30_000,
+        },
+      ),
+      /Rate limited beyond remaining request time/,
+    );
+
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
+  });
+
   it('strips CR/LF from headers so a newline in NEXT_PUBLIC_SITE_URL cannot fail the send', async () => {
     process.env.CRON_SECRET = 'test-unsubscribe-secret';
     // Exactly how the production outage was configured: a pasted trailing newline.

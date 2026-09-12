@@ -17,6 +17,9 @@ vi.mock('@/lib/db/prisma', () => ({
     user: {
       findMany: vi.fn(),
     },
+    weeklyRecap: {
+      update: vi.fn(),
+    },
   },
 }));
 
@@ -345,10 +348,58 @@ describe('GET /api/cron/weekly-recap', () => {
       );
     });
 
-    it('keeps recipients skipped by the pacing budget retryable on the next run', async () => {
+    it('retries a persisted recap after an actual failed delivery on the next run', async () => {
+      const members = mockMembers([
+        { id: 'user-1', email: 'alice@example.com', fullName: 'Alice Smith', enrolledProgram: 'cdl' },
+      ]);
+      const recaps = mockRecaps([mockRecaps()[0]]);
+      let persistedRecap = false;
+      let emailedAt: Date | null = null;
+
+      vi.mocked(prisma.user.findMany).mockImplementation((async () =>
+        (!persistedRecap || emailedAt === null ? members : []) as any
+      ) as any);
+      vi.mocked(generateWeeklyRecaps).mockImplementation(async () => {
+        persistedRecap = true;
+        return recaps;
+      });
+      vi.mocked(sendWeeklyRecapEmail)
+        .mockResolvedValueOnce({ ok: false, error: 'provider rejected delivery' })
+        .mockResolvedValueOnce({ ok: true });
+      vi.mocked(prisma.weeklyRecap.update).mockImplementation((async ({ data }: any) => {
+        emailedAt = data.emailedAt;
+        return {} as any;
+      }) as any);
+
+      const request = () => makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const first = await (await runWeeklyRecap(request())).json();
+      const second = await (await runWeeklyRecap(request())).json();
+
+      expect(first).toEqual({ sent: 0, failed: 1, total: 1 });
+      expect(second).toEqual({ sent: 1, failed: 0, total: 1 });
+      expect(generateWeeklyRecaps).toHaveBeenCalledTimes(2);
+      expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(sendWeeklyRecapEmail).mock.calls[0][0].idempotencyKey)
+        .toBe(vi.mocked(sendWeeklyRecapEmail).mock.calls[1][0].idempotencyKey);
+      expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(1);
+      expect(emailedAt).toBeInstanceOf(Date);
+      expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({
+          weeklyRecaps: {
+            none: {
+              weekStartDate: { gte: expect.any(Date) },
+              emailedAt: { not: null },
+            },
+          },
+        }),
+      }));
+    });
+
+    it('uses one request deadline for generation, pacing, and truthful tail accounting', async () => {
       vi.useFakeTimers();
       try {
-        const members = Array.from({ length: 482 }, (_, index) => ({
+        vi.setSystemTime(new Date('2026-09-11T00:00:00.000Z'));
+        const members = Array.from({ length: 500 }, (_, index) => ({
           id: `user-${index}`,
           email: `member-${index}@example.com`,
           fullName: `Member ${index}`,
@@ -356,10 +407,12 @@ describe('GET /api/cron/weekly-recap', () => {
         }));
         const recapData = mockRecaps()[0].recapData;
         vi.mocked(prisma.user.findMany).mockResolvedValue(members as any);
-        vi.mocked(generateWeeklyRecaps).mockImplementation(async (selectedMembers) =>
-          selectedMembers.map((member) => ({ userId: member.id, recapData, score: 72 })) as any,
-        );
+        vi.mocked(generateWeeklyRecaps).mockImplementation(async (selectedMembers) => {
+          vi.setSystemTime(new Date(Date.now() + 260_000));
+          return selectedMembers.map((member) => ({ userId: member.id, recapData, score: 72 })) as any;
+        });
         vi.mocked(sendWeeklyRecapEmail).mockResolvedValue({ ok: true });
+        vi.mocked(prisma.weeklyRecap.update).mockResolvedValue({} as any);
 
         const pendingResult = runWeeklyRecap(
           makeRequest({ authorization: 'Bearer super-secret-cron-key' }),
@@ -368,15 +421,18 @@ describe('GET /api/cron/weekly-recap', () => {
         const body = await (await pendingResult).json();
 
         expect(body).toEqual({
-          sent: 481,
+          sent: 20,
           failed: 0,
-          skipped: 1,
-          total: 482,
-          skipReason: 'pacing_budget_exhausted',
+          skipped: 480,
+          total: 500,
+          skipReason: 'request_deadline_exhausted',
         });
-        const generatedMembers = vi.mocked(generateWeeklyRecaps).mock.calls[0][0];
-        expect(generatedMembers).toHaveLength(481);
-        expect(generatedMembers).not.toContainEqual(members[481]);
+        expect(generateWeeklyRecaps).toHaveBeenCalledWith(members, expect.any(Date));
+        expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(20);
+        expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(20);
+        const deadlines = vi.mocked(sendWeeklyRecapEmail).mock.calls.map(([params]) => params.deadlineAtMs);
+        expect(new Set(deadlines)).toEqual(new Set([new Date('2026-09-11T00:00:00.000Z').getTime() + 270_000]));
+        expect(body.sent + body.failed + body.skipped).toBe(body.total);
       } finally {
         vi.useRealTimers();
       }

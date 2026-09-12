@@ -1,14 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { boundedPacingCapacity, createBoundedPacer } from '@/lib/email/pacing';
+import { createBoundedPacer } from '@/lib/email/pacing';
 
 describe('createBoundedPacer', () => {
-  it('calculates the sendable batch before recap rows are generated', () => {
-    assert.equal(boundedPacingCapacity(500, 240_000), 481);
-    assert.equal(boundedPacingCapacity(0, 240_000), Number.MAX_SAFE_INTEGER);
-  });
-
   it('shares one deterministic cadence across successive sends', async () => {
     let now = 1_000;
     const delays: number[] = [];
@@ -51,4 +46,26 @@ describe('createBoundedPacer', () => {
     });
     assert.deepEqual(delays, [500]);
   });
+  it('does not wait past a shared absolute request deadline', async () => {
+    let now = 10_000;
+    const delays: number[] = [];
+    const pace = createBoundedPacer({
+      intervalMs: 500,
+      deadlineAtMs: 10_400,
+      now: () => now,
+      sleep: async (ms) => {
+        delays.push(ms);
+        now += ms;
+      },
+    });
+
+    assert.deepEqual(await pace(), { ok: true, waitedMs: 0 });
+    assert.deepEqual(await pace(), {
+      ok: false,
+      reason: 'request_deadline_exhausted',
+      requiredWaitMs: 500,
+    });
+    assert.deepEqual(delays, []);
+  });
+
 });

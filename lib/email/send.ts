@@ -38,6 +38,8 @@ export interface SendBrandedEmailRetryOptions {
   sleep?: Sleep;
   /** Test seam for absolute Retry-After / rate-limit reset values. */
   now?: () => number;
+  /** Shared caller deadline; no provider retry sleep may cross it. */
+  deadlineAtMs?: number;
 }
 
 export const UNSUBSCRIBE_ADDRESS =
@@ -234,11 +236,13 @@ export async function sendBrandedEmail(
         ? await resend.emails.send(payload, { idempotencyKey: args.idempotencyKey })
         : await resend.emails.send(payload);
     } catch (err) {
-      const delayMs = resendRetryDelayMs(err, attempt, now());
+      const nowMs = now();
+      const delayMs = resendRetryDelayMs(err, attempt, nowMs);
       if (
         delayMs !== null
         && attempt < RESEND_MAX_ATTEMPTS
         && totalRetryWaitMs + delayMs <= RESEND_RETRY_MAX_TOTAL_WAIT_MS
+        && (retryOptions.deadlineAtMs === undefined || nowMs + delayMs < retryOptions.deadlineAtMs)
       ) {
         totalRetryWaitMs += delayMs;
         await sleep(delayMs);
@@ -250,11 +254,13 @@ export async function sendBrandedEmail(
 
     // Resend resolves with { data, error } instead of throwing on API errors.
     if (!result.error) return result;
-    const delayMs = resendRetryDelayMs(result.error, attempt, now());
+    const nowMs = now();
+    const delayMs = resendRetryDelayMs(result.error, attempt, nowMs);
     if (
       delayMs !== null
       && attempt < RESEND_MAX_ATTEMPTS
       && totalRetryWaitMs + delayMs <= RESEND_RETRY_MAX_TOTAL_WAIT_MS
+      && (retryOptions.deadlineAtMs === undefined || nowMs + delayMs < retryOptions.deadlineAtMs)
     ) {
       totalRetryWaitMs += delayMs;
       await sleep(delayMs);

@@ -7,13 +7,15 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
-import { boundedPacingCapacity, createBoundedPacer } from '@/lib/email/pacing';
+import { createBoundedPacer } from '@/lib/email/pacing';
 import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
 
 export const maxDuration = 300;
 
 const RECAP_SEND_INTERVAL_MS = 500;
-const RECAP_PACING_MAX_TOTAL_WAIT_MS = 240_000;
+// Keep one deadline across selection, generation, pacing, and provider retries.
+// The final 30 seconds of the platform limit remain reserved for accounting/logging.
+const RECAP_REQUEST_BUDGET_MS = maxDuration * 1_000 - 30_000;
 
 /**
  * GET /api/cron/weekly-recap
@@ -27,6 +29,7 @@ const RECAP_PACING_MAX_TOTAL_WAIT_MS = 240_000;
  * Or trigger manually from admin at /admin/weekly-recap.
  */
 async function handle(_request: Request) {
+  const requestDeadlineAtMs = Date.now() + RECAP_REQUEST_BUDGET_MS;
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
   weekStart.setHours(0, 0, 0, 0);
@@ -43,8 +46,14 @@ async function handle(_request: Request) {
         { courseEnrollments: { some: {} } },
         { enrolledProgram: { not: null } },
       ],
-      // Members who have no recap for this week yet
-      weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
+      // A generated recap is not delivered until emailedAt is set. Failed or
+      // deadline-skipped persisted rows therefore remain eligible on the next run.
+      weeklyRecaps: {
+        none: {
+          weekStartDate: { gte: weekStart },
+          emailedAt: { not: null },
+        },
+      },
     },
     select: { id: true, email: true, fullName: true, enrolledProgram: true },
     take: 500,
@@ -52,24 +61,18 @@ async function handle(_request: Request) {
 
   let sent = 0;
   let failed = 0;
-  const sendCandidateLimit = boundedPacingCapacity(
-    RECAP_SEND_INTERVAL_MS,
-    RECAP_PACING_MAX_TOTAL_WAIT_MS,
-  );
-  const sendCandidates = members.slice(0, sendCandidateLimit);
-  let skipped = members.length - sendCandidates.length;
+  let skipped = 0;
+  let skipReason: 'pacing_budget_exhausted' | 'request_deadline_exhausted' | undefined;
 
-  // Generate only the rows this invocation has enough pacing budget to send.
-  // A persisted WeeklyRecap excludes the member from the next run, so generating
-  // rows for the skipped tail would silently make those recipients non-retryable.
-  const recaps = await generateWeeklyRecaps(sendCandidates, weekStart);
+  // Generated rows remain retryable until a provider-accepted send sets emailedAt.
+  const recaps = await generateWeeklyRecaps(members, weekStart);
   const recapByUserId = new Map(recaps.map((r) => [r.userId, r.recapData]));
   const waitForSendSlot = createBoundedPacer({
     intervalMs: RECAP_SEND_INTERVAL_MS,
-    maxTotalWaitMs: RECAP_PACING_MAX_TOTAL_WAIT_MS,
+    deadlineAtMs: requestDeadlineAtMs,
   });
 
-  for (const [index, member] of sendCandidates.entries()) {
+  for (const [index, member] of members.entries()) {
     try {
       const recapData = recapByUserId.get(member.id) as Parameters<typeof buildWeeklyRecapEmailSummary>[0] | undefined;
       if (!recapData) { failed++; continue; }
@@ -77,7 +80,8 @@ async function handle(_request: Request) {
       const recapSummary = buildWeeklyRecapEmailSummary(recapData);
       const pace = await waitForSendSlot();
       if (!pace.ok) {
-        skipped += sendCandidates.length - index;
+        skipped += members.length - index;
+        skipReason = pace.reason;
         break;
       }
 
@@ -86,6 +90,7 @@ async function handle(_request: Request) {
         fullName: member.fullName ?? member.email,
         recapSummary,
         idempotencyKey: `weekly-recap:${member.id}:${weekStart.toISOString().slice(0, 10)}`,
+        deadlineAtMs: requestDeadlineAtMs,
       });
 
       // sendWeeklyRecapEmail catches Resend failures internally and
@@ -100,6 +105,10 @@ async function handle(_request: Request) {
         });
         failed++;
       } else {
+        await prisma.weeklyRecap.update({
+          where: { userId_weekStartDate: { userId: member.id, weekStartDate: weekStart } },
+          data: { emailedAt: new Date() },
+        });
         // Do not set openedAt here — that field means the member opened the recap in the portal.
         sent++;
       }
@@ -113,7 +122,7 @@ async function handle(_request: Request) {
     sent,
     failed,
     total: members.length,
-    ...(skipped > 0 ? { skipped, skipReason: 'pacing_budget_exhausted' } : {}),
+    ...(skipped > 0 ? { skipped, skipReason } : {}),
   };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_weekly_recap', runResult, getWeeklyRecapCronStatus(failed, skipped));

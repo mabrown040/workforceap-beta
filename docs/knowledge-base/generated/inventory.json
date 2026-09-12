@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "414875f9e1649086bff4a144be12d4bb99f90cec941dfa6745c1752d2fa197c1",
+  "inputTreeSha256": "da9a52e2098a7cad38ed5d3b0a0a53078cfbc7fe9622ef642d95a0a5d486b61a",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -46415,6 +46415,15 @@
       "bytes": 894,
       "lines": 34,
       "sha256": "07eff09cb376eea0bc672bbf75ec855759d761656359dc060e0601372b4f754e",
+      "binary": false
+    },
+    {
+      "path": "artifacts/wap-42/postgres-proof.json",
+      "area": "supporting-files",
+      "domain": "supporting-files",
+      "bytes": 992,
+      "lines": 46,
+      "sha256": "32ee444c99e1d82fe23c08ddb4088f3a39f76721a6b20e2067b2105ecfd50915",
       "binary": false
     },
     {

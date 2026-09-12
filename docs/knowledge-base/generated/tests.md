@@ -66,7 +66,7 @@
 | [tests/api/cron-smoke-test.spec.ts](../../../tests/api/cron-smoke-test.spec.ts) | 230 | tests |  |
 | [tests/api/cron-weekly-recap.spec.ts](../../../tests/api/cron-weekly-recap.spec.ts) | 172 | tests |  |
 | [tests/api/donate-page.spec.ts](../../../tests/api/donate-page.spec.ts) | 73 | partners-funding |  |
-| [tests/api/employer-checkout.spec.ts](../../../tests/api/employer-checkout.spec.ts) | 413 | tests |  |
+| [tests/api/employer-checkout.spec.ts](../../../tests/api/employer-checkout.spec.ts) | 432 | tests |  |
 | [tests/api/employer-job-import.spec.ts](../../../tests/api/employer-job-import.spec.ts) | 115 | tests |  |
 | [tests/api/employer-jobs-bulk-delete-route.spec.ts](../../../tests/api/employer-jobs-bulk-delete-route.spec.ts) | 126 | tests |  |
 | [tests/api/employer-jobs-pending.spec.ts](../../../tests/api/employer-jobs-pending.spec.ts) | 176 | tests |  |
@@ -123,6 +123,7 @@
 | [tests/api/resume-builder.spec.ts](../../../tests/api/resume-builder.spec.ts) | 767 | tests |  |
 | [tests/api/school-apply-variant.spec.ts](../../../tests/api/school-apply-variant.spec.ts) | 64 | tests |  |
 | [tests/api/skill-missions-curriculum-version.spec.ts](../../../tests/api/skill-missions-curriculum-version.spec.ts) | 289 | tests |  |
+| [tests/api/stripe-webhook-organization.spec.ts](../../../tests/api/stripe-webhook-organization.spec.ts) | 185 | tests |  |
 | [tests/api/testimonials.spec.ts](../../../tests/api/testimonials.spec.ts) | 502 | tests |  |
 | [tests/api/voice-session-boundaries.spec.ts](../../../tests/api/voice-session-boundaries.spec.ts) | 313 | tests |  |
 | [tests/api/webhooks-learning-completion.spec.ts](../../../tests/api/webhooks-learning-completion.spec.ts) | 162 | tests |  |
@@ -138,6 +139,7 @@
 | [tests/app/counselor-contextual-messages.spec.tsx](../../../tests/app/counselor-contextual-messages.spec.tsx) | 97 | tests |  |
 | [tests/app/counselor-handoff-access.spec.tsx](../../../tests/app/counselor-handoff-access.spec.tsx) | 74 | tests |  |
 | [tests/app/diagnostics-read-reliability.spec.tsx](../../../tests/app/diagnostics-read-reliability.spec.tsx) | 57 | tests |  |
+| [tests/app/employer-billing-page.spec.tsx](../../../tests/app/employer-billing-page.spec.tsx) | 66 | tests |  |
 | [tests/app/member-dashboard-layout.spec.tsx](../../../tests/app/member-dashboard-layout.spec.tsx) | 89 | tests |  |
 | [tests/app/member-referrals-page.spec.tsx](../../../tests/app/member-referrals-page.spec.tsx) | 33 | tests |  |
 | [tests/app/member-training-feedback.spec.tsx](../../../tests/app/member-training-feedback.spec.tsx) | 78 | tests |  |

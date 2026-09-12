@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "193631cd73cb13f5686d162dd31068fe5d840dfa06840b50fa95a9397400a3eb",
+  "inputTreeSha256": "13acd4a775dfc320fb75c32a24f94198d67b2e2a733b6eccb1701f5f7b665975",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1445,9 +1445,9 @@
       "path": ".github/workflows/ci-gate.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 4985,
-      "lines": 133,
-      "sha256": "5504c30a429984fbad66fc009473aaddec81bb5e1cfec9f82500d28585234e84",
+      "bytes": 4878,
+      "lines": 130,
+      "sha256": "3b23418a4ec513e50192c1f1c1f77a9926e3fd9318239642fac2c52ab148c68e",
       "binary": false
     },
     {
@@ -3319,9 +3319,9 @@
       "path": "ENV-VARIABLES.md",
       "area": "root",
       "domain": "root",
-      "bytes": 9211,
+      "bytes": 8985,
       "lines": 159,
-      "sha256": "f7636d8d7963595eb2910b2081eca63581d6c5bf48e67abcf7627b8737443d2e",
+      "sha256": "32f35313f65e55758f93aa9dcbca3f1924b40c7865a606807b445f256a3af9bb",
       "binary": false
     },
     {
@@ -7604,14 +7604,14 @@
       "path": "app/(portal)/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 5863,
-      "lines": 189,
-      "sha256": "c7ddd31a2cfcc672ae3abd17a3ca0961590c11718081bd8d46b44f1c1ed07450",
+      "bytes": 5724,
+      "lines": 187,
+      "sha256": "d14751a72c770799da23f50be67476e5669b2166a4154c033befdcaca1f2b7d6",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 176,
+          "line": 174,
           "kind": "FunctionDeclaration",
           "localName": "ResumeRewriterClient"
         }
@@ -7634,7 +7634,7 @@
         },
         {
           "name": "ResumeRewriterClient",
-          "line": 176,
+          "line": 174,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -9028,9 +9028,9 @@
       "path": "app/(portal)/dashboard/jobs/JobsListingClient.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 24252,
+      "bytes": 24232,
       "lines": 714,
-      "sha256": "210e561bbdd5226fc2a6a1f4259d346b712bb50e4ea2c293616dad45fca66f93",
+      "sha256": "94292b646d3f827baf23c0b862f2541d84dfef163adf36788a0164f17d6e42c0",
       "binary": false,
       "exports": [
         {
@@ -11369,9 +11369,9 @@
       "path": "app/(portal)/employer/billing/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 7562,
+      "bytes": 7618,
       "lines": 198,
-      "sha256": "6db90ec1850ca4b9f5166bfe63531e77e708973f1662b32bc3cc43172289af06",
+      "sha256": "1045d6ecbea8dce2082177ee1b83354c06c88b443046f66644ecc2e3e3ed537d",
       "binary": false,
       "exports": [
         {
@@ -24570,9 +24570,9 @@
       "path": "app/api/admin/jobs/[id]/approve/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 4211,
+      "bytes": 4204,
       "lines": 111,
-      "sha256": "15b3ac49c564e2cc120f1be4e3a20e0a6f4a1ca0110449cd6dc79f6d665e2f9c",
+      "sha256": "b063a335088d9651d81672d4c24864fd0348e0d0dbcdc86e3c74a34db61f935a",
       "binary": false,
       "exports": [
         {
@@ -24599,26 +24599,21 @@
       "path": "app/api/admin/jobs/[id]/matches/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 2716,
-      "lines": 72,
-      "sha256": "c0475d7f2ac238787fe9505da06877f72c0fa2543eb937d51370e9fe37331a84",
+      "bytes": 1720,
+      "lines": 46,
+      "sha256": "ff1b2fe6f33717221070d5529f5fba6c35cf2a1edeb079702d87c1e0df21f005",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 21,
+          "line": 9,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
-          "name": "jobSelectForMatch",
-          "line": 12,
-          "kind": "Variable"
-        },
-        {
           "name": "GET",
-          "line": 21,
+          "line": 9,
           "kind": "Variable"
         }
       ],
@@ -24797,31 +24792,31 @@
       "path": "app/api/admin/members/[id]/award-points/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2736,
-      "lines": 71,
-      "sha256": "9d9db192f2ac7f823cf7edf2519970bf64c879f7f93b9878bfbcfa9b917b8507",
+      "bytes": 2478,
+      "lines": 64,
+      "sha256": "427de9af2c216fb2a16fa894ca137648b5a2d31983475445e8ff47f06c412c20",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 71,
+          "line": 64,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "Props",
-          "line": 11,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "_POST",
-          "line": 13,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 71,
+          "line": 64,
           "kind": "Variable"
         }
       ],
@@ -24904,31 +24899,31 @@
       "path": "app/api/admin/members/[id]/counselor/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 4226,
-      "lines": 104,
-      "sha256": "fc2bebb956c1df797a83697c86e6d56da6fb40a2e67d2b73d6f6e3cb1d59e946",
+      "bytes": 3952,
+      "lines": 102,
+      "sha256": "b4c0497b909c5dfc852c64ff9fbbc5d2b53512cb221ff2be36ba3600b9f08079",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 19,
+          "line": 18,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "bodySchema",
-          "line": 15,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "Props",
-          "line": 19,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "POST",
-          "line": 19,
+          "line": 18,
           "kind": "Variable"
         }
       ],
@@ -25205,46 +25200,46 @@
       "path": "app/api/admin/members/[id]/notes/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4250,
-      "lines": 102,
-      "sha256": "d07b722ed7d40fb6b2d1487430a7eafa486a65acc4b9094dc5fc73bffa7ae84e",
+      "bytes": 3973,
+      "lines": 95,
+      "sha256": "a1d58dd350bc95df49890a0209a20cb47acdb0ce77794836f96393f4665e0a69",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 59,
+          "line": 58,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 102,
+          "line": 95,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "noteSchema",
-          "line": 26,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "_GET",
-          "line": 28,
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 59,
+          "line": 58,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 59,
+          "line": 58,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 102,
+          "line": 95,
           "kind": "Variable"
         }
       ],
@@ -25511,26 +25506,26 @@
       "path": "app/api/admin/members/[id]/send-eligibility-link/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2783,
-      "lines": 63,
-      "sha256": "5f28d3a17eb5de3cee0b575f7d860daf84440e2f6082ab5fd51fdfc0d5c600ba",
+      "bytes": 2373,
+      "lines": 59,
+      "sha256": "4c2af5b9162c912362ff07ccaed52e42704bc3588ba2a3161bf0f15ab7fa8185",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 20,
+          "line": 18,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "SITE_URL",
-          "line": 11,
+          "line": 9,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 20,
+          "line": 18,
           "kind": "Variable"
         }
       ],
@@ -25637,46 +25632,46 @@
       "path": "app/api/admin/members/[id]/subgroup/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 5225,
-      "lines": 152,
-      "sha256": "e504bbbc4eec4c3fcd36ba6eb90e02a676ad636f01d90c69f2ab314a6234b5c7",
+      "bytes": 4687,
+      "lines": 139,
+      "sha256": "260b62f6222ec1fe81163867e7047f80511a161a754f07426157f865a511b2f0",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 85,
+          "line": 78,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 152,
+          "line": 139,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "postSchema",
-          "line": 12,
+          "line": 11,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 14,
+          "line": 13,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 85,
+          "line": 78,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 85,
+          "line": 78,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 152,
+          "line": 139,
           "kind": "Variable"
         }
       ],
@@ -28372,26 +28367,26 @@
       "path": "app/api/admin/users/[id]/reset-password/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2960,
-      "lines": 74,
-      "sha256": "b24af66e092829d8bf3bcf2b0b8cd4dea32b0004f0cd1b6fc7dd81ebf836c397",
+      "bytes": 2470,
+      "lines": 60,
+      "sha256": "8f3b29bf578931aae7209ee18c0ef438cbd36084742f1e4e7bab9d383658ba25",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 74,
+          "line": 60,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 18,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 74,
+          "line": 60,
           "kind": "Variable"
         }
       ],
@@ -28401,21 +28396,21 @@
       "path": "app/api/admin/users/[id]/restore/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7547,
-      "lines": 182,
-      "sha256": "aa7ebbf08987ceb696a9ea3d4742df3e5c4f60d658990701820c0c1a613d0a71",
+      "bytes": 7109,
+      "lines": 166,
+      "sha256": "c915b13a2ad9a04de2bf65795a5574d770026cc10f1ce33bfd3c97c820bf7b2f",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 16,
+          "line": 15,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 16,
+          "line": 15,
           "kind": "Variable"
         }
       ],
@@ -28425,51 +28420,51 @@
       "path": "app/api/admin/users/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 11938,
-      "lines": 310,
-      "sha256": "330a492d4c6fdfb9436fbd9e7c142d0f4fc9235352f9d099063fa8e21ffbab82",
+      "bytes": 9515,
+      "lines": 239,
+      "sha256": "165bede4ab3981fcbf64e8123278278babbcebbcb5c689f87d0a996329e0e46c",
       "binary": false,
       "exports": [
         {
           "name": "DELETE",
-          "line": 89,
+          "line": 88,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 310,
+          "line": 239,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_DELETE",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 89,
+          "line": 88,
           "kind": "Variable"
         },
         {
           "name": "schema",
-          "line": 91,
+          "line": 90,
           "kind": "Variable"
         },
         {
           "name": "rollbackSupabaseEmailChange",
-          "line": 97,
+          "line": 96,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_PATCH",
-          "line": 109,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 310,
+          "line": 239,
           "kind": "Variable"
         }
       ],
@@ -28600,9 +28595,9 @@
       "path": "app/api/admin/users/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 8709,
-      "lines": 236,
-      "sha256": "371cf7b1b23ff13d0dfaa544ae7e9e984ebf32a85f15503560425d468dd82c38",
+      "bytes": 7392,
+      "lines": 196,
+      "sha256": "b815ecf9da649ed5b1ba56bcb0ecd6bb4f7c8afa77e7873bd8120311d92452dd",
       "binary": false,
       "exports": [
         {
@@ -28612,7 +28607,7 @@
         },
         {
           "name": "POST",
-          "line": 236,
+          "line": 196,
           "kind": "Variable"
         }
       ],
@@ -28639,7 +28634,7 @@
         },
         {
           "name": "POST",
-          "line": 236,
+          "line": 196,
           "kind": "Variable"
         }
       ],
@@ -29756,14 +29751,14 @@
       "path": "app/api/auth/login/route.ts",
       "area": "api",
       "domain": "identity-tenancy",
-      "bytes": 12440,
-      "lines": 296,
-      "sha256": "7a35c7d4cd441f720905c0c38d521a93f67403a2e1f2258f377904783b73d998",
+      "bytes": 10663,
+      "lines": 253,
+      "sha256": "84c3732698dafa2ad487d335a16bcd5b19d930504b1e947394b09de54385dc30",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 294,
+          "line": 251,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -29775,7 +29770,7 @@
         },
         {
           "name": "POST",
-          "line": 294,
+          "line": 251,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -30031,31 +30026,31 @@
       "path": "app/api/consent/[token]/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4094,
-      "lines": 116,
-      "sha256": "8fae9004af68eeb7be34f5bfd8975322d752c771f32880b53150937580f18493",
+      "bytes": 4246,
+      "lines": 121,
+      "sha256": "9b315e675e016a4fa9c70c805d0d879272bf26b678d2ffba72c871fa9a7d140a",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 35,
+          "line": 32,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "submitSchema",
-          "line": 20,
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "getClientIp",
-          "line": 27,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 35,
+          "line": 32,
           "kind": "Variable"
         }
       ],
@@ -31319,56 +31314,61 @@
       "path": "app/api/cron/at-risk-alerts/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 2240,
-      "lines": 51,
-      "sha256": "8ca0f23871ed23a0d85f3a3e262cbc6b17c6e14483930c6fde04d23053d6dbe2",
+      "bytes": 2289,
+      "lines": 57,
+      "sha256": "2d9af56f3715cf43253045fc2c60d0cf346248e73bd2d12bad62ae915f0822cf",
       "binary": false,
       "exports": [
         {
           "name": "runtime",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "maxDuration",
           "line": 11,
           "kind": "Variable"
         },
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 50,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 51,
+          "line": 57,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "runtime",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "maxDuration",
           "line": 11,
           "kind": "Variable"
         },
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "verifyCronSecret",
+          "line": 14,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "handle",
-          "line": 34,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 50,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 51,
+          "line": 57,
           "kind": "Variable"
         }
       ],
@@ -32958,21 +32958,21 @@
       "path": "app/api/employer/checkout/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 3488,
-      "lines": 94,
-      "sha256": "20310b18da9233df4d7c67d7a45d63e2379ad58a991f939558742b7054046937",
+      "bytes": 3666,
+      "lines": 103,
+      "sha256": "d611755fa1ba19de8d2adc906ac570f153ac6666f90bcd5a333dafaf4150699a",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 16,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 16,
           "kind": "Variable"
         }
       ],
@@ -36919,9 +36919,9 @@
       "path": "app/api/member/readiness/voice-session/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2657,
-      "lines": 61,
-      "sha256": "537f4eb7eafeb44b1bee0e910acb16fc0276ed6fa435ca1386022573949aedc7",
+      "bytes": 2432,
+      "lines": 53,
+      "sha256": "3dd17d3d534371bd8b9440b3e92979e07e31da69f38f1ab8640b99f9a702da86",
       "binary": false,
       "exports": [
         {
@@ -37181,9 +37181,9 @@
       "path": "app/api/member/resume-coach/session/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 4807,
-      "lines": 118,
-      "sha256": "5cbffec1286e1c348dc7527278f106571368b71433151b90cb4eb08f36a0d34f",
+      "bytes": 4632,
+      "lines": 114,
+      "sha256": "70b7cef0dc8c4a167c61675c9602243945dbf7f36149acb5e060dc1b8e297395",
       "binary": false,
       "exports": [
         {
@@ -37951,21 +37951,21 @@
       "path": "app/api/member/wioa-qualification/voice-session/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 3391,
-      "lines": 75,
-      "sha256": "73f09eeb5fe8721952a068c4d7e3770e138bd90c147986b5c66630e892ce9b58",
+      "bytes": 4559,
+      "lines": 99,
+      "sha256": "b8db5de95216f7576480f1c3d5aedbbe327ab0e4fba8bd882db939c22a907202",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 10,
+          "line": 13,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 10,
+          "line": 13,
           "kind": "Variable"
         }
       ],
@@ -39762,21 +39762,36 @@
       "path": "app/api/stripe/webhook/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 9162,
-      "lines": 218,
-      "sha256": "7dda7bdf727d01a87e7c7f1930f81cfc678069d3fd016684768672e47abc34b3",
+      "bytes": 11362,
+      "lines": 273,
+      "sha256": "088ff44464b670a7aebf2f53b2ec7c364d521f361ac28a2df1b47707020767fe",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 17,
+          "line": 48,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "normalizeStripeId",
+          "line": 11,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "invoiceSubscriptionId",
+          "line": 20,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "orderedOrganizationWhere",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "POST",
-          "line": 17,
+          "line": 48,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -46415,15 +46430,6 @@
       "bytes": 894,
       "lines": 34,
       "sha256": "07eff09cb376eea0bc672bbf75ec855759d761656359dc060e0601372b4f754e",
-      "binary": false
-    },
-    {
-      "path": "artifacts/wap-42/postgres-proof.json",
-      "area": "supporting-files",
-      "domain": "supporting-files",
-      "bytes": 992,
-      "lines": 46,
-      "sha256": "32ee444c99e1d82fe23c08ddb4088f3a39f76721a6b20e2067b2105ecfd50915",
       "binary": false
     },
     {
@@ -59162,9 +59168,9 @@
       "path": "components/portal/LearningPathCard.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4729,
+      "bytes": 4686,
       "lines": 134,
-      "sha256": "83f25edcf2eba006638224f7aa9163f25ffbc40905aa9604e8372a7e81114db0",
+      "sha256": "c9eef200e81050041e978ca559eef9867035e0efc2a2e4de2385ee7cad7c5735",
       "binary": false,
       "exports": [
         {
@@ -59322,9 +59328,9 @@
       "path": "components/portal/MemberDashboardVoiceSection.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3091,
+      "bytes": 3042,
       "lines": 75,
-      "sha256": "69c49188af97d5eb302bc2ccf135ffd13c544401fba38746b012cd035ede0eff",
+      "sha256": "c22b93da0a6bc1ce69c25f55e9a0d82e92878ad8c75d350e47e0a1f74c1a51cd",
       "binary": false,
       "exports": [
         {
@@ -61048,9 +61054,9 @@
       "path": "components/portal/PortalVoiceSession.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 47885,
-      "lines": 1313,
-      "sha256": "621eb4af4341a606a7da071be1f8a29f7a7058686f6364ebd9829e3457fb7bcb",
+      "bytes": 46131,
+      "lines": 1276,
+      "sha256": "8a8dc71f91516e94d39d93c2db2f580a7ba50a160cee2c486da05e50f7cf1a56",
       "binary": false,
       "exports": [
         {
@@ -61070,7 +61076,7 @@
         },
         {
           "name": "default",
-          "line": 195,
+          "line": 189,
           "kind": "FunctionDeclaration",
           "localName": "PortalVoiceSession"
         }
@@ -61123,27 +61129,27 @@
         },
         {
           "name": "PULSE_STYLE",
-          "line": 179,
+          "line": 173,
           "kind": "Variable"
         },
         {
           "name": "LIVE_RESUME_CONTEXT_PREFIX",
-          "line": 185,
+          "line": 179,
           "kind": "Variable"
         },
         {
           "name": "LIVE_RESUME_CONTEXT_MAX_BODY",
-          "line": 187,
+          "line": 181,
           "kind": "Variable"
         },
         {
           "name": "logVoice",
-          "line": 189,
+          "line": 183,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PortalVoiceSession",
-          "line": 195,
+          "line": 189,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -63226,9 +63232,9 @@
       "path": "components/portal/VoiceCoachesPromo.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4388,
+      "bytes": 4252,
       "lines": 108,
-      "sha256": "2579d801b777f61cdcbafe5a8056c97b504a3b7772ba814c762fa352a994ae52",
+      "sha256": "7f5e307a0229c8657949295897e67a8c170ff3fdec7e085f4af25604b9c9d7d6",
       "binary": false,
       "exports": [
         {
@@ -63371,9 +63377,9 @@
       "path": "components/portal/WioaQualificationClient.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 22059,
-      "lines": 546,
-      "sha256": "9c4eae3ce1e345d1075a81b724ca086d778bfc885c8c44b5fa97f17da7ebe9fd",
+      "bytes": 21678,
+      "lines": 531,
+      "sha256": "4a5eade5729a1483d0916341e93ffc9e80fbe87b1a255a04270c3172fd292e0a",
       "binary": false,
       "exports": [
         {
@@ -66496,9 +66502,9 @@
       "path": "components/portal/kit/pages/VoiceStudioKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 66155,
+      "bytes": 65877,
       "lines": 1616,
-      "sha256": "a5a34faac5447748f33bf2a97733fd33e19c1cbeba17ab86841859e604a19874",
+      "sha256": "7925c2533cf5603c9a1b5671d26e82181d966fe83d813de4033edf7a36ac5f8f",
       "binary": false,
       "exports": [
         {
@@ -72369,9 +72375,9 @@
       "path": "components/portal/tools/MockInterviewVideoRecorder.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 10774,
-      "lines": 351,
-      "sha256": "900986cdd5b1118af68a5ebd83274d1b1353bc94d0e9b8d847208746bfa61d71",
+      "bytes": 10754,
+      "lines": 350,
+      "sha256": "24cb37b31c41df26fa21134f63414ff69201b0700a1783be52b4c82afe6f4469",
       "binary": false,
       "exports": [
         {
@@ -74460,9 +74466,9 @@
       "path": "css/main.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 237525,
-      "lines": 8748,
-      "sha256": "0c579ac88f5625c055a9a77571ed61074f41cc0a4d5ffb27c819efe71eda1e5a",
+      "bytes": 234550,
+      "lines": 8638,
+      "sha256": "3aae7d04cec88959bf18a54f154875e8ec0ae55350190365d7764a72cf12d021",
       "binary": false
     },
     {
@@ -74784,9 +74790,9 @@
       "path": "docs/DATABASE-RECOVERY.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10206,
-      "lines": 155,
-      "sha256": "105c59f9eb5a5e14c866b6c0c59fbf71bed30678fae660a8cfed60d6c5ce3bd0",
+      "bytes": 8164,
+      "lines": 125,
+      "sha256": "150924dc152c00e42763b92673d50666ce7a2e74f4b1ea040bc36e2a50788a1b",
       "binary": false
     },
     {
@@ -76746,9 +76752,9 @@
       "path": "docs/auth-troubleshooting.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 3073,
-      "lines": 53,
-      "sha256": "0c5d3e09bc1666c31d22bf1fc07a7b52a2a81be203695e141a322ee0398aab48",
+      "bytes": 2456,
+      "lines": 47,
+      "sha256": "1f1c7995fb326dbb46b7cf35120b258180d0b3b333ccdae167a5ee1da505a8b3",
       "binary": false
     },
     {
@@ -76926,9 +76932,9 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 7077,
+      "bytes": 6963,
       "lines": 62,
-      "sha256": "42ab99e1a9f2e3f7b1c79d0aa42ac783cb3bd1dbb854960394b7685c965a5732",
+      "sha256": "bb167a18f703636f79675aab027d0a5afe1ecb8ac2e9946e9ffab2f6b3b4acd5",
       "binary": false
     },
     {
@@ -76944,9 +76950,9 @@
       "path": "docs/knowledge-base/integrations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 32056,
+      "bytes": 32468,
       "lines": 133,
-      "sha256": "2f6b0af9207d885c4ee2cc9a5a9517e4f712a6769d95466cd7049d26827f2f83",
+      "sha256": "75a3b3728b57cf94b4afc257d4045b5b6cfd83b1716c883058f3f8fb69c16f3e",
       "binary": false
     },
     {
@@ -76962,18 +76968,18 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 23115,
-      "lines": 164,
-      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
+      "bytes": 22534,
+      "lines": 163,
+      "sha256": "63297db1a9641230318b54f29fd081aa1aa43e5388c836d30496962353a1e60b",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10796,
-      "lines": 56,
-      "sha256": "143b41e7411cd23cba2c10f06999ef60099f6a4b7d921172129927f50e05d36d",
+      "bytes": 8410,
+      "lines": 52,
+      "sha256": "4b0b900ee94cfd8964652bdf483f62534e80094cdd852dface3c079ecc4189e2",
       "binary": false
     },
     {
@@ -81760,14 +81766,14 @@
       "path": "lib/admin/adminJobMatchesPrismaDeps.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 4363,
-      "lines": 128,
-      "sha256": "fe150611be393f9e4e794247090baf1ea8e6020e472661499a8839dcb941019a",
+      "bytes": 3031,
+      "lines": 101,
+      "sha256": "24c89b202a17809190836c59534186a52adaeaf942e4a424d698303e9c73ede8",
       "binary": false,
       "exports": [
         {
           "name": "createAdminJobMatchesPrismaDeps",
-          "line": 49,
+          "line": 45,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81789,7 +81795,7 @@
         },
         {
           "name": "createAdminJobMatchesPrismaDeps",
-          "line": 49,
+          "line": 45,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81799,9 +81805,9 @@
       "path": "lib/admin/adminUserProvisioning.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 3544,
-      "lines": 125,
-      "sha256": "f3053b9645969d3e69fc247f64b8b74af6449fa0223a47678e8261d24595b35e",
+      "bytes": 2840,
+      "lines": 111,
+      "sha256": "e7905f54a60bbdfdc32326d926fdd742e051e0aeed30b0112c2bac51041cbe2d",
       "binary": false,
       "exports": [
         {
@@ -81821,12 +81827,12 @@
         },
         {
           "name": "ensureProfileRole",
-          "line": 69,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncManagedUserRoles",
-          "line": 100,
+          "line": 86,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81853,17 +81859,17 @@
         },
         {
           "name": "ensureProfileRole",
-          "line": 69,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureRoleByName",
-          "line": 94,
+          "line": 80,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncManagedUserRoles",
-          "line": 100,
+          "line": 86,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81873,9 +81879,9 @@
       "path": "lib/admin/aiJobMatchCompute.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 1745,
-      "lines": 54,
-      "sha256": "df86c7d3d19c6ac31ada8fb73743431aee9a012936b712f6279ac5be538f0d16",
+      "bytes": 1541,
+      "lines": 49,
+      "sha256": "427e0b876f23b526e6990aff448ef670ee6e11e95da84bd29d2af8587dd726e8",
       "binary": false,
       "exports": [
         {
@@ -81895,12 +81901,12 @@
         },
         {
           "name": "markAiJobMatchEmptyCooldown",
-          "line": 48,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clearAiJobMatchEmptyCooldown",
-          "line": 52,
+          "line": 47,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81937,12 +81943,12 @@
         },
         {
           "name": "markAiJobMatchEmptyCooldown",
-          "line": 48,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clearAiJobMatchEmptyCooldown",
-          "line": 52,
+          "line": 47,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -85048,9 +85054,9 @@
       "path": "lib/admin/runAdminJobMatchesGet.test.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 4582,
-      "lines": 135,
-      "sha256": "01368480014c26dfb13627aed95489db5ca8bbf2ada6b1576600c9e14cb35820",
+      "bytes": 4427,
+      "lines": 133,
+      "sha256": "e676f01c80a5b70b3466092df5f0cbd29c9f29b06cbe5ae990c833563b674060",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -85071,9 +85077,9 @@
       "path": "lib/admin/runAdminJobMatchesGet.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 3308,
-      "lines": 105,
-      "sha256": "d182ecdabddb5f4ca836c88555d522ffec7346cff2b0e68f2e92c69521d4ceee",
+      "bytes": 3377,
+      "lines": 107,
+      "sha256": "42d43740d224ade2b1c1e444a4f1e749817cf314f1b83a2466f30b1c085b526a",
       "binary": false,
       "exports": [
         {
@@ -87945,9 +87951,9 @@
       "path": "lib/ai/matchStudents.ts",
       "area": "libraries",
       "domain": "ai-voice",
-      "bytes": 3769,
+      "bytes": 3745,
       "lines": 109,
-      "sha256": "d5528dbe70dd942325818c468793baaf6e8cc045f4936d86b5251bbe771967bb",
+      "sha256": "d53d38ea3d3867ddda377e6d639e9a9f6f50e9ff0219bba6e132bca70471c538",
       "binary": false,
       "exports": [
         {
@@ -88049,40 +88055,6 @@
         {
           "name": "scoreSkillsMatching",
           "line": 91,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "lib/ai/memberVoiceFallback.ts",
-      "area": "libraries",
-      "domain": "ai-voice",
-      "bytes": 3745,
-      "lines": 93,
-      "sha256": "a61021341565ebcf70885af64db54617f9b44437c0a048e1c3fbadc31b488be1",
-      "binary": false,
-      "exports": [
-        {
-          "name": "MemberVoiceSessionResult",
-          "line": 7,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "startMemberVoiceSessionWithLilleyFallback",
-          "line": 36,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "MemberVoiceSessionResult",
-          "line": 7,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "startMemberVoiceSessionWithLilleyFallback",
-          "line": 36,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -93311,46 +93283,41 @@
       "path": "lib/auth/passwordReset.ts",
       "area": "libraries",
       "domain": "identity-tenancy",
-      "bytes": 9130,
-      "lines": 221,
-      "sha256": "986969041dfe6059dccca1de2a6ea6846fd75e82063f3ca079f248c4dde31048",
+      "bytes": 6177,
+      "lines": 149,
+      "sha256": "946b4588ba548b185e90fc3801b483dfb018547760f8863d52e75d91b0c8d244",
       "binary": false,
       "exports": [
         {
           "name": "PasswordResetSendResult",
-          "line": 11,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 108,
+          "line": 47,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "PasswordResetSendResult",
-          "line": 11,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "escapeHtml",
-          "line": 17,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isUserNotFound",
-          "line": 25,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "recreateAuthUserFromPrismaRow",
-          "line": 48,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 108,
+          "line": 47,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -96118,55 +96085,6 @@
         {
           "name": "minimizeCoachMemoryTurns",
           "line": 87,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "lib/consent/guardianConsentPersistence.ts",
-      "area": "libraries",
-      "domain": "learning-coursera",
-      "bytes": 3949,
-      "lines": 121,
-      "sha256": "73133eb0490011a1af81516ebb684abbee32a011b31391b65428a25ea65d6767",
-      "binary": false,
-      "exports": [
-        {
-          "name": "GuardianConsentInput",
-          "line": 6,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "GuardianConsentOutcome",
-          "line": 14,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "persistGuardianConsent",
-          "line": 18,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "TransactionRoot",
-          "line": 4,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "GuardianConsentInput",
-          "line": 6,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "GuardianConsentOutcome",
-          "line": 14,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "persistGuardianConsent",
-          "line": 18,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107206,76 +107124,71 @@
       "path": "lib/db/prisma.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 11116,
-      "lines": 244,
-      "sha256": "50abfd262e760c49d511eeeb405df72faa70f6b105922b52b0a76a5a07557e48",
+      "bytes": 11067,
+      "lines": 245,
+      "sha256": "bfb0c444813826254dbd0a34797c673c8fc04ae25e162ce96b4605c63450aa77",
       "binary": false,
       "exports": [
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 20,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 242,
+          "line": 243,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "globalForPrisma",
-          "line": 6,
-          "kind": "Variable"
-        },
-        {
-          "name": "TRANSACTION_POLICY",
-          "line": 9,
+          "line": 5,
           "kind": "Variable"
         },
         {
           "name": "FLATTEN_TX",
-          "line": 10,
+          "line": 8,
           "kind": "Variable"
         },
         {
           "name": "escapeSqlString",
-          "line": 12,
+          "line": 13,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isGucSetupQuery",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 20,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "installFlattenTxOverride",
-          "line": 57,
+          "line": 58,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createPrismaClient",
-          "line": 75,
+          "line": 76,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 242,
+          "line": 243,
           "kind": "Variable"
         }
       ],
@@ -107634,78 +107547,6 @@
         {
           "name": "sqlCount",
           "line": 59,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "lib/db/transactionPolicy.test.ts",
-      "area": "libraries",
-      "domain": "libraries",
-      "bytes": 1742,
-      "lines": 52,
-      "sha256": "6c07bc05893420dc0f8724a11c60e5c8daaf543837b5acdfb3adeb56e890e7ce",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "env",
-          "line": 10,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "lib/db/transactionPolicy.ts",
-      "area": "libraries",
-      "domain": "libraries",
-      "bytes": 1426,
-      "lines": 42,
-      "sha256": "13ba2a3ce8869e90466426d3a8ccfbe816987388a9246cad087626088732372f",
-      "binary": false,
-      "exports": [
-        {
-          "name": "PrismaTransactionPolicy",
-          "line": 1,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "resolvePrismaTransactionPolicy",
-          "line": 9,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "interactiveTransactionsGuaranteed",
-          "line": 24,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "assertPrismaTransactionPolicySafe",
-          "line": 30,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "PrismaTransactionPolicy",
-          "line": 1,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "resolvePrismaTransactionPolicy",
-          "line": 9,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "interactiveTransactionsGuaranteed",
-          "line": 24,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "assertPrismaTransactionPolicySafe",
-          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110726,21 +110567,21 @@
       "path": "lib/employer/triggerEmployerJobAiMatch.ts",
       "area": "libraries",
       "domain": "jobs-employers",
-      "bytes": 1633,
-      "lines": 38,
-      "sha256": "110ed57f068559489f32c4d162a69d3eaf0c45e63615e9b3b2a7ebfb00b113ed",
+      "bytes": 1520,
+      "lines": 40,
+      "sha256": "42eeac15b581f76c74727f6ed9d8f4d6947c18554023f8772c82d1903c61ce81",
       "binary": false,
       "exports": [
         {
           "name": "runAiMatchForLiveJob",
-          "line": 10,
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "runAiMatchForLiveJob",
-          "line": 10,
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -111532,16 +111373,11 @@
       "path": "lib/formatDate.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 1195,
+      "bytes": 1188,
       "lines": 34,
-      "sha256": "dfbb14422f259a6d2a6e626266733da3f48e65a094a94084a7c893bf7e90bd2f",
+      "sha256": "894e1591586b6710f295cf758faf1aaff0be841d43cbcb4ff3750e1b9412d7c6",
       "binary": false,
       "exports": [
-        {
-          "name": "PORTAL_TIMEZONE",
-          "line": 10,
-          "kind": "Variable"
-        },
         {
           "name": "formatPortalDate",
           "line": 19,
@@ -112469,46 +112305,46 @@
       "path": "lib/i18n/date.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 2819,
-      "lines": 83,
-      "sha256": "d2d9abe9656c84ccaa787c31fd6b18269e46b8b2c852fbec81f21120efee0a32",
+      "bytes": 2396,
+      "lines": 77,
+      "sha256": "b588abd0982047e270eeaf31c9a403bef9c9a9fa52b1b8636519f8c48958976a",
       "binary": false,
       "exports": [
         {
           "name": "formatDate",
-          "line": 37,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDateTime",
-          "line": 47,
+          "line": 42,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatLocalizedDate",
-          "line": 71,
+          "line": 65,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "toIntlLocale",
-          "line": 23,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDate",
-          "line": 37,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDateTime",
-          "line": 47,
+          "line": 42,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatLocalizedDate",
-          "line": 71,
+          "line": 65,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -124514,9 +124350,9 @@
       "path": "lib/portal/aiToolsHub.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 6290,
+      "bytes": 6180,
       "lines": 124,
-      "sha256": "06899393bc43b44ca13561330d9eefdf126a2aef01b661eb13aad8bf74b07d3d",
+      "sha256": "dc9bb3e9269ede097a1851d9e6b2554804aaf1c08896c85cb94b84ad32d5f286",
       "binary": false,
       "exports": [
         {
@@ -125110,9 +124946,9 @@
       "path": "lib/portal/voiceAgentSurfaces.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 3871,
+      "bytes": 3799,
       "lines": 104,
-      "sha256": "26772d66ec83c7cea991b4c42c51fe4120200cb7c206035002eaef4521ead12a",
+      "sha256": "2bc1fc99dc376c6f602a5d4f11b93c1cc6cffcfdf7d5837a286a831a29e153c7",
       "binary": false,
       "exports": [
         {
@@ -127629,9 +127465,9 @@
       "path": "lib/resume/prepareResumeUpload.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7684,
-      "lines": 177,
-      "sha256": "c59013d137143f214e29d05edb7a58cfa10b3e8862ec83a8d21a3e1f0e92b8f7",
+      "bytes": 7144,
+      "lines": 168,
+      "sha256": "22630bd48ba84ffad0905a0b135ebaec314e88955d0f425b0a498ca1d9366ecb",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -136988,6 +136824,15 @@
       "binary": false
     },
     {
+      "path": "prisma/migrations/20260912173000_organization_stripe_event_ordering/migration.sql",
+      "area": "database",
+      "domain": "database",
+      "bytes": 448,
+      "lines": 9,
+      "sha256": "4ea77c05bd13c9e61af5186447cfa9096de2f05b36dd3bdd9a4bb17596dcd615",
+      "binary": false
+    },
+    {
       "path": "prisma/migrations/migration_lock.toml",
       "area": "database",
       "domain": "database",
@@ -137000,9 +136845,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 133499,
-      "lines": 3166,
-      "sha256": "6043872cba922d65033e42ddccaf9c3459235a27f59b7cfdfa644240b668e3c3",
+      "bytes": 133764,
+      "lines": 3170,
+      "sha256": "f3530986d7b3df0490522f82bb5bb7c5b5acbaf1070e0b2786b4109155b1b2f2",
       "binary": false
     },
     {
@@ -139360,154 +139205,51 @@
       "path": "scripts/check-duplicate-migrations.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 5806,
-      "lines": 134,
-      "sha256": "92e8fba08284550f24e42070c0936c8ffaf3d66f5485a515228e1e23f7272348",
+      "bytes": 2461,
+      "lines": 76,
+      "sha256": "d040159c2e130fd15f9cef061a92f043bc2493c82439b1d9821f097bae8822ce",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "ROOT",
-          "line": 12,
+          "name": "__filename",
+          "line": 25,
           "kind": "Variable"
         },
         {
-          "name": "MIGRATIONS",
-          "line": 13,
+          "name": "__dirname",
+          "line": 26,
           "kind": "Variable"
         },
         {
-          "name": "BASELINE",
-          "line": 14,
+          "name": "REPO_ROOT",
+          "line": 27,
           "kind": "Variable"
         },
         {
-          "name": "REVIEWED_SOURCE_COMMIT",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "REVIEWED_BASELINE_SHA256",
-          "line": 19,
-          "kind": "Variable"
-        },
-        {
-          "name": "TIMESTAMP",
-          "line": 22,
-          "kind": "Variable"
-        },
-        {
-          "name": "requireDirectory",
-          "line": 24,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "readPlainFile",
+          "name": "MIGRATIONS_DIR",
           "line": 28,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "loadBaseline",
-          "line": 33,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "readMigrations",
-          "line": 70,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "check",
-          "line": 87,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "scripts/check-duplicate-migrations.test.cjs",
-      "area": "operations",
-      "domain": "operations",
-      "bytes": 10457,
-      "lines": 252,
-      "sha256": "d80a56e630a55ac5cf96a25573272a909b3216eae108259b9be4843b143116c9",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "test",
-          "line": 1,
           "kind": "Variable"
         },
         {
-          "name": "assert",
-          "line": 2,
+          "name": "TIMESTAMP_RE",
+          "line": 35,
           "kind": "Variable"
         },
         {
-          "name": "fs",
-          "line": 3,
+          "name": "entries",
+          "line": 37,
           "kind": "Variable"
         },
         {
-          "name": "os",
-          "line": 4,
+          "name": "byTimestamp",
+          "line": 38,
           "kind": "Variable"
         },
         {
-          "name": "path",
-          "line": 5,
+          "name": "dupes",
+          "line": 57,
           "kind": "Variable"
-        },
-        {
-          "name": "createHash",
-          "line": 6,
-          "kind": "Variable"
-        },
-        {
-          "name": "spawnSync",
-          "line": 7,
-          "kind": "Variable"
-        },
-        {
-          "name": "checker",
-          "line": 9,
-          "kind": "Variable"
-        },
-        {
-          "name": "reviewedBytes",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "reviewed",
-          "line": 11,
-          "kind": "Variable"
-        },
-        {
-          "name": "legacyPrefix",
-          "line": 12,
-          "kind": "Variable"
-        },
-        {
-          "name": "first",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
-          "name": "second",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
-          "name": "sha256",
-          "line": 14,
-          "kind": "Variable"
-        },
-        {
-          "name": "fixture",
-          "line": 16,
-          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -142805,15 +142547,6 @@
       "directive": null
     },
     {
-      "path": "scripts/migration-collision-baseline.json",
-      "area": "operations",
-      "domain": "operations",
-      "bytes": 4626,
-      "lines": 137,
-      "sha256": "ba13bd4c04fcfa182335b2f6d717eb318ac36f1106bb0c8a3777c83c5543189e",
-      "binary": false
-    },
-    {
       "path": "scripts/p1/test-force-rls.ts",
       "area": "operations",
       "domain": "operations",
@@ -145209,64 +144942,6 @@
       "directive": null
     },
     {
-      "path": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 3288,
-      "lines": 52,
-      "sha256": "0f407f2cb9e885602ce2c3179bec630a56aca76ddfda26e167a14b44336be75b",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "GET",
-          "line": 16,
-          "kind": "Variable"
-        },
-        {
-          "name": "getUser",
-          "line": 17,
-          "kind": "Variable"
-        },
-        {
-          "name": "isAdmin",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "isSuperAdmin",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "getActorOrganizationId",
-          "line": 19,
-          "kind": "Variable"
-        },
-        {
-          "name": "withTenantScope",
-          "line": 20,
-          "kind": "Variable"
-        },
-        {
-          "name": "prisma",
-          "line": 21,
-          "kind": "Variable"
-        },
-        {
-          "name": "createAdminJobMatchesPrismaDeps",
-          "line": 22,
-          "kind": "Variable"
-        },
-        {
-          "name": "runAdminJobMatchesGet",
-          "line": 23,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/api/admin-member-delete.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -145706,143 +145381,12 @@
       "directive": null
     },
     {
-      "path": "tests/api/admin-user-create-active-identity-race.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 8459,
-      "lines": 223,
-      "sha256": "0b695582ffc59691e69dd6464266a5405d3550951a4aa0aa0e429a814b586355",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "effects",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "auth",
-          "line": 33,
-          "kind": "Variable"
-        },
-        {
-          "name": "database",
-          "line": 37,
-          "kind": "Variable"
-        },
-        {
-          "name": "POST",
-          "line": 55,
-          "kind": "Variable"
-        },
-        {
-          "name": "Identity",
-          "line": 57,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "request",
-          "line": 65,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "transactionStore",
-          "line": 78,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/api/admin-user-create-tenant-conflict.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 5888,
-      "lines": 131,
-      "sha256": "71c2fa2c9b1f91b33513fadaecbbcb4940924c284cb7526ef118267ccab31b5a",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "tenantUserFindFirst",
-          "line": 16,
-          "kind": "Variable"
-        },
-        {
-          "name": "createAuthUser",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "findAuthUserByEmail",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "ensureAppUser",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "ensureProfileRole",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "syncManagedUserRoles",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "sendPasswordResetEmail",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "auditLog",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "logAuditEvent",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "POST",
-          "line": 57,
-          "kind": "Variable"
-        },
-        {
-          "name": "getUser",
-          "line": 58,
-          "kind": "Variable"
-        },
-        {
-          "name": "getActorOrganizationId",
-          "line": 59,
-          "kind": "Variable"
-        },
-        {
-          "name": "prisma",
-          "line": 60,
-          "kind": "Variable"
-        },
-        {
-          "name": "request",
-          "line": 62,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 14006,
-      "lines": 280,
-      "sha256": "2ac9d2253791a81a0d7d06264d443a64039cbeca5440f85cf0790f5697790dbf",
+      "bytes": 11421,
+      "lines": 222,
+      "sha256": "9489cdc39738d91ae047fe29ee95b7aa19e7fa511ef7cf3d65b1541d731866e1",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145890,16 +145434,6 @@
           "name": "ctx",
           "line": 46,
           "kind": "Variable"
-        },
-        {
-          "name": "PrivilegedTargetCase",
-          "line": 47,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "privilegedTargets",
-          "line": 54,
-          "kind": "Variable"
         }
       ],
       "directive": null
@@ -145908,94 +145442,21 @@
       "path": "tests/api/admin-user-patch-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 9785,
-      "lines": 271,
-      "sha256": "d2a7f50f61d04076d2d5a1dafc06f1350dc3ea6ad0d7b22badc181b0f3e54a78",
+      "bytes": 3256,
+      "lines": 110,
+      "sha256": "e5393c84766982e1671f6a6694d45486d6c0ec8ef4b24bef1a01bcf166d229fb",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "routeMocks",
-          "line": 3,
-          "kind": "Variable"
-        },
-        {
-          "name": "tenantUserFindFirst",
-          "line": 39,
-          "kind": "Variable"
-        },
-        {
-          "name": "globalUserFindFirst",
-          "line": 39,
-          "kind": "Variable"
-        },
-        {
           "name": "updateUserById",
-          "line": 66,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "patchReq",
-          "line": 100,
+          "line": 72,
           "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "PrivilegedTargetCase",
-          "line": 108,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "privilegedTargets",
-          "line": 115,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/api/admin-user-reset-password.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 4645,
-      "lines": 117,
-      "sha256": "1c35103882ccac6b30315c110761dfecd3979cdf407b6873c4d65540b0840789",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "mocks",
-          "line": 4,
-          "kind": "Variable"
-        },
-        {
-          "name": "ACTOR",
-          "line": 31,
-          "kind": "Variable"
-        },
-        {
-          "name": "TARGET",
-          "line": 32,
-          "kind": "Variable"
-        },
-        {
-          "name": "request",
-          "line": 33,
-          "kind": "Variable"
-        },
-        {
-          "name": "context",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "PrivilegedTargetCase",
-          "line": 52,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "privilegedTargets",
-          "line": 59,
-          "kind": "Variable"
         }
       ],
       "directive": null
@@ -146190,9 +145651,9 @@
       "path": "tests/api/auth-routes.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 60039,
-      "lines": 1694,
-      "sha256": "ce9c54fd2182627d1d92fac4c7f30701b73a514b4291c95f9d10738bdf2bb03d",
+      "bytes": 58290,
+      "lines": 1643,
+      "sha256": "476d2e4aea3a2d04aa8541777759431704a1c1321c4315de5385269613db8f1d",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -146568,29 +146029,6 @@
       "directive": null
     },
     {
-      "path": "tests/api/cron-at-risk-alerts-auth.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 5045,
-      "lines": 134,
-      "sha256": "9fc956bbf894401750f36457213d67e7aba44c4d2b57c94509e425cb46da1303",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "CRON_SECRET",
-          "line": 68,
-          "kind": "Variable"
-        },
-        {
-          "name": "request",
-          "line": 70,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/api/cron-at-risk-check.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -146724,12 +146162,18 @@
       "path": "tests/api/employer-checkout.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 14870,
-      "lines": 413,
-      "sha256": "e853d57c4127700e0bb342422e457cb50cad6a20b6af4bb0dff6547876ba2cac",
+      "bytes": 15626,
+      "lines": 432,
+      "sha256": "b486f2cb4a5aeaaf8d645459e8c5ea5940812369fbe08ba3ded0d559030005b8",
       "binary": false,
       "exports": [],
-      "declarations": [],
+      "declarations": [
+        {
+          "name": "pricingState",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {
@@ -146972,36 +146416,21 @@
       "path": "tests/api/guardian-consent.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 11442,
-      "lines": 295,
-      "sha256": "0c30f9e7364c03189b5862f5dcfd1388323eae26eb56871ee218c51e57955f1d",
+      "bytes": 3821,
+      "lines": 117,
+      "sha256": "d62b1d6d213daea92c22cf30f928ef6ff2d2f5879650aee6b94c9b78fe32d4f6",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "db",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
           "name": "postReq",
-          "line": 142,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "validBody",
-          "line": 149,
+          "line": 44,
           "kind": "Variable"
-        },
-        {
-          "name": "submit",
-          "line": 156,
-          "kind": "Variable"
-        },
-        {
-          "name": "addLink",
-          "line": 159,
-          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -147600,24 +147029,6 @@
       "directive": null
     },
     {
-      "path": "tests/api/member-wioa-voice-session.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 3620,
-      "lines": 89,
-      "sha256": "7180f9d8a85f3ba3a2c0af9b13c9534622aed5bf460ad62ac82a1ccfb47014e2",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "mocks",
-          "line": 3,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/api/mentor-letter-route.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -148125,6 +147536,29 @@
       "directive": null
     },
     {
+      "path": "tests/api/stripe-webhook-organization.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5288,
+      "lines": 185,
+      "sha256": "ebaabab63d6472f2b696530e68c60e54a1707d3e08da458c563e090020a98d8d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "request",
+          "line": 49,
+          "kind": "Variable"
+        },
+        {
+          "name": "deliver",
+          "line": 56,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/testimonials.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -148459,6 +147893,24 @@
           "name": "load",
           "line": 17,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/employer-billing-page.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2806,
+      "lines": 66,
+      "sha256": "82aae6d0f28d7048b3c9be94d55e65b32396f664ac5c6aafe338bfe5d36d795d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "pricingState",
+          "line": 4,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -150070,45 +149522,12 @@
       "binary": false
     },
     {
-      "path": "tests/lib/admin-job-match-prisma-scope.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 2680,
-      "lines": 65,
-      "sha256": "1e006e99262fa2d3918618ceef38f075743f9f11c288f476520edd84db7fe2e6",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "createAdminJobMatchesPrismaDeps",
-          "line": 17,
-          "kind": "Variable"
-        },
-        {
-          "name": "prisma",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "getOrComputeAiJobMatches",
-          "line": 19,
-          "kind": "Variable"
-        },
-        {
-          "name": "job",
-          "line": 21,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/lib/admin-post-commit-notifications.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 1248,
-      "lines": 30,
-      "sha256": "d0e18ca8b9a33ee726086debfcf83443d2cca9c515f1e327fb8266e8249508f5",
+      "bytes": 1126,
+      "lines": 27,
+      "sha256": "1a5ad12493ae7f0e07799535d0fdd65fe9e94c79e5bfd3153d1a647346df1ac8",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -150121,29 +149540,6 @@
           "name": "source",
           "line": 6,
           "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/lib/admin-user-provisioning-tenant-race.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 5940,
-      "lines": 145,
-      "sha256": "14d094386b52907fbb05f41964adfaaf6bb0b1c6a576d187d2a758d1b0e5b443",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "txWithUser",
-          "line": 4,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "transactionStore",
-          "line": 17,
-          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -150191,44 +149587,6 @@
       "binary": false,
       "exports": [],
       "declarations": [],
-      "directive": null
-    },
-    {
-      "path": "tests/lib/ai-job-match-cache-scope.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 1726,
-      "lines": 42,
-      "sha256": "9e37f7d425ececefaf7c18533ea42846d3d71aff76340852b9813e5df232540e",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "matchStudentsForJob",
-          "line": 4,
-          "kind": "Variable"
-        },
-        {
-          "name": "getOrComputeAiJobMatches",
-          "line": 5,
-          "kind": "Variable"
-        },
-        {
-          "name": "markAiJobMatchEmptyCooldown",
-          "line": 5,
-          "kind": "Variable"
-        },
-        {
-          "name": "clearAiJobMatchEmptyCooldown",
-          "line": 5,
-          "kind": "Variable"
-        },
-        {
-          "name": "job",
-          "line": 11,
-          "kind": "Variable"
-        }
-      ],
       "directive": null
     },
     {
@@ -151143,29 +150501,6 @@
       "directive": null
     },
     {
-      "path": "tests/lib/match-students-tenant-scope.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 986,
-      "lines": 25,
-      "sha256": "3c69e9c709f1b306fe35d5b114a0ea86be791c4826aefabfdc0e2c59a9665664",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "matchStudentsForJob",
-          "line": 6,
-          "kind": "Variable"
-        },
-        {
-          "name": "prisma",
-          "line": 7,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/lib/member-program-training-view.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -151249,29 +150584,6 @@
         {
           "name": "REQUIRED_EMAIL_DISCLOSURE",
           "line": 14,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/lib/member-voice-fallback.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 4189,
-      "lines": 106,
-      "sha256": "8e2bd6e216e626379be3ccb925bc5eea94cec347ef2623ce02a7775d3f29e9cb",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "mocks",
-          "line": 3,
-          "kind": "Variable"
-        },
-        {
-          "name": "memberGuc",
-          "line": 24,
           "kind": "Variable"
         }
       ],
@@ -151483,9 +150795,9 @@
       "path": "tests/lib/notification-triggers-job.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 6252,
-      "lines": 156,
-      "sha256": "a82eeea6313acb8359135047954e066d9bcf762840807e76869b8084b588a94f",
+      "bytes": 3238,
+      "lines": 91,
+      "sha256": "ccaa47f490cb15d50138f067dd1438e6a431a05130ef588b20c7d7430cf5637c",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -151648,34 +150960,6 @@
       "binary": false,
       "exports": [],
       "declarations": [],
-      "directive": null
-    },
-    {
-      "path": "tests/lib/password-reset-self-heal.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 5901,
-      "lines": 149,
-      "sha256": "e4dff2a19c371532d07ae025cd72ce577bd2cbc8bfbb6f7135eae0142c1e9ca5",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "mocks",
-          "line": 3,
-          "kind": "Variable"
-        },
-        {
-          "name": "USER_NOT_FOUND",
-          "line": 47,
-          "kind": "Variable"
-        },
-        {
-          "name": "MINTED",
-          "line": 51,
-          "kind": "Variable"
-        }
-      ],
       "directive": null
     },
     {

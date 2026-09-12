@@ -27,9 +27,12 @@ model Organization {
   accentColor        String?  @map("accent_color")
   billingType        String   @default("flat") @map("billing_type")
   plan               String   @default("nonprofit")
-  subscriptionTier   String   @default("starter") @map("subscription_tier")
-  subscriptionStatus String   @default("trial") @map("subscription_status")
-  active             Boolean  @default(true)
+  subscriptionTier         String   @default("starter") @map("subscription_tier")
+  subscriptionStatus       String   @default("trial") @map("subscription_status")
+  stripeSubscriptionId     String?  @map("stripe_subscription_id")
+  stripeSubscriptionEventAt Int?    @map("stripe_subscription_event_at")
+  stripeSubscriptionEventId String? @map("stripe_subscription_event_id")
+  active                   Boolean  @default(true)
   overviewVideoUrl String?  @map("overview_video_url")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
@@ -50,6 +53,7 @@ model Organization {
   wioaReviewSnapshots WioaReviewSnapshot[]
   trainingBillingPackets TrainingBillingPacket[]
 
+  @@index([stripeSubscriptionId])
   @@map("organizations")
 }
 

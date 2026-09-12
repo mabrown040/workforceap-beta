@@ -10997,39 +10997,39 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 43
+        "line": 45
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 59
+        "line": 64
       },
       {
         "file": "app/api/employer/checkout/route.ts",
-        "line": 65
-      },
-      {
-        "file": "app/api/employer/webhook/route.ts",
-        "line": 66
-      },
-      {
-        "file": "lib/auth/server.ts",
-        "line": 67
-      },
-      {
-        "file": "lib/auth/roles.ts",
-        "line": 68
-      },
-      {
-        "file": "lib/db/prisma.ts",
-        "line": 69
-      },
-      {
-        "file": "lib/stripe/client.ts",
         "line": 70
       },
       {
+        "file": "app/api/employer/webhook/route.ts",
+        "line": 71
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 72
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 73
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 74
+      },
+      {
         "file": "lib/stripe/client.ts",
-        "line": 135
+        "line": 75
+      },
+      {
+        "file": "lib/stripe/client.ts",
+        "line": 154
       }
     ],
     "kind": "test-candidate",
@@ -13466,6 +13466,42 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/stripe-webhook-organization.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 30
+      },
+      {
+        "file": "app/api/stripe/webhook/route.ts",
+        "line": 45
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 46
+      },
+      {
+        "file": "lib/stripe/client.ts",
+        "line": 47
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/testimonials.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -14180,6 +14216,42 @@
       {
         "file": "app/admin/diagnostics/page.tsx",
         "line": 15
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/app/employer-billing-page.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/(portal)/employer/billing/page.tsx",
+        "line": 35
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 36
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 37
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 38
       }
     ],
     "kind": "test-candidate",

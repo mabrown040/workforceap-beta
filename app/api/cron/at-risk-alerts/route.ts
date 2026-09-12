@@ -6,6 +6,7 @@ import {
 } from '@/lib/cron/at-risk-alerts';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -30,15 +31,16 @@ function verifyCronSecret(req: Request): boolean {
  *    tiered nudge emails (check-in / come-back / stuck). Idempotent: each
  *    tier is on a 7-day per-member cooldown via MemberNudgeLog.
  *
- * Vercel Cron schedule: 0 13 * * * (1pm UTC = 8am CDT)
+ * Vercel Cron schedule: 7 13 * * 1 (staggered off the top of the hour)
  */
 async function handle(_request: Request) {
   if (!verifyCronSecret(_request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const counselorResult = await runDailyAtRiskCounselorAlerts();
-  const nudgeResult = await runMemberRetentionNudges();
+  const pacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
+  const counselorResult = await runDailyAtRiskCounselorAlerts(pacer);
+  const nudgeResult = await runMemberRetentionNudges(pacer);
   const recordsProcessed =
     (counselorResult.counselorsNotified ?? 0) +
     nudgeResult.sentCheckIn +

@@ -110,7 +110,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 104
+          "line": 112
         }
       ]
     },
@@ -121,7 +121,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 522
+          "line": 548
         }
       ]
     },
@@ -223,7 +223,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 2533
+          "line": 2731
         }
       ]
     },
@@ -788,7 +788,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 537
+          "line": 563
         }
       ]
     },
@@ -848,7 +848,7 @@
         },
         {
           "file": "app/api/cron/at-risk-alerts/route.ts",
-          "line": 15
+          "line": 16
         },
         {
           "file": "lib/cron/authorizeCronRequest.ts",
@@ -856,31 +856,39 @@
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 8
+          "line": 9
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 28
+          "line": 63
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 65
+          "line": 83
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 105
+          "line": 120
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 143
+          "line": 158
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 186
+          "line": 220
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 227
+          "line": 258
+        },
+        {
+          "file": "lib/email/send.test.ts",
+          "line": 340
+        },
+        {
+          "file": "lib/email/send.test.ts",
+          "line": 381
         },
         {
           "file": "lib/email/unsubscribeToken.ts",
@@ -888,19 +896,19 @@
         },
         {
           "file": "tests/api/at-risk-alert.spec.ts",
-          "line": 126
+          "line": 142
         },
         {
           "file": "tests/api/at-risk-alert.spec.ts",
-          "line": 130
+          "line": 146
         },
         {
           "file": "tests/api/at-risk-alert.spec.ts",
-          "line": 384
+          "line": 458
         },
         {
           "file": "tests/api/at-risk-alert.spec.ts",
-          "line": 388
+          "line": 462
         },
         {
           "file": "tests/api/cron-at-risk-check.spec.ts",
@@ -920,11 +928,11 @@
         },
         {
           "file": "tests/api/weekly-recap.spec.ts",
-          "line": 472
+          "line": 500
         },
         {
           "file": "tests/api/weekly-recap.spec.ts",
-          "line": 476
+          "line": 504
         }
       ]
     },
@@ -963,7 +971,7 @@
         },
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 600
+          "line": 602
         }
       ]
     },
@@ -989,7 +997,7 @@
       "references": [
         {
           "file": "lib/notify/discord.ts",
-          "line": 59
+          "line": 61
         }
       ]
     },
@@ -1000,11 +1008,11 @@
       "references": [
         {
           "file": "lib/notify/discord.ts",
-          "line": 57
+          "line": 59
         },
         {
           "file": "lib/notify/discord.ts",
-          "line": 71
+          "line": 73
         }
       ]
     },
@@ -1432,6 +1440,33 @@
       ]
     },
     {
+      "name": "EMAIL_FIXTURE_DOMAINS",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "lib/email/send.test.ts",
+          "line": 10
+        },
+        {
+          "file": "lib/email/send.test.ts",
+          "line": 11
+        },
+        {
+          "file": "lib/email/send.test.ts",
+          "line": 57
+        },
+        {
+          "file": "lib/email/send.test.ts",
+          "line": 58
+        },
+        {
+          "file": "lib/email/send.ts",
+          "line": 196
+        }
+      ]
+    },
+    {
       "name": "EMAIL_FROM",
       "publicPrefix": false,
       "declaredInRootExample": true,
@@ -1498,15 +1533,15 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 125
+          "line": 133
         },
         {
           "file": "lib/notifications/partner-notify.ts",
-          "line": 85
+          "line": 93
         },
         {
           "file": "lib/notifications/partner-notify.ts",
-          "line": 149
+          "line": 157
         },
         {
           "file": "lib/wioa/wioaNotification.test.ts",
@@ -1529,7 +1564,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 87
+          "line": 95
         },
         {
           "file": "lib/email/adminRecipients.test.ts",
@@ -1576,7 +1611,7 @@
       "references": [
         {
           "file": "lib/email/send.ts",
-          "line": 46
+          "line": 51
         }
       ]
     },
@@ -2072,7 +2107,7 @@
         },
         {
           "file": "app/api/admin/placement-surveys/resend/route.ts",
-          "line": 11
+          "line": 20
         },
         {
           "file": "app/api/admin/token-links/route.ts",
@@ -2200,31 +2235,31 @@
         },
         {
           "file": "lib/cron/at-risk-alerts.ts",
-          "line": 29
+          "line": 32
         },
         {
           "file": "lib/cron/placement-surveys.ts",
-          "line": 15
+          "line": 26
         },
         {
           "file": "lib/email.ts",
-          "line": 66
+          "line": 74
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 188
+          "line": 342
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 189
+          "line": 343
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 217
+          "line": 371
         },
         {
           "file": "lib/email/send.test.ts",
-          "line": 218
+          "line": 372
         },
         {
           "file": "lib/email/template.ts",
@@ -2236,7 +2271,7 @@
         },
         {
           "file": "lib/notifications/partner-notify.ts",
-          "line": 155
+          "line": 163
         },
         {
           "file": "lib/outcomes/socialProof.ts",
@@ -2335,7 +2370,7 @@
         },
         {
           "file": "tests/api/employer-signup.spec.ts",
-          "line": 264
+          "line": 269
         },
         {
           "file": "tests/api/partner-signup.spec.ts",
@@ -2422,7 +2457,7 @@
         },
         {
           "file": "tests/api/employer-signup.spec.ts",
-          "line": 263
+          "line": 268
         },
         {
           "file": "tests/api/partner-signup.spec.ts",
@@ -2644,7 +2679,7 @@
         },
         {
           "file": "lib/notify/discord.ts",
-          "line": 58
+          "line": 60
         },
         {
           "file": "lib/platform/programCatalog.ts",
@@ -2722,6 +2757,17 @@
       ]
     },
     {
+      "name": "PLACEMENT_SURVEY_MIGRATION_PROOF_DATABASE_URL",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "tests/migrations/placement-survey-sent-state.mjs",
+          "line": 12
+        }
+      ]
+    },
+    {
       "name": "PLACEMENT_SURVEY_TOKEN_SECRET",
       "publicPrefix": false,
       "declaredInRootExample": true,
@@ -2732,51 +2778,59 @@
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 102
+          "line": 117
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 106
+          "line": 121
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 196
+          "line": 227
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 200
+          "line": 231
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 374
+          "line": 405
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 380
+          "line": 411
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 547
+          "line": 578
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 551
+          "line": 582
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 651
+          "line": 688
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 655
+          "line": 692
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 804
+          "line": 889
         },
         {
           "file": "tests/api/placement-survey.spec.ts",
-          "line": 808
+          "line": 918
+        },
+        {
+          "file": "tests/api/placement-survey.spec.ts",
+          "line": 1251
+        },
+        {
+          "file": "tests/api/placement-survey.spec.ts",
+          "line": 1255
         },
         {
           "file": "tests/api/testimonials.spec.ts",
@@ -3121,11 +3175,11 @@
         },
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 601
+          "line": 603
         },
         {
           "file": "tests/api/employer-signup.spec.ts",
-          "line": 265
+          "line": 270
         }
       ]
     },
@@ -3172,7 +3226,7 @@
         },
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 602
+          "line": 604
         }
       ]
     },
@@ -3261,15 +3315,15 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 116
+          "line": 124
         },
         {
           "file": "lib/notifications/partner-notify.ts",
-          "line": 84
+          "line": 92
         },
         {
           "file": "lib/notifications/partner-notify.ts",
-          "line": 148
+          "line": 156
         },
         {
           "file": "lib/wioa/wioaNotification.test.ts",
@@ -3434,7 +3488,11 @@
       "references": [
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 589
+          "line": 591
+        },
+        {
+          "file": "tests/migrations/placement-survey-sent-state.mjs",
+          "line": 13
         }
       ]
     },
@@ -4234,7 +4292,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 144
+          "line": 152
         }
       ]
     },
@@ -4249,7 +4307,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 145
+          "line": 153
         }
       ]
     },
@@ -4538,7 +4596,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 135
+          "line": 143
         }
       ]
     },

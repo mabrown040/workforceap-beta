@@ -6,6 +6,9 @@ import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
  * Finds applications submitted 3+ days ago with status still PENDING.
@@ -15,11 +18,13 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
  * Protected with CRON_SECRET header.
  */
 async function handle(_request: Request) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const now = new Date();
   const threeDaysAgo = new Date(now);
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
   const sixDaysAgo = new Date(now);
   sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+
 
   // Find applications submitted 3–6 days ago that are still pending.
   // This window ensures each applicant receives only one Day-3 follow-up
@@ -64,11 +69,11 @@ async function handle(_request: Request) {
     ).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     try {
-      const result = await sendApplicantFollowupEmail({
+      const result = await emailPacer.run(() => sendApplicantFollowupEmail({
         to: app.user.email,
         fullName: app.user.fullName,
         expectedDate,
-      });
+      }));
       if (result.ok) applicantEmailsSent++;
     } catch (err) {
       captureApiError(err, { route: 'cron/applicant-followup', extra: { userId: app.user.id } });
@@ -79,16 +84,16 @@ async function handle(_request: Request) {
   let adminEmailSent = false;
   if (staleApplications.length > 0) {
     try {
-      const result = await sendAdminPendingApplicantsEmail({
+      const result = await emailPacer.run(() => sendAdminPendingApplicantsEmail({
         pendingCount: staleApplications.length,
-      });
+      }));
       adminEmailSent = result.ok;
     } catch (err) {
       captureApiError(err, { route: 'cron/applicant-followup/admin-alert' });
     }
   }
 
-  const runResult = { ok: true, checkedAt: now.toISOString(), staleApplications: staleApplications.length, uniqueApplicants: seenUsers.size, applicantEmailsSent, adminEmailSent };
+  const runResult = { ok: true, checkedAt: now.toISOString(), staleApplications: staleApplications.length, uniqueApplicants: seenUsers.size, applicantEmailsSent, adminEmailSent, emailPacing: emailPacer.summary() };
   await setCronRecordsProcessed(applicantEmailsSent);
   await logCronRun('cron_applicant_followup', runResult);
   return NextResponse.json(runResult);

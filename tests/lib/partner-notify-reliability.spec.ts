@@ -7,11 +7,11 @@ vi.mock('@/lib/diagnostics', () => ({ recordWorkflowDiagnostic: mocks.diagnostic
 import { sendPartnerMilestoneEmail, sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-notify';
 
 beforeEach(() => {
-  vi.resetAllMocks(); vi.stubEnv('RESEND_API_KEY', 'synthetic-only');
+  vi.resetAllMocks(); vi.stubEnv('RESEND_API_KEY', 'synthetic-only'); vi.stubEnv('CRON_SECRET', 'synthetic-unsubscribe-secret');
   vi.spyOn(console, 'error').mockImplementation(() => {});
-  mocks.referral.mockResolvedValue({ member: { fullName: 'Synthetic Member' }, partner: { name: 'Synthetic Partner', contactEmail: 'partner@example.invalid', notifyOnEnrollment: true } });
+  mocks.referral.mockResolvedValue({ member: { fullName: 'Synthetic Member' }, partner: { name: 'Synthetic Partner', contactEmail: 'partner@workforceap.org', notifyOnEnrollment: true } });
   mocks.member.mockResolvedValue({ fullName: 'Synthetic Member' });
-  mocks.partner.mockResolvedValue({ name: 'Synthetic Partner', contactEmail: 'partner@example.invalid' });
+  mocks.partner.mockResolvedValue({ name: 'Synthetic Partner', contactEmail: 'partner@workforceap.org' });
   mocks.send.mockResolvedValue({ data: { id: 'accepted-receipt' }, error: null });
   mocks.diagnostic.mockResolvedValue(undefined);
 });
@@ -24,7 +24,7 @@ describe.each(channels)('%s partner email', (_name, action) => {
   it('surfaces a resolved SDK error and records safe recipient/subject metadata', async () => {
     mocks.send.mockResolvedValue({ data: null, error: { message: 'Rate limited', name: 'rate_limit_exceeded' } });
     await expect(action()).rejects.toThrow('Rate limited');
-    expect(mocks.diagnostic).toHaveBeenCalledWith(expect.objectContaining({ workflow: 'email_send', status: 'error', provider: 'resend', failureReason: 'Rate limited', metadata: { to: ['partner@example.invalid'], subject: expect.any(String) } }));
+    expect(mocks.diagnostic).toHaveBeenCalledWith(expect.objectContaining({ workflow: 'email_send', status: 'error', provider: 'resend', failureReason: 'Rate limited', metadata: { to: ['partner@workforceap.org'], subject: expect.any(String) } }));
     expect(JSON.stringify(mocks.diagnostic.mock.calls)).not.toContain('RESEND_API_KEY');
   });
   it('surfaces transport exceptions through the same failure path', async () => {
@@ -47,7 +47,17 @@ describe.each(channels)('%s partner email', (_name, action) => {
   });
 });
 it('respects a partner opting out of milestone email', async () => {
-  mocks.referral.mockResolvedValue({ member: { fullName: 'Synthetic' }, partner: { contactEmail: 'partner@example.invalid', notifyOnEnrollment: false } });
+  mocks.referral.mockResolvedValue({ member: { fullName: 'Synthetic' }, partner: { contactEmail: 'partner@workforceap.org', notifyOnEnrollment: false } });
   await sendPartnerMilestoneEmail('member-1', 'Program enrollment');
   expect(mocks.send).not.toHaveBeenCalled();
+});
+
+it('skips fixture partner recipients before Resend without a failure diagnostic', async () => {
+  mocks.referral.mockResolvedValue({
+    member: { fullName: 'Synthetic Member' },
+    partner: { name: 'Synthetic Partner', contactEmail: 'partner@example.invalid', notifyOnEnrollment: true },
+  });
+  await sendPartnerMilestoneEmail('member-1', 'Program enrollment');
+  expect(mocks.send).not.toHaveBeenCalled();
+  expect(mocks.diagnostic).not.toHaveBeenCalled();
 });

@@ -100,7 +100,7 @@ export const POST = withApiGuc(async (request: Request) => {
               })
             : [];
           for (const admin of admins) {
-            void createNotification({
+            await createNotification({
               userId: admin.id,
               type: 'task_assigned',
               title: 'Coursera identity claim needs review',

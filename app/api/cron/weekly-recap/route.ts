@@ -7,15 +7,13 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
-import { createBoundedPacer } from '@/lib/email/pacing';
-import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 export const maxDuration = 300;
+import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
 
-const RECAP_SEND_INTERVAL_MS = 500;
-// Keep one deadline across selection, generation, pacing, and provider retries.
-// The final 30 seconds of the platform limit remain reserved for accounting/logging.
-const RECAP_REQUEST_BUDGET_MS = maxDuration * 1_000 - 30_000;
+
+// One shared deadline covers selection, generation, pacing, and provider retries.
 
 /**
  * GET /api/cron/weekly-recap
@@ -29,7 +27,8 @@ const RECAP_REQUEST_BUDGET_MS = maxDuration * 1_000 - 30_000;
  * Or trigger manually from admin at /admin/weekly-recap.
  */
 async function handle(_request: Request) {
-  const requestDeadlineAtMs = Date.now() + RECAP_REQUEST_BUDGET_MS;
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
+  const requestDeadlineAtMs = emailPacer.deadlineAtMs;
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
   weekStart.setHours(0, 0, 0, 0);
@@ -62,15 +61,12 @@ async function handle(_request: Request) {
   let sent = 0;
   let failed = 0;
   let skipped = 0;
-  let skipReason: 'pacing_budget_exhausted' | 'request_deadline_exhausted' | undefined;
+  let skipReason: 'pacing_budget_exhausted' | 'request_deadline_exhausted' | 'fixture_recipient' | undefined;
 
   // Generated rows remain retryable until a provider-accepted send sets emailedAt.
   const recaps = await generateWeeklyRecaps(members, weekStart);
   const recapByUserId = new Map(recaps.map((r) => [r.userId, r.recapData]));
-  const waitForSendSlot = createBoundedPacer({
-    intervalMs: RECAP_SEND_INTERVAL_MS,
-    deadlineAtMs: requestDeadlineAtMs,
-  });
+  const waitForSendSlot = emailPacer.waitForSendSlot;
 
   for (const [index, member] of members.entries()) {
     try {
@@ -99,6 +95,11 @@ async function handle(_request: Request) {
       // making the metric meaningless and hiding deliverability
       // regressions from the cron dashboard.
       if (result?.ok === false) {
+        if (result.skipped) {
+          skipped++;
+          skipReason = 'fixture_recipient';
+          continue;
+        }
         captureApiError(new Error(result.error ?? 'sendWeeklyRecapEmail failed'), {
           route: 'cron/weekly-recap',
           extra: { userId: member.id },

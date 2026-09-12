@@ -161,7 +161,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return m;
   });
 
-  void createNotification({
+  await createNotification({
     userId: memberId,
     type: 'message',
     title: 'New message from your advisor',

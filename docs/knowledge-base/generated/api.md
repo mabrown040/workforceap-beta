@@ -180,8 +180,8 @@
 | [app/api/admin/pipeline/route.ts](../../../app/api/admin/pipeline/route.ts) | 86 | administration | GET:86 |
 | [app/api/admin/pipeline/stale/route.ts](../../../app/api/admin/pipeline/stale/route.ts) | 41 | administration | GET:10 |
 | [app/api/admin/pipeline/surveys/route.ts](../../../app/api/admin/pipeline/surveys/route.ts) | 87 | administration | GET:12 |
-| [app/api/admin/placement-surveys/resend/route.ts](../../../app/api/admin/placement-surveys/resend/route.ts) | 104 | administration | POST:11 |
-| [app/api/admin/placement-surveys/route.ts](../../../app/api/admin/placement-surveys/route.ts) | 104 | administration | GET:7 |
+| [app/api/admin/placement-surveys/resend/route.ts](../../../app/api/admin/placement-surveys/resend/route.ts) | 165 | administration | POST:23 |
+| [app/api/admin/placement-surveys/route.ts](../../../app/api/admin/placement-surveys/route.ts) | 105 | administration | GET:7 |
 | [app/api/admin/placements/route.ts](../../../app/api/admin/placements/route.ts) | 198 | jobs-employers | GET:196, POST:197, PATCH:198 |
 | [app/api/admin/program-change-requests/\[id\]/route.ts](../../../app/api/admin/program-change-requests/%5Bid%5D/route.ts) | 221 | administration | PATCH:25 |
 | [app/api/admin/program-change-requests/route.ts](../../../app/api/admin/program-change-requests/route.ts) | 40 | administration | GET:8 |
@@ -281,27 +281,27 @@
 | [app/api/counselor/sessions/upload-resume/route.ts](../../../app/api/counselor/sessions/upload-resume/route.ts) | 155 | member-counselor | POST:38 |
 | [app/api/counselor/sessions/voice-walkthrough/route.ts](../../../app/api/counselor/sessions/voice-walkthrough/route.ts) | 192 | member-counselor | POST:192 |
 | [app/api/counselor/sessions/walk-in/route.ts](../../../app/api/counselor/sessions/walk-in/route.ts) | 324 | member-counselor | POST:60 |
-| [app/api/cron/applicant-followup/route.ts](../../../app/api/cron/applicant-followup/route.ts) | 98 | communications | GET:97, POST:98 |
-| [app/api/cron/at-risk-alerts/route.ts](../../../app/api/cron/at-risk-alerts/route.ts) | 55 | communications | runtime:10, maxDuration:11, GET:54, POST:55 |
+| [app/api/cron/applicant-followup/route.ts](../../../app/api/cron/applicant-followup/route.ts) | 103 | communications | maxDuration:11, GET:102, POST:103 |
+| [app/api/cron/at-risk-alerts/route.ts](../../../app/api/cron/at-risk-alerts/route.ts) | 57 | communications | runtime:11, maxDuration:12, GET:56, POST:57 |
 | [app/api/cron/at-risk-check/route.ts](../../../app/api/cron/at-risk-check/route.ts) | 147 | communications | runtime:18, maxDuration:19, GET:146, POST:147 |
-| [app/api/cron/course-accountability/route.ts](../../../app/api/cron/course-accountability/route.ts) | 153 | communications | GET:152, POST:153 |
-| [app/api/cron/coursera-auto-heal/route.ts](../../../app/api/cron/coursera-auto-heal/route.ts) | 129 | learning-coursera | GET:128, POST:129 |
+| [app/api/cron/course-accountability/route.ts](../../../app/api/cron/course-accountability/route.ts) | 159 | communications | maxDuration:14, GET:158, POST:159 |
+| [app/api/cron/coursera-auto-heal/route.ts](../../../app/api/cron/coursera-auto-heal/route.ts) | 135 | learning-coursera | maxDuration:16, GET:134, POST:135 |
 | [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 82 | learning-coursera | GET:81, POST:82 |
 | [app/api/cron/coursera-sync/route.ts](../../../app/api/cron/coursera-sync/route.ts) | 171 | learning-coursera | GET:170, POST:171 |
-| [app/api/cron/coursera-training-sync/route.ts](../../../app/api/cron/coursera-training-sync/route.ts) | 34 | learning-coursera | GET:34 |
+| [app/api/cron/coursera-training-sync/route.ts](../../../app/api/cron/coursera-training-sync/route.ts) | 38 | learning-coursera | maxDuration:10, GET:38 |
 | [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 33 | communications | GET:32, POST:33 |
 | [app/api/cron/deploy-health/route.ts](../../../app/api/cron/deploy-health/route.ts) | 77 | communications | GET:76, POST:77 |
-| [app/api/cron/employer-pending-applicants/route.ts](../../../app/api/cron/employer-pending-applicants/route.ts) | 165 | communications | GET:164, POST:165 |
-| [app/api/cron/inactive-nudge/route.ts](../../../app/api/cron/inactive-nudge/route.ts) | 93 | communications | GET:92, POST:93 |
-| [app/api/cron/inactivity-nudge/route.ts](../../../app/api/cron/inactivity-nudge/route.ts) | 89 | communications | GET:88, POST:89 |
-| [app/api/cron/interview-reminders/route.ts](../../../app/api/cron/interview-reminders/route.ts) | 93 | communications | GET:93 |
-| [app/api/cron/job-alerts/route.ts](../../../app/api/cron/job-alerts/route.ts) | 119 | communications | GET:118, POST:119 |
-| [app/api/cron/job-expiry/route.ts](../../../app/api/cron/job-expiry/route.ts) | 103 | communications | GET:102, POST:103 |
+| [app/api/cron/employer-pending-applicants/route.ts](../../../app/api/cron/employer-pending-applicants/route.ts) | 172 | communications | maxDuration:12, GET:171, POST:172 |
+| [app/api/cron/inactive-nudge/route.ts](../../../app/api/cron/inactive-nudge/route.ts) | 105 | communications | maxDuration:14, GET:104, POST:105 |
+| [app/api/cron/inactivity-nudge/route.ts](../../../app/api/cron/inactivity-nudge/route.ts) | 96 | communications | maxDuration:14, GET:95, POST:96 |
+| [app/api/cron/interview-reminders/route.ts](../../../app/api/cron/interview-reminders/route.ts) | 98 | communications | maxDuration:11, GET:98 |
+| [app/api/cron/job-alerts/route.ts](../../../app/api/cron/job-alerts/route.ts) | 133 | communications | maxDuration:12, GET:132, POST:133 |
+| [app/api/cron/job-expiry/route.ts](../../../app/api/cron/job-expiry/route.ts) | 110 | communications | maxDuration:14, GET:109, POST:110 |
 | [app/api/cron/milestone-cascade-draft/route.ts](../../../app/api/cron/milestone-cascade-draft/route.ts) | 38 | communications | GET:37, POST:38 |
 | [app/api/cron/milestone-cascade-expire/route.ts](../../../app/api/cron/milestone-cascade-expire/route.ts) | 26 | communications | GET:25, POST:26 |
-| [app/api/cron/milestone-celebration/route.ts](../../../app/api/cron/milestone-celebration/route.ts) | 131 | communications | GET:130, POST:131 |
+| [app/api/cron/milestone-celebration/route.ts](../../../app/api/cron/milestone-celebration/route.ts) | 137 | communications | maxDuration:13, GET:136, POST:137 |
 | [app/api/cron/onboarding-stalls/route.ts](../../../app/api/cron/onboarding-stalls/route.ts) | 189 | communications | GET:188, POST:189 |
-| [app/api/cron/partner-outcome-digest/route.ts](../../../app/api/cron/partner-outcome-digest/route.ts) | 188 | communications | GET:187, POST:188 |
+| [app/api/cron/partner-outcome-digest/route.ts](../../../app/api/cron/partner-outcome-digest/route.ts) | 195 | communications | maxDuration:16, GET:194, POST:195 |
 | [app/api/cron/placement-survey/route.ts](../../../app/api/cron/placement-survey/route.ts) | 48 | communications | GET:47, POST:48 |
 | [app/api/cron/retention-decisions/route.ts](../../../app/api/cron/retention-decisions/route.ts) | 193 | communications | GET:192, POST:193 |
 | [app/api/cron/smoke-test/route.ts](../../../app/api/cron/smoke-test/route.ts) | 179 | communications | GET:178, POST:179 |
@@ -310,7 +310,7 @@
 | [app/api/cron/weekly-recap-email/route.ts](../../../app/api/cron/weekly-recap-email/route.ts) | 73 | communications | GET:72, POST:73 |
 | [app/api/cron/weekly-recap/_weeklyRecapCronStatus.ts](../../../app/api/cron/weekly-recap/_weeklyRecapCronStatus.ts) | 3 | communications | getWeeklyRecapCronStatus:1 |
 | [app/api/cron/weekly-recap/route.test.ts](../../../app/api/cron/weekly-recap/route.test.ts) | 10 | communications |  |
-| [app/api/cron/weekly-recap/route.ts](../../../app/api/cron/weekly-recap/route.ts) | 133 | communications | maxDuration:13, GET:132, POST:133 |
+| [app/api/cron/weekly-recap/route.ts](../../../app/api/cron/weekly-recap/route.ts) | 134 | communications | maxDuration:12, GET:133, POST:134 |
 | [app/api/cron/wioa-report/route.ts](../../../app/api/cron/wioa-report/route.ts) | 58 | communications | GET:57, POST:58 |
 | [app/api/employer/applications/\[id\]/messages/route.ts](../../../app/api/employer/applications/%5Bid%5D/messages/route.ts) | 206 | communications | GET:69, POST:166, PATCH:205 |
 | [app/api/employer/applications/\[id\]/resume/route.ts](../../../app/api/employer/applications/%5Bid%5D/resume/route.ts) | 128 | jobs-employers | GET:25 |

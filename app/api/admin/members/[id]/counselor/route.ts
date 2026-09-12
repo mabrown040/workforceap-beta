@@ -75,7 +75,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     console.error('[admin/member/counselor] assignment committed but email failed', emailError);
   }
 
-  void createNotification({
+  await createNotification({
     userId: memberId,
     type: 'task_assigned',
     title: 'You have a new advisor',

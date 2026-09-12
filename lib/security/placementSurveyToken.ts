@@ -66,12 +66,21 @@ async function sign(value: string): Promise<string> {
 export async function issuePlacementSurveyToken(args: {
   surveyId: string;
   ttlSeconds?: number;
+  /** Frozen expiry for retryable provider payloads; mutually exclusive with ttlSeconds. */
+  expiresAt?: Date;
 }): Promise<string> {
+  if (args.expiresAt && args.ttlSeconds !== undefined) {
+    throw new TypeError('expiresAt and ttlSeconds are mutually exclusive');
+  }
   const now = Math.floor(Date.now() / 1000);
+  const expiresAtSeconds = args.expiresAt
+    ? Math.floor(args.expiresAt.getTime() / 1000)
+    : now + (args.ttlSeconds ?? DEFAULT_TTL_SECONDS);
+  if (!Number.isFinite(expiresAtSeconds)) throw new TypeError('expiresAt must be a valid date');
   const payload: PlacementSurveyTokenPayload = {
     v: TOKEN_VERSION,
     sub: args.surveyId,
-    exp: now + (args.ttlSeconds ?? DEFAULT_TTL_SECONDS),
+    exp: expiresAtSeconds,
   };
   const encodedPayload = bytesToBase64Url(encoder.encode(JSON.stringify(payload)));
   const signature = await sign(encodedPayload);

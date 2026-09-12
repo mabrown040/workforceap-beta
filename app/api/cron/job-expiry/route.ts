@@ -9,7 +9,11 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 import { CRON_JOB_EXPIRY_CAP } from '@/lib/cron/cronCaps';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 const JOB_NAME = 'cron_job_expiry';
+
 
 /**
  * Daily job auto-expiry (07:45 UTC, see vercel.json).
@@ -19,6 +23,7 @@ const JOB_NAME = 'cron_job_expiry';
  * flips them all with a single updateMany — no per-job update loop.
  */
 async function handle(_request: Request) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const now = new Date();
 
   const expiring = await prisma.job.findMany({
@@ -76,10 +81,11 @@ async function handle(_request: Request) {
         data: { link: '/employer/jobs' },
       });
 
-      if (agg.contactEmail) {
-        await sendEmployerJobExpiryEmail({ to: agg.contactEmail, expiredCount: agg.count }).catch(() => {
+      const contactEmail = agg.contactEmail;
+      if (contactEmail) {
+        await emailPacer.run(() => sendEmployerJobExpiryEmail({ to: contactEmail, expiredCount: agg.count }).catch(() => {
           /* non-fatal — notification already sent */
-        });
+        }));
       }
 
       employersNotified++;
@@ -93,6 +99,7 @@ async function handle(_request: Request) {
     checkedAt: now.toISOString(),
     expiredCount: count,
     employersNotified,
+    emailPacing: emailPacer.summary(),
   };
   await setCronRecordsProcessed(count);
   await logCronRun(JOB_NAME, runResult);

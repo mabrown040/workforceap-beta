@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9219328250d283a5e4bb53228ee77ad046fc84a84af174a7200b67227ba50ae1",
+  "inputTreeSha256": "56b7c7190f8d2ab6a62c862c1c75faa209638b70e9f99f694de2a597a084f748",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3211,9 +3211,9 @@
       "path": "AGENTS.md",
       "area": "root",
       "domain": "root",
-      "bytes": 15472,
-      "lines": 200,
-      "sha256": "b6d0c66a88b9fffadd6a6af9b01aa0824bdb24f6aa27024f647e63f935d31853",
+      "bytes": 15867,
+      "lines": 210,
+      "sha256": "cc0a3d3f9f1e39378ba197cde8595ff5c589b8e53661993679508f56f440cc1d",
       "binary": false
     },
     {
@@ -19488,9 +19488,9 @@
       "path": "app/admin/placement-surveys/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 11915,
-      "lines": 304,
-      "sha256": "d81bb6a6a3bb86a96c11d060f866ddebe9f8d8b2ff00d978d06ff6bc071c2c54",
+      "bytes": 12156,
+      "lines": 306,
+      "sha256": "85c643fe42a336a394bfe1005540a73b518dae0b49144f388b3a94e6d35aa6b9",
       "binary": false,
       "exports": [
         {
@@ -19538,7 +19538,7 @@
         },
         {
           "name": "StatCard",
-          "line": 289,
+          "line": 291,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -23673,9 +23673,9 @@
       "path": "app/api/admin/employers/[id]/approve/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4173,
+      "bytes": 4181,
       "lines": 114,
-      "sha256": "15cc202f04ac71cd7f46c4a31353433aa87f69c7a6c5fc0368d0b79020782c77",
+      "sha256": "137e31ac3de1fd5231c0dd7fc6515b236af54962edcccb1358c1025d2d69992b",
       "binary": false,
       "exports": [
         {
@@ -24899,9 +24899,9 @@
       "path": "app/api/admin/members/[id]/counselor/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3951,
+      "bytes": 3952,
       "lines": 102,
-      "sha256": "acec907f36a8e32821bd0743f0ae0566aa4508016d48dc4ff6ac3f76c5cab1c1",
+      "sha256": "b4c0497b909c5dfc852c64ff9fbbc5d2b53512cb221ff2be36ba3600b9f08079",
       "binary": false,
       "exports": [
         {
@@ -25881,9 +25881,9 @@
       "path": "app/api/admin/members/bulk-email/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 6984,
+      "bytes": 6985,
       "lines": 198,
-      "sha256": "432eee7d1badb666318960b04e4f1a79aef0570c44f3f09d47fbf0ec31e07b69",
+      "sha256": "90e8c3d9f6d957e5d587b0b388f44e78964d79a5e23a45f9ec4815cbab1ba11d",
       "binary": false,
       "exports": [
         {
@@ -27528,9 +27528,9 @@
       "path": "app/api/admin/pipeline/surveys/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3228,
+      "bytes": 3264,
       "lines": 87,
-      "sha256": "0a44ab205a3df7109a3ed39856285555e884bb8731f4940d34af1e5fb969ff25",
+      "sha256": "14c56ea4b1c82405c46877f5f4ad8e256c22b68e827bb82ac3060bfcc0f5282e",
       "binary": false,
       "exports": [
         {
@@ -27557,26 +27557,31 @@
       "path": "app/api/admin/placement-surveys/resend/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3870,
-      "lines": 104,
-      "sha256": "1674e56954e23b1d4d87dda01bb71bd8ea76c7452a71a214d9612db18a355bb9",
+      "bytes": 6302,
+      "lines": 165,
+      "sha256": "7545db7c8785c995e0c3489ba1c6440d9b456ab6ff8025300b8e50091da36dd5",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 23,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "SITE_URL",
-          "line": 11,
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "SURVEY_TOKEN_TTL_MS",
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 11,
+          "line": 23,
           "kind": "Variable"
         }
       ],
@@ -27586,9 +27591,9 @@
       "path": "app/api/admin/placement-surveys/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4108,
-      "lines": 104,
-      "sha256": "bc9333a7109e33b0ffbdc84ccedae881d3abace374e1348491ffe2df4ed8b714",
+      "bytes": 4185,
+      "lines": 105,
+      "sha256": "dcbb74f45fc187340cfe8379955810304c269d099c2d95788a539bc10a8e1335",
       "binary": false,
       "exports": [
         {
@@ -30469,9 +30474,9 @@
       "path": "app/api/counselor/members/[memberId]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 8493,
+      "bytes": 8494,
       "lines": 217,
-      "sha256": "1f56380d3f987cab2de34bd9fd5d09366dfe30ef300b3302c5351f4401e748d2",
+      "sha256": "90891c43268877c7d6bbcec2b7cdd10ed70ed3ef04b6ac71f03c426ad4fd7c2f",
       "binary": false,
       "exports": [
         {
@@ -31260,36 +31265,46 @@
       "path": "app/api/cron/applicant-followup/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3607,
-      "lines": 98,
-      "sha256": "e4a445171a5c923d202082b99f57af0132aa08bf320e8f2a7e681fefa838070b",
+      "bytes": 3867,
+      "lines": 103,
+      "sha256": "958058cb2e08ee4de43a1694b7dc4a44b666147d3cd39444d20645540d3f3a75",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 97,
+          "line": 102,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 98,
+          "line": 103,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 17,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 97,
+          "line": 102,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 98,
+          "line": 103,
           "kind": "Variable"
         }
       ],
@@ -31299,61 +31314,61 @@
       "path": "app/api/cron/at-risk-alerts/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 2121,
-      "lines": 55,
-      "sha256": "46d7e0c678023303957455e119bbbdbedbb2fbd07ee6b9bbc39647d8e8a83107",
+      "bytes": 2289,
+      "lines": 57,
+      "sha256": "2d9af56f3715cf43253045fc2c60d0cf346248e73bd2d12bad62ae915f0822cf",
       "binary": false,
       "exports": [
         {
           "name": "runtime",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "maxDuration",
           "line": 11,
           "kind": "Variable"
         },
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 54,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 55,
+          "line": 57,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "runtime",
-          "line": 10,
-          "kind": "Variable"
-        },
-        {
-          "name": "maxDuration",
           "line": 11,
           "kind": "Variable"
         },
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "verifyCronSecret",
-          "line": 13,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "handle",
-          "line": 35,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 54,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 55,
+          "line": 57,
           "kind": "Variable"
         }
       ],
@@ -31427,36 +31442,46 @@
       "path": "app/api/cron/course-accountability/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5988,
-      "lines": 153,
-      "sha256": "5da58d7d1b3134dc0ccf6767c61f43e378b57eca021bd1d972fb4d6a6420c59b",
+      "bytes": 6230,
+      "lines": 159,
+      "sha256": "b89034220843a8229b018082c555ce617f95cf65eab5ca5c0af741d24b8d4c12",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 152,
+          "line": 158,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 153,
+          "line": 159,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 20,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 152,
+          "line": 158,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 153,
+          "line": 159,
           "kind": "Variable"
         }
       ],
@@ -31466,36 +31491,46 @@
       "path": "app/api/cron/coursera-auto-heal/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4677,
-      "lines": 129,
-      "sha256": "67918e45214035c1eb3550079a8832325aeee7aef2850cdf1606cbb71752bd93",
+      "bytes": 4935,
+      "lines": 135,
+      "sha256": "56ea9364c189d8c45e20a4bcdfaab7d5773c96d9eb8c8895a2e688d88c6cd94e",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 128,
+          "line": 134,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 129,
+          "line": 135,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 31,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 128,
+          "line": 134,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 129,
+          "line": 135,
           "kind": "Variable"
         }
       ],
@@ -31623,26 +31658,36 @@
       "path": "app/api/cron/coursera-training-sync/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 1339,
-      "lines": 34,
-      "sha256": "d81a63e8e857d61aed38a8125c3ed7f9ad815169e03d82d461e667fa40bc05b6",
+      "bytes": 1577,
+      "lines": 38,
+      "sha256": "d0dc9b7d198fe9edb066be21a62d1eafbeb8202e4261d2ee5af588b594254267",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 34,
+          "line": 38,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 16,
+          "line": 19,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 34,
+          "line": 38,
           "kind": "Variable"
         }
       ],
@@ -31735,56 +31780,66 @@
       "path": "app/api/cron/employer-pending-applicants/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5842,
-      "lines": 165,
-      "sha256": "90fa8bc99b35c20c53dc479cf64fa33ada3a0e7545a2cbc39724c174acbe5f2b",
+      "bytes": 6143,
+      "lines": 172,
+      "sha256": "96166fcc1b360b9f4fb4ec3a03c0d6068e722a492da35c11bfec3ee40b56b959",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 164,
+          "line": 171,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 165,
+          "line": 172,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
-          "name": "JOB_NAME",
-          "line": 10,
+          "name": "maxDuration",
+          "line": 12,
           "kind": "Variable"
         },
         {
-          "name": "ADMIN_DIGEST_THRESHOLD",
+          "name": "JOB_NAME",
           "line": 13,
           "kind": "Variable"
         },
         {
+          "name": "ADMIN_DIGEST_THRESHOLD",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
           "name": "STALE_DAYS",
-          "line": 16,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "MS_PER_DAY",
-          "line": 18,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "handle",
-          "line": 30,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 164,
+          "line": 171,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 165,
+          "line": 172,
           "kind": "Variable"
         }
       ],
@@ -31794,36 +31849,46 @@
       "path": "app/api/cron/inactive-nudge/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3554,
-      "lines": 93,
-      "sha256": "db7fb03d49f152d9f101287b4d12a98718b7f8e7cb0ab704dc0e9506ed7493f6",
+      "bytes": 3961,
+      "lines": 105,
+      "sha256": "d6cbc586c21b439c2339d61f4a24573fe2a42d55fb20eb0bb5beb7c64f4cba63",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 92,
+          "line": 104,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 93,
+          "line": 105,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 23,
+          "line": 26,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 92,
+          "line": 104,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 93,
+          "line": 105,
           "kind": "Variable"
         }
       ],
@@ -31833,36 +31898,46 @@
       "path": "app/api/cron/inactivity-nudge/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3579,
-      "lines": 89,
-      "sha256": "4ae29e861089eb4908058d6b13bd2fb32fabd073877a934b0624a01ec8d19315",
+      "bytes": 3925,
+      "lines": 96,
+      "sha256": "6e8c39c30e49c703d3105369c1aa6bfc09abd60e05a715ffb6194683f2e26115",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 88,
+          "line": 95,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 89,
+          "line": 96,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 22,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 88,
+          "line": 95,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 89,
+          "line": 96,
           "kind": "Variable"
         }
       ],
@@ -31872,26 +31947,36 @@
       "path": "app/api/cron/interview-reminders/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3433,
-      "lines": 93,
-      "sha256": "b3552147ec9f3fbe28249d27e202b3dc558013ef36901e9369322d0057f175a5",
+      "bytes": 3693,
+      "lines": 98,
+      "sha256": "2fdb2e44a0d3b50bf6530cb5810e14024306d728788318ec3aec97edbbdba23d",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 93,
+          "line": 98,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 13,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 93,
+          "line": 98,
           "kind": "Variable"
         }
       ],
@@ -31901,41 +31986,51 @@
       "path": "app/api/cron/job-alerts/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 4096,
-      "lines": 119,
-      "sha256": "dfdbf2b91a9a86c7855a0f1128c33c9cea84a503da07fe08c07f2ac5edd0466a",
+      "bytes": 4611,
+      "lines": 133,
+      "sha256": "3cc7ef908cd8f9a5bf504a60e70186f8a0ebfa1f276c40e3271b021da5575881",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 118,
+          "line": 132,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 119,
+          "line": 133,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "JOB_NAME",
-          "line": 10,
+          "line": 13,
           "kind": "Variable"
         },
         {
           "name": "handle",
-          "line": 21,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 118,
+          "line": 132,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 119,
+          "line": 133,
           "kind": "Variable"
         }
       ],
@@ -31945,41 +32040,51 @@
       "path": "app/api/cron/job-expiry/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3520,
-      "lines": 103,
-      "sha256": "d56ee92051266e1b1e8432fd2c102a0a7cad00412b2a3f756aafb96a6de6aa69",
+      "bytes": 3799,
+      "lines": 110,
+      "sha256": "0f56c5b486ff3acbb1639df307ad1cf31dd6ad6e627a8ef4266680484596662b",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 102,
+          "line": 109,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 103,
+          "line": 110,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "JOB_NAME",
-          "line": 12,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "handle",
-          "line": 21,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 102,
+          "line": 109,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 103,
+          "line": 110,
           "kind": "Variable"
         }
       ],
@@ -32077,36 +32182,46 @@
       "path": "app/api/cron/milestone-celebration/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5369,
-      "lines": 131,
-      "sha256": "15727f044d56a76945eea1ca7d1cb47fe2effcfefad1e7914da557198a88ab55",
+      "bytes": 5658,
+      "lines": 137,
+      "sha256": "c0710d871b8fbf0cb15baac608c36fc2f594716b4c4b784917df2d7a62f6f41c",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 130,
+          "line": 136,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 131,
+          "line": 137,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 35,
+          "line": 38,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 130,
+          "line": 136,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 131,
+          "line": 137,
           "kind": "Variable"
         }
       ],
@@ -32210,36 +32325,46 @@
       "path": "app/api/cron/partner-outcome-digest/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 6916,
-      "lines": 188,
-      "sha256": "58c580ecc523cbcb956ca988ea00c8dff7e04b8b9362a1acbf51a8f1c6626726",
+      "bytes": 7323,
+      "lines": 195,
+      "sha256": "eeef2a5fe2b3b23ef4d190d2db2da2d754f1e0ef0b250b9e034c3d3840b094cf",
       "binary": false,
       "exports": [
         {
+          "name": "maxDuration",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 187,
+          "line": 194,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 188,
+          "line": 195,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "maxDuration",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
           "name": "handle",
-          "line": 19,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 187,
+          "line": 194,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 188,
+          "line": 195,
           "kind": "Variable"
         }
       ],
@@ -32579,56 +32704,46 @@
       "path": "app/api/cron/weekly-recap/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5264,
-      "lines": 133,
-      "sha256": "8411e1034593351320e2ac287d2baab99c8ff8c97932ae59e7d6339b56fd73b2",
+      "bytes": 5229,
+      "lines": 134,
+      "sha256": "00388111544d2dd48d5e61341624cf8253b4cdf140e384ba491044abd44f5cd4",
       "binary": false,
       "exports": [
         {
           "name": "maxDuration",
-          "line": 13,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "GET",
-          "line": 132,
+          "line": 133,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 133,
+          "line": 134,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "maxDuration",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
-          "name": "RECAP_SEND_INTERVAL_MS",
-          "line": 15,
-          "kind": "Variable"
-        },
-        {
-          "name": "RECAP_REQUEST_BUDGET_MS",
-          "line": 18,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "handle",
-          "line": 31,
+          "line": 29,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 132,
+          "line": 133,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 133,
+          "line": 134,
           "kind": "Variable"
         }
       ],
@@ -32677,9 +32792,9 @@
       "path": "app/api/employer/applications/[id]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 6476,
+      "bytes": 6491,
       "lines": 206,
-      "sha256": "6e55c91f622b653e8060f07ecc064b454b6ccc4fe9e9275ad8e7ae1386f5a374",
+      "sha256": "a381237fe8bcecd1c9790dc02116b087f8ea0c30ab8130a92ff4f39347ab5ae6",
       "binary": false,
       "exports": [
         {
@@ -33552,9 +33667,9 @@
       "path": "app/api/employer/signup/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 9242,
+      "bytes": 9250,
       "lines": 253,
-      "sha256": "901add76e386566d5ba43778cddcaf2a9cbc8413afdcc823e3e947e925560257",
+      "sha256": "4eead868f1ab3a9e0379023cbdabba932a4885f23305bbe310e93663f9450cee",
       "binary": false,
       "exports": [
         {
@@ -34579,9 +34694,9 @@
       "path": "app/api/member/applications/[id]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3832,
+      "bytes": 3847,
       "lines": 135,
-      "sha256": "d8722aaa49b98d58a7dc972e0836523ff574df4e793ee337435ba2a094b5c219",
+      "sha256": "9ec95ed337d90fbb0911c8fb15910ca976194c581897051394e77a4cf5f33d3a",
       "binary": false,
       "exports": [
         {
@@ -35061,9 +35176,9 @@
       "path": "app/api/member/coursera/identity/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 6953,
+      "bytes": 6954,
       "lines": 163,
-      "sha256": "73471bab3543e31fabba35d3fd3d4d209b185552bcee65a75bee5f6b258b8b7f",
+      "sha256": "db2f83c2e7729dc4db0e32bc9e5f1921221960eb8aac79863117af4f6d3c0449",
       "binary": false,
       "exports": [
         {
@@ -36123,9 +36238,9 @@
       "path": "app/api/member/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5560,
+      "bytes": 5561,
       "lines": 149,
-      "sha256": "96144271f5a56f8546f7bacc9861647c208a3de06bd07508029e0eaa56b2778b",
+      "sha256": "dbda396768290ba3af0c0f41743057f2708e7c114ad385c9b7a9b5559866df83",
       "binary": false,
       "exports": [
         {
@@ -76775,9 +76890,9 @@
       "path": "docs/knowledge-base/architecture.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 15519,
+      "bytes": 16370,
       "lines": 193,
-      "sha256": "cf21eb441ce40f4464749165d6afab67bc4e440640a1d38cdb644f979f62d98a",
+      "sha256": "52de220284da62260c98a15a60ed424d293b9c3dc704e9aa092987cfa9dff96d",
       "binary": false
     },
     {
@@ -76820,9 +76935,9 @@
       "path": "docs/knowledge-base/integrations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 31115,
+      "bytes": 32056,
       "lines": 133,
-      "sha256": "65743a7235b82300bbbe77d4270974f49bf6224cbf3adb0e60119d71a1f47ae0",
+      "sha256": "2f6b0af9207d885c4ee2cc9a5a9517e4f712a6769d95466cd7049d26827f2f83",
       "binary": false
     },
     {
@@ -76838,18 +76953,18 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 20723,
-      "lines": 161,
-      "sha256": "0d507a2ee1b2ad3e615d1b40d3dae5d4a1948e97b25440ac38569f9e75dcbb2e",
+      "bytes": 22534,
+      "lines": 163,
+      "sha256": "63297db1a9641230318b54f29fd081aa1aa43e5388c836d30496962353a1e60b",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8132,
+      "bytes": 8410,
       "lines": 52,
-      "sha256": "6fba0976bc435dd10b6168517609847819192f38c0ef1fe2e2a2688188adeb3f",
+      "sha256": "4b0b900ee94cfd8964652bdf483f62534e80094cdd852dface3c079ecc4189e2",
       "binary": false
     },
     {
@@ -81636,9 +81751,9 @@
       "path": "lib/admin/adminJobMatchesPrismaDeps.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 3030,
+      "bytes": 3031,
       "lines": 101,
-      "sha256": "7b6d01f9bb31095b951dd05db9006bb88865e2df583a1776dc991ce42e65ebb0",
+      "sha256": "24c89b202a17809190836c59534186a52adaeaf942e4a424d698303e9c73ede8",
       "binary": false,
       "exports": [
         {
@@ -83369,9 +83484,9 @@
       "path": "lib/admin/courseraEnrollmentApproval.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 2955,
+      "bytes": 2956,
       "lines": 95,
-      "sha256": "adad7cc6ad371d2130df779403e5dfd238bd3ff79894ad6a9389223a74341b5f",
+      "sha256": "824fbac2d2ac612a5f6dea1cf7586975c77224f5bcb1415a2162fcfbc4008a4d",
       "binary": false,
       "exports": [
         {
@@ -93153,9 +93268,9 @@
       "path": "lib/auth/passwordReset.ts",
       "area": "libraries",
       "domain": "identity-tenancy",
-      "bytes": 6144,
+      "bytes": 6177,
       "lines": 149,
-      "sha256": "b3ccc3ab605293a247bdacd4b45c298e547aa2a92da04e0c08edc42ba608ca30",
+      "sha256": "946b4588ba548b185e90fc3801b483dfb018547760f8863d52e75d91b0c8d244",
       "binary": false,
       "exports": [
         {
@@ -94849,9 +94964,9 @@
       "path": "lib/billing/sendPacket.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 5254,
+      "bytes": 5287,
       "lines": 123,
-      "sha256": "a4d11cbbdc8adb55fc3ea4891e8ae3b15e1db987756272e53e466ce6ad7f3a22",
+      "sha256": "716b72bd3ac31f68904759e147afecd08044f0547f68b76db9b8092be41acee2",
       "binary": false,
       "exports": [
         {
@@ -99953,9 +100068,9 @@
       "path": "lib/counselor/ambassadorAutoAssign.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 6760,
+      "bytes": 6762,
       "lines": 188,
-      "sha256": "d42aded8e2fc674935d4aaee80b0a9d6d0cc9fcc9e72fca7ea9615fb1d044c2a",
+      "sha256": "3af009e686d851ef7f49265b79f0078a7452cce0da9414bd649d49dd0db65d98",
       "binary": false,
       "exports": [
         {
@@ -105955,96 +106070,101 @@
       "path": "lib/cron/at-risk-alerts.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 13920,
-      "lines": 485,
-      "sha256": "d26c6ea031c79c049b956e404b4edd8de1975171b8b8d9186fd16ade5b287b16",
+      "bytes": 15525,
+      "lines": 529,
+      "sha256": "d3fb4ffdca2ddd87f012bae0a9ee8494852179d624c3ce83cb43e179d8576cfd",
       "binary": false,
       "exports": [
         {
           "name": "RetentionNudgeResult",
-          "line": 69,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "runMemberRetentionNudges",
-          "line": 87,
+          "line": 92,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorAlertResult",
-          "line": 264,
+          "line": 286,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DailyAtRiskAlertRunResult",
-          "line": 273,
+          "line": 295,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "runDailyAtRiskCounselorAlerts",
-          "line": 282,
+          "line": 306,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "BulkEmailCronPacer",
+          "line": 30,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "SITE_URL",
-          "line": 29,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "NUDGE_COOLDOWN_DAYS",
-          "line": 30,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "NUDGE_COOLDOWN_MS",
-          "line": 31,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "NUDGE_BATCH_SIZE",
-          "line": 38,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "NudgeKind",
-          "line": 40,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "firstNameOf",
-          "line": 42,
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "chooseNudge",
-          "line": 48,
+          "line": 51,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "RetentionNudgeResult",
-          "line": 69,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "runMemberRetentionNudges",
-          "line": 87,
+          "line": 92,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorAlertResult",
-          "line": 264,
+          "line": 286,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DailyAtRiskAlertRunResult",
-          "line": 273,
+          "line": 295,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "runDailyAtRiskCounselorAlerts",
-          "line": 282,
+          "line": 306,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -106388,96 +106508,129 @@
       "path": "lib/cron/placement-surveys.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 11636,
-      "lines": 333,
-      "sha256": "654e76f3c77fd39a78923e384c9d0edcfc8a2179730893a1193b0dcf0c604406",
+      "bytes": 15621,
+      "lines": 436,
+      "sha256": "f4e695534bf374a1f248d99584bf3f26317593ce27231c6247bafa7aa46088e0",
       "binary": false,
       "exports": [
         {
           "name": "SurveySendResult",
-          "line": 32,
+          "line": 47,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EscalationResult",
-          "line": 39,
+          "line": 54,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DailySurveyRunResult",
-          "line": 45,
+          "line": 60,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "sendDuePlacementSurveys",
-          "line": 68,
+          "line": 85,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "escalateStalePlacementSurveys",
-          "line": 216,
+          "line": 311,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runDailyPlacementSurveyCron",
-          "line": 329,
+          "line": 431,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "SITE_URL",
-          "line": 15,
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "SURVEY_TOKEN_TTL_MS",
+          "line": 27,
+          "kind": "Variable"
+        },
+        {
+          "name": "UNSENT_SURVEY_AT",
+          "line": 30,
           "kind": "Variable"
         },
         {
           "name": "WAVES",
-          "line": 17,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "ESCALATABLE_WAVES",
-          "line": 25,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "SurveySendResult",
-          "line": 32,
+          "line": 47,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EscalationResult",
-          "line": 39,
+          "line": 54,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DailySurveyRunResult",
-          "line": 45,
+          "line": 60,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getSurveyDueDate",
-          "line": 51,
+          "line": 66,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "inWindow",
-          "line": 57,
+          "line": 72,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "PlacementEmailPacer",
+          "line": 83,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "sendDuePlacementSurveys",
-          "line": 68,
+          "line": 85,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "escalateStalePlacementSurveys",
-          "line": 216,
+          "line": 311,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runDailyPlacementSurveyCron",
-          "line": 329,
+          "line": 431,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/cron/placementSurveySentStatePolicy.test.ts",
+      "area": "libraries",
+      "domain": "communications",
+      "bytes": 2314,
+      "lines": 47,
+      "sha256": "9894e1fcddac86774f05699e5c3fc29deea799e755f3fed05455e97e01e21288",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "read",
+          "line": 5,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -108036,726 +108189,746 @@
       "path": "lib/email.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 92870,
-      "lines": 2665,
-      "sha256": "696f506bf991c60981b6e6297a15298a642f068a554cf36e0698071a274ec079",
+      "bytes": 102438,
+      "lines": 2872,
+      "sha256": "1fa1c0c7f187399d2146651d827ae3bbd0c2d7b53ab3a4b8d92c36c6d39bd4ef",
       "binary": false,
       "exports": [
         {
           "name": "getAdminAlertRecipients",
-          "line": 86,
+          "line": 94,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAssessmentResultRecipients",
-          "line": 103,
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getResend",
-          "line": 113,
+          "line": 121,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getVoiceCoachTranscriptRecipients",
-          "line": 142,
+          "line": 150,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachTranscriptEmail",
-          "line": 160,
+          "line": 168,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachArtifactEmail",
-          "line": 235,
+          "line": 246,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceInterviewTranscriptEmail",
-          "line": 300,
+          "line": 314,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendElevatorSpeechEmail",
-          "line": 371,
+          "line": 388,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAssignedEmail",
-          "line": 434,
+          "line": 454,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEnrollmentConfirmationEmail",
-          "line": 475,
+          "line": 498,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAtRiskDigestRecipients",
-          "line": 521,
+          "line": 547,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertRecipients",
-          "line": 536,
+          "line": 562,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseraUnmatchedActorAlertEmail",
-          "line": 548,
+          "line": 574,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAtRiskAlertDigestEmail",
-          "line": 595,
+          "line": 624,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendOnboardingStallsDigestEmail",
-          "line": 639,
+          "line": 671,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationAcceptedEmail",
-          "line": 692,
+          "line": 727,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationRejectedEmail",
-          "line": 733,
+          "line": 771,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPreScreeningReadyEmail",
-          "line": 764,
+          "line": 805,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendNewApplicationAdminEmail",
-          "line": 807,
+          "line": 851,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseEnrolledEmail",
-          "line": 842,
+          "line": 889,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseKickoffEmail",
-          "line": 879,
+          "line": 929,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseAccountabilityEmail",
-          "line": 916,
+          "line": 969,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCertCelebrationEmail",
-          "line": 952,
+          "line": 1008,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "preparePlacementSurveyEmail",
+          "line": 1059,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendPreparedPlacementSurveyEmail",
+          "line": 1096,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEmail",
-          "line": 1000,
+          "line": 1117,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEscalationEmail",
-          "line": 1043,
+          "line": 1124,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseCompletedEmail",
-          "line": 1080,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendMilestoneCascadeEmail",
-          "line": 1119,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendWeeklyRecapEmail",
           "line": 1164,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "sendMilestoneCascadeEmail",
+          "line": 1206,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendWeeklyRecapEmail",
+          "line": 1254,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendInvitationEmail",
-          "line": 1209,
+          "line": 1302,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerReferralInviteEmail",
-          "line": 1259,
+          "line": 1355,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInvitationAcceptedEmail",
-          "line": 1298,
+          "line": 1397,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInactiveNudgeEmail",
-          "line": 1334,
+          "line": 1436,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobAlertDigestEmail",
-          "line": 1369,
+          "line": 1474,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobSubmittedEmail",
-          "line": 1400,
+          "line": 1508,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobApprovedEmail",
-          "line": 1438,
+          "line": 1549,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobRejectedEmail",
-          "line": 1481,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendNewJobApplicationEmail",
-          "line": 1521,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendAIMatchSuggestionEmail",
-          "line": 1554,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendMatchActionEmail",
-          "line": 1588,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendApplicationConfirmationEmail",
           "line": 1595,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "sendNewJobApplicationEmail",
+          "line": 1638,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendAIMatchSuggestionEmail",
+          "line": 1674,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendMatchActionEmail",
+          "line": 1711,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendApplicationConfirmationEmail",
+          "line": 1718,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendSchoolEnrollmentParentAckEmail",
-          "line": 1630,
+          "line": 1756,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentPartnerAckEmail",
-          "line": 1670,
+          "line": 1799,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningConfirmationEmail",
-          "line": 1713,
+          "line": 1845,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningAdminEmail",
-          "line": 1748,
+          "line": 1883,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicantFollowupEmail",
-          "line": 1783,
+          "line": 1921,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminPendingApplicantsEmail",
-          "line": 1815,
+          "line": 1956,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerPendingApplicantsEmail",
-          "line": 1844,
+          "line": 1988,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminStaleApplicantsDigestEmail",
-          "line": 1876,
+          "line": 2023,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerJobExpiryEmail",
-          "line": 1905,
+          "line": 2055,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminWeeklyRecapEmail",
-          "line": 1935,
+          "line": 2088,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWioaReportEmail",
-          "line": 1969,
+          "line": 2125,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerWeeklyDigestEmail",
-          "line": 2016,
+          "line": 2175,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerWelcomeEmail",
-          "line": 2054,
+          "line": 2216,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerVerificationEmail",
-          "line": 2089,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendEmployerSignupAdminAlertEmail",
-          "line": 2123,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendEmployerApprovedEmail",
-          "line": 2155,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendEmployerRejectedEmail",
-          "line": 2186,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendAssessmentResetNotificationEmail",
-          "line": 2218,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendInterviewPrepBundleEmail",
           "line": 2254,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "sendEmployerSignupAdminAlertEmail",
+          "line": 2291,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendEmployerApprovedEmail",
+          "line": 2326,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendEmployerRejectedEmail",
+          "line": 2360,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendAssessmentResetNotificationEmail",
+          "line": 2395,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendInterviewPrepBundleEmail",
+          "line": 2434,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendInterviewPrepReminderEmail",
-          "line": 2315,
+          "line": 2498,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewDebriefPromptEmail",
-          "line": 2350,
+          "line": 2536,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAtRiskAlertEmail",
-          "line": 2387,
+          "line": 2576,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberCheckInEmail",
-          "line": 2444,
+          "line": 2636,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberComeBackEmail",
-          "line": 2480,
+          "line": 2675,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberStuckEmail",
-          "line": 2520,
+          "line": 2718,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepLink",
-          "line": 2564,
+          "line": 2765,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ELIGIBILITY_SOFT_DEADLINE_COPY",
-          "line": 2608,
+          "line": 2812,
           "kind": "Variable"
         },
         {
           "name": "sendEligibilityLink",
-          "line": 2616,
+          "line": 2820,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "SITE_URL",
-          "line": 66,
+          "line": 74,
           "kind": "Variable"
         },
         {
           "name": "ADMIN_EMAIL",
-          "line": 68,
+          "line": 76,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_ADMIN_ALERT_RECIPIENTS",
-          "line": 70,
+          "line": 78,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_VOICE_COACH_TRANSCRIPT_RECIPIENTS",
-          "line": 75,
+          "line": 83,
           "kind": "Variable"
         },
         {
           "name": "getAdminAlertRecipients",
-          "line": 86,
+          "line": 94,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAssessmentResultRecipients",
-          "line": 103,
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getResend",
-          "line": 113,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getFrom",
           "line": 121,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "getWioaReportRecipients",
-          "line": 134,
+          "name": "getFrom",
+          "line": 129,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "getVoiceCoachTranscriptRecipients",
+          "name": "getWioaReportRecipients",
           "line": 142,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "getVoiceCoachTranscriptRecipients",
+          "line": 150,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendVoiceCoachTranscriptEmail",
-          "line": 160,
+          "line": 168,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachArtifactEmail",
-          "line": 235,
+          "line": 246,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceInterviewTranscriptEmail",
-          "line": 300,
+          "line": 314,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendElevatorSpeechEmail",
-          "line": 371,
+          "line": 388,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAssignedEmail",
-          "line": 434,
+          "line": 454,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEnrollmentConfirmationEmail",
-          "line": 475,
+          "line": 498,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAtRiskDigestRecipients",
-          "line": 521,
+          "line": 547,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertRecipients",
-          "line": 536,
+          "line": 562,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseraUnmatchedActorAlertEmail",
-          "line": 548,
+          "line": 574,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAtRiskAlertDigestEmail",
-          "line": 595,
+          "line": 624,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "OnboardingStallNamedMember",
-          "line": 636,
+          "line": 668,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "sendOnboardingStallsDigestEmail",
-          "line": 639,
+          "line": 671,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationAcceptedEmail",
-          "line": 692,
+          "line": 727,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationRejectedEmail",
-          "line": 733,
+          "line": 771,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPreScreeningReadyEmail",
-          "line": 764,
+          "line": 805,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendNewApplicationAdminEmail",
-          "line": 807,
+          "line": 851,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseEnrolledEmail",
-          "line": 842,
+          "line": 889,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseKickoffEmail",
-          "line": 879,
+          "line": 929,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseAccountabilityEmail",
-          "line": 916,
+          "line": 969,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCertCelebrationEmail",
-          "line": 952,
+          "line": 1008,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "preparePlacementSurveyEmail",
+          "line": 1059,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendPreparedPlacementSurveyEmail",
+          "line": 1096,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEmail",
-          "line": 1000,
+          "line": 1117,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEscalationEmail",
-          "line": 1043,
+          "line": 1124,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseCompletedEmail",
-          "line": 1080,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendMilestoneCascadeEmail",
-          "line": 1119,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendWeeklyRecapEmail",
           "line": 1164,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "sendMilestoneCascadeEmail",
+          "line": 1206,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendWeeklyRecapEmail",
+          "line": 1254,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendInvitationEmail",
-          "line": 1209,
+          "line": 1302,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerReferralInviteEmail",
-          "line": 1259,
+          "line": 1355,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInvitationAcceptedEmail",
-          "line": 1298,
+          "line": 1397,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInactiveNudgeEmail",
-          "line": 1334,
+          "line": 1436,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobAlertDigestEmail",
-          "line": 1369,
+          "line": 1474,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobSubmittedEmail",
-          "line": 1400,
+          "line": 1508,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobApprovedEmail",
-          "line": 1438,
+          "line": 1549,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobRejectedEmail",
-          "line": 1481,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendNewJobApplicationEmail",
-          "line": 1521,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendAIMatchSuggestionEmail",
-          "line": 1554,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendMatchActionEmail",
-          "line": 1588,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendApplicationConfirmationEmail",
           "line": 1595,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "sendNewJobApplicationEmail",
+          "line": 1638,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendAIMatchSuggestionEmail",
+          "line": 1674,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendMatchActionEmail",
+          "line": 1711,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendApplicationConfirmationEmail",
+          "line": 1718,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendSchoolEnrollmentParentAckEmail",
-          "line": 1630,
+          "line": 1756,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentPartnerAckEmail",
-          "line": 1670,
+          "line": 1799,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningConfirmationEmail",
-          "line": 1713,
+          "line": 1845,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningAdminEmail",
-          "line": 1748,
+          "line": 1883,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicantFollowupEmail",
-          "line": 1783,
+          "line": 1921,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminPendingApplicantsEmail",
-          "line": 1815,
+          "line": 1956,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerPendingApplicantsEmail",
-          "line": 1844,
+          "line": 1988,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminStaleApplicantsDigestEmail",
-          "line": 1876,
+          "line": 2023,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerJobExpiryEmail",
-          "line": 1905,
+          "line": 2055,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminWeeklyRecapEmail",
-          "line": 1935,
+          "line": 2088,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWioaReportEmail",
-          "line": 1969,
+          "line": 2125,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerWeeklyDigestEmail",
-          "line": 2016,
+          "line": 2175,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerWelcomeEmail",
-          "line": 2054,
+          "line": 2216,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerVerificationEmail",
-          "line": 2089,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendEmployerSignupAdminAlertEmail",
-          "line": 2123,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendEmployerApprovedEmail",
-          "line": 2155,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendEmployerRejectedEmail",
-          "line": 2186,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendAssessmentResetNotificationEmail",
-          "line": 2218,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "sendInterviewPrepBundleEmail",
           "line": 2254,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "sendEmployerSignupAdminAlertEmail",
+          "line": 2291,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendEmployerApprovedEmail",
+          "line": 2326,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendEmployerRejectedEmail",
+          "line": 2360,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendAssessmentResetNotificationEmail",
+          "line": 2395,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendInterviewPrepBundleEmail",
+          "line": 2434,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "sendInterviewPrepReminderEmail",
-          "line": 2315,
+          "line": 2498,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewDebriefPromptEmail",
-          "line": 2350,
+          "line": 2536,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAtRiskAlertEmail",
-          "line": 2387,
+          "line": 2576,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberCheckInEmail",
-          "line": 2444,
+          "line": 2636,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberComeBackEmail",
-          "line": 2480,
+          "line": 2675,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberStuckEmail",
-          "line": 2520,
+          "line": 2718,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepLink",
-          "line": 2564,
+          "line": 2765,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ELIGIBILITY_SOFT_DEADLINE_COPY",
-          "line": 2608,
+          "line": 2812,
           "kind": "Variable"
         },
         {
           "name": "sendEligibilityLink",
-          "line": 2616,
+          "line": 2820,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -108771,6 +108944,54 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/email/bulkCronGuard.test.ts",
+      "area": "libraries",
+      "domain": "communications",
+      "bytes": 7642,
+      "lines": 138,
+      "sha256": "65f8b380e4cfb7ca46f84ea684e09129f3c33d6f960bd83dac4b88e6eb92e90c",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "scheduledEmailInventory",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "CronConfig",
+          "line": 34,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "config",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "emailCallPattern",
+          "line": 36,
+          "kind": "Variable"
+        },
+        {
+          "name": "routePath",
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sourceFor",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "recursivelyFindScheduledEmailCalls",
+          "line": 49,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {
@@ -108823,9 +109044,9 @@
       "path": "lib/email/pacing.test.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 1959,
-      "lines": 71,
-      "sha256": "a7d68acdfba93dc02c855a620f4156d8e8bb27cf8f13dd1c832d0dc85b3f3c52",
+      "bytes": 5950,
+      "lines": 195,
+      "sha256": "7521c9da576830f76c876834a6729b0af009aff14ea81d0b2aedd9e3c9b3121b",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -108835,51 +109056,146 @@
       "path": "lib/email/pacing.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 2597,
-      "lines": 67,
-      "sha256": "61ca9c46e6768fe7368666f165274cdf2d9357dd3f78b4dda5925a6fa99ef0bc",
+      "bytes": 5791,
+      "lines": 155,
+      "sha256": "e1468da7785ebc96b7c82c07b8bfa32f2a8249f40c0cf989050ba23488ecf1b0",
       "binary": false,
       "exports": [
         {
           "name": "BoundedPacerOptions",
-          "line": 1,
+          "line": 5,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PaceResult",
-          "line": 10,
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "boundedPacingCapacity",
-          "line": 18,
+          "line": 22,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createBoundedPacer",
-          "line": 35,
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "BULK_EMAIL_CRON_INTERVAL_MS",
+          "line": 81,
+          "kind": "Variable"
+        },
+        {
+          "name": "BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS",
+          "line": 82,
+          "kind": "Variable"
+        },
+        {
+          "name": "BulkEmailCronPacerOptions",
+          "line": 84,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "BulkEmailPacingSkipped",
+          "line": 93,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "createBulkEmailCronPacer",
+          "line": 100,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "withBulkEmailCronPacer",
+          "line": 139,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "runBulkEmailOperation",
+          "line": 147,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "currentBulkEmailDeadlineAtMs",
+          "line": 153,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "bulkEmailDeadlineStorage",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
           "name": "BoundedPacerOptions",
-          "line": 1,
+          "line": 5,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PaceResult",
-          "line": 10,
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "boundedPacingCapacity",
-          "line": 18,
+          "line": 22,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createBoundedPacer",
-          "line": 35,
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "BULK_EMAIL_CRON_INTERVAL_MS",
+          "line": 81,
+          "kind": "Variable"
+        },
+        {
+          "name": "BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS",
+          "line": 82,
+          "kind": "Variable"
+        },
+        {
+          "name": "BulkEmailCronPacerOptions",
+          "line": 84,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "BulkEmailPacingSkipped",
+          "line": 93,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "createBulkEmailCronPacer",
+          "line": 100,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "BulkEmailCronPacer",
+          "line": 135,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "bulkEmailCronPacerStorage",
+          "line": 136,
+          "kind": "Variable"
+        },
+        {
+          "name": "withBulkEmailCronPacer",
+          "line": 139,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "runBulkEmailOperation",
+          "line": 147,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "currentBulkEmailDeadlineAtMs",
+          "line": 153,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -108889,9 +109205,9 @@
       "path": "lib/email/send.test.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 8013,
-      "lines": 249,
-      "sha256": "f66a75541d5c12749d949453b81fe7d4da929b6403f1b2b7ce6b489ab510bf18",
+      "bytes": 13150,
+      "lines": 403,
+      "sha256": "1298b2871a325f870c5926cdf3fd3f005d2a1e454398a11d8de8edc3ec0c2b9a",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -108901,131 +109217,181 @@
       "path": "lib/email/send.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 10802,
-      "lines": 274,
-      "sha256": "37b6efd130377a76b0f9eb27ed0f89b24e2ec8f38de679beb6715a9a40c5932b",
+      "bytes": 13467,
+      "lines": 348,
+      "sha256": "d0e3306a9fb3b5b10ee4289dfd7029a00d5bf0d0f4235f836692efb4244f518f",
       "binary": false,
       "exports": [
         {
           "name": "SendBrandedEmailRetryOptions",
-          "line": 36,
+          "line": 37,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "UNSUBSCRIBE_ADDRESS",
-          "line": 45,
+          "line": 50,
           "kind": "Variable"
         },
         {
           "name": "htmlToPlainText",
-          "line": 55,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sanitizeHeaders",
-          "line": 85,
+          "line": 90,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildDeliverabilityHeaders",
-          "line": 94,
+          "line": 99,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "FixtureSkippedEmailResult",
+          "line": 115,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "SendBrandedEmailArgs",
-          "line": 110,
+          "line": 123,
           "kind": "InterfaceDeclaration"
         },
         {
-          "name": "sendBrandedEmail",
+          "name": "isFixtureEmailRecipient",
           "line": 203,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "FixtureRecipientSkippedError",
+          "line": 243,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "sendBrandedEmail",
+          "line": 253,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendBrandedEmailOrThrowOnSkip",
+          "line": 337,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "RESEND_MAX_ATTEMPTS",
-          "line": 29,
-          "kind": "Variable"
-        },
-        {
-          "name": "RESEND_RETRY_BASE_DELAY_MS",
           "line": 30,
           "kind": "Variable"
         },
         {
+          "name": "RESEND_RETRY_BASE_DELAY_MS",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
           "name": "RESEND_RETRY_MAX_TOTAL_WAIT_MS",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "Sleep",
-          "line": 34,
+          "line": 35,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SendBrandedEmailRetryOptions",
-          "line": 36,
+          "line": 37,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "UNSUBSCRIBE_ADDRESS",
-          "line": 45,
+          "line": 50,
           "kind": "Variable"
         },
         {
           "name": "htmlToPlainText",
-          "line": 55,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sanitizeHeaders",
-          "line": 85,
+          "line": 90,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildDeliverabilityHeaders",
-          "line": 94,
+          "line": 99,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "FixtureSkippedEmailResult",
+          "line": 115,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "SendBrandedEmailArgs",
-          "line": 110,
+          "line": 123,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "recordEmailFailure",
-          "line": 132,
+          "line": 145,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "asRecord",
-          "line": 146,
+          "line": 159,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readHeader",
-          "line": 150,
+          "line": 163,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseRetryAfterMs",
-          "line": 158,
+          "line": 171,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseRateLimitResetMs",
-          "line": 169,
+          "line": 182,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizedRecipientDomain",
+          "line": 190,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "fixtureDomains",
+          "line": 195,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isFixtureEmailRecipient",
+          "line": 203,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resendRetryDelayMs",
-          "line": 177,
+          "line": 209,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "FixtureRecipientSkippedError",
+          "line": 243,
+          "kind": "ClassDeclaration"
+        },
+        {
           "name": "sendBrandedEmail",
-          "line": 203,
+          "line": 253,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sendBrandedEmailOrThrowOnSkip",
+          "line": 337,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -109266,9 +109632,9 @@
       "path": "lib/employer/applicationStatusEffects.ts",
       "area": "libraries",
       "domain": "jobs-employers",
-      "bytes": 5827,
+      "bytes": 5831,
       "lines": 141,
-      "sha256": "716f240a875b3f529d2d60bd689e4a03c3649a8368d7a6da3f25be52315ec318",
+      "sha256": "f8bbb418165033a4ce0327e69024fbd3b85de887bf2e9bcbd3f9ec051490b1e3",
       "binary": false,
       "exports": [
         {
@@ -113977,21 +114343,21 @@
       "path": "lib/member/courseCompletion.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 11146,
-      "lines": 296,
-      "sha256": "3cf1b644d652495884deece3e3faf25d1c5efa11f44ca5d49ff7dd7f5d07bae1",
+      "bytes": 12014,
+      "lines": 315,
+      "sha256": "f4adaf759f65fed3c8a03a828fb53323a466c72615e9b19425f5f73db9871e1f",
       "binary": false,
       "exports": [
         {
           "name": "completeMemberCourse",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "completeMemberCourse",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -120245,51 +120611,56 @@
       "path": "lib/notifications/create.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 4561,
-      "lines": 136,
-      "sha256": "8ce2289ee790929e4dd63d50b70477798a877f7dc3b825f37db959c3e7e573ec",
+      "bytes": 5748,
+      "lines": 166,
+      "sha256": "f580c8c989dff0cef3c435fdd4dbaf5dc0f4e4ab3a88cb7115f4fd2c9cda4ab9",
       "binary": false,
       "exports": [
         {
           "name": "NotificationType",
-          "line": 10,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CreateNotificationInput",
-          "line": 26,
+          "line": 27,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "createNotification",
-          "line": 38,
+          "line": 54,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createBulkNotifications",
-          "line": 87,
+          "line": 111,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "NotificationType",
-          "line": 10,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CreateNotificationInput",
-          "line": 26,
+          "line": 27,
           "kind": "InterfaceDeclaration"
         },
         {
+          "name": "retainRequestWork",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "createNotification",
-          "line": 38,
+          "line": 54,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createBulkNotifications",
-          "line": 87,
+          "line": 111,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -120299,57 +120670,80 @@
       "path": "lib/notifications/partner-notify.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 5825,
-      "lines": 189,
-      "sha256": "cd20b6cbeb3007a99a316bb47cca0f4e741e0f90b3612fc07b8c31233766405c",
+      "bytes": 6098,
+      "lines": 197,
+      "sha256": "4d49e9a78ac22da8f1b1b96c0dc67c58f09775467cc3328a5d58774fe46582ad",
       "binary": false,
       "exports": [
         {
           "name": "PartnerMilestone",
-          "line": 22,
+          "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "sendPartnerMilestoneEmail",
-          "line": 53,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerNewMemberAssignedEmail",
-          "line": 130,
+          "line": 138,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "sendPartnerEmail",
-          "line": 7,
+          "line": 8,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerMilestone",
-          "line": 22,
+          "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "memberFirstName",
-          "line": 28,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MILESTONE_PREF_KEY",
-          "line": 41,
+          "line": 49,
           "kind": "Variable"
         },
         {
           "name": "sendPartnerMilestoneEmail",
-          "line": 53,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerNewMemberAssignedEmail",
-          "line": 130,
+          "line": 138,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/notify/discord.test.ts",
+      "area": "libraries",
+      "domain": "communications",
+      "bytes": 1746,
+      "lines": 39,
+      "sha256": "5b0bb819670134f017b46068fdb358626a7e50d7e57c22719bab90c0a21787fa",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "originalEnv",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "durableRouteCallers",
+          "line": 10,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -120358,71 +120752,71 @@
       "path": "lib/notify/discord.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 3705,
-      "lines": 116,
-      "sha256": "1a43f88049d02ca053616ec06d7482791d0b135b2f960fb8d0ab716b49c9d5ad",
+      "bytes": 4275,
+      "lines": 130,
+      "sha256": "cd4fe377eabf2b5e7b6178f5fddcf89c68d9a82cffa0dac5945dfa6e4b0342b6",
       "binary": false,
       "exports": [
         {
           "name": "DiscordNotificationLevel",
-          "line": 24,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DiscordNotificationInput",
-          "line": 26,
+          "line": 28,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "notifyDiscord",
-          "line": 68,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "DiscordNotificationLevel",
-          "line": 24,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DiscordNotificationInput",
-          "line": 26,
+          "line": 28,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "LEVEL_COLORS",
-          "line": 41,
+          "line": 43,
           "kind": "Variable"
         },
         {
           "name": "MAX_TITLE",
-          "line": 47,
-          "kind": "Variable"
-        },
-        {
-          "name": "MAX_BODY",
-          "line": 48,
-          "kind": "Variable"
-        },
-        {
-          "name": "MAX_FIELD_VALUE",
           "line": 49,
           "kind": "Variable"
         },
         {
-          "name": "truncate",
+          "name": "MAX_BODY",
+          "line": 50,
+          "kind": "Variable"
+        },
+        {
+          "name": "MAX_FIELD_VALUE",
           "line": 51,
+          "kind": "Variable"
+        },
+        {
+          "name": "truncate",
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "shouldSend",
-          "line": 56,
+          "line": 58,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "notifyDiscord",
-          "line": 68,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -123437,6 +123831,50 @@
           "name": "PIPELINE_STAGES_ORDERED",
           "line": 91,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/placement-survey/deliveryPayload.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1260,
+      "lines": 44,
+      "sha256": "6351f6a6e27c4516eb2e43c6df1b6e15e769cfb43c5f737afca932f380cdab0e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PlacementSurveyDeliveryPayload",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "createPlacementSurveyDeliveryPayload",
+          "line": 11,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readPlacementSurveyDeliveryPayload",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PlacementSurveyDeliveryPayload",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "createPlacementSurveyDeliveryPayload",
+          "line": 11,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readPlacementSurveyDeliveryPayload",
+          "line": 17,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -127630,9 +128068,9 @@
       "path": "lib/security/placementSurveyToken.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 3720,
-      "lines": 109,
-      "sha256": "c3a050dc33a267c1094309e31d557c1df7a65781e44130587f17d2f6afc554d8",
+      "bytes": 4182,
+      "lines": 118,
+      "sha256": "e50c8704f82dd28fb422dccb10eb98c6f4ab4e1fab48887473a1f6cce5709145",
       "binary": false,
       "exports": [
         {
@@ -127642,12 +128080,12 @@
         },
         {
           "name": "VerifyResult",
-          "line": 81,
+          "line": 90,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "verifyPlacementSurveyToken",
-          "line": 85,
+          "line": 94,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -127709,12 +128147,12 @@
         },
         {
           "name": "VerifyResult",
-          "line": 81,
+          "line": 90,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "verifyPlacementSurveyToken",
-          "line": 85,
+          "line": 94,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -131436,9 +131874,9 @@
       "path": "lib/workflows/careerOS.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 11305,
+      "bytes": 11307,
       "lines": 325,
-      "sha256": "6153334eae56616c0fd73dc0d243a29a8282edb6c1264137ecc24a4323a7af15",
+      "sha256": "a3179aa373d16ad7b4258fd92756b0759209a748f7d92d9334f9c88e4c8cb04e",
       "binary": false,
       "exports": [
         {
@@ -131771,216 +132209,216 @@
       "path": "lib/xapi/mappings.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 32322,
-      "lines": 985,
-      "sha256": "0531cd9febc3b6aecad8f8a8a37d3cb8cb7d8ce196fcafdc4629c810f1198269",
+      "bytes": 32633,
+      "lines": 989,
+      "sha256": "53796280941232f1b2b8fd302f44879869f79feff25193d396356ff7d69a5267",
       "binary": false,
       "exports": [
         {
           "name": "XapiIdentity",
-          "line": 8,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedXapiUser",
-          "line": 14,
+          "line": 15,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ensureCourseraMappingTables",
-          "line": 79,
+          "line": 80,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveXapiUser",
-          "line": 349,
+          "line": 350,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "recordXapiEvent",
-          "line": 452,
+          "line": 453,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappings",
-          "line": 599,
+          "line": 603,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappingsForUser",
-          "line": 627,
+          "line": 631,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraSkillsetProgressSummary",
-          "line": 653,
+          "line": 657,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraSkillsetProgressSummary",
-          "line": 669,
+          "line": 673,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraUnmatchedActorAlertStats",
-          "line": 722,
+          "line": 726,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertStats",
-          "line": 732,
+          "line": 736,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listRecentUnmatchedXapiEvents",
-          "line": 775,
+          "line": 779,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "upsertCourseraIdentityMapping",
-          "line": 817,
+          "line": 821,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "XapiIdentity",
-          "line": 8,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedXapiUser",
-          "line": 14,
+          "line": 15,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MappingRow",
-          "line": 22,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TenantScopeOptions",
-          "line": 38,
+          "line": 39,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraMappingDb",
-          "line": 43,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DirectXapiEmailUser",
-          "line": 45,
+          "line": 46,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ensureTablesPromise",
-          "line": 52,
+          "line": 53,
           "kind": "Variable"
         },
         {
           "name": "normalizeEmail",
-          "line": 54,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeActorValue",
-          "line": 59,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeOrganizationId",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "orgScopeSql",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureCourseraMappingTables",
-          "line": 79,
+          "line": 80,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "notifyIfNewUnmatchedActorEmail",
-          "line": 192,
+          "line": 193,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByActor",
-          "line": 249,
+          "line": 250,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByActorInOrg",
-          "line": 253,
+          "line": 254,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByEmail",
-          "line": 290,
+          "line": 291,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByEmailInOrg",
-          "line": 294,
+          "line": 295,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getDirectXapiEmailUser",
-          "line": 329,
+          "line": 330,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveXapiUser",
-          "line": 349,
+          "line": 350,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "recordXapiEvent",
-          "line": 452,
+          "line": 453,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappings",
-          "line": 599,
+          "line": 603,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappingsForUser",
-          "line": 627,
+          "line": 631,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraSkillsetProgressSummary",
-          "line": 653,
+          "line": 657,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraSkillsetProgressSummary",
-          "line": 669,
+          "line": 673,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraUnmatchedActorAlertStats",
-          "line": 722,
+          "line": 726,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertStats",
-          "line": 732,
+          "line": 736,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listRecentUnmatchedXapiEvents",
-          "line": 775,
+          "line": 779,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "upsertCourseraIdentityMapping",
-          "line": 817,
+          "line": 821,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -136362,6 +136800,15 @@
       "binary": false
     },
     {
+      "path": "prisma/migrations/20260912130000_placement_survey_nullable_sent_at/migration.sql",
+      "area": "database",
+      "domain": "database",
+      "bytes": 1673,
+      "lines": 36,
+      "sha256": "d29397d5f71e9b293a075159b428e122aa6c3e5a8d85ccd43ab0882b3ffbc85d",
+      "binary": false
+    },
+    {
       "path": "prisma/migrations/migration_lock.toml",
       "area": "database",
       "domain": "database",
@@ -136374,9 +136821,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 133085,
-      "lines": 3159,
-      "sha256": "edddaaa4b96bca48dcf595b273099477b118f92a5b1c472a731567dd81ce0ff0",
+      "bytes": 133499,
+      "lines": 3166,
+      "sha256": "6043872cba922d65033e42ddccaf9c3459235a27f59b7cfdfa644240b668e3c3",
       "binary": false
     },
     {
@@ -142079,90 +142526,90 @@
       "path": "scripts/p1/test-force-rls.ts",
       "area": "operations",
       "domain": "operations",
-      "bytes": 38575,
-      "lines": 1124,
-      "sha256": "e0c633c19d6709a1f6abffde139d023621003f8b15797808e7cf51d9eb90b742",
+      "bytes": 38641,
+      "lines": 1126,
+      "sha256": "e40fa94cc13c12afc1ad3242a6f2c273b50f21eff4f0c857f0ffd1959359377a",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "PROD_HOST_FRAGMENTS",
-          "line": 52,
+          "line": 54,
           "kind": "Variable"
         },
         {
           "name": "assertNotProduction",
-          "line": 60,
+          "line": 62,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FORCE_RLS_TABLES",
-          "line": 99,
+          "line": 101,
           "kind": "Variable"
         },
         {
           "name": "RLS_POLICY_MIGRATIONS",
-          "line": 140,
+          "line": 142,
           "kind": "Variable"
         },
         {
           "name": "runPrisma",
-          "line": 159,
+          "line": 161,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SEED",
-          "line": 167,
+          "line": 169,
           "kind": "Variable"
         },
         {
           "name": "Result",
-          "line": 198,
+          "line": 200,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "results",
-          "line": 205,
+          "line": 207,
           "kind": "Variable"
         },
         {
           "name": "assertCount",
-          "line": 207,
+          "line": 209,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertThrows",
-          "line": 245,
+          "line": 247,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertOk",
-          "line": 267,
+          "line": 269,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedPersonas",
-          "line": 293,
+          "line": 295,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setForceRls",
-          "line": 495,
+          "line": 497,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setupRlsTestRole",
-          "line": 516,
+          "line": 518,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "makeCtx",
-          "line": 570,
+          "line": 572,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "main",
-          "line": 588,
+          "line": 590,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -145101,30 +145548,35 @@
       "path": "tests/api/at-risk-alert.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 22333,
-      "lines": 567,
-      "sha256": "d874c1aa70d23471395cb65fc631147858b988d234f15e9d465c0a3d3cc987a6",
+      "bytes": 26739,
+      "lines": 641,
+      "sha256": "eb970c6b33bfd7f20aeb582bfd44ec5853d4b2cc2f742f85fb3a35e98fade3eb",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "pacing",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
           "name": "makeRequest",
-          "line": 74,
+          "line": 83,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mockScores",
-          "line": 80,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "mockMembers",
           "line": 89,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "mockMembers",
+          "line": 98,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "mockAlerts",
-          "line": 113,
+          "line": 122,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -145277,6 +145729,24 @@
         {
           "name": "packetParams",
           "line": 116,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/bulk-email-fixture-accounting.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4130,
+      "lines": 89,
+      "sha256": "c1bca58a713763df823ca8bd40b271818eed7f2650fffd56927162f6d49ff33a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
           "kind": "Variable"
         }
       ],
@@ -145461,6 +145931,24 @@
       "directive": null
     },
     {
+      "path": "tests/api/coursera-replay-email-pacing.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 3168,
+      "lines": 62,
+      "sha256": "9bb5fa5bce064e8b6d66b25ca2102addb8c4a1f9d534027fecd78b7d0e77e7d5",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/coursera-rest-webhook.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
@@ -145578,9 +146066,9 @@
       "path": "tests/api/cron-inactive-nudge.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7470,
-      "lines": 187,
-      "sha256": "279d4f41684b933871b132da6849ab108e4e6596ff404368b128e2668d1af4e2",
+      "bytes": 8309,
+      "lines": 205,
+      "sha256": "20c930d5a848295de2bfec15b0ed081298bd29951e479d113ef93563ab355101",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -145779,35 +146267,40 @@
       "path": "tests/api/employer-signup.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 17216,
-      "lines": 548,
-      "sha256": "92540f3c5d933cbaa7fee4771c65d0b1e694ab126bbd44855d3b2bfff2042164",
+      "bytes": 18583,
+      "lines": 580,
+      "sha256": "b081600bc9e9cace04463d167fc5c35e81c4e181845c742f03f58b9f291ef92a",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "discord",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
           "name": "UUIDS",
-          "line": 197,
+          "line": 202,
           "kind": "Variable"
         },
         {
           "name": "makeSignupRequest",
-          "line": 202,
+          "line": 207,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "makeLoginRequest",
-          "line": 210,
+          "line": 215,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mockSupabaseAdmin",
-          "line": 221,
+          "line": 226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ORIGINAL_ENV",
-          "line": 261,
+          "line": 266,
           "kind": "Variable"
         }
       ],
@@ -146742,9 +147235,9 @@
       "path": "tests/api/password-recovery-destination.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 10159,
-      "lines": 169,
-      "sha256": "b0114ecc54b59a37801f4f2fac123ad12b32110bb3aca39c9621a118bd4b21a0",
+      "bytes": 10216,
+      "lines": 172,
+      "sha256": "2ab5a8c612d92b5d45da62ad8fd76fc9f453629c8280a092307efa91f7c8c27c",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -146755,7 +147248,7 @@
         },
         {
           "name": "request",
-          "line": 45,
+          "line": 48,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -146788,9 +147281,9 @@
       "path": "tests/api/placement-survey.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 32431,
-      "lines": 924,
-      "sha256": "0b70d7a1cd816fd949a87a592fcd0690fefa8f560831a705bb378c25f410b1de",
+      "bytes": 53708,
+      "lines": 1396,
+      "sha256": "d324edecf713a6a322624674a439f8b0e2e10b6805ca1d01cc0d8b416de55739",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -147074,9 +147567,9 @@
       "path": "tests/api/weekly-recap.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 20370,
-      "lines": 508,
-      "sha256": "dd7547aeec3e806523f5e0c9eae6575d768cdbca23fe9f54c72a85ace6364458",
+      "bytes": 21394,
+      "lines": 536,
+      "sha256": "6c9c3ff09d88c5a5f438ca01acdb327c4b665d09ec47496eb73ad8596f44eabc",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -149308,20 +149801,20 @@
       "path": "tests/lib/course-enrollment-email-copy.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3832,
-      "lines": 54,
-      "sha256": "5940b03519f2829b771067f8e68f79ae2ae888e957b581be77b0b1da4d20c547",
+      "bytes": 4686,
+      "lines": 77,
+      "sha256": "92279731e0643230218499d50694b0ed6b6178daff1b21464ced23ca5a7b54bd",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "text",
-          "line": 11,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "input",
-          "line": 12,
+          "line": 22,
           "kind": "Variable"
         }
       ],
@@ -150155,9 +150648,9 @@
       "path": "tests/lib/milestone-email-provider.spec.ts",
       "area": "tests",
       "domain": "member-counselor",
-      "bytes": 2453,
+      "bytes": 2478,
       "lines": 39,
-      "sha256": "3f55ec3df00afba702f9d25a6730e857fd8ab6154436a98d7380ccd5e3408c63",
+      "sha256": "f5bb3d387536d2b3a5e1e0ee03ce282b333dfef9076d797a07546ce82232e90a",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -150243,9 +150736,9 @@
       "path": "tests/lib/notification-triggers-survey.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 3773,
-      "lines": 127,
-      "sha256": "073c6e2f2f897df99b53ce59078e340668d41d456aaa89d2df86c5a1a9f14b46",
+      "bytes": 4312,
+      "lines": 142,
+      "sha256": "0668ec984d082f92f7112ce785104e11e07eccda7dc69801b5126537537226f6",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -150255,15 +150748,25 @@
       "path": "tests/lib/notifications/create.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 3352,
-      "lines": 112,
-      "sha256": "a80a8c1449f5ca966c3da5388f7f03e1c6245b7ace80df771a5f2dd133cc8209",
+      "bytes": 8494,
+      "lines": 219,
+      "sha256": "f29116913fdf450b62971c9e74bc5169dba746bd7c573dec3c8fa8243e69b3bb",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "lifetime",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "discord",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
           "name": "prisma",
-          "line": 15,
+          "line": 23,
           "kind": "Variable"
         }
       ],
@@ -150339,9 +150842,9 @@
       "path": "tests/lib/partner-notify-reliability.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3695,
-      "lines": 53,
-      "sha256": "49cdc5433287d3fa7afc836b1337966f9f2383e2dfb6ab65c1ab9712b33ad976",
+      "bytes": 4220,
+      "lines": 63,
+      "sha256": "145b12ed6d55356857980e69a8786fff69347a2866f8f34cf70416d6800cd602",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -150386,6 +150889,24 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/placement-survey-email-provider.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1768,
+      "lines": 46,
+      "sha256": "aab68839c2842412147d296ea2ac117a079d26ddf24ab57f6ad78cbb4bd59582",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 4,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {
@@ -150869,9 +151390,9 @@
       "path": "tests/lib/xapi-first-completion-side-effects.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7398,
-      "lines": 216,
-      "sha256": "0bbc1bb4e6b822d7950eb8d4515c1068e9201795e483853019a2e2ad7b799d90",
+      "bytes": 9752,
+      "lines": 263,
+      "sha256": "0844287980203be0713125fc57a5c2db7c7d72e6f98ecfd480d81b63ad8dddbf",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -150930,6 +151451,94 @@
           "name": "event",
           "line": 44,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/migrations/placement-survey-sent-state.mjs",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 6528,
+      "lines": 150,
+      "sha256": "44e9a66edd37f1c1b79d4dcf477b3cde2d34db98c7a5bcd074722f81562ccc53",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "migrationPath",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "migration",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "sourceUrl",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "target",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "sourceDatabase",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "proofDatabase",
+          "line": 23,
+          "kind": "Variable"
+        },
+        {
+          "name": "createsDatabase",
+          "line": 24,
+          "kind": "Variable"
+        },
+        {
+          "name": "env",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "runSql",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sql",
+          "line": 47,
+          "kind": "Variable"
+        },
+        {
+          "name": "ident",
+          "line": 48,
+          "kind": "Variable"
+        },
+        {
+          "name": "proofDatabaseCreated",
+          "line": 49,
+          "kind": "Variable"
+        },
+        {
+          "name": "resetTable",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "columnState",
+          "line": 62,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertFollowOnColumns",
+          "line": 82,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -151487,9 +152096,9 @@
       "path": "vercel.json",
       "area": "root",
       "domain": "root",
-      "bytes": 2922,
+      "bytes": 2934,
       "lines": 126,
-      "sha256": "76c5ab888e99f048e833136dc44cf9b004d90c45ff3466ed6c4c803bd9f65981",
+      "sha256": "fdd6ef33b96bba507b6effd86b22cdf87c4c77fff5e94a4b607018045c16cc84",
       "binary": false
     },
     {

@@ -20,6 +20,7 @@ import {
   detectMilestoneTransitions,
 } from '@/lib/coursera/milestones';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import { runBulkEmailOperation } from '@/lib/email/pacing';
 
 export async function completeMemberCourse(args: {
   userId: string;
@@ -210,17 +211,35 @@ export async function completeMemberCourse(args: {
     courseSlugJustCompleted: matchedCourse.slug,
   });
   if (shouldNotify) {
-    sendPartnerMilestoneEmail(args.userId, 'Course completed', {
-      Course: matchedCourse.name,
-    }).catch((error) => console.error('Partner milestone email failed:', error));
+    try {
+      const partnerDelivery = await runBulkEmailOperation(() =>
+        sendPartnerMilestoneEmail(args.userId, 'Course completed', {
+          Course: matchedCourse.name,
+        }),
+      );
+      if (partnerDelivery && typeof partnerDelivery === 'object' && 'skipped' in partnerDelivery) {
+        console.warn('[course-completion] partner email skipped by cron pacing deadline');
+      }
+    } catch (error) {
+      // The completion event is already durably claimed. Provider rejection
+      // must not strand local effects behind a claim replay cannot reacquire.
+      console.error('[course-completion] partner email failed:', error);
+    }
 
-    sendCourseCompletedEmail({
-      to: dbUser.email,
-      fullName: dbUser.fullName,
-      courseName: matchedCourse.name,
-    }).catch((error) => console.error('Course completed email failed:', error));
+    try {
+      const memberDelivery = await runBulkEmailOperation(() => sendCourseCompletedEmail({
+        to: dbUser.email,
+        fullName: dbUser.fullName,
+        courseName: matchedCourse.name,
+      }));
+      if (memberDelivery && typeof memberDelivery === 'object' && 'skipped' in memberDelivery && memberDelivery.skipped) {
+        console.warn('[course-completion] member email skipped before provider acceptance');
+      }
+    } catch (error) {
+      console.error('[course-completion] member email failed:', error);
+    }
 
-    void createNotification({
+    await createNotification({
       userId: args.userId,
       type: 'course_complete',
       title: 'Course completed!',
@@ -234,7 +253,7 @@ export async function completeMemberCourse(args: {
     });
     for (const assignment of counselors) {
       if (assignment.counselor?.userId) {
-        void createNotification({
+        await createNotification({
           userId: assignment.counselor.userId,
           type: 'course_complete',
           title: `${dbUser.fullName ?? 'Member'} completed a course`,

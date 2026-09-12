@@ -5612,47 +5612,47 @@
       {
         "level": 3,
         "title": "Environment notes",
-        "line": 70
+        "line": 80
       },
       {
         "level": 2,
         "title": "Stitch MCP (designs)",
-        "line": 111
+        "line": 121
       },
       {
         "level": 3,
         "title": "Project and docs",
-        "line": 115
+        "line": 125
       },
       {
         "level": 3,
         "title": "Auth (do not commit keys)",
-        "line": 122
+        "line": 132
       },
       {
         "level": 3,
         "title": "When to call Stitch MCP",
-        "line": 127
+        "line": 137
       },
       {
         "level": 3,
         "title": "Recommended MCP tool order (in Cursor)",
-        "line": 140
-      },
-      {
-        "level": 2,
-        "title": "Design intelligence & review skills (use with all UI work)",
         "line": 150
       },
       {
         "level": 2,
+        "title": "Design intelligence & review skills (use with all UI work)",
+        "line": 160
+      },
+      {
+        "level": 2,
         "title": "Astryx design system (site-wide, coexistence rules)",
-        "line": 159
+        "line": 169
       },
       {
         "level": 2,
         "title": "Shared operating lanes",
-        "line": 198
+        "line": 208
       }
     ],
     "datedFilename": false,
@@ -28720,12 +28720,12 @@
       {
         "level": 2,
         "title": "Health and observability",
-        "line": 137
+        "line": 139
       },
       {
         "level": 2,
         "title": "Provisioning names and execution ownership",
-        "line": 153
+        "line": 155
       }
     ],
     "datedFilename": false,

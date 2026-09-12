@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getResend } from '@/lib/email';
-import { sendBrandedEmail } from '@/lib/email/send';
+import { sendBrandedEmailOrThrowOnSkip as sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { logger } from '@/lib/observability/logger';
 

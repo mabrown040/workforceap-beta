@@ -45,7 +45,7 @@ These observations help plan work; they are not extra ranked defects:
 
 ## Active release and historical backlog
 
-WAP-14 [PR 2258](https://github.com/mabrown040/workforceap-beta/pull/2258) is separately owned notification reliability work. Pending code is not released behavior at the reviewed baseline. Record its final immutable head, reviewer, merge and production acceptance separately. Two actual scheduled Sunday recap runs without relevant 429s remain an operational gate; a synthetic test or successful build cannot satisfy it.
+WAP-14 [PR 2258](https://github.com/mabrown040/workforceap-beta/pull/2258) now carries the reviewed source policy for fixture-recipient suppression, bulk and delegated pacing, shared request deadlines, request-lifetime retention, delivery accounting, and placement-survey pre-acceptance/idempotency state. That is source and CI evidence, not released or mailbox-delivery evidence: record the final immutable head, auditor15 disposition, merge, deployment, and production acceptance separately. Two actual scheduled Sunday weekly-recap runs without relevant 429s remain the timed operational gate; provider acceptance, synthetic tests, and a successful build cannot substitute for those observations.
 
 Previous [audit reports](../../graph/reports) and claim batches remain intact. Reconcile their open/verified/superseding records before treating them as current priorities. This register does not inherit every historical `open` status or mark an item fixed because a nearby file changed.
 

@@ -274,7 +274,7 @@ export async function handleProgramCompletion(
       return createdAction;
     });
 
-    void createNotification({
+    await createNotification({
       userId: memberId,
       type: 'program_complete',
       title: `You finished ${programTitle}!`,
@@ -288,7 +288,7 @@ export async function handleProgramCompletion(
     });
     for (const assignment of counselors) {
       if (assignment.counselor?.userId) {
-        void createNotification({
+        await createNotification({
           userId: assignment.counselor.userId,
           type: 'program_complete',
           title: 'Member finished their program',

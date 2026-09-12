@@ -11,6 +11,9 @@ import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappin
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { countCourseraHealQueue } from '@/lib/cron/courseraHealQueue';
 import { COURSERA_HEAL_IGNORED_CAP, COURSERA_HEAL_UNMATCHED_CAP } from '@/lib/cron/cronCaps';
+import { createBulkEmailCronPacer, withBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 
 /**
  * GET / POST /api/cron/coursera-auto-heal
@@ -29,6 +32,8 @@ import { COURSERA_HEAL_IGNORED_CAP, COURSERA_HEAL_UNMATCHED_CAP } from '@/lib/cr
  * Auth: standard CRON_SECRET via withCronLogging.
  */
 async function handle(_request: Request) {
+  const pacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
+  return withBulkEmailCronPacer(pacer, async () => {
   const queue = await countCourseraHealQueue();
   if (queue.unmatched === 0 && queue.ignoredWithSlug === 0) {
     const runResult = {
@@ -123,6 +128,7 @@ async function handle(_request: Request) {
   await setCronRecordsProcessed(result.processed);
   await logCronRun('cron_coursera_auto_heal', runResult);
   return NextResponse.json(runResult);
+  });
 }
 
 export const GET = withCronLogging('cron_coursera_auto_heal', handle);

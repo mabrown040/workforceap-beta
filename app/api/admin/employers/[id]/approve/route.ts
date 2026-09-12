@@ -93,7 +93,7 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     }).catch((err) => console.error('[audit] employer approve:', err));
 
     // Operator visibility bridge — employer approval is high-signal
-    void notifyDiscord({
+    after(() => notifyDiscord({
       title: `Employer approved: ${updated.companyName}`,
       body: `Approved by ${actorRole} ${user.id.slice(0, 8)}…`,
       category: 'employer_approval',
@@ -104,7 +104,7 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
         { name: 'previousStatus', value: employer.status },
         { name: 'approvedBy', value: actorRole },
       ],
-    });
+    }));
 
     return NextResponse.json({ success: true, employer: updated });
   } catch (err) {

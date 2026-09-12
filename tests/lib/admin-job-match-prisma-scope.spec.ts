@@ -4,6 +4,7 @@ vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     job: { findFirst: vi.fn(), updateMany: vi.fn() },
     aIJobMatch: { findMany: vi.fn(), createMany: vi.fn() },
+    user: { findMany: vi.fn(), findFirst: vi.fn() },
   },
 }));
 vi.mock('@/lib/admin/aiJobMatchCompute', () => ({
@@ -26,6 +27,8 @@ describe('admin job-match Prisma tenant scope', () => {
     vi.clearAllMocks();
     vi.mocked(prisma.job.findFirst).mockResolvedValue(job as never);
     vi.mocked(prisma.aIJobMatch.findMany).mockResolvedValue([] as never);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([] as never);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(null as never);
     vi.mocked(getOrComputeAiJobMatches).mockResolvedValue([]);
   });
 
@@ -41,8 +44,16 @@ describe('admin job-match Prisma tenant scope', () => {
       where: {
         jobId: 'job-a',
         job: { organizationId: 'org-a' },
-        student: { organizationId: 'org-a' },
+        student: { organizationId: 'org-a', deletedAt: null },
       },
+    }));
+  });
+
+  it('cached reads exclude retired candidates before hydrating PII', async () => {
+    const deps = createAdminJobMatchesPrismaDeps('org-a', async () => {});
+    await deps.findCachedRows('job-a');
+    expect(prisma.aIJobMatch.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ student: { organizationId: 'org-a', deletedAt: null } }),
     }));
   });
 

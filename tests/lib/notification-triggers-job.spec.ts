@@ -16,6 +16,7 @@ vi.mock('@/lib/db/prisma', () => ({
       findMany: vi.fn().mockImplementation(({ where }: { where: { id: { in: string[] } } }) =>
         Promise.resolve(where.id.in.map((id) => ({ id }))),
       ),
+      findFirst: vi.fn().mockResolvedValue({ id: 'active-user' }),
     },
   },
 }));
@@ -42,6 +43,7 @@ describe('Trigger: job_match', () => {
     vi.mocked(prisma.user.findMany).mockImplementation(({ where }: any) =>
       Promise.resolve(where.id.in.map((id: string) => ({ id }))) as any,
     );
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({ id: 'active-user' } as any);
   });
 
   it('creates job_match notification for each newly matched member', async () => {
@@ -75,7 +77,7 @@ describe('Trigger: job_match', () => {
       where: {
         jobId: 'job-123',
         job: { organizationId: 'org-1' },
-        student: { organizationId: 'org-1' },
+        student: { organizationId: 'org-1', deletedAt: null },
       },
     }));
   });
@@ -97,6 +99,37 @@ describe('Trigger: job_match', () => {
     ]);
 
     expect(prisma.aIJobMatch.createMany).not.toHaveBeenCalled();
+    expect(createNotification).not.toHaveBeenCalled();
+  });
+
+
+  it('skips persistence when a candidate is deleted after computation', async () => {
+    const { prisma } = await import('@/lib/db/prisma');
+    vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
+    const deps = createAdminJobMatchesPrismaDeps('org-1', async () => {});
+    await deps.persistMatches('job-123', [
+      { studentId: 'retired-user', matchScore: 99, matchReasons: ['Synthetic boundary fixture'] },
+    ]);
+    expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: { in: ['retired-user'] }, organizationId: 'org-1', deletedAt: null },
+    }));
+    expect(prisma.aIJobMatch.createMany).not.toHaveBeenCalled();
+    expect(createNotification).not.toHaveBeenCalled();
+  });
+
+  it('revalidates the active tenant immediately before notification', async () => {
+    const { prisma } = await import('@/lib/db/prisma');
+    vi.mocked(prisma.user.findMany).mockResolvedValue([{ id: 'user-1' }] as any);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(null as any);
+    const deps = createAdminJobMatchesPrismaDeps('org-1', async () => {});
+    await deps.persistMatches('job-123', [
+      { studentId: 'user-1', matchScore: 85, matchReasons: ['Synthetic boundary fixture'] },
+    ]);
+    expect(prisma.aIJobMatch.createMany).toHaveBeenCalledTimes(1);
+    expect(prisma.user.findFirst).toHaveBeenCalledWith({
+      where: { id: 'user-1', organizationId: 'org-1', deletedAt: null },
+      select: { id: true },
+    });
     expect(createNotification).not.toHaveBeenCalled();
   });
 

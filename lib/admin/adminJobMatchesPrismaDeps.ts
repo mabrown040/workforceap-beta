@@ -34,7 +34,7 @@ function findAiJobMatchRowsForAdmin(jobId: string, organizationId: string) {
     where: {
       jobId,
       job: { organizationId },
-      student: { organizationId },
+      student: { organizationId, deletedAt: null },
     },
     include: aiJobMatchStudentInclude,
     orderBy: { matchScore: 'desc' },
@@ -64,7 +64,7 @@ export function createAdminJobMatchesPrismaDeps(
         where: {
           jobId: jid,
           job: { organizationId },
-          student: { organizationId },
+          student: { organizationId, deletedAt: null },
         },
         select: { studentId: true },
       });
@@ -72,7 +72,7 @@ export function createAdminJobMatchesPrismaDeps(
       const candidateIds = [...new Set(matches.map((match) => match.studentId))];
       const authorizedCandidates = candidateIds.length > 0
         ? await prisma.user.findMany({
-            where: { id: { in: candidateIds }, organizationId },
+            where: { id: { in: candidateIds }, organizationId, deletedAt: null },
             select: { id: true },
           })
         : [];
@@ -98,6 +98,13 @@ export function createAdminJobMatchesPrismaDeps(
         });
 
         for (const m of newMatches) {
+          // A candidate can be retired or moved after scoring/persistence.
+          // Revalidate immediately before the external notification effect.
+          const activeCandidate = await prisma.user.findFirst({
+            where: { id: m.studentId, organizationId, deletedAt: null },
+            select: { id: true },
+          });
+          if (!activeCandidate) continue;
           await createNotification({
             userId: m.studentId,
             type: 'job_match',

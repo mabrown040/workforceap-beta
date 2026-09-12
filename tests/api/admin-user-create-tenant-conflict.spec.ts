@@ -23,15 +23,36 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
 vi.mock('@/lib/db/prisma', () => ({
   prisma: { user: { findFirst: vi.fn() }, $transaction: vi.fn() },
 }));
-vi.mock('@/lib/supabase-admin', () => ({ getSupabaseAdmin: vi.fn() }));
+const {
+  createAuthUser,
+  findAuthUserByEmail,
+  ensureAppUser,
+  ensureProfileRole,
+  syncManagedUserRoles,
+  sendPasswordResetEmail,
+  auditLog,
+  logAuditEvent,
+} = vi.hoisted(() => ({
+  createAuthUser: vi.fn(),
+  findAuthUserByEmail: vi.fn(),
+  ensureAppUser: vi.fn(),
+  ensureProfileRole: vi.fn(),
+  syncManagedUserRoles: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  auditLog: vi.fn(),
+  logAuditEvent: vi.fn(),
+}));
+vi.mock('@/lib/supabase-admin', () => ({
+  getSupabaseAdmin: () => ({ auth: { admin: { createUser: createAuthUser } } }),
+}));
 vi.mock('@/lib/admin/adminUserProvisioning', () => ({
   ADMIN_USER_ROLES: ['member', 'staff', 'admin', 'super_admin'],
-  ensureAppUser: vi.fn(), ensureProfileRole: vi.fn(), syncManagedUserRoles: vi.fn(),
+  ensureAppUser, ensureProfileRole, syncManagedUserRoles,
 }));
-vi.mock('@/lib/auth/passwordReset', () => ({ sendPasswordResetEmail: vi.fn() }));
-vi.mock('@/lib/auth/supabaseAdminUsers', () => ({ findSupabaseAuthUserByEmail: vi.fn() }));
-vi.mock('@/lib/audit', () => ({ auditLog: vi.fn() }));
-vi.mock('@/lib/audit/log', () => ({ logAuditEvent: vi.fn() }));
+vi.mock('@/lib/auth/passwordReset', () => ({ sendPasswordResetEmail }));
+vi.mock('@/lib/auth/supabaseAdminUsers', () => ({ findSupabaseAuthUserByEmail: findAuthUserByEmail }));
+vi.mock('@/lib/audit', () => ({ auditLog }));
+vi.mock('@/lib/audit/log', () => ({ logAuditEvent }));
 
 const { POST } = await import('@/app/api/admin/users/route');
 const { getUser } = await import('@/lib/auth/server');
@@ -49,6 +70,11 @@ describe('POST /api/admin/users duplicate response boundary', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-a' } as never);
     vi.mocked(getActorOrganizationId).mockResolvedValue('org-a');
     tenantUserFindFirst.mockResolvedValue(null);
+    createAuthUser.mockResolvedValue({ data: { user: { id: 'new-auth' } }, error: null });
+    findAuthUserByEmail.mockResolvedValue(null);
+    ensureAppUser.mockResolvedValue({ id: 'new-auth', fullName: 'New User', email: 'taken@example.test' });
+    ensureProfileRole.mockResolvedValue({ role: 'member' });
+    sendPasswordResetEmail.mockResolvedValue({ error: null });
   });
 
   it('hides every foreign-tenant identifier and PII field', async () => {
@@ -67,6 +93,25 @@ describe('POST /api/admin/users duplicate response boundary', () => {
       select: { id: true, organizationId: true },
     });
     expect(tenantUserFindFirst).not.toHaveBeenCalled();
+  });
+
+  it('returns a generic 409 and no effects when another tenant won the Auth race', async () => {
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(null);
+    createAuthUser.mockResolvedValue({ data: { user: null }, error: { code: 'user_already_exists', message: 'already exists' } });
+    findAuthUserByEmail.mockResolvedValue({ id: 'auth-owned-by-org-b' });
+    ensureAppUser.mockRejectedValue(new Error('ADMIN_USER_AUTH_IDENTITY_CONFLICT'));
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn({}));
+
+    const response = await POST(request() as never);
+    const text = await response.text();
+    expect(response.status).toBe(409);
+    expect(JSON.parse(text)).toEqual({ error: 'That email already has an account.' });
+    expect(text).not.toContain('auth-owned-by-org-b');
+    expect(ensureProfileRole).not.toHaveBeenCalled();
+    expect(syncManagedUserRoles).not.toHaveBeenCalled();
+    expect(sendPasswordResetEmail).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
+    expect(logAuditEvent).not.toHaveBeenCalled();
   });
 
   it('returns the authorized projection for an own-tenant duplicate', async () => {

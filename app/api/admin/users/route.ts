@@ -210,6 +210,21 @@ const createSchema = z.object({
       logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'User', id: created.id }, result: { success: true, extensions: { role: created.role } } }).catch(() => {});
       return NextResponse.json({ success: true, user: created });
     } catch (error) {
+      if (
+        error instanceof Error &&
+        ['ADMIN_USER_AUTH_IDENTITY_CONFLICT', 'ADMIN_USER_EMAIL_USER_ID_MISMATCH'].includes(error.message)
+      ) {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
+      }
+      if ((error as { code?: unknown })?.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
+      }
       console.error('[admin/users POST] database setup failed', error);
       return NextResponse.json({ error: 'Failed to finish provisioning the new user.' }, { status: 500 });
     }

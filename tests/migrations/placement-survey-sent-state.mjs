@@ -67,6 +67,8 @@ function columnState() {
       'tokenNullable', (SELECT is_nullable = 'YES' FROM information_schema.columns WHERE table_schema='public' AND table_name='placement_surveys' AND column_name='token_expires_at'),
       'deliveryDefault', (SELECT column_default FROM information_schema.columns WHERE table_schema='public' AND table_name='placement_surveys' AND column_name='delivery_attempt'),
       'acceptedDefault', (SELECT column_default FROM information_schema.columns WHERE table_schema='public' AND table_name='placement_surveys' AND column_name='accepted_attempt'),
+      'deliveryPayloadType', (SELECT data_type FROM information_schema.columns WHERE table_schema='public' AND table_name='placement_surveys' AND column_name='delivery_payload'),
+      'deliveryPayloadNullable', (SELECT is_nullable = 'YES' FROM information_schema.columns WHERE table_schema='public' AND table_name='placement_surveys' AND column_name='delivery_payload'),
       'attemptConstraint', EXISTS (
         SELECT 1 FROM pg_constraint
         WHERE conrelid='public.placement_surveys'::regclass
@@ -84,6 +86,8 @@ function assertFollowOnColumns() {
     tokenNullable: false,
     deliveryDefault: '1',
     acceptedDefault: '0',
+    deliveryPayloadType: 'jsonb',
+    deliveryPayloadNullable: true,
     attemptConstraint: true,
   });
 }

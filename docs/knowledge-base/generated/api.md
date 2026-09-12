@@ -180,7 +180,7 @@
 | [app/api/admin/pipeline/route.ts](../../../app/api/admin/pipeline/route.ts) | 86 | administration | GET:86 |
 | [app/api/admin/pipeline/stale/route.ts](../../../app/api/admin/pipeline/stale/route.ts) | 41 | administration | GET:10 |
 | [app/api/admin/pipeline/surveys/route.ts](../../../app/api/admin/pipeline/surveys/route.ts) | 87 | administration | GET:12 |
-| [app/api/admin/placement-surveys/resend/route.ts](../../../app/api/admin/placement-surveys/resend/route.ts) | 137 | administration | POST:14 |
+| [app/api/admin/placement-surveys/resend/route.ts](../../../app/api/admin/placement-surveys/resend/route.ts) | 165 | administration | POST:23 |
 | [app/api/admin/placement-surveys/route.ts](../../../app/api/admin/placement-surveys/route.ts) | 105 | administration | GET:7 |
 | [app/api/admin/placements/route.ts](../../../app/api/admin/placements/route.ts) | 198 | jobs-employers | GET:196, POST:197, PATCH:198 |
 | [app/api/admin/program-change-requests/\[id\]/route.ts](../../../app/api/admin/program-change-requests/%5Bid%5D/route.ts) | 221 | administration | PATCH:25 |

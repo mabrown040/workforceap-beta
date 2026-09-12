@@ -2824,6 +2824,8 @@ model PlacementSurvey {
   tokenExpiresAt  DateTime @map("token_expires_at")
   deliveryAttempt Int @default(1) @map("delivery_attempt")
   acceptedAttempt Int @default(0) @map("accepted_attempt")
+  // Exact helper-level provider input frozen before each delivery attempt.
+  deliveryPayload Json? @map("delivery_payload")
   completedAt     DateTime? @map("completed_at")
   escalatedAt     DateTime? @map("escalated_at")
 

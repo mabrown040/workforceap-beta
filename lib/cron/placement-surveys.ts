@@ -5,13 +5,23 @@
  * Called by the /api/cron/placement-survey route.
  */
 
+import { randomUUID } from 'node:crypto';
+
 import { prisma } from '@/lib/db/prisma';
 import { CRON_SCOPED_LOOKUP_CAP } from '@/lib/db/scanCaps';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
-import { sendPlacementSurveyEmail, sendPlacementSurveyEscalationEmail } from '@/lib/email';
+import {
+  preparePlacementSurveyEmail,
+  sendPreparedPlacementSurveyEmail,
+  sendPlacementSurveyEscalationEmail,
+} from '@/lib/email';
 import { createNotification } from '@/lib/notifications/create';
 import type { PlacementSurveyWave } from '@prisma/client';
 import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+import {
+  readPlacementSurveyDeliveryPayload,
+  type PlacementSurveyDeliveryPayload,
+} from '@/lib/placement-survey/deliveryPayload';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 const SURVEY_TOKEN_TTL_MS = 60 * 24 * 60 * 60 * 1000;
@@ -126,6 +136,7 @@ export async function sendDuePlacementSurveys(
         tokenExpiresAt: true,
         deliveryAttempt: true,
         acceptedAttempt: true,
+        deliveryPayload: true,
       },
     });
     const existingByPlacementId = new Map(
@@ -159,29 +170,55 @@ export async function sendDuePlacementSurveys(
       // PlacementRecord in the same wave window (or a concurrent run) therefore
       // passed the check yet hit a P2002 on insert and crashed the cron. Treat
       // that collision as "already surveyed for this wave" and skip instead.
-      let survey: { id: string; tokenExpiresAt: Date; deliveryAttempt: number; acceptedAttempt: number };
+      let survey: {
+        id: string;
+        tokenExpiresAt: Date;
+        deliveryAttempt: number;
+        acceptedAttempt: number;
+        deliveryPayload: unknown;
+      };
       const createdThisRun = !existingSurvey;
       if (existingSurvey) {
         survey = existingSurvey;
       } else {
+        const surveyId = randomUUID();
+        const tokenExpiresAt = new Date(now.getTime() + SURVEY_TOKEN_TTL_MS);
+        const token = await issuePlacementSurveyToken({
+          surveyId,
+          expiresAt: tokenExpiresAt,
+        });
+        const deliveryPayload = preparePlacementSurveyEmail({
+          to: user.email,
+          fullName: user.fullName ?? '',
+          programName: user.enrolledProgram,
+          surveyUrl: `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`,
+          wave,
+          idempotencyKey: `placement-survey/${surveyId}/1`,
+        });
         try {
-          survey = await prisma.placementSurvey.create({
+          const created = await prisma.placementSurvey.create({
             data: {
+              id: surveyId,
               userId: placement.userId,
               placementId: placement.id,
               wave,
               sentAt: UNSENT_SURVEY_AT,
-              tokenExpiresAt: new Date(now.getTime() + SURVEY_TOKEN_TTL_MS),
+              tokenExpiresAt,
               deliveryAttempt: 1,
               acceptedAttempt: 0,
+              deliveryPayload,
             },
             select: {
               id: true,
               tokenExpiresAt: true,
               deliveryAttempt: true,
               acceptedAttempt: true,
+              deliveryPayload: true,
             },
           });
+          // Use the exact in-memory payload that was atomically persisted;
+          // never reconstruct it from a later user/profile read.
+          survey = { ...created, deliveryPayload };
         } catch (createErr) {
           const isUniqueViolation =
             typeof createErr === 'object' &&
@@ -199,20 +236,16 @@ export async function sendDuePlacementSurveys(
         }
       }
 
-      const token = await issuePlacementSurveyToken({
-        surveyId: survey.id,
-        expiresAt: survey.tokenExpiresAt,
-      });
-      const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
+      const deliveryPayload = readPlacementSurveyDeliveryPayload(survey.deliveryPayload);
+      if (!deliveryPayload) {
+        emailFailures.push({
+          userId: placement.userId,
+          error: 'Retryable survey is missing its frozen provider payload; no provider request was made.',
+        });
+        continue;
+      }
 
-      const result = await emailPacer.run(() => sendPlacementSurveyEmail({
-        to: user.email,
-        fullName: user.fullName ?? '',
-        programName: user.enrolledProgram,
-        surveyUrl,
-        wave,
-        idempotencyKey: `placement-survey/${survey.id}/${survey.deliveryAttempt}`,
-      }));
+      const result = await emailPacer.run(() => sendPreparedPlacementSurveyEmail(deliveryPayload));
 
       if (!result.ok && 'skipped' in result && result.skipped) {
         skipped.push({ userId: placement.userId, reason: result.error ?? 'Skipped before provider send' });

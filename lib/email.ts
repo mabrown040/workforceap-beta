@@ -4,7 +4,15 @@
  */
 
 import { Resend } from 'resend';
-import { FixtureRecipientSkippedError, sendBrandedEmailOrThrowOnSkip as sendBrandedEmail } from '@/lib/email/send';
+import {
+  FixtureRecipientSkippedError,
+  buildDeliverabilityHeaders,
+  htmlToPlainText,
+  sanitizeHeaders,
+  sendBrandedEmailOrThrowOnSkip as sendBrandedEmail,
+} from '@/lib/email/send';
+import { buildUnsubscribeUrl } from '@/lib/email/unsubscribeToken';
+import type { PlacementSurveyDeliveryPayload } from '@/lib/placement-survey/deliveryPayload';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
@@ -1047,45 +1055,54 @@ export async function sendCertCelebrationEmail(params: {
   }
 }
 
-/** Send the post-placement survey invite to a member at 30/60/90/180 days */
-export async function sendPlacementSurveyEmail(params: {
+/** Freeze the complete Resend request before a placement delivery attempt. */
+export function preparePlacementSurveyEmail(params: {
   to: string;
   fullName: string;
   programName: string | null;
   surveyUrl: string;
   wave?: 'thirty_day' | 'sixty_day' | 'ninety_day' | 'hundred_eighty_day';
-  /** Stable across retries so provider acceptance can be reconciled safely. */
   idempotencyKey: string;
-}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
-  const resend = getResend();
-  if (!resend) {
-    console.warn('sendPlacementSurveyEmail: RESEND_API_KEY not set');
-    return { ok: false, error: 'Email not configured' };
-  }
+}): PlacementSurveyDeliveryPayload {
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
   const wave = params.wave ?? 'thirty_day';
-  const subject =
+  const subject = sanitizeEmailSubjectLine(
     wave === 'sixty_day'
       ? '60-day check-in — are you still employed?'
       : wave === 'ninety_day'
         ? '90-day check-in — salary confirmation'
         : wave === 'hundred_eighty_day'
           ? 'Final 180-day check-in — salary confirmation'
-          : "How's the new job going? — quick 3-minute survey";
+          : "How's the new job going? — quick 3-minute survey",
+  );
   const html = brandedEmailLayout({
     title: subject,
     bodyHtml: placementSurveyHtml({ firstName: first, programName: params.programName, wave }),
     ctaText: 'Open the survey',
     ctaUrl: params.surveyUrl,
   });
+  return {
+    from: getFrom(),
+    to: params.to,
+    subject,
+    html,
+    text: htmlToPlainText(html),
+    headers: sanitizeHeaders(buildDeliverabilityHeaders(buildUnsubscribeUrl(params.to))),
+    idempotencyKey: params.idempotencyKey,
+  };
+}
+
+/** Send one previously frozen placement-survey provider request. */
+export async function sendPreparedPlacementSurveyEmail(
+  payload: PlacementSurveyDeliveryPayload,
+): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPlacementSurveyEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
   try {
-    await sendBrandedEmail(resend, {
-      from: getFrom(),
-      to: params.to,
-      subject: sanitizeEmailSubjectLine(subject),
-      html,
-      idempotencyKey: params.idempotencyKey,
-    });
+    await sendBrandedEmail(resend, payload);
     return { ok: true };
   } catch (err) {
     if (err instanceof FixtureRecipientSkippedError) {
@@ -1094,6 +1111,13 @@ export async function sendPlacementSurveyEmail(params: {
     console.error('sendPlacementSurveyEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
+}
+
+/** Send the post-placement survey invite to a member at 30/60/90/180 days. */
+export function sendPlacementSurveyEmail(
+  params: Parameters<typeof preparePlacementSurveyEmail>[0],
+): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  return sendPreparedPlacementSurveyEmail(preparePlacementSurveyEmail(params));
 }
 
 /** Send escalation alert to counselor when member hasn't responded to a placement survey (any wave) after 7 days */

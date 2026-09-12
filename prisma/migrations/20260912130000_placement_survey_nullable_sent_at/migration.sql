@@ -12,7 +12,8 @@ WHERE "sent_at" = TIMESTAMPTZ '1970-01-01 00:00:00+00';
 ALTER TABLE "placement_surveys"
 ADD COLUMN "token_expires_at" TIMESTAMPTZ,
 ADD COLUMN "delivery_attempt" INTEGER NOT NULL DEFAULT 1,
-ADD COLUMN "accepted_attempt" INTEGER NOT NULL DEFAULT 0;
+ADD COLUMN "accepted_attempt" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "delivery_payload" JSONB;
 
 UPDATE "placement_surveys"
 SET "token_expires_at" = COALESCE("sent_at", now()) + INTERVAL '60 days',
@@ -29,6 +30,7 @@ CHECK ("delivery_attempt" >= 1 AND "accepted_attempt" >= 0 AND "accepted_attempt
 -- ALTER TABLE "placement_surveys" ALTER COLUMN "sent_at" SET DEFAULT now();
 -- ALTER TABLE "placement_surveys" ALTER COLUMN "sent_at" SET NOT NULL;
 -- ALTER TABLE "placement_surveys" DROP CONSTRAINT "placement_surveys_attempt_order_check";
+-- ALTER TABLE "placement_surveys" DROP COLUMN "delivery_payload";
 -- ALTER TABLE "placement_surveys" DROP COLUMN "accepted_attempt";
 -- ALTER TABLE "placement_surveys" DROP COLUMN "delivery_attempt";
 -- ALTER TABLE "placement_surveys" DROP COLUMN "token_expires_at";

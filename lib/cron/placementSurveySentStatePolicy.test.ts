@@ -32,6 +32,7 @@ test('schema and migration use nullable sentAt with persisted delivery-attempt i
   assert.match(schema, /tokenExpiresAt\s+DateTime @map\("token_expires_at"\)/);
   assert.match(schema, /deliveryAttempt\s+Int @default\(1\)/);
   assert.match(schema, /acceptedAttempt\s+Int @default\(0\)/);
+  assert.match(schema, /deliveryPayload\s+Json\? @map\("delivery_payload"\)/);
 
   const migration = read('prisma/migrations/20260912130000_placement_survey_nullable_sent_at/migration.sql');
   assert.match(migration, /SET "sent_at" = NULL/);
@@ -42,4 +43,5 @@ test('schema and migration use nullable sentAt with persisted delivery-attempt i
   );
   assert.match(migration, /ADD COLUMN "delivery_attempt" INTEGER NOT NULL DEFAULT 1/);
   assert.match(migration, /ADD COLUMN "accepted_attempt" INTEGER NOT NULL DEFAULT 0/);
+  assert.match(migration, /ADD COLUMN "delivery_payload" JSONB/);
 });

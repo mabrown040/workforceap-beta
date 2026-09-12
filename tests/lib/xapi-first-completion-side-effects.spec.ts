@@ -180,19 +180,19 @@ describe('first xAPI course completion orchestration', () => {
     });
   });
 
-  it('fires one-time side effects before detail persistence and suppresses them on replay', async () => {
-    const statement = (statementId: string) => ({
-      email: 'member@example.com',
-      courseSlug: 'course-one',
-      courseName: 'Course One',
-      courseraCourseId: 'coursera-course-1',
-      activityType: 'course' as const,
-      statementId,
-      verbId: 'http://adlnet.gov/expapi/verbs/completed',
-      rawStatement: {},
-    });
+  const completionStatement = (statementId: string) => ({
+    email: 'member@example.com',
+    courseSlug: 'course-one',
+    courseName: 'Course One',
+    courseraCourseId: 'coursera-course-1',
+    activityType: 'course' as const,
+    statementId,
+    verbId: 'http://adlnet.gov/expapi/verbs/completed',
+    rawStatement: {},
+  });
 
-    await handleInboundParsedStatement(statement('statement-1'), {
+  it('fires one-time side effects before detail persistence and suppresses them on replay', async () => {
+    await handleInboundParsedStatement(completionStatement('statement-1'), {
       organizationId: 'org-1',
       statementHash: 'hash-1',
     });
@@ -209,7 +209,7 @@ describe('first xAPI course completion orchestration', () => {
       mocks.upsertXapiProgress.mock.invocationCallOrder[0],
     );
 
-    await handleInboundParsedStatement(statement('statement-2'), {
+    await handleInboundParsedStatement(completionStatement('statement-2'), {
       organizationId: 'org-1',
       statementHash: 'hash-2',
     });
@@ -218,5 +218,46 @@ describe('first xAPI course completion orchestration', () => {
     expect(
       mocks.awardPoints.mock.calls.filter(([, type]) => type === 'course_completed'),
     ).toHaveLength(1);
+  });
+
+  it.each([
+    ['partner', mocks.sendPartnerMilestoneEmail],
+    ['member', mocks.sendCourseCompletedEmail],
+  ])('keeps local completion effects and processed replay state when %s email rejects', async (_label, rejectedSender) => {
+    rejectedSender.mockRejectedValueOnce(new Error('provider rejected'));
+
+    await expect(handleInboundParsedStatement(completionStatement('statement-rejection'), {
+      organizationId: 'org-1',
+      statementHash: 'hash-rejection',
+    })).resolves.toMatchObject({ completions: [expect.objectContaining({ ok: true })] });
+
+    expect(mocks.createNotification).toHaveBeenCalledWith(expect.objectContaining({
+      userId: 'member-1',
+      type: 'course_complete',
+    }));
+    expect(mocks.detectTrainingMilestone).toHaveBeenCalled();
+    expect(mocks.handleLearningCompletion).toHaveBeenCalledOnce();
+    expect(mocks.awardPoints).toHaveBeenCalledWith('member-1', 'course_completed', 'course-one');
+    expect(mocks.upsertXapiProgress).toHaveBeenCalled();
+    expect(mocks.markProcessed).toHaveBeenCalledWith('statement-rejection', 'hash-rejection');
+    const localNotificationCount = mocks.createNotification.mock.calls.length;
+    const milestoneCount = mocks.detectTrainingMilestone.mock.calls.length;
+    const learningWorkflowCount = mocks.handleLearningCompletion.mock.calls.length;
+    const completionPointCount = mocks.awardPoints.mock.calls.filter(
+      ([, type]) => type === 'course_completed',
+    ).length;
+
+    await handleInboundParsedStatement(completionStatement('statement-replay'), {
+      organizationId: 'org-1',
+      statementHash: 'hash-replay',
+    });
+
+    expect(mocks.createNotification).toHaveBeenCalledTimes(localNotificationCount);
+    expect(mocks.detectTrainingMilestone).toHaveBeenCalledTimes(milestoneCount);
+    expect(mocks.handleLearningCompletion).toHaveBeenCalledTimes(learningWorkflowCount);
+    expect(
+      mocks.awardPoints.mock.calls.filter(([, type]) => type === 'course_completed'),
+    ).toHaveLength(completionPointCount);
+    expect(mocks.markProcessed).toHaveBeenCalledWith('statement-replay', 'hash-replay');
   });
 });

@@ -33,11 +33,13 @@ vi.mock('@/lib/db/prisma', () => {
     findUnique: vi.fn(),
     count: vi.fn(),
     create: vi.fn(),
+    delete: vi.fn(),
     update: vi.fn(),
     updateMany: vi.fn(),
     aggregate: vi.fn(),
   };
   const placementRecord = {
+    findMany: vi.fn(),
     findUnique: vi.fn(),
     findFirst: vi.fn(),
     updateMany: vi.fn().mockResolvedValue({ count: 0 }),
@@ -79,6 +81,10 @@ vi.mock('@/lib/admin/logCronRun', () => ({
 vi.mock('@/lib/email', () => ({
   sendPlacementSurveyEmail: vi.fn(),
   sendPlacementSurveyEscalationEmail: vi.fn(),
+}));
+
+vi.mock('@/lib/notifications/create', () => ({
+  createNotification: vi.fn(async () => undefined),
 }));
 
 // ─── Imports after mocks ───
@@ -728,6 +734,133 @@ describe('POST /api/admin/placement-surveys/resend', () => {
     const body = await res.json();
     expect(body.surveyId).toBe('survey-new');
     expect(prisma.placementSurvey.create).toHaveBeenCalled();
+  });
+});
+
+describe('sendDuePlacementSurveys', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.PLACEMENT_SURVEY_TOKEN_SECRET = 'test-secret-32-bytes-long-1234567890';
+    vi.mocked(prisma.placementRecord.findMany).mockImplementation((({ where }: any) =>
+      Promise.resolve(where.OR[0].placementSurveys.none.wave === 'thirty_day'
+        ? [{
+            id: 'placement-due',
+            userId: 'member-due',
+            placedAt: new Date(),
+            user: {
+              id: 'member-due',
+              email: 'member@example.com',
+              fullName: 'Member Due',
+              enrolledProgram: 'program-one',
+            },
+          }]
+        : [])) as any,
+    );
+    vi.mocked(prisma.placementSurvey.findMany).mockResolvedValue([] as any);
+    vi.mocked(prisma.placementSurvey.create).mockResolvedValue({ id: 'survey-due' } as any);
+    vi.mocked(prisma.placementSurvey.delete).mockResolvedValue({ id: 'survey-due' } as any);
+    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({ id: 'survey-due' } as any);
+  });
+
+  afterEach(() => {
+    delete process.env.PLACEMENT_SURVEY_TOKEN_SECRET;
+  });
+
+  it.each([
+    ['fixture suppression', { ok: false, skipped: true, error: 'fixture_recipient' }],
+    ['deadline suppression', { ok: false, skipped: true, error: 'request_deadline_exhausted' }],
+  ])('keeps a due survey truthfully unsent and retryable after %s', async (_label, emailResult) => {
+    const { sendDuePlacementSurveys } = (await vi.importActual(
+      '@/lib/cron/placement-surveys'
+    )) as typeof import('@/lib/cron/placement-surveys');
+    vi.mocked(sendPlacementSurveyEmail).mockResolvedValue(emailResult as any);
+    const pacer = {
+      run: vi.fn(async (operation: () => Promise<unknown>) => operation()),
+      deadlineAtMs: Date.now() + 60_000,
+      waitForSendSlot: vi.fn(),
+      summary: vi.fn(),
+    } as any;
+
+    const result = await sendDuePlacementSurveys(pacer);
+
+    expect(prisma.placementSurvey.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ sentAt: new Date(0) }),
+    }));
+    expect(prisma.placementSurvey.update).not.toHaveBeenCalled();
+    expect(prisma.placementSurvey.delete).toHaveBeenCalledWith({ where: { id: 'survey-due' } });
+    expect(result[0].sent).toEqual([]);
+    expect(result[0].emailFailures).toEqual([]);
+    expect(result[0].skipped).toEqual([{ userId: 'member-due', reason: emailResult.error }]);
+    expect(vi.mocked(prisma.placementRecord.findMany).mock.calls[0][0]).toMatchObject({
+      where: {
+        OR: [
+          { placementSurveys: { none: { wave: 'thirty_day', sentAt: { gt: new Date(0) } } } },
+          { placementSurveys: { some: { wave: 'thirty_day', sentAt: new Date(0) } } },
+        ],
+      },
+    });
+  });
+
+  it('reports rollback failure truthfully while retaining an unsent retryable row', async () => {
+    const { sendDuePlacementSurveys } = (await vi.importActual(
+      '@/lib/cron/placement-surveys'
+    )) as typeof import('@/lib/cron/placement-surveys');
+    vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({
+      ok: false,
+      skipped: true,
+      error: 'request_deadline_exhausted',
+    } as any);
+    vi.mocked(prisma.placementSurvey.delete).mockRejectedValueOnce(new Error('database unavailable'));
+    const pacer = {
+      run: vi.fn(async (operation: () => Promise<unknown>) => operation()),
+      deadlineAtMs: Date.now() + 60_000,
+      waitForSendSlot: vi.fn(),
+      summary: vi.fn(),
+    } as any;
+
+    const result = await sendDuePlacementSurveys(pacer);
+
+    expect(result[0].sent).toEqual([]);
+    expect(result[0].skipped).toEqual([{
+      userId: 'member-due',
+      reason: 'request_deadline_exhausted',
+    }]);
+    expect(result[0].emailFailures).toEqual([{
+      userId: 'member-due',
+      error: expect.stringContaining('row remains unsent and retryable'),
+    }]);
+    expect(prisma.placementSurvey.update).not.toHaveBeenCalled();
+  });
+
+  it('reuses an unsent row after a prior rollback failure and stamps acceptance once', async () => {
+    const { sendDuePlacementSurveys } = (await vi.importActual(
+      '@/lib/cron/placement-surveys'
+    )) as typeof import('@/lib/cron/placement-surveys');
+    vi.mocked(prisma.placementSurvey.findMany).mockImplementation((({ where }: any) =>
+      Promise.resolve(where.wave === 'thirty_day'
+        ? [{ id: 'survey-unsent', placementId: 'placement-due', sentAt: new Date(0) }]
+        : [])) as any,
+    );
+    vi.mocked(sendPlacementSurveyEmail).mockResolvedValue({ ok: true } as any);
+    const pacer = {
+      run: vi.fn(async (operation: () => Promise<unknown>) => operation()),
+      deadlineAtMs: Date.now() + 60_000,
+      waitForSendSlot: vi.fn(),
+      summary: vi.fn(),
+    } as any;
+
+    const result = await sendDuePlacementSurveys(pacer);
+
+    expect(prisma.placementSurvey.create).not.toHaveBeenCalled();
+    expect(prisma.placementSurvey.update).toHaveBeenCalledWith({
+      where: { id: 'survey-unsent' },
+      data: { sentAt: expect.any(Date) },
+    });
+    expect(result[0].sent).toEqual([{
+      userId: 'member-due',
+      email: 'member@example.com',
+      surveyId: 'survey-unsent',
+    }]);
   });
 });
 

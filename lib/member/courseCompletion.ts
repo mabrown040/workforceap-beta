@@ -211,22 +211,32 @@ export async function completeMemberCourse(args: {
     courseSlugJustCompleted: matchedCourse.slug,
   });
   if (shouldNotify) {
-    const partnerDelivery = await runBulkEmailOperation(() =>
-      sendPartnerMilestoneEmail(args.userId, 'Course completed', {
-        Course: matchedCourse.name,
-      }),
-    );
-    if (partnerDelivery && typeof partnerDelivery === 'object' && 'skipped' in partnerDelivery) {
-      console.warn('[course-completion] partner email skipped by cron pacing deadline');
+    try {
+      const partnerDelivery = await runBulkEmailOperation(() =>
+        sendPartnerMilestoneEmail(args.userId, 'Course completed', {
+          Course: matchedCourse.name,
+        }),
+      );
+      if (partnerDelivery && typeof partnerDelivery === 'object' && 'skipped' in partnerDelivery) {
+        console.warn('[course-completion] partner email skipped by cron pacing deadline');
+      }
+    } catch (error) {
+      // The completion event is already durably claimed. Provider rejection
+      // must not strand local effects behind a claim replay cannot reacquire.
+      console.error('[course-completion] partner email failed:', error);
     }
 
-    const memberDelivery = await runBulkEmailOperation(() => sendCourseCompletedEmail({
-      to: dbUser.email,
-      fullName: dbUser.fullName,
-      courseName: matchedCourse.name,
-    }));
-    if (memberDelivery && typeof memberDelivery === 'object' && 'skipped' in memberDelivery && memberDelivery.skipped) {
-      console.warn('[course-completion] member email skipped before provider acceptance');
+    try {
+      const memberDelivery = await runBulkEmailOperation(() => sendCourseCompletedEmail({
+        to: dbUser.email,
+        fullName: dbUser.fullName,
+        courseName: matchedCourse.name,
+      }));
+      if (memberDelivery && typeof memberDelivery === 'object' && 'skipped' in memberDelivery && memberDelivery.skipped) {
+        console.warn('[course-completion] member email skipped before provider acceptance');
+      }
+    } catch (error) {
+      console.error('[course-completion] member email failed:', error);
     }
 
     await createNotification({

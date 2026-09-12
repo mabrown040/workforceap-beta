@@ -14,6 +14,9 @@ import type { PlacementSurveyWave } from '@prisma/client';
 import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+// The row must exist before provider acceptance so its id can be signed into
+// the survey URL. Epoch is the explicit unsent state for the non-null column.
+const UNSENT_SURVEY_AT = new Date(0);
 
 const WAVES: { wave: PlacementSurveyWave; days: number; windowHours: number }[] = [
   { wave: 'thirty_day', days: 30, windowHours: 24 },
@@ -81,9 +84,15 @@ export async function sendDuePlacementSurveys(
 
     const placements = await prisma.placementRecord.findMany({
       where: {
-        placedAt: { gte, lte },
-        // Placement must exist; we send one survey per wave per placement
-        placementSurveys: { none: { wave } },
+        OR: [
+          {
+            placedAt: { gte, lte },
+            placementSurveys: { none: { wave, sentAt: { gt: UNSENT_SURVEY_AT } } },
+          },
+          // Retry a prior pre-acceptance row even after its original due-date
+          // window has passed.
+          { placementSurveys: { some: { wave, sentAt: UNSENT_SURVEY_AT } } },
+        ],
       },
       include: {
         user: {
@@ -109,9 +118,11 @@ export async function sendDuePlacementSurveys(
         placementId: { in: placements.map((p) => p.id) },
         wave,
       },
-      select: { placementId: true },
+      select: { id: true, placementId: true, sentAt: true },
     });
-    const existingPlacementIds = new Set(existingSurveys.map((s) => s.placementId));
+    const existingByPlacementId = new Map(
+      existingSurveys.map((survey) => [survey.placementId, survey]),
+    );
 
     for (const placement of placements) {
       const user = placement.user;
@@ -120,8 +131,10 @@ export async function sendDuePlacementSurveys(
         continue;
       }
 
-      // Idempotency check (in-memory)
-      if (existingPlacementIds.has(placement.id)) {
+      // Idempotency check (in-memory). An epoch-stamped row is not a sent
+      // survey; reuse its stable id and signed-token target on this attempt.
+      const existingSurvey = existingByPlacementId.get(placement.id);
+      if (existingSurvey && existingSurvey.sentAt.getTime() > UNSENT_SURVEY_AT.getTime()) {
         skipped.push({ userId: placement.userId, reason: `Survey already exists for ${wave}` });
         continue;
       }
@@ -139,30 +152,34 @@ export async function sendDuePlacementSurveys(
       // passed the check yet hit a P2002 on insert and crashed the cron. Treat
       // that collision as "already surveyed for this wave" and skip instead.
       let survey: { id: string };
-      try {
-        survey = await prisma.placementSurvey.create({
-          data: {
-            userId: placement.userId,
-            placementId: placement.id,
-            wave,
-            sentAt: new Date(),
-          },
-          select: { id: true },
-        });
-      } catch (createErr) {
-        const isUniqueViolation =
-          typeof createErr === 'object' &&
-          createErr !== null &&
-          'code' in createErr &&
-          (createErr as { code?: unknown }).code === 'P2002';
-        if (isUniqueViolation) {
-          skipped.push({
-            userId: placement.userId,
-            reason: `Survey already exists for ${wave} (userId+wave)`,
+      if (existingSurvey) {
+        survey = existingSurvey;
+      } else {
+        try {
+          survey = await prisma.placementSurvey.create({
+            data: {
+              userId: placement.userId,
+              placementId: placement.id,
+              wave,
+              sentAt: UNSENT_SURVEY_AT,
+            },
+            select: { id: true },
           });
-          continue;
+        } catch (createErr) {
+          const isUniqueViolation =
+            typeof createErr === 'object' &&
+            createErr !== null &&
+            'code' in createErr &&
+            (createErr as { code?: unknown }).code === 'P2002';
+          if (isUniqueViolation) {
+            skipped.push({
+              userId: placement.userId,
+              reason: `Survey already exists for ${wave} (userId+wave)`,
+            });
+            continue;
+          }
+          throw createErr;
         }
-        throw createErr;
       }
 
       const token = await issuePlacementSurveyToken({ surveyId: survey.id });
@@ -177,15 +194,27 @@ export async function sendDuePlacementSurveys(
       }));
 
       if (!result.ok && 'skipped' in result && result.skipped) {
-        await prisma.placementSurvey.delete({ where: { id: survey.id } }).catch(() => undefined);
         skipped.push({ userId: placement.userId, reason: result.error ?? 'Skipped before provider send' });
+        try {
+          await prisma.placementSurvey.delete({ where: { id: survey.id } });
+        } catch (deleteErr) {
+          emailFailures.push({
+            userId: placement.userId,
+            error: `Email skipped (${result.error ?? 'unknown'}) and unsent-row rollback failed (${
+              deleteErr instanceof Error ? deleteErr.message : 'unknown'
+            }); row remains unsent and retryable.`,
+          });
+        }
         continue;
       }
 
       if (result.ok) {
+        await prisma.placementSurvey.update({
+          where: { id: survey.id },
+          data: { sentAt: new Date() },
+        });
         // Fire the in-app notification only after the email succeeds so
-        // a failed-email run doesn't leave an orphan "survey ready"
-        // notification pointing at a row we're about to delete.
+        // a failed-email run doesn't leave an orphan "survey ready" notice.
         await createNotification({
           userId: placement.userId,
           type: 'survey_due',
@@ -195,22 +224,19 @@ export async function sendDuePlacementSurveys(
         });
         sent.push({ userId: placement.userId, email: user.email, surveyId: survey.id });
       } else {
-        // Rollback so the user gets re-picked on the next cron run.
-        // Best-effort: if the delete itself fails (e.g. transient DB
-        // hiccup), the row leaks and the user will be skipped — surface
-        // both errors in the result.
         try {
           await prisma.placementSurvey.delete({ where: { id: survey.id } });
+          emailFailures.push({ userId: placement.userId, error: result.error ?? 'Unknown send error' });
         } catch (deleteErr) {
+          // The epoch sentinel remains truthful and the retry query selects it
+          // even after the placement's original due window has passed.
           emailFailures.push({
             userId: placement.userId,
-            error: `Email failed (${result.error ?? 'unknown'}) and rollback delete also failed (${
+            error: `Email failed (${result.error ?? 'unknown'}) and unsent-row rollback failed (${
               deleteErr instanceof Error ? deleteErr.message : 'unknown'
-            }); row leaked and user will be skipped on the next run.`,
+            }); row remains unsent and retryable.`,
           });
-          continue;
         }
-        emailFailures.push({ userId: placement.userId, error: result.error ?? 'Unknown send error' });
       }
     }
 
@@ -234,7 +260,7 @@ export async function escalateStalePlacementSurveys(
     where: {
       wave: { in: ESCALATABLE_WAVES },
       completedAt: null,
-      sentAt: { lte: sevenDaysAgo },
+      sentAt: { gt: UNSENT_SURVEY_AT, lte: sevenDaysAgo },
       escalatedAt: null,
     },
     include: {

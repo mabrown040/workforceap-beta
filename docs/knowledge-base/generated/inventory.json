@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "da9a52e2098a7cad38ed5d3b0a0a53078cfbc7fe9622ef642d95a0a5d486b61a",
+  "inputTreeSha256": "93f265a643d61507eef0e2a5c68cf62f20c7775d9ff229ae6a6bc3f0d59d5751",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -107604,9 +107604,9 @@
       "path": "lib/db/transactionPolicy.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 1727,
-      "lines": 49,
-      "sha256": "a80360c59ea3776acd295c44e7c43bc03b59709e57338feea50c36bb64ae1bef",
+      "bytes": 1742,
+      "lines": 52,
+      "sha256": "6c07bc05893420dc0f8724a11c60e5c8daaf543837b5acdfb3adeb56e890e7ce",
       "binary": false,
       "exports": [],
       "declarations": [

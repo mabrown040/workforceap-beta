@@ -438,7 +438,7 @@
 | [lib/db/queryCaps.ts](../../../lib/db/queryCaps.ts) | 47 | libraries | ADMIN_SSR_LIST_CAP:9, EMPLOYER_LIST_CAP:12, COUNSELOR_ROSTER_CAP:15, MEMBER_HISTORY_CAP:18, LOOKUP_LIST_CAP:21, WIOA_DEMOGRAPHICS_CAP:24, ANALYTICS_SAMPLE_CAP:27, UNBOUNDED_LIST_TAKE_FLOOR:30, clampTake:32, isListTruncated:37, showingFirstLabel:42 |
 | [lib/db/scanCaps.test.ts](../../../lib/db/scanCaps.test.ts) | 105 | libraries |  |
 | [lib/db/scanCaps.ts](../../../lib/db/scanCaps.ts) | 62 | libraries | ANALYTICS_SAMPLE_CAP:14, ANALYTICS_COHORT_DETAIL_CAP:17, REPORT_SAMPLE_CAP:20, WORK_QUEUE_CAP:23, LOOKUP_CATALOG_CAP:26, MEMBER_PROGRESS_CAP:29, COURSERA_B4B_REPORT_CAP:36, COURSERA_B4B_USER_LOOKUP_CAP:39, ONET_SYNC_OCCUPATION_CAP:46, CRON_SCOPED_LOOKUP_CAP:49, UNBOUNDED_SCAN_TAKE_FLOOR:52, clampScanTake:54, sqlCount:59 |
-| [lib/db/transactionPolicy.test.ts](../../../lib/db/transactionPolicy.test.ts) | 49 | libraries |  |
+| [lib/db/transactionPolicy.test.ts](../../../lib/db/transactionPolicy.test.ts) | 52 | libraries |  |
 | [lib/db/transactionPolicy.ts](../../../lib/db/transactionPolicy.ts) | 42 | libraries | PrismaTransactionPolicy:1, resolvePrismaTransactionPolicy:9, interactiveTransactionsGuaranteed:24, assertPrismaTransactionPolicySafe:30 |
 | [lib/db/withDbRetry.test.ts](../../../lib/db/withDbRetry.test.ts) | 126 | libraries |  |
 | [lib/db/withDbRetry.ts](../../../lib/db/withDbRetry.ts) | 142 | libraries | isRetryableDbError:76, isConnectionAcquisitionError:89, DbRetryOptions:99, withDbRetry:120 |

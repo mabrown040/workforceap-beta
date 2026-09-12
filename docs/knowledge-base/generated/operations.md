@@ -24,8 +24,8 @@
 | [scripts/canonicalize-course-progress-slugs.test.ts](../../../scripts/canonicalize-course-progress-slugs.test.ts) | 67 | operations |  |
 | [scripts/canonicalize-course-progress-slugs.ts](../../../scripts/canonicalize-course-progress-slugs.ts) | 339 | operations | mergeCourseProgressCollision:72 |
 | [scripts/check-b4b-programs.ts](../../../scripts/check-b4b-programs.ts) | 32 | operations |  |
-| [scripts/check-duplicate-migrations.mjs](../../../scripts/check-duplicate-migrations.mjs) | 122 | operations |  |
-| [scripts/check-duplicate-migrations.test.cjs](../../../scripts/check-duplicate-migrations.test.cjs) | 198 | operations |  |
+| [scripts/check-duplicate-migrations.mjs](../../../scripts/check-duplicate-migrations.mjs) | 134 | operations |  |
+| [scripts/check-duplicate-migrations.test.cjs](../../../scripts/check-duplicate-migrations.test.cjs) | 252 | operations |  |
 | [scripts/check-mabrown040.js](../../../scripts/check-mabrown040.js) | 31 | operations |  |
 | [scripts/check-supabase-env.mjs](../../../scripts/check-supabase-env.mjs) | 78 | operations |  |
 | [scripts/clawpatch-pre-push.sh](../../../scripts/clawpatch-pre-push.sh) | 50 | operations |  |

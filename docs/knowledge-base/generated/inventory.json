@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "7bbf29d2ce7d743fde38ea848acf359659565ea681045a2013f571390b9aa597",
+  "inputTreeSha256": "cb9141b3d21cca154db52ab14ce4df5029f5d9f78829f5caf0271e4b0ea0b3ba",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -74775,9 +74775,9 @@
       "path": "docs/DATABASE-RECOVERY.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 9817,
-      "lines": 150,
-      "sha256": "ba7e5a8d322f4802f71dba9f79f2494488784232337ca8a4116ba4c5bd3786a7",
+      "bytes": 10206,
+      "lines": 155,
+      "sha256": "105c59f9eb5a5e14c866b6c0c59fbf71bed30678fae660a8cfed60d6c5ce3bd0",
       "binary": false
     },
     {
@@ -76953,9 +76953,9 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 22969,
+      "bytes": 23115,
       "lines": 164,
-      "sha256": "d40d6d94a6666299deb9e44c47093e9a3b70e7146e5d38a113cfe8589394aab7",
+      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
       "binary": false
     },
     {
@@ -139181,9 +139181,9 @@
       "path": "scripts/check-duplicate-migrations.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 4975,
-      "lines": 122,
-      "sha256": "c1aac12bdf08eb39154f60cbf6e6b6dfe3f59a43ef694492d4b53346edae2f6f",
+      "bytes": 5806,
+      "lines": 134,
+      "sha256": "92e8fba08284550f24e42070c0936c8ffaf3d66f5485a515228e1e23f7272348",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -139203,33 +139203,43 @@
           "kind": "Variable"
         },
         {
+          "name": "REVIEWED_SOURCE_COMMIT",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "REVIEWED_BASELINE_SHA256",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
           "name": "TIMESTAMP",
-          "line": 17,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "requireDirectory",
-          "line": 19,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readPlainFile",
-          "line": 23,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "loadBaseline",
           "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "loadBaseline",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "readMigrations",
-          "line": 58,
+          "line": 70,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "check",
-          "line": 75,
+          "line": 87,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -139239,9 +139249,9 @@
       "path": "scripts/check-duplicate-migrations.test.cjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 7827,
-      "lines": 198,
-      "sha256": "26969d29daab9bacf133ca008527c3d9b256f8fcd20b48ae12ff2e888c5307da",
+      "bytes": 10457,
+      "lines": 252,
+      "sha256": "d80a56e630a55ac5cf96a25573272a909b3216eae108259b9be4843b143116c9",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -139286,28 +139296,38 @@
           "kind": "Variable"
         },
         {
-          "name": "legacyPrefix",
+          "name": "reviewedBytes",
           "line": 10,
           "kind": "Variable"
         },
         {
-          "name": "first",
+          "name": "reviewed",
           "line": 11,
           "kind": "Variable"
         },
         {
-          "name": "second",
+          "name": "legacyPrefix",
           "line": 12,
           "kind": "Variable"
         },
         {
-          "name": "sha256",
+          "name": "first",
           "line": 13,
           "kind": "Variable"
         },
         {
+          "name": "second",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "sha256",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
           "name": "fixture",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],

@@ -15962,22 +15962,22 @@
       {
         "level": 2,
         "title": "Preflight for an existing database",
-        "line": 55
+        "line": 60
       },
       {
         "level": 2,
         "title": "What is still needed for reproducible recovery",
-        "line": 94
+        "line": 99
       },
       {
         "level": 2,
         "title": "Backup evidence and limits",
-        "line": 125
+        "line": 130
       },
       {
         "level": 2,
         "title": "Existing production migration-history differences",
-        "line": 135
+        "line": 140
       }
     ],
     "datedFilename": false,

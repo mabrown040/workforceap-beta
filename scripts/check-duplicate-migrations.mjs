@@ -12,6 +12,11 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MIGRATIONS = join(ROOT, 'prisma', 'migrations');
 const BASELINE = join(ROOT, 'scripts', 'migration-collision-baseline.json');
+// Review anchors live outside the mutable JSON payload. Editing that payload
+// cannot authorize a new collision or a rewritten historical migration. Changes
+// to these constants require separate source review, never automatic refresh.
+const REVIEWED_SOURCE_COMMIT = 'ff7c319a09d15f15ee3f04e781ece8884cf31e42';
+const REVIEWED_BASELINE_SHA256 = 'ba13bd4c04fcfa182335b2f6d717eb318ac36f1106bb0c8a3777c83c5543189e';
 // Two existing migrations use date-only prefixes. Detect their collisions too;
 // do not silently ignore a shorter numeric prefix or rename historical files.
 const TIMESTAMP = /^(\d+)_/;
@@ -26,12 +31,19 @@ function readPlainFile(path) {
 }
 
 function loadBaseline() {
-  const baseline = JSON.parse(readPlainFile(BASELINE).toString('utf8'));
+  const bytes = readPlainFile(BASELINE);
+  const baseline = JSON.parse(bytes.toString('utf8'));
   if (
     baseline?.schemaVersion !== 1 ||
     !/^[a-f0-9]{40}$/.test(baseline.sourceCommit ?? '') ||
     !Array.isArray(baseline.groups)
   ) throw new Error('Invalid migration collision baseline: expected schemaVersion 1, sourceCommit and groups.');
+  if (baseline.sourceCommit !== REVIEWED_SOURCE_COMMIT) {
+    throw new Error(`Reviewed migration source commit mismatch: expected ${REVIEWED_SOURCE_COMMIT}.`);
+  }
+  if (createHash('sha256').update(bytes).digest('hex') !== REVIEWED_BASELINE_SHA256) {
+    throw new Error('Reviewed migration collision baseline digest mismatch. Restore the reviewed bytes; do not refresh the exceptions.');
+  }
 
   const groups = new Map();
   for (const group of baseline.groups) {

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "bbf16d950df03b50505e312aa967792e887067c82d6e47d719ecfcf92db93c49",
+  "inputTreeSha256": "788b66d1c28bf61be794929071fe03019c562ec159c3d74e7481609824e1db73",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -32958,9 +32958,9 @@
       "path": "app/api/employer/checkout/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 3666,
-      "lines": 103,
-      "sha256": "d611755fa1ba19de8d2adc906ac570f153ac6666f90bcd5a333dafaf4150699a",
+      "bytes": 3934,
+      "lines": 107,
+      "sha256": "f6cc5fcc723c2b1d80f5aae61e812971bbddece28571650767b7924764977926",
       "binary": false,
       "exports": [
         {
@@ -33754,26 +33754,21 @@
       "path": "app/api/employer/webhook/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 5168,
-      "lines": 142,
-      "sha256": "b9c623a247172db3cb09976fc2e8961a52ab3efe2f638e02a3539ca29909a720",
+      "bytes": 5154,
+      "lines": 133,
+      "sha256": "713c40161cdb6a715d64ee63aab6295fc8de8aa652f3daa6ddb29a8073849e6a",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 28,
+          "line": 9,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
-          "name": "orderedEmployerWhere",
-          "line": 8,
-          "kind": "FunctionDeclaration"
-        },
-        {
           "name": "POST",
-          "line": 28,
+          "line": 9,
           "kind": "Variable"
         }
       ],
@@ -39767,36 +39762,31 @@
       "path": "app/api/stripe/webhook/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 11702,
-      "lines": 285,
-      "sha256": "d5f75e4ee7203c8c35d91f59ceb1d3dba91edcf98803a71f44eb71f5c4af8453",
+      "bytes": 13231,
+      "lines": 307,
+      "sha256": "c7d9b7f314c7478e42610feef6b7d7874fc2b36d0f8f3ca61b33173cd9e3190d",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 60,
+          "line": 38,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "normalizeStripeId",
-          "line": 11,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "invoiceSubscriptionId",
-          "line": 20,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "orderedOrganizationWhere",
           "line": 26,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 60,
+          "line": 38,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -76955,9 +76945,9 @@
       "path": "docs/knowledge-base/integrations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 32468,
+      "bytes": 33045,
       "lines": 133,
-      "sha256": "75a3b3728b57cf94b4afc257d4045b5b6cfd83b1716c883058f3f8fb69c16f3e",
+      "sha256": "3a956df38a9e9a55982aa5300a1153ba99257e7de4056224162a8a5ca9e52624",
       "binary": false
     },
     {
@@ -128551,6 +128541,194 @@
       "directive": null
     },
     {
+      "path": "lib/stripe/subscriptionPersistence.test.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 988,
+      "lines": 30,
+      "sha256": "98d13f215b99e118da73a1ab69e277cc217237b8cf25dee8f998e6889e66500b",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionPersistence.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 4778,
+      "lines": 147,
+      "sha256": "cdfa593dae266a76e64ab029ec4e514f89687f1d31b1fd3ac75150789010983c",
+      "binary": false,
+      "exports": [
+        {
+          "name": "SubscriptionPersistenceContendedError",
+          "line": 9,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "organizationSubscriptionIsAuthoritative",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "userSubscriptionIsAuthoritative",
+          "line": 59,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applyOrganizationSubscriptionTransition",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applyEmployerSubscriptionTransition",
+          "line": 108,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SubscriptionPersistenceContendedError",
+          "line": 9,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "requirePersisted",
+          "line": 16,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "BillingRow",
+          "line": 21,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "stateFromRow",
+          "line": 29,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "organizationSubscriptionIsAuthoritative",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "userSubscriptionIsAuthoritative",
+          "line": 59,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applyOrganizationSubscriptionTransition",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applyEmployerSubscriptionTransition",
+          "line": 108,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionState.test.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 6776,
+      "lines": 139,
+      "sha256": "addc5bb56c05d56f6d555624790a753e39c0aaec207add7443d4b75909ae757e",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "store",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "empty",
+          "line": 25,
+          "kind": "Variable"
+        },
+        {
+          "name": "event",
+          "line": 29,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionState.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 2696,
+      "lines": 80,
+      "sha256": "0f54d9e6548f4a88954cb48e77743b27ee751bfe3f53da43ca455c535ceffe48",
+      "binary": false,
+      "exports": [
+        {
+          "name": "SubscriptionTransitionKind",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionState",
+          "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionTransition",
+          "line": 15,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionStateStore",
+          "line": 25,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "applySubscriptionTransition",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SubscriptionTransitionKind",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionState",
+          "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionTransition",
+          "line": 15,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionStateStore",
+          "line": 25,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "nextState",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applySubscriptionTransition",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/supabase-admin.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -136832,9 +137010,9 @@
       "path": "prisma/migrations/20260912173000_organization_stripe_event_ordering/migration.sql",
       "area": "database",
       "domain": "database",
-      "bytes": 593,
-      "lines": 13,
-      "sha256": "f0a42e9d652db2f2e22252d647c0345750c9266001daf49477d54a44430b8485",
+      "bytes": 933,
+      "lines": 17,
+      "sha256": "cf3ecfed0f879be31ca63278b038c4769b4e5f01bb584f5c5611268477d86621",
       "binary": false
     },
     {
@@ -136850,9 +137028,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 133839,
+      "bytes": 133843,
       "lines": 3171,
-      "sha256": "96615a90bdb077a4739226188bc6986ac11df3869cc457606d681b1467f1ae48",
+      "sha256": "3d2a68c4b1a7036217f0a6c9ec083a3b7f4dc9933567a17bee33c6c2ef1c386b",
       "binary": false
     },
     {
@@ -146167,9 +146345,9 @@
       "path": "tests/api/employer-checkout.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 17938,
-      "lines": 498,
-      "sha256": "3924c2a90b107773f0bc930a0df895f1b1505774ff00f4ecf3eb753e54a333b3",
+      "bytes": 16962,
+      "lines": 476,
+      "sha256": "d4eac9d79bebc4cf7af68ec73b4e3c27d6fc6847ec26b8a6744a4082df9891b4",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -147564,23 +147742,46 @@
       "directive": null
     },
     {
+      "path": "tests/api/stripe-billing-migration.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1206,
+      "lines": 25,
+      "sha256": "229985e2ccb5b1d94868d08c64812bc6ff4821455536305507b57679bb5789fe",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "migration",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "schema",
+          "line": 9,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/stripe-webhook-organization.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 6799,
-      "lines": 228,
-      "sha256": "f83229fb3665ca35c63f0c2fabe727820cb97d420a40934f27ee28e970eced88",
+      "bytes": 7720,
+      "lines": 159,
+      "sha256": "6e684f72b60b7cefa2a085686998d46865fd101469099c39f29bf449bfd76d99",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "request",
-          "line": 49,
+          "line": 39,
           "kind": "Variable"
         },
         {
           "name": "deliver",
-          "line": 56,
+          "line": 42,
           "kind": "FunctionDeclaration"
         }
       ],

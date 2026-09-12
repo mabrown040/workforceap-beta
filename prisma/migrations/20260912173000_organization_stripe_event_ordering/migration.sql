@@ -1,3 +1,7 @@
+-- Rolling compatibility: new cursor columns stay nullable. Existing organizations are
+-- intentionally not backfilled from status alone; the handler binds only after a current
+-- Stripe subscription retrieval is corroborated by EmployerSubscription/Employer state.
+-- Old application versions ignore these additive columns during rollout.
 -- Persist the Stripe subscription that is authoritative for organization billing
 -- and the last applied event so duplicate/out-of-order deliveries cannot regress it.
 ALTER TABLE "organizations"

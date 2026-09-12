@@ -7717,6 +7717,54 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/stripe/subscriptionPersistence.test.ts",
+    "area": "libraries",
+    "domain": "partners-funding",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/stripe/subscriptionState.test.ts",
+    "area": "libraries",
+    "domain": "partners-funding",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/stripe/subscriptionState.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/super-admin-switcher-structure.test.ts",
     "area": "libraries",
     "domain": "libraries",
@@ -10997,39 +11045,43 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 45
+        "line": 47
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 64
-      },
-      {
-        "file": "app/api/employer/checkout/route.ts",
         "line": 70
       },
       {
+        "file": "app/api/employer/checkout/route.ts",
+        "line": 76
+      },
+      {
         "file": "app/api/employer/webhook/route.ts",
-        "line": 71
+        "line": 77
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 72
+        "line": 78
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 73
+        "line": 79
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 74
+        "line": 80
       },
       {
         "file": "lib/stripe/client.ts",
-        "line": 75
+        "line": 81
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 83
       },
       {
         "file": "lib/stripe/client.ts",
-        "line": 154
+        "line": 161
       }
     ],
     "kind": "test-candidate",
@@ -13510,6 +13562,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/stripe-billing-migration.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/stripe-webhook-organization.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -13518,20 +13589,20 @@
     ],
     "localReferences": [
       {
-        "file": "lib/db/prisma.ts",
-        "line": 30
-      },
-      {
         "file": "app/api/stripe/webhook/route.ts",
-        "line": 45
+        "line": 31
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 46
+        "line": 32
       },
       {
         "file": "lib/stripe/client.ts",
-        "line": 47
+        "line": 33
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 34
       }
     ],
     "kind": "test-candidate",

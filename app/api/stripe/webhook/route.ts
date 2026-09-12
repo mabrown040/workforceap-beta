@@ -7,6 +7,12 @@ import { logWebhookEvent } from '@/lib/webhooks/logEvent';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
+import {
+  applyEmployerSubscriptionTransition,
+  applyOrganizationSubscriptionTransition,
+  organizationSubscriptionIsAuthoritative,
+  userSubscriptionIsAuthoritative,
+} from '@/lib/stripe/subscriptionPersistence';
 
 function normalizeStripeId(value: unknown): string | null {
   if (typeof value === 'string' && value) return value;
@@ -22,34 +28,6 @@ function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
   if (legacy) return legacy;
   return normalizeStripeId(invoice.parent?.subscription_details?.subscription);
 }
-
-function orderedOrganizationWhere(
-  organizationId: string,
-  eventCreatedAt: number,
-  eventId: string,
-  subscriptionId?: string,
-) {
-  return {
-    id: organizationId,
-    ...(subscriptionId ? { stripeSubscriptionId: subscriptionId } : {}),
-    OR: [
-      { stripeSubscriptionEventAt: null },
-      { stripeSubscriptionEventAt: { lt: eventCreatedAt } },
-      {
-        AND: [
-          { stripeSubscriptionEventAt: eventCreatedAt },
-          {
-            OR: [
-              { stripeSubscriptionEventId: null },
-              { stripeSubscriptionEventId: { lt: eventId } },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-}
-
 
 // withSystemGuc(fn) EXECUTES fn immediately and returns a Promise — it's
 // not a route-handler factory like withApiGuc. The previous `export const
@@ -89,14 +67,14 @@ export async function POST(request: NextRequest) {
           }
           const subscriptionId = normalizeStripeId(session.subscription);
           if (session.payment_status === 'paid' && subscriptionId) {
-            await prisma.$transaction((tx) => tx.organization.updateMany({
-              where: orderedOrganizationWhere(orgId, event.created, event.id),
-              data: {
-                subscriptionStatus: 'active',
-                stripeSubscriptionId: subscriptionId,
-                stripeSubscriptionEventAt: event.created,
-                stripeSubscriptionEventId: event.id,
-              },
+            await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
+              subscriptionId,
+              status: 'active',
+              eventCreated: event.created,
+              eventId: event.id,
+              kind: 'checkout',
+              bindingAuthorized: true,
+              replacesSubscriptionId: session.metadata?.replacesSubscriptionId ?? null,
             }));
           }
           break;
@@ -106,30 +84,62 @@ export async function POST(request: NextRequest) {
         // and the cancellation event is `deleted` (not `canceled`). Using the
         // wrong strings meant this branch silently never matched in production.
         case 'customer.subscription.updated': {
-          const subscription = event.data.object as Stripe.Subscription;
-          const orgId = subscription.metadata?.organizationId;
-          const userId = subscription.metadata?.userId;
-          const status = subscription.status === 'active' ? 'active' : 'past_due';
+          const delivered = event.data.object as Stripe.Subscription;
+          // Stripe delivery order is not lifecycle order. Always reconcile this
+          // ambiguous snapshot against Stripe's current subscription object.
+          const subscription = await getStripe().subscriptions.retrieve(delivered.id);
+          if (subscription.id !== delivered.id) {
+            throw new Error('Stripe subscription reconciliation returned the wrong identity');
+          }
+          const orgId = subscription.metadata?.organizationId ?? delivered.metadata?.organizationId;
+          const userId = subscription.metadata?.userId ?? delivered.metadata?.userId;
+          const status = subscription.status === 'canceled'
+            ? 'canceled'
+            : subscription.status === 'active' || subscription.status === 'trialing'
+              ? 'active'
+              : 'past_due';
           if (orgId) {
-            await prisma.$transaction((tx) => tx.organization.updateMany({
-              where: orderedOrganizationWhere(orgId, event.created, event.id, subscription.id),
-              data: {
-                subscriptionStatus: status,
-                stripeSubscriptionEventAt: event.created,
-                stripeSubscriptionEventId: event.id,
-              },
-            }));
+            await prisma.$transaction(async (tx) => {
+              const bindingAuthorized = await organizationSubscriptionIsAuthoritative(
+                tx,
+                orgId,
+                subscription.id,
+              );
+              await applyOrganizationSubscriptionTransition(tx, orgId, {
+                subscriptionId: subscription.id,
+                status,
+                eventCreated: event.created,
+                eventId: event.id,
+                kind: 'subscription_reconciled',
+                bindingAuthorized,
+                replacesSubscriptionId: null,
+              });
+            });
           } else if (userId) {
-            await prisma.$transaction([
-              prisma.employer.updateMany({
-                where: { userId },
-                data: { stripeSubscriptionStatus: subscription.status },
-              }),
-              prisma.employerSubscription.updateMany({
-                where: { userId, stripeSubscriptionId: subscription.id },
-                data: { status: subscription.status },
-              }),
-            ]);
+            await prisma.$transaction(async (tx) => {
+              const employer = await tx.employer.findUnique({ where: { userId }, select: { id: true } });
+              if (!employer) return;
+              const bindingAuthorized = await userSubscriptionIsAuthoritative(
+                tx,
+                userId,
+                subscription.id,
+              );
+              const applied = await applyEmployerSubscriptionTransition(tx, employer.id, {
+                subscriptionId: subscription.id,
+                status: subscription.status,
+                eventCreated: event.created,
+                eventId: event.id,
+                kind: 'subscription_reconciled',
+                bindingAuthorized,
+                replacesSubscriptionId: null,
+              });
+              if (applied === 'applied') {
+                await tx.employerSubscription.updateMany({
+                  where: { userId, stripeSubscriptionId: subscription.id },
+                  data: { status: subscription.status },
+                });
+              }
+            });
           }
           break;
         }
@@ -138,25 +148,35 @@ export async function POST(request: NextRequest) {
           const orgId = subscription.metadata?.organizationId;
           const userId = subscription.metadata?.userId;
           if (orgId) {
-            await prisma.$transaction((tx) => tx.organization.updateMany({
-              where: orderedOrganizationWhere(orgId, event.created, event.id, subscription.id),
-              data: {
-                subscriptionStatus: 'canceled',
-                stripeSubscriptionEventAt: event.created,
-                stripeSubscriptionEventId: event.id,
-              },
+            await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
+              subscriptionId: subscription.id,
+              status: 'canceled',
+              eventCreated: event.created,
+              eventId: event.id,
+              kind: 'subscription_deleted',
+              bindingAuthorized: false,
+              replacesSubscriptionId: null,
             }));
           } else if (userId) {
-            await prisma.$transaction([
-              prisma.employer.updateMany({
-                where: { userId },
-                data: { stripeSubscriptionStatus: 'canceled' },
-              }),
-              prisma.employerSubscription.updateMany({
-                where: { userId, stripeSubscriptionId: subscription.id },
-                data: { status: 'canceled' },
-              }),
-            ]);
+            await prisma.$transaction(async (tx) => {
+              const employer = await tx.employer.findUnique({ where: { userId }, select: { id: true } });
+              if (!employer) return;
+              const applied = await applyEmployerSubscriptionTransition(tx, employer.id, {
+                subscriptionId: subscription.id,
+                status: 'canceled',
+                eventCreated: event.created,
+                eventId: event.id,
+                kind: 'subscription_deleted',
+                bindingAuthorized: false,
+                replacesSubscriptionId: null,
+              });
+              if (applied === 'applied') {
+                await tx.employerSubscription.updateMany({
+                  where: { userId, stripeSubscriptionId: subscription.id },
+                  data: { status: 'canceled' },
+                });
+              }
+            });
           }
           break;
         }
@@ -165,13 +185,14 @@ export async function POST(request: NextRequest) {
           const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           const subscriptionId = invoiceSubscriptionId(invoice);
           if (!orgId || !subscriptionId) break;
-          await prisma.$transaction((tx) => tx.organization.updateMany({
-            where: orderedOrganizationWhere(orgId, event.created, event.id, subscriptionId),
-            data: {
-              subscriptionStatus: 'past_due',
-              stripeSubscriptionEventAt: event.created,
-              stripeSubscriptionEventId: event.id,
-            },
+          await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
+            subscriptionId,
+            status: 'past_due',
+            eventCreated: event.created,
+            eventId: event.id,
+            kind: 'invoice_failed',
+            bindingAuthorized: false,
+            replacesSubscriptionId: null,
           }));
           break;
         }
@@ -180,13 +201,14 @@ export async function POST(request: NextRequest) {
           const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           const subscriptionId = invoiceSubscriptionId(invoice);
           if (!orgId || !subscriptionId) break;
-          await prisma.$transaction((tx) => tx.organization.updateMany({
-            where: orderedOrganizationWhere(orgId, event.created, event.id, subscriptionId),
-            data: {
-              subscriptionStatus: 'active',
-              stripeSubscriptionEventAt: event.created,
-              stripeSubscriptionEventId: event.id,
-            },
+          await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
+            subscriptionId,
+            status: 'active',
+            eventCreated: event.created,
+            eventId: event.id,
+            kind: 'invoice_succeeded',
+            bindingAuthorized: false,
+            replacesSubscriptionId: null,
           }));
           break;
         }

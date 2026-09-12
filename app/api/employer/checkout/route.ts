@@ -37,7 +37,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
 
     const employer = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
-      select: { organizationId: true, stripeCustomerId: true, contactEmail: true, companyName: true },
+      select: { organizationId: true, stripeCustomerId: true, stripeSubscriptionId: true, contactEmail: true, companyName: true },
     }));
     if (!employer) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
@@ -82,12 +82,16 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         employerId: ctx.employerId,
         tier,
         userId: user.id,
+        organizationId: employer.organizationId,
+        replacesSubscriptionId: employer.stripeSubscriptionId ?? '',
       },
       subscription_data: {
         metadata: {
           employerId: ctx.employerId,
           tier,
           userId: user.id,
+          organizationId: employer.organizationId,
+          replacesSubscriptionId: employer.stripeSubscriptionId ?? '',
         },
       },
     });

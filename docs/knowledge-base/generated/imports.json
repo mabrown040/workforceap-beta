@@ -49024,6 +49024,14 @@
     "target": "lib/db/withRequestGuc.ts"
   },
   {
+    "from": "app/api/employer/webhook/route.ts",
+    "specifier": "@/lib/stripe/subscriptionPersistence",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
+  },
+  {
     "from": "app/api/events/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -58838,6 +58846,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "app/api/stripe/webhook/route.ts",
+    "specifier": "@/lib/stripe/subscriptionPersistence",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
   },
   {
     "from": "app/api/subgroup/dashboard/route.ts",
@@ -103360,6 +103376,70 @@
     "target": "lib/stripe/client.ts"
   },
   {
+    "from": "lib/stripe/subscriptionPersistence.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/stripe/subscriptionPersistence.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/stripe/subscriptionPersistence.test.ts",
+    "specifier": "./subscriptionPersistence",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
+  },
+  {
+    "from": "lib/stripe/subscriptionPersistence.ts",
+    "specifier": "@prisma/client",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "@prisma/client"
+  },
+  {
+    "from": "lib/stripe/subscriptionPersistence.ts",
+    "specifier": "./subscriptionState",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionState.ts"
+  },
+  {
+    "from": "lib/stripe/subscriptionState.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/stripe/subscriptionState.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/stripe/subscriptionState.test.ts",
+    "specifier": "./subscriptionState",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionState.ts"
+  },
+  {
     "from": "lib/supabase-admin.ts",
     "specifier": "@supabase/supabase-js",
     "line": 1,
@@ -110986,7 +111066,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 45,
+    "line": 47,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -110994,7 +111074,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 64,
+    "line": 70,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -111002,7 +111082,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/app/api/employer/checkout/route",
-    "line": 70,
+    "line": 76,
     "kind": "import",
     "external": false,
     "target": "app/api/employer/checkout/route.ts"
@@ -111010,7 +111090,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/app/api/employer/webhook/route",
-    "line": 71,
+    "line": 77,
     "kind": "import",
     "external": false,
     "target": "app/api/employer/webhook/route.ts"
@@ -111018,7 +111098,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 72,
+    "line": 78,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -111026,7 +111106,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 73,
+    "line": 79,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -111034,7 +111114,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 74,
+    "line": 80,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -111042,7 +111122,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/stripe/client",
-    "line": 75,
+    "line": 81,
     "kind": "import",
     "external": false,
     "target": "lib/stripe/client.ts"
@@ -111050,15 +111130,23 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "next/server",
-    "line": 76,
+    "line": 82,
     "kind": "import",
     "external": true,
     "package": "next"
   },
   {
     "from": "tests/api/employer-checkout.spec.ts",
+    "specifier": "@/lib/stripe/subscriptionPersistence",
+    "line": 83,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
+  },
+  {
+    "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/stripe/client",
-    "line": 154,
+    "line": 161,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/stripe/client.ts"
@@ -114496,6 +114584,30 @@
     "target": "lib/content/programSlug.ts"
   },
   {
+    "from": "tests/api/stripe-billing-migration.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/stripe-billing-migration.spec.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/api/stripe-billing-migration.spec.ts",
+    "specifier": "node:path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
     "from": "tests/api/stripe-webhook-organization.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -114505,16 +114617,8 @@
   },
   {
     "from": "tests/api/stripe-webhook-organization.spec.ts",
-    "specifier": "@/lib/db/prisma",
-    "line": 30,
-    "kind": "dynamic-import",
-    "external": false,
-    "target": "lib/db/prisma.ts"
-  },
-  {
-    "from": "tests/api/stripe-webhook-organization.spec.ts",
     "specifier": "@/app/api/stripe/webhook/route",
-    "line": 45,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "app/api/stripe/webhook/route.ts"
@@ -114522,7 +114626,7 @@
   {
     "from": "tests/api/stripe-webhook-organization.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 46,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -114530,10 +114634,18 @@
   {
     "from": "tests/api/stripe-webhook-organization.spec.ts",
     "specifier": "@/lib/stripe/client",
-    "line": 47,
+    "line": 33,
     "kind": "import",
     "external": false,
     "target": "lib/stripe/client.ts"
+  },
+  {
+    "from": "tests/api/stripe-webhook-organization.spec.ts",
+    "specifier": "@/lib/stripe/subscriptionPersistence",
+    "line": 34,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
   },
   {
     "from": "tests/api/testimonials.spec.ts",

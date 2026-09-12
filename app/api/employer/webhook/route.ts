@@ -4,26 +4,7 @@ import { getStripe, getStripeWebhookSecret } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-
-function orderedEmployerWhere(eventCreatedAt: number, eventId: string) {
-  return {
-    OR: [
-      { stripeSubscriptionEventAt: null },
-      { stripeSubscriptionEventAt: { lt: eventCreatedAt } },
-      {
-        AND: [
-          { stripeSubscriptionEventAt: eventCreatedAt },
-          {
-            OR: [
-              { stripeSubscriptionEventId: null },
-              { stripeSubscriptionEventId: { lt: eventId } },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-}
+import { applyEmployerSubscriptionTransition } from '@/lib/stripe/subscriptionPersistence';
 
 export const POST = withApiGuc(async (request: NextRequest) => {
   try {
@@ -56,20 +37,15 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             break;
           }
 
-          // Checkout is the legitimate replacement path: it may establish a new
-          // authoritative subscription, but only if its event cursor wins atomically.
-          await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: {
-              id: employerId,
-              ...orderedEmployerWhere(eventCreatedAt, event.id),
-            },
-            data: {
-              tier,
-              stripeSubscriptionId: subscriptionId,
-              stripeSubscriptionStatus: 'active',
-              stripeSubscriptionEventAt: eventCreatedAt,
-              stripeSubscriptionEventId: event.id,
-            },
+          await prisma.$transaction((tx) => applyEmployerSubscriptionTransition(tx, employerId, {
+            subscriptionId,
+            status: 'active',
+            eventCreated: eventCreatedAt,
+            eventId: event.id,
+            kind: 'checkout',
+            bindingAuthorized: true,
+            replacesSubscriptionId: session.metadata?.replacesSubscriptionId ?? null,
+            tier,
           }));
           break;
         }
@@ -78,17 +54,22 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
           if (!subscriptionId) break;
 
-          await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: {
-              stripeSubscriptionId: subscriptionId,
-              ...orderedEmployerWhere(eventCreatedAt, event.id),
-            },
-            data: {
-              stripeSubscriptionStatus: 'active',
-              stripeSubscriptionEventAt: eventCreatedAt,
-              stripeSubscriptionEventId: event.id,
-            },
-          }));
+          await prisma.$transaction(async (tx) => {
+            const employer = await tx.employer.findFirst({
+              where: { stripeSubscriptionId: subscriptionId },
+              select: { id: true },
+            });
+            if (!employer) return;
+            await applyEmployerSubscriptionTransition(tx, employer.id, {
+              subscriptionId,
+              status: 'active',
+              eventCreated: eventCreatedAt,
+              eventId: event.id,
+              kind: 'invoice_succeeded',
+              bindingAuthorized: false,
+              replacesSubscriptionId: null,
+            });
+          });
           break;
         }
         case 'invoice.payment_failed': {
@@ -96,34 +77,44 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
           if (!subscriptionId) break;
 
-          await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: {
-              stripeSubscriptionId: subscriptionId,
-              ...orderedEmployerWhere(eventCreatedAt, event.id),
-            },
-            data: {
-              stripeSubscriptionStatus: 'past_due',
-              stripeSubscriptionEventAt: eventCreatedAt,
-              stripeSubscriptionEventId: event.id,
-            },
-          }));
+          await prisma.$transaction(async (tx) => {
+            const employer = await tx.employer.findFirst({
+              where: { stripeSubscriptionId: subscriptionId },
+              select: { id: true },
+            });
+            if (!employer) return;
+            await applyEmployerSubscriptionTransition(tx, employer.id, {
+              subscriptionId,
+              status: 'past_due',
+              eventCreated: eventCreatedAt,
+              eventId: event.id,
+              kind: 'invoice_failed',
+              bindingAuthorized: false,
+              replacesSubscriptionId: null,
+            });
+          });
           break;
         }
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
 
-          await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: {
-              stripeSubscriptionId: subscription.id,
-              ...orderedEmployerWhere(eventCreatedAt, event.id),
-            },
-            data: {
+          await prisma.$transaction(async (tx) => {
+            const employer = await tx.employer.findFirst({
+              where: { stripeSubscriptionId: subscription.id },
+              select: { id: true },
+            });
+            if (!employer) return;
+            await applyEmployerSubscriptionTransition(tx, employer.id, {
+              subscriptionId: subscription.id,
+              status: 'canceled',
+              eventCreated: eventCreatedAt,
+              eventId: event.id,
+              kind: 'subscription_deleted',
+              bindingAuthorized: false,
+              replacesSubscriptionId: null,
               tier: 'basic',
-              stripeSubscriptionStatus: 'canceled',
-              stripeSubscriptionEventAt: eventCreatedAt,
-              stripeSubscriptionEventId: event.id,
-            },
-          }));
+            });
+          });
           break;
         }
         default:

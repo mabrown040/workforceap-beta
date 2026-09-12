@@ -38,6 +38,8 @@ vi.mock('@/lib/auth/roles', () => ({
 vi.mock('@/lib/db/prisma', () => {
   const employer = {
     findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findUniqueOrThrow: vi.fn(),
     update: vi.fn(),
     updateMany: vi.fn(),
     count: vi.fn(),
@@ -59,6 +61,10 @@ vi.mock('@/lib/stripe/client', () => ({
   isValidTier: vi.fn((tier: string) => ['basic', 'growth', 'enterprise'].includes(tier)),
 }));
 
+vi.mock('@/lib/stripe/subscriptionPersistence', () => ({
+  applyEmployerSubscriptionTransition: vi.fn(async () => 'applied'),
+}));
+
 vi.mock('@/lib/tenant/withTenantScope', () => ({
   withTenantScope: vi.fn(async (_orgId: string, fn: (db: unknown) => Promise<unknown>) => {
     const { prisma } = await import('@/lib/db/prisma');
@@ -74,6 +80,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe, isValidTier } from '@/lib/stripe/client';
 import { NextRequest } from 'next/server';
+import { applyEmployerSubscriptionTransition } from '@/lib/stripe/subscriptionPersistence';
 
 describe('POST /api/employer/checkout', () => {
   const makeRequest = (body: Record<string, unknown>) =>
@@ -191,7 +198,13 @@ describe('POST /api/employer/checkout', () => {
         customer: 'cus_existing',
         line_items: [{ price: 'price_growth', quantity: 1 }],
         mode: 'subscription',
-        metadata: { employerId: 'emp-1', tier: 'growth', userId: 'user-1' },
+        metadata: {
+          employerId: 'emp-1',
+          tier: 'growth',
+          userId: 'user-1',
+          organizationId: 'org-1',
+          replacesSubscriptionId: '',
+        },
       })
     );
   });
@@ -335,34 +348,21 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.updateMany).mockResolvedValue({ count: 1 } as any);
-
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ received: true });
 
-    expect(prisma.employer.updateMany).toHaveBeenCalledWith({
-      where: {
-        id: 'emp-1',
-        OR: [
-          { stripeSubscriptionEventAt: null },
-          { stripeSubscriptionEventAt: { lt: 1_750_000_100 } },
-          {
-            AND: [
-              { stripeSubscriptionEventAt: 1_750_000_100 },
-              { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_checkout_employer' } }] },
-            ],
-          },
-        ],
-      },
-      data: {
+    expect(applyEmployerSubscriptionTransition).toHaveBeenCalledWith(
+      expect.anything(),
+      'emp-1',
+      expect.objectContaining({
+        subscriptionId: 'sub_123',
+        status: 'active',
+        kind: 'checkout',
+        bindingAuthorized: true,
         tier: 'growth',
-        stripeSubscriptionId: 'sub_123',
-        stripeSubscriptionStatus: 'active',
-        stripeSubscriptionEventAt: 1_750_000_100,
-        stripeSubscriptionEventId: 'evt_checkout_employer',
-      },
-    });
+      }),
+    );
   });
 
   it('ignores checkout.session.completed when metadata is missing', async () => {
@@ -404,7 +404,7 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.updateMany).mockResolvedValue({ count: 1 } as any);
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({ id: 'emp-1' });
 
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
     expect(res.status).toBe(200);
@@ -412,29 +412,18 @@ describe('POST /api/employer/webhook', () => {
 
     // The webhook now carries an event-ordering guard: stale (older-created)
     // events must not clobber newer subscription state.
-    expect(prisma.employer.updateMany).toHaveBeenCalledWith({
-      where: {
-        stripeSubscriptionId: 'sub_123',
-        OR: [
-          { stripeSubscriptionEventAt: null },
-          { stripeSubscriptionEventAt: { lt: 1_750_000_000 } },
-          {
-            AND: [
-              { stripeSubscriptionEventAt: 1_750_000_000 },
-              { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_payment_failed' } }] },
-            ],
-          },
-        ],
-      },
-      data: {
-        stripeSubscriptionStatus: 'past_due',
-        stripeSubscriptionEventAt: 1_750_000_000,
-        stripeSubscriptionEventId: 'evt_payment_failed',
-      },
-    });
+    expect(applyEmployerSubscriptionTransition).toHaveBeenCalledWith(
+      expect.anything(),
+      'emp-1',
+      expect.objectContaining({
+        subscriptionId: 'sub_123',
+        status: 'past_due',
+        kind: 'invoice_failed',
+      }),
+    );
   });
 
-  it('atomically orders alternate employer webhook writes by subscription and event cursor', async () => {
+  it('routes alternate employer webhook writes through the shared lifecycle policy', async () => {
     const event = {
       id: 'evt_employer_failed',
       type: 'invoice.payment_failed',
@@ -444,31 +433,20 @@ describe('POST /api/employer/webhook', () => {
     vi.mocked(getStripe).mockReturnValue({
       webhooks: { constructEvent: vi.fn().mockReturnValue(event) },
     } as any);
-    vi.mocked(prisma.employer.updateMany).mockResolvedValue({ count: 1 } as any);
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({ id: 'emp-1' });
 
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
 
     expect(res.status).toBe(200);
-    expect(prisma.employer.updateMany).toHaveBeenCalledWith({
-      where: {
-        stripeSubscriptionId: 'sub_123',
-        OR: [
-          { stripeSubscriptionEventAt: null },
-          { stripeSubscriptionEventAt: { lt: 1_750_000_000 } },
-          {
-            AND: [
-              { stripeSubscriptionEventAt: 1_750_000_000 },
-              { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_employer_failed' } }] },
-            ],
-          },
-        ],
-      },
-      data: {
-        stripeSubscriptionStatus: 'past_due',
-        stripeSubscriptionEventAt: 1_750_000_000,
-        stripeSubscriptionEventId: 'evt_employer_failed',
-      },
-    });
+    expect(applyEmployerSubscriptionTransition).toHaveBeenCalledWith(
+      expect.anything(),
+      'emp-1',
+      expect.objectContaining({
+        subscriptionId: 'sub_123',
+        kind: 'invoice_failed',
+        bindingAuthorized: false,
+      }),
+    );
   });
 
   it('returns 500 on unexpected webhook processing error', async () => {
@@ -489,7 +467,7 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.updateMany).mockRejectedValue(new Error('DB down'));
+    vi.mocked(applyEmployerSubscriptionTransition).mockRejectedValueOnce(new Error('DB down'));
 
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
     expect(res.status).toBe(500);

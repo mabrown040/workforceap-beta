@@ -263,7 +263,7 @@
 | [docs/email-templates.md](../../../docs/email-templates.md) | 80 | communications |  |
 | [docs/knowledge-base/README.md](../../../docs/knowledge-base/README.md) | 50 | documentation |  |
 | [docs/knowledge-base/agent-context.md](../../../docs/knowledge-base/agent-context.md) | 33 | documentation |  |
-| [docs/knowledge-base/architecture.md](../../../docs/knowledge-base/architecture.md) | 158 | documentation |  |
+| [docs/knowledge-base/architecture.md](../../../docs/knowledge-base/architecture.md) | 193 | documentation |  |
 | [docs/knowledge-base/audit-baseline.json](../../../docs/knowledge-base/audit-baseline.json) | 6 | documentation |  |
 | [docs/knowledge-base/audit-report.md](../../../docs/knowledge-base/audit-report.md) | 37 | documentation |  |
 | [docs/knowledge-base/data.md](../../../docs/knowledge-base/data.md) | 62 | documentation |  |
@@ -271,7 +271,7 @@
 | [docs/knowledge-base/integrations.md](../../../docs/knowledge-base/integrations.md) | 133 | documentation |  |
 | [docs/knowledge-base/maintenance.md](../../../docs/knowledge-base/maintenance.md) | 68 | documentation |  |
 | [docs/knowledge-base/operations.md](../../../docs/knowledge-base/operations.md) | 161 | documentation |  |
-| [docs/knowledge-base/technical-debt.md](../../../docs/knowledge-base/technical-debt.md) | 50 | documentation |  |
+| [docs/knowledge-base/technical-debt.md](../../../docs/knowledge-base/technical-debt.md) | 52 | documentation |  |
 | [docs/live-qa-sweep-2026-05-14.md](../../../docs/live-qa-sweep-2026-05-14.md) | 55 | documentation |  |
 | [docs/marketing-perf-audit-2026-05-13.md](../../../docs/marketing-perf-audit-2026-05-13.md) | 272 | documentation |  |
 | [docs/member-portal-content-editor-guide.md](../../../docs/member-portal-content-editor-guide.md) | 149 | documentation |  |

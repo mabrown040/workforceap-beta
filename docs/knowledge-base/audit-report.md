@@ -16,7 +16,7 @@ Reviews ran in bounded waves while the separate active release worker retained o
 
 ## Findings and private evidence
 
-Ten findings were recorded: four `prod-break`, one `ship-break`, four `latent`, one `hygiene`. Nine application/configuration/collection findings remain open; the marketing documentation defect is corrected in this KB change. [Technical debt](technical-debt.md) provides public tracking IDs and next actions.
+Ten findings were recorded: four `prod-break`, one `ship-break`, four `latent`, one `hygiene`. Eight application/configuration findings remain open; KB-06 (Node collection) and KB-10 (marketing authoring) are recorded source fixes in this KB. [Technical debt](technical-debt.md) provides public tracking IDs and next actions.
 
 Because this application repository is public, **KB-AUDIT-20260912** is a private maintainer bundle containing all ten typed claims, exact source anchors, runnable probes, raw results, original graph context, a byte-identical current-run snapshot and output from the unmodified ranker. Root reran all ten declared verification commands and inspected their output; each reproduced its stated failing assertion or configuration property. An initial corrected harness error is retained and explicitly excluded from supporting evidence.
 

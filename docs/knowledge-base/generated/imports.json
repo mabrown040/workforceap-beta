@@ -91610,7 +91610,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "@/lib/content/courseraDiscoveredCatalog",
-    "line": 7,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/content/courseraDiscoveredCatalog.ts"
@@ -91618,7 +91618,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "@/lib/cache",
-    "line": 11,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/cache.ts"
@@ -91626,7 +91626,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "@/lib/content/programSlug",
-    "line": 12,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
@@ -91634,7 +91634,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "@/lib/content/programSlug",
-    "line": 16,
+    "line": 19,
     "kind": "re-export",
     "external": false,
     "target": "lib/content/programSlug.ts"
@@ -91642,7 +91642,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "../../shared/programSyllabi",
-    "line": 17,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "shared/programSyllabi.ts"
@@ -91650,7 +91650,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "../../shared/programCurricula",
-    "line": 21,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "shared/programCurricula.ts"
@@ -91658,7 +91658,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "../../shared/digitalLiteracyPathway",
-    "line": 25,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "shared/digitalLiteracyPathway.ts"
@@ -91666,7 +91666,7 @@
   {
     "from": "lib/content/programs.ts",
     "specifier": "./programCurriculumManifest",
-    "line": 33,
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "lib/content/programCurriculumManifest.ts"
@@ -106346,7 +106346,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:child_process",
-    "line": 25,
+    "line": 23,
     "kind": "import",
     "external": true,
     "package": "node:child_process"
@@ -106354,7 +106354,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:fs",
-    "line": 26,
+    "line": 24,
     "kind": "import",
     "external": true,
     "package": "node:fs"
@@ -106362,7 +106362,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:fs/promises",
-    "line": 27,
+    "line": 25,
     "kind": "import",
     "external": true,
     "package": "node:fs"
@@ -106370,7 +106370,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:url",
-    "line": 28,
+    "line": 26,
     "kind": "import",
     "external": true,
     "package": "node:url"
@@ -106378,7 +106378,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:path",
-    "line": 29,
+    "line": 27,
     "kind": "import",
     "external": true,
     "package": "node:path"
@@ -106386,7 +106386,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "./vitest-library-specs.mjs",
-    "line": 30,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "scripts/vitest-library-specs.mjs"

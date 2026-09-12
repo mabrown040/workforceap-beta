@@ -60,8 +60,8 @@
 | [scripts/generate-quarterly-outcomes.ts](../../../scripts/generate-quarterly-outcomes.ts) | 87 | operations |  |
 | [scripts/install-crabbox-hook.sh](../../../scripts/install-crabbox-hook.sh) | 24 | operations |  |
 | [scripts/invite-chs-partner-admin.ts](../../../scripts/invite-chs-partner-admin.ts) | 124 | operations |  |
-| [scripts/knowledge-index.mjs](../../../scripts/knowledge-index.mjs) | 633 | operations | areaFor:53, domainFor:65, inspectSource:90, resolveReference:183, routeFor:198, inspectPrisma:233, sourceLink:264, matchesDeclaredGlob:308, inspectTestRunners:335, declaredTestOwnership:392, buildIndex:424, main:600 |
-| [scripts/knowledge-index.test.mjs](../../../scripts/knowledge-index.test.mjs) | 282 | operations |  |
+| [scripts/knowledge-index.mjs](../../../scripts/knowledge-index.mjs) | 635 | operations | areaFor:53, domainFor:65, inspectSource:90, resolveReference:183, routeFor:198, inspectPrisma:233, sourceLink:264, matchesDeclaredGlob:308, inspectTestRunners:335, declaredTestOwnership:392, buildIndex:426, main:602 |
+| [scripts/knowledge-index.test.mjs](../../../scripts/knowledge-index.test.mjs) | 287 | operations |  |
 | [scripts/knowledge-links.py](../../../scripts/knowledge-links.py) | 227 | operations |  |
 | [scripts/knowledge-links.test.py](../../../scripts/knowledge-links.test.py) | 134 | operations |  |
 | [scripts/knowledge-query.mjs](../../../scripts/knowledge-query.mjs) | 111 | operations | parseQueryArgs:11, queryIndex:40, main:98 |
@@ -100,7 +100,7 @@
 | [scripts/subset-material-symbols.py](../../../scripts/subset-material-symbols.py) | 88 | operations |  |
 | [scripts/subset-material-symbols.sh](../../../scripts/subset-material-symbols.sh) | 11 | operations |  |
 | [scripts/sync-portal-test-auth.ts](../../../scripts/sync-portal-test-auth.ts) | 288 | operations |  |
-| [scripts/test-unit.mjs](../../../scripts/test-unit.mjs) | 157 | operations |  |
+| [scripts/test-unit.mjs](../../../scripts/test-unit.mjs) | 171 | operations |  |
 | [scripts/validate-approved-coursera-catalog.ts](../../../scripts/validate-approved-coursera-catalog.ts) | 44 | learning-coursera |  |
 | [scripts/validate-approved-coursera-track.ts](../../../scripts/validate-approved-coursera-track.ts) | 67 | learning-coursera |  |
 | [scripts/vercel-build.cjs](../../../scripts/vercel-build.cjs) | 69 | operations | appBuildScriptForEnvironment:65, copyMarketingBuild:66, main:67, runNpm:68 |

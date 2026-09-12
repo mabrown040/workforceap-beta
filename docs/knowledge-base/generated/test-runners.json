@@ -3,7 +3,7 @@
   "sources": [
     {
       "file": "scripts/test-unit.mjs",
-      "sha256": "00f5945301ae014f6e6c1f36ed37b8c5bee767d9551385a95c63249e07f42443"
+      "sha256": "40e9c675a9ba91757c5c0ec4361e5dbe23bcc8c794b17d2776c4bebaab23a476"
     },
     {
       "file": "scripts/vitest-library-specs.mjs",
@@ -26,25 +26,29 @@
   "nodeUnit": {
     "source": "scripts/test-unit.mjs",
     "patterns": [
-      "lib/**/*.test.ts"
+      "app/**/*.test.ts",
+      "emails/**/*.test.ts",
+      "lib/**/*.test.ts",
+      "scripts/**/*.test.cjs",
+      "scripts/**/*.test.ts",
+      "shared/**/*.test.ts"
     ],
     "skipReasons": {
       "vitest": "owned by npm run test:vitest (shared manifest; collection guarded)",
-      "serverOnly": "imports 'server-only' (no test-env shim yet)",
       "realDb": "requires a live postgres connection (no Prisma mock layer in this spec)"
     },
     "skipRules": [
       {
-        "source": "lib\\/webhooks\\/retry\\.test\\.ts|lib\\/coursera\\/webhookAuth\\.test\\.ts",
+        "source": "app\\/api\\/apply\\/signup\\/route\\.test\\.ts",
         "flags": "",
-        "reason": "serverOnly",
-        "line": 79
+        "reason": "vitest",
+        "line": 84
       },
       {
         "source": "lib\\/auth\\/roles\\.test\\.ts",
         "flags": "",
         "reason": "realDb",
-        "line": 82
+        "line": 89
       }
     ],
     "delegatedVitestFiles": [

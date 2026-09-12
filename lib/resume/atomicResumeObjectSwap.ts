@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 
 export type ResumeProfilePathField = 'resumeOriginalPath' | 'resumeEnhancedPath';
@@ -10,7 +11,7 @@ export interface ResumeObjectUpload {
   field: ResumeProfilePathField;
   extension: string;
   contentType: string;
-  body: ArrayBuffer | string;
+  body: Buffer | ArrayBuffer | string;
 }
 
 interface StorageResult {

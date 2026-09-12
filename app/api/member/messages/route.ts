@@ -103,7 +103,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     const sender = await prisma.user
       .findUnique({ where: { id: user.id }, select: { fullName: true } })
       .catch(() => null);
-    void createNotification({
+    await createNotification({
       userId: thread.counselorUserId,
       type: 'message',
       title: `New message from ${sender?.fullName || user.email || 'member'}`,

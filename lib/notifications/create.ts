@@ -72,7 +72,7 @@ export async function createNotification(
     });
   }
   // Operator-visibility bridge (fire-and-forget, never blocks).
-  void notifyDiscord({
+  await notifyDiscord({
     title: input.title,
     body: input.body,
     category: input.type,
@@ -126,7 +126,7 @@ export async function createBulkNotifications(
   // Discord's 30/min per-webhook rate limit on real cohort sizes.
   const sample = inputs[0];
   if (sample) {
-    void notifyDiscord({
+    await notifyDiscord({
       title: `Bulk notification: ${sample.title}`,
       body: sample.body,
       category: sample.type,

@@ -4,7 +4,7 @@
  */
 
 import { Resend } from 'resend';
-import { sendBrandedEmail } from '@/lib/email/send';
+import { FixtureRecipientSkippedError, sendBrandedEmailOrThrowOnSkip as sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
@@ -1168,7 +1168,7 @@ export async function sendWeeklyRecapEmail(params: {
   idempotencyKey?: string;
   /** Shared cron deadline; provider retry waits must remain inside it. */
   deadlineAtMs?: number;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendWeeklyRecapEmail: RESEND_API_KEY not set');
@@ -1193,6 +1193,9 @@ export async function sendWeeklyRecapEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendWeeklyRecapEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1334,7 +1337,7 @@ export async function sendInvitationAcceptedEmail(params: {
 export async function sendInactiveNudgeEmail(params: {
   to: string;
   fullName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendInactiveNudgeEmail: RESEND_API_KEY not set');
@@ -1356,6 +1359,9 @@ export async function sendInactiveNudgeEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInactiveNudgeEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }

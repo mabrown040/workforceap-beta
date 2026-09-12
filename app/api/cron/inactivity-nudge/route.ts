@@ -9,6 +9,9 @@ import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThr
 import { createNotification } from '@/lib/notifications/create';
 import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 /**
  * POST /api/cron/inactivity-nudge
  *
@@ -20,8 +23,10 @@ import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
  * Deploy with Vercel Cron: schedule "0 10 * * 3" (Wednesday 10AM UTC)
  */
 async function handle(_req: NextRequest) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
 
   // Recipient is anyone with at least one row in `course_enrollments`
   // (covers multi-program users whose `enrolledProgram` may be null), OR
@@ -54,10 +59,10 @@ async function handle(_req: NextRequest) {
 
   for (const member of members) {
     try {
-      const delivery = await sendInactiveNudgeEmail({
+      const delivery = await emailPacer.run(() => sendInactiveNudgeEmail({
         to: member.email,
         fullName: member.fullName ?? member.email,
-      });
+      }));
       if (!delivery.ok) {
         failed++;
         continue;
@@ -79,7 +84,7 @@ async function handle(_req: NextRequest) {
     }
   }
 
-  const runResult = { ok: failed === 0, sent, failed, total: members.length };
+  const runResult = { ok: failed === 0, sent, failed, total: members.length, emailPacing: emailPacer.summary() };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactivity_nudge', runResult, failed > 0 ? 'error' : 'ok');
   return NextResponse.json(runResult, { status: failed > 0 ? 503 : 200 });

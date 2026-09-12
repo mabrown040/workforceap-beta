@@ -38,6 +38,8 @@ export interface SendBrandedEmailRetryOptions {
   sleep?: Sleep;
   /** Test seam for absolute Retry-After / rate-limit reset values. */
   now?: () => number;
+  /** Test seam for deterministic fallback retry jitter. */
+  random?: () => number;
   /** Shared caller deadline; no provider retry sleep may cross it. */
   deadlineAtMs?: number;
 }
@@ -107,6 +109,14 @@ export function buildDeliverabilityHeaders(unsubscribeUrl?: string): Record<stri
   };
 }
 
+export type FixtureSkippedEmailResult = {
+  ok: false;
+  skipped: true;
+  reason: 'fixture_recipient';
+  data: null;
+  error: null;
+};
+
 export interface SendBrandedEmailArgs {
   from: string;
   to: string | string[];
@@ -174,7 +184,31 @@ function parseRateLimitResetMs(value: unknown, nowMs: number): number | null {
   return numeric * 1_000;
 }
 
-function resendRetryDelayMs(error: unknown, attempt: number, nowMs: number): number | null {
+function normalizedRecipientDomain(address: string): string | null {
+  const match = address.trim().toLowerCase().match(/@([^>\s]+)>?$/);
+  return match?.[1]?.replace(/\.$/, '') ?? null;
+}
+
+function fixtureDomains(): string[] {
+  const configured = (process.env.EMAIL_FIXTURE_DOMAINS ?? '')
+    .split(',')
+    .map((domain) => domain.trim().toLowerCase().replace(/^@/, '').replace(/^\./, '').replace(/\.$/, ''))
+    .filter(Boolean);
+  return ['example.com', 'test', 'invalid', 'localhost', ...configured];
+}
+
+export function isFixtureEmailRecipient(address: string): boolean {
+  const domain = normalizedRecipientDomain(address);
+  if (!domain) return false;
+  return fixtureDomains().some((fixture) => domain === fixture || domain.endsWith(`.${fixture}`));
+}
+
+function resendRetryDelayMs(
+  error: unknown,
+  attempt: number,
+  nowMs: number,
+  random: () => number,
+): number | null {
   const record = asRecord(error);
   if (!record) return null;
   const status = Number(record.status ?? record.statusCode ?? record.status_code);
@@ -197,14 +231,33 @@ function resendRetryDelayMs(error: unknown, attempt: number, nowMs: number): num
         nowMs,
       );
   const backoff = RESEND_RETRY_BASE_DELAY_MS * (2 ** (attempt - 1));
-  return Math.max(hintedDelay ?? backoff, backoff);
+  // Retry-After/rate-limit metadata is authoritative and remains exact.
+  if (hintedDelay !== null) return hintedDelay;
+  const jitter = 1 + Math.max(0, Math.min(1, random())) * 0.25;
+  return Math.round(backoff * jitter);
+}
+
+export class FixtureRecipientSkippedError extends Error {
+  readonly skipped = true;
+  readonly reason = 'fixture_recipient' as const;
+
+  constructor() {
+    super('fixture_recipient');
+    this.name = 'FixtureRecipientSkippedError';
+  }
 }
 
 export async function sendBrandedEmail(
   resend: Resend,
   args: SendBrandedEmailArgs,
   retryOptions: SendBrandedEmailRetryOptions = {},
-): Promise<Awaited<ReturnType<Resend['emails']['send']>>> {
+): Promise<Awaited<ReturnType<Resend['emails']['send']>> | FixtureSkippedEmailResult> {
+  const recipients = [args.to, args.cc, args.bcc]
+    .flatMap((value) => value === undefined ? [] : Array.isArray(value) ? value : [value]);
+  if (recipients.some(isFixtureEmailRecipient)) {
+    return { ok: false, skipped: true, reason: 'fixture_recipient', data: null, error: null };
+  }
+
   const text = args.text && args.text.trim().length > 0 ? args.text : htmlToPlainText(args.html);
   const payload = {
     from: args.from,
@@ -227,6 +280,7 @@ export async function sendBrandedEmail(
   };
   const sleep = retryOptions.sleep ?? ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
   const now = retryOptions.now ?? Date.now;
+  const random = retryOptions.random ?? Math.random;
   let totalRetryWaitMs = 0;
 
   for (let attempt = 1; attempt <= RESEND_MAX_ATTEMPTS; attempt++) {
@@ -237,7 +291,7 @@ export async function sendBrandedEmail(
         : await resend.emails.send(payload);
     } catch (err) {
       const nowMs = now();
-      const delayMs = resendRetryDelayMs(err, attempt, nowMs);
+      const delayMs = resendRetryDelayMs(err, attempt, nowMs, random);
       if (
         delayMs !== null
         && attempt < RESEND_MAX_ATTEMPTS
@@ -255,7 +309,7 @@ export async function sendBrandedEmail(
     // Resend resolves with { data, error } instead of throwing on API errors.
     if (!result.error) return result;
     const nowMs = now();
-    const delayMs = resendRetryDelayMs(result.error, attempt, nowMs);
+    const delayMs = resendRetryDelayMs(result.error, attempt, nowMs, random);
     if (
       delayMs !== null
       && attempt < RESEND_MAX_ATTEMPTS
@@ -271,4 +325,16 @@ export async function sendBrandedEmail(
     throw new Error(message);
   }
   throw new Error('Resend retry budget exhausted');
+}
+
+
+/** Production wrappers use this so a skipped fixture can never be booked as sent. */
+export async function sendBrandedEmailOrThrowOnSkip(
+  resend: Resend,
+  args: SendBrandedEmailArgs,
+  retryOptions: SendBrandedEmailRetryOptions = {},
+): Promise<Awaited<ReturnType<Resend['emails']['send']>>> {
+  const result = await sendBrandedEmail(resend, args, retryOptions);
+  if ('skipped' in result) throw new FixtureRecipientSkippedError();
+  return result;
 }

@@ -65,3 +65,57 @@ export function createBoundedPacer(options: BoundedPacerOptions): () => Promise<
     return { ok: true, waitedMs: waitMs };
   };
 }
+
+
+export const BULK_EMAIL_CRON_INTERVAL_MS = 125;
+export const BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS = 30_000;
+
+export interface BulkEmailCronPacerOptions {
+  maxDurationSeconds: number;
+  startedAtMs?: number;
+  intervalMs?: number;
+  reserveMs?: number;
+  sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
+}
+
+export type BulkEmailPacingSkipped = {
+  ok: false;
+  skipped: true;
+  error: 'pacing_budget_exhausted' | 'request_deadline_exhausted';
+};
+
+/** One shared pacing policy for every cron that can issue multiple provider sends. */
+export function createBulkEmailCronPacer(options: BulkEmailCronPacerOptions) {
+  const now = options.now ?? Date.now;
+  const startedAtMs = options.startedAtMs ?? now();
+  const reserveMs = options.reserveMs ?? BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS;
+  const deadlineAtMs = startedAtMs + options.maxDurationSeconds * 1_000 - reserveMs;
+  const waitForSendSlot = createBoundedPacer({
+    intervalMs: options.intervalMs ?? BULK_EMAIL_CRON_INTERVAL_MS,
+    deadlineAtMs,
+    sleep: options.sleep,
+    now,
+  });
+  let admitted = 0;
+  let skipped = 0;
+  let skipReason: BulkEmailPacingSkipped['error'] | undefined;
+
+  return {
+    deadlineAtMs,
+    waitForSendSlot,
+    async run<T>(operation: () => Promise<T>): Promise<T | BulkEmailPacingSkipped> {
+      const pace = await waitForSendSlot();
+      if (!pace.ok) {
+        skipped++;
+        skipReason = pace.reason;
+        return { ok: false, skipped: true, error: pace.reason };
+      }
+      admitted++;
+      return operation();
+    },
+    summary() {
+      return { admitted, skipped, ...(skipReason ? { skipReason } : {}) };
+    },
+  };
+}

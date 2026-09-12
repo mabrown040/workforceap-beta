@@ -9,6 +9,9 @@ import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThr
 import { createNotification } from '@/lib/notifications/create';
 import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 /**
  * Cron endpoint to send inactive member nudge emails.
  * Weekly nudge to members inactive for 7+ days.
@@ -21,8 +24,10 @@ import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
  *
  */
 async function handle(_request: Request) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
 
   // Anti-join instead of unbounded groupBy + notIn: one capped user scan.
   const candidates = await prisma.user.findMany({
@@ -44,12 +49,17 @@ async function handle(_request: Request) {
   const members = candidates.filter((m) => eligibleUserIds.has(m.id));
 
   let sent = 0;
+  let skipped = 0;
   for (const member of members) {
     try {
-      const result = await sendInactiveNudgeEmail({
+      const result = await emailPacer.run(() => sendInactiveNudgeEmail({
         to: member.email,
         fullName: member.fullName,
-      });
+      }));
+      if (!result.ok && 'skipped' in result && result.skipped) {
+        skipped++;
+        continue;
+      }
       if (result.ok) {
         sent++;
         // Record that we sent a nudge so we don't email again this week.
@@ -83,6 +93,8 @@ async function handle(_request: Request) {
     candidateCount: candidates.length,
     eligibleCount: members.length,
     inactiveEmailsSent: sent,
+    inactiveEmailsSkipped: skipped,
+    emailPacing: emailPacer.summary(),
   };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactive_nudge', runResult);

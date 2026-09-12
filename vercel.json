@@ -4,7 +4,7 @@
   "crons": [
     {
       "path": "/api/cron/applicant-followup",
-      "schedule": "0 11 */3 * *"
+      "schedule": "7 11 */3 * *"
     },
     {
       "path": "/api/cron/at-risk-alerts",
@@ -12,7 +12,7 @@
     },
     {
       "path": "/api/cron/at-risk-check",
-      "schedule": "0 6 * * *"
+      "schedule": "11 6 * * *"
     },
     {
       "path": "/api/cron/coursera-auto-heal",
@@ -32,7 +32,7 @@
     },
     {
       "path": "/api/cron/course-accountability",
-      "schedule": "0 15 * * *"
+      "schedule": "13 15 * * *"
     },
     {
       "path": "/api/cron/data-cleanup",
@@ -44,11 +44,11 @@
     },
     {
       "path": "/api/cron/inactive-nudge",
-      "schedule": "0 10 * * 1"
+      "schedule": "23 10 * * 1"
     },
     {
       "path": "/api/cron/inactivity-nudge",
-      "schedule": "0 10 * * 3"
+      "schedule": "29 10 * * 3"
     },
     {
       "path": "/api/cron/interview-reminders",
@@ -60,7 +60,7 @@
     },
     {
       "path": "/api/cron/employer-pending-applicants",
-      "schedule": "0 16 * * 2"
+      "schedule": "17 16 * * 2"
     },
     {
       "path": "/api/cron/job-expiry",
@@ -72,7 +72,7 @@
     },
     {
       "path": "/api/cron/job-alerts",
-      "schedule": "0 9 * * 1"
+      "schedule": "37 9 * * 1"
     },
     {
       "path": "/api/cron/milestone-cascade-draft",
@@ -84,15 +84,15 @@
     },
     {
       "path": "/api/cron/milestone-celebration",
-      "schedule": "0 11 * * *"
+      "schedule": "43 11 * * *"
     },
     {
       "path": "/api/cron/partner-outcome-digest",
-      "schedule": "0 13 * * 1"
+      "schedule": "47 13 * * 1"
     },
     {
       "path": "/api/cron/placement-survey",
-      "schedule": "0 14 * * *"
+      "schedule": "41 14 * * *"
     },
     {
       "path": "/api/cron/smoke-test",
@@ -108,15 +108,15 @@
     },
     {
       "path": "/api/cron/weekly-recap",
-      "schedule": "0 18 * * 0"
+      "schedule": "53 18 * * 0"
     },
     {
       "path": "/api/cron/weekly-recap-email",
-      "schedule": "0 22 * * 5"
+      "schedule": "19 22 * * 5"
     },
     {
       "path": "/api/cron/wioa-report",
-      "schedule": "0 14 1 * *"
+      "schedule": "31 14 1 * *"
     },
     {
       "path": "/api/admin/webhooks/process-retries",

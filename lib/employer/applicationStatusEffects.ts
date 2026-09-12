@@ -53,7 +53,7 @@ export async function notifyAndRecordPlacement(args: {
   });
   const jobTitle = application?.job.title ?? 'the role you applied to';
 
-  void createNotification({
+  await createNotification({
     userId: studentId,
     type: 'application_update',
     title: copy.title,
@@ -81,7 +81,7 @@ export async function notifyAndRecordPlacement(args: {
     // try/catch — a notification hiccup must never fail the employer's
     // application status update.
     if (employer?.userId) {
-      void createNotification({
+      await createNotification({
         userId: employer.userId,
         type: 'placement',
         title: 'Great hire! Post your next role',
@@ -112,7 +112,7 @@ export async function notifyAndRecordPlacement(args: {
 
     void awardPoints(studentId, 'placement_recorded', placement.id).catch(() => {});
 
-    void createNotification({
+    await createNotification({
       userId: studentId,
       type: 'placement',
       title: 'Placement recorded',
@@ -125,7 +125,7 @@ export async function notifyAndRecordPlacement(args: {
       select: { counselor: { select: { userId: true } } },
     });
     if (assignment?.counselor.userId) {
-      void createNotification({
+      await createNotification({
         userId: assignment.counselor.userId,
         type: 'placement',
         title: 'Member placed — verify details',

@@ -421,15 +421,15 @@ describe('GET /api/cron/weekly-recap', () => {
         const body = await (await pendingResult).json();
 
         expect(body).toEqual({
-          sent: 20,
+          sent: 80,
           failed: 0,
-          skipped: 480,
+          skipped: 420,
           total: 500,
           skipReason: 'request_deadline_exhausted',
         });
         expect(generateWeeklyRecaps).toHaveBeenCalledWith(members, expect.any(Date));
-        expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(20);
-        expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(20);
+        expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(80);
+        expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(80);
         const deadlines = vi.mocked(sendWeeklyRecapEmail).mock.calls.map(([params]) => params.deadlineAtMs);
         expect(new Set(deadlines)).toEqual(new Set([new Date('2026-09-11T00:00:00.000Z').getTime() + 270_000]));
         expect(body.sent + body.failed + body.skipped).toBe(body.total);

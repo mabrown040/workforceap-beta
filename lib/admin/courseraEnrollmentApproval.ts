@@ -66,7 +66,7 @@ export async function setCourseraEnrollmentApproval(args: {
   );
 
   if (approved) {
-    void createNotification({
+    await createNotification({
       userId: memberId,
       type: 'task_assigned',
       title: 'Your training enrollment is approved',

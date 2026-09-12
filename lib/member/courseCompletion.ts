@@ -220,7 +220,7 @@ export async function completeMemberCourse(args: {
       courseName: matchedCourse.name,
     }).catch((error) => console.error('Course completed email failed:', error));
 
-    void createNotification({
+    await createNotification({
       userId: args.userId,
       type: 'course_complete',
       title: 'Course completed!',
@@ -234,7 +234,7 @@ export async function completeMemberCourse(args: {
     });
     for (const assignment of counselors) {
       if (assignment.counselor?.userId) {
-        void createNotification({
+        await createNotification({
           userId: assignment.counselor.userId,
           type: 'course_complete',
           title: `${dbUser.fullName ?? 'Member'} completed a course`,

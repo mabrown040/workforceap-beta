@@ -69,3 +69,52 @@ describe('createBoundedPacer', () => {
   });
 
 });
+
+describe('createBulkEmailCronPacer', () => {
+  it('shares one deadline and reports admitted versus deadline-skipped sends', async () => {
+    let nowMs = 1_000;
+    const sleeps: number[] = [];
+    const { createBulkEmailCronPacer } = await import('./pacing');
+    const pacer = createBulkEmailCronPacer({
+      maxDurationSeconds: 2,
+      reserveMs: 1_000,
+      intervalMs: 600,
+      startedAtMs: nowMs,
+      now: () => nowMs,
+      sleep: async (ms) => { sleeps.push(ms); nowMs += ms; },
+    });
+
+    assert.deepEqual(await pacer.run(async () => ({ ok: true as const })), { ok: true });
+    assert.deepEqual(await pacer.run(async () => ({ ok: true as const })), { ok: true });
+    assert.deepEqual(await pacer.run(async () => ({ ok: true as const })), {
+      ok: false,
+      skipped: true,
+      error: 'request_deadline_exhausted',
+    });
+    assert.deepEqual(sleeps, [600]);
+    assert.deepEqual(pacer.summary(), {
+      admitted: 2,
+      skipped: 1,
+      skipReason: 'request_deadline_exhausted',
+    });
+  });
+});
+
+
+describe('bulk email cron default cadence', () => {
+  it('paces at about eight provider calls per second', async () => {
+    let nowMs = 0;
+    const sleeps: number[] = [];
+    const { createBulkEmailCronPacer } = await import('./pacing');
+    const pacer = createBulkEmailCronPacer({
+      maxDurationSeconds: 300,
+      startedAtMs: nowMs,
+      now: () => nowMs,
+      sleep: async (ms) => { sleeps.push(ms); nowMs += ms; },
+    });
+    await pacer.run(async () => true);
+    await pacer.run(async () => true);
+    await pacer.run(async () => true);
+    assert.deepEqual(sleeps, [125, 125]);
+  });
+});

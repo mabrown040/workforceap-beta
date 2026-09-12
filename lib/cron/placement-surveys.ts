@@ -11,6 +11,7 @@ import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail, sendPlacementSurveyEscalationEmail } from '@/lib/email';
 import { createNotification } from '@/lib/notifications/create';
 import type { PlacementSurveyWave } from '@prisma/client';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -65,7 +66,11 @@ function inWindow(target: Date, windowHours: number): { gte: Date; lte: Date } {
 /**
  * Send surveys for placements that hit their 30/60/90-day mark today.
  */
-export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
+type PlacementEmailPacer = ReturnType<typeof createBulkEmailCronPacer>;
+
+export async function sendDuePlacementSurveys(
+  emailPacer: PlacementEmailPacer = createBulkEmailCronPacer({ maxDurationSeconds: 300 }),
+): Promise<SurveySendResult[]> {
   const results: SurveySendResult[] = [];
 
   for (const { wave, days, windowHours } of WAVES) {
@@ -163,19 +168,25 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
       const token = await issuePlacementSurveyToken({ surveyId: survey.id });
       const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
 
-      const result = await sendPlacementSurveyEmail({
+      const result = await emailPacer.run(() => sendPlacementSurveyEmail({
         to: user.email,
         fullName: user.fullName ?? '',
         programName: user.enrolledProgram,
         surveyUrl,
         wave,
-      });
+      }));
+
+      if (!result.ok && 'skipped' in result && result.skipped) {
+        await prisma.placementSurvey.delete({ where: { id: survey.id } }).catch(() => undefined);
+        skipped.push({ userId: placement.userId, reason: result.error });
+        continue;
+      }
 
       if (result.ok) {
         // Fire the in-app notification only after the email succeeds so
         // a failed-email run doesn't leave an orphan "survey ready"
         // notification pointing at a row we're about to delete.
-        void createNotification({
+        await createNotification({
           userId: placement.userId,
           type: 'survey_due',
           title: 'Placement survey ready',
@@ -213,7 +224,9 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
  * Escalate 30/60/90/180-day surveys with no response after 7 days.
  * Alerts the assigned counselor (or admin fallback).
  */
-export async function escalateStalePlacementSurveys(): Promise<EscalationResult> {
+export async function escalateStalePlacementSurveys(
+  emailPacer: PlacementEmailPacer = createBulkEmailCronPacer({ maxDurationSeconds: 300 }),
+): Promise<EscalationResult> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -273,7 +286,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
     const token = await issuePlacementSurveyToken({ surveyId: survey.id, ttlSeconds: 14 * 24 * 60 * 60 });
     const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
 
-    const result = await sendPlacementSurveyEscalationEmail({
+    const result = await emailPacer.run(() => sendPlacementSurveyEscalationEmail({
       to: counselorEmail,
       counselorName: counselor.user.fullName ?? 'Counselor',
       memberName: user.fullName ?? 'Member',
@@ -285,7 +298,12 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
         : null,
       surveyUrl,
       wave: survey.wave,
-    });
+    }));
+
+    if (!result.ok && 'skipped' in result && result.skipped) {
+      skipped.push({ userId: user.id, reason: result.error });
+      continue;
+    }
 
     if (result.ok) {
       alerted.push({ userId: user.id, counselorEmail });
@@ -299,7 +317,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
       // createNotification never throws (see lib/notifications/create.ts).
       const counselorUserId = counselor.user.id;
       if (counselorUserId) {
-        void createNotification({
+        await createNotification({
           userId: counselorUserId,
           type: 'task_assigned',
           title: 'Placement survey follow-up needed',
@@ -327,7 +345,8 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
  * Full daily run: send due surveys + escalate stale ones.
  */
 export async function runDailyPlacementSurveyCron(): Promise<DailySurveyRunResult> {
-  const waves = await sendDuePlacementSurveys();
-  const escalations = await escalateStalePlacementSurveys();
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: 300 });
+  const waves = await sendDuePlacementSurveys(emailPacer);
+  const escalations = await escalateStalePlacementSurveys(emailPacer);
   return { success: true, waves, escalations };
 }

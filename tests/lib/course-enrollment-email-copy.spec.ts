@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('resend', () => ({ Resend: class MockResend {} }));
-vi.mock('@/lib/email/send', () => ({ sendBrandedEmail: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('@/lib/email/send', () => {
+  const sendBrandedEmail = vi.fn().mockResolvedValue(undefined);
+  return { sendBrandedEmail, sendBrandedEmailOrThrowOnSkip: sendBrandedEmail };
+});
 vi.mock('@/lib/tenant/organizationBranding', () => ({ getOrganizationBranding: vi.fn() }));
 import { courseAccountabilityHtml } from '@/emails/course-accountability';
 import { courseKickoffHtml } from '@/emails/course-kickoff';

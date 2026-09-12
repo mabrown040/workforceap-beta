@@ -1652,6 +1652,7 @@ model Employer {
   stripeCustomerId         String?   @map("stripe_customer_id")
   stripeSubscriptionId     String?   @map("stripe_subscription_id")
   stripeSubscriptionStatus String?   @map("stripe_subscription_status")
+  stripeSubscriptionEventId String?   @map("stripe_subscription_event_id")
   /// `created` timestamp (seconds since epoch) of the last Stripe webhook event that
   /// updated tier/subscription state. Stripe does not guarantee delivery order, so a
   /// delayed/out-of-order event (e.g. a late invoice.payment_failed arriving after a

@@ -26,6 +26,7 @@ function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
 function orderedOrganizationWhere(
   organizationId: string,
   eventCreatedAt: number,
+  eventId: string,
   subscriptionId?: string,
 ) {
   return {
@@ -34,6 +35,17 @@ function orderedOrganizationWhere(
     OR: [
       { stripeSubscriptionEventAt: null },
       { stripeSubscriptionEventAt: { lt: eventCreatedAt } },
+      {
+        AND: [
+          { stripeSubscriptionEventAt: eventCreatedAt },
+          {
+            OR: [
+              { stripeSubscriptionEventId: null },
+              { stripeSubscriptionEventId: { lt: eventId } },
+            ],
+          },
+        ],
+      },
     ],
   };
 }
@@ -78,7 +90,7 @@ export async function POST(request: NextRequest) {
           const subscriptionId = normalizeStripeId(session.subscription);
           if (session.payment_status === 'paid' && subscriptionId) {
             await prisma.$transaction((tx) => tx.organization.updateMany({
-              where: orderedOrganizationWhere(orgId, event.created),
+              where: orderedOrganizationWhere(orgId, event.created, event.id),
               data: {
                 subscriptionStatus: 'active',
                 stripeSubscriptionId: subscriptionId,
@@ -100,7 +112,7 @@ export async function POST(request: NextRequest) {
           const status = subscription.status === 'active' ? 'active' : 'past_due';
           if (orgId) {
             await prisma.$transaction((tx) => tx.organization.updateMany({
-              where: orderedOrganizationWhere(orgId, event.created, subscription.id),
+              where: orderedOrganizationWhere(orgId, event.created, event.id, subscription.id),
               data: {
                 subscriptionStatus: status,
                 stripeSubscriptionEventAt: event.created,
@@ -127,7 +139,7 @@ export async function POST(request: NextRequest) {
           const userId = subscription.metadata?.userId;
           if (orgId) {
             await prisma.$transaction((tx) => tx.organization.updateMany({
-              where: orderedOrganizationWhere(orgId, event.created, subscription.id),
+              where: orderedOrganizationWhere(orgId, event.created, event.id, subscription.id),
               data: {
                 subscriptionStatus: 'canceled',
                 stripeSubscriptionEventAt: event.created,
@@ -154,7 +166,7 @@ export async function POST(request: NextRequest) {
           const subscriptionId = invoiceSubscriptionId(invoice);
           if (!orgId || !subscriptionId) break;
           await prisma.$transaction((tx) => tx.organization.updateMany({
-            where: orderedOrganizationWhere(orgId, event.created, subscriptionId),
+            where: orderedOrganizationWhere(orgId, event.created, event.id, subscriptionId),
             data: {
               subscriptionStatus: 'past_due',
               stripeSubscriptionEventAt: event.created,
@@ -169,7 +181,7 @@ export async function POST(request: NextRequest) {
           const subscriptionId = invoiceSubscriptionId(invoice);
           if (!orgId || !subscriptionId) break;
           await prisma.$transaction((tx) => tx.organization.updateMany({
-            where: orderedOrganizationWhere(orgId, event.created, subscriptionId),
+            where: orderedOrganizationWhere(orgId, event.created, event.id, subscriptionId),
             data: {
               subscriptionStatus: 'active',
               stripeSubscriptionEventAt: event.created,

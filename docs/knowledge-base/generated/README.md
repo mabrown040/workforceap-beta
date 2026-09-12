@@ -26,4 +26,4 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | root | 54 | [Open](root.md) |
 | styles | 16 | [Open](styles.md) |
 | supporting-files | 71 | [Open](supporting-files.md) |
-| tests | 297 | [Open](tests.md) |
+| tests | 298 | [Open](tests.md) |

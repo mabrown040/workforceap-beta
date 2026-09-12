@@ -87,6 +87,12 @@ describe('organization Stripe subscription event ordering', () => {
         OR: [
           { stripeSubscriptionEventAt: null },
           { stripeSubscriptionEventAt: { lt: 100 } },
+          {
+            AND: [
+              { stripeSubscriptionEventAt: 100 },
+              { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_old_failure' } }] },
+            ],
+          },
         ],
       },
       data: {
@@ -118,7 +124,38 @@ describe('organization Stripe subscription event ordering', () => {
           OR: [
             { stripeSubscriptionEventAt: null },
             { stripeSubscriptionEventAt: { lt: 200 } },
+            {
+              AND: [
+                { stripeSubscriptionEventAt: 200 },
+                { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_duplicate' } }] },
+              ],
+            },
           ],
+        }),
+      }),
+    );
+  });
+
+  it('uses event id as a deterministic tie-breaker for distinct same-second events', async () => {
+    await deliver({
+      id: 'evt_z',
+      type: 'customer.subscription.updated',
+      created: 250,
+      data: { object: { id: 'sub_current', status: 'active', metadata: { organizationId: 'org-1' } } },
+    });
+
+    expect(prisma.organization.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          stripeSubscriptionId: 'sub_current',
+          OR: expect.arrayContaining([
+            {
+              AND: [
+                { stripeSubscriptionEventAt: 250 },
+                { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_z' } }] },
+              ],
+            },
+          ]),
         }),
       }),
     );
@@ -172,6 +209,12 @@ describe('organization Stripe subscription event ordering', () => {
         OR: [
           { stripeSubscriptionEventAt: null },
           { stripeSubscriptionEventAt: { lt: 400 } },
+          {
+            AND: [
+              { stripeSubscriptionEventAt: 400 },
+              { OR: [{ stripeSubscriptionEventId: null }, { stripeSubscriptionEventId: { lt: 'evt_checkout' } }] },
+            ],
+          },
         ],
       },
       data: {

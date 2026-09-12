@@ -7,3 +7,7 @@ ALTER TABLE "organizations"
 
 CREATE INDEX "organizations_stripe_subscription_id_idx"
   ON "organizations"("stripe_subscription_id");
+
+-- The alternate employer webhook uses the same durable event cursor.
+ALTER TABLE "employers"
+  ADD COLUMN "stripe_subscription_event_id" TEXT;

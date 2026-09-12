@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "13acd4a775dfc320fb75c32a24f94198d67b2e2a733b6eccb1701f5f7b665975",
+  "inputTreeSha256": "bbf16d950df03b50505e312aa967792e887067c82d6e47d719ecfcf92db93c49",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -33696,14 +33696,14 @@
       "path": "app/api/employer/subscribe/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 3853,
-      "lines": 106,
-      "sha256": "15554f779ba2fa87782b359982dadca2f6d114a4607c985f8895a14435d021c1",
+      "bytes": 4016,
+      "lines": 110,
+      "sha256": "3e59efc34e45e0c04b4b4b59cb784b733c6e447e61a6eba389883874afae10d9",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 106,
+          "line": 110,
           "kind": "Variable"
         }
       ],
@@ -33720,7 +33720,7 @@
         },
         {
           "name": "POST",
-          "line": 106,
+          "line": 110,
           "kind": "Variable"
         }
       ],
@@ -33754,21 +33754,26 @@
       "path": "app/api/employer/webhook/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 7370,
-      "lines": 160,
-      "sha256": "e46348a1854c4b21ef700e743ec418c83f469acd0a2c29aa67f6cbc9b8d2a3bc",
+      "bytes": 5168,
+      "lines": 142,
+      "sha256": "b9c623a247172db3cb09976fc2e8961a52ab3efe2f638e02a3539ca29909a720",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 7,
+          "line": 28,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "orderedEmployerWhere",
+          "line": 8,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "POST",
-          "line": 7,
+          "line": 28,
           "kind": "Variable"
         }
       ],
@@ -39762,14 +39767,14 @@
       "path": "app/api/stripe/webhook/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 11362,
-      "lines": 273,
-      "sha256": "088ff44464b670a7aebf2f53b2ec7c364d521f361ac28a2df1b47707020767fe",
+      "bytes": 11702,
+      "lines": 285,
+      "sha256": "d5f75e4ee7203c8c35d91f59ceb1d3dba91edcf98803a71f44eb71f5c4af8453",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 48,
+          "line": 60,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -39791,7 +39796,7 @@
         },
         {
           "name": "POST",
-          "line": 48,
+          "line": 60,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -136827,9 +136832,9 @@
       "path": "prisma/migrations/20260912173000_organization_stripe_event_ordering/migration.sql",
       "area": "database",
       "domain": "database",
-      "bytes": 448,
-      "lines": 9,
-      "sha256": "4ea77c05bd13c9e61af5186447cfa9096de2f05b36dd3bdd9a4bb17596dcd615",
+      "bytes": 593,
+      "lines": 13,
+      "sha256": "f0a42e9d652db2f2e22252d647c0345750c9266001daf49477d54a44430b8485",
       "binary": false
     },
     {
@@ -136845,9 +136850,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 133764,
-      "lines": 3170,
-      "sha256": "f3530986d7b3df0490522f82bb5bb7c5b5acbaf1070e0b2786b4109155b1b2f2",
+      "bytes": 133839,
+      "lines": 3171,
+      "sha256": "96615a90bdb077a4739226188bc6986ac11df3869cc457606d681b1467f1ae48",
       "binary": false
     },
     {
@@ -146162,9 +146167,9 @@
       "path": "tests/api/employer-checkout.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 15626,
-      "lines": 432,
-      "sha256": "b486f2cb4a5aeaaf8d645459e8c5ea5940812369fbe08ba3ded0d559030005b8",
+      "bytes": 17938,
+      "lines": 498,
+      "sha256": "3924c2a90b107773f0bc930a0df895f1b1505774ff00f4ecf3eb753e54a333b3",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -146331,6 +146336,29 @@
         {
           "name": "ORIGINAL_ENV",
           "line": 266,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/employer-subscribe-pricing.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2835,
+      "lines": 71,
+      "sha256": "c5a56b75917f87118a8f442fa88fb1020dddfd1fd8cfbe4d66d160026c3b9df9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "pricingState",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 48,
           "kind": "Variable"
         }
       ],
@@ -147539,9 +147567,9 @@
       "path": "tests/api/stripe-webhook-organization.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5288,
-      "lines": 185,
-      "sha256": "ebaabab63d6472f2b696530e68c60e54a1707d3e08da458c563e090020a98d8d",
+      "bytes": 6799,
+      "lines": 228,
+      "sha256": "f83229fb3665ca35c63f0c2fabe727820cb97d420a40934f27ee28e970eced88",
       "binary": false,
       "exports": [],
       "declarations": [

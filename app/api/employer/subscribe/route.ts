@@ -4,7 +4,7 @@ import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import Stripe from 'stripe';
 import { getUser } from '@/lib/auth/server';
-import { getStripe } from '@/lib/stripe/client';
+import { EMPLOYER_PRICING_ENFORCED, getStripe } from '@/lib/stripe/client';
 import { getStripeCustomer } from '@/lib/stripe/customer';
 import { getStripePriceId } from '@/lib/stripe/pricing';
 import { prisma } from '@/lib/db/prisma';
@@ -28,6 +28,10 @@ async function _POST(req: NextRequest) {
   });
   if (!roles.includes('employer')) {
     return NextResponse.json({ error: 'Employer access required' }, { status: 403 });
+  }
+
+  if (!EMPLOYER_PRICING_ENFORCED) {
+    return NextResponse.json({ error: 'Employer pricing is not available' }, { status: 503 });
   }
 
   const body = await req.json().catch(() => ({}));

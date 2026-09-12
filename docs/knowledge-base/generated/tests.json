@@ -11296,6 +11296,50 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/employer-subscribe-pricing.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/employer/subscribe/route.ts",
+        "line": 41
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 42
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 43
+      },
+      {
+        "file": "lib/stripe/client.ts",
+        "line": 44
+      },
+      {
+        "file": "lib/stripe/customer.ts",
+        "line": 45
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 46
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/employers-page.spec.ts",
     "area": "tests",
     "domain": "tests",

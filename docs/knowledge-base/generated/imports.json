@@ -111432,6 +111432,62 @@
     "package": "next"
   },
   {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "@/app/api/employer/subscribe/route",
+    "line": 41,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/subscribe/route.ts"
+  },
+  {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 42,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 43,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "@/lib/stripe/client",
+    "line": 44,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/client.ts"
+  },
+  {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "@/lib/stripe/customer",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/stripe/customer.ts"
+  },
+  {
+    "from": "tests/api/employer-subscribe-pricing.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 46,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
     "from": "tests/api/employers-page.spec.ts",
     "specifier": "vitest",
     "line": 1,

@@ -336,9 +336,9 @@
 | [app/api/employer/signup/_signupCleanup.ts](../../../app/api/employer/signup/_signupCleanup.ts) | 15 | applications-enrollment | cleanupCreatedEmployerSignupAuthUser:3 |
 | [app/api/employer/signup/route.test.ts](../../../app/api/employer/signup/route.test.ts) | 50 | applications-enrollment |  |
 | [app/api/employer/signup/route.ts](../../../app/api/employer/signup/route.ts) | 253 | applications-enrollment | POST:23 |
-| [app/api/employer/subscribe/route.ts](../../../app/api/employer/subscribe/route.ts) | 106 | jobs-employers | POST:106 |
+| [app/api/employer/subscribe/route.ts](../../../app/api/employer/subscribe/route.ts) | 110 | jobs-employers | POST:110 |
 | [app/api/employer/voice-session/route.ts](../../../app/api/employer/voice-session/route.ts) | 62 | jobs-employers | POST:13 |
-| [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | 160 | jobs-employers | POST:7 |
+| [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | 142 | jobs-employers | POST:28 |
 | [app/api/events/route.ts](../../../app/api/events/route.ts) | 49 | api | POST:15 |
 | [app/api/feature-flags/route.ts](../../../app/api/feature-flags/route.ts) | 45 | api | GET:10 |
 | [app/api/gdpr/consent/route.ts](../../../app/api/gdpr/consent/route.ts) | 71 | learning-coursera | GET:29, PATCH:70 |
@@ -504,7 +504,7 @@
 | [app/api/skill-missions/\[courseSlug\]/quiz-check/route.ts](../../../app/api/skill-missions/%5BcourseSlug%5D/quiz-check/route.ts) | 122 | api | POST:26 |
 | [app/api/staff/lab-reviews/\[submissionId\]/route.ts](../../../app/api/staff/lab-reviews/%5BsubmissionId%5D/route.ts) | 33 | api | GET:9, POST:20 |
 | [app/api/staff/lab-reviews/route.ts](../../../app/api/staff/lab-reviews/route.ts) | 17 | api | GET:8 |
-| [app/api/stripe/webhook/route.ts](../../../app/api/stripe/webhook/route.ts) | 273 | partners-funding | POST:48 |
+| [app/api/stripe/webhook/route.ts](../../../app/api/stripe/webhook/route.ts) | 285 | partners-funding | POST:60 |
 | [app/api/subgroup/dashboard/route.ts](../../../app/api/subgroup/dashboard/route.ts) | 111 | member-counselor | GET:10 |
 | [app/api/subgroup/members/\[id\]/route.ts](../../../app/api/subgroup/members/%5Bid%5D/route.ts) | 130 | api | GET:12 |
 | [app/api/subgroup/members/route.ts](../../../app/api/subgroup/members/route.ts) | 112 | api | GET:11 |

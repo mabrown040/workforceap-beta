@@ -44,6 +44,14 @@ function deletedRow() {
 }
 const req = () => new Request('http://localhost/api/admin/users/fixture', { method: 'POST' });
 const ctx = (id = ID) => ({ params: Promise.resolve({ id }) });
+const privilegedTargets = [
+  { name: 'profile only', profile: { role: 'super_admin' }, userRoles: [] },
+  { name: 'UserRole grant only', profile: null, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'both stores privileged', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'stale privileged profile with ordinary grant', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'member' } }] },
+  { name: 'stale ordinary profile with privileged grant', profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'privileged self', profile: { role: 'super_admin' }, userRoles: [], self: true },
+] as const;
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -78,17 +86,25 @@ describe('administrator account restore', () => {
     expect(mocks.restoreAuth).not.toHaveBeenCalled();
   });
 
-  it.each([
-    { profile: { role: 'super_admin' }, userRoles: [] },
-    { profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
-  ])('prevents an ordinary org admin restoring a privileged account: %j', async (roles) => {
-    mocks.target.mockResolvedValue({ ...deletedRow(), ...roles });
+  it.each(privilegedTargets)('denies ordinary admin restore for privileged target: $name', async ({ self, ...roles }) => {
+    const targetId = self ? ACTOR : ID;
+    mocks.target.mockResolvedValue({ ...deletedRow(), id: targetId, ...roles });
 
-    const response = await restore(req(), ctx());
+    const response = await restore(req(), ctx(targetId));
 
     expect(response.status).toBe(403);
+    expect(mocks.target).toHaveBeenCalledWith({
+      where: { id: targetId },
+      select: expect.objectContaining({
+        profile: { select: { role: true } },
+        userRoles: { select: { role: { select: { name: true } } } },
+      }),
+    });
     expect(mocks.restoreAuth).not.toHaveBeenCalled();
+    expect(mocks.collision).not.toHaveBeenCalled();
     expect(mocks.updateMany).not.toHaveBeenCalled();
+    expect(mocks.audit).not.toHaveBeenCalled();
+    expect(mocks.event).not.toHaveBeenCalled();
   });
 
   it('preserves explicit super-admin authority to restore a privileged account', async () => {

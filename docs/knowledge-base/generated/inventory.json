@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "413b7330db7a43d81812695b7dfd98793f41367d3c7beefec01691913b229339",
+  "inputTreeSha256": "9f1772f4b8243b140385c56d042a892517da2b2759187ff6742a66b8b20d0600",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -76962,9 +76962,9 @@
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8410,
+      "bytes": 8887,
       "lines": 52,
-      "sha256": "4b0b900ee94cfd8964652bdf483f62534e80094cdd852dface3c079ecc4189e2",
+      "sha256": "2aa27fe02cfa86621a404d8b53a9f023b7135f747ae83c84dddd621d37863b95",
       "binary": false
     },
     {
@@ -145360,9 +145360,9 @@
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 12779,
-      "lines": 257,
-      "sha256": "8a07337001d8b3d9ab4950355dedf04182955bb57f7e277cedbf2ccfdba4b8d9",
+      "bytes": 13817,
+      "lines": 273,
+      "sha256": "de987e847a8c6fa5804b4e029af82ced259d504073580b39f8a7399be0b9dc56",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145410,6 +145410,11 @@
           "name": "ctx",
           "line": 46,
           "kind": "Variable"
+        },
+        {
+          "name": "privilegedTargets",
+          "line": 47,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -145418,9 +145423,9 @@
       "path": "tests/api/admin-user-patch-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 6114,
-      "lines": 187,
-      "sha256": "92f96be0538a198de8ee133f2f0c3dec1595f0621563ff23086cf7d5466bfd6d",
+      "bytes": 7296,
+      "lines": 208,
+      "sha256": "6ab4f0031b4863af8dfe304e2b501c358ea62ab9afa029318fae959b5d887902",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145431,13 +145436,18 @@
         },
         {
           "name": "updateUserById",
-          "line": 49,
+          "line": 51,
           "kind": "Variable"
         },
         {
           "name": "patchReq",
-          "line": 82,
+          "line": 84,
           "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "privilegedTargets",
+          "line": 92,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -145446,9 +145456,9 @@
       "path": "tests/api/admin-user-reset-password.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3451,
-      "lines": 94,
-      "sha256": "45f37f66e7e22eb951e8ca2f4de9fe58d88a8b6b4f4087468baf77a9099f1b0a",
+      "bytes": 4456,
+      "lines": 110,
+      "sha256": "e9a619e5d3ae343d367e00f1817daf91e3107e0840a4fe023a835faa11bf10d4",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145475,6 +145485,11 @@
         {
           "name": "context",
           "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "privilegedTargets",
+          "line": 52,
           "kind": "Variable"
         }
       ],

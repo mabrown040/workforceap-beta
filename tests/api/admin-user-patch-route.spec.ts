@@ -4,6 +4,8 @@ const routeMocks = vi.hoisted(() => ({
   target: vi.fn(),
   updateMany: vi.fn(),
   findProfile: vi.fn(),
+  audit: vi.fn(),
+  event: vi.fn(),
 }));
 
 vi.mock('next/server', () => ({
@@ -70,8 +72,8 @@ vi.mock('@/lib/db/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/audit', () => ({ auditLog: vi.fn().mockResolvedValue(undefined) }));
-vi.mock('@/lib/audit/log', () => ({ logAuditEvent: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('@/lib/audit', () => ({ auditLog: routeMocks.audit }));
+vi.mock('@/lib/audit/log', () => ({ logAuditEvent: routeMocks.event }));
 
 import { PATCH } from '@/app/api/admin/users/[id]/route';
 import { getUser } from '@/lib/auth/server';
@@ -79,13 +81,22 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
-function patchReq(body: Record<string, unknown>) {
-  return new Request('http://localhost:3000/api/admin/users/user-1', {
+function patchReq(body: Record<string, unknown>, targetId = 'user-1') {
+  return new Request(`http://localhost:3000/api/admin/users/${targetId}`, {
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
 }
+
+const privilegedTargets = [
+  { name: 'profile only', profile: { role: 'super_admin' }, userRoles: [] },
+  { name: 'UserRole grant only', profile: null, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'both stores privileged', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'stale privileged profile with ordinary grant', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'member' } }] },
+  { name: 'stale ordinary profile with privileged grant', profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'privileged self', profile: { role: 'super_admin' }, userRoles: [], self: true },
+] as const;
 
 describe('PATCH /api/admin/users/[id]', () => {
   beforeEach(() => {
@@ -103,24 +114,34 @@ describe('PATCH /api/admin/users/[id]', () => {
     });
     routeMocks.updateMany.mockResolvedValue({ count: 1 });
     routeMocks.findProfile.mockResolvedValue({ role: 'member' });
+    routeMocks.audit.mockResolvedValue(undefined);
+    routeMocks.event.mockResolvedValue(undefined);
     vi.mocked(updateUserById).mockResolvedValue({ error: null });
   });
 
-  it.each([
-    { profile: { role: 'super_admin' }, userRoles: [] },
-    { profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
-  ])('prevents an ordinary org admin changing a privileged login email when role is omitted: %j', async (roles) => {
+  it.each(privilegedTargets)('denies ordinary admin full-name-only mutation for privileged target: $name', async ({ self, ...roles }) => {
+    const targetId = self ? 'admin-1' : 'user-1';
     vi.mocked(isSuperAdmin).mockResolvedValue(false);
-    routeMocks.target.mockResolvedValue({ id: 'user-1', email: 'old@example.com', ...roles });
+    routeMocks.target.mockResolvedValue({ id: targetId, email: 'old@example.com', ...roles });
 
     const res = await PATCH(
-      patchReq({ fullName: 'Privileged User', email: 'new@example.com' }),
-      { params: Promise.resolve({ id: 'user-1' }) },
+      patchReq({ fullName: 'Changed Privileged Name', email: 'old@example.com' }, targetId),
+      { params: Promise.resolve({ id: targetId }) },
     );
 
     expect(res.status).toBe(403);
+    expect(routeMocks.target).toHaveBeenCalledWith({
+      where: { id: targetId },
+      select: expect.objectContaining({
+        profile: { select: { role: true } },
+        userRoles: { select: { role: { select: { name: true } } } },
+      }),
+    });
     expect(updateUserById).not.toHaveBeenCalled();
     expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(routeMocks.updateMany).not.toHaveBeenCalled();
+    expect(routeMocks.audit).not.toHaveBeenCalled();
+    expect(routeMocks.event).not.toHaveBeenCalled();
   });
 
   it('preserves ordinary same-tenant member administration with role omitted', async () => {

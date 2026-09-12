@@ -108754,7 +108754,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/app/api/admin/users/[id]/route",
-    "line": 76,
+    "line": 78,
     "kind": "import",
     "external": false,
     "target": "app/api/admin/users/[id]/route.ts"
@@ -108762,7 +108762,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 77,
+    "line": 79,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -108770,7 +108770,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 78,
+    "line": 80,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -108778,7 +108778,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 79,
+    "line": 81,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -108786,7 +108786,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 80,
+    "line": 82,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"

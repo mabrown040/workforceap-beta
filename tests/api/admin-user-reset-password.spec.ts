@@ -49,17 +49,33 @@ beforeEach(() => {
   mocks.event.mockResolvedValue(undefined);
 });
 
+const privilegedTargets = [
+  { name: 'profile only', profile: { role: 'super_admin' }, userRoles: [] },
+  { name: 'UserRole grant only', profile: null, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'both stores privileged', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'stale privileged profile with ordinary grant', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'member' } }] },
+  { name: 'stale ordinary profile with privileged grant', profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'privileged self', profile: { role: 'super_admin' }, userRoles: [], self: true },
+] as const;
+
 describe('POST /api/admin/users/[id]/reset-password', () => {
-  it.each([
-    { profile: { role: 'super_admin' }, userRoles: [] },
-    { profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
-  ])('prevents an ordinary org admin recovering a privileged account: %j', async (roles) => {
+  it.each(privilegedTargets)('denies ordinary admin recovery for privileged target: $name', async ({ self, ...roles }) => {
+    const targetId = self ? ACTOR : TARGET;
     mocks.target.mockResolvedValue({ email: 'owner@example.test', ...roles });
 
-    const response = await POST(request(), context());
+    const response = await POST(request(), { params: Promise.resolve({ id: targetId }) });
 
     expect(response.status).toBe(403);
+    expect(mocks.target).toHaveBeenCalledWith({
+      where: { id: targetId },
+      select: expect.objectContaining({
+        profile: { select: { role: true } },
+        userRoles: { select: { role: { select: { name: true } } } },
+      }),
+    });
     expect(mocks.sendReset).not.toHaveBeenCalled();
+    expect(mocks.audit).not.toHaveBeenCalled();
+    expect(mocks.event).not.toHaveBeenCalled();
   });
 
   it('preserves ordinary same-tenant member recovery', async () => {

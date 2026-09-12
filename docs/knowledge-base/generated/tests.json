@@ -9427,23 +9427,23 @@
     "localReferences": [
       {
         "file": "app/api/admin/users/[id]/route.ts",
-        "line": 76
-      },
-      {
-        "file": "lib/auth/server.ts",
-        "line": 77
-      },
-      {
-        "file": "lib/auth/roles.ts",
         "line": 78
       },
       {
-        "file": "lib/tenant/organization.ts",
+        "file": "lib/auth/server.ts",
         "line": 79
       },
       {
-        "file": "lib/db/prisma.ts",
+        "file": "lib/auth/roles.ts",
         "line": 80
+      },
+      {
+        "file": "lib/tenant/organization.ts",
+        "line": 81
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 82
       }
     ],
     "kind": "test-candidate",

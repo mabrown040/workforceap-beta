@@ -30,8 +30,9 @@
 | [tests/api/admin-placements.spec.ts](../../../tests/api/admin-placements.spec.ts) | 409 | tests |  |
 | [tests/api/admin-suggest-matches-route.spec.ts](../../../tests/api/admin-suggest-matches-route.spec.ts) | 137 | tests |  |
 | [tests/api/admin-token-links.spec.ts](../../../tests/api/admin-token-links.spec.ts) | 268 | tests |  |
-| [tests/api/admin-user-lifecycle.spec.ts](../../../tests/api/admin-user-lifecycle.spec.ts) | 222 | tests |  |
-| [tests/api/admin-user-patch-route.spec.ts](../../../tests/api/admin-user-patch-route.spec.ts) | 110 | tests |  |
+| [tests/api/admin-user-lifecycle.spec.ts](../../../tests/api/admin-user-lifecycle.spec.ts) | 250 | tests |  |
+| [tests/api/admin-user-patch-route.spec.ts](../../../tests/api/admin-user-patch-route.spec.ts) | 187 | tests |  |
+| [tests/api/admin-user-reset-password.spec.ts](../../../tests/api/admin-user-reset-password.spec.ts) | 94 | tests |  |
 | [tests/api/agent-gateway-route.spec.ts](../../../tests/api/agent-gateway-route.spec.ts) | 116 | tests |  |
 | [tests/api/ai-interview.spec.ts](../../../tests/api/ai-interview.spec.ts) | 456 | tests |  |
 | [tests/api/apply-status-lookup.spec.ts](../../../tests/api/apply-status-lookup.spec.ts) | 164 | tests |  |

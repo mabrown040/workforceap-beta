@@ -78,6 +78,34 @@ describe('administrator account restore', () => {
     expect(mocks.restoreAuth).not.toHaveBeenCalled();
   });
 
+  it.each([
+    { profile: { role: 'super_admin' }, userRoles: [] },
+    { profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  ])('prevents an ordinary org admin restoring a privileged account: %j', async (roles) => {
+    mocks.target.mockResolvedValue({ ...deletedRow(), ...roles });
+
+    const response = await restore(req(), ctx());
+
+    expect(response.status).toBe(403);
+    expect(mocks.restoreAuth).not.toHaveBeenCalled();
+    expect(mocks.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('preserves explicit super-admin authority to restore a privileged account', async () => {
+    mocks.isSuperAdmin.mockResolvedValue(true);
+    mocks.target.mockResolvedValue({
+      ...deletedRow(),
+      profile: { role: 'super_admin' },
+      userRoles: [],
+    });
+
+    const response = await restore(req(), ctx());
+
+    expect(response.status).toBe(200);
+    expect(mocks.restoreAuth).toHaveBeenCalledOnce();
+    expect(mocks.updateMany).toHaveBeenCalledOnce();
+  });
+
   it('restores the exact normalized identity before publishing an active app row', async () => {
     const response = await restore(req(), ctx());
     expect(response.status).toBe(200);

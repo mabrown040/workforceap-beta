@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "56b7c7190f8d2ab6a62c862c1c75faa209638b70e9f99f694de2a597a084f748",
+  "inputTreeSha256": "8f236cc266491009d56e4e17f1331962eba71add4e7159e5b118d71e727a899a",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -28367,26 +28367,26 @@
       "path": "app/api/admin/users/[id]/reset-password/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2470,
-      "lines": 60,
-      "sha256": "8f3b29bf578931aae7209ee18c0ef438cbd36084742f1e4e7bab9d383658ba25",
+      "bytes": 2960,
+      "lines": 74,
+      "sha256": "b24af66e092829d8bf3bcf2b0b8cd4dea32b0004f0cd1b6fc7dd81ebf836c397",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 60,
+          "line": 74,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 60,
+          "line": 74,
           "kind": "Variable"
         }
       ],
@@ -28396,21 +28396,21 @@
       "path": "app/api/admin/users/[id]/restore/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7109,
-      "lines": 166,
-      "sha256": "c915b13a2ad9a04de2bf65795a5574d770026cc10f1ce33bfd3c97c820bf7b2f",
+      "bytes": 7631,
+      "lines": 184,
+      "sha256": "fbaad99f80d7995eb80eef75bfa6462e870c3ab55ddee2feb34f8d8c62bd42cb",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         }
       ],
@@ -28420,51 +28420,51 @@
       "path": "app/api/admin/users/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 9515,
-      "lines": 239,
-      "sha256": "165bede4ab3981fcbf64e8123278278babbcebbcb5c689f87d0a996329e0e46c",
+      "bytes": 10071,
+      "lines": 254,
+      "sha256": "bd65def7bfb08c41acacd88d3155e886ae703ff63d8282b05a981e72ef0685cb",
       "binary": false,
       "exports": [
         {
           "name": "DELETE",
-          "line": 88,
+          "line": 89,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 239,
+          "line": 254,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_DELETE",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 88,
+          "line": 89,
           "kind": "Variable"
         },
         {
           "name": "schema",
-          "line": 90,
+          "line": 91,
           "kind": "Variable"
         },
         {
           "name": "rollbackSupabaseEmailChange",
-          "line": 96,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_PATCH",
-          "line": 108,
+          "line": 109,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 239,
+          "line": 254,
           "kind": "Variable"
         }
       ],
@@ -145360,9 +145360,9 @@
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 11421,
-      "lines": 222,
-      "sha256": "9489cdc39738d91ae047fe29ee95b7aa19e7fa511ef7cf3d65b1541d731866e1",
+      "bytes": 12417,
+      "lines": 250,
+      "sha256": "3491e3fd03c7d57fa4d0ba6f5a24387c6c9eaeb9b6bdecf2350b5a3c2979ad3f",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145418,21 +145418,64 @@
       "path": "tests/api/admin-user-patch-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3256,
-      "lines": 110,
-      "sha256": "e5393c84766982e1671f6a6694d45486d6c0ec8ef4b24bef1a01bcf166d229fb",
+      "bytes": 6114,
+      "lines": 187,
+      "sha256": "92f96be0538a198de8ee133f2f0c3dec1595f0621563ff23086cf7d5466bfd6d",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "routeMocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
           "name": "updateUserById",
-          "line": 47,
+          "line": 49,
           "kind": "Variable"
         },
         {
           "name": "patchReq",
-          "line": 72,
+          "line": 82,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/admin-user-reset-password.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3451,
+      "lines": 94,
+      "sha256": "45f37f66e7e22eb951e8ca2f4de9fe58d88a8b6b4f4087468baf77a9099f1b0a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "ACTOR",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
+          "name": "TARGET",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 33,
+          "kind": "Variable"
+        },
+        {
+          "name": "context",
+          "line": 34,
+          "kind": "Variable"
         }
       ],
       "directive": null

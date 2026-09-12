@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const routeMocks = vi.hoisted(() => ({
+  target: vi.fn(),
+  updateMany: vi.fn(),
+  findProfile: vi.fn(),
+}));
+
 vi.mock('next/server', () => ({
   NextResponse: {
     json: (body: unknown, init?: ResponseInit) =>
@@ -30,11 +36,7 @@ vi.mock('@/lib/tenant/organization', () => ({
 
 vi.mock('@/lib/tenant/withTenantScope', () => ({
   withTenantScope: vi.fn((_orgId: string, fn: (db: unknown) => Promise<unknown>) =>
-    fn({
-      user: {
-        findFirst: vi.fn().mockResolvedValue({ id: 'user-1', email: 'old@example.com' }),
-      },
-    }),
+    fn({ user: { findFirst: routeMocks.target } }),
   ),
 }));
 
@@ -59,9 +61,17 @@ vi.mock('@/lib/supabase-admin', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
-    $transaction: vi.fn(),
+    $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        user: { updateMany: routeMocks.updateMany },
+        profile: { findFirst: routeMocks.findProfile },
+      }),
+    ),
   },
 }));
+
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('@/lib/audit/log', () => ({ logAuditEvent: vi.fn().mockResolvedValue(undefined) }));
 
 import { PATCH } from '@/app/api/admin/users/[id]/route';
 import { getUser } from '@/lib/auth/server';
@@ -85,7 +95,74 @@ describe('PATCH /api/admin/users/[id]', () => {
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(isSuperAdmin).mockResolvedValue(true);
     vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+    routeMocks.target.mockResolvedValue({
+      id: 'user-1',
+      email: 'old@example.com',
+      profile: { role: 'member' },
+      userRoles: [],
+    });
+    routeMocks.updateMany.mockResolvedValue({ count: 1 });
+    routeMocks.findProfile.mockResolvedValue({ role: 'member' });
     vi.mocked(updateUserById).mockResolvedValue({ error: null });
+  });
+
+  it.each([
+    { profile: { role: 'super_admin' }, userRoles: [] },
+    { profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  ])('prevents an ordinary org admin changing a privileged login email when role is omitted: %j', async (roles) => {
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+    routeMocks.target.mockResolvedValue({ id: 'user-1', email: 'old@example.com', ...roles });
+
+    const res = await PATCH(
+      patchReq({ fullName: 'Privileged User', email: 'new@example.com' }),
+      { params: Promise.resolve({ id: 'user-1' }) },
+    );
+
+    expect(res.status).toBe(403);
+    expect(updateUserById).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('preserves ordinary same-tenant member administration with role omitted', async () => {
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+
+    const res = await PATCH(
+      patchReq({ fullName: 'User One', email: 'new@example.com' }),
+      { params: Promise.resolve({ id: 'user-1' }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(updateUserById).toHaveBeenCalledOnce();
+    expect(prisma.$transaction).toHaveBeenCalledOnce();
+  });
+
+  it('preserves explicit super-admin authority over a privileged target', async () => {
+    routeMocks.target.mockResolvedValue({
+      id: 'user-1', email: 'old@example.com',
+      profile: { role: 'super_admin' }, userRoles: [],
+    });
+
+    const res = await PATCH(
+      patchReq({ fullName: 'Privileged User', email: 'new@example.com' }),
+      { params: Promise.resolve({ id: 'user-1' }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(updateUserById).toHaveBeenCalledOnce();
+  });
+
+  it('does not touch Auth when the tenant-scoped target is absent', async () => {
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+    routeMocks.target.mockResolvedValue(null);
+
+    const res = await PATCH(
+      patchReq({ fullName: 'Other Tenant', email: 'other@example.com' }),
+      { params: Promise.resolve({ id: 'user-1' }) },
+    );
+
+    expect(res.status).toBe(404);
+    expect(updateUserById).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('rolls Supabase email back when the database transaction fails after auth update', async () => {

@@ -1,0 +1,6 @@
+{
+  "repository": "mabrown040/workforceap-beta",
+  "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
+  "reviewDate": "2026-09-12",
+  "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
+}

@@ -1,0 +1,158 @@
+# Architecture
+
+This is a source-backed map of the current application and its delivery context. The [baseline](audit-baseline.json) records the reviewed revision. Provider configuration and live deployment observations need their own receipts. The diagrams summarize relationships; [generated imports](generated/imports.json) and [the complete file catalog](generated/README.md) provide the detailed navigation.
+
+## System context
+
+```mermaid
+flowchart TB
+  subgraph People[Product users]
+    Public[Public visitors and applicants]
+    Member[Members]
+    Staff[Counselors and administrators]
+    Business[Employers and partners]
+  end
+  subgraph App[Workforce AP on Vercel]
+    Next[Next.js dynamic journeys and portals]
+    Astro[Built Astro static output in public]
+    API[API route handlers]
+    Domain[Domain libraries and policy helpers]
+    Jobs[Scheduled jobs and webhook handlers]
+    Next --> API
+    Astro --> API
+    Next --> Domain
+    API --> Domain
+    Jobs --> Domain
+  end
+  People --> Next
+  Public --> Astro
+  Cron[Vercel cron scheduler] --> Jobs
+  Auth[Supabase Auth] <--> Next
+  Auth <--> API
+  Domain --> Prisma[Prisma and tenant-scoped data access]
+  Prisma --> DB[(Supabase PostgreSQL)]
+  Domain --> Storage[Supabase Storage]
+  Domain --> Email[Resend email]
+  Domain --> AI[Text AI providers]
+  Domain --> Voice[ElevenLabs voice sessions]
+  Domain --> Payments[Stripe billing and Connect]
+  Domain --> Training[Coursera APIs]
+  Training --> Jobs
+  Payments --> Jobs
+  Domain --> Channels[Discord and Web Push]
+  Next --> Telemetry[Sentry and Vercel telemetry]
+  API --> Telemetry
+```
+
+Anchors: [root layout](../../app/layout.tsx), [Astro routing/build configuration](../../marketing/astro.config.mjs), [API handlers](generated/routes.md), [database client](../../lib/db/prisma.ts), [provider map](integrations.md), [scheduled jobs](generated/crons.md), [instrumentation](../../instrumentation.ts). An API or provider shown here is an implemented integration, not a guarantee that its credentials or every feature are enabled in a given environment.
+
+The codebase combines static Astro marketing output with dynamic Next routes. Locale-prefixed URLs are rewritten internally by [middleware](../../middleware.ts); there is no `app/[locale]` directory. The older i18n design document still names former Next public-page locations, so use the current route catalog and source when locating a public URL. Static assets do not traverse the Next root layout in the same way as server-rendered application pages.
+
+## Request and authorization boundaries
+
+```mermaid
+flowchart LR
+  Browser[Browser request] --> Middleware[Middleware: locale, headers and session handling]
+  Middleware --> Render[Node layout and portal guards]
+  Middleware --> Route[API route and endpoint-specific guard]
+  Render --> Identity[Verified user, roles and organization]
+  Route --> Identity
+  Identity --> Scope[Actor or authorized subject tenant scope]
+  Scope --> Service[Domain operation]
+  Service --> Transaction[Prisma transaction when required]
+  Transaction --> Postgres[(PostgreSQL)]
+  Service --> External[External provider operation]
+  Service --> Audit[Application audit and event records]
+```
+
+Read [middleware.ts](../../middleware.ts), [authentication](../../lib/auth/server.ts), [roles](../../lib/auth/roles.ts), [portal guards](../../lib/auth/portalGuards.ts), [tenant proxy](../../lib/tenant/withTenantScope.ts), [organization resolution](../../lib/tenant/organization.ts), and [request GUC helpers](../../lib/db/withRequestGuc.ts).
+
+The application has several independent controls. A verified Supabase session identifies the caller. Application roles decide permitted actions. Actor/subject organization checks constrain the data. GUC context transports database identity where enabled. These controls are not interchangeable: the current Prisma client disables the GUC layer unless `WAP_RLS_GUC_ENABLED=true`, and its comments describe a staged RLS rollout. Static source cannot establish the live database role, `FORCE ROW LEVEL SECURITY`, or deployed flag values. See [data and trust boundaries](data.md).
+
+## Application and enrollment flow
+
+```mermaid
+sequenceDiagram
+  participant Applicant
+  participant API as Apply signup route
+  participant Auth as Supabase Auth
+  participant DB as Application database
+  participant Email as Resend
+  Applicant->>API: Validated signup, program and referral data
+  API->>API: Rate limits, conditional captcha, tenant and program checks
+  API->>Auth: Sign up identity
+  Auth-->>API: Identity and session result
+  API->>DB: Transactional user, profile, application and enrollment work
+  DB-->>API: Application result
+  API->>Email: Receipt path and deferred staff or partner notifications
+  API-->>Applicant: Success, confirmation state, or recoverable error
+```
+
+The actual branches are in [apply signup](../../app/api/apply/signup/route.ts). The identity service and application database are separate systems: a database failure after signup is not automatically a rolled-back Supabase account. Follow the route's explicit recovery behavior. Program choices come from the code catalog and curriculum logic, while tenant catalogs and enrollment rows control assignment/visibility. Guardian consent is a separate tokenized route and a prerequisite for relevant minor training activation; recovery work is tracked in [technical debt](technical-debt.md), with its detailed reproducer retained privately.
+
+## Training and progress flow
+
+```mermaid
+flowchart TB
+  Catalog[Program catalog and curriculum version] --> Enrollment[CourseEnrollment assignment]
+  Enrollment --> Gate[Approval, identity and guardian-consent checks]
+  Gate --> Coursera[Coursera enrollment and learning]
+  Coursera --> Inbound[xAPI ingestion and API synchronization]
+  Scheduler[Scheduled sync and replay] --> Inbound
+  Inbound --> Identity[Actor identity and tenant resolution]
+  Identity --> Statements[XapiStatement and provider progress records]
+  Statements --> Progress[Normalized course and program progress]
+  Progress --> Dashboard[Member and staff projections]
+  Progress --> Completion[Course completion and workflow effects]
+  Completion --> Notify[Notification and email helpers]
+```
+
+Anchors: [curriculum assignment](../../lib/member/curriculumAssignment.ts), [Coursera libraries](../../lib/coursera), [xAPI pipeline](../../lib/xapi/inboundStatementPipeline.ts), [course completion](../../lib/member/courseCompletion.ts), and [Coursera enrollment flow](../COURSERA-ENROLLMENT-FLOW.md). API polling, xAPI delivery and replay are different entry paths into shared progress logic. Inspect delegated helpers when changing a cron; counting route-local email calls misses downstream sends.
+
+## Communication and asynchronous work
+
+```mermaid
+flowchart LR
+  Trigger[User action, webhook or scheduled job] --> Domain[Domain operation]
+  Domain --> Notification[(Notification record)]
+  Domain --> EmailPolicy[Branded email and recipient policy]
+  EmailPolicy --> Resend[Resend]
+  Notification --> Push[Web Push]
+  Notification --> Discord[Discord summary]
+  Cron[Configured bulk cron] --> Pace[Run pacing, deadline and outcome accounting]
+  Pace --> Domain
+  Outcomes[Delivery results and errors] --> Logs[CronExecution, logs and Sentry]
+  Resend --> Outcomes
+  Push --> Outcomes
+  Discord --> Outcomes
+```
+
+The diagram separates database persistence from external delivery. Retry, deduplication, fixture suppression and request-lifetime handling must be checked at their actual implementation points. [Notification creation](../../lib/notifications/create.ts), [email transport](../../lib/email/send.ts), [email helpers](../../lib/email.ts), [Discord](../../lib/notify/discord.ts) and [the job catalog](generated/crons.md) are the entry points. WAP-14's active PR must be incorporated into the final baseline before these notes are treated as its released behavior.
+
+## Delivery and developer orchestration
+
+```mermaid
+flowchart LR
+  Developer[Developer or cloud or local agent] --> Branch[Isolated branch and PR]
+  Hermes[Hermes and AO ownership coordination] --> Branch
+  Branch --> CI[Repository checks and independent review]
+  CI --> Merge[Authorized guarded merge]
+  Merge --> Vercel[Vercel build routing]
+  Vercel --> Preview[Preview build and development data]
+  Vercel --> Astro[Astro build copied into public]
+  Astro --> Preview
+  Astro --> Production
+  Vercel --> Production[Production build and migration preflight]
+  Production --> Release[Deployed revision and health acceptance]
+  Release --> Memory[Git documentation and GBrain source pointers]
+```
+
+Anchors: [workflows](../../.github/workflows), [Vercel configuration](../../vercel.json), [build router](../../scripts/vercel-build.cjs), [deployment checklist](../DEPLOYMENT-CHECKLIST.md), [operating lanes](../two-lanes.md). The router first validates `VERCEL_ENV` and selects the build command, then compiles Astro, copies its output into `public/`, and runs the selected Next build; the [operations diagram](operations.md#build-routing) shows the exact sequence. Astro's presence in the build does not establish which overlapping URL serves which implementation. AO, Hermes, Cursor, OpenClaw and the homelab are development/control-plane context. They are not the Vercel application's web-serving tier. A website deploy also does not apply an ElevenLabs agent patch.
+
+## Complete machine diagrams
+
+- [All declared Prisma relationships, Mermaid source](generated/database-relations.mmd): every model and relation field, including inverse relationships.
+- [All indexed area-to-area static import relationships, Mermaid source](generated/area-dependencies.mmd).
+- [Prisma fields, enums and source locations](generated/models.json), [every import reference](generated/imports.json), and [all route/layout files](generated/routes.json).
+
+These exhaustive diagrams are supplied as separate artifacts because the full database and dependency network is too dense for the orientation view. Relation declarations do not enumerate migration-only SQL policies/triggers; static import edges do not capture runtime callbacks, HTTP calls or computed imports.

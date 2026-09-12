@@ -1,0 +1,161 @@
+# Operations
+
+This reference describes the checked-in operating paths reviewed on 2026-09-12. It does not establish the current deployed SHA, provider configuration, backup availability, or successful delivery. Start with [AGENTS.md](../../AGENTS.md), the [deployment checklist](../DEPLOYMENT-CHECKLIST.md), and [database recovery](../DATABASE-RECOVERY.md) for release work. Provider entry points are in [integrations](integrations.md).
+
+## Enter by task
+
+| Task | Start here |
+| --- | --- |
+| Run a local checkout | [Install and development](#install-and-development) |
+| Diagnose a failing PR | [Checks and CI](#checks-and-ci), [CI workflow](../../.github/workflows/ci-gate.yml#L14) |
+| Prepare a preview or production release | [Build routing](#build-routing), [Supabase scoping](../STAGING_ENV.md) |
+| Investigate migration or rollback trouble | [Database and rollback](#database-and-rollback) |
+| Investigate missed scheduled work | [Scheduled work](#scheduled-work), [cron registry](../../lib/admin/cronRegistry.ts) |
+| Investigate a healthy probe alongside broken pages | [Health and observability](#health-and-observability) |
+| Hand work between cloud and local agents | [Execution ownership](#provisioning-names-and-execution-ownership) |
+
+## Install and development
+
+The root is a Next.js application; `marketing/` is a separate Astro package whose output is included in the Vercel build. Root [package.json](../../package.json#L5) selects `pnpm@10.34.3`; [CI uses Node 22](../../.github/workflows/ci-gate.yml#L41). The root has no `engines` declaration. Use the CI major and the selected package manager when reproducing a failure. Marketing uses its own [package-lock.json](../../marketing/package-lock.json), React 18 and Astro; the root uses [pnpm-lock.yaml](../../pnpm-lock.yaml), React 19 and Next. A root install does not install marketing dependencies.
+
+```bash
+# From the repository root; installs run the Prisma generation postinstall.
+corepack pnpm@10.34.3 install --frozen-lockfile
+npm --prefix marketing ci --no-audit --no-fund
+npm run dev
+```
+
+`npm run dev` starts Next on the usual local port. `npm --prefix marketing run dev` starts the separate Astro development surface. For a complete build fixture, follow the [marketing build/copy steps](../DEPLOYMENT-CHECKLIST.md#pre-deploy-local); generated `marketing/dist` and staged `public` output are not source changes to commit. [copyMarketingBuild](../../scripts/vercel-build.cjs#L28) overlays the Astro output into `public`.
+
+The shared [Prisma environment wrapper](../../scripts/ensure-prisma-env.cjs#L8) reads `.env`, falls back from `DATABASE_URL` to the two Prisma connection names, and supplies placeholders when no database is configured. Next reads its normal environment files, including `.env.local`. Provision these through the approved secret channel; keep the intended target consistent between commands and the server. No values belong in this reference.
+
+Generation/build success with placeholder URLs does not prove runtime database access. [The root layout](../../app/layout.tsx) resolves the default organization through [organization.ts](../../lib/tenant/organization.ts), so rendering Next pages requires reachable Postgres and the seeded default organization. Root [AGENTS.md](../../AGENTS.md#environment-notes) documents the Cursor Cloud PostgreSQL service and disposable fixture setup. Use `db:push` and `db:seed` only for disposable development fixtures under that procedure: they are not a complete recreation of migration-only RLS, functions or triggers. Do not substitute production when the demo or local fixture is unavailable.
+
+## Checks and CI
+
+The commands are defined in [package.json](../../package.json#L6); the table distinguishes what they establish.
+
+| Command | Contract |
+| --- | --- |
+| `npm run typecheck` | TypeScript without emitting application output. |
+| `npm run lint` | ESLint; also enforced by [Next build configuration](../../next.config.ts#L55). |
+| `npm run test:unit` | Node library lane. [test-unit.mjs](../../scripts/test-unit.mjs#L35) logs explicit Vitest, server-only and real-DB delegations/skips. `npm test` runs only this lane. |
+| `npm run test:vitest` | Component/API suites and registered library suites. [vitest.config.ts](../../vitest.config.ts#L9) and [the shared registry](../../scripts/vitest-library-specs.mjs) determine collection; [coverage ownership tests](../../tests/test-runner-coverage.test.ts) protect it. Run both lanes. |
+| `npm run test:e2e` | Playwright journeys; requires the appropriate running application, fixtures and credentials. Review [playwright.config.ts](../../playwright.config.ts) before choosing a target. |
+| `npm run build:local` | Font check, Prisma generation and Next compilation. Does not apply migrations or automatically build marketing. |
+| `npm run build` | Adds the Supabase target guard to the normal Next build. Does not run production migrations. |
+| `node scripts/verify-pdf-deployment.mjs` | After a fresh build, checks the dynamic PDF assets in emitted route traces; source-only parser tests cannot establish serverless packaging. |
+
+[Required CI](../../.github/workflows/ci-gate.yml#L3) runs on PRs and pushes to `master`, plus manual dispatch; concurrent runs for the same ref are canceled. It performs root frozen install, marketing `npm ci`/build/copy, Prisma generation, typecheck, font verification, Node tests, lint, Vitest, tenant-route verification, Next build and PDF deployment verification. Knip is report-only. CI uses declared dummy configuration and does not establish real provider access or production migration readiness.
+
+Additional workflows have separate meanings:
+
+- [Locked Product Stakes](../../.github/workflows/locked-product-stakes.yml#L29) checks specific protected product files for approval or the conservative i18n bypass.
+- [Coursera Catalog Placeholders](../../.github/workflows/coursera-catalog-placeholders.yml) enforces its source-script baseline; it is not a live catalog check.
+- [Authenticated Portal Smoke](../../.github/workflows/authenticated-portal-smoke.yml#L24) is manual, restricted to trusted `master`, checks deployed version against its checkout, and separates five-role isolated-preview coverage from non-staff production canaries. Target and role credentials are workflow secrets; inspect its mode before invocation.
+- [FORCE RLS Shadow Rehearsal](../../.github/workflows/force-rls-shadow.yml#L21) is manual and report-only against a disposable PostgreSQL service. Its existence does not prove production RLS correctness.
+- [deploy.yml](../../.github/workflows/deploy.yml#L1) is a disabled historical self-hosted deployment workflow.
+
+## Build routing
+
+[vercel.json](../../vercel.json#L2) delegates to `npm run build:vercel`. Its ignored-build expression allows production and preview branch names matching `feature/portal-*`, `feature/astro-*`, `claude/*`, or `codex/*`; other non-production refs are skipped by that expression. Verify actual project settings when releasing: this file alone does not prove a deployment ran.
+
+```mermaid
+flowchart TD
+  Git[Eligible Vercel Git build] --> Validate{Recognized VERCEL_ENV}
+  Validate -->|other or unset| Reject[Reject before build work]
+  Validate -->|production or preview| Marketing[Marketing npm ci and Astro build]
+  Marketing --> Copy[Copy marketing dist into public]
+  Copy --> Env{Selected environment}
+  Env -->|production| Prod[build:with-migrate]
+  Env -->|preview| Preview[build:preview]
+  Prod --> Guard[Supabase target guard and font check]
+  Guard --> Migrate[Historical recovery commands then safe-migrate]
+  Migrate --> Next[Prisma generation and Next build]
+  Preview --> PGuard[Supabase target guard and Prisma generation]
+  PGuard --> Narrow[Three targeted demo schema bootstraps]
+  Narrow --> Next
+```
+
+The routing authority is [vercel-build.cjs](../../scripts/vercel-build.cjs#L7) plus [package scripts](../../package.json#L8), not a generic `npm run build` assumption. The orchestrator's `--check` only checks environment routing; it does not validate a build.
+
+Production selects `build:with-migrate`: two named historical rollback-resolution commands, [safe-migrate](../../scripts/safe-migrate.cjs#L138), generation and compilation. Preview selects three narrow bootstraps: [approved curriculum](../../scripts/apply-preview-approved-curriculum-schema.cjs), [training workspace](../../scripts/apply-preview-training-workspace-schema.cjs), and [member lab](../../scripts/apply-preview-member-lab-schema.cjs). Each is tied to specific migration SQL and demo-target checks. These are not a general migration mechanism. The older prose in [STAGING_ENV.md](../STAGING_ENV.md#migration-routing) names only the original curriculum bootstrap; use the current package script for the complete list.
+
+## Database and rollback
+
+[The Supabase guard](../../scripts/check-supabase-env.mjs#L23) requires explicit recognized public, pooled and direct URLs on Vercel; Vercel's CI flag cannot bypass it. [The shared validator](../../scripts/lib/supabase-project-guard.cjs#L69) owns environment-to-project mapping. Preview/development use the demo project; production uses the production project. [Prisma](../../prisma/schema.prisma#L12) uses `POSTGRES_PRISMA_URL` at runtime and `POSTGRES_URL_NON_POOLING` for direct operations. `DATABASE_URL` is a wrapper fallback, not a replacement for Vercel's required explicit names.
+
+Before a release, follow [existing-database preflight](../DATABASE-RECOVERY.md#preflight-for-an-existing-database): identify target and release, inspect migration status and pending SQL against actual objects, confirm backup/restore evidence, and record schema compatibility. Let the configured production build run migration once. Do not run a second migration concurrently.
+
+Clean historical migration replay is **unsupported**. The [2026-09-09 recovery audit](../DATABASE-RECOVERY.md#what-the-recovery-audit-proved) reproduced both a duplicate `partner_users` table and a later foreign-key dependency on not-yet-created `subgroups`. More blockers may exist. Preserve historical filenames, SQL bytes and recorded checksums. Neither appending migrations nor resolving successive failures is a fresh-database recovery plan.
+
+[safe-migrate](../../scripts/safe-migrate.cjs#L141) propagates a failed deployment and does not automatically resolve unknown failures. Its explicit `--force-resolve` skips schema-integrity checks. A `--rolled-back` marker does not undo SQL. The [two recovery runners](../../scripts/resolve-failed-migration.cjs) remain part of the production script for specific historical incidents, not permission to bypass current migration failures.
+
+A failed build can already have changed the database before compilation fails. A Vercel application rollback changes the application artifact, not Postgres. Confirm the old app supports the current schema; otherwise prepare a specific forward repair or reviewed recovery. [Backup observations](../DATABASE-RECOVERY.md#backup-evidence-and-limits) are dated evidence, not proof of current availability, a restore rehearsal, guaranteed recovery time, or PITR. Recheck and rehearse in isolation before choosing a production recovery.
+
+## Scheduled work
+
+[vercel.json](../../vercel.json#L4) is the schedule authority, with 30 declared entries at this review. Expressions below are the checked-in cron expressions (UTC). A route existing in `app/api/cron` does not mean it is scheduled. Provider dashboard state and execution records must be checked separately to establish that jobs ran.
+
+| Scheduled route | Cron expression (UTC) |
+| --- | --- |
+| [/api/cron/applicant-followup](../../app/api/cron/applicant-followup/route.ts#L1) | `0 11 */3 * *` |
+| [/api/cron/at-risk-alerts](../../app/api/cron/at-risk-alerts/route.ts#L1) | `0 13 * * 1` |
+| [/api/cron/at-risk-check](../../app/api/cron/at-risk-check/route.ts#L1) | `0 6 * * *` |
+| [/api/cron/coursera-auto-heal](../../app/api/cron/coursera-auto-heal/route.ts#L1) | `15 * * * *` |
+| [/api/cron/coursera-b4b-sync](../../app/api/cron/coursera-b4b-sync/route.ts#L1) | `30 */6 * * *` |
+| [/api/cron/coursera-sync](../../app/api/cron/coursera-sync/route.ts#L1) | `0 */6 * * *` |
+| [/api/cron/coursera-training-sync](../../app/api/cron/coursera-training-sync/route.ts#L1) | `0 * * * *` |
+| [/api/cron/course-accountability](../../app/api/cron/course-accountability/route.ts#L1) | `0 15 * * *` |
+| [/api/cron/data-cleanup](../../app/api/cron/data-cleanup/route.ts#L1) | `30 7 * * *` |
+| [/api/cron/deploy-health](../../app/api/cron/deploy-health/route.ts#L1) | `0 * * * *` |
+| [/api/cron/inactive-nudge](../../app/api/cron/inactive-nudge/route.ts#L1) | `0 10 * * 1` |
+| [/api/cron/inactivity-nudge](../../app/api/cron/inactivity-nudge/route.ts#L1) | `0 10 * * 3` |
+| [/api/cron/interview-reminders](../../app/api/cron/interview-reminders/route.ts#L1) | `30 14 * * *` |
+| [/api/cron/onboarding-stalls](../../app/api/cron/onboarding-stalls/route.ts#L1) | `30 15 * * 2` |
+| [/api/cron/employer-pending-applicants](../../app/api/cron/employer-pending-applicants/route.ts#L1) | `0 16 * * 2` |
+| [/api/cron/job-expiry](../../app/api/cron/job-expiry/route.ts#L1) | `45 7 * * *` |
+| [/api/cron/retention-decisions](../../app/api/cron/retention-decisions/route.ts#L1) | `30 13 * * 4` |
+| [/api/cron/job-alerts](../../app/api/cron/job-alerts/route.ts#L1) | `0 9 * * 1` |
+| [/api/cron/milestone-cascade-draft](../../app/api/cron/milestone-cascade-draft/route.ts#L1) | `0 * * * *` |
+| [/api/cron/milestone-cascade-expire](../../app/api/cron/milestone-cascade-expire/route.ts#L1) | `0 9 * * *` |
+| [/api/cron/milestone-celebration](../../app/api/cron/milestone-celebration/route.ts#L1) | `0 11 * * *` |
+| [/api/cron/partner-outcome-digest](../../app/api/cron/partner-outcome-digest/route.ts#L1) | `0 13 * * 1` |
+| [/api/cron/placement-survey](../../app/api/cron/placement-survey/route.ts#L1) | `0 14 * * *` |
+| [/api/cron/smoke-test](../../app/api/cron/smoke-test/route.ts#L1) | `0 * * * *` |
+| [/api/cron/stale-training-check](../../app/api/cron/stale-training-check/route.ts#L1) | `30 12 * * *` |
+| [/api/cron/verification](../../app/api/cron/verification/route.ts#L1) | `0 11 * * *` |
+| [/api/cron/weekly-recap](../../app/api/cron/weekly-recap/route.ts#L1) | `0 18 * * 0` |
+| [/api/cron/weekly-recap-email](../../app/api/cron/weekly-recap-email/route.ts#L1) | `0 22 * * 5` |
+| [/api/cron/wioa-report](../../app/api/cron/wioa-report/route.ts#L1) | `0 14 1 * *` |
+| [/api/admin/webhooks/process-retries](../../app/api/admin/webhooks/process-retries/route.ts#L1) | `*/10 * * * *` |
+
+Most jobs use [withCronLogging](../../lib/cron/withCronLogging.ts#L20): authorize first, create a `CronExecution`, inspect the [workflow toggle](../../lib/cron/isCronEnabled.ts#L7), run with system GUC context, and record success/failure. A missing toggle defaults to enabled. [authorizeCronRequest](../../lib/cron/authorizeCronRequest.ts#L28) accepts `CRON_SECRET` via Bearer or `x-cron-secret`; its optional User-Agent compatibility mode is not the wrapper's default. [At-risk alerts](../../app/api/cron/at-risk-alerts/route.ts#L15) has its own secret comparison, [at-risk check](../../app/api/cron/at-risk-check/route.ts#L29) explicitly calls the shared helper, and [webhook retries](../../app/api/admin/webhooks/process-retries/route.ts#L20) accepts admin or cron authorization. Inspect the specific route before manually invoking it: these jobs can mutate state and send messages.
+
+**Notification refresh pending:** final delivery, retry and post-response guarantees must be refreshed after the parallel WAP14 / PR2258 change. Current entry points are [notification creation](../../lib/notifications/create.ts), [email sending](../../lib/email/send.ts), [Discord](../../lib/notify/discord.ts), [Web Push](../../lib/push/sendWebPush.ts), and [post-commit notification tests](../../tests/lib/admin-post-commit-notifications.spec.ts). A scheduled invocation or in-app record is not proof of external delivery.
+
+## Health and observability
+
+| Signal | Meaning and source |
+| --- | --- |
+| `GET /api/health` | Cheap process liveness; does not query Prisma. [Route](../../app/api/health/route.ts). |
+| `GET /api/health/ready` | Database/default-org readiness; 503 when that dependency fails. [Route](../../app/api/health/ready/route.ts). |
+| `GET /api/cron/smoke-test` | Authenticated seven-probe public/auth-boundary smoke; 503 and sanitized Sentry error when a probe fails. [Route](../../app/api/cron/smoke-test/route.ts). Does not log in as a member. |
+| `GET /api/admin/health` and `/api/health/slo` | Authenticated operational views. [Admin health](../../app/api/admin/health/route.ts), [SLO route](../../app/api/health/slo/route.ts). |
+| `cron/deploy-health` | Checks latest production deployment when Vercel API access works; otherwise reports degraded live-site fallback. [Handler](../../app/api/cron/deploy-health/route.ts#L13). A fallback 200 is not deployment-state proof. |
+
+[HEALTH-PROBES.md](../HEALTH-PROBES.md) explains why readiness and runtime timeout alerts matter even when liveness is green. Verify the actual changed journey as well as probes. The deployment checklist calls for post-release critical-flow checks, Sentry review and cron execution review.
+
+[instrumentation.ts](../../instrumentation.ts), [server Sentry](../../sentry.server.config.ts), [edge Sentry](../../sentry.edge.config.ts), and [browser instrumentation](../../instrumentation-client.ts) initialize the respective runtimes. DSN presence and production-mode gates control sending. [The scrubber](../../lib/observability/sentryScrubber.ts) and [captureApiError](../../lib/observability/captureApiError.ts) define server error handling. Browser replay masks text, inputs and media and has portal/audit controls; inspect the implementation before changing capture. [next.config.ts](../../next.config.ts#L322) configures release/source-map upload. DSNs alone do not establish functioning uploads or alert routing.
+
+Internal inspection starts with [workflow diagnostics](../../lib/diagnostics.ts), [cron executions](../../lib/cron/cronExecution.ts), [audit logging](../../lib/audit/log.ts), and the relevant admin page. Vercel runtime logs, deployment status and Sentry are separate signals; preserve target, SHA, timestamp and sanitized outcome in verification receipts.
+
+## Provisioning names and execution ownership
+
+Provision through scoped Vercel/Supabase settings and approved gitignored local configuration. The [environment reference](../ENVIRONMENT-VARIABLES.md) is a starting index; [current source](integrations.md) decides whether a feature uses a name. Core names are `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`, `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET`, `AUTH_TRUST_COOKIE_SECRET`, `PLACEMENT_SURVEY_TOKEN_SECRET`, `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Provider names are listed in [integrations](integrations.md). Never copy values into issues, evidence, docs or shell history.
+
+Rate-limit configuration is operationally significant: [rate-limit.ts](../../lib/rate-limit.ts#L25) can reject production startup without Upstash outside the build phase; the explicit missing-Upstash override and [per-path policy](../../lib/rate-limit-policy.ts) change behavior. CI's stub/bypass configuration must not be copied into a production provisioning recipe.
+
+[Two lanes](../two-lanes.md) owns handoffs: WorkforceAP app source, tests, migrations and deployment configuration belong in the application repository. Lab infrastructure and agent runtime belong in their separate lab repositories. GBrain owns shared operating memory/claims, Linear tasks and acceptance, and Hermes coordination; none is an in-app runtime dependency evidenced here. Cloud workers without a trusted lab connection prepare a PR and exact-commit handoff. The lab-connected executor needs its own authorized identity, network path, native tools and locally provisioned credentials. Git/provider access is not permission to change production or the lab.
+
+Record exact commit, target, preimage, scoped change, rollback compatibility and validation outcome. A successful process or commit is not end-to-end acceptance. The [root instructions](../../AGENTS.md) identify Squarespace as historical; [Caddyfile](../../Caddyfile), [DEPLOY.md](../../DEPLOY.md), and the disabled self-hosted workflow are legacy deployment material. `marketing/` itself is active in the current Vercel build, despite older instructions that can read like it is a separate deployment target.

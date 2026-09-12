@@ -3,7 +3,7 @@
  *
  * The ten stable WorkforceAP module identities come from the Executive
  * Director's supplied sequence. Provider destinations and labels were manually
- * verified against current DigitalLearn pages on 2026-09-11. WorkforceAP links
+ * verified against current DigitalLearn pages on 2026-09-12. WorkforceAP links
  * out; it does not iframe, copy, or rehost DigitalLearn videos.
  */
 
@@ -12,7 +12,7 @@ export const DIGITAL_LITERACY_PROGRAM_TITLE = 'Workforce AP Digital Literacy Cou
 export const DIGITALLEARN_HOME_URL = 'https://www.digitallearn.org/';
 export const DIGITALLEARN_COURSES_URL = 'https://www.digitallearn.org/courses';
 export const DIGITALLEARN_PROVIDER_NAME = 'DigitalLearn.org';
-export const DIGITALLEARN_VERIFIED_ON = '2026-09-11';
+export const DIGITALLEARN_VERIFIED_ON = '2026-09-12';
 export const DIGITALLEARN_TERMS_URL = 'https://training.digitallearn.org/terms_of_use';
 export const DIGITALLEARN_LICENSE_NAME = 'CC BY-NC-SA 4.0';
 export const DIGITALLEARN_LICENSE_URL = 'https://creativecommons.org/licenses/by-nc-sa/4.0/';

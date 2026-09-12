@@ -1,6 +1,6 @@
 # Workforce AP Digital Literacy Course (DigitalLearn.org pathway)
 
-_Added 9/3/26; provider links and truth labels verified 9/11/26._
+_Added 9/3/26; provider links and truth labels reverified 9/12/26._
 
 The Digital Literacy program is a free, beginner-friendly, online and
 self-paced WorkforceAP pathway. Its ten stable modules link to current
@@ -33,7 +33,7 @@ under 25 hours. The estimate does not claim measured attendance.
 
 ## Provider health and fallbacks
 
-Manual browser verification on 2026-09-11 treats an HTTP 200 page as unhealthy
+Manual browser verification on 2026-09-12 treats an HTTP 200 page as unhealthy
 when the application itself reports `Course failed to load: 404` or exposes no
 playable lesson rows.
 

@@ -41,7 +41,7 @@ test('destinations are current DigitalLearn pages or explicitly labeled material
     for (const lesson of pathwayModule.lessons) {
       assert.match(lesson.url, /^https:\/\/(?:www\.|training\.)digitallearn\.org\//, lesson.title);
       assert.ok(lesson.minutes > 0, lesson.title);
-      assert.match(lesson.verificationLabel, /2026-09-11/, lesson.title);
+      assert.match(lesson.verificationLabel, /2026-09-12/, lesson.title);
       if (lesson.destinationKind !== 'verified-course') {
         assert.match(lesson.verificationLabel, /fallback|no playable lesson rows/i, lesson.title);
       }
@@ -52,6 +52,10 @@ test('destinations are current DigitalLearn pages or explicitly labeled material
   const accounts = DIGITAL_LITERACY_MODULES.find((module) => module.key === 'accounts-and-passwords');
   assert.equal(accounts?.lessons[0]?.destinationKind, 'course-details-with-materials-fallback');
   assert.match(accounts?.lessons[0]?.verificationLabel ?? '', /no playable lesson rows/i);
+
+  const video = DIGITAL_LITERACY_MODULES.find((module) => module.key === 'video-conferencing-basics');
+  assert.equal(video?.lessons[0]?.destinationKind, 'course-details-with-materials-fallback');
+  assert.match(video?.lessons[0]?.verificationLabel ?? '', /no playable lesson rows/i);
 
   assert.ok(destinations.includes('https://www.digitallearn.org/courses/basics-of-video-conferencing'));
   assert.ok(destinations.includes('https://training.digitallearn.org/courses/video-conferencing-basics'));

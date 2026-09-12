@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it, test } from 'node:test';
 
-import { createBoundedPacer, createBulkEmailCronPacer } from '@/lib/email/pacing';
+import { createBoundedPacer, createBulkEmailCronPacer, currentBulkEmailDeadlineAtMs } from '@/lib/email/pacing';
 
 describe('createBoundedPacer', () => {
   it('shares one deterministic cadence across successive sends', async () => {
@@ -175,4 +175,21 @@ test('concurrent callers cannot reserve a slot at or beyond the shared deadline'
     { ok: true, waitedMs: 125 },
     { ok: false, reason: 'request_deadline_exhausted', requiredWaitMs: 125 },
   ]);
+});
+
+
+test('each admitted provider operation inherits the same cron retry deadline', async () => {
+  let nowMs = 5_000;
+  const pacer = createBulkEmailCronPacer({
+    maxDurationSeconds: 300,
+    reserveMs: 30_000,
+    startedAtMs: nowMs,
+    now: () => nowMs,
+    sleep: async (ms) => { nowMs += ms; },
+  });
+  const deadlines = await Promise.all([
+    pacer.run(async () => currentBulkEmailDeadlineAtMs()),
+    pacer.run(async () => currentBulkEmailDeadlineAtMs()),
+  ]);
+  assert.deepEqual(deadlines, [275_000, 275_000]);
 });

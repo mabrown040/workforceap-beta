@@ -54,7 +54,10 @@ async function handle(_request: Request) {
     take: 1000,
   });
 
-  let digestsSent = 0;
+  let notificationsCreated = 0;
+  let emailsAccepted = 0;
+  let emailsSkipped = 0;
+  let emailFailures = 0;
   for (const member of candidates) {
     if (!member.enrolledProgram) continue;
     try {
@@ -94,15 +97,17 @@ async function handle(_request: Request) {
         data: { link: '/dashboard/jobs', jobIds: jobs.map((j) => j.id) },
       });
 
+      notificationsCreated++;
       if (member.email) {
-        await emailPacer.run(() => sendJobAlertDigestEmail({
+        const delivery = await emailPacer.run(() => sendJobAlertDigestEmail({
           to: member.email,
           firstName: (member.fullName ?? '').trim().split(/\s+/)[0] || 'there',
           jobs: jobSummaries,
-        }).catch(() => { /* non-fatal — notification already sent */ }));
+        }));
+        if (delivery.ok) emailsAccepted++;
+        else if ('skipped' in delivery && delivery.skipped) emailsSkipped++;
+        else emailFailures++;
       }
-
-      digestsSent++;
     } catch (err) {
       captureApiError(err, { route: 'cron/job-alerts', extra: { userId: member.id } });
     }
@@ -112,11 +117,14 @@ async function handle(_request: Request) {
     ok: true,
     checkedAt: new Date().toISOString(),
     candidatesChecked: candidates.length,
-    digestsSent,
+    notificationsCreated,
+    emailsAccepted,
+    emailsSkipped,
+    emailFailures,
     sinceIso: since.toISOString(),
     emailPacing: emailPacer.summary(),
   };
-  await setCronRecordsProcessed(digestsSent);
+  await setCronRecordsProcessed(notificationsCreated);
   await logCronRun(JOB_NAME, runResult);
   return NextResponse.json(runResult);
 }

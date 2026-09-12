@@ -1,3 +1,7 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+
+const bulkEmailDeadlineStorage = new AsyncLocalStorage<number>();
+
 export interface BoundedPacerOptions {
   intervalMs: number;
   maxTotalWaitMs?: number;
@@ -119,10 +123,33 @@ export function createBulkEmailCronPacer(options: BulkEmailCronPacerOptions) {
         return { ok: false, skipped: true, error: pace.reason };
       }
       admitted++;
-      return operation();
+      return bulkEmailDeadlineStorage.run(deadlineAtMs, operation);
     },
     summary() {
       return { admitted, skipped, ...(skipReason ? { skipReason } : {}) };
     },
   };
+}
+
+
+type BulkEmailCronPacer = ReturnType<typeof createBulkEmailCronPacer>;
+const bulkEmailCronPacerStorage = new AsyncLocalStorage<BulkEmailCronPacer>();
+
+/** Scope delegated cron work to the invocation's one shared provider pacer. */
+export function withBulkEmailCronPacer<T>(
+  pacer: BulkEmailCronPacer,
+  operation: () => Promise<T>,
+): Promise<T> {
+  return bulkEmailCronPacerStorage.run(pacer, operation);
+}
+
+/** Pace a provider operation when reached through a scheduled delegated chain. */
+export async function runBulkEmailOperation<T>(operation: () => Promise<T>): Promise<T | BulkEmailPacingSkipped> {
+  const pacer = bulkEmailCronPacerStorage.getStore();
+  return pacer ? pacer.run(operation) : operation();
+}
+
+/** Shared retry deadline for delegated wrappers reached from a bulk cron. */
+export function currentBulkEmailDeadlineAtMs(): number | undefined {
+  return bulkEmailCronPacerStorage.getStore()?.deadlineAtMs ?? bulkEmailDeadlineStorage.getStore();
 }

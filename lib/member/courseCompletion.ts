@@ -20,6 +20,7 @@ import {
   detectMilestoneTransitions,
 } from '@/lib/coursera/milestones';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import { runBulkEmailOperation } from '@/lib/email/pacing';
 
 export async function completeMemberCourse(args: {
   userId: string;
@@ -210,15 +211,23 @@ export async function completeMemberCourse(args: {
     courseSlugJustCompleted: matchedCourse.slug,
   });
   if (shouldNotify) {
-    sendPartnerMilestoneEmail(args.userId, 'Course completed', {
-      Course: matchedCourse.name,
-    }).catch((error) => console.error('Partner milestone email failed:', error));
+    const partnerDelivery = await runBulkEmailOperation(() =>
+      sendPartnerMilestoneEmail(args.userId, 'Course completed', {
+        Course: matchedCourse.name,
+      }),
+    );
+    if (partnerDelivery && typeof partnerDelivery === 'object' && 'skipped' in partnerDelivery) {
+      console.warn('[course-completion] partner email skipped by cron pacing deadline');
+    }
 
-    sendCourseCompletedEmail({
+    const memberDelivery = await runBulkEmailOperation(() => sendCourseCompletedEmail({
       to: dbUser.email,
       fullName: dbUser.fullName,
       courseName: matchedCourse.name,
-    }).catch((error) => console.error('Course completed email failed:', error));
+    }));
+    if (memberDelivery && typeof memberDelivery === 'object' && 'skipped' in memberDelivery && memberDelivery.skipped) {
+      console.warn('[course-completion] member email skipped before provider acceptance');
+    }
 
     await createNotification({
       userId: args.userId,

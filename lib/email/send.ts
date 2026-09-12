@@ -25,6 +25,7 @@ import type { Resend } from 'resend';
 
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { buildUnsubscribeUrl } from '@/lib/email/unsubscribeToken';
+import { currentBulkEmailDeadlineAtMs } from '@/lib/email/pacing';
 
 const RESEND_MAX_ATTEMPTS = 3;
 const RESEND_RETRY_BASE_DELAY_MS = 500;
@@ -42,6 +43,8 @@ export interface SendBrandedEmailRetryOptions {
   random?: () => number;
   /** Shared caller deadline; no provider retry sleep may cross it. */
   deadlineAtMs?: number;
+  /** Caller owns an awaited equivalent diagnostic; prevents duplicate writes. */
+  suppressFailureDiagnostic?: boolean;
 }
 
 export const UNSUBSCRIBE_ADDRESS =
@@ -302,7 +305,9 @@ export async function sendBrandedEmail(
         await sleep(delayMs);
         continue;
       }
-      recordEmailFailure(args, err instanceof Error ? err.message : 'Send threw');
+      if (!retryOptions.suppressFailureDiagnostic) {
+        recordEmailFailure(args, err instanceof Error ? err.message : 'Send threw');
+      }
       throw err;
     }
 
@@ -321,7 +326,7 @@ export async function sendBrandedEmail(
       continue;
     }
     const message = result.error.message ?? result.error.name ?? 'Resend API error';
-    recordEmailFailure(args, message);
+    if (!retryOptions.suppressFailureDiagnostic) recordEmailFailure(args, message);
     throw new Error(message);
   }
   throw new Error('Resend retry budget exhausted');
@@ -334,7 +339,10 @@ export async function sendBrandedEmailOrThrowOnSkip(
   args: SendBrandedEmailArgs,
   retryOptions: SendBrandedEmailRetryOptions = {},
 ): Promise<Awaited<ReturnType<Resend['emails']['send']>>> {
-  const result = await sendBrandedEmail(resend, args, retryOptions);
+  const result = await sendBrandedEmail(resend, args, {
+    ...retryOptions,
+    deadlineAtMs: retryOptions.deadlineAtMs ?? currentBulkEmailDeadlineAtMs(),
+  });
   if ('skipped' in result) throw new FixtureRecipientSkippedError();
   return result;
 }

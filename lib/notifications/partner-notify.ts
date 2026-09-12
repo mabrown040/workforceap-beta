@@ -2,13 +2,21 @@ import { Resend } from 'resend';
 import { prisma } from '@/lib/db/prisma';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { FixtureRecipientSkippedError, sendBrandedEmailOrThrowOnSkip } from '@/lib/email/send';
 
 /** Surface provider rejections and persist safe metadata before returning. */
 async function sendPartnerEmail(resend: Resend, args: { from: string; to: string; subject: string; text: string }): Promise<void> {
   try {
-    const result = await resend.emails.send(args);
-    if (result.error) throw new Error(result.error.message || 'Email provider rejected the message.');
+    await sendBrandedEmailOrThrowOnSkip(
+      resend,
+      {
+        ...args,
+        html: `<p>${args.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br />')}</p>`,
+      },
+      { suppressFailureDiagnostic: true },
+    );
   } catch (error) {
+    if (error instanceof FixtureRecipientSkippedError) return;
     await recordWorkflowDiagnostic({
       workflow: 'email_send', status: 'error', provider: 'resend',
       summary: `Partner email send failed: "${args.subject}"`,

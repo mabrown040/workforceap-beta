@@ -865,6 +865,29 @@ describe('escalateStalePlacementSurveys', () => {
     );
   });
 
+  it('keeps a fixture-suppressed escalation out of alerted, failures, and delivery stamps', async () => {
+    const { escalateStalePlacementSurveys } = (await vi.importActual(
+      '@/lib/cron/placement-surveys'
+    )) as typeof import('@/lib/cron/placement-surveys');
+    vi.mocked(prisma.placementSurvey.findMany).mockResolvedValue([{
+      id: 'survey-fixture',
+      sentAt: new Date(Date.now() - 8 * 86_400_000),
+      wave: 'thirty_day',
+      user: {
+        id: 'fixture-user', fullName: 'Fixture', email: 'fixture@example.com',
+        counselorAssignments: [{ counselor: { user: { id: 'counselor-1', email: 'counselor@example.com', fullName: 'Counselor' } } }],
+      },
+      placement: { employerName: 'Acme', jobTitle: 'Dev', startDate: new Date() },
+    }] as any);
+    vi.mocked(sendPlacementSurveyEscalationEmail).mockResolvedValue({ ok: false, skipped: true, error: 'fixture_recipient' });
+
+    const result = await escalateStalePlacementSurveys();
+    expect(result.alerted).toEqual([]);
+    expect(result.emailFailures).toEqual([]);
+    expect(result.skipped).toEqual([{ userId: 'fixture-user', reason: 'fixture_recipient' }]);
+    expect(prisma.placementSurvey.update).not.toHaveBeenCalled();
+  });
+
   it('does not duplicate alerts (escalatedAt prevents re-processing)', async () => {
     const { escalateStalePlacementSurveys } = (await vi.importActual(
       '@/lib/cron/placement-surveys'

@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   claimCompletionEvent: vi.fn(),
   recordXapiEvent: vi.fn(),
   markProcessed: vi.fn(),
+  runEmail: vi.fn(),
 }));
 
 vi.mock('server-only', () => ({}));
@@ -111,6 +112,9 @@ vi.mock('@/lib/xapi/mappings', () => ({
 vi.mock('@/lib/xapi/storage', () => ({
   markXapiStatementProcessed: mocks.markProcessed,
 }));
+vi.mock('@/lib/email/pacing', () => ({
+  runBulkEmailOperation: mocks.runEmail,
+}));
 vi.mock('@/lib/notifications/partner-notify', () => ({
   sendPartnerMilestoneEmail: mocks.sendPartnerMilestoneEmail,
 }));
@@ -144,6 +148,7 @@ describe('first xAPI course completion orchestration', () => {
     mocks.detectTrainingMilestone.mockResolvedValue(undefined);
     mocks.recordXapiEvent.mockResolvedValue(undefined);
     mocks.markProcessed.mockResolvedValue(undefined);
+    mocks.runEmail.mockImplementation(async (operation) => operation());
     mocks.markCompleted.mockImplementation(async () => {
       const wasCompleted = mocks.completionStatus === 'COMPLETED';
       mocks.completionStatus = 'COMPLETED';
@@ -193,6 +198,7 @@ describe('first xAPI course completion orchestration', () => {
     });
 
     expect(mocks.sendCourseCompletedEmail).toHaveBeenCalledTimes(1);
+    expect(mocks.runEmail).toHaveBeenCalledTimes(2);
     expect(mocks.awardPoints).toHaveBeenCalledWith(
       'member-1',
       'course_completed',

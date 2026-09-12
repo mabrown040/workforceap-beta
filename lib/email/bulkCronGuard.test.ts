@@ -14,6 +14,8 @@ const scheduledEmailInventory = {
   '/api/cron/at-risk-alerts': { kind: 'bulk', helpers: ['lib/cron/at-risk-alerts.ts'] },
   '/api/cron/at-risk-check': { kind: 'single', helpers: [], reason: 'one digest request with all configured recipients' },
   '/api/cron/course-accountability': { kind: 'bulk', helpers: [] },
+  '/api/cron/coursera-auto-heal': { kind: 'bulk', helpers: ['lib/xapi/reprocess.ts', 'lib/coursera/replayPendingXapi.ts', 'lib/xapi/inboundStatementPipeline.ts', 'lib/member/courseCompletion.ts', 'lib/notifications/partner-notify.ts', 'lib/xapi/mappings.ts'] },
+  '/api/cron/coursera-training-sync': { kind: 'bulk', helpers: ['lib/coursera/replayPendingXapi.ts', 'lib/xapi/inboundStatementPipeline.ts', 'lib/member/courseCompletion.ts', 'lib/notifications/partner-notify.ts', 'lib/xapi/mappings.ts'] },
   '/api/cron/inactive-nudge': { kind: 'bulk', helpers: [] },
   '/api/cron/inactivity-nudge': { kind: 'bulk', helpers: [] },
   '/api/cron/interview-reminders': { kind: 'bulk', helpers: [] },
@@ -53,7 +55,7 @@ function recursivelyFindScheduledEmailCalls(entrypoint: string): string[] {
     const source = readFileSync(path, 'utf8');
     if (emailCallPattern.test(source)) found.push(path);
     emailCallPattern.lastIndex = 0;
-    for (const match of source.matchAll(/from\s+['"]@\/(lib\/(?:cron|member|milestoneCascade)\/[^'"]+)['"]/g)) {
+    for (const match of source.matchAll(/from\s+['"]@\/(lib\/(?:cron|member|milestoneCascade|coursera|xapi|notifications)\/[^'"]+)['"]/g)) {
       const modulePath = match[1];
       for (const candidate of [`${modulePath}.ts`, `${modulePath}/index.ts`]) visit(candidate);
     }
@@ -105,4 +107,32 @@ test('inactive nudge reports fixture/deadline pacing skips separately from failu
   assert.match(source, /skipped/);
   assert.match(source, /result\.skipped/);
   assert.match(source, /inactiveEmailsSkipped/);
+});
+
+
+test('bulk cron result accounting preserves fixture skips instead of flattening them to failures', () => {
+  const inactivity = readFileSync('app/api/cron/inactivity-nudge/route.ts', 'utf8');
+  assert.match(inactivity, /delivery\.skipped/);
+  assert.match(inactivity, /skipped\+\+/);
+  const partner = readFileSync('app/api/cron/partner-outcome-digest/route.ts', 'utf8');
+  assert.match(partner, /sendResult\.skipped/);
+  assert.match(partner, /!r\.skipped/);
+  const surveys = readFileSync('lib/cron/placement-surveys.ts', 'utf8');
+  assert.match(surveys, /result\.skipped/);
+  assert.doesNotMatch(surveys, /emailFailures\.push\([\s\S]*?fixture_recipient/);
+});
+
+test('job alerts report in-app processing separately from accepted email delivery', () => {
+  const source = readFileSync('app/api/cron/job-alerts/route.ts', 'utf8');
+  assert.match(source, /notificationsCreated/);
+  assert.match(source, /emailsAccepted/);
+  assert.match(source, /delivery\.ok/);
+});
+
+
+test('first-seen unmatched actor alert is awaited through the delegated pacer', () => {
+  const source = readFileSync('lib/xapi/mappings.ts', 'utf8');
+  assert.match(source, /await notifyIfNewUnmatchedActorEmail\s*\(/);
+  assert.match(source, /runBulkEmailOperation\s*\(\(\)\s*=>\s*sendCourseraUnmatchedActorAlertEmail/);
+  assert.doesNotMatch(source, /void notifyIfNewUnmatchedActorEmail\s*\(/);
 });

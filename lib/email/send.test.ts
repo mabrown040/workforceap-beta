@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { sendBrandedEmail } from '@/lib/email/send';
+import { sendBrandedEmail, sendBrandedEmailOrThrowOnSkip } from '@/lib/email/send';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 describe('sendBrandedEmail', () => {
   it('skips reserved and configured fixture recipient domains without calling Resend', async () => {
@@ -292,6 +293,45 @@ describe('sendBrandedEmail', () => {
       /Rate limited beyond remaining request time/,
     );
 
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
+  });
+
+  it('inherits the admitted cron deadline for provider retry decisions', async () => {
+    let nowMs = 1_000;
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: { name: 'rate_limit_exceeded', message: 'Retry outside cron deadline', retry_after: 2 },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+    const pacer = createBulkEmailCronPacer({
+      maxDurationSeconds: 2,
+      reserveMs: 500,
+      startedAtMs: nowMs,
+      now: () => nowMs,
+      sleep: async (ms) => { nowMs += ms; },
+    });
+
+    await assert.rejects(
+      pacer.run(() => sendBrandedEmailOrThrowOnSkip(resend, {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'member@workforceap.org',
+        subject: 'Deadline inheritance',
+        html: '<p>Hi</p>',
+      }, {
+        now: () => nowMs,
+        sleep: async (ms) => { delays.push(ms); nowMs += ms; },
+      })),
+      /Retry outside cron deadline/,
+    );
     assert.equal(attempts, 1);
     assert.deepEqual(delays, []);
   });

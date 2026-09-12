@@ -56,6 +56,7 @@ async function handle(_req: NextRequest) {
 
   let sent = 0;
   let failed = 0;
+  let skipped = 0;
 
   for (const member of members) {
     try {
@@ -64,6 +65,7 @@ async function handle(_req: NextRequest) {
         fullName: member.fullName ?? member.email,
       }));
       if (!delivery.ok) {
+        if ('skipped' in delivery && delivery.skipped) { skipped++; continue; }
         failed++;
         continue;
       }
@@ -84,7 +86,7 @@ async function handle(_req: NextRequest) {
     }
   }
 
-  const runResult = { ok: failed === 0, sent, failed, total: members.length, emailPacing: emailPacer.summary() };
+  const runResult = { ok: failed === 0, sent, skipped, failed, total: members.length, emailPacing: emailPacer.summary() };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactivity_nudge', runResult, failed > 0 ? 'error' : 'ok');
   return NextResponse.json(runResult, { status: failed > 0 ? 503 : 200 });

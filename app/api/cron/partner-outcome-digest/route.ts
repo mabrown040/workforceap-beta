@@ -91,7 +91,7 @@ async function handle(_request: Request) {
     referralsByPartner.set(r.partnerId, list);
   }
 
-  const results: Array<{ partnerId: string; name: string; emailSent: boolean; error?: string }> = [];
+  const results: Array<{ partnerId: string; name: string; emailSent: boolean; error?: string; skipped?: boolean }> = [];
 
   for (const p of partners) {
     if (!p.contactEmail?.trim()) {
@@ -169,6 +169,7 @@ async function handle(_request: Request) {
         name: p.name,
         emailSent: sendResult.ok,
         error: sendResult.ok ? undefined : sendResult.error,
+        skipped: !sendResult.ok && 'skipped' in sendResult && sendResult.skipped,
       });
     } catch (error) {
       captureApiError(error, { route: 'cron/partner-outcome-digest', extra: { partnerId: p.id } });
@@ -182,8 +183,8 @@ async function handle(_request: Request) {
   }
 
   const sent = results.filter(r => r.emailSent).length;
-  const skipped = results.filter(r => r.error === 'no_contact_email' || r.error === 'no_referrals').length;
-  const failed = results.filter(r => r.error && r.error !== 'no_contact_email' && r.error !== 'no_referrals').length;
+  const skipped = results.filter(r => r.skipped || r.error === 'no_contact_email' || r.error === 'no_referrals').length;
+  const failed = results.filter(r => r.error && !r.skipped && r.error !== 'no_contact_email' && r.error !== 'no_referrals').length;
   const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length, emailPacing: emailPacer.summary() };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');

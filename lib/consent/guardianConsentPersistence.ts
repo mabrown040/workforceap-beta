@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 import { interactiveTransactionsGuaranteed } from '@/lib/db/transactionPolicy';
 
 type TransactionRoot = Pick<PrismaClient, '$transaction'>;
@@ -42,23 +42,57 @@ export async function persistGuardianConsent(
       return { ok: false as const, reason: 'consumed' as const };
     }
 
-    const now = input.now ?? new Date();
-    if (link.expiresAt.getTime() < now.getTime()) {
-      return { ok: false as const, reason: 'expired' as const };
+    // Lock the exact validated row before checking the database wall clock.
+    // PostgreSQL may evaluate an UPDATE predicate before it waits on an
+    // unchanged locked row, so clock_timestamp() belongs in a second statement
+    // that starts only after this lock has been acquired.
+    const [locked] = await tx.$queryRaw<Array<{ consumedAt: Date | null }>>(Prisma.sql`
+      SELECT consumed_at AS "consumedAt"
+      FROM tokenized_link
+      WHERE id = ${link.id}
+        AND token = ${input.token}
+        AND type = 'guardian_consent'
+        AND subject_user_id = ${link.subjectUserId}
+      FOR UPDATE
+    `);
+    if (!locked) {
+      return { ok: false as const, reason: 'invalid' as const };
+    }
+    if (locked.consumedAt) {
+      return { ok: false as const, reason: 'conflict' as const };
     }
 
-    // The guarded update is the concurrency winner. Keep expiry in this claim,
-    // not only in the earlier read, so a token cannot expire in the gap.
-    const consumed = await tx.tokenizedLink.updateMany({
-      where: {
-        id: link.id,
-        type: 'guardian_consent',
-        consumedAt: null,
-        expiresAt: { gte: now },
-      },
-      data: { consumedAt: now },
-    });
-    if (consumed.count !== 1) {
+    const [claim] = await tx.$queryRaw<Array<{ claimedAt: Date }>>(Prisma.sql`
+      UPDATE tokenized_link
+      SET consumed_at = clock_timestamp()
+      WHERE id = ${link.id}
+        AND token = ${input.token}
+        AND type = 'guardian_consent'
+        AND subject_user_id = ${link.subjectUserId}
+        AND consumed_at IS NULL
+        AND expires_at >= clock_timestamp()
+      RETURNING consumed_at AS "claimedAt"
+    `);
+    if (!claim) {
+      const [state] = await tx.$queryRaw<Array<{
+        consumedAt: Date | null;
+        expired: boolean;
+      }>>(Prisma.sql`
+        SELECT
+          consumed_at AS "consumedAt",
+          expires_at < clock_timestamp() AS expired
+        FROM tokenized_link
+        WHERE id = ${link.id}
+          AND token = ${input.token}
+          AND type = 'guardian_consent'
+          AND subject_user_id = ${link.subjectUserId}
+      `);
+      if (state?.consumedAt) {
+        return { ok: false as const, reason: 'conflict' as const };
+      }
+      if (state?.expired) {
+        return { ok: false as const, reason: 'expired' as const };
+      }
       return { ok: false as const, reason: 'conflict' as const };
     }
 
@@ -68,7 +102,7 @@ export async function persistGuardianConsent(
       parentGuardianEmail: input.guardianEmail,
       parentGuardianPhone: input.guardianPhone,
       parentalConsentGiven: true,
-      parentalConsentDate: now,
+      parentalConsentDate: claim.claimedAt,
     };
     await tx.profile.upsert({
       where: { userId: link.subjectUserId },

@@ -91059,7 +91059,7 @@
     "from": "lib/consent/guardianConsentPersistence.ts",
     "specifier": "@prisma/client",
     "line": 1,
-    "kind": "type",
+    "kind": "import",
     "external": true,
     "package": "@prisma/client"
   },
@@ -111298,7 +111298,7 @@
   {
     "from": "tests/api/guardian-consent.spec.ts",
     "specifier": "@/app/api/consent/[token]/route",
-    "line": 108,
+    "line": 137,
     "kind": "import",
     "external": false,
     "target": "app/api/consent/[token]/route.ts"
@@ -111306,7 +111306,7 @@
   {
     "from": "tests/api/guardian-consent.spec.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 109,
+    "line": 138,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -111314,7 +111314,7 @@
   {
     "from": "tests/api/guardian-consent.spec.ts",
     "specifier": "@/lib/audit",
-    "line": 110,
+    "line": 139,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -111322,7 +111322,7 @@
   {
     "from": "tests/api/guardian-consent.spec.ts",
     "specifier": "@/lib/audit/log",
-    "line": 111,
+    "line": 140,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"

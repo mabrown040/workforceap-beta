@@ -48,6 +48,7 @@ const db = vi.hoisted(() => {
     profiles: new Map<string, Profile>(),
     failNextProfileWrite: false,
     profileWriteEffects: 0,
+    rawClaimStatements: [] as Array<{ strings: readonly string[]; values: readonly unknown[] }>,
   };
 
   // Serialize synthetic transactions and restore both tables on failure. This
@@ -60,6 +61,34 @@ const db = vi.hoisted(() => {
       const profilesBefore = new Map([...state.profiles].map(([key, value]) => [key, { ...value }]));
       const effectsBefore = state.profileWriteEffects;
       const tx = {
+        $queryRaw: vi.fn(async (statement: { strings: readonly string[]; values: readonly unknown[] }) => {
+          const sql = statement.strings.join('?');
+          const link = [...state.links.values()].find((candidate) => statement.values.includes(candidate.token));
+          if (sql.includes('SELECT consumed_at') && sql.includes('FOR UPDATE')) {
+            return link ? [{ consumedAt: link.consumedAt }] : [];
+          }
+          if (sql.includes('UPDATE tokenized_link')) {
+            state.rawClaimStatements.push(statement);
+            const claimedAt = new Date();
+            const eligible = link
+              && link.type === 'guardian_consent'
+              && link.subjectUserId !== null
+              && statement.values.includes(link.id)
+              && statement.values.includes(link.subjectUserId)
+              && link.consumedAt === null
+              && link.expiresAt.getTime() >= claimedAt.getTime();
+            if (!eligible) return [];
+            link.consumedAt = claimedAt;
+            return [{ claimedAt }];
+          }
+          if (sql.includes('expires_at < clock_timestamp()')) {
+            return link ? [{
+              consumedAt: link.consumedAt,
+              expired: link.expiresAt.getTime() < Date.now(),
+            }] : [];
+          }
+          return [];
+        }),
         tokenizedLink: {
           findUnique: vi.fn(async ({ where: { token } }: any) => state.links.get(token) ?? null),
           updateMany: vi.fn(async ({ where, data }: any) => {
@@ -159,6 +188,7 @@ describe('POST /api/consent/[token]', () => {
     db.state.profiles.clear();
     db.state.failNextProfileWrite = false;
     db.state.profileWriteEffects = 0;
+    db.state.rawClaimStatements = [];
     vi.mocked(checkPublicQuestionnaireSubmitRateLimit).mockResolvedValue({ success: true });
   });
 
@@ -199,6 +229,22 @@ describe('POST /api/consent/[token]', () => {
     expect(response.status).toBe(status);
     expect(await response.json()).toEqual({ error: message });
     expect(db.state.profileWriteEffects).toBe(0);
+  });
+
+  it('claims with a parameterized database wall clock instead of a captured JavaScript timestamp', async () => {
+    const link = addLink();
+    await submit(link.token);
+
+    expect(db.state.rawClaimStatements).toHaveLength(1);
+    const [claim] = db.state.rawClaimStatements;
+    const sql = claim.strings.join('?');
+    expect(sql).toContain('UPDATE tokenized_link');
+    expect(sql).toContain('expires_at >= clock_timestamp()');
+    expect(sql).toContain('consumed_at = clock_timestamp()');
+    expect(sql).toContain('subject_user_id =');
+    expect(sql).not.toContain(link.token);
+    expect(claim.values).toContain(link.token);
+    expect(claim.values).toContain(link.subjectUserId);
   });
 
   it('rolls back token consumption on a forced profile-write failure so the same link can retry', async () => {

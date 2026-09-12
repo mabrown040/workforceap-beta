@@ -1,0 +1,46 @@
+{
+  "cleanup": {
+    "dataDirectoryRemoved": true,
+    "portListenerAfterRun": false,
+    "serverStopped": true
+  },
+  "concurrency": {
+    "barrierWaiters": 2,
+    "conflictLosers": 1,
+    "profileRows": 1,
+    "tokenConsumed": true,
+    "trainingGateOpen": true,
+    "winners": 1
+  },
+  "delayedExpiry": {
+    "databaseClock": "clock_timestamp()",
+    "outcome": {
+      "ok": false,
+      "reason": "expired"
+    },
+    "profileRows": 0,
+    "rowLockHeldPastExpiry": true,
+    "tokenUnconsumed": true,
+    "trainingGateBlocked": true
+  },
+  "postgres": "18.4",
+  "retry": {
+    "completed": true,
+    "profileRows": 1,
+    "tokenConsumed": true,
+    "trainingGateOpen": true
+  },
+  "rollback": {
+    "forcedProfileFailure": true,
+    "profileRows": 0,
+    "tokenReusable": true,
+    "trainingGateBlocked": true
+  },
+  "target": {
+    "database": "postgres",
+    "ephemeralDataDir": "/tmp/wap42-postgres-proof-data",
+    "host": "127.0.0.1",
+    "port": 55433,
+    "schema": "public"
+  }
+}

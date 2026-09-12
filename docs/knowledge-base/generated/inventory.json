@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "4b79260b8c87d83c4cf5c85c9807e8f96ab3bf6b903847c41e9b7fecc991b2e1",
+  "inputTreeSha256": "414875f9e1649086bff4a144be12d4bb99f90cec941dfa6745c1752d2fa197c1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -96079,9 +96079,9 @@
       "path": "lib/consent/guardianConsentPersistence.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 2610,
-      "lines": 87,
-      "sha256": "029ae6ef4dab954451003fcfd3b202ec076aebb192fade3013f88493aa2e26b5",
+      "bytes": 3949,
+      "lines": 121,
+      "sha256": "73133eb0490011a1af81516ebb684abbee32a011b31391b65428a25ea65d6767",
       "binary": false,
       "exports": [
         {
@@ -146512,9 +146512,9 @@
       "path": "tests/api/guardian-consent.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 9283,
-      "lines": 249,
-      "sha256": "25d08351c2ce2c820c427ce1449ebdf2466996c8e3987b5267a55463444dd2d6",
+      "bytes": 11442,
+      "lines": 295,
+      "sha256": "0c30f9e7364c03189b5862f5dcfd1388323eae26eb56871ee218c51e57955f1d",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -146525,22 +146525,22 @@
         },
         {
           "name": "postReq",
-          "line": 113,
+          "line": 142,
           "kind": "Variable"
         },
         {
           "name": "validBody",
-          "line": 120,
+          "line": 149,
           "kind": "Variable"
         },
         {
           "name": "submit",
-          "line": 127,
+          "line": 156,
           "kind": "Variable"
         },
         {
           "name": "addLink",
-          "line": 130,
+          "line": 159,
           "kind": "FunctionDeclaration"
         }
       ],

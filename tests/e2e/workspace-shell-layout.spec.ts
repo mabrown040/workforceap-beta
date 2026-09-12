@@ -57,19 +57,70 @@ test.describe('desktop WorkspaceShell layout', () => {
       expect(metrics.main.right).toBeCloseTo(metrics.viewport.width, 0);
       expect(metrics.main.height).toBeCloseTo(metrics.body.height, 0);
       expect(metrics.mainScrollHeight).toBeGreaterThanOrEqual(Math.floor(metrics.main.height));
+
+      const sidebar = page.locator('.workspace-sidebar');
+      const footer = sidebar.locator('.workspace-sidebar-footer');
+      const accountGroup = sidebar.locator('summary').filter({ hasText: 'Account & support' });
+      const certificates = sidebar.getByRole('link', { name: 'My certificates' });
+      const finalDestination = sidebar.getByRole('link', { name: 'Profile' });
+      const language = sidebar.getByRole('combobox', { name: 'Select language' });
+      const appearance = footer.getByRole('radiogroup', { name: 'Appearance' });
+      const selectedTheme = appearance.getByRole('radio', { checked: true });
+      const signOut = footer.getByRole('button', { name: 'Sign out' });
+      await expect(selectedTheme).toBeVisible();
+      await expect(selectedTheme).toHaveAttribute('tabindex', '0');
+      await expect(signOut).toBeVisible();
+
+      await accountGroup.focus();
+      await page.keyboard.press('Enter');
+      await expect(finalDestination).toBeVisible();
+      await page.keyboard.press('Tab');
+      await expect(certificates).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(finalDestination).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(language).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(selectedTheme).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(signOut).toBeFocused();
+      expect(await signOut.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe('none');
+      await page.keyboard.press('Shift+Tab');
+      await expect(selectedTheme).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(language).toBeFocused();
     });
   }
 });
 
-test('mobile shell remains width-safe and keeps navigation in the drawer', async ({ page }) => {
+test('mobile shell remains width-safe and contains keyboard focus in the drawer', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/dev/member/home');
 
-  await expect(page.locator('.workspace-sidebar')).toHaveAttribute('aria-hidden', 'true');
-  await expect(page.locator('.workspace-menu-btn')).toBeVisible();
+  const menu = page.locator('.workspace-menu-btn');
+  const drawer = page.locator('.workspace-sidebar');
+  await expect(drawer).toHaveAttribute('aria-hidden', 'true');
+  await expect(menu).toBeVisible();
   const width = await page.evaluate(() => ({
     scroll: document.documentElement.scrollWidth,
     client: document.documentElement.clientWidth,
   }));
   expect(width.scroll).toBeLessThanOrEqual(width.client);
+
+  await menu.click();
+  await expect(drawer).toHaveRole('dialog');
+  await expect(drawer).not.toHaveAttribute('aria-hidden', 'true');
+  const close = drawer.getByRole('button', { name: 'Close menu' });
+  const signOut = drawer.getByRole('button', { name: 'Sign out' });
+  await expect(signOut).toBeVisible();
+
+  await close.focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(signOut).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveAttribute('aria-hidden', 'true');
+  await expect(menu).toBeFocused();
 });

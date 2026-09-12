@@ -20,9 +20,20 @@ vi.mock('@/components/portal/MemberPortalTopNav', () => ({ default: () => null }
 vi.mock('@/components/portal/GlobalSearch', () => ({ default: () => null }));
 vi.mock('@/components/MobileBottomNav', () => ({ default: () => null }));
 vi.mock('@/components/portal/LanguageToggle', () => ({ default: () => <span>Language</span> }));
-vi.mock('@/components/theme/ThemeSelector', () => ({ default: () => <span>Theme preference</span> }));
+vi.mock('@/components/theme/ThemeSelector', () => ({
+  default: () => <div role="radiogroup" aria-label="Appearance">
+    <span>Theme preference</span>
+    <button type="button" role="radio" aria-checked="false" tabIndex={-1}>Light</button>
+    <button type="button" role="radio" aria-checked="true" tabIndex={0}>System</button>
+    <button type="button" role="radio" aria-checked="false" tabIndex={-1}>Dark</button>
+  </div>,
+}));
 vi.mock('@/components/portal/UnreviewedLocaleBanner', () => ({ default: () => null }));
-vi.mock('@/components/portal/SignOutButton', () => ({ SignOutButton: () => null }));
+vi.mock('@/components/portal/SignOutButton', () => ({
+  SignOutButton: ({ className, children }: { className?: string; children?: React.ReactNode }) => (
+    <button type="button" className={className}>{children ?? 'Sign out'}</button>
+  ),
+}));
 vi.mock('@/hooks/useWorkspaceMobileScrollChrome', () => ({ useWorkspaceMobileScrollChrome: () => {} }));
 
 beforeEach(() => {
@@ -127,6 +138,22 @@ describe('workspace navigation', () => {
     await user.click(screen.getByRole('button', { name: 'Expand sidebar' }));
     expect(screen.getByText('Language')).toBeInTheDocument();
     expect(screen.getByText('Theme preference')).toBeInTheDocument();
+  });
+
+  it('keeps every visible desktop footer control in keyboard order through sign out', async () => {
+    const user = userEvent.setup();
+    const { container } = show();
+    const footer = container.querySelector('.workspace-sidebar-footer');
+    expect(footer).not.toBeNull();
+
+    const appearance = within(footer as HTMLElement).getByRole('radiogroup', { name: 'Appearance' });
+    const selectedTheme = within(appearance).getByRole('radio', { name: 'System' });
+    const signOut = within(footer as HTMLElement).getByRole('button', { name: 'Sign out' });
+    expect(selectedTheme).toHaveAttribute('tabindex', '0');
+
+    selectedTheme.focus();
+    await user.tab();
+    expect(signOut).toHaveFocus();
   });
 
   it('keeps a closed mobile drawer out of keyboard and screen-reader navigation', async () => {

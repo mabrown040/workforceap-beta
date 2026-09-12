@@ -26,6 +26,22 @@ import type { Resend } from 'resend';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { buildUnsubscribeUrl } from '@/lib/email/unsubscribeToken';
 
+const RESEND_MAX_ATTEMPTS = 3;
+const RESEND_RETRY_BASE_DELAY_MS = 500;
+/** Never spend more than one minute of a request waiting to retry email. */
+const RESEND_RETRY_MAX_TOTAL_WAIT_MS = 60_000;
+
+type Sleep = (ms: number) => Promise<void>;
+
+export interface SendBrandedEmailRetryOptions {
+  /** Test seam; production uses a real bounded timer. */
+  sleep?: Sleep;
+  /** Test seam for absolute Retry-After / rate-limit reset values. */
+  now?: () => number;
+  /** Shared caller deadline; no provider retry sleep may cross it. */
+  deadlineAtMs?: number;
+}
+
 export const UNSUBSCRIBE_ADDRESS =
   process.env.EMAIL_UNSUBSCRIBE_ADDRESS || 'unsubscribe@workforceap.org';
 
@@ -127,44 +143,132 @@ function recordEmailFailure(args: SendBrandedEmailArgs, failureReason: string) {
   });
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' ? value as Record<string, unknown> : null;
+}
+
+function readHeader(headers: unknown, name: string): unknown {
+  if (headers instanceof Headers) return headers.get(name);
+  const record = asRecord(headers);
+  if (!record) return undefined;
+  const key = Object.keys(record).find((candidate) => candidate.toLowerCase() === name.toLowerCase());
+  return key ? record[key] : undefined;
+}
+
+function parseRetryAfterMs(value: unknown, nowMs: number): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const numeric = typeof value === 'number' ? value : Number(value);
+  if (Number.isFinite(numeric) && numeric >= 0) return numeric * 1_000;
+  if (typeof value === 'string') {
+    const timestamp = Date.parse(value);
+    if (Number.isFinite(timestamp)) return Math.max(0, timestamp - nowMs);
+  }
+  return null;
+}
+
+function parseRateLimitResetMs(value: unknown, nowMs: number): number | null {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(numeric) || numeric < 0) return null;
+  if (numeric >= 1_000_000_000_000) return Math.max(0, numeric - nowMs);
+  if (numeric >= 1_000_000_000) return Math.max(0, numeric * 1_000 - nowMs);
+  return numeric * 1_000;
+}
+
+function resendRetryDelayMs(error: unknown, attempt: number, nowMs: number): number | null {
+  const record = asRecord(error);
+  if (!record) return null;
+  const status = Number(record.status ?? record.statusCode ?? record.status_code);
+  const name = String(record.name ?? record.code ?? '').toLowerCase();
+  if (status !== 429 && name !== 'rate_limit_exceeded' && name !== 'rate_limited') return null;
+
+  const rateLimit = asRecord(record.rateLimit ?? record.rate_limit);
+  const retryAfterMs = Number(record.retryAfterMs ?? record.retry_after_ms);
+  const hintedDelay = Number.isFinite(retryAfterMs) && retryAfterMs >= 0
+    ? retryAfterMs
+    : parseRetryAfterMs(
+        record.retryAfter ?? record.retry_after ?? readHeader(record.headers, 'retry-after'),
+        nowMs,
+      ) ?? parseRateLimitResetMs(
+        rateLimit?.reset
+          ?? record.rateLimitReset
+          ?? record.rate_limit_reset
+          ?? readHeader(record.headers, 'ratelimit-reset')
+          ?? readHeader(record.headers, 'x-ratelimit-reset'),
+        nowMs,
+      );
+  const backoff = RESEND_RETRY_BASE_DELAY_MS * (2 ** (attempt - 1));
+  return Math.max(hintedDelay ?? backoff, backoff);
+}
+
 export async function sendBrandedEmail(
   resend: Resend,
   args: SendBrandedEmailArgs,
+  retryOptions: SendBrandedEmailRetryOptions = {},
 ): Promise<Awaited<ReturnType<Resend['emails']['send']>>> {
   const text = args.text && args.text.trim().length > 0 ? args.text : htmlToPlainText(args.html);
-  let result: Awaited<ReturnType<Resend['emails']['send']>>;
-  try {
-    const payload = {
-      from: args.from,
-      to: args.to,
-      subject: args.subject,
-      html: args.html,
-      text,
-      replyTo: args.replyTo,
-      cc: args.cc,
-      bcc: args.bcc,
-      headers: sanitizeHeaders({
-        // Single-recipient mail gets a tokenized RFC 8058 one-click URL bound
-        // to that recipient; multi-recipient mail falls back to mailto-only.
-        ...buildDeliverabilityHeaders(
-          typeof args.to === 'string' ? buildUnsubscribeUrl(args.to) : undefined,
-        ),
-        ...args.headers,
-      }),
-      ...(args.attachments ? { attachments: args.attachments } : {}),
-    };
-    result = args.idempotencyKey
-      ? await resend.emails.send(payload, { idempotencyKey: args.idempotencyKey })
-      : await resend.emails.send(payload);
-  } catch (err) {
-    recordEmailFailure(args, err instanceof Error ? err.message : 'Send threw');
-    throw err;
-  }
-  // Resend resolves with { data, error } instead of throwing on API errors.
-  if (result.error) {
+  const payload = {
+    from: args.from,
+    to: args.to,
+    subject: args.subject,
+    html: args.html,
+    text,
+    replyTo: args.replyTo,
+    cc: args.cc,
+    bcc: args.bcc,
+    headers: sanitizeHeaders({
+      // Single-recipient mail gets a tokenized RFC 8058 one-click URL bound
+      // to that recipient; multi-recipient mail falls back to mailto-only.
+      ...buildDeliverabilityHeaders(
+        typeof args.to === 'string' ? buildUnsubscribeUrl(args.to) : undefined,
+      ),
+      ...args.headers,
+    }),
+    ...(args.attachments ? { attachments: args.attachments } : {}),
+  };
+  const sleep = retryOptions.sleep ?? ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
+  const now = retryOptions.now ?? Date.now;
+  let totalRetryWaitMs = 0;
+
+  for (let attempt = 1; attempt <= RESEND_MAX_ATTEMPTS; attempt++) {
+    let result: Awaited<ReturnType<Resend['emails']['send']>>;
+    try {
+      result = args.idempotencyKey
+        ? await resend.emails.send(payload, { idempotencyKey: args.idempotencyKey })
+        : await resend.emails.send(payload);
+    } catch (err) {
+      const nowMs = now();
+      const delayMs = resendRetryDelayMs(err, attempt, nowMs);
+      if (
+        delayMs !== null
+        && attempt < RESEND_MAX_ATTEMPTS
+        && totalRetryWaitMs + delayMs <= RESEND_RETRY_MAX_TOTAL_WAIT_MS
+        && (retryOptions.deadlineAtMs === undefined || nowMs + delayMs < retryOptions.deadlineAtMs)
+      ) {
+        totalRetryWaitMs += delayMs;
+        await sleep(delayMs);
+        continue;
+      }
+      recordEmailFailure(args, err instanceof Error ? err.message : 'Send threw');
+      throw err;
+    }
+
+    // Resend resolves with { data, error } instead of throwing on API errors.
+    if (!result.error) return result;
+    const nowMs = now();
+    const delayMs = resendRetryDelayMs(result.error, attempt, nowMs);
+    if (
+      delayMs !== null
+      && attempt < RESEND_MAX_ATTEMPTS
+      && totalRetryWaitMs + delayMs <= RESEND_RETRY_MAX_TOTAL_WAIT_MS
+      && (retryOptions.deadlineAtMs === undefined || nowMs + delayMs < retryOptions.deadlineAtMs)
+    ) {
+      totalRetryWaitMs += delayMs;
+      await sleep(delayMs);
+      continue;
+    }
     const message = result.error.message ?? result.error.name ?? 'Resend API error';
     recordEmailFailure(args, message);
     throw new Error(message);
   }
-  return result;
+  throw new Error('Resend retry budget exhausted');
 }

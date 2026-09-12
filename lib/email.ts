@@ -1165,6 +1165,9 @@ export async function sendWeeklyRecapEmail(params: {
   to: string;
   fullName: string;
   recapSummary: string;
+  idempotencyKey?: string;
+  /** Shared cron deadline; provider retry waits must remain inside it. */
+  deadlineAtMs?: number;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1184,6 +1187,9 @@ export async function sendWeeklyRecapEmail(params: {
       to: params.to,
       subject: 'Your WorkforceAP Weekly Recap',
       html,
+      idempotencyKey: params.idempotencyKey,
+    }, {
+      deadlineAtMs: params.deadlineAtMs,
     });
     return { ok: true };
   } catch (err) {

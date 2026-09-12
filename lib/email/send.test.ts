@@ -24,6 +24,164 @@ describe('sendBrandedEmail', () => {
     );
   });
 
+  it('retries Resend 429 responses with provider metadata and preserves the idempotent request', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    const calls: Array<{ payload: unknown; options: unknown }> = [];
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async (payload: unknown, options: unknown) => {
+          calls.push({ payload, options });
+          if (calls.length === 1) {
+            return {
+              data: null,
+              error: { name: 'rate_limit_exceeded', message: 'Too many requests', retry_after: 2 },
+            };
+          }
+          return { data: { id: 'accepted' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'applicant@example.com',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+        idempotencyKey: 'weekly-recap:user-1:2026-09-07',
+      },
+      { sleep: async (ms) => { delays.push(ms); } },
+    );
+
+    assert.equal(result.data?.id, 'accepted');
+    assert.deepEqual(delays, [2_000]);
+    assert.equal(calls.length, 2);
+    assert.deepEqual(calls[1], calls[0]);
+  });
+
+  it('honors a long provider Retry-After before retrying', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          if (attempts === 1) {
+            return {
+              data: null,
+              error: {
+                name: 'rate_limit_exceeded',
+                message: 'Rate limited for one minute',
+                headers: { 'Retry-After': '60' },
+              },
+            };
+          }
+          return { data: { id: 'accepted-after-provider-window' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'applicant@example.com',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+        idempotencyKey: 'weekly-recap:user-1:2026-09-07',
+      },
+      { sleep: async (ms) => { delays.push(ms); } },
+    );
+
+    assert.equal(result.data?.id, 'accepted-after-provider-window');
+    assert.equal(attempts, 2);
+    assert.deepEqual(delays, [60_000]);
+  });
+
+  it('does not retry early when provider timing exceeds the total retry budget', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: {
+              name: 'rate_limit_exceeded',
+              message: 'Rate limited beyond execution budget',
+              headers: { 'Retry-After': '61' },
+            },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    await assert.rejects(
+      () => sendBrandedEmail(
+        resend,
+        {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'applicant@example.com',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        },
+        { sleep: async (ms) => { delays.push(ms); } },
+      ),
+      /Rate limited beyond execution budget/,
+    );
+
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
+  });
+
+  it('does not consume a provider retry delay beyond the caller request deadline', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const nowMs = 1_000;
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: {
+              name: 'rate_limit_exceeded',
+              message: 'Rate limited beyond remaining request time',
+              headers: { 'Retry-After': '60' },
+            },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    await assert.rejects(
+      sendBrandedEmail(
+        resend,
+        {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'applicant@example.com',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        },
+        {
+          now: () => nowMs,
+          sleep: async (ms) => { delays.push(ms); },
+          deadlineAtMs: nowMs + 30_000,
+        },
+      ),
+      /Rate limited beyond remaining request time/,
+    );
+
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
+  });
+
   it('strips CR/LF from headers so a newline in NEXT_PUBLIC_SITE_URL cannot fail the send', async () => {
     process.env.CRON_SECRET = 'test-unsubscribe-secret';
     // Exactly how the production outage was configured: a pasted trailing newline.

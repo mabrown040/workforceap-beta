@@ -139,3 +139,40 @@ test('bulk cron run serializes concurrent send admissions at the shared cadence'
   assert.deepEqual(starts, [0, 125, 250]);
   assert.deepEqual(sleeps, [125, 125]);
 });
+
+
+test('concurrent callers reserve distinct slots before sleeping and share the wait budget', async () => {
+  let nowMs = 0;
+  const sleeps: number[] = [];
+  const pace = createBoundedPacer({
+    intervalMs: 125,
+    maxTotalWaitMs: 125,
+    now: () => nowMs,
+    sleep: async (ms) => { sleeps.push(ms); nowMs += ms; },
+  });
+
+  const results = await Promise.all([pace(), pace(), pace()]);
+  assert.deepEqual(results, [
+    { ok: true, waitedMs: 0 },
+    { ok: true, waitedMs: 125 },
+    { ok: false, reason: 'pacing_budget_exhausted', requiredWaitMs: 125 },
+  ]);
+  assert.deepEqual(sleeps, [125]);
+});
+
+test('concurrent callers cannot reserve a slot at or beyond the shared deadline', async () => {
+  let nowMs = 1_000;
+  const pace = createBoundedPacer({
+    intervalMs: 125,
+    deadlineAtMs: 1_250,
+    now: () => nowMs,
+    sleep: async (ms) => { nowMs += ms; },
+  });
+
+  const results = await Promise.all([pace(), pace(), pace()]);
+  assert.deepEqual(results, [
+    { ok: true, waitedMs: 0 },
+    { ok: true, waitedMs: 125 },
+    { ok: false, reason: 'request_deadline_exhausted', requiredWaitMs: 125 },
+  ]);
+});

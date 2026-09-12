@@ -63,6 +63,16 @@ npm run build         # Full production build (Prisma generate + next build)
 
 Note: `npm run build` runs ESLint at build time (gate flipped 2026-05-20 — `eslint.ignoreDuringBuilds: false`). Use `npm run typecheck` and `npm run lint` separately for faster feedback during development.
 
+#### OpenClaw Pilot production-build lane
+
+On the 16 GiB OpenClaw Pilot host, run at most one heavy application job at a time. The validated local production-build command is:
+
+```bash
+NODE_OPTIONS=--max-old-space-size=6144 npm run build
+```
+
+This is a scoped local heap allowance for the Next.js build, not a change to CI, generic preflight commands, other workers, or global memory settings.
+
 Register library suites importing Vitest in `scripts/vitest-library-specs.mjs`.
 Both runners share that registry; `tests/test-runner-coverage.test.ts` guards
 ownership and collection. Run both test lanes, not just `npm test` (Node only).

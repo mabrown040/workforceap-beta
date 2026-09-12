@@ -61,7 +61,47 @@ describe('sendBrandedEmail', () => {
     assert.deepEqual(calls[1], calls[0]);
   });
 
-  it('stops after the bounded retry budget and caps provider-requested waits', async () => {
+  it('honors a long provider Retry-After before retrying', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          if (attempts === 1) {
+            return {
+              data: null,
+              error: {
+                name: 'rate_limit_exceeded',
+                message: 'Rate limited for one minute',
+                headers: { 'Retry-After': '60' },
+              },
+            };
+          }
+          return { data: { id: 'accepted-after-provider-window' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'applicant@example.com',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+        idempotencyKey: 'weekly-recap:user-1:2026-09-07',
+      },
+      { sleep: async (ms) => { delays.push(ms); } },
+    );
+
+    assert.equal(result.data?.id, 'accepted-after-provider-window');
+    assert.equal(attempts, 2);
+    assert.deepEqual(delays, [60_000]);
+  });
+
+  it('does not retry early when provider timing exceeds the total retry budget', async () => {
     process.env.CRON_SECRET = 'test-unsubscribe-secret';
     let attempts = 0;
     const delays: number[] = [];
@@ -73,8 +113,8 @@ describe('sendBrandedEmail', () => {
             data: null,
             error: {
               name: 'rate_limit_exceeded',
-              message: 'Still rate limited',
-              headers: { 'Retry-After': '60' },
+              message: 'Rate limited beyond execution budget',
+              headers: { 'Retry-After': '61' },
             },
           };
         },
@@ -92,11 +132,11 @@ describe('sendBrandedEmail', () => {
         },
         { sleep: async (ms) => { delays.push(ms); } },
       ),
-      /Still rate limited/,
+      /Rate limited beyond execution budget/,
     );
 
-    assert.equal(attempts, 3);
-    assert.deepEqual(delays, [5_000, 5_000]);
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
   });
 
   it('strips CR/LF from headers so a newline in NEXT_PUBLIC_SITE_URL cannot fail the send', async () => {

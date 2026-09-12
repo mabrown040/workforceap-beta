@@ -9,18 +9,25 @@ export type PaceResult =
   | { ok: true; waitedMs: number }
   | { ok: false; reason: 'pacing_budget_exhausted'; requiredWaitMs: number };
 
+export function boundedPacingCapacity(intervalMs: number, maxTotalWaitMs: number): number {
+  if (!Number.isFinite(intervalMs) || intervalMs < 0) {
+    throw new TypeError('intervalMs must be a non-negative finite number');
+  }
+  if (!Number.isFinite(maxTotalWaitMs) || maxTotalWaitMs < 0) {
+    throw new TypeError('maxTotalWaitMs must be a non-negative finite number');
+  }
+  return intervalMs === 0
+    ? Number.MAX_SAFE_INTEGER
+    : Math.floor(maxTotalWaitMs / intervalMs) + 1;
+}
+
 /**
  * Shares one deterministic send cadence across a batch while putting a hard
  * ceiling on timer time. Callers must preserve the false result as a skipped
  * outcome rather than sending an unpaced remainder.
  */
 export function createBoundedPacer(options: BoundedPacerOptions): () => Promise<PaceResult> {
-  if (!Number.isFinite(options.intervalMs) || options.intervalMs < 0) {
-    throw new TypeError('intervalMs must be a non-negative finite number');
-  }
-  if (!Number.isFinite(options.maxTotalWaitMs) || options.maxTotalWaitMs < 0) {
-    throw new TypeError('maxTotalWaitMs must be a non-negative finite number');
-  }
+  boundedPacingCapacity(options.intervalMs, options.maxTotalWaitMs);
 
   const now = options.now ?? Date.now;
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));

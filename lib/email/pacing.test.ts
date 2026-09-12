@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { createBoundedPacer } from '@/lib/email/pacing';
+import { boundedPacingCapacity, createBoundedPacer } from '@/lib/email/pacing';
 
 describe('createBoundedPacer', () => {
+  it('calculates the sendable batch before recap rows are generated', () => {
+    assert.equal(boundedPacingCapacity(500, 240_000), 481);
+    assert.equal(boundedPacingCapacity(0, 240_000), Number.MAX_SAFE_INTEGER);
+  });
+
   it('shares one deterministic cadence across successive sends', async () => {
     let now = 1_000;
     const delays: number[] = [];

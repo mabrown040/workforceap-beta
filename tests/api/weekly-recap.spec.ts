@@ -345,6 +345,43 @@ describe('GET /api/cron/weekly-recap', () => {
       );
     });
 
+    it('keeps recipients skipped by the pacing budget retryable on the next run', async () => {
+      vi.useFakeTimers();
+      try {
+        const members = Array.from({ length: 482 }, (_, index) => ({
+          id: `user-${index}`,
+          email: `member-${index}@example.com`,
+          fullName: `Member ${index}`,
+          enrolledProgram: 'tech',
+        }));
+        const recapData = mockRecaps()[0].recapData;
+        vi.mocked(prisma.user.findMany).mockResolvedValue(members as any);
+        vi.mocked(generateWeeklyRecaps).mockImplementation(async (selectedMembers) =>
+          selectedMembers.map((member) => ({ userId: member.id, recapData, score: 72 })) as any,
+        );
+        vi.mocked(sendWeeklyRecapEmail).mockResolvedValue({ ok: true });
+
+        const pendingResult = runWeeklyRecap(
+          makeRequest({ authorization: 'Bearer super-secret-cron-key' }),
+        );
+        await vi.runAllTimersAsync();
+        const body = await (await pendingResult).json();
+
+        expect(body).toEqual({
+          sent: 481,
+          failed: 0,
+          skipped: 1,
+          total: 482,
+          skipReason: 'pacing_budget_exhausted',
+        });
+        const generatedMembers = vi.mocked(generateWeeklyRecaps).mock.calls[0][0];
+        expect(generatedMembers).toHaveLength(481);
+        expect(generatedMembers).not.toContainEqual(members[481]);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
     it('returns empty result when no active members', async () => {
       vi.mocked(prisma.user.findMany).mockResolvedValue([]);
       vi.mocked(generateWeeklyRecaps).mockResolvedValue([]);

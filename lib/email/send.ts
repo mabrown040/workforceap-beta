@@ -28,7 +28,8 @@ import { buildUnsubscribeUrl } from '@/lib/email/unsubscribeToken';
 
 const RESEND_MAX_ATTEMPTS = 3;
 const RESEND_RETRY_BASE_DELAY_MS = 500;
-const RESEND_RETRY_MAX_DELAY_MS = 5_000;
+/** Never spend more than one minute of a request waiting to retry email. */
+const RESEND_RETRY_MAX_TOTAL_WAIT_MS = 60_000;
 
 type Sleep = (ms: number) => Promise<void>;
 
@@ -194,7 +195,7 @@ function resendRetryDelayMs(error: unknown, attempt: number, nowMs: number): num
         nowMs,
       );
   const backoff = RESEND_RETRY_BASE_DELAY_MS * (2 ** (attempt - 1));
-  return Math.min(Math.max(hintedDelay ?? backoff, backoff), RESEND_RETRY_MAX_DELAY_MS);
+  return Math.max(hintedDelay ?? backoff, backoff);
 }
 
 export async function sendBrandedEmail(
@@ -224,6 +225,7 @@ export async function sendBrandedEmail(
   };
   const sleep = retryOptions.sleep ?? ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
   const now = retryOptions.now ?? Date.now;
+  let totalRetryWaitMs = 0;
 
   for (let attempt = 1; attempt <= RESEND_MAX_ATTEMPTS; attempt++) {
     let result: Awaited<ReturnType<Resend['emails']['send']>>;
@@ -233,7 +235,12 @@ export async function sendBrandedEmail(
         : await resend.emails.send(payload);
     } catch (err) {
       const delayMs = resendRetryDelayMs(err, attempt, now());
-      if (delayMs !== null && attempt < RESEND_MAX_ATTEMPTS) {
+      if (
+        delayMs !== null
+        && attempt < RESEND_MAX_ATTEMPTS
+        && totalRetryWaitMs + delayMs <= RESEND_RETRY_MAX_TOTAL_WAIT_MS
+      ) {
+        totalRetryWaitMs += delayMs;
         await sleep(delayMs);
         continue;
       }
@@ -244,7 +251,12 @@ export async function sendBrandedEmail(
     // Resend resolves with { data, error } instead of throwing on API errors.
     if (!result.error) return result;
     const delayMs = resendRetryDelayMs(result.error, attempt, now());
-    if (delayMs !== null && attempt < RESEND_MAX_ATTEMPTS) {
+    if (
+      delayMs !== null
+      && attempt < RESEND_MAX_ATTEMPTS
+      && totalRetryWaitMs + delayMs <= RESEND_RETRY_MAX_TOTAL_WAIT_MS
+    ) {
+      totalRetryWaitMs += delayMs;
       await sleep(delayMs);
       continue;
     }

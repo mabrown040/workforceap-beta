@@ -7,7 +7,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
-import { createBoundedPacer } from '@/lib/email/pacing';
+import { boundedPacingCapacity, createBoundedPacer } from '@/lib/email/pacing';
 import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
 
 export const maxDuration = 300;
@@ -52,17 +52,24 @@ async function handle(_request: Request) {
 
   let sent = 0;
   let failed = 0;
-  let skipped = 0;
+  const sendCandidateLimit = boundedPacingCapacity(
+    RECAP_SEND_INTERVAL_MS,
+    RECAP_PACING_MAX_TOTAL_WAIT_MS,
+  );
+  const sendCandidates = members.slice(0, sendCandidateLimit);
+  let skipped = members.length - sendCandidates.length;
 
-  // Batch-generate recaps to eliminate read-side N+1 (~10 queries total vs 10×N)
-  const recaps = await generateWeeklyRecaps(members, weekStart);
+  // Generate only the rows this invocation has enough pacing budget to send.
+  // A persisted WeeklyRecap excludes the member from the next run, so generating
+  // rows for the skipped tail would silently make those recipients non-retryable.
+  const recaps = await generateWeeklyRecaps(sendCandidates, weekStart);
   const recapByUserId = new Map(recaps.map((r) => [r.userId, r.recapData]));
   const waitForSendSlot = createBoundedPacer({
     intervalMs: RECAP_SEND_INTERVAL_MS,
     maxTotalWaitMs: RECAP_PACING_MAX_TOTAL_WAIT_MS,
   });
 
-  for (const [index, member] of members.entries()) {
+  for (const [index, member] of sendCandidates.entries()) {
     try {
       const recapData = recapByUserId.get(member.id) as Parameters<typeof buildWeeklyRecapEmailSummary>[0] | undefined;
       if (!recapData) { failed++; continue; }
@@ -70,7 +77,7 @@ async function handle(_request: Request) {
       const recapSummary = buildWeeklyRecapEmailSummary(recapData);
       const pace = await waitForSendSlot();
       if (!pace.ok) {
-        skipped += members.length - index;
+        skipped += sendCandidates.length - index;
         break;
       }
 

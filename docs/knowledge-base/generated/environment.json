@@ -963,7 +963,7 @@
         },
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 600
+          "line": 602
         }
       ]
     },
@@ -2722,6 +2722,17 @@
       ]
     },
     {
+      "name": "PLACEMENT_SURVEY_MIGRATION_PROOF_DATABASE_URL",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "tests/migrations/placement-survey-sent-state.mjs",
+          "line": 12
+        }
+      ]
+    },
+    {
       "name": "PLACEMENT_SURVEY_TOKEN_SECRET",
       "publicPrefix": false,
       "declaredInRootExample": true,
@@ -3121,7 +3132,7 @@
         },
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 601
+          "line": 603
         },
         {
           "file": "tests/api/employer-signup.spec.ts",
@@ -3172,7 +3183,7 @@
         },
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 602
+          "line": 604
         }
       ]
     },
@@ -3434,7 +3445,11 @@
       "references": [
         {
           "file": "scripts/p1/test-force-rls.ts",
-          "line": 589
+          "line": 591
+        },
+        {
+          "file": "tests/migrations/placement-survey-sent-state.mjs",
+          "line": 13
         }
       ]
     },

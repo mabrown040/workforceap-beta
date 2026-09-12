@@ -106001,8 +106001,16 @@
   },
   {
     "from": "scripts/p1/test-force-rls.ts",
-    "specifier": "node:child_process",
+    "specifier": "../../tests/migrations/placement-survey-sent-state.mjs",
     "line": 40,
+    "kind": "import",
+    "external": false,
+    "target": "tests/migrations/placement-survey-sent-state.mjs"
+  },
+  {
+    "from": "scripts/p1/test-force-rls.ts",
+    "specifier": "node:child_process",
+    "line": 42,
     "kind": "import",
     "external": true,
     "package": "node:child_process"
@@ -106010,7 +106018,7 @@
   {
     "from": "scripts/p1/test-force-rls.ts",
     "specifier": "@prisma/client",
-    "line": 41,
+    "line": 43,
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
@@ -106018,7 +106026,7 @@
   {
     "from": "scripts/p1/test-force-rls.ts",
     "specifier": "../../lib/db/gucContext",
-    "line": 42,
+    "line": 44,
     "kind": "import",
     "external": false,
     "target": "lib/db/gucContext.ts"
@@ -118638,6 +118646,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/xapi/reprocess.ts"
+  },
+  {
+    "from": "tests/migrations/placement-survey-sent-state.mjs",
+    "specifier": "node:assert/strict",
+    "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "tests/migrations/placement-survey-sent-state.mjs",
+    "specifier": "node:fs",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/migrations/placement-survey-sent-state.mjs",
+    "specifier": "node:child_process",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "node:child_process"
   },
   {
     "from": "tests/pdf-deployment.test.ts",

@@ -35,6 +35,11 @@ test('schema and migration use nullable sentAt with persisted delivery-attempt i
 
   const migration = read('prisma/migrations/20260912130000_placement_survey_nullable_sent_at/migration.sql');
   assert.match(migration, /SET "sent_at" = NULL/);
+  assert.ok(
+    migration.indexOf('ALTER COLUMN "sent_at" DROP NOT NULL')
+      < migration.indexOf('SET "sent_at" = NULL'),
+    'sent_at must be nullable before epoch rows are backfilled to NULL',
+  );
   assert.match(migration, /ADD COLUMN "delivery_attempt" INTEGER NOT NULL DEFAULT 1/);
   assert.match(migration, /ADD COLUMN "accepted_attempt" INTEGER NOT NULL DEFAULT 0/);
 });

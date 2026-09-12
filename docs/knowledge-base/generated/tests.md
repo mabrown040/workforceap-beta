@@ -283,6 +283,7 @@
 | [tests/lib/xapi-first-completion-side-effects.spec.ts](../../../tests/lib/xapi-first-completion-side-effects.spec.ts) | 216 | tests |  |
 | [tests/lib/xapi-replay-tenant-boundary.spec.ts](../../../tests/lib/xapi-replay-tenant-boundary.spec.ts) | 121 | tests |  |
 | [tests/lib/xapi-reprocess-tenant-boundary.spec.ts](../../../tests/lib/xapi-reprocess-tenant-boundary.spec.ts) | 119 | tests |  |
+| [tests/migrations/placement-survey-sent-state.mjs](../../../tests/migrations/placement-survey-sent-state.mjs) | 146 | tests |  |
 | [tests/pdf-deployment.test.ts](../../../tests/pdf-deployment.test.ts) | 53 | tests |  |
 | [tests/portal-audit-auth.test.ts](../../../tests/portal-audit-auth.test.ts) | 44 | tests |  |
 | [tests/portal-audit-classify.test.ts](../../../tests/portal-audit-classify.test.ts) | 119 | tests |  |

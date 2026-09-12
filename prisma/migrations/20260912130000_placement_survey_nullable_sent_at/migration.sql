@@ -1,13 +1,13 @@
 -- Placement survey rows must exist before email provider acceptance because
 -- their ids are signed into survey URLs. Represent that pre-acceptance state
 -- as NULL rather than the historical Unix-epoch sentinel.
-UPDATE "placement_surveys"
-SET "sent_at" = NULL
-WHERE "sent_at" = TIMESTAMPTZ '1970-01-01 00:00:00+00';
-
 ALTER TABLE "placement_surveys"
 ALTER COLUMN "sent_at" DROP NOT NULL,
 ALTER COLUMN "sent_at" DROP DEFAULT;
+
+UPDATE "placement_surveys"
+SET "sent_at" = NULL
+WHERE "sent_at" = TIMESTAMPTZ '1970-01-01 00:00:00+00';
 
 ALTER TABLE "placement_surveys"
 ADD COLUMN "token_expires_at" TIMESTAMPTZ,

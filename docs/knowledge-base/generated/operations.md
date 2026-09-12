@@ -81,7 +81,7 @@
 | [scripts/locked-stakes/check-i18n-safe-diff.mjs](../../../scripts/locked-stakes/check-i18n-safe-diff.mjs) | 296 | operations | checkI18nSafeDiff:225 |
 | [scripts/material-symbol-glyphs.txt](../../../scripts/material-symbol-glyphs.txt) | 217 | operations |  |
 | [scripts/migrate-metadata-async.mjs](../../../scripts/migrate-metadata-async.mjs) | 80 | operations |  |
-| [scripts/p1/test-force-rls.ts](../../../scripts/p1/test-force-rls.ts) | 1124 | operations |  |
+| [scripts/p1/test-force-rls.ts](../../../scripts/p1/test-force-rls.ts) | 1126 | operations |  |
 | [scripts/portal-screenshots.mjs](../../../scripts/portal-screenshots.mjs) | 291 | operations |  |
 | [scripts/precreate-coursera-tenant-indexes.ts](../../../scripts/precreate-coursera-tenant-indexes.ts) | 225 | learning-coursera |  |
 | [scripts/prisma-env.js](../../../scripts/prisma-env.js) | 75 | operations |  |

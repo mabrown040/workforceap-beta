@@ -1,5 +1,16 @@
 # AGENTS.md
 
+## Repository knowledge and navigation
+
+Start with [the Workforce AP knowledge base](docs/knowledge-base/README.md) and its
+[compact agent context](docs/knowledge-base/agent-context.md). It connects every
+tracked area to routes, models, dependencies, tests, architecture diagrams and
+evidence-backed technical debt. Use `npm run kb:query -- "symbol or feature"` for
+focused lookup. Update the relevant guide and run `npm run kb:generate` after
+staging source changes; `npm run kb:test` and `npm run kb:check` validate the tools,
+index freshness and links. The existing domain, deployment and database rules
+below remain authoritative; static indexes do not prove live behavior.
+
 ## Cursor Cloud specific instructions
 
 This is the production **WorkforceAP Next.js 15 (App Router)** application at [workforceap.org](https://workforceap.org). It includes the public website plus authenticated member, counselor, employer, partner, and admin portals; the former Squarespace site is historical reference material, not the deployment target.

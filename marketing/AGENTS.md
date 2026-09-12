@@ -1,87 +1,74 @@
-# WorkforceAP marketing site — guide for AI agents (read this first)
+# WorkforceAP marketing authoring guide
 
-This is the **public marketing front** of WorkforceAP, built in **Astro** (static,
-zero-JS by default). The logged-in portal/app is a **separate Next.js** project —
-do not touch app/auth/data logic here; this repo is marketing pages only.
+This directory is the active Astro marketing package inside the WorkforceAP repository. The root Next.js application owns dynamic journeys, authentication and API handlers. Start with the [central knowledge base](../docs/knowledge-base/README.md), [architecture](../docs/knowledge-base/architecture.md) and [build routing](../docs/knowledge-base/operations.md#build-routing). Keep a marketing-only task within this directory unless its scope explicitly includes application behavior.
 
-You can build or edit a page by **composing the component kit below**. You almost
-never need to write raw HTML/CSS. Keep it simple.
+The root [Vercel build script](../scripts/vercel-build.cjs) validates its environment, installs and builds this package, copies `marketing/dist/` into root `public/`, then runs the selected Next build. Astro pages are build inputs; the presence of a filename does not prove which implementation serves an overlapping deployed URL. Do not point Astro's output directory at `public/`: Astro clears its output directory during builds.
 
-## Golden rules (do not break)
-1. **Truth-lock (501(c)(3) nonprofit).** NEVER invent statistics, percentages,
-   outcomes, salary numbers, member counts, or testimonials with named people.
-   Only use real facts: *25+ years, 501(c)(3), $0 for qualifying members,
-   certs IBM/Google/Microsoft/AWS/CompTIA, apply ~5 minutes, a real team reviews
-   and follows up in 1–2 business days, programs are employer-aligned.* If you
-   need a new claim, STOP and ask a human.
-2. **Light theme only.** Use the brand tokens; never add a dark mode here.
-3. **Reuse the kit + tokens.** Don't hardcode colors — use the CSS variables.
-4. **Every change must build.** Run `npm run build` and make sure it passes
-   before you're done.
+## Authoring rules
 
-## Brand tokens (in `src/styles/blend.css`, available everywhere)
-`--crimson #ad2c4d` (primary) · `--accent-dark #8c0f37` · `--gold #a47f38` ·
-`--blue #2b7bb9` · `--green #4a9b4f` · `--bg #f7f4f1` · `--surface #fff` ·
-`--text` · `--muted` · `--border`. Fonts: Inter (body) + Plus Jakarta Sans (headings).
-Button classes: `btn btn--primary` / `btn--ghost` / `btn--light` / `btn--translucent`.
+1. **Keep claims truthful.** Preserve approved nonprofit and qualifying-member copy. Do not invent statistics, outcomes, salaries, member counts, named testimonials, eligibility promises or response times. Verify a new claim with its source and the responsible human before publishing it.
+2. **Keep the light theme and brand tokens.** Reuse the styles below; do not add a dark mode or hardcode a new palette.
+3. **Reuse actual source.** Compose semantic HTML with the existing layout, icons and CSS classes. Check that a component and its props exist before importing it.
+4. **Check the whole URL.** Before adding or renaming a page, inspect both framework route sources, redirects and middleware. Preserve the active worker's ownership and existing application contracts.
+5. **Validate the change.** For page/component/style changes, run the marketing build and check the affected page in a browser. A successful Astro build does not verify the combined Next deployment, API responses, forms or provider delivery. Documentation-only changes need source/link checks; report any validation that was not run.
 
-## The component kit (`src/components/ui/`)
-| Component | What it is | Key props |
-|---|---|---|
-| `Layout` (`src/layouts/Layout.astro`) | page shell: nav + footer + fonts | `title`, `description`, `lang` |
-| `Section` | a vertical band (wrap each block) | `surface` (white bg), `id`, `narrow` |
-| `SectionHead` | centered eyebrow + heading + subtitle | `eyebrow`, `title`, `titleAccent`, `subtitle` |
-| `Pill` | the gold badge | child text; `tone` gold\|crimson |
-| `Card` | surface card w/ icon, title, body, link | `title`, `body`, `icon`, `tone`, `href`, `cta` |
-| `Grid` | responsive grid for cards | `cols` 2\|3\|4 |
-| `Cta` | crimson closing call-to-action band | `title`, `copy`, `primary {href,label}`, `secondary` |
+## Existing building blocks
 
-## Recipe: add a new page
-1. Create `src/pages/<name>.astro` (it becomes the route `/<name>`).
-2. Paste this template and edit the text (real copy only):
+| Source | Use |
+| --- | --- |
+| [Layout.astro](src/layouts/Layout.astro) | Page document, navigation, footer, fonts and shared styles; optional `title`, `description`, `lang` props. It provides the main landmark and renders the default slot. |
+| [Icon.astro](src/components/Icon.astro) | Shared decorative SVG icons; `name`, `size`, `class`. Choose a name from its `ICONS` map; give the surrounding control accessible text. |
+| [Home.astro](src/components/Home.astro) | Existing translated home composition; see [index.astro](src/pages/index.astro) and [localized home](src/pages/%5Blang%5D/index.astro). |
+| [CareerQuiz.tsx](src/components/CareerQuiz.tsx) | React island used by [career-quiz.astro](src/pages/career-quiz.astro). Inspect that source before changing scoring or hydration. |
+| [FindYourPathQuiz.tsx](src/components/FindYourPathQuiz.tsx) and [InterestProfilerQuiz.tsx](src/components/InterestProfilerQuiz.tsx) | Existing interactive quiz flows, with distinct data/API behavior. |
+| [AnalyticsHead.astro](src/components/AnalyticsHead.astro) and [ConsentBanner.astro](src/components/ConsentBanner.astro) | Already included by the layout; do not mount a second copy in each page. |
+
+There is no `src/components/ui/` kit at this baseline. Use [blend.css](src/styles/blend.css) and real page compositions such as [career-quiz.astro](src/pages/career-quiz.astro); do not copy imports from historical component recipes.
+
+`Layout` imports the shared [brand styles](src/styles/blend.css). Existing tokens include `--crimson`, `--accent-dark`, `--gold`, `--blue`, `--green`, `--bg`, `--surface`, `--text`, `--muted` and `--border`. Fonts are Inter for body text and Plus Jakarta Sans for headings. Reusable classes include `wrap`, `band`, `band--surface`, `sec-head` and `btn` with `btn--primary`, `btn--ghost`, `btn--light` or `btn--translucent`.
+
+## Recipe: add a simple page
+
+1. Choose a candidate URL and check [Astro pages](src/pages), root [Next routes](../app), [middleware](../middleware.ts), [Next configuration](../next.config.ts), [Vercel configuration](../vercel.json) and [Astro configuration](astro.config.mjs) for overlap or redirects. The [generated route catalog](../docs/knowledge-base/generated/routes.md) is a navigation aid; check the current source and deployed precedence separately. A dynamic filename also needs its actual `getStaticPaths` behavior reviewed.
+2. Create `src/pages/<name>.astro` only after that scope check. This example uses existing imports and classes; replace the placeholder title and copy with approved content. Relative imports below are for a page directly under `src/pages/`.
 
 ```astro
 ---
 import Layout from '../layouts/Layout.astro';
-import Section from '../components/ui/Section.astro';
-import SectionHead from '../components/ui/SectionHead.astro';
-import Grid from '../components/ui/Grid.astro';
-import Card from '../components/ui/Card.astro';
-import Cta from '../components/ui/Cta.astro';
+import Icon from '../components/Icon.astro';
 ---
-<Layout title="Page title — WorkforceAP" description="One real sentence.">
-  <Section>
-    <SectionHead eyebrow="Eyebrow" title="Real heading" titleAccent="accent words"
-      subtitle="One real sentence of supporting copy." />
-    <Grid cols={3}>
-      <Card icon="📄" tone="crimson" title="Real title" body="Real description." href="/apply" cta="Learn more" />
-      <Card icon="🎙️" tone="gold" title="Real title" body="Real description." />
-      <Card icon="🧭" tone="blue" title="Real title" body="Real description." />
-    </Grid>
-  </Section>
-
-  <Cta title="Your next step starts with one application."
-    copy="Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days."
-    primary={{ href: '/apply', label: 'Start your application' }}
-    secondary={{ href: '/find-your-path', label: 'Find your path' }} />
+<Layout title="Page title — WorkforceAP" description="An approved page summary.">
+  <section class="band band--surface" aria-labelledby="page-title">
+    <div class="wrap">
+      <header class="sec-head">
+        <h1 id="page-title">Page title</h1>
+        <p>Approved information for this page.</p>
+      </header>
+      <a class="btn btn--primary" href="/programs">
+        <Icon name="briefcase" size={20} /> Explore programs
+      </a>
+    </div>
+  </section>
 </Layout>
 ```
 
-3. Run `npm run build`. If it passes, you're done. Look at `src/pages/index.astro`
-   for a full real example, and any `src/pages/v/*.astro` for design variants.
+3. From `marketing/`, run `npm run build`, then `npm run preview` to inspect the built page. Check mobile layout, keyboard navigation, headings and link destinations. Follow the root checks for any combined routing or application change; the local Astro preview alone cannot prove the production URL or an API journey.
 
-## Interactivity (rare)
-Static HTML is the default. Only when a page genuinely needs interactivity (a
-form, a toggle) add a React island in `src/components/*.tsx` and use it with
-`client:visible` — see `src/components/EligibilityForm.tsx` used in
-`src/pages/apply.astro`. Keep islands small; everything else stays static.
+## Interactivity and APIs
 
-## i18n
-Real translations live in `src/i18n/{en,es,fr,pt}.json`; use `useT(lang)` from
-`src/i18n/t.ts` (`t('nav.programs')`). Missing keys fall back to English. See
-`src/components/Home.astro` + `src/pages/[lang]/index.astro` for the pattern.
+Static HTML is the default. Use small React islands only when interaction needs them; [career-quiz.astro](src/pages/career-quiz.astro) uses `client:visible`. Existing pages also use ordinary browser scripts: [contact](src/pages/contact.astro), [partner signup](src/pages/partners.astro) and [careers](src/pages/careers.astro) call root Next API routes. These are not uniformly static form mockups.
+
+An Astro-only dev/preview server does not provide those Next APIs. Test an interactive journey on an explicitly configured combined target, preserving validation, captcha and consent contracts. Public configuration needed by static pages is selected at build time; inspect the relevant page before changing environment names. Keep server secrets out of frontmatter values that render into HTML and out of browser scripts.
+
+## Internationalization
+
+Translations live in [src/i18n](src/i18n): `en.json`, `es.json`, `fr.json`, `pt.json`. Use `useT(lang)` from [t.ts](src/i18n/t.ts); missing translations fall back to English, then the key. [Home.astro](src/components/Home.astro) and [the localized home route](src/pages/%5Blang%5D/index.astro) show the current pattern. Setting the layout's `lang` prop does not translate arbitrary text. Astro locale configuration and root middleware rewriting both affect URLs; do not assume every page has generated translations.
 
 ## Commands
-- `npm run dev` — local preview (hot reload)
-- `npm run build` — **must pass before finishing**
-- `npm run preview` — serve the built site
+
+Run these inside `marketing/`; its package and lockfile are separate from the root pnpm package.
+
+- `npm ci` — install the locked marketing dependencies.
+- `npm run dev` — Astro development server, normally port 4321.
+- `npm run build` — compile static output into `dist/`.
+- `npm run preview` — serve that built output locally.

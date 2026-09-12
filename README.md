@@ -1,8 +1,10 @@
 # WorkforceAP
 
+**Developer and agent map:** [Knowledge base](docs/knowledge-base/README.md) · [Architecture](docs/knowledge-base/architecture.md) · [Complete index](docs/knowledge-base/generated/README.md) · [Technical debt](docs/knowledge-base/technical-debt.md).
+
 [WorkforceAP](https://www.workforceap.org) is a 501(c)(3) nonprofit providing no-cost career training programs to low-income and underemployed adults in Austin/Central Texas and beyond.
 
-This repository contains the full Next.js application — public marketing site, member portal, employer/partner dashboards, admin tools, AI-powered career coaching, and Coursera learning integration.
+This repository contains the Next.js application and active Astro marketing build — public site, member portal, employer/partner dashboards, admin tools, AI-powered career coaching, and Coursera learning integration.
 
 ## Quick Start
 
@@ -13,16 +15,16 @@ corepack pnpm@10 install --frozen-lockfile
 # 2. Copy and fill env vars
 cp .env.example .env.local
 
-# 3. Set up the database
+# 3. Generate the client for an approved development database
 npm run db:generate
-npm run db:migrate
-npm run db:seed
+# Follow docs/DATABASE-RECOVERY.md for database preparation.
+# Clean historical migration replay is unsupported.
 
 # 4. Start the dev server
 npm run dev
 ```
 
-App runs at `http://localhost:3000`.
+App runs at `http://localhost:3000`. Use an approved development database or the governed disposable fixture/recovery procedure in [DATABASE-RECOVERY.md](docs/DATABASE-RECOVERY.md). Keep production credentials and data out of local/preview setup.
 
 ## Developer Onboarding
 

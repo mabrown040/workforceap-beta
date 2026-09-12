@@ -277,7 +277,7 @@
 | [app/api/counselor/remind-member/route.ts](../../../app/api/counselor/remind-member/route.ts) | 96 | member-counselor | POST:12 |
 | [app/api/counselor/session/route.ts](../../../app/api/counselor/session/route.ts) | 106 | member-counselor | POST:106 |
 | [app/api/counselor/sessions/email-packet/route.ts](../../../app/api/counselor/sessions/email-packet/route.ts) | 382 | communications | POST:161 |
-| [app/api/counselor/sessions/upload-resume/route.test.ts](../../../app/api/counselor/sessions/upload-resume/route.test.ts) | 42 | member-counselor |  |
+| [app/api/counselor/sessions/upload-resume/route.test.ts](../../../app/api/counselor/sessions/upload-resume/route.test.ts) | 45 | member-counselor |  |
 | [app/api/counselor/sessions/upload-resume/route.ts](../../../app/api/counselor/sessions/upload-resume/route.ts) | 155 | member-counselor | POST:38 |
 | [app/api/counselor/sessions/voice-walkthrough/route.ts](../../../app/api/counselor/sessions/voice-walkthrough/route.ts) | 192 | member-counselor | POST:192 |
 | [app/api/counselor/sessions/walk-in/route.ts](../../../app/api/counselor/sessions/walk-in/route.ts) | 324 | member-counselor | POST:60 |
@@ -513,7 +513,7 @@
 | [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) | 76 | api | POST:17, GET:48 |
 | [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | 392 | learning-coursera | POST:88 |
 | [app/api/webhooks/learning-completion/_webhook.ts](../../../app/api/webhooks/learning-completion/_webhook.ts) | 82 | api | webhookSchema:5, verifyWebhookSecret:11, buildDedupeKey:27, checkIdempotency:33 |
-| [app/api/webhooks/learning-completion/route.test.ts](../../../app/api/webhooks/learning-completion/route.test.ts) | 234 | api |  |
+| [app/api/webhooks/learning-completion/route.test.ts](../../../app/api/webhooks/learning-completion/route.test.ts) | 236 | api |  |
 | [app/api/webhooks/learning-completion/route.ts](../../../app/api/webhooks/learning-completion/route.ts) | 182 | api | POST:22 |
 | [app/api/xapi/about/route.ts](../../../app/api/xapi/about/route.ts) | 14 | learning-coursera | GET:3 |
 | [app/api/xapi/config/route.ts](../../../app/api/xapi/config/route.ts) | 43 | learning-coursera | GET:6, POST:31 |

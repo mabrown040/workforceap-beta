@@ -294,4 +294,4 @@
 | [tests/scripts/safe-migrate.spec.ts](../../../tests/scripts/safe-migrate.spec.ts) | 121 | tests |  |
 | [tests/server-only-stub.cjs](../../../tests/server-only-stub.cjs) | 8 | tests |  |
 | [tests/setup.ts](../../../tests/setup.ts) | 1 | tests |  |
-| [tests/test-runner-coverage.test.ts](../../../tests/test-runner-coverage.test.ts) | 32 | tests |  |
+| [tests/test-runner-coverage.test.ts](../../../tests/test-runner-coverage.test.ts) | 166 | tests |  |

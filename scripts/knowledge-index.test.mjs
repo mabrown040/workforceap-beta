@@ -220,8 +220,11 @@ test('declared runner ownership separates selected, delegated, skipped, blocked 
     ['scripts/test-unit.mjs', `
       const SKIP_REASONS = { vitest: 'Vitest owns this suite', realDb: 'Needs a live DB' };
       for await (const entry of glob('lib/**/*.test.ts')) {}
+      for await (const entry of glob('app/**/*.test.ts')) {}
+      for await (const entry of glob('scripts/**/*.test.cjs')) {}
       function classify(normalized) {
         const importsVitest = /from\\s+['"]vitest['"]/.test(src);
+        if (/app\\/api\\/apply\\/signup\\/route\\.test\\.ts/.test(normalized)) return { skip: 'vitest' };
         if (/lib\\/database\\.test\\.ts/.test(normalized)) return { skip: 'realDb' };
       }`],
     ['vitest.config.ts', `export default defineConfig({ test: { include: ['tests/**/*.spec.ts', ...VITEST_LIBRARY_SPECS], exclude: ['tests/e2e/**'], setupFiles: ['./tests/setup.ts'] } });`],
@@ -236,7 +239,9 @@ test('declared runner ownership separates selected, delegated, skipped, blocked 
   assert.deepEqual(classify('tests/e2e/phone.spec.ts').declaredRunners.map(({ status }) => status), ['excluded', 'selected']);
   assert.equal(classify('tests/e2e/auth-helpers.ts').kind, 'test-helper');
   assert.equal(classify('tests/setup.ts').declaredRunners[0].status, 'setup-helper');
-  assert.equal(classify('app/api/example/route.test.ts').collectionStatus, 'not-selected-by-indexed-runners');
+  assert.equal(classify('app/api/example/route.test.ts').declaredRunners[0].status, 'selected');
+  assert.equal(classify('app/api/apply/signup/route.test.ts', "import { describe } from 'vitest';").declaredRunners[0].status, 'skipped');
+  assert.equal(classify('graph/evidence/example.test.ts').collectionStatus, 'not-selected-by-indexed-runners');
   assert.equal(classify('scripts/knowledge-index.test.mjs').declaredRunners[0].runner, 'npm:kb:test');
 });
 

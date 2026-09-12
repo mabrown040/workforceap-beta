@@ -106346,7 +106346,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:child_process",
-    "line": 25,
+    "line": 23,
     "kind": "import",
     "external": true,
     "package": "node:child_process"
@@ -106354,7 +106354,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:fs",
-    "line": 26,
+    "line": 24,
     "kind": "import",
     "external": true,
     "package": "node:fs"
@@ -106362,7 +106362,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:fs/promises",
-    "line": 27,
+    "line": 25,
     "kind": "import",
     "external": true,
     "package": "node:fs"
@@ -106370,7 +106370,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:url",
-    "line": 28,
+    "line": 26,
     "kind": "import",
     "external": true,
     "package": "node:url"
@@ -106378,7 +106378,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "node:path",
-    "line": 29,
+    "line": 27,
     "kind": "import",
     "external": true,
     "package": "node:path"
@@ -106386,7 +106386,7 @@
   {
     "from": "scripts/test-unit.mjs",
     "specifier": "./vitest-library-specs.mjs",
-    "line": 30,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "scripts/vitest-library-specs.mjs"

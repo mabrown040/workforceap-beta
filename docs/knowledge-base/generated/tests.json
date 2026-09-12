@@ -17,8 +17,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -39,8 +45,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -61,8 +73,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -74,8 +92,14 @@
     ],
     "localReferences": [],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -87,8 +111,14 @@
     ],
     "localReferences": [],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -100,8 +130,14 @@
     ],
     "localReferences": [],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -113,8 +149,14 @@
     ],
     "localReferences": [],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -131,8 +173,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -149,8 +197,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -167,8 +221,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -195,6 +255,13 @@
     "kind": "test-candidate",
     "declaredRunners": [
       {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "skipped",
+        "reason": "owned by npm run test:vitest (shared manifest; collection guarded)",
+        "sourceLine": 84
+      },
+      {
         "runner": "vitest",
         "source": "vitest.config.ts",
         "status": "selected"
@@ -217,8 +284,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -230,8 +303,14 @@
     ],
     "localReferences": [],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -248,8 +327,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -270,8 +355,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -288,8 +379,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -306,8 +403,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -324,8 +427,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -346,8 +455,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -1239,8 +1354,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -1273,8 +1394,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -1291,8 +1418,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -1309,8 +1442,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -1331,8 +1470,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -2945,7 +3090,7 @@
         "source": "scripts/test-unit.mjs",
         "status": "skipped",
         "reason": "requires a live postgres connection (no Prisma mock layer in this spec)",
-        "sourceLine": 82
+        "sourceLine": 89
       }
     ],
     "collectionStatus": "not-selected-by-indexed-runners",
@@ -4470,12 +4615,10 @@
       {
         "runner": "node-unit",
         "source": "scripts/test-unit.mjs",
-        "status": "skipped",
-        "reason": "imports 'server-only' (no test-env shim yet)",
-        "sourceLine": 79
+        "status": "selected"
       }
     ],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -7793,12 +7936,10 @@
       {
         "runner": "node-unit",
         "source": "scripts/test-unit.mjs",
-        "status": "skipped",
-        "reason": "imports 'server-only' (no test-env shim yet)",
-        "sourceLine": 79
+        "status": "selected"
       }
     ],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -7999,8 +8140,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -8039,8 +8186,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
@@ -8057,8 +8210,14 @@
       }
     ],
     "kind": "test-candidate",
-    "declaredRunners": [],
-    "collectionStatus": "not-selected-by-indexed-runners",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {

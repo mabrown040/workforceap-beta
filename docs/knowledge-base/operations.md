@@ -39,7 +39,7 @@ The commands are defined in [package.json](../../package.json#L6); the table dis
 | --- | --- |
 | `npm run typecheck` | TypeScript without emitting application output. |
 | `npm run lint` | ESLint; also enforced by [Next build configuration](../../next.config.ts#L55). |
-| `npm run test:unit` | Node library lane. [test-unit.mjs](../../scripts/test-unit.mjs#L35) logs explicit Vitest, server-only and real-DB delegations/skips. `npm test` runs only this lane. |
+| `npm run test:unit` | Node unit lane for `lib/`, `app/`, `emails/`, `shared/` and `scripts/` node:test suites. [test-unit.mjs](../../scripts/test-unit.mjs) stubs `server-only` and logs explicit Vitest and real-DB delegations/skips. `npm test` runs only this lane. |
 | `npm run test:vitest` | Component/API suites and registered library suites. [vitest.config.ts](../../vitest.config.ts#L9) and [the shared registry](../../scripts/vitest-library-specs.mjs) determine collection; [coverage ownership tests](../../tests/test-runner-coverage.test.ts) protect it. Run both lanes. |
 | `npm run test:e2e` | Playwright journeys; requires the appropriate running application, fixtures and credentials. Review [playwright.config.ts](../../playwright.config.ts) before choosing a target. |
 | `npm run build:local` | Font check, Prisma generation and Next compilation. Does not apply migrations or automatically build marketing. |

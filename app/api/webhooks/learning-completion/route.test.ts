@@ -216,7 +216,7 @@ test('checkIdempotency returns already_processed on P2002 race condition', async
   assert.equal(result, 'already_processed');
 });
 
-test('checkIdempotency returns already_processed for mid-flight retry (unprocessed row exists)', async (t) => {
+test('checkIdempotency returns fresh for mid-flight retry (unprocessed row exists)', async (t) => {
   const xapiDelegate = (prisma as any).xapiStatement;
   const originalFindUnique = xapiDelegate.findUnique;
   const originalUpdateMany = xapiDelegate.updateMany;
@@ -227,8 +227,10 @@ test('checkIdempotency returns already_processed for mid-flight retry (unprocess
   });
 
   xapiDelegate.findUnique = async () => ({ processed: false });
-  xapiDelegate.updateMany = async (_args: any) => ({ count: 1 });
+  xapiDelegate.updateMany = async () => {
+    throw new Error('must not mark unprocessed rows as processed during check');
+  };
 
   const result = await checkIdempotency('wh:learning-completion:evt-4');
-  assert.equal(result, 'already_processed');
+  assert.equal(result, 'fresh');
 });

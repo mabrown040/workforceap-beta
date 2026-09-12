@@ -395,10 +395,12 @@ export function declaredTestOwnership(file, text, runners) {
   if (node.patterns.some((pattern) => matchesDeclaredGlob(file, pattern))) {
     const importsVitest = node.vitestImportPatterns.some((pattern) => regexMatches(pattern, text));
     const skip = node.skipRules.find((pattern) => regexMatches(pattern, file));
-    selections.push({ runner: 'node-unit', source: node.source,
-      status: importsVitest ? node.delegatedVitestFiles.includes(file) ? 'delegated' : 'blocked-unregistered' : skip ? 'skipped' : 'selected',
-      ...(importsVitest ? { reason: node.delegatedVitestFiles.includes(file) ? node.skipReasons.vitest || 'Delegated to shared Vitest manifest' : 'Vitest import is absent from the shared library manifest; Node runner rejects it' }
-        : skip ? { reason: node.skipReasons[skip.reason] || skip.reason, sourceLine: skip.line } : {}) });
+    const delegated = node.delegatedVitestFiles.includes(file);
+    const status = skip ? 'skipped' : importsVitest ? delegated ? 'delegated' : 'blocked-unregistered' : 'selected';
+    selections.push({ runner: 'node-unit', source: node.source, status,
+      ...(skip ? { reason: node.skipReasons[skip.reason] || skip.reason, sourceLine: skip.line }
+        : importsVitest ? { reason: delegated ? node.skipReasons.vitest || 'Delegated to shared Vitest manifest' : 'Vitest import is absent from the shared library manifest; Node runner rejects it' }
+        : {}) });
   }
   if (vitest.include.some((pattern) => matchesDeclaredGlob(file, pattern))) {
     const excluded = vitest.exclude.find((pattern) => matchesDeclaredGlob(file, pattern));

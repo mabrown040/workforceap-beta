@@ -229,6 +229,7 @@ describe('GET /api/cron/at-risk-alerts', () => {
         skippedNoCounselor: 0,
         skippedAlreadyNotified: 0,
         skippedPacing: 0,
+        skippedFixture: 0,
         results: [],
       });
       expect(sendCounselorAtRiskAlertEmail).not.toHaveBeenCalled();
@@ -321,6 +322,32 @@ describe('GET /api/cron/at-risk-alerts', () => {
       expect(pacing.run).toHaveBeenCalledTimes(2);
       expect(sendCounselorAtRiskAlertEmail).toHaveBeenCalledOnce();
       expect(sendMemberCheckInEmail).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('fixture skip accounting', () => {
+    it('does not count fixture-skipped counselor or member sends as sent or failed', async () => {
+      vi.mocked(calculateAllAtRiskScores).mockResolvedValue(mockScores([
+        { userId: 'user-1', score: 75, factors: [{ description: 'No login' }], recommendedAction: 'Call' },
+      ]));
+      vi.mocked(prisma.user.findMany)
+        .mockResolvedValueOnce(mockMembers([{ id: 'user-1', fullName: 'Fixture', email: 'fixture@example.com', counselorAssignments: [{ counselor: { id: 'counselor-1', user: { email: 'fixture-counselor@example.com', fullName: 'Fixture Counselor' } } }] }]))
+        .mockResolvedValueOnce(mockMembers([{ id: 'user-2', fullName: 'Fixture Member', email: 'member@example.com', counselorAssignments: [] }]));
+      vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'alert-1', userId: 'user-1', notifiedCounselorAt: null }] as any);
+      vi.mocked(prisma.atRiskAlert.createMany).mockResolvedValue({ count: 1 } as any);
+      vi.mocked(classifyMember).mockReturnValue({ tier: 'yellow', reasons: ['inactive'], daysSinceLogin: 11 } as any);
+      vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: false, skipped: true, error: 'fixture_recipient' } as any);
+      vi.mocked(sendMemberCheckInEmail).mockResolvedValue({ ok: false, skipped: true, error: 'fixture_recipient' } as any);
+
+      const response = await runAtRiskAlerts(makeRequest({ 'x-cron-secret': 'super-secret-cron-key' }));
+      const body = await response.json();
+      expect(body.counselorAlerts.counselorsNotified).toBe(0);
+      expect(body.counselorAlerts.skippedFixture).toBe(1);
+      expect(body.memberNudges.sentCheckIn).toBe(0);
+      expect(body.memberNudges.errors).toBe(0);
+      expect(body.memberNudges.skippedFixture).toBe(1);
+      expect(prisma.atRiskAlert.updateMany).not.toHaveBeenCalled();
+      expect(prisma.memberNudgeLog.create).not.toHaveBeenCalled();
     });
   });
 

@@ -178,7 +178,7 @@ export async function sendDuePlacementSurveys(
 
       if (!result.ok && 'skipped' in result && result.skipped) {
         await prisma.placementSurvey.delete({ where: { id: survey.id } }).catch(() => undefined);
-        skipped.push({ userId: placement.userId, reason: result.error });
+        skipped.push({ userId: placement.userId, reason: result.error ?? 'Skipped before provider send' });
         continue;
       }
 
@@ -301,7 +301,7 @@ export async function escalateStalePlacementSurveys(
     }));
 
     if (!result.ok && 'skipped' in result && result.skipped) {
-      skipped.push({ userId: user.id, reason: result.error });
+      skipped.push({ userId: user.id, reason: result.error ?? 'Skipped before provider send' });
       continue;
     }
 

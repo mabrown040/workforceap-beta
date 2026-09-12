@@ -1,15 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('resend', () => ({ Resend: class MockResend {} }));
 vi.mock('@/lib/email/send', () => {
+  class FixtureRecipientSkippedError extends Error {
+    readonly reason = 'fixture_recipient' as const;
+  }
   const sendBrandedEmail = vi.fn().mockResolvedValue(undefined);
-  return { sendBrandedEmail, sendBrandedEmailOrThrowOnSkip: sendBrandedEmail };
+  return {
+    FixtureRecipientSkippedError,
+    sendBrandedEmail,
+    sendBrandedEmailOrThrowOnSkip: sendBrandedEmail,
+  };
 });
 vi.mock('@/lib/tenant/organizationBranding', () => ({ getOrganizationBranding: vi.fn() }));
 import { courseAccountabilityHtml } from '@/emails/course-accountability';
 import { courseKickoffHtml } from '@/emails/course-kickoff';
 import { courseEnrolledHtml } from '@/emails/course-enrolled';
 import { sendCourseAccountabilityEmail, sendCourseKickoffEmail, sendCourseEnrolledEmail } from '@/lib/email';
-import { sendBrandedEmail } from '@/lib/email/send';
+import { FixtureRecipientSkippedError, sendBrandedEmail } from '@/lib/email/send';
 
 const text = (html: string) => new DOMParser().parseFromString(html, 'text/html').body.textContent!.replace(/\s+/g, ' ').trim();
 const input = { firstName: 'Jordan', programName: 'IT Support' };
@@ -42,6 +49,19 @@ describe('funding and course-assignment email accuracy', () => {
     expect(payload.subject).toBe('Your IT Support training reservation — funding update');
     expect(payload.html).toContain(courseAccountabilityHtml(input));
     expect(payload.html).not.toMatch(/paid for|80%|Open lesson one|dashboard\/training|Ready to start/i);
+  });
+
+  it('returns a fixture skip without logging it as a send failure', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(sendBrandedEmail).mockRejectedValueOnce(new FixtureRecipientSkippedError());
+
+    await expect(sendCourseAccountabilityEmail({
+      to: 'fixture@example.com',
+      fullName: 'Fixture User',
+      programName: 'IT Support',
+    })).resolves.toEqual({ ok: false, skipped: true, error: 'fixture_recipient' });
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('keeps both immediate email subjects, headings and links at program-next-step level', async () => {

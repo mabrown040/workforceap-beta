@@ -165,7 +165,7 @@ export async function sendVoiceCoachTranscriptEmail(params: {
   transcriptTurns: { role: 'agent' | 'user'; text: string }[];
   highlights?: string[];
   sessionId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendVoiceCoachTranscriptEmail: RESEND_API_KEY not set');
@@ -227,6 +227,9 @@ export async function sendVoiceCoachTranscriptEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendVoiceCoachTranscriptEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -240,7 +243,7 @@ export async function sendVoiceCoachArtifactEmail(params: {
   artifactTitle: string;
   artifactBody: string;
   highlights?: string[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendVoiceCoachArtifactEmail: RESEND_API_KEY not set');
@@ -292,6 +295,9 @@ export async function sendVoiceCoachArtifactEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendVoiceCoachArtifactEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -306,7 +312,7 @@ export async function sendVoiceInterviewTranscriptEmail(params: {
   transcriptTurns: { role: 'agent' | 'user'; text: string }[];
   feedback?: string;
   sessionId: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendVoiceInterviewTranscriptEmail: RESEND_API_KEY not set');
@@ -363,6 +369,9 @@ export async function sendVoiceInterviewTranscriptEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendVoiceInterviewTranscriptEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -376,7 +385,7 @@ export async function sendElevatorSpeechEmail(params: {
   certifications?: string | null;
   industry?: string | null;
   pitch: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendElevatorSpeechEmail: RESEND_API_KEY not set');
@@ -418,6 +427,9 @@ export async function sendElevatorSpeechEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendElevatorSpeechEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -436,7 +448,7 @@ export async function sendCounselorAssignedEmail(params: {
   memberFullName: string;
   counselorFullName: string;
   orgId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCounselorAssignedEmail: RESEND_API_KEY not set');
@@ -466,6 +478,9 @@ export async function sendCounselorAssignedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCounselorAssignedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -478,7 +493,7 @@ export async function sendEnrollmentConfirmationEmail(params: {
   programName: string;
   counselorContact?: string;
   counselorName?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEnrollmentConfirmationEmail: RESEND_API_KEY not set');
@@ -512,6 +527,9 @@ export async function sendEnrollmentConfirmationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEnrollmentConfirmationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -548,7 +566,7 @@ export function getCourseraUnmatchedActorAlertRecipients(): string[] {
 export async function sendCourseraUnmatchedActorAlertEmail(params: {
   actorEmail: string;
   statementId: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   const recipients = getCourseraUnmatchedActorAlertRecipients();
   if (!resend) {
@@ -586,6 +604,9 @@ export async function sendCourseraUnmatchedActorAlertEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCourseraUnmatchedActorAlertEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -607,7 +628,7 @@ export async function sendAtRiskAlertDigestEmail(params: {
     recommendedAction: string;
     adminUrl: string;
   }[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendAtRiskAlertDigestEmail: RESEND_API_KEY not set');
@@ -628,6 +649,9 @@ export async function sendAtRiskAlertDigestEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendAtRiskAlertDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -648,7 +672,7 @@ export async function sendOnboardingStallsDigestEmail(params: {
   wioaQueueLink: string;
   membersQueueLink: string;
   memberAdminBaseUrl: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendOnboardingStallsDigestEmail: RESEND_API_KEY not set');
@@ -678,6 +702,9 @@ export async function sendOnboardingStallsDigestEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendOnboardingStallsDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -693,7 +720,7 @@ export async function sendApplicationAcceptedEmail(params: {
   to: string;
   fullName: string;
   orgId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendApplicationAcceptedEmail: RESEND_API_KEY not set');
@@ -724,6 +751,9 @@ export async function sendApplicationAcceptedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendApplicationAcceptedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -733,7 +763,7 @@ export async function sendApplicationAcceptedEmail(params: {
 export async function sendApplicationRejectedEmail(params: {
   to: string;
   fullName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendApplicationRejectedEmail: RESEND_API_KEY not set');
@@ -755,6 +785,9 @@ export async function sendApplicationRejectedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendApplicationRejectedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -768,7 +801,7 @@ export async function sendPreScreeningReadyEmail(params: {
   weeklyHours: string;
   barrierSummary: string;
   memberId: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendPreScreeningReadyEmail: RESEND_API_KEY not set');
@@ -799,6 +832,9 @@ export async function sendPreScreeningReadyEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendPreScreeningReadyEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -812,7 +848,7 @@ export async function sendNewApplicationAdminEmail(params: {
   applicationId: string;
   applicationNotes?: string;
   eligibility?: EligibilityScreeningFields | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendNewApplicationAdminEmail: RESEND_API_KEY not set');
@@ -833,6 +869,9 @@ export async function sendNewApplicationAdminEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendNewApplicationAdminEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -843,7 +882,7 @@ export async function sendCourseEnrolledEmail(params: {
   to: string;
   fullName: string;
   programName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCourseEnrolledEmail: RESEND_API_KEY not set');
@@ -865,6 +904,9 @@ export async function sendCourseEnrolledEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCourseEnrolledEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -880,7 +922,7 @@ export async function sendCourseKickoffEmail(params: {
   to: string;
   fullName: string;
   programName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCourseKickoffEmail: RESEND_API_KEY not set');
@@ -903,6 +945,9 @@ export async function sendCourseKickoffEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCourseKickoffEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -917,7 +962,7 @@ export async function sendCourseAccountabilityEmail(params: {
   to: string;
   fullName: string;
   programName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCourseAccountabilityEmail: RESEND_API_KEY not set');
@@ -938,6 +983,9 @@ export async function sendCourseAccountabilityEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCourseAccountabilityEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -957,7 +1005,7 @@ export async function sendCertCelebrationEmail(params: {
   pointsAwarded: number;
   testimonial?: { quote: string; name: string; role?: string } | null;
   interviewPracticeUrl?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCertCelebrationEmail: RESEND_API_KEY not set');
@@ -991,6 +1039,9 @@ export async function sendCertCelebrationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCertCelebrationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1003,7 +1054,7 @@ export async function sendPlacementSurveyEmail(params: {
   programName: string | null;
   surveyUrl: string;
   wave?: 'thirty_day' | 'sixty_day' | 'ninety_day' | 'hundred_eighty_day';
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendPlacementSurveyEmail: RESEND_API_KEY not set');
@@ -1034,6 +1085,9 @@ export async function sendPlacementSurveyEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendPlacementSurveyEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1050,7 +1104,7 @@ export async function sendPlacementSurveyEscalationEmail(params: {
   daysSincePlacement: number | null;
   surveyUrl: string;
   wave?: 'thirty_day' | 'sixty_day' | 'ninety_day' | 'hundred_eighty_day';
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendPlacementSurveyEscalationEmail: RESEND_API_KEY not set');
@@ -1071,6 +1125,9 @@ export async function sendPlacementSurveyEscalationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendPlacementSurveyEscalationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1081,7 +1138,7 @@ export async function sendCourseCompletedEmail(params: {
   to: string;
   fullName: string;
   courseName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCourseCompletedEmail: RESEND_API_KEY not set');
@@ -1103,6 +1160,9 @@ export async function sendCourseCompletedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCourseCompletedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1124,7 +1184,7 @@ export async function sendMilestoneCascadeEmail(params: {
   /** Optional CTA. Defaults to a training-dashboard link. */
   ctaText?: string;
   ctaUrl?: string;
-}): Promise<{ ok: boolean; error?: string; messageId?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string; messageId?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendMilestoneCascadeEmail: RESEND_API_KEY not set');
@@ -1155,6 +1215,9 @@ export async function sendMilestoneCascadeEmail(params: {
     if (params.idempotencyKey && !result.data?.id) return { ok: false, error: 'The email provider did not return an acceptance receipt.' };
     return { ok: true, messageId: result.data?.id };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendMilestoneCascadeEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1216,7 +1279,7 @@ export async function sendInvitationEmail(params: {
   personalMessage?: string | null;
   inviteUrl: string;
   orgId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendInvitationEmail: RESEND_API_KEY not set');
@@ -1254,6 +1317,9 @@ export async function sendInvitationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInvitationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1265,7 +1331,7 @@ export async function sendPartnerReferralInviteEmail(params: {
   partnerName: string;
   personalMessage?: string | null;
   inviteUrl: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendPartnerReferralInviteEmail: RESEND_API_KEY not set');
@@ -1292,6 +1358,9 @@ export async function sendPartnerReferralInviteEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendPartnerReferralInviteEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1303,7 +1372,7 @@ export async function sendInvitationAcceptedEmail(params: {
   accepterName: string;
   accepterEmail: string;
   role: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendInvitationAcceptedEmail: RESEND_API_KEY not set');
@@ -1328,6 +1397,9 @@ export async function sendInvitationAcceptedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInvitationAcceptedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1376,7 +1448,7 @@ export async function sendJobAlertDigestEmail(params: {
   to: string;
   firstName: string;
   jobs: { title: string; company: string; location: string | null }[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendJobAlertDigestEmail: RESEND_API_KEY not set');
@@ -1397,6 +1469,9 @@ export async function sendJobAlertDigestEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendJobAlertDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1408,7 +1483,7 @@ export async function sendJobSubmittedEmail(params: {
   companyName: string;
   employerEmail: string;
   jobId: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendJobSubmittedEmail: RESEND_API_KEY not set');
@@ -1429,6 +1504,9 @@ export async function sendJobSubmittedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendJobSubmittedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1446,7 +1524,7 @@ export async function sendJobApprovedEmail(params: {
   jobTitle: string;
   companyName: string;
   orgId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendJobApprovedEmail: RESEND_API_KEY not set');
@@ -1473,6 +1551,9 @@ export async function sendJobApprovedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendJobApprovedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1490,7 +1571,7 @@ export async function sendJobRejectedEmail(params: {
   companyName: string;
   reason: string;
   orgId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendJobRejectedEmail: RESEND_API_KEY not set');
@@ -1518,6 +1599,9 @@ export async function sendJobRejectedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendJobRejectedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1530,7 +1614,7 @@ export async function sendNewJobApplicationEmail(params: {
   applicantName: string;
   applicantEmail: string;
   applicationId: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendNewJobApplicationEmail: RESEND_API_KEY not set');
@@ -1551,6 +1635,9 @@ export async function sendNewJobApplicationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendNewJobApplicationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1562,7 +1649,7 @@ export async function sendAIMatchSuggestionEmail(params: {
   jobTitle: string;
   companyName: string;
   matches: { name: string; program: string; score: number }[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendAIMatchSuggestionEmail: RESEND_API_KEY not set');
@@ -1583,6 +1670,9 @@ export async function sendAIMatchSuggestionEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendAIMatchSuggestionEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1593,7 +1683,7 @@ export async function sendAIMatchSuggestionEmail(params: {
  */
 export async function sendMatchActionEmail(
   params: Parameters<typeof sendAIMatchSuggestionEmail>[0]
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   return sendAIMatchSuggestionEmail(params);
 }
 
@@ -1602,7 +1692,7 @@ export async function sendApplicationConfirmationEmail(params: {
   to: string;
   fullName: string;
   eligibility?: EligibilityScreeningFields | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendApplicationConfirmationEmail: RESEND_API_KEY not set');
@@ -1627,6 +1717,9 @@ export async function sendApplicationConfirmationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendApplicationConfirmationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1639,7 +1732,7 @@ export async function sendSchoolEnrollmentParentAckEmail(params: {
   studentName: string;
   schoolName: string;
   programInterest: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendSchoolEnrollmentParentAckEmail: RESEND_API_KEY not set');
@@ -1667,6 +1760,9 @@ export async function sendSchoolEnrollmentParentAckEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendSchoolEnrollmentParentAckEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1680,7 +1776,7 @@ export async function sendSchoolEnrollmentPartnerAckEmail(params: {
   studentEmail: string;
   programInterest: string;
   gradeLevel?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendSchoolEnrollmentPartnerAckEmail: RESEND_API_KEY not set');
@@ -1710,6 +1806,9 @@ export async function sendSchoolEnrollmentPartnerAckEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendSchoolEnrollmentPartnerAckEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1720,7 +1819,7 @@ export async function sendEligibilityScreeningConfirmationEmail(params: {
   to: string;
   fullName: string;
   eligibility?: EligibilityScreeningFields | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEligibilityScreeningConfirmationEmail: RESEND_API_KEY not set');
@@ -1745,6 +1844,9 @@ export async function sendEligibilityScreeningConfirmationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEligibilityScreeningConfirmationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1757,7 +1859,7 @@ export async function sendEligibilityScreeningAdminEmail(params: {
   memberId?: string | null;
   source: 'dashboard' | 'token' | 'apply';
   eligibility?: EligibilityScreeningFields | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEligibilityScreeningAdminEmail: RESEND_API_KEY not set');
@@ -1780,6 +1882,9 @@ export async function sendEligibilityScreeningAdminEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEligibilityScreeningAdminEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1790,7 +1895,7 @@ export async function sendApplicantFollowupEmail(params: {
   to: string;
   fullName: string;
   expectedDate: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendApplicantFollowupEmail: RESEND_API_KEY not set');
@@ -1812,6 +1917,9 @@ export async function sendApplicantFollowupEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendApplicantFollowupEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1820,7 +1928,7 @@ export async function sendApplicantFollowupEmail(params: {
 /** Send admin alert about pending applications */
 export async function sendAdminPendingApplicantsEmail(params: {
   pendingCount: number;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendAdminPendingApplicantsEmail: RESEND_API_KEY not set');
@@ -1841,6 +1949,9 @@ export async function sendAdminPendingApplicantsEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendAdminPendingApplicantsEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1852,7 +1963,7 @@ export async function sendEmployerPendingApplicantsEmail(params: {
   candidateCount: number;
   jobsAffected: number;
   oldestWaitingDays: number;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerPendingApplicantsEmail: RESEND_API_KEY not set');
@@ -1873,6 +1984,9 @@ export async function sendEmployerPendingApplicantsEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerPendingApplicantsEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1881,7 +1995,7 @@ export async function sendEmployerPendingApplicantsEmail(params: {
 /** Admin digest of employers with 10+ unreviewed applicants 5+ days old. */
 export async function sendAdminStaleApplicantsDigestEmail(params: {
   employers: { companyName: string; candidateCount: number }[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendAdminStaleApplicantsDigestEmail: RESEND_API_KEY not set');
@@ -1902,6 +2016,9 @@ export async function sendAdminStaleApplicantsDigestEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendAdminStaleApplicantsDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1911,7 +2028,7 @@ export async function sendAdminStaleApplicantsDigestEmail(params: {
 export async function sendEmployerJobExpiryEmail(params: {
   to: string;
   expiredCount: number;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerJobExpiryEmail: RESEND_API_KEY not set');
@@ -1932,6 +2049,9 @@ export async function sendEmployerJobExpiryEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerJobExpiryEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1943,7 +2063,7 @@ export async function sendAdminWeeklyRecapEmail(params: {
   placements: number;
   atRiskStudents: number;
   pendingApplications: number;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendAdminWeeklyRecapEmail: RESEND_API_KEY not set');
@@ -1966,6 +2086,9 @@ export async function sendAdminWeeklyRecapEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendAdminWeeklyRecapEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -1986,7 +2109,7 @@ export async function sendWioaReportEmail(params: {
     avgWage: number | null;
   }>;
   reportJson: Record<string, unknown>;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendWioaReportEmail: RESEND_API_KEY not set');
@@ -2013,6 +2136,9 @@ export async function sendWioaReportEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendWioaReportEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2025,7 +2151,7 @@ export async function sendPartnerWeeklyDigestEmail(params: {
   weekLabel: string;
   stageLines: string[];
   successLines: string[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendPartnerWeeklyDigestEmail: RESEND_API_KEY not set');
@@ -2051,6 +2177,9 @@ export async function sendPartnerWeeklyDigestEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendPartnerWeeklyDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2061,7 +2190,7 @@ export async function sendEmployerWelcomeEmail(params: {
   to: string;
   companyName: string;
   contactName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerWelcomeEmail: RESEND_API_KEY not set');
@@ -2086,6 +2215,9 @@ export async function sendEmployerWelcomeEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerWelcomeEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2096,7 +2228,7 @@ export async function sendEmployerVerificationEmail(params: {
   to: string;
   contactName: string;
   verifyUrl: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerVerificationEmail: RESEND_API_KEY not set');
@@ -2120,6 +2252,9 @@ export async function sendEmployerVerificationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerVerificationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2131,7 +2266,7 @@ export async function sendEmployerSignupAdminAlertEmail(params: {
   contactName: string;
   contactEmail: string;
   contactPhone?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerSignupAdminAlertEmail: RESEND_API_KEY not set');
@@ -2152,6 +2287,9 @@ export async function sendEmployerSignupAdminAlertEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerSignupAdminAlertEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2162,7 +2300,7 @@ export async function sendEmployerApprovedEmail(params: {
   to: string;
   companyName: string;
   contactName: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerApprovedEmail: RESEND_API_KEY not set');
@@ -2183,6 +2321,9 @@ export async function sendEmployerApprovedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerApprovedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2194,7 +2335,7 @@ export async function sendEmployerRejectedEmail(params: {
   companyName: string;
   contactName: string;
   reason?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEmployerRejectedEmail: RESEND_API_KEY not set');
@@ -2215,6 +2356,9 @@ export async function sendEmployerRejectedEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEmployerRejectedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2226,7 +2370,7 @@ export async function sendAssessmentResetNotificationEmail(params: {
   memberEmail: string;
   previousScore: number;
   programInterest: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) return { ok: false, error: 'Email not configured' };
   const html = brandedEmailLayout({
@@ -2251,6 +2395,9 @@ export async function sendAssessmentResetNotificationEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendAssessmentResetNotificationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2264,7 +2411,7 @@ export async function sendInterviewPrepBundleEmail(params: {
     items: { toolType: string; title: string; content: string; createdAt: Date }[];
     generatedAt: Date;
   };
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendInterviewPrepBundleEmail: RESEND_API_KEY not set');
@@ -2312,6 +2459,9 @@ export async function sendInterviewPrepBundleEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInterviewPrepBundleEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2324,7 +2474,7 @@ export async function sendInterviewPrepReminderEmail(params: {
   company: string;
   role: string;
   interviewWhenLabel: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) return { ok: false, error: 'Email not configured' };
   const first = params.firstName.trim().split(/\s+/)[0] || 'there';
@@ -2347,6 +2497,9 @@ export async function sendInterviewPrepReminderEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInterviewPrepReminderEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2358,7 +2511,7 @@ export async function sendInterviewDebriefPromptEmail(params: {
   firstName: string;
   company: string;
   role: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) return { ok: false, error: 'Email not configured' };
   const first = params.firstName.trim().split(/\s+/)[0] || 'there';
@@ -2381,6 +2534,9 @@ export async function sendInterviewDebriefPromptEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInterviewDebriefPromptEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2403,7 +2559,7 @@ export async function sendCounselorAtRiskAlertEmail(params: {
     profileUrl: string;
   }[];
   dashboardUrl: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCounselorAtRiskAlertEmail: RESEND_API_KEY not set');
@@ -2437,6 +2593,9 @@ export async function sendCounselorAtRiskAlertEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendCounselorAtRiskAlertEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2451,7 +2610,7 @@ export async function sendMemberCheckInEmail(params: {
   to: string;
   firstName: string;
   dashboardUrl: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendMemberCheckInEmail: RESEND_API_KEY not set');
@@ -2475,6 +2634,9 @@ export async function sendMemberCheckInEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendMemberCheckInEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2489,7 +2651,7 @@ export async function sendMemberComeBackEmail(params: {
   counselorName: string;
   nextBestActionUrl: string;
   nextBestActionLabel?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendMemberComeBackEmail: RESEND_API_KEY not set');
@@ -2515,6 +2677,9 @@ export async function sendMemberComeBackEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendMemberComeBackEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2528,7 +2693,7 @@ export async function sendMemberStuckEmail(params: {
   firstName: string;
   counselorName: string;
   calendarUrl?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendMemberStuckEmail: RESEND_API_KEY not set');
@@ -2557,6 +2722,9 @@ export async function sendMemberStuckEmail(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendMemberStuckEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2572,7 +2740,7 @@ export async function sendInterviewPrepLink(params: {
   name?: string | null;
   url: string;
   orgId?: string | null;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendInterviewPrepLink: RESEND_API_KEY not set');
@@ -2602,6 +2770,9 @@ export async function sendInterviewPrepLink(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendInterviewPrepLink failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
@@ -2626,7 +2797,7 @@ export async function sendEligibilityLink(params: {
   orgId?: string | null;
   /** When true, include Sept 14 soft-reminder language (WS5 non-CHS campaign). */
   softDeadlineReminder?: boolean;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendEligibilityLink: RESEND_API_KEY not set');
@@ -2665,6 +2836,9 @@ export async function sendEligibilityLink(params: {
     });
     return { ok: true };
   } catch (err) {
+    if (err instanceof FixtureRecipientSkippedError) {
+      return { ok: false, skipped: true, error: err.reason };
+    }
     console.error('sendEligibilityLink failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }

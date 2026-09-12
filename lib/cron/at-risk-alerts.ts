@@ -79,6 +79,7 @@ export type RetentionNudgeResult = {
   skippedNoEmail: number;
   errors: number;
   skippedPacing: number;
+  skippedFixture: number;
 };
 
 /**
@@ -133,6 +134,7 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
   let skippedNoEmail = 0;
   let errors = 0;
   let skippedPacing = 0;
+  let skippedFixture = 0;
 
   const cooldownCutoff = new Date(Date.now() - NUDGE_COOLDOWN_MS);
 
@@ -144,6 +146,7 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
     sentComeBack?: boolean;
     sentStuck?: boolean;
     skippedPacing?: boolean;
+    skippedFixture?: boolean;
   };
 
   const processMember = async (
@@ -192,7 +195,9 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
           firstName,
           dashboardUrl: `${SITE_URL}/dashboard`,
         }));
-        if ('skipped' in result) return { skippedPacing: true };
+        if ('skipped' in result) return result.error === 'fixture_recipient'
+          ? { skippedFixture: true }
+          : { skippedPacing: true };
         if (result.ok) {
           outcome.sentCheckIn = true;
           sent = true;
@@ -204,7 +209,9 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
           counselorName,
           nextBestActionUrl: `${SITE_URL}/dashboard`,
         }));
-        if ('skipped' in result) return { skippedPacing: true };
+        if ('skipped' in result) return result.error === 'fixture_recipient'
+          ? { skippedFixture: true }
+          : { skippedPacing: true };
         if (result.ok) {
           outcome.sentComeBack = true;
           sent = true;
@@ -215,7 +222,9 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
           firstName,
           counselorName,
         }));
-        if ('skipped' in result) return { skippedPacing: true };
+        if ('skipped' in result) return result.error === 'fixture_recipient'
+          ? { skippedFixture: true }
+          : { skippedPacing: true };
         if (result.ok) {
           outcome.sentStuck = true;
           sent = true;
@@ -256,6 +265,7 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
       if (outcome.sentStuck) sentStuck++;
       if (outcome.errors) errors += outcome.errors;
       if (outcome.skippedPacing) skippedPacing++;
+      if (outcome.skippedFixture) skippedFixture++;
     }
   }
 
@@ -269,6 +279,7 @@ export async function runMemberRetentionNudges(pacer: BulkEmailCronPacer): Promi
     skippedNoEmail,
     errors,
     skippedPacing,
+    skippedFixture,
   };
 }
 
@@ -288,6 +299,7 @@ export type DailyAtRiskAlertRunResult = {
   skippedNoCounselor: number;
   skippedAlreadyNotified: number;
   skippedPacing: number;
+  skippedFixture: number;
   results: CounselorAlertResult[];
 };
 
@@ -303,6 +315,7 @@ export async function runDailyAtRiskCounselorAlerts(pacer: BulkEmailCronPacer): 
       skippedNoCounselor: 0,
       skippedAlreadyNotified: 0,
       skippedPacing: 0,
+      skippedFixture: 0,
       results: [],
     };
   }
@@ -449,6 +462,7 @@ export async function runDailyAtRiskCounselorAlerts(pacer: BulkEmailCronPacer): 
 
   const results: CounselorAlertResult[] = [];
   let skippedPacing = 0;
+  let skippedFixture = 0;
 
   for (const batch of counselorBatches.values()) {
     if (batch.members.length === 0) continue;
@@ -469,7 +483,8 @@ export async function runDailyAtRiskCounselorAlerts(pacer: BulkEmailCronPacer): 
     }));
 
     if ('skipped' in result) {
-      skippedPacing++;
+      if (result.error === 'fixture_recipient') skippedFixture++;
+      else skippedPacing++;
       results.push({
         counselorId: batch.counselorId,
         counselorEmail: batch.counselorEmail,
@@ -508,6 +523,7 @@ export async function runDailyAtRiskCounselorAlerts(pacer: BulkEmailCronPacer): 
     skippedNoCounselor,
     skippedAlreadyNotified,
     skippedPacing,
+    skippedFixture,
     results,
   };
 }

@@ -348,6 +348,34 @@ describe('GET /api/cron/weekly-recap', () => {
       );
     });
 
+    it('does not count a fixture skip as sent or failed and never stamps emailedAt', async () => {
+      vi.mocked(prisma.user.findMany).mockResolvedValue(mockMembers([
+        { id: 'fixture-user', email: 'fixture@example.com', fullName: 'Fixture User', enrolledProgram: 'tech' },
+      ]));
+      vi.mocked(generateWeeklyRecaps).mockResolvedValue(mockRecaps([
+        { userId: 'fixture-user', recapData: mockRecaps()[0].recapData, score: 72 },
+      ]));
+      vi.mocked(sendWeeklyRecapEmail).mockResolvedValue({
+        ok: false,
+        skipped: true,
+        error: 'fixture_recipient',
+      });
+
+      const body = await (await runWeeklyRecap(
+        makeRequest({ authorization: 'Bearer super-secret-cron-key' }),
+      )).json();
+
+      expect(body).toEqual({
+        sent: 0,
+        failed: 0,
+        skipped: 1,
+        skipReason: 'fixture_recipient',
+        total: 1,
+      });
+      expect(prisma.weeklyRecap.update).not.toHaveBeenCalled();
+      expect(captureApiError).not.toHaveBeenCalled();
+    });
+
     it('retries a persisted recap after an actual failed delivery on the next run', async () => {
       const members = mockMembers([
         { id: 'user-1', email: 'alice@example.com', fullName: 'Alice Smith', enrolledProgram: 'cdl' },

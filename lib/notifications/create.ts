@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { after } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
 import { notifyDiscord } from '@/lib/notify/discord';
@@ -31,13 +32,29 @@ export interface CreateNotificationInput {
   data?: Record<string, unknown> | null;
 }
 
+function retainRequestWork(operation: Promise<void>): Promise<void> {
+  try {
+    after(operation);
+  } catch (error) {
+    // These helpers are also used by scripts/tests without a Next request
+    // context. In a request, registration must succeed synchronously; outside
+    // one, preserve the returned/awaited promise contract without pretending
+    // durable request work exists.
+    if (!(error instanceof Error) || !error.message.includes('outside a request scope')) {
+      throw error;
+    }
+  }
+  return operation;
+}
+
 /**
  * Create a persistent notification for a user.
  * Silently no-ops on error so notification creation never blocks the main flow.
  */
-export async function createNotification(
+export function createNotification(
   input: CreateNotificationInput
 ): Promise<void> {
+  const operation = (async () => {
   try {
     await prisma.notification.create({
       data: {
@@ -71,24 +88,31 @@ export async function createNotification(
       metadata: { type: input.type },
     });
   }
-  // Await the operator-visibility bridge so callers and Next after() retain it
-  // until the Discord attempt settles; notifyDiscord remains best-effort.
+  // Await the operator-visibility bridge so the returned promise preserves
+  // existing completion semantics while the same operation is retained below.
   await notifyDiscord({
     title: input.title,
     body: input.body,
     category: input.type,
     fields: [{ name: 'userId', value: input.userId }],
   });
+  })();
+
+  // Register before returning or reaching the first DB await. A caller may
+  // intentionally discard this promise; Next still retains the whole DB →
+  // single Discord operation until it settles.
+  return retainRequestWork(operation);
 }
 
 /**
  * Create notifications for multiple users (e.g. broadcast).
  * Uses createMany for efficiency.
  */
-export async function createBulkNotifications(
+export function createBulkNotifications(
   inputs: CreateNotificationInput[]
 ): Promise<void> {
-  if (inputs.length === 0) return;
+  if (inputs.length === 0) return Promise.resolve();
+  const operation = (async () => {
   try {
     await prisma.notification.createMany({
       data: inputs.map((input) => ({
@@ -134,4 +158,9 @@ export async function createBulkNotifications(
       fields: [{ name: 'recipients', value: String(inputs.length) }],
     });
   }
+  })();
+
+  // Retain exactly the same aggregated operation synchronously. Awaiting the
+  // returned promise still works; discarded callers cannot orphan Discord.
+  return retainRequestWork(operation);
 }

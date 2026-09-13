@@ -42,6 +42,15 @@ function transactionStore(existing: {
         store.user.fullName = data.fullName;
         return { count: 1 };
       }),
+      // Keep the pre-fix mutation available so this stateful store exposes an
+      // implicit restore instead of failing because a mock method is missing.
+      update: vi.fn(async ({ data }: {
+        data: { fullName: string; deletedAt: Date | null };
+      }) => {
+        store.user.fullName = data.fullName;
+        store.user.deletedAt = data.deletedAt;
+        return { id: store.user.id, fullName: store.user.fullName, email: store.user.email };
+      }),
       create: vi.fn(),
     },
   };
@@ -121,29 +130,16 @@ describe('ensureAppUser tenant race boundary', () => {
     ['soft-deletion', (user: { deletedAt: Date | null }) => { user.deletedAt = new Date('2026-09-02T00:00:00Z'); }],
     ['organization takeover', (user: { organizationId: string }) => { user.organizationId = 'org-b'; }],
     ['email takeover', (user: { email: string }) => { user.email = 'winner@example.test'; }],
-  ])('rejects %s between read and write and stops every downstream effect', async (_label, mutate) => {
+  ])('rejects %s between read and write without changing the winner', async (_label, mutate) => {
     const { store, tx } = transactionStore({
       id: 'auth-own', organizationId: 'org-a', email: 'own@example.test', fullName: 'Original', deletedAt: null,
     }, mutate);
-    const downstream = {
-      profile: vi.fn(), role: vi.fn(), reset: vi.fn(), audit: vi.fn(),
-    };
-
-    await expect((async () => {
-      await ensureAppUser(tx as never, {
-        authUserId: 'auth-own', organizationId: 'org-a', email: 'own@example.test', fullName: 'Loser',
-      });
-      downstream.profile();
-      downstream.role();
-      downstream.reset();
-      downstream.audit();
-    })()).rejects.toThrow('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
+    await expect(ensureAppUser(tx as never, {
+      authUserId: 'auth-own', organizationId: 'org-a', email: 'own@example.test', fullName: 'Loser',
+    })).rejects.toThrow('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
 
     expect(tx.user.updateMany).toHaveBeenCalledTimes(1);
+    expect(tx.user.update).not.toHaveBeenCalled();
     expect(store.user.fullName).toBe('Original');
-    expect(downstream.profile).not.toHaveBeenCalled();
-    expect(downstream.role).not.toHaveBeenCalled();
-    expect(downstream.reset).not.toHaveBeenCalled();
-    expect(downstream.audit).not.toHaveBeenCalled();
   });
 });

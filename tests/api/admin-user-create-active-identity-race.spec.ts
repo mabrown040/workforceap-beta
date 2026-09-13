@@ -100,6 +100,15 @@ function transactionStore(initial: Identity, afterRead?: (identity: Identity) =>
         identity.fullName = data.fullName;
         return { count: 1 };
       }),
+      // Model the legacy ID-only mutation so the regression catches forbidden
+      // restoration/mutation rather than a missing mock method.
+      update: vi.fn(async ({ data }: {
+        data: { fullName: string; deletedAt: Date | null };
+      }) => {
+        identity.fullName = data.fullName;
+        identity.deletedAt = data.deletedAt;
+        return { id: identity.id, fullName: identity.fullName, email: identity.email };
+      }),
       create: vi.fn(),
     },
     profile: {
@@ -123,6 +132,38 @@ describe('POST /api/admin/users active identity race boundary', () => {
       error: { code: 'user_already_exists', message: 'already exists' },
     });
     auth.findByEmail.mockResolvedValue({ id: 'auth-own' });
+  });
+
+  it('completes real route composition for an active same-tenant identity', async () => {
+    const { identity, tx } = transactionStore({
+      id: 'auth-own', organizationId: 'org-a', email: 'own@example.test', fullName: 'Original Name', deletedAt: null,
+    });
+    effects.profile
+      .mockResolvedValueOnce({ id: 'profile-own' })
+      .mockResolvedValueOnce({ role: 'member' });
+    effects.userRole.mockImplementation(async (args: { where?: { name?: string } }) => {
+      const name = args?.where?.name;
+      return name ? { id: `role-${name}`, name } : { count: 1 };
+    });
+    effects.reset.mockResolvedValue({ error: null });
+    effects.audit.mockResolvedValue(undefined);
+    effects.auditEvent.mockResolvedValue(undefined);
+
+    const response = await POST(request() as never);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      success: true,
+      user: { id: 'auth-own', fullName: 'Loser Request', email: 'own@example.test', role: 'member' },
+    });
+    expect(tx.user.updateMany).toHaveBeenCalledWith({
+      where: { id: 'auth-own', organizationId: 'org-a', email: 'own@example.test', deletedAt: null },
+      data: { fullName: 'Loser Request' },
+    });
+    expect(identity.fullName).toBe('Loser Request');
+    expect(effects.profile).toHaveBeenCalled();
+    expect(effects.userRole).toHaveBeenCalled();
+    expect(effects.reset).toHaveBeenCalledWith('own@example.test', '/reset-password', { orgId: 'org-a' });
   });
 
   it('rejects an already-retired identity as a generic conflict with no later effects', async () => {

@@ -41730,7 +41730,7 @@
   {
     "from": "app/api/apply/signup/route.test.ts",
     "specifier": "./route",
-    "line": 278,
+    "line": 303,
     "kind": "import",
     "external": false,
     "target": "app/api/apply/signup/route.ts"
@@ -41738,10 +41738,18 @@
   {
     "from": "app/api/apply/signup/route.test.ts",
     "specifier": "@/lib/email",
-    "line": 279,
+    "line": 304,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.test.ts",
+    "specifier": "@/lib/observability/captureApiError",
+    "line": 310,
+    "kind": "import",
+    "external": false,
+    "target": "lib/observability/captureApiError.ts"
   },
   {
     "from": "app/api/apply/signup/route.ts",
@@ -41793,8 +41801,16 @@
   },
   {
     "from": "app/api/apply/signup/route.ts",
-    "specifier": "@/lib/content/programs",
+    "specifier": "@/lib/supabase-admin",
     "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/supabase-admin.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/content/programs",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -41802,7 +41818,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -41810,7 +41826,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/content/programSlug",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
@@ -41818,7 +41834,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/member/courseEnrollmentAssignment",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/member/courseEnrollmentAssignment.ts"
@@ -41826,7 +41842,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "zod",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": true,
     "package": "zod"
@@ -41834,7 +41850,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -41842,7 +41858,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/turnstile/verifyTurnstile",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/turnstile/verifyTurnstile.ts"
@@ -41850,7 +41866,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/events/track",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/events/track.ts"
@@ -41858,7 +41874,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/analytics/conversionValue",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/conversionValue.ts"
@@ -41866,7 +41882,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@prisma/client",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
@@ -41874,7 +41890,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/tenant/resolveProvisionOrg",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/resolveProvisionOrg.ts"
@@ -41882,7 +41898,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -41890,7 +41906,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/observability/logger",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/observability/logger.ts"
@@ -41898,7 +41914,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -41906,7 +41922,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/db/withDbRetry",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/db/withDbRetry.ts"
@@ -41914,7 +41930,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/counselor/ambassadorAutoAssign",
-    "line": 22,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/ambassadorAutoAssign.ts"
@@ -41922,7 +41938,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/applyReferralCapture",
-    "line": 23,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "lib/apply/applyReferralCapture.ts"
@@ -41930,7 +41946,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/partners/sponsorship",
-    "line": 28,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/partners/sponsorship.ts"
@@ -41938,7 +41954,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/schoolCollection",
-    "line": 37,
+    "line": 38,
     "kind": "import",
     "external": false,
     "target": "lib/apply/schoolCollection.ts"
@@ -41946,7 +41962,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/eligibilityExtendedFields",
-    "line": 42,
+    "line": 43,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
@@ -41954,7 +41970,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/email",
-    "line": 43,
+    "line": 44,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"

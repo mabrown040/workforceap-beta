@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -67,6 +68,12 @@ const postSchema = z.object({
     targetId: memberId,
     metadata: { subgroupId: parsed.data.subgroupId },
   }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'updated',
+    object: { type: 'MemberSubgroup', id: memberId },
+    result: { success: true, extensions: { subgroupId: parsed.data.subgroupId, action: 'add' } },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 
@@ -127,6 +134,12 @@ export const POST = withApiGuc(_POST);async function _DELETE(
     targetType: 'User',
     targetId: memberId,
     metadata: { subgroupId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'updated',
+    object: { type: 'MemberSubgroup', id: memberId },
+    result: { success: true, extensions: { subgroupId, action: 'remove' } },
   }).catch(() => {});
 
   return NextResponse.json({ ok: true });

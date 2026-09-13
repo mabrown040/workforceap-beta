@@ -9918,31 +9918,31 @@
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 846
+        "line": 897
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 872
+        "line": 923
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 1004
+        "line": 1055
       },
       {
         "file": "lib/auth/portalRoleSwitcher.ts",
-        "line": 1011
+        "line": 1062
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 1027
+        "line": 1078
       },
       {
         "file": "lib/auth/portalRoleSwitcher.ts",
-        "line": 1031
+        "line": 1082
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 1071
+        "line": 1122
       }
     ],
     "kind": "test-candidate",
@@ -10511,6 +10511,38 @@
       {
         "file": "lib/ai/prefillFromMemberState.ts",
         "line": 73
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/cron/at-risk-alerts/route.ts",
+        "line": 61
+      },
+      {
+        "file": "lib/cron/at-risk-alerts.ts",
+        "line": 62
+      },
+      {
+        "file": "lib/cron/cronExecution.ts",
+        "line": 66
       }
     ],
     "kind": "test-candidate",
@@ -12245,6 +12277,34 @@
       {
         "file": "lib/recap/generate.ts",
         "line": 41
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/member-wioa-voice-session.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/ai/elevenlabs.ts",
+        "line": 41
+      },
+      {
+        "file": "app/api/member/wioa-qualification/voice-session/route.ts",
+        "line": 42
       }
     ],
     "kind": "test-candidate",
@@ -17000,6 +17060,34 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/member-voice-fallback.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/ai/elevenlabs.ts",
+        "line": 21
+      },
+      {
+        "file": "lib/ai/memberVoiceFallback.ts",
+        "line": 22
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/message-read-cursor.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -17491,6 +17579,30 @@
       "vitest"
     ],
     "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/password-reset-self-heal.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/auth/passwordReset.ts",
+        "line": 45
+      }
+    ],
     "kind": "test-candidate",
     "declaredRunners": [
       {

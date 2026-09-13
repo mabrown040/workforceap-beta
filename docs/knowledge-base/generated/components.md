@@ -378,7 +378,7 @@
 | [components/portal/PortalStatCard.tsx](../../../components/portal/PortalStatCard.tsx) | 38 | components | default:5 |
 | [components/portal/PortalTeamChatClient.test.tsx](../../../components/portal/PortalTeamChatClient.test.tsx) | 66 | components |  |
 | [components/portal/PortalTeamChatClient.tsx](../../../components/portal/PortalTeamChatClient.tsx) | 274 | components | default:56 |
-| [components/portal/PortalVoiceSession.tsx](../../../components/portal/PortalVoiceSession.tsx) | 1276 | components | VoiceSessionPhase:79, ResumeSuggestion:81, PortalVoiceSessionProps:87, default:189 |
+| [components/portal/PortalVoiceSession.tsx](../../../components/portal/PortalVoiceSession.tsx) | 1313 | components | VoiceSessionPhase:79, ResumeSuggestion:81, PortalVoiceSessionProps:87, default:195 |
 | [components/portal/PortalVoiceSessionLazy.tsx](../../../components/portal/PortalVoiceSessionLazy.tsx) | 17 | components | default:11 |
 | [components/portal/PreLaunchTag.module.css](../../../components/portal/PreLaunchTag.module.css) | 116 | components |  |
 | [components/portal/PreLaunchTag.tsx](../../../components/portal/PreLaunchTag.tsx) | 75 | components | default:22 |
@@ -440,7 +440,7 @@
 | [components/portal/VoiceSectionErrorBoundary.tsx](../../../components/portal/VoiceSectionErrorBoundary.tsx) | 56 | components | default:13 |
 | [components/portal/WeeklyRecapClient.tsx](../../../components/portal/WeeklyRecapClient.tsx) | 168 | components | default:49 |
 | [components/portal/WeeklyRecapPreview.tsx](../../../components/portal/WeeklyRecapPreview.tsx) | 19 | components | default:9 |
-| [components/portal/WioaQualificationClient.tsx](../../../components/portal/WioaQualificationClient.tsx) | 531 | partners-funding | default:50 |
+| [components/portal/WioaQualificationClient.tsx](../../../components/portal/WioaQualificationClient.tsx) | 546 | partners-funding | default:50 |
 | [components/portal/WorkforceApModuleCompleteButton.test.tsx](../../../components/portal/WorkforceApModuleCompleteButton.test.tsx) | 57 | components |  |
 | [components/portal/WorkforceApModuleCompleteButton.tsx](../../../components/portal/WorkforceApModuleCompleteButton.tsx) | 63 | components | default:6 |
 | [components/portal/WorkspaceShell.tsx](../../../components/portal/WorkspaceShell.tsx) | 715 | components | default:48 |
@@ -609,7 +609,7 @@
 | [components/portal/tools/JobMatchScorerForm.tsx](../../../components/portal/tools/JobMatchScorerForm.tsx) | 547 | components | ParsedMatchOutput:46, default:252 |
 | [components/portal/tools/LinkedInAboutForm.tsx](../../../components/portal/tools/LinkedInAboutForm.tsx) | 273 | components | default:55 |
 | [components/portal/tools/LinkedInHeadlineForm.tsx](../../../components/portal/tools/LinkedInHeadlineForm.tsx) | 208 | components | default:39 |
-| [components/portal/tools/MockInterviewVideoRecorder.tsx](../../../components/portal/tools/MockInterviewVideoRecorder.tsx) | 350 | components | default:36 |
+| [components/portal/tools/MockInterviewVideoRecorder.tsx](../../../components/portal/tools/MockInterviewVideoRecorder.tsx) | 351 | components | default:36 |
 | [components/portal/tools/ResumeAnalysisPanel.tsx](../../../components/portal/tools/ResumeAnalysisPanel.tsx) | 358 | components | ResumeSectionAuditCard:11, BulletSuggestionPair:18, default:70 |
 | [components/portal/tools/ResumeRewriterForm.tsx](../../../components/portal/tools/ResumeRewriterForm.tsx) | 443 | components | default:84 |
 | [components/portal/tools/ResumeScoreBreakdown.tsx](../../../components/portal/tools/ResumeScoreBreakdown.tsx) | 288 | components | SubscoreBreakdown:6, ResumeScorePayload:12, default:86 |

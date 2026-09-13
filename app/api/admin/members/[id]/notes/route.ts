@@ -7,6 +7,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -85,6 +86,12 @@ export const GET = withApiGuc(_GET);async function _POST(
       targetType: 'user',
       targetId: id,
       metadata: { noteId: note.id, contentLength: parsed.data.content.length },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'created',
+      object: { type: 'CounselorNote', id: note.id },
+      result: { success: true, extensions: { memberId: id } },
     }).catch(() => {});
     return NextResponse.json(note, { status: 201 });
   } catch (error) {

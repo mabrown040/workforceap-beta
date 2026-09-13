@@ -11,7 +11,7 @@ If sign-in still fails:
 
 1. **Stale session** – Try signing out first (or open an incognito/private window), then sign in again.
 2. **Email confirmation** – If Supabase has "Confirm email" enabled, users must click the verification link before they can sign in.
-3. **Wrong credentials** – Check the error message; "Invalid login credentials" means email or password is incorrect.
+3. **Wrong credentials** – "Incorrect email or password" is now returned only for a real credential miss. A Supabase-side rate limit answers 429 ("Too many sign-in attempts…") and an auth outage answers 503 ("Sign-in is temporarily unavailable…"), so neither should be treated as a bad password.
 4. **Redirect URLs** – In Supabase → Authentication → URL Configuration, add your site URLs to **Redirect URLs**.
 
 ## Password reset: "Failed to fetch"
@@ -30,7 +30,13 @@ Our app has two user stores:
 
 Users created via the member signup flow are added to **both**. If a user exists only in Prisma (e.g. from a seed or manual insert), they cannot log in or reset password.
 
-**Fix options:**
+**Self-heal (since 9/5/26):** requesting a reset link from `/forgot-password` for an
+active `users` row whose Supabase auth user is missing re-creates the auth user under
+the same id (confirmed email, no password) and then sends the reset link, so the
+member can set a password and sign in. Soft-deleted rows (`deletedAt` set) are not
+resurrected. Look for `passwordReset: re-created missing Supabase auth user` in the logs.
+
+**Fix options (manual):**
 
 1. **Create in Supabase Auth** – In Supabase Dashboard → Authentication → Users, add the user with the same email. The `id` will differ unless you use the Admin API to create with a specific UUID matching Prisma.
 2. **Have them sign up again** – Use the normal signup flow at `/signup`; this creates the user in both systems.

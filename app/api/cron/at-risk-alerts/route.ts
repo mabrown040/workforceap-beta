@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createHash, timingSafeEqual } from 'crypto';
 import {
   runDailyAtRiskCounselorAlerts,
   runMemberRetentionNudges,
@@ -10,15 +9,6 @@ import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
-
-function verifyCronSecret(req: Request): boolean {
-  const provided = req.headers.get('x-cron-secret') || '';
-  const expected = process.env.CRON_SECRET || '';
-  if (!expected || !provided) return false;
-  const expectedHash = createHash('sha256').update(expected, 'utf8').digest();
-  const actualHash = createHash('sha256').update(provided, 'utf8').digest();
-  return timingSafeEqual(actualHash, expectedHash);
-}
 
 /**
  * POST /api/cron/at-risk-alerts
@@ -32,12 +22,16 @@ function verifyCronSecret(req: Request): boolean {
  *    tier is on a 7-day per-member cooldown via MemberNudgeLog.
  *
  * Vercel Cron schedule: 7 13 * * 1 (staggered off the top of the hour)
+ *
+ * Authorization is owned by `withCronLogging` → `authorizeCronRequest`, which
+ * accepts the secret via either `Authorization: Bearer` (what Vercel Cron
+ * sends) or `x-cron-secret`. This handler previously re-checked the secret
+ * itself and read only `x-cron-secret`, so every Vercel invocation cleared the
+ * wrapper and was then rejected 401 by the inner gate — the run was recorded
+ * FAILED with "Cron handler returned HTTP 401" and no alerts or nudges were
+ * sent. Do not reintroduce a second, narrower auth check here.
  */
 async function handle(_request: Request) {
-  if (!verifyCronSecret(_request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   const pacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const counselorResult = await runDailyAtRiskCounselorAlerts(pacer);
   const nudgeResult = await runMemberRetentionNudges(pacer);

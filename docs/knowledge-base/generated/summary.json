@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "adb8eccc15b2f816704985a5f157f02fca5d9fa9f08d885bb836150cc2fc6b08",
+  "inputTreeSha256": "3880bb687ffdd2ffee5492c56ccf874f224f36ab47c7c079b80f51b0a8b1d054",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4492,
-    "sourceModules": 3173,
-    "importReferences": 15039,
-    "resolvedLocalReferences": 10032,
+    "files": 4503,
+    "sourceModules": 3182,
+    "importReferences": 15087,
+    "resolvedLocalReferences": 10067,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1045,
     "nextRouteFiles": 1013,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 624,
-    "testCandidates": 617,
+    "testFiles": 630,
+    "testCandidates": 623,
     "testHelpers": 7,
-    "staticallySelectedTests": 614,
+    "staticallySelectedTests": 620,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -66,7 +66,7 @@
     },
     {
       "area": "database",
-      "files": 198
+      "files": 200
     },
     {
       "area": "delivery",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 898
+      "files": 903
     },
     {
       "area": "localization",
@@ -106,17 +106,17 @@
     },
     {
       "area": "tests",
-      "files": 307
+      "files": 311
     }
   ],
   "mostReferenced": [
     {
       "file": "lib/db/prisma.ts",
-      "references": 844
+      "references": 850
     },
     {
       "file": "lib/auth/server.ts",
-      "references": 695
+      "references": 697
     },
     {
       "file": "lib/db/withRequestGuc.ts",
@@ -124,7 +124,7 @@
     },
     {
       "file": "lib/auth/roles.ts",
-      "references": 412
+      "references": 414
     },
     {
       "file": "lib/content/programs.ts",

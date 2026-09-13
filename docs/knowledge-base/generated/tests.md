@@ -72,7 +72,7 @@
 | [tests/api/employer-jobs-pending.spec.ts](../../../tests/api/employer-jobs-pending.spec.ts) | 176 | tests |  |
 | [tests/api/employer-jobs.spec.ts](../../../tests/api/employer-jobs.spec.ts) | 807 | tests |  |
 | [tests/api/employer-signup.spec.ts](../../../tests/api/employer-signup.spec.ts) | 580 | tests |  |
-| [tests/api/employer-subscribe-pricing.spec.ts](../../../tests/api/employer-subscribe-pricing.spec.ts) | 136 | tests |  |
+| [tests/api/employer-subscribe-pricing.spec.ts](../../../tests/api/employer-subscribe-pricing.spec.ts) | 196 | tests |  |
 | [tests/api/employers-page.spec.ts](../../../tests/api/employers-page.spec.ts) | 48 | tests |  |
 | [tests/api/extract-resume-text.spec.ts](../../../tests/api/extract-resume-text.spec.ts) | 62 | tests |  |
 | [tests/api/gdpr-delete-route.spec.ts](../../../tests/api/gdpr-delete-route.spec.ts) | 131 | tests |  |

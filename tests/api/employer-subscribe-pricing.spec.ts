@@ -40,7 +40,7 @@ vi.mock('@/lib/stripe/subscriptionPersistence', () => ({
     const mirror = args[4] as undefined | ((tx: unknown, next: unknown) => Promise<void>);
     if (mirror) {
       const { prisma } = await import('@/lib/db/prisma');
-      await mirror(prisma as never, { status: 'active' });
+      await mirror(prisma as never, { status: 'active', tier: 'growth' });
     }
     return 'applied';
   }),
@@ -131,6 +131,66 @@ describe('POST /api/employer/subscribe pricing gate', () => {
       expect.any(Function),
     );
     expect(prisma.employerSubscription.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('persists and reports accepted canonical canceled entitlement instead of requested paid tier', async () => {
+    pricingState.enforced = true;
+    vi.mocked(prisma.employer.findUnique).mockResolvedValue({
+      id: 'emp-1', organizationId: 'org-1', stripeSubscriptionId: 'sub-old',
+      stripeSubscriptionRevision: 3, stripeCustomerId: 'cus-1',
+    } as never);
+    vi.mocked(prisma.employerSubscription.findFirst).mockResolvedValue(null);
+    vi.mocked(getStripeCustomer).mockResolvedValue('cus-1');
+    const subscription = {
+      id: 'sub-new', customer: 'cus-1', status: 'active', created: 100, current_period_start: 1,
+      current_period_end: 2, trial_end: null,
+      metadata: { employerId: 'emp-1', userId: 'user-1', organizationId: 'org-1', tier: 'growth' },
+    };
+    vi.mocked(getStripe).mockReturnValue({
+      subscriptions: { create: vi.fn(async () => subscription), retrieve: vi.fn(async () => ({ ...subscription, status: 'canceled' })) },
+    } as never);
+    vi.mocked(reconcileEmployerSubscription).mockImplementationOnce(async (...args: unknown[]) => {
+      const mirror = args[4] as (tx: unknown, next: unknown) => Promise<void>;
+      await mirror(prisma as never, { status: 'canceled', tier: 'basic' });
+      return 'applied';
+    });
+
+    const res = await POST(request() as never);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(expect.objectContaining({ subscriptionId: 'sub-new', status: 'canceled' }));
+    expect(prisma.employerSubscription.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        userId: 'user-1', organizationId: 'org-1', stripeCustomerId: 'cus-1',
+        stripeSubscriptionId: 'sub-new', status: 'canceled', tier: 'basic',
+      }),
+    });
+    expect(prisma.employerSubscription.create).not.toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ tier: 'growth' }),
+    }));
+  });
+
+  it('keeps validated active replacement tier in accepted mirror and response', async () => {
+    pricingState.enforced = true;
+    vi.mocked(prisma.employer.findUnique).mockResolvedValue({
+      id: 'emp-1', organizationId: 'org-1', stripeSubscriptionId: 'sub-old',
+      stripeSubscriptionRevision: 3, stripeCustomerId: 'cus-1',
+    } as never);
+    vi.mocked(prisma.employerSubscription.findFirst).mockResolvedValue(null);
+    vi.mocked(getStripeCustomer).mockResolvedValue('cus-1');
+    const subscription = {
+      id: 'sub-new', customer: 'cus-1', status: 'active', created: 100, current_period_start: 1,
+      current_period_end: 2, trial_end: null,
+      metadata: { employerId: 'emp-1', userId: 'user-1', organizationId: 'org-1', tier: 'growth' },
+    };
+    vi.mocked(getStripe).mockReturnValue({ subscriptions: { create: vi.fn(async () => subscription), retrieve: vi.fn(async () => subscription) } } as never);
+
+    const res = await POST(request() as never);
+
+    expect((await res.json()).status).toBe('active');
+    expect(prisma.employerSubscription.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ status: 'active', tier: 'growth' }),
+    });
   });
 
 });

@@ -93,6 +93,10 @@ async function _POST(req: NextRequest) {
     idempotencyKey: `employer-subscribe:${employer.id}:${employer.stripeSubscriptionRevision}:${tier}`,
   }) as Stripe.Subscription;
 
+  const acceptedState: { status: string | null; tier: string | null } = {
+    status: subscription.status,
+    tier,
+  };
   await reconcileEmployerSubscription(
     prisma,
     {
@@ -118,13 +122,15 @@ async function _POST(req: NextRequest) {
           organizationId: employer.organizationId,
           stripeCustomerId: customerId,
           stripeSubscriptionId: subscription.id,
-          tier,
+          tier: next.tier ?? tier,
           status: next.status ?? subscription.status,
           currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
           currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
           trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
         },
       });
+      acceptedState.status = next.status;
+      acceptedState.tier = next.tier ?? null;
     },
   );
 
@@ -132,7 +138,7 @@ async function _POST(req: NextRequest) {
   logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'EmployerSubscription', id: subscription.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     subscriptionId: subscription.id,
-    status: subscription.status,
+    status: acceptedState.status,
     trialEnd: subscription.trial_end,
     portalUrl: '/employer/billing',
   });

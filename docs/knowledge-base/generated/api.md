@@ -336,7 +336,7 @@
 | [app/api/employer/signup/_signupCleanup.ts](../../../app/api/employer/signup/_signupCleanup.ts) | 15 | applications-enrollment | cleanupCreatedEmployerSignupAuthUser:3 |
 | [app/api/employer/signup/route.test.ts](../../../app/api/employer/signup/route.test.ts) | 50 | applications-enrollment |  |
 | [app/api/employer/signup/route.ts](../../../app/api/employer/signup/route.ts) | 253 | applications-enrollment | POST:23 |
-| [app/api/employer/subscribe/route.ts](../../../app/api/employer/subscribe/route.ts) | 140 | jobs-employers | POST:140 |
+| [app/api/employer/subscribe/route.ts](../../../app/api/employer/subscribe/route.ts) | 146 | jobs-employers | POST:146 |
 | [app/api/employer/voice-session/route.ts](../../../app/api/employer/voice-session/route.ts) | 62 | jobs-employers | POST:13 |
 | [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | 121 | jobs-employers | POST:25 |
 | [app/api/events/route.ts](../../../app/api/events/route.ts) | 49 | api | POST:15 |

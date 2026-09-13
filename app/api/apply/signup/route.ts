@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
@@ -70,6 +71,52 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
+}
+
+const accountRecoveryRequiredResponse = () =>
+  NextResponse.json(
+    {
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: 'An account with this email already exists. If you cannot sign in, contact WorkforceAP at (512) 777-1808 for staff-assisted account recovery.',
+    },
+    { status: 409 },
+  );
+
+function isAppEmailCollision(error: unknown): boolean {
+  if (!error || typeof error !== 'object' || !('code' in error) || error.code !== 'P2002') {
+    return false;
+  }
+
+  const target = 'meta' in error && error.meta && typeof error.meta === 'object' && 'target' in error.meta
+    ? error.meta.target
+    : undefined;
+  const fields = Array.isArray(target) ? target : typeof target === 'string' ? [target] : [];
+  return fields.some((field) => typeof field === 'string' && field.toLowerCase().includes('email'));
+}
+
+async function compensateFreshApplySignupAuthIdentity(input: {
+  userId: string;
+  requestedEmail: string;
+}): Promise<'deleted' | 'guard_failed' | 'delete_failed'> {
+  try {
+    const admin = getSupabaseAdmin();
+    const { data, error } = await admin.auth.admin.getUserById(input.userId);
+    const providerUser = data?.user;
+    const providerEmail = providerUser?.email?.trim().toLowerCase();
+    if (
+      error ||
+      !providerUser ||
+      providerUser.id !== input.userId ||
+      providerEmail !== input.requestedEmail.trim().toLowerCase()
+    ) {
+      return 'guard_failed';
+    }
+
+    const { error: deleteError } = await admin.auth.admin.deleteUser(input.userId);
+    return deleteError ? 'delete_failed' : 'deleted';
+  } catch {
+    return 'delete_failed';
+  }
 }
 
 const applySignupSchema = z.object({
@@ -425,13 +472,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       select: { id: true },
     }))));
     if (existingAccount) {
-      return NextResponse.json(
-        {
-          code: 'ACCOUNT_RECOVERY_REQUIRED',
-          error: 'An account with this email already exists. If you cannot sign in, contact WorkforceAP at (512) 777-1808 for staff-assisted account recovery.',
-        },
-        { status: 409 },
-      );
+      return accountRecoveryRequiredResponse();
     }
 
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
@@ -469,6 +510,10 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         { status: 400 }
       );
     }
+    // Supabase only returns a non-empty identities array for a newly created
+    // account. Treat an absent/empty array as unproven and never compensate it.
+    const createdAuthIdentityThisRequest =
+      Array.isArray(user.identities) && user.identities.length > 0;
 
     const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
@@ -889,6 +934,24 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         }
       }
     } catch (dbError) {
+      if (createdAuthIdentityThisRequest && isAppEmailCollision(dbError)) {
+        const compensation = await compensateFreshApplySignupAuthIdentity({
+          userId: user.id,
+          requestedEmail: email,
+        });
+        captureApiError(
+          new Error('Apply signup app-email collision after Auth creation'),
+          {
+            route: 'POST /api/apply/signup#authCompensation',
+            extra: {
+              collision: 'app_email_unique',
+              compensation,
+            },
+          },
+        );
+        return accountRecoveryRequiredResponse();
+      }
+
       captureApiError(dbError, { route: 'POST /api/apply/signup' });
       // A missing app row does not prove signUp created a fresh Auth identity:
       // returning unconfirmed/orphan accounts can have no app row too. Keep

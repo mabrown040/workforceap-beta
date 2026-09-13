@@ -39,6 +39,7 @@ The commands are defined in [package.json](../../package.json#L6); the table dis
 | --- | --- |
 | `npm run typecheck` | TypeScript without emitting application output. |
 | `npm run lint` | ESLint; also enforced by [Next build configuration](../../next.config.ts#L55). |
+| `npm run check-migrations` | Required early CI guard for new timestamp collisions and exact historical directory/SQL exceptions. The reviewed source commit and complete manifest digest are anchored in checker source; editing the JSON alongside a migration cannot approve it. [Checker](../../scripts/check-duplicate-migrations.mjs), [pinned exceptions](../../scripts/migration-collision-baseline.json) and [recovery limits](../DATABASE-RECOVERY.md#repository-migration-collision-gate). Does not prove SQL safety or clean replay. |
 | `npm run test:unit` | Node unit lane for `lib/`, `app/`, `emails/`, `shared/` and `scripts/` node:test suites. [test-unit.mjs](../../scripts/test-unit.mjs) stubs `server-only` and logs explicit Vitest and real-DB delegations/skips. `npm test` runs only this lane. |
 | `npm run test:vitest` | Component/API suites and registered library suites. [vitest.config.ts](../../vitest.config.ts#L9) and [the shared registry](../../scripts/vitest-library-specs.mjs) determine collection; [coverage ownership tests](../../tests/test-runner-coverage.test.ts) protect it. Run both lanes. |
 | `npm run test:e2e` | Playwright journeys; requires the appropriate running application, fixtures and credentials. Review [playwright.config.ts](../../playwright.config.ts) before choosing a target. |
@@ -46,7 +47,7 @@ The commands are defined in [package.json](../../package.json#L6); the table dis
 | `npm run build` | Adds the Supabase target guard to the normal Next build. Does not run production migrations. |
 | `node scripts/verify-pdf-deployment.mjs` | After a fresh build, checks the dynamic PDF assets in emitted route traces; source-only parser tests cannot establish serverless packaging. |
 
-[Required CI](../../.github/workflows/ci-gate.yml#L3) runs on PRs and pushes to `master`, plus manual dispatch; concurrent runs for the same ref are canceled. It performs root frozen install, marketing `npm ci`/build/copy, Prisma generation, typecheck, font verification, Node tests, lint, Vitest, tenant-route verification, Next build and PDF deployment verification. Knip is report-only. CI uses declared dummy configuration and does not establish real provider access or production migration readiness.
+[Required CI](../../.github/workflows/ci-gate.yml#L3) runs on PRs and pushes to `master`, plus manual dispatch; concurrent runs for the same ref are canceled. It first verifies migration timestamp history, then performs root frozen install, marketing `npm ci`/build/copy, Prisma generation, typecheck, font verification, Node tests, lint, Vitest, tenant-route verification, Next build and PDF deployment verification. Knip is report-only. CI uses declared dummy configuration and does not establish real provider access or production migration readiness.
 
 Additional workflows have separate meanings:
 

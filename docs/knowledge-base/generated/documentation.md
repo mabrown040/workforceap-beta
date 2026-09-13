@@ -28,7 +28,7 @@
 | [docs/CROSS-PORTAL-PAGES-AUDIT.md](../../../docs/CROSS-PORTAL-PAGES-AUDIT.md) | 54 | documentation |  |
 | [docs/DAILY-OPERATING-PLAN.md](../../../docs/DAILY-OPERATING-PLAN.md) | 250 | documentation |  |
 | [docs/DATABASE-PERFORMANCE-AUDIT.md](../../../docs/DATABASE-PERFORMANCE-AUDIT.md) | 671 | documentation |  |
-| [docs/DATABASE-RECOVERY.md](../../../docs/DATABASE-RECOVERY.md) | 125 | documentation |  |
+| [docs/DATABASE-RECOVERY.md](../../../docs/DATABASE-RECOVERY.md) | 155 | documentation |  |
 | [docs/DEEP-TECH-AUDIT-2026-05-12.md](../../../docs/DEEP-TECH-AUDIT-2026-05-12.md) | 231 | documentation |  |
 | [docs/DEMO-PATH-AUDIT.md](../../../docs/DEMO-PATH-AUDIT.md) | 128 | documentation |  |
 | [docs/DEPLOYMENT-CHECKLIST.md](../../../docs/DEPLOYMENT-CHECKLIST.md) | 176 | documentation |  |
@@ -270,7 +270,7 @@
 | [docs/knowledge-base/features.md](../../../docs/knowledge-base/features.md) | 36 | documentation |  |
 | [docs/knowledge-base/integrations.md](../../../docs/knowledge-base/integrations.md) | 133 | documentation |  |
 | [docs/knowledge-base/maintenance.md](../../../docs/knowledge-base/maintenance.md) | 68 | documentation |  |
-| [docs/knowledge-base/operations.md](../../../docs/knowledge-base/operations.md) | 163 | documentation |  |
+| [docs/knowledge-base/operations.md](../../../docs/knowledge-base/operations.md) | 164 | documentation |  |
 | [docs/knowledge-base/technical-debt.md](../../../docs/knowledge-base/technical-debt.md) | 52 | documentation |  |
 | [docs/live-qa-sweep-2026-05-14.md](../../../docs/live-qa-sweep-2026-05-14.md) | 55 | documentation |  |
 | [docs/marketing-perf-audit-2026-05-13.md](../../../docs/marketing-perf-audit-2026-05-13.md) | 272 | documentation |  |

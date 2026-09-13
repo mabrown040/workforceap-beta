@@ -24,7 +24,8 @@
 | [scripts/canonicalize-course-progress-slugs.test.ts](../../../scripts/canonicalize-course-progress-slugs.test.ts) | 67 | operations |  |
 | [scripts/canonicalize-course-progress-slugs.ts](../../../scripts/canonicalize-course-progress-slugs.ts) | 339 | operations | mergeCourseProgressCollision:72 |
 | [scripts/check-b4b-programs.ts](../../../scripts/check-b4b-programs.ts) | 32 | operations |  |
-| [scripts/check-duplicate-migrations.mjs](../../../scripts/check-duplicate-migrations.mjs) | 76 | operations |  |
+| [scripts/check-duplicate-migrations.mjs](../../../scripts/check-duplicate-migrations.mjs) | 134 | operations |  |
+| [scripts/check-duplicate-migrations.test.cjs](../../../scripts/check-duplicate-migrations.test.cjs) | 252 | operations |  |
 | [scripts/check-mabrown040.js](../../../scripts/check-mabrown040.js) | 31 | operations |  |
 | [scripts/check-supabase-env.mjs](../../../scripts/check-supabase-env.mjs) | 78 | operations |  |
 | [scripts/clawpatch-pre-push.sh](../../../scripts/clawpatch-pre-push.sh) | 50 | operations |  |
@@ -81,6 +82,7 @@
 | [scripts/locked-stakes/check-i18n-safe-diff.mjs](../../../scripts/locked-stakes/check-i18n-safe-diff.mjs) | 296 | operations | checkI18nSafeDiff:225 |
 | [scripts/material-symbol-glyphs.txt](../../../scripts/material-symbol-glyphs.txt) | 217 | operations |  |
 | [scripts/migrate-metadata-async.mjs](../../../scripts/migrate-metadata-async.mjs) | 80 | operations |  |
+| [scripts/migration-collision-baseline.json](../../../scripts/migration-collision-baseline.json) | 137 | operations |  |
 | [scripts/p1/test-force-rls.ts](../../../scripts/p1/test-force-rls.ts) | 1126 | operations |  |
 | [scripts/portal-screenshots.mjs](../../../scripts/portal-screenshots.mjs) | 291 | operations |  |
 | [scripts/precreate-coursera-tenant-indexes.ts](../../../scripts/precreate-coursera-tenant-indexes.ts) | 225 | learning-coursera |  |

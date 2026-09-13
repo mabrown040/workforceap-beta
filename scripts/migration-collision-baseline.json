@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "ff7c319a09d15f15ee3f04e781ece8884cf31e42",
+  "purpose": "Exact historical timestamp collisions only. This does not certify database-applied checksums or clean migration replay. Do not regenerate to admit a new collision.",
+  "groups": [
+    {
+      "timestamp": "20260331120000",
+      "migrations": [
+        {
+          "directory": "20260331120000_application_program_ranked_slugs",
+          "sha256": "36d095fb980fadc3dd505962aee4df2140fbcb7f95854d6567842b255538cf7e"
+        },
+        {
+          "directory": "20260331120000_sprint7_organization_catalog_intake",
+          "sha256": "bbabfb916baaa94fead3aa2c83209a674d0774fd97dfe3c8dbe3de3081b42e58"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260404120000",
+      "migrations": [
+        {
+          "directory": "20260404120000_add_voice_interview_video_ai_tool_type",
+          "sha256": "c2c550f56eb8a126f8208445bf72bb4745be1d1655ba549530fb7b453d7cd77a"
+        },
+        {
+          "directory": "20260404120000_onboarding_tour_completed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260404180000",
+      "migrations": [
+        {
+          "directory": "20260404180000_add_resume_analysis_ai_tool_type",
+          "sha256": "ada274a4f81f190b9e85332bfa133fc90f9e86f2b436853c1d88a6ba4b783495"
+        },
+        {
+          "directory": "20260404180000_curated_job_and_program_change_requests",
+          "sha256": "e2c85fed58046eac2875e18162bf6462dbd1fc13e13e08e384183265db51837d"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260504120000",
+      "migrations": [
+        {
+          "directory": "20260504120000_post_launch_feedback_sprint",
+          "sha256": "c327696ee6c4b2df7dd151167b8698ac4da182579afb14e7bbea8fc8a36724ea"
+        },
+        {
+          "directory": "20260504120000_xapi_course_progress",
+          "sha256": "2a5fc0be7fab71f649d668f5a04731117b91ba411ee3ec67ace30ddea1b48661"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260504130000",
+      "migrations": [
+        {
+          "directory": "20260504130000_add_coursera_course_progress",
+          "sha256": "806f720523e5057476a9d0d77b9c396af1040d8faa1b99bda39e3d552bde53bd"
+        },
+        {
+          "directory": "20260504130000_coursera_skillset_progress",
+          "sha256": "df259d1e5daaa35548a45d24a3acedf496ee143bb8cf43153329dc65c43bdfae"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260509120000",
+      "migrations": [
+        {
+          "directory": "20260509120000_add_user_coursera_enrollment_approved",
+          "sha256": "e1042a928781c3a701cffb66c92aa11cdc0aa3e21d039d04b0b7d6b131f0ebf7"
+        },
+        {
+          "directory": "20260509120000_user_last_coursera_auto_sync_at",
+          "sha256": "0e751f317305f81495d7f1e381a0db749ef531555da93b985369b394e97c5a1f"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260513000000",
+      "migrations": [
+        {
+          "directory": "20260513000000_add_placement_survey_wave",
+          "sha256": "3b444759fa867abbcd789943ef191e4ff7045f4d3b5c38b3197f9da79e5b468d"
+        },
+        {
+          "directory": "20260513000000_add_webhook_events",
+          "sha256": "3977c3602bacde734ebbe2f09f6ee5852aa86330d5c13edb8beeb45eea60b1a8"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260513030000",
+      "migrations": [
+        {
+          "directory": "20260513030000_add_milestone_cascade_model",
+          "sha256": "3d95eff56a8cfb5fb934a195e1f8e5b769e739310b7ae41322da7381c9c74f23"
+        },
+        {
+          "directory": "20260513030000_add_testimonial",
+          "sha256": "047a5e9854ad86f397a57fb1ce37c1310c5c98c530d463d32361b30b3036ae82"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260514000000",
+      "migrations": [
+        {
+          "directory": "20260514000000_add_webhook_events",
+          "sha256": "541c725174505456ea91485c2933550020ea3fc2fd28e52b5e62e8b0a9063ee8"
+        },
+        {
+          "directory": "20260514000000_defer_rls_force_authorize_system",
+          "sha256": "6cfc274e09729df0200691c9446bf124df3f86857878667da09099c2ea68ffbe"
+        }
+      ]
+    },
+    {
+      "timestamp": "20260514010000",
+      "migrations": [
+        {
+          "directory": "20260514010000_add_employer_approval_fields",
+          "sha256": "e017eb4b5eeb7f3e147f8f05827f4e8ca1666534481114657f93cde0eca5a136"
+        },
+        {
+          "directory": "20260514010000_add_webhook_events",
+          "sha256": "75c8738e9831278f81d2c33cd58cf7f33ab80b5788735397c44be8dbaa947908"
+        }
+      ]
+    }
+  ]
+}

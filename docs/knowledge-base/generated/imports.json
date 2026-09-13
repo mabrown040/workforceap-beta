@@ -105769,8 +105769,16 @@
   },
   {
     "from": "scripts/check-duplicate-migrations.mjs",
+    "specifier": "node:crypto",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "node:crypto"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.mjs",
     "specifier": "node:fs",
-    "line": 20,
+    "line": 8,
     "kind": "import",
     "external": true,
     "package": "node:fs"
@@ -105778,7 +105786,7 @@
   {
     "from": "scripts/check-duplicate-migrations.mjs",
     "specifier": "node:path",
-    "line": 21,
+    "line": 9,
     "kind": "import",
     "external": true,
     "package": "node:path"
@@ -105786,18 +105794,66 @@
   {
     "from": "scripts/check-duplicate-migrations.mjs",
     "specifier": "node:url",
-    "line": 22,
+    "line": 10,
     "kind": "import",
     "external": true,
     "package": "node:url"
   },
   {
-    "from": "scripts/check-duplicate-migrations.mjs",
+    "from": "scripts/check-duplicate-migrations.test.cjs",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "require",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.test.cjs",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "require",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.test.cjs",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "require",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.test.cjs",
+    "specifier": "node:os",
+    "line": 4,
+    "kind": "require",
+    "external": true,
+    "package": "node:os"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.test.cjs",
     "specifier": "node:path",
-    "line": 23,
-    "kind": "import",
+    "line": 5,
+    "kind": "require",
     "external": true,
     "package": "node:path"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.test.cjs",
+    "specifier": "node:crypto",
+    "line": 6,
+    "kind": "require",
+    "external": true,
+    "package": "node:crypto"
+  },
+  {
+    "from": "scripts/check-duplicate-migrations.test.cjs",
+    "specifier": "node:child_process",
+    "line": 7,
+    "kind": "require",
+    "external": true,
+    "package": "node:child_process"
   },
   {
     "from": "scripts/check-mabrown040.js",

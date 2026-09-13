@@ -245,11 +245,15 @@
       },
       {
         "file": "app/api/apply/signup/route.ts",
-        "line": 278
+        "line": 303
       },
       {
         "file": "lib/email.ts",
-        "line": 279
+        "line": 304
+      },
+      {
+        "file": "lib/observability/captureApiError.ts",
+        "line": 310
       }
     ],
     "kind": "test-candidate",

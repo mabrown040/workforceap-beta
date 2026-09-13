@@ -1890,11 +1890,11 @@
         },
         {
           "file": "app/api/apply/signup/route.test.ts",
-          "line": 333
+          "line": 365
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 213
+          "line": 260
         },
         {
           "file": "app/api/contact/route.ts",
@@ -2326,11 +2326,11 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.test.ts",
-          "line": 332
+          "line": 364
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 385
+          "line": 432
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2393,11 +2393,11 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.test.ts",
-          "line": 331
+          "line": 363
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 384
+          "line": 431
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2488,7 +2488,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 226
+          "line": 273
         },
         {
           "file": "app/api/contact/route.ts",
@@ -3744,7 +3744,7 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 215
+          "line": 262
         },
         {
           "file": "app/api/contact/route.ts",

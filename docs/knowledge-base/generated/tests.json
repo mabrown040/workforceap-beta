@@ -8695,6 +8695,58 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/jobs/[id]/matches/route.ts",
+        "line": 16
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 17
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 18
+      },
+      {
+        "file": "lib/tenant/organization.ts",
+        "line": 19
+      },
+      {
+        "file": "lib/tenant/withTenantScope.ts",
+        "line": 20
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 21
+      },
+      {
+        "file": "lib/admin/adminJobMatchesPrismaDeps.ts",
+        "line": 22
+      },
+      {
+        "file": "lib/admin/runAdminJobMatchesGet.ts",
+        "line": 23
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/admin-member-delete.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -9425,6 +9477,66 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/admin-user-create-active-identity-race.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/users/route.ts",
+        "line": 55
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/users/route.ts",
+        "line": 57
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 58
+      },
+      {
+        "file": "lib/tenant/organization.ts",
+        "line": 59
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 60
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/admin-user-lifecycle.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -9470,23 +9582,23 @@
     "localReferences": [
       {
         "file": "app/api/admin/users/[id]/route.ts",
-        "line": 78
+        "line": 94
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 79
+        "line": 95
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 80
+        "line": 96
       },
       {
         "file": "lib/tenant/organization.ts",
-        "line": 81
+        "line": 97
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 82
+        "line": 98
       }
     ],
     "kind": "test-candidate",
@@ -15828,6 +15940,38 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/admin-job-match-prisma-scope.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/adminJobMatchesPrismaDeps.ts",
+        "line": 17
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 18
+      },
+      {
+        "file": "lib/admin/aiJobMatchCompute.ts",
+        "line": 19
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/admin-post-commit-notifications.spec.ts",
     "area": "tests",
     "domain": "communications",
@@ -15835,6 +15979,30 @@
       "vitest"
     ],
     "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/admin-user-provisioning-tenant-race.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/adminUserProvisioning.ts",
+        "line": 2
+      }
+    ],
     "kind": "test-candidate",
     "declaredRunners": [
       {
@@ -15889,6 +16057,34 @@
       {
         "file": "lib/ai/aiCoachContext.ts",
         "line": 26
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/ai-job-match-cache-scope.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/ai/matchStudents.ts",
+        "line": 4
+      },
+      {
+        "file": "lib/admin/aiJobMatchCompute.ts",
+        "line": 9
       }
     ],
     "kind": "test-candidate",
@@ -16938,6 +17134,34 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/match-students-tenant-scope.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/ai/matchStudents.ts",
+        "line": 6
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 7
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/member-program-training-view.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -17289,15 +17513,35 @@
       },
       {
         "file": "lib/admin/adminJobMatchesPrismaDeps.ts",
-        "line": 30
+        "line": 36
       },
       {
         "file": "lib/notifications/create.ts",
-        "line": 31
+        "line": 37
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 72
+        "line": 42
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 75
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 93
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 107
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 121
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 137
       }
     ],
     "kind": "test-candidate",

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "4fa7f4f1b2e441153490866741f49878f9d7c9075cd4b747d74f964ddd27e58d",
+  "inputTreeSha256": "1a904cc2d7819db824078c9e2680f71869380845e6c3cd7c2adda608cc247e0e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -24570,9 +24570,9 @@
       "path": "app/api/admin/jobs/[id]/approve/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 4204,
+      "bytes": 4211,
       "lines": 111,
-      "sha256": "b063a335088d9651d81672d4c24864fd0348e0d0dbcdc86e3c74a34db61f935a",
+      "sha256": "15b3ac49c564e2cc120f1be4e3a20e0a6f4a1ca0110449cd6dc79f6d665e2f9c",
       "binary": false,
       "exports": [
         {
@@ -24599,21 +24599,26 @@
       "path": "app/api/admin/jobs/[id]/matches/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 1720,
-      "lines": 46,
-      "sha256": "ff1b2fe6f33717221070d5529f5fba6c35cf2a1edeb079702d87c1e0df21f005",
+      "bytes": 2716,
+      "lines": 72,
+      "sha256": "c0475d7f2ac238787fe9505da06877f72c0fa2543eb937d51370e9fe37331a84",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 9,
+          "line": 21,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "jobSelectForMatch",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "GET",
-          "line": 9,
+          "line": 21,
           "kind": "Variable"
         }
       ],
@@ -28420,9 +28425,9 @@
       "path": "app/api/admin/users/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 10071,
-      "lines": 254,
-      "sha256": "bd65def7bfb08c41acacd88d3155e886ae703ff63d8282b05a981e72ef0685cb",
+      "bytes": 11938,
+      "lines": 310,
+      "sha256": "330a492d4c6fdfb9436fbd9e7c142d0f4fc9235352f9d099063fa8e21ffbab82",
       "binary": false,
       "exports": [
         {
@@ -28432,7 +28437,7 @@
         },
         {
           "name": "PATCH",
-          "line": 254,
+          "line": 310,
           "kind": "Variable"
         }
       ],
@@ -28464,7 +28469,7 @@
         },
         {
           "name": "PATCH",
-          "line": 254,
+          "line": 310,
           "kind": "Variable"
         }
       ],
@@ -28595,9 +28600,9 @@
       "path": "app/api/admin/users/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7392,
-      "lines": 196,
-      "sha256": "b815ecf9da649ed5b1ba56bcb0ecd6bb4f7c8afa77e7873bd8120311d92452dd",
+      "bytes": 8709,
+      "lines": 236,
+      "sha256": "371cf7b1b23ff13d0dfaa544ae7e9e984ebf32a85f15503560425d468dd82c38",
       "binary": false,
       "exports": [
         {
@@ -28607,7 +28612,7 @@
         },
         {
           "name": "POST",
-          "line": 196,
+          "line": 236,
           "kind": "Variable"
         }
       ],
@@ -28634,7 +28639,7 @@
         },
         {
           "name": "POST",
-          "line": 196,
+          "line": 236,
           "kind": "Variable"
         }
       ],
@@ -76971,9 +76976,9 @@
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 9372,
-      "lines": 52,
-      "sha256": "5063351c06a070c3bd2b7ce689543025ca1a34b9eb8a78441c8eda189cde25bf",
+      "bytes": 10796,
+      "lines": 56,
+      "sha256": "143b41e7411cd23cba2c10f06999ef60099f6a4b7d921172129927f50e05d36d",
       "binary": false
     },
     {
@@ -81760,14 +81765,14 @@
       "path": "lib/admin/adminJobMatchesPrismaDeps.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 3031,
-      "lines": 101,
-      "sha256": "24c89b202a17809190836c59534186a52adaeaf942e4a424d698303e9c73ede8",
+      "bytes": 4363,
+      "lines": 128,
+      "sha256": "fe150611be393f9e4e794247090baf1ea8e6020e472661499a8839dcb941019a",
       "binary": false,
       "exports": [
         {
           "name": "createAdminJobMatchesPrismaDeps",
-          "line": 45,
+          "line": 49,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81789,7 +81794,7 @@
         },
         {
           "name": "createAdminJobMatchesPrismaDeps",
-          "line": 45,
+          "line": 49,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81799,9 +81804,9 @@
       "path": "lib/admin/adminUserProvisioning.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 2840,
-      "lines": 111,
-      "sha256": "e7905f54a60bbdfdc32326d926fdd742e051e0aeed30b0112c2bac51041cbe2d",
+      "bytes": 3544,
+      "lines": 125,
+      "sha256": "f3053b9645969d3e69fc247f64b8b74af6449fa0223a47678e8261d24595b35e",
       "binary": false,
       "exports": [
         {
@@ -81821,12 +81826,12 @@
         },
         {
           "name": "ensureProfileRole",
-          "line": 55,
+          "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncManagedUserRoles",
-          "line": 86,
+          "line": 100,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81853,17 +81858,17 @@
         },
         {
           "name": "ensureProfileRole",
-          "line": 55,
+          "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureRoleByName",
-          "line": 80,
+          "line": 94,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncManagedUserRoles",
-          "line": 86,
+          "line": 100,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81873,9 +81878,9 @@
       "path": "lib/admin/aiJobMatchCompute.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 1541,
-      "lines": 49,
-      "sha256": "427e0b876f23b526e6990aff448ef670ee6e11e95da84bd29d2af8587dd726e8",
+      "bytes": 1745,
+      "lines": 54,
+      "sha256": "df86c7d3d19c6ac31ada8fb73743431aee9a012936b712f6279ac5be538f0d16",
       "binary": false,
       "exports": [
         {
@@ -81895,12 +81900,12 @@
         },
         {
           "name": "markAiJobMatchEmptyCooldown",
-          "line": 43,
+          "line": 48,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clearAiJobMatchEmptyCooldown",
-          "line": 47,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81937,12 +81942,12 @@
         },
         {
           "name": "markAiJobMatchEmptyCooldown",
-          "line": 43,
+          "line": 48,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clearAiJobMatchEmptyCooldown",
-          "line": 47,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -85048,9 +85053,9 @@
       "path": "lib/admin/runAdminJobMatchesGet.test.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 4427,
-      "lines": 133,
-      "sha256": "e676f01c80a5b70b3466092df5f0cbd29c9f29b06cbe5ae990c833563b674060",
+      "bytes": 4582,
+      "lines": 135,
+      "sha256": "01368480014c26dfb13627aed95489db5ca8bbf2ada6b1576600c9e14cb35820",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -85071,9 +85076,9 @@
       "path": "lib/admin/runAdminJobMatchesGet.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 3377,
-      "lines": 107,
-      "sha256": "42d43740d224ade2b1c1e444a4f1e749817cf314f1b83a2466f30b1c085b526a",
+      "bytes": 3308,
+      "lines": 105,
+      "sha256": "d182ecdabddb5f4ca836c88555d522ffec7346cff2b0e68f2e92c69521d4ceee",
       "binary": false,
       "exports": [
         {
@@ -87945,9 +87950,9 @@
       "path": "lib/ai/matchStudents.ts",
       "area": "libraries",
       "domain": "ai-voice",
-      "bytes": 3745,
+      "bytes": 3769,
       "lines": 109,
-      "sha256": "d53d38ea3d3867ddda377e6d639e9a9f6f50e9ff0219bba6e132bca70471c538",
+      "sha256": "d5528dbe70dd942325818c468793baaf6e8cc045f4936d86b5251bbe771967bb",
       "binary": false,
       "exports": [
         {
@@ -110687,21 +110692,21 @@
       "path": "lib/employer/triggerEmployerJobAiMatch.ts",
       "area": "libraries",
       "domain": "jobs-employers",
-      "bytes": 1520,
-      "lines": 40,
-      "sha256": "42eeac15b581f76c74727f6ed9d8f4d6947c18554023f8772c82d1903c61ce81",
+      "bytes": 1633,
+      "lines": 38,
+      "sha256": "110ed57f068559489f32c4d162a69d3eaf0c45e63615e9b3b2a7ebfb00b113ed",
       "binary": false,
       "exports": [
         {
           "name": "runAiMatchForLiveJob",
-          "line": 9,
+          "line": 10,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "runAiMatchForLiveJob",
-          "line": 9,
+          "line": 10,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -145165,6 +145170,64 @@
       "directive": null
     },
     {
+      "path": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3288,
+      "lines": 52,
+      "sha256": "0f407f2cb9e885602ce2c3179bec630a56aca76ddfda26e167a14b44336be75b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "GET",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "getUser",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "isAdmin",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "isSuperAdmin",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "getActorOrganizationId",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "withTenantScope",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "prisma",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "createAdminJobMatchesPrismaDeps",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "runAdminJobMatchesGet",
+          "line": 23,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/admin-member-delete.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -145604,6 +145667,137 @@
       "directive": null
     },
     {
+      "path": "tests/api/admin-user-create-active-identity-race.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 8459,
+      "lines": 223,
+      "sha256": "0b695582ffc59691e69dd6464266a5405d3550951a4aa0aa0e429a814b586355",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "effects",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "auth",
+          "line": 33,
+          "kind": "Variable"
+        },
+        {
+          "name": "database",
+          "line": 37,
+          "kind": "Variable"
+        },
+        {
+          "name": "POST",
+          "line": 55,
+          "kind": "Variable"
+        },
+        {
+          "name": "Identity",
+          "line": 57,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "request",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "transactionStore",
+          "line": 78,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5888,
+      "lines": 131,
+      "sha256": "71c2fa2c9b1f91b33513fadaecbbcb4940924c284cb7526ef118267ccab31b5a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "tenantUserFindFirst",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "createAuthUser",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "findAuthUserByEmail",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "ensureAppUser",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "ensureProfileRole",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "syncManagedUserRoles",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "sendPasswordResetEmail",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "auditLog",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "logAuditEvent",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "POST",
+          "line": 57,
+          "kind": "Variable"
+        },
+        {
+          "name": "getUser",
+          "line": 58,
+          "kind": "Variable"
+        },
+        {
+          "name": "getActorOrganizationId",
+          "line": 59,
+          "kind": "Variable"
+        },
+        {
+          "name": "prisma",
+          "line": 60,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 62,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -145675,9 +145869,9 @@
       "path": "tests/api/admin-user-patch-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7485,
-      "lines": 215,
-      "sha256": "3deb68f8d9124dcab61e561ee11304d9f89b5237bedbb3574a401950892a1f2c",
+      "bytes": 9898,
+      "lines": 273,
+      "sha256": "ffc1707eca7b55ea60ddc3e3fe678dedab7c02484ca5e6bbd55bccbadb8083c6",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145687,23 +145881,33 @@
           "kind": "Variable"
         },
         {
+          "name": "tenantUserFindFirst",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
+          "name": "globalUserFindFirst",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
           "name": "updateUserById",
-          "line": 51,
+          "line": 66,
           "kind": "Variable"
         },
         {
           "name": "patchReq",
-          "line": 84,
+          "line": 100,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PrivilegedTargetCase",
-          "line": 92,
+          "line": 108,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "privilegedTargets",
-          "line": 99,
+          "line": 115,
           "kind": "Variable"
         }
       ],
@@ -149786,12 +149990,45 @@
       "binary": false
     },
     {
+      "path": "tests/lib/admin-job-match-prisma-scope.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2680,
+      "lines": 65,
+      "sha256": "1e006e99262fa2d3918618ceef38f075743f9f11c288f476520edd84db7fe2e6",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "createAdminJobMatchesPrismaDeps",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "prisma",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "getOrComputeAiJobMatches",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "job",
+          "line": 21,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/admin-post-commit-notifications.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 1126,
-      "lines": 27,
-      "sha256": "1a5ad12493ae7f0e07799535d0fdd65fe9e94c79e5bfd3153d1a647346df1ac8",
+      "bytes": 1248,
+      "lines": 30,
+      "sha256": "d0e18ca8b9a33ee726086debfcf83443d2cca9c515f1e327fb8266e8249508f5",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -149804,6 +150041,29 @@
           "name": "source",
           "line": 6,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/admin-user-provisioning-tenant-race.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5940,
+      "lines": 145,
+      "sha256": "14d094386b52907fbb05f41964adfaaf6bb0b1c6a576d187d2a758d1b0e5b443",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "txWithUser",
+          "line": 4,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "transactionStore",
+          "line": 17,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -149851,6 +150111,44 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/ai-job-match-cache-scope.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1726,
+      "lines": 42,
+      "sha256": "9e37f7d425ececefaf7c18533ea42846d3d71aff76340852b9813e5df232540e",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "matchStudentsForJob",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "getOrComputeAiJobMatches",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "markAiJobMatchEmptyCooldown",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "clearAiJobMatchEmptyCooldown",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "job",
+          "line": 11,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {
@@ -150765,6 +151063,29 @@
       "directive": null
     },
     {
+      "path": "tests/lib/match-students-tenant-scope.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 986,
+      "lines": 25,
+      "sha256": "3c69e9c709f1b306fe35d5b114a0ea86be791c4826aefabfdc0e2c59a9665664",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "matchStudentsForJob",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "prisma",
+          "line": 7,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/member-program-training-view.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -151059,9 +151380,9 @@
       "path": "tests/lib/notification-triggers-job.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 3238,
-      "lines": 91,
-      "sha256": "ccaa47f490cb15d50138f067dd1438e6a431a05130ef588b20c7d7430cf5637c",
+      "bytes": 6252,
+      "lines": 156,
+      "sha256": "a82eeea6313acb8359135047954e066d9bcf762840807e76869b8084b588a94f",
       "binary": false,
       "exports": [],
       "declarations": [],

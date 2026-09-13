@@ -48,9 +48,9 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
       user: {
         findFirst: (...args: unknown[]) => {
           const where = (args[0] as { where?: { id?: string } } | undefined)?.where;
-          return where?.id === 'user-1' || where?.id === 'admin-1'
-            ? routeMocks.target(...args)
-            : tenantUserFindFirst(...args);
+          return where?.id === 'own-uuid'
+            ? tenantUserFindFirst(...args)
+            : routeMocks.target(...args);
         },
       },
     }),
@@ -164,11 +164,9 @@ describe('PATCH /api/admin/users/[id]', () => {
 
   it('returns an own-tenant collision projection before changing Supabase auth', async () => {
     globalUserFindFirst.mockResolvedValue({ id: 'own-uuid', organizationId: 'org-1' });
-    tenantUserFindFirst
-      .mockResolvedValueOnce({ id: 'user-1', email: 'old@example.com' })
-      .mockResolvedValueOnce({
-        id: 'own-uuid', fullName: 'Own Name', email: 'new@example.com', profile: { role: 'member' },
-      });
+    tenantUserFindFirst.mockResolvedValue({
+      id: 'own-uuid', fullName: 'Own Name', email: 'new@example.com', profile: { role: 'member' },
+    });
 
     const res = await PATCH(
       patchReq({ fullName: 'User One', email: 'new@example.com', role: 'member' }),

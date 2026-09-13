@@ -103472,6 +103472,22 @@
     "target": "lib/stripe/subscriptionPersistence.ts"
   },
   {
+    "from": "lib/stripe/subscriptionPersistence.test.ts",
+    "specifier": "./subscriptionPersistence",
+    "line": 105,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
+  },
+  {
+    "from": "lib/stripe/subscriptionPersistence.test.ts",
+    "specifier": "./subscriptionPersistence",
+    "line": 156,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
+  },
+  {
     "from": "lib/stripe/subscriptionPersistence.ts",
     "specifier": "@prisma/client",
     "line": 1,
@@ -111154,7 +111170,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 80,
+    "line": 81,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -111162,7 +111178,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/app/api/employer/checkout/route",
-    "line": 86,
+    "line": 87,
     "kind": "import",
     "external": false,
     "target": "app/api/employer/checkout/route.ts"
@@ -111170,7 +111186,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/app/api/employer/webhook/route",
-    "line": 87,
+    "line": 88,
     "kind": "import",
     "external": false,
     "target": "app/api/employer/webhook/route.ts"
@@ -111178,7 +111194,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 88,
+    "line": 89,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -111186,7 +111202,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 89,
+    "line": 90,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -111194,7 +111210,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 90,
+    "line": 91,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -111202,7 +111218,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/stripe/client",
-    "line": 91,
+    "line": 92,
     "kind": "import",
     "external": false,
     "target": "lib/stripe/client.ts"
@@ -111210,7 +111226,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "next/server",
-    "line": 92,
+    "line": 93,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -111218,7 +111234,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/stripe/subscriptionPersistence",
-    "line": 93,
+    "line": 94,
     "kind": "import",
     "external": false,
     "target": "lib/stripe/subscriptionPersistence.ts"
@@ -111226,7 +111242,7 @@
   {
     "from": "tests/api/employer-checkout.spec.ts",
     "specifier": "@/lib/stripe/client",
-    "line": 171,
+    "line": 172,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/stripe/client.ts"

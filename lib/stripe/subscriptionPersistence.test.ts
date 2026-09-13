@@ -71,3 +71,95 @@ test('employer mirror runs only after successful CAS and failures propagate', as
   );
   assert.equal(mirrored, 1);
 });
+
+test('accepted employer CAS preserves terminal tier and mirror across stale checkout and same-ID replay', async () => {
+  let row = {
+    stripeSubscriptionId: 'sub-1',
+    stripeSubscriptionStatus: 'canceled',
+    tier: 'basic',
+    stripeSubscriptionEventAt: 200,
+    stripeSubscriptionEventId: 'evt-delete',
+    stripeSubscriptionRevision: 9,
+  };
+  const mirror: Array<{ status: string; tier: string }> = [];
+  const tx: any = {
+    employer: {
+      findUniqueOrThrow: async () => ({ ...row }),
+      updateMany: async ({ where, data }: any) => {
+        if (where.stripeSubscriptionId !== row.stripeSubscriptionId || where.stripeSubscriptionRevision !== row.stripeSubscriptionRevision) {
+          return { count: 0 };
+        }
+        row = {
+          stripeSubscriptionId: data.stripeSubscriptionId,
+          stripeSubscriptionStatus: data.stripeSubscriptionStatus,
+          tier: data.tier,
+          stripeSubscriptionEventAt: data.stripeSubscriptionEventAt,
+          stripeSubscriptionEventId: data.stripeSubscriptionEventId,
+          stripeSubscriptionRevision: row.stripeSubscriptionRevision + 1,
+        };
+        return { count: 1 };
+      },
+    },
+    $transaction: async (fn: (inner: any) => Promise<unknown>) => fn(tx),
+  };
+  const { reconcileEmployerSubscription } = await import('./subscriptionPersistence');
+  const staleCheckout = {
+    subscriptionId: 'sub-1', eventCreated: 100, eventId: 'evt-checkout',
+    kind: 'checkout' as const, replacesSubscriptionId: 'sub-1', tier: 'growth',
+  };
+  const canonicalCanceled = async () => ({
+    id: 'sub-1', customerId: 'cus-1', status: 'canceled', tier: 'growth',
+  });
+  const mirrorWrite = async (_inner: any, next: any) => {
+    mirror.push({ status: next.status, tier: next.tier });
+  };
+
+  await reconcileEmployerSubscription(tx, { employerId: 'emp-1' }, staleCheckout, canonicalCanceled, mirrorWrite);
+  await reconcileEmployerSubscription(tx, { employerId: 'emp-1' }, { ...staleCheckout, eventId: 'evt-replay' }, canonicalCanceled, mirrorWrite);
+
+  assert.deepEqual(row, {
+    stripeSubscriptionId: 'sub-1',
+    stripeSubscriptionStatus: 'canceled',
+    tier: 'basic',
+    stripeSubscriptionEventAt: 100,
+    stripeSubscriptionEventId: 'evt-replay',
+    stripeSubscriptionRevision: 11,
+  });
+  assert.deepEqual(mirror, [
+    { status: 'canceled', tier: 'basic' },
+    { status: 'canceled', tier: 'basic' },
+  ]);
+});
+
+test('accepted organization CAS preserves terminal tier against stale same-binding checkout', async () => {
+  let row = {
+    stripeSubscriptionId: 'sub-1', subscriptionStatus: 'canceled', subscriptionTier: 'basic',
+    stripeSubscriptionEventAt: 200, stripeSubscriptionEventId: 'evt-delete', stripeSubscriptionRevision: 4,
+  };
+  const tx: any = {
+    organization: {
+      findUniqueOrThrow: async () => ({ ...row }),
+      updateMany: async ({ where, data }: any) => {
+        if (where.stripeSubscriptionId !== row.stripeSubscriptionId || where.stripeSubscriptionRevision !== row.stripeSubscriptionRevision) return { count: 0 };
+        row = {
+          stripeSubscriptionId: data.stripeSubscriptionId,
+          subscriptionStatus: data.subscriptionStatus,
+          subscriptionTier: data.subscriptionTier,
+          stripeSubscriptionEventAt: data.stripeSubscriptionEventAt,
+          stripeSubscriptionEventId: data.stripeSubscriptionEventId,
+          stripeSubscriptionRevision: row.stripeSubscriptionRevision + 1,
+        };
+        return { count: 1 };
+      },
+    },
+  };
+  const { reconcileOrganizationSubscription } = await import('./subscriptionPersistence');
+  await reconcileOrganizationSubscription(tx, { organizationId: 'org-1' }, {
+    subscriptionId: 'sub-1', eventCreated: 100, eventId: 'evt-checkout', kind: 'checkout',
+    replacesSubscriptionId: 'sub-1', tier: 'growth',
+  }, async () => ({ id: 'sub-1', customerId: 'cus-1', status: 'canceled', tier: 'growth' }));
+  assert.deepEqual(row, {
+    stripeSubscriptionId: 'sub-1', subscriptionStatus: 'canceled', subscriptionTier: 'basic',
+    stripeSubscriptionEventAt: 100, stripeSubscriptionEventId: 'evt-checkout', stripeSubscriptionRevision: 5,
+  });
+});

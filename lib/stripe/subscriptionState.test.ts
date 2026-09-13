@@ -35,8 +35,14 @@ function stateful(initial: SubscriptionState, options: { authorize?: boolean; fa
   };
 }
 
-async function apply(s: ReturnType<typeof stateful>, i: SubscriptionIntent, status = 'active', id = i.subscriptionId) {
-  return reconcileSubscriptionState(s.store, i, async () => canonical(status, id));
+async function apply(
+  s: ReturnType<typeof stateful>,
+  i: SubscriptionIntent,
+  status = 'active',
+  id = i.subscriptionId,
+  tier?: string,
+) {
+  return reconcileSubscriptionState(s.store, i, async () => ({ ...canonical(status, id), ...(tier ? { tier } : {}) }));
 }
 
 test('tied subscription updates converge to canonical status in both delivery orders and increment revision unchanged', async () => {
@@ -147,4 +153,31 @@ test('terminal deletion sets basic tier and later same-ID invoice cannot restore
   assert.deepEqual({ status: s.state().status, tier: s.state().tier }, { status: 'canceled', tier: 'basic' });
   await apply(s, intent({ kind: 'invoice_succeeded', eventId: 'evt-late', eventCreated: 200 }), 'active');
   assert.deepEqual({ status: s.state().status, tier: s.state().tier }, { status: 'canceled', tier: 'basic' });
+});
+
+
+test('late canonical-canceled checkout preserves terminal basic tier in both delivery orders', async () => {
+  for (const checkoutFirst of [true, false]) {
+    const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active', tier: 'growth' });
+    const deletion = () => apply(s, intent({ kind: 'subscription_deleted', eventId: 'evt-delete', eventCreated: 200 }), 'canceled', 'sub-1', 'basic');
+    const staleCheckout = () => apply(s, intent({
+      kind: 'checkout', eventId: 'evt-checkout', eventCreated: 100, replacesSubscriptionId: 'sub-1', tier: 'growth',
+    }), 'canceled', 'sub-1', 'growth');
+    if (checkoutFirst) { await staleCheckout(); await deletion(); } else { await deletion(); await staleCheckout(); }
+    assert.deepEqual(
+      { status: s.state().status, tier: s.state().tier },
+      { status: 'canceled', tier: 'basic' },
+    );
+  }
+});
+
+test('authorized different binding replacement may adopt canonical tier after terminal predecessor', async () => {
+  const s = stateful({ ...empty, subscriptionId: 'sub-old', status: 'canceled', tier: 'basic', revision: 3 });
+  await apply(s, intent({
+    kind: 'checkout', subscriptionId: 'sub-new', replacesSubscriptionId: 'sub-old', eventId: 'evt-replace', tier: 'growth',
+  }), 'active', 'sub-new', 'growth');
+  assert.deepEqual(
+    { subscriptionId: s.state().subscriptionId, status: s.state().status, tier: s.state().tier, revision: s.state().revision },
+    { subscriptionId: 'sub-new', status: 'active', tier: 'growth', revision: 4 },
+  );
 });

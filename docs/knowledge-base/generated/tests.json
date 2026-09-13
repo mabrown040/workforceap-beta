@@ -7739,6 +7739,14 @@
       {
         "file": "lib/stripe/subscriptionPersistence.ts",
         "line": 65
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 105
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 156
       }
     ],
     "kind": "test-candidate",
@@ -11061,39 +11069,39 @@
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 80
+        "line": 81
       },
       {
         "file": "app/api/employer/checkout/route.ts",
-        "line": 86
-      },
-      {
-        "file": "app/api/employer/webhook/route.ts",
         "line": 87
       },
       {
-        "file": "lib/auth/server.ts",
+        "file": "app/api/employer/webhook/route.ts",
         "line": 88
       },
       {
-        "file": "lib/auth/roles.ts",
+        "file": "lib/auth/server.ts",
         "line": 89
       },
       {
-        "file": "lib/db/prisma.ts",
+        "file": "lib/auth/roles.ts",
         "line": 90
       },
       {
-        "file": "lib/stripe/client.ts",
+        "file": "lib/db/prisma.ts",
         "line": 91
       },
       {
+        "file": "lib/stripe/client.ts",
+        "line": 92
+      },
+      {
         "file": "lib/stripe/subscriptionPersistence.ts",
-        "line": 93
+        "line": 94
       },
       {
         "file": "lib/stripe/client.ts",
-        "line": 171
+        "line": 172
       }
     ],
     "kind": "test-candidate",

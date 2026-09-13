@@ -72,6 +72,7 @@ vi.mock('@/lib/stripe/stripeSubscriptionSnapshot', () => ({
     status: value.status ?? 'active',
     employerId: value.metadata?.employerId,
     userId: value.metadata?.userId,
+    tier: value.metadata?.tier,
   })),
 }));
 
@@ -466,6 +467,43 @@ describe('POST /api/employer/webhook', () => {
       }),
       expect.any(Function),
     );
+  });
+
+  it.each([
+    ['delete-then-stale-checkout', ['customer.subscription.deleted', 'checkout.session.completed']],
+    ['stale-checkout-then-delete', ['checkout.session.completed', 'customer.subscription.deleted']],
+  ])('routes %s through one shared terminal reconciliation contract', async (_label, order) => {
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({
+      id: 'emp-1', userId: 'user-1', stripeCustomerId: 'cus_123',
+    });
+    const events: Record<string, any> = {
+      'customer.subscription.deleted': {
+        id: 'evt-delete', type: 'customer.subscription.deleted', created: 200,
+        data: { object: { id: 'sub_123', metadata: { employerId: 'emp-1', userId: 'user-1' } } },
+      },
+      'checkout.session.completed': {
+        id: 'evt-checkout', type: 'checkout.session.completed', created: 100,
+        data: { object: { subscription: 'sub_123', metadata: { employerId: 'emp-1', userId: 'user-1', tier: 'growth', replacesSubscriptionId: 'sub_123' } } },
+      },
+    };
+    for (const type of order) {
+      const event = events[type];
+      vi.mocked(getStripe).mockReturnValue({
+        webhooks: { constructEvent: vi.fn(() => event) },
+        subscriptions: { retrieve: vi.fn(async () => ({
+          id: 'sub_123', customer: 'cus_123', status: 'canceled',
+          metadata: { employerId: 'emp-1', userId: 'user-1', tier: 'growth' },
+        })) },
+      } as any);
+      const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
+      expect(res.status).toBe(200);
+    }
+    const calls = vi.mocked(reconcileEmployerSubscription).mock.calls;
+    expect(calls).toHaveLength(2);
+    expect(calls[0][2]).toEqual(expect.objectContaining({ subscriptionId: 'sub_123' }));
+    expect(calls[1][2]).toEqual(expect.objectContaining({ subscriptionId: 'sub_123' }));
+    const secondCanonical = await (calls[1][3] as () => Promise<any>)();
+    expect(secondCanonical).toEqual(expect.objectContaining({ id: 'sub_123', status: 'canceled', tier: 'growth' }));
   });
 
   it('returns 500 on unexpected webhook processing error', async () => {

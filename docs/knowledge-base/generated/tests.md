@@ -66,7 +66,7 @@
 | [tests/api/cron-smoke-test.spec.ts](../../../tests/api/cron-smoke-test.spec.ts) | 230 | tests |  |
 | [tests/api/cron-weekly-recap.spec.ts](../../../tests/api/cron-weekly-recap.spec.ts) | 172 | tests |  |
 | [tests/api/donate-page.spec.ts](../../../tests/api/donate-page.spec.ts) | 73 | partners-funding |  |
-| [tests/api/employer-checkout.spec.ts](../../../tests/api/employer-checkout.spec.ts) | 496 | tests |  |
+| [tests/api/employer-checkout.spec.ts](../../../tests/api/employer-checkout.spec.ts) | 534 | tests |  |
 | [tests/api/employer-job-import.spec.ts](../../../tests/api/employer-job-import.spec.ts) | 115 | tests |  |
 | [tests/api/employer-jobs-bulk-delete-route.spec.ts](../../../tests/api/employer-jobs-bulk-delete-route.spec.ts) | 126 | tests |  |
 | [tests/api/employer-jobs-pending.spec.ts](../../../tests/api/employer-jobs-pending.spec.ts) | 176 | tests |  |

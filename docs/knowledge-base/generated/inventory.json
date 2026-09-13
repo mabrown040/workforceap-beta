@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "ebb13260583b3929350db77b56d07d6b2075c9732a4085c67537eb370e4eeac1",
+  "inputTreeSha256": "4fa7f4f1b2e441153490866741f49878f9d7c9075cd4b747d74f964ddd27e58d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1445,9 +1445,9 @@
       "path": ".github/workflows/ci-gate.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 4878,
-      "lines": 130,
-      "sha256": "3b23418a4ec513e50192c1f1c1f77a9926e3fd9318239642fac2c52ab148c68e",
+      "bytes": 4985,
+      "lines": 133,
+      "sha256": "5504c30a429984fbad66fc009473aaddec81bb5e1cfec9f82500d28585234e84",
       "binary": false
     },
     {
@@ -74784,9 +74784,9 @@
       "path": "docs/DATABASE-RECOVERY.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8164,
-      "lines": 125,
-      "sha256": "150924dc152c00e42763b92673d50666ce7a2e74f4b1ea040bc36e2a50788a1b",
+      "bytes": 10206,
+      "lines": 155,
+      "sha256": "105c59f9eb5a5e14c866b6c0c59fbf71bed30678fae660a8cfed60d6c5ce3bd0",
       "binary": false
     },
     {
@@ -76962,9 +76962,9 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 22534,
-      "lines": 163,
-      "sha256": "63297db1a9641230318b54f29fd081aa1aa43e5388c836d30496962353a1e60b",
+      "bytes": 23115,
+      "lines": 164,
+      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
       "binary": false
     },
     {
@@ -139316,51 +139316,154 @@
       "path": "scripts/check-duplicate-migrations.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 2461,
-      "lines": 76,
-      "sha256": "d040159c2e130fd15f9cef061a92f043bc2493c82439b1d9821f097bae8822ce",
+      "bytes": 5806,
+      "lines": 134,
+      "sha256": "92e8fba08284550f24e42070c0936c8ffaf3d66f5485a515228e1e23f7272348",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "__filename",
-          "line": 25,
+          "name": "ROOT",
+          "line": 12,
           "kind": "Variable"
         },
         {
-          "name": "__dirname",
-          "line": 26,
+          "name": "MIGRATIONS",
+          "line": 13,
           "kind": "Variable"
         },
         {
-          "name": "REPO_ROOT",
-          "line": 27,
+          "name": "BASELINE",
+          "line": 14,
           "kind": "Variable"
         },
         {
-          "name": "MIGRATIONS_DIR",
+          "name": "REVIEWED_SOURCE_COMMIT",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "REVIEWED_BASELINE_SHA256",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "TIMESTAMP",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "requireDirectory",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readPlainFile",
           "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loadBaseline",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readMigrations",
+          "line": 70,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "check",
+          "line": 87,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "scripts/check-duplicate-migrations.test.cjs",
+      "area": "operations",
+      "domain": "operations",
+      "bytes": 10457,
+      "lines": 252,
+      "sha256": "d80a56e630a55ac5cf96a25573272a909b3216eae108259b9be4843b143116c9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "test",
+          "line": 1,
           "kind": "Variable"
         },
         {
-          "name": "TIMESTAMP_RE",
-          "line": 35,
+          "name": "assert",
+          "line": 2,
           "kind": "Variable"
         },
         {
-          "name": "entries",
-          "line": 37,
+          "name": "fs",
+          "line": 3,
           "kind": "Variable"
         },
         {
-          "name": "byTimestamp",
-          "line": 38,
+          "name": "os",
+          "line": 4,
           "kind": "Variable"
         },
         {
-          "name": "dupes",
-          "line": 57,
+          "name": "path",
+          "line": 5,
           "kind": "Variable"
+        },
+        {
+          "name": "createHash",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "spawnSync",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "checker",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "reviewedBytes",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "reviewed",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "legacyPrefix",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "first",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "second",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "sha256",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "fixture",
+          "line": 16,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -142656,6 +142759,15 @@
         }
       ],
       "directive": null
+    },
+    {
+      "path": "scripts/migration-collision-baseline.json",
+      "area": "operations",
+      "domain": "operations",
+      "bytes": 4626,
+      "lines": 137,
+      "sha256": "ba13bd4c04fcfa182335b2f6d717eb318ac36f1106bb0c8a3777c83c5543189e",
+      "binary": false
     },
     {
       "path": "scripts/p1/test-force-rls.ts",

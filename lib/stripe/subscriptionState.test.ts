@@ -139,3 +139,12 @@ test('provider failure propagates and three CAS losses are retryable', async () 
   const contended = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active' }, { failCommits: 3 });
   await assert.rejects(() => apply(contended, intent({ eventId: 'evt-contention' })), SubscriptionPersistenceContendedError);
 });
+
+
+test('terminal deletion sets basic tier and later same-ID invoice cannot restore tier', async () => {
+  const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active', tier: 'growth' });
+  await apply(s, intent({ kind: 'subscription_deleted', eventId: 'evt-delete' }), 'active');
+  assert.deepEqual({ status: s.state().status, tier: s.state().tier }, { status: 'canceled', tier: 'basic' });
+  await apply(s, intent({ kind: 'invoice_succeeded', eventId: 'evt-late', eventCreated: 200 }), 'active');
+  assert.deepEqual({ status: s.state().status, tier: s.state().tier }, { status: 'canceled', tier: 'basic' });
+});

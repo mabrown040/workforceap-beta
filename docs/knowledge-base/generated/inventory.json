@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "076b27f55f98158aa91b8d33200febf31de934a8b92aa9b2d92d901829208fd9",
+  "inputTreeSha256": "fa27cd03ca7bbca5ccfd176a60f3000fc0fc963d262a8c24fe3b7fc2f3df4145",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1445,9 +1445,9 @@
       "path": ".github/workflows/ci-gate.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 4878,
-      "lines": 130,
-      "sha256": "3b23418a4ec513e50192c1f1c1f77a9926e3fd9318239642fac2c52ab148c68e",
+      "bytes": 4985,
+      "lines": 133,
+      "sha256": "5504c30a429984fbad66fc009473aaddec81bb5e1cfec9f82500d28585234e84",
       "binary": false
     },
     {
@@ -28367,26 +28367,26 @@
       "path": "app/api/admin/users/[id]/reset-password/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2470,
-      "lines": 60,
-      "sha256": "8f3b29bf578931aae7209ee18c0ef438cbd36084742f1e4e7bab9d383658ba25",
+      "bytes": 2960,
+      "lines": 74,
+      "sha256": "b24af66e092829d8bf3bcf2b0b8cd4dea32b0004f0cd1b6fc7dd81ebf836c397",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 60,
+          "line": 74,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 60,
+          "line": 74,
           "kind": "Variable"
         }
       ],
@@ -28396,21 +28396,21 @@
       "path": "app/api/admin/users/[id]/restore/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7109,
-      "lines": 166,
-      "sha256": "c915b13a2ad9a04de2bf65795a5574d770026cc10f1ce33bfd3c97c820bf7b2f",
+      "bytes": 7547,
+      "lines": 182,
+      "sha256": "aa7ebbf08987ceb696a9ea3d4742df3e5c4f60d658990701820c0c1a613d0a71",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         }
       ],
@@ -28420,51 +28420,51 @@
       "path": "app/api/admin/users/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 9515,
-      "lines": 239,
-      "sha256": "165bede4ab3981fcbf64e8123278278babbcebbcb5c689f87d0a996329e0e46c",
+      "bytes": 10071,
+      "lines": 254,
+      "sha256": "bd65def7bfb08c41acacd88d3155e886ae703ff63d8282b05a981e72ef0685cb",
       "binary": false,
       "exports": [
         {
           "name": "DELETE",
-          "line": 88,
+          "line": 89,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 239,
+          "line": 254,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_DELETE",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 88,
+          "line": 89,
           "kind": "Variable"
         },
         {
           "name": "schema",
-          "line": 90,
+          "line": 91,
           "kind": "Variable"
         },
         {
           "name": "rollbackSupabaseEmailChange",
-          "line": 96,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_PATCH",
-          "line": 108,
+          "line": 109,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 239,
+          "line": 254,
           "kind": "Variable"
         }
       ],
@@ -39767,9 +39767,9 @@
       "path": "app/api/stripe/webhook/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 10092,
-      "lines": 245,
-      "sha256": "dc136560e3c8bededbf24bebf2e1c6f188f6f1ec6ce9bd1fb7bb57b28dad9b71",
+      "bytes": 10238,
+      "lines": 249,
+      "sha256": "77e14eaf5daad22fb6361848e59faa504c1c727e09e1c15d6c1422c75fb989e2",
       "binary": false,
       "exports": [
         {
@@ -74790,9 +74790,9 @@
       "path": "docs/DATABASE-RECOVERY.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8164,
-      "lines": 125,
-      "sha256": "150924dc152c00e42763b92673d50666ce7a2e74f4b1ea040bc36e2a50788a1b",
+      "bytes": 10206,
+      "lines": 155,
+      "sha256": "105c59f9eb5a5e14c866b6c0c59fbf71bed30678fae660a8cfed60d6c5ce3bd0",
       "binary": false
     },
     {
@@ -76968,18 +76968,18 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 22534,
-      "lines": 163,
-      "sha256": "63297db1a9641230318b54f29fd081aa1aa43e5388c836d30496962353a1e60b",
+      "bytes": 23115,
+      "lines": 164,
+      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8410,
+      "bytes": 8887,
       "lines": 52,
-      "sha256": "4b0b900ee94cfd8964652bdf483f62534e80094cdd852dface3c079ecc4189e2",
+      "sha256": "2aa27fe02cfa86621a404d8b53a9f023b7135f747ae83c84dddd621d37863b95",
       "binary": false
     },
     {
@@ -128549,9 +128549,9 @@
       "path": "lib/stripe/stripeSubscriptionSnapshot.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 781,
-      "lines": 20,
-      "sha256": "a5f222b12fb249d814ab3788ca2a9484d0b9d7103f6aca4df15891ef040059e3",
+      "bytes": 820,
+      "lines": 21,
+      "sha256": "a13889b8b9c2c14d7055b71d150fc246ded7b3845bb336d5ef33fc3a620e16fb",
       "binary": false,
       "exports": [
         {
@@ -128595,9 +128595,9 @@
       "path": "lib/stripe/subscriptionPersistence.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 7220,
-      "lines": 192,
-      "sha256": "b06291f8cd28a6f868ba10a900ef6e3354c06964865060190d3cb3efea2e651f",
+      "bytes": 7449,
+      "lines": 198,
+      "sha256": "e5f4c8c84caa182bd9426dbaf12e17f1217a46c9478fc183b0cb7d4bd65b9f25",
       "binary": false,
       "exports": [
         {
@@ -128607,12 +128607,12 @@
         },
         {
           "name": "reconcileOrganizationSubscription",
-          "line": 76,
+          "line": 79,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reconcileEmployerSubscription",
-          "line": 129,
+          "line": 134,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -128634,32 +128634,32 @@
         },
         {
           "name": "stateFromRow",
-          "line": 27,
+          "line": 29,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "localOrganizationAuthority",
-          "line": 37,
+          "line": 40,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "localEmployerAuthority",
-          "line": 56,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "customerMatches",
-          "line": 72,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reconcileOrganizationSubscription",
-          "line": 76,
+          "line": 79,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reconcileEmployerSubscription",
-          "line": 129,
+          "line": 134,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -128669,9 +128669,9 @@
       "path": "lib/stripe/subscriptionState.test.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 7477,
-      "lines": 141,
-      "sha256": "78f634d0ccc3345536879acf38732b6b8a7f76549205c56fe1ea36dc447f5237",
+      "bytes": 8102,
+      "lines": 150,
+      "sha256": "69fae6ac664e085678d7d1f993550712e8bf23dafedac17c4d3f3747877fecc6",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -128707,9 +128707,9 @@
       "path": "lib/stripe/subscriptionState.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 3901,
-      "lines": 120,
-      "sha256": "f242c87543a29ead72f64b6d893664391f9432bed803846835155d0139a67097",
+      "bytes": 4085,
+      "lines": 126,
+      "sha256": "9798ab976e338b4b0a22935f8baa4a18587937023fdb2d755cece664e1cf16aa",
       "binary": false,
       "exports": [
         {
@@ -128724,37 +128724,37 @@
         },
         {
           "name": "SubscriptionIntent",
-          "line": 17,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CanonicalSubscription",
-          "line": 25,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubscriptionAuthority",
-          "line": 34,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubscriptionReconciliationStore",
-          "line": 38,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubscriptionOwnershipUnresolvedError",
-          "line": 48,
+          "line": 51,
           "kind": "ClassDeclaration"
         },
         {
           "name": "SubscriptionPersistenceContendedError",
-          "line": 55,
+          "line": 58,
           "kind": "ClassDeclaration"
         },
         {
           "name": "reconcileSubscriptionState",
-          "line": 68,
+          "line": 71,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -128771,42 +128771,42 @@
         },
         {
           "name": "SubscriptionIntent",
-          "line": 17,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CanonicalSubscription",
-          "line": 25,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubscriptionAuthority",
-          "line": 34,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubscriptionReconciliationStore",
-          "line": 38,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubscriptionOwnershipUnresolvedError",
-          "line": 48,
+          "line": 51,
           "kind": "ClassDeclaration"
         },
         {
           "name": "SubscriptionPersistenceContendedError",
-          "line": 55,
+          "line": 58,
           "kind": "ClassDeclaration"
         },
         {
           "name": "canonicalStatus",
-          "line": 62,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reconcileSubscriptionState",
-          "line": 68,
+          "line": 71,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -139481,51 +139481,154 @@
       "path": "scripts/check-duplicate-migrations.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 2461,
-      "lines": 76,
-      "sha256": "d040159c2e130fd15f9cef061a92f043bc2493c82439b1d9821f097bae8822ce",
+      "bytes": 5806,
+      "lines": 134,
+      "sha256": "92e8fba08284550f24e42070c0936c8ffaf3d66f5485a515228e1e23f7272348",
       "binary": false,
       "exports": [],
       "declarations": [
         {
-          "name": "__filename",
-          "line": 25,
+          "name": "ROOT",
+          "line": 12,
           "kind": "Variable"
         },
         {
-          "name": "__dirname",
-          "line": 26,
+          "name": "MIGRATIONS",
+          "line": 13,
           "kind": "Variable"
         },
         {
-          "name": "REPO_ROOT",
-          "line": 27,
+          "name": "BASELINE",
+          "line": 14,
           "kind": "Variable"
         },
         {
-          "name": "MIGRATIONS_DIR",
+          "name": "REVIEWED_SOURCE_COMMIT",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "REVIEWED_BASELINE_SHA256",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "TIMESTAMP",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "requireDirectory",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readPlainFile",
           "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loadBaseline",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readMigrations",
+          "line": 70,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "check",
+          "line": 87,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "scripts/check-duplicate-migrations.test.cjs",
+      "area": "operations",
+      "domain": "operations",
+      "bytes": 10457,
+      "lines": 252,
+      "sha256": "d80a56e630a55ac5cf96a25573272a909b3216eae108259b9be4843b143116c9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "test",
+          "line": 1,
           "kind": "Variable"
         },
         {
-          "name": "TIMESTAMP_RE",
-          "line": 35,
+          "name": "assert",
+          "line": 2,
           "kind": "Variable"
         },
         {
-          "name": "entries",
-          "line": 37,
+          "name": "fs",
+          "line": 3,
           "kind": "Variable"
         },
         {
-          "name": "byTimestamp",
-          "line": 38,
+          "name": "os",
+          "line": 4,
           "kind": "Variable"
         },
         {
-          "name": "dupes",
-          "line": 57,
+          "name": "path",
+          "line": 5,
           "kind": "Variable"
+        },
+        {
+          "name": "createHash",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "spawnSync",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "checker",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "reviewedBytes",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "reviewed",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "legacyPrefix",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "first",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "second",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "sha256",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "fixture",
+          "line": 16,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -142823,6 +142926,15 @@
       "directive": null
     },
     {
+      "path": "scripts/migration-collision-baseline.json",
+      "area": "operations",
+      "domain": "operations",
+      "bytes": 4626,
+      "lines": 137,
+      "sha256": "ba13bd4c04fcfa182335b2f6d717eb318ac36f1106bb0c8a3777c83c5543189e",
+      "binary": false
+    },
+    {
       "path": "scripts/p1/test-force-rls.ts",
       "area": "operations",
       "domain": "operations",
@@ -145660,9 +145772,9 @@
       "path": "tests/api/admin-user-lifecycle.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 11421,
-      "lines": 222,
-      "sha256": "9489cdc39738d91ae047fe29ee95b7aa19e7fa511ef7cf3d65b1541d731866e1",
+      "bytes": 14006,
+      "lines": 280,
+      "sha256": "2ac9d2253791a81a0d7d06264d443a64039cbeca5440f85cf0790f5697790dbf",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -145710,6 +145822,16 @@
           "name": "ctx",
           "line": 46,
           "kind": "Variable"
+        },
+        {
+          "name": "PrivilegedTargetCase",
+          "line": 47,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "privilegedTargets",
+          "line": 54,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -145718,21 +145840,84 @@
       "path": "tests/api/admin-user-patch-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3256,
-      "lines": 110,
-      "sha256": "e5393c84766982e1671f6a6694d45486d6c0ec8ef4b24bef1a01bcf166d229fb",
+      "bytes": 7485,
+      "lines": 215,
+      "sha256": "3deb68f8d9124dcab61e561ee11304d9f89b5237bedbb3574a401950892a1f2c",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "routeMocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
           "name": "updateUserById",
-          "line": 47,
+          "line": 51,
           "kind": "Variable"
         },
         {
           "name": "patchReq",
-          "line": 72,
+          "line": 84,
           "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "PrivilegedTargetCase",
+          "line": 92,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "privilegedTargets",
+          "line": 99,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/admin-user-reset-password.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4645,
+      "lines": 117,
+      "sha256": "1c35103882ccac6b30315c110761dfecd3979cdf407b6873c4d65540b0840789",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "ACTOR",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
+          "name": "TARGET",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 33,
+          "kind": "Variable"
+        },
+        {
+          "name": "context",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "PrivilegedTargetCase",
+          "line": 52,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "privilegedTargets",
+          "line": 59,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -147866,9 +148051,9 @@
       "path": "tests/api/stripe-webhook-organization.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 8685,
-      "lines": 169,
-      "sha256": "92f5b5fa4777953a91710aa9cfd6dfd1c52290e512e137582b443867726f2ad0",
+      "bytes": 9652,
+      "lines": 185,
+      "sha256": "a260e2e515de13233912a9cb739d5328554743815bfa36fdd02df17430df6d33",
       "binary": false,
       "exports": [],
       "declarations": [

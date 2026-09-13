@@ -22,6 +22,8 @@ type BillingRow = {
   stripeSubscriptionEventAt: number | null;
   stripeSubscriptionEventId: string | null;
   stripeSubscriptionRevision: number;
+  subscriptionTier?: string | null;
+  tier?: string | null;
 };
 
 function stateFromRow(row: BillingRow, statusKey: 'subscriptionStatus' | 'stripeSubscriptionStatus'): SubscriptionState {
@@ -31,6 +33,7 @@ function stateFromRow(row: BillingRow, statusKey: 'subscriptionStatus' | 'stripe
     eventCreated: row.stripeSubscriptionEventAt,
     eventId: row.stripeSubscriptionEventId,
     revision: row.stripeSubscriptionRevision,
+    tier: row.tier ?? row.subscriptionTier ?? null,
   };
 }
 
@@ -86,6 +89,7 @@ export async function reconcileOrganizationSubscription(
         select: {
           stripeSubscriptionId: true,
           subscriptionStatus: true,
+          subscriptionTier: true,
           stripeSubscriptionEventAt: true,
           stripeSubscriptionEventId: true,
           stripeSubscriptionRevision: true,
@@ -116,6 +120,7 @@ export async function reconcileOrganizationSubscription(
         data: {
           stripeSubscriptionId: next.subscriptionId,
           subscriptionStatus: next.status ?? undefined,
+          ...(next.tier ? { subscriptionTier: next.tier } : {}),
           stripeSubscriptionEventAt: next.eventCreated,
           stripeSubscriptionEventId: next.eventId,
           stripeSubscriptionRevision: { increment: 1 },
@@ -140,6 +145,7 @@ export async function reconcileEmployerSubscription(
         select: {
           stripeSubscriptionId: true,
           stripeSubscriptionStatus: true,
+          tier: true,
           stripeSubscriptionEventAt: true,
           stripeSubscriptionEventId: true,
           stripeSubscriptionRevision: true,
@@ -181,7 +187,7 @@ export async function reconcileEmployerSubscription(
           stripeSubscriptionEventAt: next.eventCreated,
           stripeSubscriptionEventId: next.eventId,
           stripeSubscriptionRevision: { increment: 1 },
-          ...(intent.tier ? { tier: intent.tier } : {}),
+          ...(next.tier ? { tier: next.tier } : {}),
         },
       });
       if (result.count !== 1) return false;

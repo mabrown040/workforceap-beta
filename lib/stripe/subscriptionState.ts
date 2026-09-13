@@ -12,6 +12,7 @@ export type SubscriptionState = {
   eventCreated: number | null;
   eventId: string | null;
   revision: number;
+  tier?: string | null;
 };
 
 export type SubscriptionIntent = {
@@ -20,6 +21,7 @@ export type SubscriptionIntent = {
   eventId: string;
   kind: SubscriptionIntentKind;
   replacesSubscriptionId: string | null;
+  tier?: string;
 };
 
 export type CanonicalSubscription = {
@@ -29,6 +31,7 @@ export type CanonicalSubscription = {
   organizationId?: string;
   employerId?: string;
   userId?: string;
+  tier?: string;
 };
 
 export type SubscriptionAuthority = {
@@ -113,6 +116,9 @@ export async function reconcileSubscriptionState(
       eventCreated: intent.eventCreated,
       eventId: intent.eventId,
       revision: current.revision + 1,
+      tier: intent.kind === 'subscription_deleted'
+        ? 'basic'
+        : canonical.tier ?? intent.tier ?? current.tier,
     };
     if (await store.commit(current, next)) return 'applied';
   }

@@ -123,6 +123,22 @@ describe('Stripe webhook revision reconciliation wiring', () => {
     );
   });
 
+  it('terminal userId fallback mirror receives canceled status and basic tier only after commit', async () => {
+    vi.mocked(prisma.employer.findUnique).mockResolvedValue({ id: 'emp-1', stripeCustomerId: 'cus-1' } as never);
+    vi.mocked(reconcileEmployerSubscription).mockImplementationOnce(async (...args: unknown[]) => {
+      const mirror = args[4] as (tx: any, next: any) => Promise<void>;
+      await mirror(prisma, { status: 'canceled', tier: 'basic' });
+      return 'applied';
+    });
+    await deliver({ id: 'evt-delete-user', type: 'customer.subscription.deleted', created: 103, data: { object: {
+      id: 'sub-1', metadata: { userId: 'user-1' },
+    } } }, { id: 'sub-1', customer: 'cus-1', status: 'canceled', metadata: { userId: 'user-1' } });
+    expect(prisma.employerSubscription.updateMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1', stripeSubscriptionId: 'sub-1' },
+      data: { status: 'canceled', tier: 'basic' },
+    });
+  });
+
   it('userId fallback uses same reconciler and mirrors only from committed callback', async () => {
     vi.mocked(prisma.employer.findUnique).mockResolvedValue({ id: 'emp-1', stripeCustomerId: 'cus-1' } as never);
     await deliver({ id: 'evt-user', type: 'customer.subscription.updated', created: 103, data: { object: {

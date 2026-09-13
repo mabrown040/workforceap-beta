@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
               eventId: event.id,
               kind: 'checkout',
               replacesSubscriptionId: session.metadata?.replacesSubscriptionId || null,
+              tier: session.metadata?.tier,
             },
             async () => canonicalSubscriptionSnapshot(
               await getStripe().subscriptions.retrieve(subscriptionId),
@@ -120,7 +121,10 @@ export async function POST(request: NextRequest) {
               async (tx, next) => {
                 await tx.employerSubscription.updateMany({
                   where: { userId, stripeSubscriptionId: delivered.id },
-                  data: { status: next.status ?? delivered.status },
+                  data: {
+                    status: next.status ?? delivered.status,
+                    ...(next.tier ? { tier: next.tier } : {}),
+                  },
                 });
               },
             );

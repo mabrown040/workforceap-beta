@@ -16,5 +16,6 @@ export function canonicalSubscriptionSnapshot(subscription: Stripe.Subscription)
     organizationId: subscription.metadata?.organizationId,
     employerId: subscription.metadata?.employerId,
     userId: subscription.metadata?.userId,
+    tier: subscription.metadata?.tier,
   };
 }

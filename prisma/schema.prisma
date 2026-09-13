@@ -32,6 +32,7 @@ model Organization {
   stripeSubscriptionId     String?  @map("stripe_subscription_id")
   stripeSubscriptionEventAt   Int?    @map("stripe_subscription_event_at")
   stripeSubscriptionEventId   String? @map("stripe_subscription_event_id")
+  stripeSubscriptionRevision  Int     @default(0) @map("stripe_subscription_revision")
   active                   Boolean  @default(true)
   overviewVideoUrl String?  @map("overview_video_url")
   createdAt        DateTime @default(now()) @map("created_at")
@@ -1653,6 +1654,7 @@ model Employer {
   stripeSubscriptionId     String?   @map("stripe_subscription_id")
   stripeSubscriptionStatus String?   @map("stripe_subscription_status")
   stripeSubscriptionEventId   String? @map("stripe_subscription_event_id")
+  stripeSubscriptionRevision  Int     @default(0) @map("stripe_subscription_revision")
   /// `created` timestamp (seconds since epoch) of the last Stripe webhook event that
   /// updated tier/subscription state. Stripe does not guarantee delivery order, so a
   /// delayed/out-of-order event (e.g. a late invoice.payment_failed arriving after a

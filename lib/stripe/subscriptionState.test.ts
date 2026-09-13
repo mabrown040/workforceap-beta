@@ -1,139 +1,141 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applySubscriptionTransition,
+  reconcileSubscriptionState,
+  SubscriptionOwnershipUnresolvedError,
+  SubscriptionPersistenceContendedError,
+  type CanonicalSubscription,
+  type SubscriptionIntent,
   type SubscriptionState,
-  type SubscriptionTransition,
 } from './subscriptionState';
 
-function store(initial: SubscriptionState) {
+const empty: SubscriptionState = { subscriptionId: null, status: null, eventCreated: null, eventId: null, revision: 0 };
+const canonical = (status = 'active', id = 'sub-1'): CanonicalSubscription => ({ id, status, customerId: 'cus-1' });
+const intent = (patch: Partial<SubscriptionIntent> = {}): SubscriptionIntent => ({
+  subscriptionId: 'sub-1', eventCreated: 100, eventId: 'evt-1', kind: 'subscription_updated', replacesSubscriptionId: null, ...patch,
+});
+
+function stateful(initial: SubscriptionState, options: { authorize?: boolean; failCommits?: number } = {}) {
   let state = { ...initial };
-  let failNext = false;
+  let failures = options.failCommits ?? 0;
   return {
-    read: async () => ({ ...state }),
-    write: async (expected: SubscriptionState, next: SubscriptionState) => {
-      if (failNext) { failNext = false; throw new Error('transient write failure'); }
-      if (JSON.stringify(state) !== JSON.stringify(expected)) return false;
-      state = { ...next };
-      return true;
+    store: {
+      read: async () => ({ ...state }),
+      authorize: async () => ({ authorized: options.authorize ?? true }),
+      commit: async (expected: SubscriptionState, next: SubscriptionState) => {
+        const revision = expected.revision;
+        if (failures > 0) { failures -= 1; return false; }
+        if (state.revision !== revision) return false;
+        state = { ...next };
+        return true;
+      },
     },
-    failOnce: () => { failNext = true; },
     state: () => ({ ...state }),
+    mutate: (next: SubscriptionState) => { state = { ...next }; },
   };
 }
 
-const empty: SubscriptionState = {
-  subscriptionId: null, status: null, eventCreated: null, eventId: null,
-};
+async function apply(s: ReturnType<typeof stateful>, i: SubscriptionIntent, status = 'active', id = i.subscriptionId) {
+  return reconcileSubscriptionState(s.store, i, async () => canonical(status, id));
+}
 
-const event = (patch: Partial<SubscriptionTransition>): SubscriptionTransition => ({
-  subscriptionId: 'sub-1', status: 'active', eventCreated: 100, eventId: 'evt-1',
-  kind: 'invoice_succeeded', bindingAuthorized: false, replacesSubscriptionId: null, ...patch,
-});
-
-test('same-second updated snapshots converge to the authoritative current status in either order', async () => {
-  for (const order of [
-    ['active', 'past_due'],
-    ['past_due', 'active'],
-  ] as const) {
-    const s = store({ ...empty, subscriptionId: 'sub-1' });
-    for (const deliveredStatus of order) {
-      // The handler retrieves Stripe's current object; both deliveries therefore
-      // apply the same authoritative snapshot rather than their embedded status.
-      await applySubscriptionTransition(s, event({
-        kind: 'subscription_reconciled',
-        status: 'past_due',
-        eventCreated: 100,
-        eventId: `evt-${deliveredStatus}`,
-        bindingAuthorized: true,
-      }));
+test('tied subscription updates converge to canonical status in both delivery orders and increment revision unchanged', async () => {
+  for (const order of ['active-first', 'past-due-first']) {
+    const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active' });
+    for (const id of order === 'active-first' ? ['evt-active', 'evt-past'] : ['evt-past', 'evt-active']) {
+      await apply(s, intent({ eventId: id }), 'past_due');
     }
     assert.equal(s.state().status, 'past_due');
+    assert.equal(s.state().revision, 2);
   }
 });
 
-test('same-second deletion dominates active invoice regardless delivery order', async () => {
-  for (const order of [
-    [event({ kind: 'invoice_succeeded', eventId: 'evt-z', status: 'active' }), event({ kind: 'subscription_deleted', eventId: 'evt-a', status: 'canceled' })],
-    [event({ kind: 'subscription_deleted', eventId: 'evt-a', status: 'canceled' }), event({ kind: 'invoice_succeeded', eventId: 'evt-z', status: 'active' })],
-  ]) {
-    const s = store({ ...empty, subscriptionId: 'sub-1' });
-    for (const transition of order) await applySubscriptionTransition(s, transition);
+test('deletion is terminal against later or earlier invoice delivery', async () => {
+  for (const deletionFirst of [true, false]) {
+    const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active' });
+    const deletion = () => apply(s, intent({ kind: 'subscription_deleted', eventId: 'evt-delete' }), 'active');
+    const invoice = () => apply(s, intent({ kind: 'invoice_succeeded', eventId: 'evt-invoice', eventCreated: 200 }), 'active');
+    if (deletionFirst) { await deletion(); await invoice(); } else { await invoice(); await deletion(); }
     assert.equal(s.state().status, 'canceled');
-    assert.equal(s.state().eventId, 'evt-a');
   }
 });
 
-test('later invoice success cannot revive a deleted subscription', async () => {
-  const s = store({ ...empty, subscriptionId: 'sub-1' });
-  await applySubscriptionTransition(s, event({ kind: 'subscription_deleted', status: 'canceled', eventCreated: 100 }));
-  const result = await applySubscriptionTransition(s, event({ kind: 'invoice_succeeded', status: 'active', eventCreated: 200, eventId: 'evt-later' }));
-  assert.equal(result, 'ignored');
+test('NULL binding requires authority and deletion is never discarded', async () => {
+  const denied = stateful(empty, { authorize: false });
+  await assert.rejects(() => apply(denied, intent({ kind: 'subscription_deleted' }), 'canceled'), SubscriptionOwnershipUnresolvedError);
+  const accepted = stateful(empty);
+  await apply(accepted, intent({ kind: 'subscription_deleted' }), 'active');
+  assert.equal(accepted.state().status, 'canceled');
+});
+
+test('checkout cannot revive canonical canceled same subscription', async () => {
+  const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'canceled', revision: 4 });
+  await apply(s, intent({ kind: 'checkout', replacesSubscriptionId: 'sub-1' }), 'active');
   assert.equal(s.state().status, 'canceled');
+  assert.equal(s.state().revision, 5);
 });
 
-test('authoritative subscription update can reconcile terminal state', async () => {
-  const s = store({ ...empty, subscriptionId: 'sub-1', status: 'canceled', eventCreated: 100, eventId: 'evt-delete' });
-  const result = await applySubscriptionTransition(s, event({ kind: 'subscription_reconciled', status: 'active', eventCreated: 200 }));
-  assert.equal(result, 'applied');
-  assert.equal(s.state().status, 'active');
+test('authorized replacement requires a different subscription and exact predecessor regardless old cursor/status', async () => {
+  for (const status of ['active', 'canceled']) {
+    const s = stateful({ subscriptionId: 'sub-old', status, eventCreated: 999, eventId: 'evt-old', revision: 7 });
+    await apply(s, intent({ kind: 'checkout', subscriptionId: 'sub-new', replacesSubscriptionId: 'sub-old', eventCreated: 1 }), 'active', 'sub-new');
+    assert.equal(s.state().subscriptionId, 'sub-new');
+    assert.equal(s.state().revision, 8);
+  }
 });
 
-test('checkout cannot revive the same terminal subscription', async () => {
-  const s = store({ ...empty, subscriptionId: 'sub-1', status: 'canceled', eventCreated: 100, eventId: 'evt-delete' });
-  const result = await applySubscriptionTransition(s, event({
-    kind: 'checkout', status: 'active', eventCreated: 100, eventId: 'evt-checkout',
-    bindingAuthorized: true, replacesSubscriptionId: 'sub-1',
-  }));
-  assert.equal(result, 'ignored');
-  assert.equal(s.state().status, 'canceled');
+test('wrong predecessor and competing replacement are denied', async () => {
+  const wrong = stateful({ ...empty, subscriptionId: 'sub-old', status: 'active' });
+  assert.equal(await apply(wrong, intent({ kind: 'checkout', subscriptionId: 'sub-new', replacesSubscriptionId: 'wrong' }), 'active', 'sub-new'), 'ignored');
+  const race = stateful({ ...empty, subscriptionId: 'sub-old', status: 'active' });
+  await apply(race, intent({ kind: 'checkout', subscriptionId: 'sub-a', replacesSubscriptionId: 'sub-old', eventId: 'evt-a' }), 'active', 'sub-a');
+  assert.equal(await apply(race, intent({ kind: 'checkout', subscriptionId: 'sub-b', replacesSubscriptionId: 'sub-old', eventId: 'evt-b' }), 'active', 'sub-b'), 'ignored');
 });
 
-test('checkout replacement requires the currently bound subscription identity', async () => {
-  const s = store({ ...empty, subscriptionId: 'sub-old', status: 'active' });
-  assert.equal(await applySubscriptionTransition(s, event({ kind: 'checkout', subscriptionId: 'sub-new', replacesSubscriptionId: null, bindingAuthorized: true })), 'ignored');
-  assert.equal(await applySubscriptionTransition(s, event({ kind: 'checkout', subscriptionId: 'sub-new', replacesSubscriptionId: 'sub-other', bindingAuthorized: true })), 'ignored');
-  assert.equal(await applySubscriptionTransition(s, event({ kind: 'checkout', subscriptionId: 'sub-new', replacesSubscriptionId: 'sub-old', bindingAuthorized: true })), 'applied');
+test('old subscription events cannot mutate a replacement binding', async () => {
+  const s = stateful({ ...empty, subscriptionId: 'sub-new', status: 'active', revision: 3 });
+  assert.equal(await apply(s, intent({ subscriptionId: 'sub-old', kind: 'invoice_failed' }), 'past_due', 'sub-old'), 'ignored');
   assert.equal(s.state().subscriptionId, 'sub-new');
 });
 
-test('NULL migrated row binds only after authoritative reconciliation', async () => {
-  const s = store(empty);
-  assert.equal(await applySubscriptionTransition(s, event({ bindingAuthorized: false })), 'ignored');
-  assert.equal(await applySubscriptionTransition(s, event({ bindingAuthorized: true })), 'applied');
-  assert.equal(s.state().subscriptionId, 'sub-1');
+test('duplicate survives restart and does not increment revision', async () => {
+  const persisted = { subscriptionId: 'sub-1', status: 'active', eventCreated: 100, eventId: 'evt-1', revision: 9 };
+  const restarted = stateful(persisted);
+  assert.equal(await apply(restarted, intent()), 'ignored');
+  assert.equal(restarted.state().revision, 9);
 });
 
-test('duplicate remains ignored after process restart', async () => {
-  const durable = store({ ...empty, subscriptionId: 'sub-1' });
-  assert.equal(await applySubscriptionTransition(durable, event({ eventId: 'evt-durable' })), 'applied');
-  assert.equal(await applySubscriptionTransition(durable, event({ eventId: 'evt-durable' })), 'ignored');
-});
-
-test('compare-and-set retries race losers and converges on the newer event', async () => {
-  const s = store({ ...empty, subscriptionId: 'sub-1' });
-  const results = await Promise.all([
-    applySubscriptionTransition(s, event({ eventId: 'evt-a', eventCreated: 100 })),
-    applySubscriptionTransition(s, event({ eventId: 'evt-b', eventCreated: 101, kind: 'invoice_failed', status: 'past_due' })),
-  ]);
-  assert.ok(results.includes('applied'));
-  assert.equal(s.state().status, 'past_due');
-  assert.equal(s.state().eventCreated, 101);
-});
-
-test('three failed compare-and-set attempts are retryable contention', async () => {
-  const state = { ...empty, subscriptionId: 'sub-1' };
-  const result = await applySubscriptionTransition({
+test('delayed provider snapshot loses CAS, is discarded, and refetches from new revision', async () => {
+  let state: SubscriptionState = { ...empty, subscriptionId: 'sub-1', status: 'active', revision: 1 };
+  let fetches = 0;
+  const result = await reconcileSubscriptionState({
     read: async () => ({ ...state }),
-    write: async () => false,
-  }, event({ eventId: 'evt-contended' }));
-  assert.equal(result, 'contended');
+    authorize: async () => ({ authorized: true }),
+    commit: async (expected, next) => {
+      const revision = expected.revision;
+      if (revision === 1) { state = { ...state, status: 'past_due', revision: 2, eventId: 'evt-concurrent' }; return false; }
+      if (revision !== state.revision) return false;
+      state = { ...next }; return true;
+    },
+  }, intent({ eventId: 'evt-retry' }), async () => {
+    fetches += 1;
+    return canonical(fetches === 1 ? 'active' : 'past_due');
+  });
+  assert.equal(result, 'applied');
+  assert.equal(fetches, 2);
+  assert.equal(state.status, 'past_due');
+  assert.equal(state.revision, 3);
 });
 
-test('transient write failure reports failure and retry applies once', async () => {
-  const s = store({ ...empty, subscriptionId: 'sub-1' });
-  s.failOnce();
-  await assert.rejects(() => applySubscriptionTransition(s, event({ eventId: 'evt-retry' })), /transient/);
-  assert.equal(s.state().eventId, null);
-  assert.equal(await applySubscriptionTransition(s, event({ eventId: 'evt-retry' })), 'applied');
+test('revision blocks ABA even when binding/status return to prior values', async () => {
+  const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active', revision: 5 }, { failCommits: 1 });
+  await apply(s, intent({ eventId: 'evt-aba' }), 'active');
+  assert.equal(s.state().revision, 6);
+});
+
+test('provider failure propagates and three CAS losses are retryable', async () => {
+  const s = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active' });
+  await assert.rejects(() => reconcileSubscriptionState(s.store, intent(), async () => { throw new Error('provider down'); }), /provider down/);
+  const contended = stateful({ ...empty, subscriptionId: 'sub-1', status: 'active' }, { failCommits: 3 });
+  await assert.rejects(() => apply(contended, intent({ eventId: 'evt-contention' })), SubscriptionPersistenceContendedError);
 });

@@ -1,80 +1,120 @@
-export type SubscriptionTransitionKind =
+export type SubscriptionIntentKind =
   | 'checkout'
-  | 'subscription_reconciled'
+  | 'subscription_updated'
   | 'subscription_deleted'
   | 'invoice_succeeded'
-  | 'invoice_failed';
+  | 'invoice_failed'
+  | 'direct_subscribe';
 
 export type SubscriptionState = {
   subscriptionId: string | null;
   status: string | null;
   eventCreated: number | null;
   eventId: string | null;
+  revision: number;
 };
 
-export type SubscriptionTransition = {
+export type SubscriptionIntent = {
   subscriptionId: string;
-  status: string;
   eventCreated: number;
   eventId: string;
-  kind: SubscriptionTransitionKind;
-  bindingAuthorized: boolean;
+  kind: SubscriptionIntentKind;
   replacesSubscriptionId: string | null;
 };
 
-export type SubscriptionStateStore = {
-  read(): Promise<SubscriptionState>;
-  write(expected: SubscriptionState, next: SubscriptionState): Promise<boolean>;
+export type CanonicalSubscription = {
+  id: string;
+  customerId: string;
+  status: string;
+  organizationId?: string;
+  employerId?: string;
+  userId?: string;
 };
 
-function nextState(current: SubscriptionState, transition: SubscriptionTransition): SubscriptionState | null {
-  if (current.eventId === transition.eventId) return null;
+export type SubscriptionAuthority = {
+  authorized: boolean;
+};
 
-  if (!current.subscriptionId) {
-    if (!transition.bindingAuthorized) return null;
-  } else if (current.subscriptionId !== transition.subscriptionId) {
-    const legitimateReplacement =
-      transition.kind === 'checkout' &&
-      transition.bindingAuthorized &&
-      transition.replacesSubscriptionId === current.subscriptionId;
-    if (!legitimateReplacement) return null;
+export type SubscriptionReconciliationStore = {
+  read(): Promise<SubscriptionState>;
+  authorize(
+    state: SubscriptionState,
+    canonical: CanonicalSubscription,
+    intent: SubscriptionIntent,
+  ): Promise<SubscriptionAuthority>;
+  commit(expected: SubscriptionState, next: SubscriptionState): Promise<boolean>;
+};
+
+export class SubscriptionOwnershipUnresolvedError extends Error {
+  constructor() {
+    super('Subscription ownership could not be established; retry the Stripe event');
+    this.name = 'SubscriptionOwnershipUnresolvedError';
   }
-
-  if (current.subscriptionId === transition.subscriptionId && current.status === 'canceled') {
-    // A terminal subscription can only be corrected by a fresh authoritative
-    // subscription retrieval, never by an invoice or checkout replay.
-    if (transition.kind !== 'subscription_reconciled') return null;
-  }
-
-  if (current.eventCreated != null) {
-    if (transition.eventCreated < current.eventCreated) return null;
-    if (transition.eventCreated === current.eventCreated) {
-      if (current.status === transition.status) return null;
-      // Deletion is terminal for this binding regardless of delivery order.
-      if (current.status === 'canceled') return null;
-      if (transition.kind !== 'subscription_deleted' && transition.kind !== 'subscription_reconciled') {
-        return null;
-      }
-    }
-  }
-
-  return {
-    subscriptionId: transition.subscriptionId,
-    status: transition.status,
-    eventCreated: transition.eventCreated,
-    eventId: transition.eventId,
-  };
 }
 
-export async function applySubscriptionTransition(
-  store: SubscriptionStateStore,
-  transition: SubscriptionTransition,
-): Promise<'applied' | 'ignored' | 'contended'> {
+export class SubscriptionPersistenceContendedError extends Error {
+  constructor() {
+    super('Subscription state changed concurrently; retry the Stripe event');
+    this.name = 'SubscriptionPersistenceContendedError';
+  }
+}
+
+function canonicalStatus(status: string): string {
+  if (status === 'canceled') return 'canceled';
+  if (status === 'active' || status === 'trialing') return 'active';
+  return 'past_due';
+}
+
+export async function reconcileSubscriptionState(
+  store: SubscriptionReconciliationStore,
+  intent: SubscriptionIntent,
+  fetchCanonical: () => Promise<CanonicalSubscription>,
+): Promise<'applied' | 'ignored'> {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const current = await store.read();
-    const next = nextState(current, transition);
-    if (!next) return 'ignored';
-    if (await store.write(current, next)) return 'applied';
+    if (current.eventId === intent.eventId) return 'ignored';
+
+    // Provider I/O deliberately occurs after the revision read and outside the
+    // short CAS transaction. A lost CAS discards this snapshot and refetches.
+    const canonical = await fetchCanonical();
+    if (canonical.id !== intent.subscriptionId) {
+      throw new SubscriptionOwnershipUnresolvedError();
+    }
+    const authority = await store.authorize(current, canonical, intent);
+    if (!authority.authorized) throw new SubscriptionOwnershipUnresolvedError();
+
+    const isReplacement = current.subscriptionId !== null && current.subscriptionId !== canonical.id;
+    if (isReplacement) {
+      const validReplacement =
+        (intent.kind === 'checkout' || intent.kind === 'direct_subscribe') &&
+        intent.replacesSubscriptionId === current.subscriptionId;
+      if (!validReplacement) return 'ignored';
+    } else if (
+      current.subscriptionId !== null &&
+      intent.replacesSubscriptionId !== null &&
+      intent.replacesSubscriptionId !== current.subscriptionId
+    ) {
+      return 'ignored';
+    }
+
+    let status = canonicalStatus(canonical.status);
+    const sameBinding = current.subscriptionId === canonical.id;
+    if (intent.kind === 'subscription_deleted') {
+      status = 'canceled';
+    } else if (sameBinding && current.status === 'canceled') {
+      // A completed deletion is terminal for this binding. Neither invoices,
+      // checkout replays, nor contradictory provider snapshots revive it.
+      status = 'canceled';
+    }
+
+    const next: SubscriptionState = {
+      subscriptionId: canonical.id,
+      status,
+      eventCreated: intent.eventCreated,
+      eventId: intent.eventId,
+      revision: current.revision + 1,
+    };
+    if (await store.commit(current, next)) return 'applied';
   }
-  return 'contended';
+  throw new SubscriptionPersistenceContendedError();
 }

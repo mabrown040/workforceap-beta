@@ -7,12 +7,8 @@ import { logWebhookEvent } from '@/lib/webhooks/logEvent';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
-import {
-  applyEmployerSubscriptionTransition,
-  applyOrganizationSubscriptionTransition,
-  organizationSubscriptionIsAuthoritative,
-  userSubscriptionIsAuthoritative,
-} from '@/lib/stripe/subscriptionPersistence';
+import { reconcileEmployerSubscription, reconcileOrganizationSubscription } from '@/lib/stripe/subscriptionPersistence';
+import { canonicalSubscriptionSnapshot } from '@/lib/stripe/stripeSubscriptionSnapshot';
 
 function normalizeStripeId(value: unknown): string | null {
   if (typeof value === 'string' && value) return value;
@@ -61,155 +57,97 @@ export async function POST(request: NextRequest) {
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
           const orgId = session.metadata?.organizationId;
-          if (!orgId) {
-            console.warn('[stripe/webhook] checkout.session.completed missing organizationId metadata');
-            break;
-          }
           const subscriptionId = normalizeStripeId(session.subscription);
-          if (session.payment_status === 'paid' && subscriptionId) {
-            await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
+          if (!orgId || session.payment_status !== 'paid' || !subscriptionId) break;
+          await reconcileOrganizationSubscription(
+            prisma,
+            { organizationId: orgId },
+            {
               subscriptionId,
-              status: 'active',
               eventCreated: event.created,
               eventId: event.id,
               kind: 'checkout',
-              bindingAuthorized: true,
-              replacesSubscriptionId: session.metadata?.replacesSubscriptionId ?? null,
-            }));
-          }
+              replacesSubscriptionId: session.metadata?.replacesSubscriptionId || null,
+            },
+            async () => canonicalSubscriptionSnapshot(
+              await getStripe().subscriptions.retrieve(subscriptionId),
+            ),
+          );
           break;
         }
-        // Stripe never emits a bare `subscription.updated` / `subscription.canceled`
-        // event — the canonical event names are namespaced under `customer.*`,
-        // and the cancellation event is `deleted` (not `canceled`). Using the
-        // wrong strings meant this branch silently never matched in production.
-        case 'customer.subscription.updated': {
-          const delivered = event.data.object as Stripe.Subscription;
-          // Stripe delivery order is not lifecycle order. Always reconcile this
-          // ambiguous snapshot against Stripe's current subscription object.
-          const subscription = await getStripe().subscriptions.retrieve(delivered.id);
-          if (subscription.id !== delivered.id) {
-            throw new Error('Stripe subscription reconciliation returned the wrong identity');
-          }
-          const orgId = subscription.metadata?.organizationId ?? delivered.metadata?.organizationId;
-          const userId = subscription.metadata?.userId ?? delivered.metadata?.userId;
-          const status = subscription.status === 'canceled'
-            ? 'canceled'
-            : subscription.status === 'active' || subscription.status === 'trialing'
-              ? 'active'
-              : 'past_due';
-          if (orgId) {
-            await prisma.$transaction(async (tx) => {
-              const bindingAuthorized = await organizationSubscriptionIsAuthoritative(
-                tx,
-                orgId,
-                subscription.id,
-              );
-              await applyOrganizationSubscriptionTransition(tx, orgId, {
-                subscriptionId: subscription.id,
-                status,
-                eventCreated: event.created,
-                eventId: event.id,
-                kind: 'subscription_reconciled',
-                bindingAuthorized,
-                replacesSubscriptionId: null,
-              });
-            });
-          } else if (userId) {
-            await prisma.$transaction(async (tx) => {
-              const employer = await tx.employer.findUnique({ where: { userId }, select: { id: true } });
-              if (!employer) return;
-              const bindingAuthorized = await userSubscriptionIsAuthoritative(
-                tx,
-                userId,
-                subscription.id,
-              );
-              const applied = await applyEmployerSubscriptionTransition(tx, employer.id, {
-                subscriptionId: subscription.id,
-                status: subscription.status,
-                eventCreated: event.created,
-                eventId: event.id,
-                kind: 'subscription_reconciled',
-                bindingAuthorized,
-                replacesSubscriptionId: null,
-              });
-              if (applied === 'applied') {
-                await tx.employerSubscription.updateMany({
-                  where: { userId, stripeSubscriptionId: subscription.id },
-                  data: { status: subscription.status },
-                });
-              }
-            });
-          }
-          break;
-        }
+        case 'customer.subscription.updated':
         case 'customer.subscription.deleted': {
-          const subscription = event.data.object as Stripe.Subscription;
-          const orgId = subscription.metadata?.organizationId;
-          const userId = subscription.metadata?.userId;
+          const delivered = event.data.object as Stripe.Subscription;
+          const orgId = delivered.metadata?.organizationId;
+          const userId = delivered.metadata?.userId;
+          const kind = event.type === 'customer.subscription.deleted'
+            ? 'subscription_deleted' as const
+            : 'subscription_updated' as const;
+          const fetchCanonical = async () => canonicalSubscriptionSnapshot(
+            await getStripe().subscriptions.retrieve(delivered.id),
+          );
           if (orgId) {
-            await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
-              subscriptionId: subscription.id,
-              status: 'canceled',
-              eventCreated: event.created,
-              eventId: event.id,
-              kind: 'subscription_deleted',
-              bindingAuthorized: false,
-              replacesSubscriptionId: null,
-            }));
-          } else if (userId) {
-            await prisma.$transaction(async (tx) => {
-              const employer = await tx.employer.findUnique({ where: { userId }, select: { id: true } });
-              if (!employer) return;
-              const applied = await applyEmployerSubscriptionTransition(tx, employer.id, {
-                subscriptionId: subscription.id,
-                status: 'canceled',
+            await reconcileOrganizationSubscription(
+              prisma,
+              { organizationId: orgId },
+              {
+                subscriptionId: delivered.id,
                 eventCreated: event.created,
                 eventId: event.id,
-                kind: 'subscription_deleted',
-                bindingAuthorized: false,
+                kind,
                 replacesSubscriptionId: null,
-              });
-              if (applied === 'applied') {
-                await tx.employerSubscription.updateMany({
-                  where: { userId, stripeSubscriptionId: subscription.id },
-                  data: { status: 'canceled' },
-                });
-              }
+              },
+              fetchCanonical,
+            );
+          } else if (userId) {
+            const employer = await prisma.employer.findUnique({
+              where: { userId },
+              select: { id: true, stripeCustomerId: true },
             });
+            if (!employer) break;
+            await reconcileEmployerSubscription(
+              prisma,
+              { employerId: employer.id, userId, customerId: employer.stripeCustomerId },
+              {
+                subscriptionId: delivered.id,
+                eventCreated: event.created,
+                eventId: event.id,
+                kind,
+                replacesSubscriptionId: null,
+                ...(kind === 'subscription_deleted' ? { tier: 'basic' } : {}),
+              },
+              fetchCanonical,
+              async (tx, next) => {
+                await tx.employerSubscription.updateMany({
+                  where: { userId, stripeSubscriptionId: delivered.id },
+                  data: { status: next.status ?? delivered.status },
+                });
+              },
+            );
           }
           break;
         }
-        case 'invoice.payment_failed': {
-          const invoice = event.data.object as Stripe.Invoice;
-          const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
-          const subscriptionId = invoiceSubscriptionId(invoice);
-          if (!orgId || !subscriptionId) break;
-          await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
-            subscriptionId,
-            status: 'past_due',
-            eventCreated: event.created,
-            eventId: event.id,
-            kind: 'invoice_failed',
-            bindingAuthorized: false,
-            replacesSubscriptionId: null,
-          }));
-          break;
-        }
+        case 'invoice.payment_failed':
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
-          const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
+          const orgId = invoice.metadata?.organizationId
+            ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           const subscriptionId = invoiceSubscriptionId(invoice);
           if (!orgId || !subscriptionId) break;
-          await prisma.$transaction((tx) => applyOrganizationSubscriptionTransition(tx, orgId, {
-            subscriptionId,
-            status: 'active',
-            eventCreated: event.created,
-            eventId: event.id,
-            kind: 'invoice_succeeded',
-            bindingAuthorized: false,
-            replacesSubscriptionId: null,
-          }));
+          await reconcileOrganizationSubscription(
+            prisma,
+            { organizationId: orgId },
+            {
+              subscriptionId,
+              eventCreated: event.created,
+              eventId: event.id,
+              kind: event.type === 'invoice.payment_failed' ? 'invoice_failed' : 'invoice_succeeded',
+              replacesSubscriptionId: null,
+            },
+            async () => canonicalSubscriptionSnapshot(
+              await getStripe().subscriptions.retrieve(subscriptionId),
+            ),
+          );
           break;
         }
         case 'account.updated': {

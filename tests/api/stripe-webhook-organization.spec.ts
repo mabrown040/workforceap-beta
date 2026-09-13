@@ -11,13 +11,28 @@ vi.mock('@/lib/db/withRequestGuc', () => ({ withSystemGuc: vi.fn(async (fn: () =
 vi.mock('@/lib/webhooks/logEvent', () => ({ logWebhookEvent: vi.fn() }));
 vi.mock('@/lib/observability/captureApiError', () => ({ captureApiError: vi.fn() }));
 vi.mock('@/lib/stripe/subscriptionPersistence', () => ({
-  applyOrganizationSubscriptionTransition: vi.fn(async () => 'applied'),
-  applyEmployerSubscriptionTransition: vi.fn(async () => 'applied'),
-  organizationSubscriptionIsAuthoritative: vi.fn(async () => true),
-  userSubscriptionIsAuthoritative: vi.fn(async () => true),
+  reconcileOrganizationSubscription: vi.fn(async () => 'applied'),
+  reconcileEmployerSubscription: vi.fn(async (...args: unknown[]) => {
+    const mirror = args[4] as undefined | ((tx: unknown, next: unknown) => Promise<void>);
+    if (mirror) {
+      const { prisma } = await import('@/lib/db/prisma');
+      await mirror(prisma as never, { status: 'active' });
+    }
+    return 'applied';
+  }),
+}));
+vi.mock('@/lib/stripe/stripeSubscriptionSnapshot', () => ({
+  canonicalSubscriptionSnapshot: vi.fn((subscription: any) => ({
+    id: subscription.id,
+    customerId: typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id ?? 'cus-1',
+    status: subscription.status,
+    organizationId: subscription.metadata?.organizationId,
+    employerId: subscription.metadata?.employerId,
+    userId: subscription.metadata?.userId,
+  })),
 }));
 vi.mock('@/lib/db/prisma', () => {
-  const employer = { findUnique: vi.fn() };
+  const employer = { findUnique: vi.fn(), count: vi.fn() };
   const employerSubscription = { updateMany: vi.fn(), count: vi.fn(async () => 1) };
   const tx = { employer, employerSubscription, partner: { updateMany: vi.fn() } };
   return { prisma: { ...tx, $transaction: vi.fn(async (arg: unknown) => typeof arg === 'function' ? (arg as (t: typeof tx) => unknown)(tx) : Promise.all(arg as Promise<unknown>[])) } };
@@ -32,8 +47,8 @@ import { POST } from '@/app/api/stripe/webhook/route';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe } from '@/lib/stripe/client';
 import {
-  applyEmployerSubscriptionTransition,
-  applyOrganizationSubscriptionTransition,
+  reconcileEmployerSubscription,
+  reconcileOrganizationSubscription,
 } from '@/lib/stripe/subscriptionPersistence';
 
 const request = () => new Request('http://localhost/api/stripe/webhook', {
@@ -49,111 +64,106 @@ function deliver(event: Record<string, unknown>, currentSubscription?: Record<st
   return POST(request() as never);
 }
 
-describe('Stripe webhook subscription policy wiring', () => {
+describe('Stripe webhook revision reconciliation wiring', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it.each([
-    ['invoice.payment_succeeded', 'invoice_succeeded', 'active'],
-    ['invoice.payment_failed', 'invoice_failed', 'past_due'],
-  ] as const)('routes %s through the organization lifecycle policy', async (type, kind, status) => {
-    await deliver({ id: `evt_${kind}`, type, created: 100, data: { object: { subscription: 'sub-1', metadata: { organizationId: 'org-1' } } } });
-    expect(applyOrganizationSubscriptionTransition).toHaveBeenCalledWith(expect.anything(), 'org-1', {
-      subscriptionId: 'sub-1', status, eventCreated: 100, eventId: `evt_${kind}`,
-      kind, bindingAuthorized: false, replacesSubscriptionId: null,
-    });
+    ['invoice.payment_succeeded', 'invoice_succeeded'],
+    ['invoice.payment_failed', 'invoice_failed'],
+  ] as const)('routes %s with string and expanded subscription IDs', async (type, kind) => {
+    for (const subscription of ['sub-1', { id: 'sub-1' }]) {
+      await deliver({ id: `evt_${kind}`, type, created: 100, data: { object: {
+        subscription,
+        metadata: { organizationId: 'org-1' },
+      } } }, { id: 'sub-1', customer: 'cus-1', status: 'active', metadata: { organizationId: 'org-1' } });
+    }
+    expect(reconcileOrganizationSubscription).toHaveBeenCalledTimes(2);
+    expect(reconcileOrganizationSubscription).toHaveBeenLastCalledWith(
+      prisma,
+      { organizationId: 'org-1' },
+      expect.objectContaining({ subscriptionId: 'sub-1', kind }),
+      expect.any(Function),
+    );
   });
 
   it.each([
     ['active', 'past_due'],
     ['past_due', 'active'],
-  ] as const)('same-second %s delivery reconciles to authoritative %s state', async (deliveredStatus, authoritativeStatus) => {
-    await deliver({
-      id: `evt_${deliveredStatus}`,
-      type: 'customer.subscription.updated',
-      created: 100,
-      data: { object: { id: 'sub-1', status: deliveredStatus, metadata: { organizationId: 'org-1' } } },
-    }, {
-      id: 'sub-1', status: authoritativeStatus, metadata: { organizationId: 'org-1' },
-    });
+  ] as const)('reconciles same-second %s delivery through a canonical fetch', async (delivered, current) => {
+    await deliver({ id: `evt_${delivered}`, type: 'customer.subscription.updated', created: 100, data: { object: {
+      id: 'sub-1', status: delivered, metadata: { organizationId: 'org-1' },
+    } } }, { id: 'sub-1', customer: 'cus-1', status: current, metadata: { organizationId: 'org-1' } });
+    const call = vi.mocked(reconcileOrganizationSubscription).mock.calls.at(-1)!;
+    expect(call[2]).toEqual(expect.objectContaining({ subscriptionId: 'sub-1', kind: 'subscription_updated' }));
+    expect(await call[3]()).toEqual(expect.objectContaining({ id: 'sub-1', status: current }));
+  });
 
-    expect(applyOrganizationSubscriptionTransition).toHaveBeenCalledWith(
-      expect.anything(),
-      'org-1',
-      expect.objectContaining({
-        subscriptionId: 'sub-1',
-        status: authoritativeStatus === 'active' ? 'active' : 'past_due',
-        kind: 'subscription_reconciled',
-      }),
+  it('routes deletion as terminal but still fetches canonical ownership', async () => {
+    await deliver({ id: 'evt-delete', type: 'customer.subscription.deleted', created: 101, data: { object: {
+      id: 'sub-1', customer: 'cus-1', status: 'canceled', metadata: { organizationId: 'org-1' },
+    } } }, { id: 'sub-1', customer: 'cus-1', status: 'canceled', metadata: { organizationId: 'org-1' } });
+    expect(reconcileOrganizationSubscription).toHaveBeenCalledWith(
+      prisma,
+      { organizationId: 'org-1' },
+      expect.objectContaining({ subscriptionId: 'sub-1', kind: 'subscription_deleted' }),
+      expect.any(Function),
     );
   });
 
-  it('routes subscription deletion through terminal lifecycle policy', async () => {
-    await deliver({ id: 'evt_deleted', type: 'customer.subscription.deleted', created: 101, data: { object: { id: 'sub-1', metadata: { organizationId: 'org-1' } } } });
-    expect(applyOrganizationSubscriptionTransition).toHaveBeenCalledWith(expect.anything(), 'org-1', expect.objectContaining({
-      subscriptionId: 'sub-1', kind: 'subscription_deleted', status: 'canceled', bindingAuthorized: false,
-    }));
+  it('passes exact predecessor for authorized checkout replacement', async () => {
+    await deliver({ id: 'evt-checkout', type: 'checkout.session.completed', created: 102, data: { object: {
+      payment_status: 'paid', subscription: { id: 'sub-new' },
+      metadata: { organizationId: 'org-1', replacesSubscriptionId: 'sub-old' },
+    } } }, { id: 'sub-new', customer: 'cus-1', status: 'active', metadata: { organizationId: 'org-1' } });
+    expect(reconcileOrganizationSubscription).toHaveBeenCalledWith(
+      prisma,
+      { organizationId: 'org-1' },
+      expect.objectContaining({ subscriptionId: 'sub-new', kind: 'checkout', replacesSubscriptionId: 'sub-old' }),
+      expect.any(Function),
+    );
   });
 
-  it('allows checkout replacement only with explicit prior binding metadata', async () => {
-    await deliver({ id: 'evt_checkout', type: 'checkout.session.completed', created: 102, data: { object: {
-      payment_status: 'paid', subscription: 'sub-new', metadata: { organizationId: 'org-1', replacesSubscriptionId: 'sub-old' },
-    } } });
-    expect(applyOrganizationSubscriptionTransition).toHaveBeenCalledWith(expect.anything(), 'org-1', expect.objectContaining({
-      subscriptionId: 'sub-new', kind: 'checkout', bindingAuthorized: true, replacesSubscriptionId: 'sub-old',
-    }));
-  });
-
-  it('uses the same policy for userId fallback before updating the subscription mirror', async () => {
-    vi.mocked(prisma.employer.findUnique).mockResolvedValue({ id: 'emp-1' } as never);
-    await deliver({ id: 'evt_user', type: 'customer.subscription.updated', created: 103, data: { object: {
+  it('userId fallback uses same reconciler and mirrors only from committed callback', async () => {
+    vi.mocked(prisma.employer.findUnique).mockResolvedValue({ id: 'emp-1', stripeCustomerId: 'cus-1' } as never);
+    await deliver({ id: 'evt-user', type: 'customer.subscription.updated', created: 103, data: { object: {
       id: 'sub-1', status: 'active', metadata: { userId: 'user-1' },
-    } } });
-    expect(applyEmployerSubscriptionTransition).toHaveBeenCalledWith(expect.anything(), 'emp-1', expect.objectContaining({
-      subscriptionId: 'sub-1', kind: 'subscription_reconciled', bindingAuthorized: true,
-    }));
-    expect(prisma.employerSubscription.updateMany).toHaveBeenCalledWith({
-      where: { userId: 'user-1', stripeSubscriptionId: 'sub-1' }, data: { status: 'active' },
-    });
+    } } }, { id: 'sub-1', customer: 'cus-1', status: 'active', metadata: { userId: 'user-1' } });
+    expect(reconcileEmployerSubscription).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({ employerId: 'emp-1', userId: 'user-1' }),
+      expect.objectContaining({ subscriptionId: 'sub-1', kind: 'subscription_updated' }),
+      expect.any(Function),
+      expect.any(Function),
+    );
+    expect(prisma.employerSubscription.updateMany).toHaveBeenCalledTimes(1);
   });
 
-  it('returns non-2xx when authoritative subscription retrieval fails', async () => {
+  it('provider fetch failure returns non-2xx', async () => {
+    vi.mocked(reconcileOrganizationSubscription).mockImplementationOnce(async (...args: any[]) => {
+      await args[3]();
+      return 'applied';
+    });
+    const event = { id: 'evt-provider', type: 'invoice.payment_failed', created: 104, data: { object: { subscription: 'sub-1', metadata: { organizationId: 'org-1' } } } };
     vi.mocked(getStripe).mockReturnValue({
-      webhooks: { constructEvent: vi.fn(() => ({
-        id: 'evt_reconcile_failure',
-        type: 'customer.subscription.updated',
-        created: 104,
-        data: { object: { id: 'sub-1', status: 'active', metadata: { organizationId: 'org-1' } } },
-      })) },
-      subscriptions: { retrieve: vi.fn(async () => { throw new Error('Stripe unavailable'); }) },
+      webhooks: { constructEvent: vi.fn(() => event) },
+      subscriptions: { retrieve: vi.fn(async () => { throw new Error('provider failed'); }) },
     } as never);
-
-    const res = await POST(request() as never);
-
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Webhook processing failed' });
-    expect(applyOrganizationSubscriptionTransition).not.toHaveBeenCalled();
+    expect((await POST(request() as never)).status).toBe(500);
   });
 
-  it('returns non-2xx when persistence contention exhausts retries', async () => {
-    vi.mocked(applyOrganizationSubscriptionTransition).mockRejectedValueOnce(
-      new Error('Subscription state changed concurrently; retry the Stripe event'),
-    );
-    const res = await deliver({
-      id: 'evt_contended',
-      type: 'invoice.payment_failed',
-      created: 104,
-      data: { object: { subscription: 'sub-1', metadata: { organizationId: 'org-1' } } },
-    });
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Webhook processing failed' });
+  it('CAS exhaustion returns non-2xx', async () => {
+    vi.mocked(reconcileOrganizationSubscription).mockRejectedValueOnce(new Error('contended'));
+    const event = { id: 'evt-cas', type: 'invoice.payment_failed', created: 104, data: { object: { subscription: 'sub-1', metadata: { organizationId: 'org-1' } } } };
+    vi.mocked(getStripe).mockReturnValue({ webhooks: { constructEvent: vi.fn(() => event) } } as never);
+    expect((await POST(request() as never)).status).toBe(500);
   });
 
-  it('does not update userId mirror when shared policy rejects the event', async () => {
-    vi.mocked(prisma.employer.findUnique).mockResolvedValue({ id: 'emp-1' } as never);
-    vi.mocked(applyEmployerSubscriptionTransition).mockResolvedValueOnce('ignored');
-    await deliver({ id: 'evt_stale', type: 'customer.subscription.updated', created: 99, data: { object: {
-      id: 'sub-1', status: 'active', metadata: { userId: 'user-1' },
-    } } });
-    expect(prisma.employerSubscription.updateMany).not.toHaveBeenCalled();
+  it('atomic mirror failure returns non-2xx', async () => {
+    vi.mocked(prisma.employer.findUnique).mockResolvedValue({ id: 'emp-1', stripeCustomerId: 'cus-1' } as never);
+    vi.mocked(reconcileEmployerSubscription).mockRejectedValueOnce(new Error('mirror failed'));
+    const event = { id: 'evt-mirror', type: 'customer.subscription.updated', created: 104, data: { object: { id: 'sub-1', metadata: { userId: 'user-1' } } } };
+    vi.mocked(getStripe).mockReturnValue({ webhooks: { constructEvent: vi.fn(() => event) } } as never);
+    expect((await POST(request() as never)).status).toBe(500);
   });
+
 });

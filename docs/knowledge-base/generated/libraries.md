@@ -812,10 +812,11 @@
 | [lib/stripe/connect.ts](../../../lib/stripe/connect.ts) | 54 | partners-funding | getStripeConnect:3, createConnectAccount:7, createAccountLink:21, createPayoutTransfer:32, retrieveConnectAccount:51 |
 | [lib/stripe/customer.ts](../../../lib/stripe/customer.ts) | 24 | partners-funding | getStripeCustomer:3 |
 | [lib/stripe/pricing.ts](../../../lib/stripe/pricing.ts) | 11 | partners-funding | getStripePriceId:9 |
-| [lib/stripe/subscriptionPersistence.test.ts](../../../lib/stripe/subscriptionPersistence.test.ts) | 30 | partners-funding |  |
-| [lib/stripe/subscriptionPersistence.ts](../../../lib/stripe/subscriptionPersistence.ts) | 147 | partners-funding | SubscriptionPersistenceContendedError:9, organizationSubscriptionIsAuthoritative:39, userSubscriptionIsAuthoritative:59, applyOrganizationSubscriptionTransition:69, applyEmployerSubscriptionTransition:108 |
-| [lib/stripe/subscriptionState.test.ts](../../../lib/stripe/subscriptionState.test.ts) | 139 | partners-funding |  |
-| [lib/stripe/subscriptionState.ts](../../../lib/stripe/subscriptionState.ts) | 80 | partners-funding | SubscriptionTransitionKind:1, SubscriptionState:8, SubscriptionTransition:15, SubscriptionStateStore:25, applySubscriptionTransition:69 |
+| [lib/stripe/stripeSubscriptionSnapshot.ts](../../../lib/stripe/stripeSubscriptionSnapshot.ts) | 20 | partners-funding | stripeObjectId:4, canonicalSubscriptionSnapshot:9 |
+| [lib/stripe/subscriptionPersistence.test.ts](../../../lib/stripe/subscriptionPersistence.test.ts) | 73 | partners-funding |  |
+| [lib/stripe/subscriptionPersistence.ts](../../../lib/stripe/subscriptionPersistence.ts) | 192 | partners-funding | SubscriptionOwner:11, reconcileOrganizationSubscription:76, reconcileEmployerSubscription:129 |
+| [lib/stripe/subscriptionState.test.ts](../../../lib/stripe/subscriptionState.test.ts) | 141 | partners-funding |  |
+| [lib/stripe/subscriptionState.ts](../../../lib/stripe/subscriptionState.ts) | 120 | partners-funding | SubscriptionIntentKind:1, SubscriptionState:9, SubscriptionIntent:17, CanonicalSubscription:25, SubscriptionAuthority:34, SubscriptionReconciliationStore:38, SubscriptionOwnershipUnresolvedError:48, SubscriptionPersistenceContendedError:55, reconcileSubscriptionState:68 |
 | [lib/supabase-admin.ts](../../../lib/supabase-admin.ts) | 19 | libraries | getSupabaseAdmin:9 |
 | [lib/supabase/browser.ts](../../../lib/supabase/browser.ts) | 10 | identity-tenancy | createSupabaseBrowserClient:3 |
 | [lib/supabase/env.ts](../../../lib/supabase/env.ts) | 13 | identity-tenancy | getSupabaseEnv:6 |

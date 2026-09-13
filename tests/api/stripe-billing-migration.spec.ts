@@ -6,6 +6,10 @@ const migration = readFileSync(
   path.resolve(__dirname, '../../prisma/migrations/20260912173000_organization_stripe_event_ordering/migration.sql'),
   'utf8',
 );
+const revisionMigration = readFileSync(
+  path.resolve(__dirname, '../../prisma/migrations/20260912203000_add_subscription_state_revisions/migration.sql'),
+  'utf8',
+);
 const schema = readFileSync(path.resolve(__dirname, '../../prisma/schema.prisma'), 'utf8');
 
 describe('organization Stripe event-ordering rolling migration', () => {
@@ -17,9 +21,17 @@ describe('organization Stripe event-ordering rolling migration', () => {
     expect(migration).not.toMatch(/NOT NULL|DEFAULT/i);
   });
 
+  it('adds independent revision guards without rewriting historical migration files', () => {
+    expect(revisionMigration).toContain('ADD COLUMN "stripe_subscription_revision" INTEGER NOT NULL DEFAULT 0');
+    expect(revisionMigration).toContain('ALTER TABLE "organizations"');
+    expect(revisionMigration).toContain('ALTER TABLE "employers"');
+    expect(revisionMigration).not.toMatch(/UPDATE\s+/i);
+  });
+
   it('keeps Prisma binding and cursor fields nullable during rolling deployment', () => {
     expect(schema).toContain('stripeSubscriptionId     String?');
     expect(schema).toContain('stripeSubscriptionEventAt   Int?');
     expect(schema).toContain('stripeSubscriptionEventId   String?');
+    expect(schema).toContain('stripeSubscriptionRevision  Int     @default(0)');
   });
 });

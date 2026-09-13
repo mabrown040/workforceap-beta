@@ -1,22 +1,19 @@
 import type { Prisma } from '@prisma/client';
+
+type BillingPrisma = typeof import('@/lib/db/prisma').prisma;
 import {
-  applySubscriptionTransition,
+  reconcileSubscriptionState,
+  type CanonicalSubscription,
+  type SubscriptionIntent,
   type SubscriptionState,
-  type SubscriptionTransition,
 } from './subscriptionState';
 
-
-export class SubscriptionPersistenceContendedError extends Error {
-  constructor() {
-    super('Subscription state changed concurrently; retry the Stripe event');
-    this.name = 'SubscriptionPersistenceContendedError';
-  }
-}
-
-function requirePersisted(result: 'applied' | 'ignored' | 'contended'): 'applied' | 'ignored' {
-  if (result === 'contended') throw new SubscriptionPersistenceContendedError();
-  return result;
-}
+export type SubscriptionOwner = {
+  organizationId?: string;
+  employerId?: string;
+  userId?: string;
+  customerId?: string | null;
+};
 
 type BillingRow = {
   stripeSubscriptionId: string | null;
@@ -24,6 +21,7 @@ type BillingRow = {
   stripeSubscriptionStatus?: string | null;
   stripeSubscriptionEventAt: number | null;
   stripeSubscriptionEventId: string | null;
+  stripeSubscriptionRevision: number;
 };
 
 function stateFromRow(row: BillingRow, statusKey: 'subscriptionStatus' | 'stripeSubscriptionStatus'): SubscriptionState {
@@ -32,116 +30,163 @@ function stateFromRow(row: BillingRow, statusKey: 'subscriptionStatus' | 'stripe
     status: row[statusKey] ?? null,
     eventCreated: row.stripeSubscriptionEventAt,
     eventId: row.stripeSubscriptionEventId,
+    revision: row.stripeSubscriptionRevision,
   };
 }
 
-
-export async function organizationSubscriptionIsAuthoritative(
+async function localOrganizationAuthority(
   tx: Prisma.TransactionClient,
   organizationId: string,
   subscriptionId: string,
+  customerId: string,
 ): Promise<boolean> {
-  const [subscriptionRows, employerRows] = await Promise.all([
+  const [subscriptions, employers] = await Promise.all([
     tx.employerSubscription.count({
       where: {
         stripeSubscriptionId: subscriptionId,
-        OR: [
-          { organizationId },
-          { user: { organizationId } },
-        ],
+        stripeCustomerId: customerId,
+        OR: [{ organizationId }, { user: { organizationId } }],
       },
     }),
-    tx.employer.count({ where: { organizationId, stripeSubscriptionId: subscriptionId } }),
+    tx.employer.count({ where: { organizationId, stripeSubscriptionId: subscriptionId, stripeCustomerId: customerId } }),
   ]);
-  return subscriptionRows + employerRows > 0;
+  return subscriptions + employers > 0;
 }
 
-export async function userSubscriptionIsAuthoritative(
+async function localEmployerAuthority(
   tx: Prisma.TransactionClient,
-  userId: string,
+  employerId: string,
+  userId: string | undefined,
   subscriptionId: string,
+  customerId: string,
 ): Promise<boolean> {
-  return (await tx.employerSubscription.count({
-    where: { userId, stripeSubscriptionId: subscriptionId },
-  })) > 0;
+  const [employer, subscriptions] = await Promise.all([
+    tx.employer.count({ where: { id: employerId, stripeSubscriptionId: subscriptionId, stripeCustomerId: customerId } }),
+    userId
+      ? tx.employerSubscription.count({ where: { userId, stripeSubscriptionId: subscriptionId, stripeCustomerId: customerId } })
+      : Promise.resolve(0),
+  ]);
+  return employer + subscriptions > 0;
 }
 
-export async function applyOrganizationSubscriptionTransition(
-  tx: Prisma.TransactionClient,
-  organizationId: string,
-  transition: SubscriptionTransition,
+function customerMatches(expected: string | null | undefined, actual: string): boolean {
+  return !expected || expected === actual;
+}
+
+export async function reconcileOrganizationSubscription(
+  prisma: BillingPrisma,
+  owner: SubscriptionOwner & { organizationId: string },
+  intent: SubscriptionIntent,
+  fetchCanonical: () => Promise<CanonicalSubscription>,
 ): Promise<'applied' | 'ignored'> {
-  return requirePersisted(await applySubscriptionTransition({
+  return reconcileSubscriptionState({
     read: async () => {
-      const row = await tx.organization.findUniqueOrThrow({
-        where: { id: organizationId },
+      const row = await prisma.organization.findUniqueOrThrow({
+        where: { id: owner.organizationId },
         select: {
           stripeSubscriptionId: true,
           subscriptionStatus: true,
           stripeSubscriptionEventAt: true,
           stripeSubscriptionEventId: true,
+          stripeSubscriptionRevision: true,
         },
       });
       return stateFromRow(row, 'subscriptionStatus');
     },
-    write: async (expected, next) => {
-      const result = await tx.organization.updateMany({
+    authorize: async (state, canonical) => {
+      if (canonical.organizationId && canonical.organizationId !== owner.organizationId) return { authorized: false };
+      if (!customerMatches(owner.customerId, canonical.customerId)) return { authorized: false };
+      if (state.subscriptionId === canonical.id) return { authorized: true };
+      const providerCreatedForOwner =
+        (intent.kind === 'checkout' || intent.kind === 'direct_subscribe') &&
+        canonical.organizationId === owner.organizationId &&
+        intent.replacesSubscriptionId === state.subscriptionId;
+      if (providerCreatedForOwner) return { authorized: true };
+      return {
+        authorized: await localOrganizationAuthority(prisma, owner.organizationId, canonical.id, canonical.customerId),
+      };
+    },
+    commit: async (expected, next) => {
+      const result = await prisma.organization.updateMany({
         where: {
-          id: organizationId,
+          id: owner.organizationId,
           stripeSubscriptionId: expected.subscriptionId,
-          subscriptionStatus: expected.status ?? undefined,
-          stripeSubscriptionEventAt: expected.eventCreated,
-          stripeSubscriptionEventId: expected.eventId,
+          stripeSubscriptionRevision: expected.revision,
         },
         data: {
           stripeSubscriptionId: next.subscriptionId,
           subscriptionStatus: next.status ?? undefined,
           stripeSubscriptionEventAt: next.eventCreated,
           stripeSubscriptionEventId: next.eventId,
+          stripeSubscriptionRevision: { increment: 1 },
         },
       });
       return result.count === 1;
     },
-  }, transition));
+  }, intent, fetchCanonical);
 }
 
-export async function applyEmployerSubscriptionTransition(
-  tx: Prisma.TransactionClient,
-  employerId: string,
-  transition: SubscriptionTransition & { tier?: string },
+export async function reconcileEmployerSubscription(
+  prisma: BillingPrisma,
+  owner: SubscriptionOwner & { employerId: string },
+  intent: SubscriptionIntent & { tier?: string },
+  fetchCanonical: () => Promise<CanonicalSubscription>,
+  mirror?: (tx: Prisma.TransactionClient, next: SubscriptionState) => Promise<void>,
 ): Promise<'applied' | 'ignored'> {
-  const result = await applySubscriptionTransition({
+  return reconcileSubscriptionState({
     read: async () => {
-      const row = await tx.employer.findUniqueOrThrow({
-        where: { id: employerId },
+      const row = await prisma.employer.findUniqueOrThrow({
+        where: { id: owner.employerId },
         select: {
           stripeSubscriptionId: true,
           stripeSubscriptionStatus: true,
           stripeSubscriptionEventAt: true,
           stripeSubscriptionEventId: true,
+          stripeSubscriptionRevision: true,
         },
       });
       return stateFromRow(row, 'stripeSubscriptionStatus');
     },
-    write: async (expected, next) => {
-      const updated = await tx.employer.updateMany({
+    authorize: async (state, canonical) => {
+      if (canonical.employerId && canonical.employerId !== owner.employerId) return { authorized: false };
+      if (canonical.userId && owner.userId && canonical.userId !== owner.userId) return { authorized: false };
+      if (!customerMatches(owner.customerId, canonical.customerId)) return { authorized: false };
+      if (state.subscriptionId === canonical.id) return { authorized: true };
+      const providerCreatedForOwner =
+        (intent.kind === 'direct_subscribe' || intent.kind === 'checkout') &&
+        canonical.employerId === owner.employerId &&
+        (!owner.userId || canonical.userId === owner.userId) &&
+        intent.replacesSubscriptionId === state.subscriptionId;
+      if (providerCreatedForOwner) return { authorized: true };
+      return {
+        authorized: await localEmployerAuthority(
+          prisma,
+          owner.employerId,
+          owner.userId,
+          canonical.id,
+          canonical.customerId,
+        ),
+      };
+    },
+    commit: async (expected, next) => prisma.$transaction(async (tx) => {
+      const result = await tx.employer.updateMany({
         where: {
-          id: employerId,
+          id: owner.employerId,
           stripeSubscriptionId: expected.subscriptionId,
-          stripeSubscriptionStatus: expected.status,
-          stripeSubscriptionEventAt: expected.eventCreated,
-          stripeSubscriptionEventId: expected.eventId,
+          stripeSubscriptionRevision: expected.revision,
         },
         data: {
           stripeSubscriptionId: next.subscriptionId,
           stripeSubscriptionStatus: next.status,
           stripeSubscriptionEventAt: next.eventCreated,
           stripeSubscriptionEventId: next.eventId,
-          ...(transition.tier ? { tier: transition.tier } : {}),
+          stripeSubscriptionRevision: { increment: 1 },
+          ...(intent.tier ? { tier: intent.tier } : {}),
         },
       });
-      return updated.count === 1;
-    },
-  }, transition);
-  return requirePersisted(result);
+      if (result.count !== 1) return false;
+      if (mirror) await mirror(tx, next);
+      return true;
+    }),
+  }, intent, fetchCanonical);
 }

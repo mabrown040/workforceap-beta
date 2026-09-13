@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "5b73918d98c3dcbe3d076d4b783029f5c29e47fd46a703184b9d304739c81c14",
+  "inputTreeSha256": "2a2fb1e50f0a3160af20ad501e4c56378ca0967c36a119248622f5e58956f03c",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3319,9 +3319,9 @@
       "path": "ENV-VARIABLES.md",
       "area": "root",
       "domain": "root",
-      "bytes": 8985,
+      "bytes": 9211,
       "lines": 159,
-      "sha256": "32f35313f65e55758f93aa9dcbca3f1924b40c7865a606807b445f256a3af9bb",
+      "sha256": "f7636d8d7963595eb2910b2081eca63581d6c5bf48e67abcf7627b8737443d2e",
       "binary": false
     },
     {
@@ -7604,14 +7604,14 @@
       "path": "app/(portal)/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 5724,
-      "lines": 187,
-      "sha256": "d14751a72c770799da23f50be67476e5669b2166a4154c033befdcaca1f2b7d6",
+      "bytes": 5863,
+      "lines": 189,
+      "sha256": "c7ddd31a2cfcc672ae3abd17a3ca0961590c11718081bd8d46b44f1c1ed07450",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 174,
+          "line": 176,
           "kind": "FunctionDeclaration",
           "localName": "ResumeRewriterClient"
         }
@@ -7634,7 +7634,7 @@
         },
         {
           "name": "ResumeRewriterClient",
-          "line": 174,
+          "line": 176,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -9028,9 +9028,9 @@
       "path": "app/(portal)/dashboard/jobs/JobsListingClient.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 24232,
+      "bytes": 24252,
       "lines": 714,
-      "sha256": "94292b646d3f827baf23c0b862f2541d84dfef163adf36788a0164f17d6e42c0",
+      "sha256": "210e561bbdd5226fc2a6a1f4259d346b712bb50e4ea2c293616dad45fca66f93",
       "binary": false,
       "exports": [
         {
@@ -24792,31 +24792,31 @@
       "path": "app/api/admin/members/[id]/award-points/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2478,
-      "lines": 64,
-      "sha256": "427de9af2c216fb2a16fa894ca137648b5a2d31983475445e8ff47f06c412c20",
+      "bytes": 2736,
+      "lines": 71,
+      "sha256": "9d9db192f2ac7f823cf7edf2519970bf64c879f7f93b9878bfbcfa9b917b8507",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 64,
+          "line": 71,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "Props",
-          "line": 10,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "_POST",
-          "line": 12,
+          "line": 13,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 64,
+          "line": 71,
           "kind": "Variable"
         }
       ],
@@ -24899,31 +24899,31 @@
       "path": "app/api/admin/members/[id]/counselor/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3952,
-      "lines": 102,
-      "sha256": "b4c0497b909c5dfc852c64ff9fbbc5d2b53512cb221ff2be36ba3600b9f08079",
+      "bytes": 4226,
+      "lines": 104,
+      "sha256": "fc2bebb956c1df797a83697c86e6d56da6fb40a2e67d2b73d6f6e3cb1d59e946",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 18,
+          "line": 19,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "bodySchema",
-          "line": 14,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "Props",
-          "line": 18,
+          "line": 19,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "POST",
-          "line": 18,
+          "line": 19,
           "kind": "Variable"
         }
       ],
@@ -25200,46 +25200,46 @@
       "path": "app/api/admin/members/[id]/notes/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3973,
-      "lines": 95,
-      "sha256": "a1d58dd350bc95df49890a0209a20cb47acdb0ce77794836f96393f4665e0a69",
+      "bytes": 4250,
+      "lines": 102,
+      "sha256": "d07b722ed7d40fb6b2d1487430a7eafa486a65acc4b9094dc5fc73bffa7ae84e",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 58,
+          "line": 59,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 95,
+          "line": 102,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "noteSchema",
-          "line": 25,
+          "line": 26,
           "kind": "Variable"
         },
         {
           "name": "_GET",
-          "line": 27,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 58,
+          "line": 59,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 58,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 95,
+          "line": 102,
           "kind": "Variable"
         }
       ],
@@ -25506,26 +25506,26 @@
       "path": "app/api/admin/members/[id]/send-eligibility-link/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2373,
-      "lines": 59,
-      "sha256": "4c2af5b9162c912362ff07ccaed52e42704bc3588ba2a3161bf0f15ab7fa8185",
+      "bytes": 2783,
+      "lines": 63,
+      "sha256": "5f28d3a17eb5de3cee0b575f7d860daf84440e2f6082ab5fd51fdfc0d5c600ba",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 18,
+          "line": 20,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "SITE_URL",
-          "line": 9,
+          "line": 11,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 18,
+          "line": 20,
           "kind": "Variable"
         }
       ],
@@ -25632,46 +25632,46 @@
       "path": "app/api/admin/members/[id]/subgroup/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4687,
-      "lines": 139,
-      "sha256": "260b62f6222ec1fe81163867e7047f80511a161a754f07426157f865a511b2f0",
+      "bytes": 5225,
+      "lines": 152,
+      "sha256": "e504bbbc4eec4c3fcd36ba6eb90e02a676ad636f01d90c69f2ab314a6234b5c7",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 78,
+          "line": 85,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 139,
+          "line": 152,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "postSchema",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 13,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 78,
+          "line": 85,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 78,
+          "line": 85,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 139,
+          "line": 152,
           "kind": "Variable"
         }
       ],
@@ -29751,14 +29751,14 @@
       "path": "app/api/auth/login/route.ts",
       "area": "api",
       "domain": "identity-tenancy",
-      "bytes": 10663,
-      "lines": 253,
-      "sha256": "84c3732698dafa2ad487d335a16bcd5b19d930504b1e947394b09de54385dc30",
+      "bytes": 12440,
+      "lines": 296,
+      "sha256": "7a35c7d4cd441f720905c0c38d521a93f67403a2e1f2258f377904783b73d998",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 251,
+          "line": 294,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -29770,7 +29770,7 @@
         },
         {
           "name": "POST",
-          "line": 251,
+          "line": 294,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -30026,31 +30026,31 @@
       "path": "app/api/consent/[token]/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4246,
-      "lines": 121,
-      "sha256": "9b315e675e016a4fa9c70c805d0d879272bf26b678d2ffba72c871fa9a7d140a",
+      "bytes": 4094,
+      "lines": 116,
+      "sha256": "8fae9004af68eeb7be34f5bfd8975322d752c771f32880b53150937580f18493",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "submitSchema",
-          "line": 17,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "getClientIp",
-          "line": 24,
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         }
       ],
@@ -31314,61 +31314,56 @@
       "path": "app/api/cron/at-risk-alerts/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 2289,
-      "lines": 57,
-      "sha256": "2d9af56f3715cf43253045fc2c60d0cf346248e73bd2d12bad62ae915f0822cf",
+      "bytes": 2240,
+      "lines": 51,
+      "sha256": "8ca0f23871ed23a0d85f3a3e262cbc6b17c6e14483930c6fde04d23053d6dbe2",
       "binary": false,
       "exports": [
         {
           "name": "runtime",
-          "line": 11,
+          "line": 10,
           "kind": "Variable"
         },
         {
           "name": "maxDuration",
-          "line": 12,
+          "line": 11,
           "kind": "Variable"
         },
         {
           "name": "GET",
-          "line": 56,
+          "line": 50,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 57,
+          "line": 51,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "runtime",
-          "line": 11,
+          "line": 10,
           "kind": "Variable"
         },
         {
           "name": "maxDuration",
-          "line": 12,
+          "line": 11,
           "kind": "Variable"
         },
         {
-          "name": "verifyCronSecret",
-          "line": 14,
-          "kind": "FunctionDeclaration"
-        },
-        {
           "name": "handle",
-          "line": 36,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 56,
+          "line": 50,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 57,
+          "line": 51,
           "kind": "Variable"
         }
       ],
@@ -36924,9 +36919,9 @@
       "path": "app/api/member/readiness/voice-session/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2432,
-      "lines": 53,
-      "sha256": "3dd17d3d534371bd8b9440b3e92979e07e31da69f38f1ab8640b99f9a702da86",
+      "bytes": 2657,
+      "lines": 61,
+      "sha256": "537f4eb7eafeb44b1bee0e910acb16fc0276ed6fa435ca1386022573949aedc7",
       "binary": false,
       "exports": [
         {
@@ -37186,9 +37181,9 @@
       "path": "app/api/member/resume-coach/session/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 4632,
-      "lines": 114,
-      "sha256": "70b7cef0dc8c4a167c61675c9602243945dbf7f36149acb5e060dc1b8e297395",
+      "bytes": 4807,
+      "lines": 118,
+      "sha256": "5cbffec1286e1c348dc7527278f106571368b71433151b90cb4eb08f36a0d34f",
       "binary": false,
       "exports": [
         {
@@ -37956,21 +37951,21 @@
       "path": "app/api/member/wioa-qualification/voice-session/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 4559,
-      "lines": 99,
-      "sha256": "b8db5de95216f7576480f1c3d5aedbbe327ab0e4fba8bd882db939c22a907202",
+      "bytes": 3391,
+      "lines": 75,
+      "sha256": "73f09eeb5fe8721952a068c4d7e3770e138bd90c147986b5c66630e892ce9b58",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 13,
+          "line": 10,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 13,
+          "line": 10,
           "kind": "Variable"
         }
       ],
@@ -46430,6 +46425,15 @@
       "bytes": 894,
       "lines": 34,
       "sha256": "07eff09cb376eea0bc672bbf75ec855759d761656359dc060e0601372b4f754e",
+      "binary": false
+    },
+    {
+      "path": "artifacts/wap-42/postgres-proof.json",
+      "area": "supporting-files",
+      "domain": "supporting-files",
+      "bytes": 992,
+      "lines": 46,
+      "sha256": "32ee444c99e1d82fe23c08ddb4088f3a39f76721a6b20e2067b2105ecfd50915",
       "binary": false
     },
     {
@@ -59168,9 +59172,9 @@
       "path": "components/portal/LearningPathCard.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4686,
+      "bytes": 4729,
       "lines": 134,
-      "sha256": "c9eef200e81050041e978ca559eef9867035e0efc2a2e4de2385ee7cad7c5735",
+      "sha256": "83f25edcf2eba006638224f7aa9163f25ffbc40905aa9604e8372a7e81114db0",
       "binary": false,
       "exports": [
         {
@@ -59328,9 +59332,9 @@
       "path": "components/portal/MemberDashboardVoiceSection.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3042,
+      "bytes": 3091,
       "lines": 75,
-      "sha256": "c22b93da0a6bc1ce69c25f55e9a0d82e92878ad8c75d350e47e0a1f74c1a51cd",
+      "sha256": "69c49188af97d5eb302bc2ccf135ffd13c544401fba38746b012cd035ede0eff",
       "binary": false,
       "exports": [
         {
@@ -61054,9 +61058,9 @@
       "path": "components/portal/PortalVoiceSession.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 46131,
-      "lines": 1276,
-      "sha256": "8a8dc71f91516e94d39d93c2db2f580a7ba50a160cee2c486da05e50f7cf1a56",
+      "bytes": 47885,
+      "lines": 1313,
+      "sha256": "621eb4af4341a606a7da071be1f8a29f7a7058686f6364ebd9829e3457fb7bcb",
       "binary": false,
       "exports": [
         {
@@ -61076,7 +61080,7 @@
         },
         {
           "name": "default",
-          "line": 189,
+          "line": 195,
           "kind": "FunctionDeclaration",
           "localName": "PortalVoiceSession"
         }
@@ -61129,27 +61133,27 @@
         },
         {
           "name": "PULSE_STYLE",
-          "line": 173,
-          "kind": "Variable"
-        },
-        {
-          "name": "LIVE_RESUME_CONTEXT_PREFIX",
           "line": 179,
           "kind": "Variable"
         },
         {
+          "name": "LIVE_RESUME_CONTEXT_PREFIX",
+          "line": 185,
+          "kind": "Variable"
+        },
+        {
           "name": "LIVE_RESUME_CONTEXT_MAX_BODY",
-          "line": 181,
+          "line": 187,
           "kind": "Variable"
         },
         {
           "name": "logVoice",
-          "line": 183,
+          "line": 189,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PortalVoiceSession",
-          "line": 189,
+          "line": 195,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -63232,9 +63236,9 @@
       "path": "components/portal/VoiceCoachesPromo.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4252,
+      "bytes": 4388,
       "lines": 108,
-      "sha256": "7f5e307a0229c8657949295897e67a8c170ff3fdec7e085f4af25604b9c9d7d6",
+      "sha256": "2579d801b777f61cdcbafe5a8056c97b504a3b7772ba814c762fa352a994ae52",
       "binary": false,
       "exports": [
         {
@@ -63377,9 +63381,9 @@
       "path": "components/portal/WioaQualificationClient.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 21678,
-      "lines": 531,
-      "sha256": "4a5eade5729a1483d0916341e93ffc9e80fbe87b1a255a04270c3172fd292e0a",
+      "bytes": 22059,
+      "lines": 546,
+      "sha256": "9c4eae3ce1e345d1075a81b724ca086d778bfc885c8c44b5fa97f17da7ebe9fd",
       "binary": false,
       "exports": [
         {
@@ -66502,9 +66506,9 @@
       "path": "components/portal/kit/pages/VoiceStudioKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 65877,
+      "bytes": 66155,
       "lines": 1616,
-      "sha256": "7925c2533cf5603c9a1b5671d26e82181d966fe83d813de4033edf7a36ac5f8f",
+      "sha256": "a5a34faac5447748f33bf2a97733fd33e19c1cbeba17ab86841859e604a19874",
       "binary": false,
       "exports": [
         {
@@ -72375,9 +72379,9 @@
       "path": "components/portal/tools/MockInterviewVideoRecorder.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 10754,
-      "lines": 350,
-      "sha256": "24cb37b31c41df26fa21134f63414ff69201b0700a1783be52b4c82afe6f4469",
+      "bytes": 10774,
+      "lines": 351,
+      "sha256": "900986cdd5b1118af68a5ebd83274d1b1353bc94d0e9b8d847208746bfa61d71",
       "binary": false,
       "exports": [
         {
@@ -74466,9 +74470,9 @@
       "path": "css/main.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 234550,
-      "lines": 8638,
-      "sha256": "3aae7d04cec88959bf18a54f154875e8ec0ae55350190365d7764a72cf12d021",
+      "bytes": 237525,
+      "lines": 8748,
+      "sha256": "0c579ac88f5625c055a9a77571ed61074f41cc0a4d5ffb27c819efe71eda1e5a",
       "binary": false
     },
     {
@@ -76752,9 +76756,9 @@
       "path": "docs/auth-troubleshooting.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 2456,
-      "lines": 47,
-      "sha256": "1f1c7995fb326dbb46b7cf35120b258180d0b3b333ccdae167a5ee1da505a8b3",
+      "bytes": 3073,
+      "lines": 53,
+      "sha256": "0c5d3e09bc1666c31d22bf1fc07a7b52a2a81be203695e141a322ee0398aab48",
       "binary": false
     },
     {
@@ -76932,9 +76936,9 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 6963,
+      "bytes": 7077,
       "lines": 62,
-      "sha256": "bb167a18f703636f79675aab027d0a5afe1ecb8ac2e9946e9ffab2f6b3b4acd5",
+      "sha256": "42ab99e1a9f2e3f7b1c79d0aa42ac783cb3bd1dbb854960394b7685c965a5732",
       "binary": false
     },
     {
@@ -76977,9 +76981,9 @@
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8887,
+      "bytes": 9372,
       "lines": 52,
-      "sha256": "2aa27fe02cfa86621a404d8b53a9f023b7135f747ae83c84dddd621d37863b95",
+      "sha256": "5063351c06a070c3bd2b7ce689543025ca1a34b9eb8a78441c8eda189cde25bf",
       "binary": false
     },
     {
@@ -88061,6 +88065,40 @@
       "directive": null
     },
     {
+      "path": "lib/ai/memberVoiceFallback.ts",
+      "area": "libraries",
+      "domain": "ai-voice",
+      "bytes": 3745,
+      "lines": 93,
+      "sha256": "a61021341565ebcf70885af64db54617f9b44437c0a048e1c3fbadc31b488be1",
+      "binary": false,
+      "exports": [
+        {
+          "name": "MemberVoiceSessionResult",
+          "line": 7,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "startMemberVoiceSessionWithLilleyFallback",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "MemberVoiceSessionResult",
+          "line": 7,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "startMemberVoiceSessionWithLilleyFallback",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/ai/onetSkills.test.ts",
       "area": "libraries",
       "domain": "ai-voice",
@@ -93283,41 +93321,46 @@
       "path": "lib/auth/passwordReset.ts",
       "area": "libraries",
       "domain": "identity-tenancy",
-      "bytes": 6177,
-      "lines": 149,
-      "sha256": "946b4588ba548b185e90fc3801b483dfb018547760f8863d52e75d91b0c8d244",
+      "bytes": 9130,
+      "lines": 221,
+      "sha256": "986969041dfe6059dccca1de2a6ea6846fd75e82063f3ca079f248c4dde31048",
       "binary": false,
       "exports": [
         {
           "name": "PasswordResetSendResult",
-          "line": 9,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 47,
+          "line": 108,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "PasswordResetSendResult",
-          "line": 9,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "escapeHtml",
-          "line": 15,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isUserNotFound",
-          "line": 23,
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "recreateAuthUserFromPrismaRow",
+          "line": 48,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 47,
+          "line": 108,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -96085,6 +96128,55 @@
         {
           "name": "minimizeCoachMemoryTurns",
           "line": 87,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/consent/guardianConsentPersistence.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 3949,
+      "lines": 121,
+      "sha256": "73133eb0490011a1af81516ebb684abbee32a011b31391b65428a25ea65d6767",
+      "binary": false,
+      "exports": [
+        {
+          "name": "GuardianConsentInput",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentOutcome",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "persistGuardianConsent",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "TransactionRoot",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentInput",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentOutcome",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "persistGuardianConsent",
+          "line": 18,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107124,71 +107216,76 @@
       "path": "lib/db/prisma.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 11067,
-      "lines": 245,
-      "sha256": "bfb0c444813826254dbd0a34797c673c8fc04ae25e162ce96b4605c63450aa77",
+      "bytes": 11116,
+      "lines": 244,
+      "sha256": "50abfd262e760c49d511eeeb405df72faa70f6b105922b52b0a76a5a07557e48",
       "binary": false,
       "exports": [
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 21,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 25,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "globalForPrisma",
-          "line": 5,
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "TRANSACTION_POLICY",
+          "line": 9,
           "kind": "Variable"
         },
         {
           "name": "FLATTEN_TX",
-          "line": 8,
+          "line": 10,
           "kind": "Variable"
         },
         {
           "name": "escapeSqlString",
-          "line": 13,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isGucSetupQuery",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 21,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 25,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "installFlattenTxOverride",
-          "line": 58,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createPrismaClient",
-          "line": 76,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
@@ -107547,6 +107644,78 @@
         {
           "name": "sqlCount",
           "line": 59,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/transactionPolicy.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1742,
+      "lines": 52,
+      "sha256": "6c07bc05893420dc0f8724a11c60e5c8daaf543837b5acdfb3adeb56e890e7ce",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "env",
+          "line": 10,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/transactionPolicy.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1426,
+      "lines": 42,
+      "sha256": "13ba2a3ce8869e90466426d3a8ccfbe816987388a9246cad087626088732372f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PrismaTransactionPolicy",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolvePrismaTransactionPolicy",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "interactiveTransactionsGuaranteed",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertPrismaTransactionPolicySafe",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PrismaTransactionPolicy",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolvePrismaTransactionPolicy",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "interactiveTransactionsGuaranteed",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertPrismaTransactionPolicySafe",
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -111373,11 +111542,16 @@
       "path": "lib/formatDate.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 1188,
+      "bytes": 1195,
       "lines": 34,
-      "sha256": "894e1591586b6710f295cf758faf1aaff0be841d43cbcb4ff3750e1b9412d7c6",
+      "sha256": "dfbb14422f259a6d2a6e626266733da3f48e65a094a94084a7c893bf7e90bd2f",
       "binary": false,
       "exports": [
+        {
+          "name": "PORTAL_TIMEZONE",
+          "line": 10,
+          "kind": "Variable"
+        },
         {
           "name": "formatPortalDate",
           "line": 19,
@@ -112305,46 +112479,46 @@
       "path": "lib/i18n/date.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 2396,
-      "lines": 77,
-      "sha256": "b588abd0982047e270eeaf31c9a403bef9c9a9fa52b1b8636519f8c48958976a",
+      "bytes": 2819,
+      "lines": 83,
+      "sha256": "d2d9abe9656c84ccaa787c31fd6b18269e46b8b2c852fbec81f21120efee0a32",
       "binary": false,
       "exports": [
         {
           "name": "formatDate",
-          "line": 32,
+          "line": 37,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDateTime",
-          "line": 42,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatLocalizedDate",
-          "line": 65,
+          "line": 71,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "toIntlLocale",
-          "line": 18,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDate",
-          "line": 32,
+          "line": 37,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDateTime",
-          "line": 42,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatLocalizedDate",
-          "line": 65,
+          "line": 71,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -124350,9 +124524,9 @@
       "path": "lib/portal/aiToolsHub.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 6180,
+      "bytes": 6290,
       "lines": 124,
-      "sha256": "dc9bb3e9269ede097a1851d9e6b2554804aaf1c08896c85cb94b84ad32d5f286",
+      "sha256": "06899393bc43b44ca13561330d9eefdf126a2aef01b661eb13aad8bf74b07d3d",
       "binary": false,
       "exports": [
         {
@@ -124946,9 +125120,9 @@
       "path": "lib/portal/voiceAgentSurfaces.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 3799,
+      "bytes": 3871,
       "lines": 104,
-      "sha256": "2bc1fc99dc376c6f602a5d4f11b93c1cc6cffcfdf7d5837a286a831a29e153c7",
+      "sha256": "26772d66ec83c7cea991b4c42c51fe4120200cb7c206035002eaef4521ead12a",
       "binary": false,
       "exports": [
         {
@@ -127465,9 +127639,9 @@
       "path": "lib/resume/prepareResumeUpload.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7144,
-      "lines": 168,
-      "sha256": "22630bd48ba84ffad0905a0b135ebaec314e88955d0f425b0a498ca1d9366ecb",
+      "bytes": 7684,
+      "lines": 177,
+      "sha256": "c59013d137143f214e29d05edb7a58cfa10b3e8862ec83a8d21a3e1f0e92b8f7",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -146112,9 +146286,9 @@
       "path": "tests/api/auth-routes.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 58290,
-      "lines": 1643,
-      "sha256": "476d2e4aea3a2d04aa8541777759431704a1c1321c4315de5385269613db8f1d",
+      "bytes": 60039,
+      "lines": 1694,
+      "sha256": "ce9c54fd2182627d1d92fac4c7f30701b73a514b4291c95f9d10738bdf2bb03d",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -146484,6 +146658,29 @@
         {
           "name": "makePostRequest",
           "line": 82,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5045,
+      "lines": 134,
+      "sha256": "9fc956bbf894401750f36457213d67e7aba44c4d2b57c94509e425cb46da1303",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "CRON_SECRET",
+          "line": 68,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -146900,21 +147097,36 @@
       "path": "tests/api/guardian-consent.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3821,
-      "lines": 117,
-      "sha256": "d62b1d6d213daea92c22cf30f928ef6ff2d2f5879650aee6b94c9b78fe32d4f6",
+      "bytes": 11442,
+      "lines": 295,
+      "sha256": "0c30f9e7364c03189b5862f5dcfd1388323eae26eb56871ee218c51e57955f1d",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "db",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
           "name": "postReq",
-          "line": 37,
+          "line": 142,
           "kind": "Variable"
         },
         {
           "name": "validBody",
-          "line": 44,
+          "line": 149,
           "kind": "Variable"
+        },
+        {
+          "name": "submit",
+          "line": 156,
+          "kind": "Variable"
+        },
+        {
+          "name": "addLink",
+          "line": 159,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -147510,6 +147722,24 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/api/member-wioa-voice-session.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3620,
+      "lines": 89,
+      "sha256": "7180f9d8a85f3ba3a2c0af9b13c9534622aed5bf460ad62ac82a1ccfb47014e2",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {
@@ -151102,6 +151332,29 @@
       "directive": null
     },
     {
+      "path": "tests/lib/member-voice-fallback.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4189,
+      "lines": 106,
+      "sha256": "8e2bd6e216e626379be3ccb925bc5eea94cec347ef2623ce02a7775d3f29e9cb",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "memberGuc",
+          "line": 24,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/message-read-cursor.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -151472,6 +151725,34 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/password-reset-self-heal.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5901,
+      "lines": 149,
+      "sha256": "e4dff2a19c371532d07ae025cd72ce577bd2cbc8bfbb6f7135eae0142c1e9ca5",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "USER_NOT_FOUND",
+          "line": 47,
+          "kind": "Variable"
+        },
+        {
+          "name": "MINTED",
+          "line": 51,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {

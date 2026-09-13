@@ -710,7 +710,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/employer/applications/\[id\]/resume | route | GET | [app/api/employer/applications/\[id\]/resume/route.ts](../../../app/api/employer/applications/%5Bid%5D/resume/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:11 |
 | /api/employer/applications/\[id\] | route | PATCH | [app/api/employer/applications/\[id\]/route.ts](../../../app/api/employer/applications/%5Bid%5D/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:10 |
 | /api/employer/applications | route | GET | [app/api/employer/applications/route.ts](../../../app/api/employer/applications/route.ts) | @/lib/auth/server:4, @/lib/auth/roles:5, @/lib/db/withRequestGuc:9 |
-| /api/employer/checkout | route | POST | [app/api/employer/checkout/route.ts](../../../app/api/employer/checkout/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/tenant/withTenantScope:6, @/lib/db/withRequestGuc:8 |
+| /api/employer/checkout | route | POST | [app/api/employer/checkout/route.ts](../../../app/api/employer/checkout/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/tenant/withTenantScope:11, @/lib/db/withRequestGuc:13 |
 | /api/employer/hiring-intents | route | GET, POST | [app/api/employer/hiring-intents/route.ts](../../../app/api/employer/hiring-intents/route.ts) | @/lib/auth/server:3, @/lib/auth/roles:4, @/lib/db/withRequestGuc:10 |
 | /api/employer/jobs/\[id\]/applicants | route | GET, PATCH | [app/api/employer/jobs/\[id\]/applicants/route.ts](../../../app/api/employer/jobs/%5Bid%5D/applicants/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:10 |
 | /api/employer/jobs/\[id\]/applications/export | route | GET | [app/api/employer/jobs/\[id\]/applications/export/route.ts](../../../app/api/employer/jobs/%5Bid%5D/applications/export/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:8 |
@@ -730,7 +730,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/employer/signup | route | POST | [app/api/employer/signup/route.ts](../../../app/api/employer/signup/route.ts) | @/lib/rate-limit:4 |
 | /api/employer/subscribe | route | POST | [app/api/employer/subscribe/route.ts](../../../app/api/employer/subscribe/route.ts) | @/lib/auth/server:6, @/lib/auth/roles:11, @/lib/db/withRequestGuc:12 |
 | /api/employer/voice-session | route | POST | [app/api/employer/voice-session/route.ts](../../../app/api/employer/voice-session/route.ts) | @/lib/auth/server:4, @/lib/rate-limit:6, @/lib/auth/roles:7, @/lib/db/withRequestGuc:12 |
-| /api/employer/webhook | route | POST | [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | @/lib/db/withRequestGuc:6 |
+| /api/employer/webhook | route | POST | [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | @/lib/db/withRequestGuc:8 |
 | /api/events | route | POST | [app/api/events/route.ts](../../../app/api/events/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:6 |
 | /api/feature-flags | route | GET | [app/api/feature-flags/route.ts](../../../app/api/feature-flags/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:7 |
 | /api/gdpr/consent | route | GET, PATCH | [app/api/gdpr/consent/route.ts](../../../app/api/gdpr/consent/route.ts) | @/lib/auth/server:5, @/lib/db/withRequestGuc:7 |

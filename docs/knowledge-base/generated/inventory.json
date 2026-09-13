@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "193631cd73cb13f5686d162dd31068fe5d840dfa06840b50fa95a9397400a3eb",
+  "inputTreeSha256": "41b8f3419d307ed3552386ef1ddcc149ced2afc7cd89fb9189823610d966bd16",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -11369,9 +11369,9 @@
       "path": "app/(portal)/employer/billing/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 7562,
+      "bytes": 7618,
       "lines": 198,
-      "sha256": "6db90ec1850ca4b9f5166bfe63531e77e708973f1662b32bc3cc43172289af06",
+      "sha256": "1045d6ecbea8dce2082177ee1b83354c06c88b443046f66644ecc2e3e3ed537d",
       "binary": false,
       "exports": [
         {
@@ -32958,21 +32958,21 @@
       "path": "app/api/employer/checkout/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 3488,
-      "lines": 94,
-      "sha256": "20310b18da9233df4d7c67d7a45d63e2379ad58a991f939558742b7054046937",
+      "bytes": 3934,
+      "lines": 107,
+      "sha256": "f6cc5fcc723c2b1d80f5aae61e812971bbddece28571650767b7924764977926",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 16,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 16,
           "kind": "Variable"
         }
       ],
@@ -33696,31 +33696,31 @@
       "path": "app/api/employer/subscribe/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 3853,
-      "lines": 106,
-      "sha256": "15554f779ba2fa87782b359982dadca2f6d114a4607c985f8895a14435d021c1",
+      "bytes": 5270,
+      "lines": 146,
+      "sha256": "029707458dc4cf395bc2d20cc09fd384559a98e8f16623c5acc03f56a4d38c36",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 106,
+          "line": 146,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "subscribeSchema",
-          "line": 15,
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 106,
+          "line": 146,
           "kind": "Variable"
         }
       ],
@@ -33754,21 +33754,26 @@
       "path": "app/api/employer/webhook/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 7370,
-      "lines": 160,
-      "sha256": "e46348a1854c4b21ef700e743ec418c83f469acd0a2c29aa67f6cbc9b8d2a3bc",
+      "bytes": 4988,
+      "lines": 121,
+      "sha256": "94791b13baaaea99202dada7c739b050b591eee028d97886b4d9592baae6e75b",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 7,
+          "line": 25,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "resolveEmployer",
+          "line": 10,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "POST",
-          "line": 7,
+          "line": 25,
           "kind": "Variable"
         }
       ],
@@ -39762,21 +39767,31 @@
       "path": "app/api/stripe/webhook/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 9162,
-      "lines": 218,
-      "sha256": "7dda7bdf727d01a87e7c7f1930f81cfc678069d3fd016684768672e47abc34b3",
+      "bytes": 10238,
+      "lines": 249,
+      "sha256": "77e14eaf5daad22fb6361848e59faa504c1c727e09e1c15d6c1422c75fb989e2",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 17,
+          "line": 34,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "normalizeStripeId",
+          "line": 13,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "invoiceSubscriptionId",
+          "line": 22,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "POST",
-          "line": 17,
+          "line": 34,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -76944,9 +76959,9 @@
       "path": "docs/knowledge-base/integrations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 32056,
+      "bytes": 33270,
       "lines": 133,
-      "sha256": "2f6b0af9207d885c4ee2cc9a5a9517e4f712a6769d95466cd7049d26827f2f83",
+      "sha256": "71d2e8c12dfb32a7a16a5b657ea4453cf0b4c7a11c569e7d655e99c6636e3bff",
       "binary": false
     },
     {
@@ -128710,6 +128725,273 @@
       "directive": null
     },
     {
+      "path": "lib/stripe/stripeSubscriptionSnapshot.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 820,
+      "lines": 21,
+      "sha256": "a13889b8b9c2c14d7055b71d150fc246ded7b3845bb336d5ef33fc3a620e16fb",
+      "binary": false,
+      "exports": [
+        {
+          "name": "stripeObjectId",
+          "line": 4,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "canonicalSubscriptionSnapshot",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "stripeObjectId",
+          "line": 4,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "canonicalSubscriptionSnapshot",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionPersistence.test.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 9867,
+      "lines": 208,
+      "sha256": "0b37e72babbd814f3c251bfbd6c35490ec18c4dc5b7b0fe0cf1da2f6d563b4a0",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionPersistence.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 7449,
+      "lines": 198,
+      "sha256": "e5f4c8c84caa182bd9426dbaf12e17f1217a46c9478fc183b0cb7d4bd65b9f25",
+      "binary": false,
+      "exports": [
+        {
+          "name": "SubscriptionOwner",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "reconcileOrganizationSubscription",
+          "line": 79,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "reconcileEmployerSubscription",
+          "line": 134,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "BillingPrisma",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionOwner",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "BillingRow",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "stateFromRow",
+          "line": 29,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "localOrganizationAuthority",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "localEmployerAuthority",
+          "line": 59,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "customerMatches",
+          "line": 75,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "reconcileOrganizationSubscription",
+          "line": 79,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "reconcileEmployerSubscription",
+          "line": 134,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionState.test.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 10476,
+      "lines": 202,
+      "sha256": "248884fa541e664000471ab09adce9dc4171f5dbd887f3ee7f0eccb8ea3911ad",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "empty",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "canonical",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "intent",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "stateful",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "apply",
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/stripe/subscriptionState.ts",
+      "area": "libraries",
+      "domain": "partners-funding",
+      "bytes": 4303,
+      "lines": 129,
+      "sha256": "1d0afd85fcf63d623ccee18351dd46007c7171804b1ebd9a73446bbb0ca0b7bf",
+      "binary": false,
+      "exports": [
+        {
+          "name": "SubscriptionIntentKind",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionState",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionIntent",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CanonicalSubscription",
+          "line": 27,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionAuthority",
+          "line": 37,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionReconciliationStore",
+          "line": 41,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionOwnershipUnresolvedError",
+          "line": 51,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "SubscriptionPersistenceContendedError",
+          "line": 58,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "reconcileSubscriptionState",
+          "line": 71,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SubscriptionIntentKind",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionState",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionIntent",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CanonicalSubscription",
+          "line": 27,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionAuthority",
+          "line": 37,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionReconciliationStore",
+          "line": 41,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SubscriptionOwnershipUnresolvedError",
+          "line": 51,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "SubscriptionPersistenceContendedError",
+          "line": 58,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "canonicalStatus",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "reconcileSubscriptionState",
+          "line": 71,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/supabase-admin.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -136988,6 +137270,24 @@
       "binary": false
     },
     {
+      "path": "prisma/migrations/20260912173000_organization_stripe_event_ordering/migration.sql",
+      "area": "database",
+      "domain": "database",
+      "bytes": 933,
+      "lines": 17,
+      "sha256": "cf3ecfed0f879be31ca63278b038c4769b4e5f01bb584f5c5611268477d86621",
+      "binary": false
+    },
+    {
+      "path": "prisma/migrations/20260912203000_add_subscription_state_revisions/migration.sql",
+      "area": "database",
+      "domain": "database",
+      "bytes": 345,
+      "lines": 7,
+      "sha256": "7e76113e10eae0df3b6db18b98449aa040c2adbf1b7aa3851345b0f9134a8cd5",
+      "binary": false
+    },
+    {
       "path": "prisma/migrations/migration_lock.toml",
       "area": "database",
       "domain": "database",
@@ -137000,9 +137300,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 133499,
-      "lines": 3166,
-      "sha256": "6043872cba922d65033e42ddccaf9c3459235a27f59b7cfdfa644240b668e3c3",
+      "bytes": 134017,
+      "lines": 3173,
+      "sha256": "2c614655f097e33019ccea4d0db2b6d543698687b4fe099e3dd2bb627f4aa8b2",
       "binary": false
     },
     {
@@ -146724,12 +147024,18 @@
       "path": "tests/api/employer-checkout.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 14870,
-      "lines": 413,
-      "sha256": "e853d57c4127700e0bb342422e457cb50cad6a20b6af4bb0dff6547876ba2cac",
+      "bytes": 20823,
+      "lines": 534,
+      "sha256": "c271c0043ae4d66cdc54d14f393fc4477d22256ca9b1959db012eb0db872ae94",
       "binary": false,
       "exports": [],
-      "declarations": [],
+      "declarations": [
+        {
+          "name": "pricingState",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {
@@ -146887,6 +147193,29 @@
         {
           "name": "ORIGINAL_ENV",
           "line": 266,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/employer-subscribe-pricing.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 8707,
+      "lines": 196,
+      "sha256": "31d488abd66be05ddcd335eb7fc2f09bb3e8b166ce36dd95e03a3d152cd00a0b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "pricingState",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 67,
           "kind": "Variable"
         }
       ],
@@ -148125,6 +148454,57 @@
       "directive": null
     },
     {
+      "path": "tests/api/stripe-billing-migration.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1867,
+      "lines": 37,
+      "sha256": "28648a0f58c21631712701ac72a6d3dcceb3970d3d9c617498fe14d368f22042",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "migration",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "revisionMigration",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "schema",
+          "line": 13,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/stripe-webhook-organization.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 9652,
+      "lines": 185,
+      "sha256": "a260e2e515de13233912a9cb739d5328554743815bfa36fdd02df17430df6d33",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "request",
+          "line": 54,
+          "kind": "Variable"
+        },
+        {
+          "name": "deliver",
+          "line": 57,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/testimonials.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -148459,6 +148839,24 @@
           "name": "load",
           "line": 17,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/employer-billing-page.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2806,
+      "lines": 66,
+      "sha256": "82aae6d0f28d7048b3c9be94d55e65b32396f664ac5c6aafe338bfe5d36d795d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "pricingState",
+          "line": 4,
+          "kind": "Variable"
         }
       ],
       "directive": null

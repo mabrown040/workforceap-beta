@@ -7717,6 +7717,78 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/stripe/subscriptionPersistence.test.ts",
+    "area": "libraries",
+    "domain": "partners-funding",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 3
+      },
+      {
+        "file": "lib/stripe/subscriptionState.ts",
+        "line": 4
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 57
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 65
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 105
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 156
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 196
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/stripe/subscriptionState.test.ts",
+    "area": "libraries",
+    "domain": "partners-funding",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/stripe/subscriptionState.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/super-admin-switcher-structure.test.ts",
     "area": "libraries",
     "domain": "libraries",
@@ -10997,39 +11069,43 @@
     "localReferences": [
       {
         "file": "lib/db/prisma.ts",
-        "line": 43
+        "line": 47
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 59
+        "line": 81
       },
       {
         "file": "app/api/employer/checkout/route.ts",
-        "line": 65
+        "line": 87
       },
       {
         "file": "app/api/employer/webhook/route.ts",
-        "line": 66
+        "line": 88
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 67
+        "line": 89
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 68
+        "line": 90
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 69
+        "line": 91
       },
       {
         "file": "lib/stripe/client.ts",
-        "line": 70
+        "line": 92
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 94
       },
       {
         "file": "lib/stripe/client.ts",
-        "line": 135
+        "line": 172
       }
     ],
     "kind": "test-candidate",
@@ -11282,6 +11358,58 @@
       {
         "file": "lib/db/prisma.ts",
         "line": 199
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/employer-subscribe-pricing.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 42
+      },
+      {
+        "file": "app/api/employer/subscribe/route.ts",
+        "line": 59
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 60
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 61
+      },
+      {
+        "file": "lib/stripe/client.ts",
+        "line": 62
+      },
+      {
+        "file": "lib/stripe/customer.ts",
+        "line": 63
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 64
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 65
       }
     ],
     "kind": "test-candidate",
@@ -13466,6 +13594,65 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/stripe-billing-migration.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/stripe-webhook-organization.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 18
+      },
+      {
+        "file": "app/api/stripe/webhook/route.ts",
+        "line": 46
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 47
+      },
+      {
+        "file": "lib/stripe/client.ts",
+        "line": 48
+      },
+      {
+        "file": "lib/stripe/subscriptionPersistence.ts",
+        "line": 49
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/testimonials.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -14180,6 +14367,42 @@
       {
         "file": "app/admin/diagnostics/page.tsx",
         "line": 15
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/app/employer-billing-page.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/(portal)/employer/billing/page.tsx",
+        "line": 35
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 36
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 37
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 38
       }
     ],
     "kind": "test-candidate",

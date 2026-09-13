@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getStripe, EMPLOYER_TIERS, isValidTier } from '@/lib/stripe/client';
+import {
+  getStripe,
+  EMPLOYER_PRICING_ENFORCED,
+  EMPLOYER_TIERS,
+  isValidTier,
+} from '@/lib/stripe/client';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -20,6 +25,10 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
     }
 
+    if (!EMPLOYER_PRICING_ENFORCED) {
+      return NextResponse.json({ error: 'Employer pricing is not available' }, { status: 503 });
+    }
+
     const body = await request.json().catch(() => ({}));
     const tier = body.tier;
     if (!isValidTier(tier)) {
@@ -28,7 +37,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
 
     const employer = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
-      select: { organizationId: true, stripeCustomerId: true, contactEmail: true, companyName: true },
+      select: { organizationId: true, stripeCustomerId: true, stripeSubscriptionId: true, contactEmail: true, companyName: true },
     }));
     if (!employer) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
@@ -73,12 +82,16 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         employerId: ctx.employerId,
         tier,
         userId: user.id,
+        organizationId: employer.organizationId,
+        replacesSubscriptionId: employer.stripeSubscriptionId ?? '',
       },
       subscription_data: {
         metadata: {
           employerId: ctx.employerId,
           tier,
           userId: user.id,
+          organizationId: employer.organizationId,
+          replacesSubscriptionId: employer.stripeSubscriptionId ?? '',
         },
       },
     });

@@ -7,7 +7,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { EMPLOYER_TIERS } from '@/lib/stripe/client';
+import { EMPLOYER_PRICING_ENFORCED, EMPLOYER_TIERS } from '@/lib/stripe/client';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { statusColor } from '@/lib/ui/statusColors';
@@ -181,7 +181,7 @@ export default async function EmployerBillingPage({
                 </li>
               ))}
             </ul>
-            {!tier.isCurrent && (
+            {EMPLOYER_PRICING_ENFORCED && !tier.isCurrent && (
               <TierCheckoutForm
                 tierKey={tier.key}
                 currentTierKey={currentTierKey}

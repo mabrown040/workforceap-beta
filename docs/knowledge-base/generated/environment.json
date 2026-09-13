@@ -847,10 +847,6 @@
           "line": 26
         },
         {
-          "file": "app/api/cron/at-risk-alerts/route.ts",
-          "line": 16
-        },
-        {
           "file": "lib/cron/authorizeCronRequest.ts",
           "line": 32
         },
@@ -1525,7 +1521,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 98
+          "line": 170
         },
         {
           "file": "lib/billing/sendPacket.ts",
@@ -2079,7 +2075,7 @@
         },
         {
           "file": "app/api/admin/members/[id]/send-eligibility-link/route.ts",
-          "line": 9
+          "line": 11
         },
         {
           "file": "app/api/admin/members/[id]/send-interview-link/route.ts",
@@ -2342,7 +2338,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 53
+          "line": 114
         },
         {
           "file": "lib/auth/server.ts",
@@ -2375,6 +2371,10 @@
         {
           "file": "tests/api/partner-signup.spec.ts",
           "line": 185
+        },
+        {
+          "file": "tests/lib/password-reset-self-heal.spec.ts",
+          "line": 57
         }
       ]
     },
@@ -2405,7 +2405,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 52
+          "line": 113
         },
         {
           "file": "lib/auth/server.ts",
@@ -2462,6 +2462,10 @@
         {
           "file": "tests/api/partner-signup.spec.ts",
           "line": 184
+        },
+        {
+          "file": "tests/lib/password-reset-self-heal.spec.ts",
+          "line": 56
         }
       ]
     },
@@ -2607,11 +2611,11 @@
         },
         {
           "file": "app/api/auth/login/route.ts",
-          "line": 117
+          "line": 160
         },
         {
           "file": "app/api/auth/login/route.ts",
-          "line": 126
+          "line": 169
         },
         {
           "file": "app/api/auth/logout/route.ts",
@@ -2647,7 +2651,7 @@
         },
         {
           "file": "components/portal/PortalVoiceSession.tsx",
-          "line": 184
+          "line": 190
         },
         {
           "file": "instrumentation-client.ts",
@@ -3656,7 +3660,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 65
+          "line": 126
         },
         {
           "file": "lib/email/unsubscribeToken.ts",
@@ -3681,6 +3685,10 @@
         {
           "file": "tests/api/partner-signup.spec.ts",
           "line": 186
+        },
+        {
+          "file": "tests/lib/password-reset-self-heal.spec.ts",
+          "line": 58
         }
       ]
     },

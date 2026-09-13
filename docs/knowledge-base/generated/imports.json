@@ -31840,6 +31840,14 @@
     "target": "lib/audit.ts"
   },
   {
+    "from": "app/api/admin/members/[id]/award-points/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
     "from": "app/api/admin/members/[id]/billing-packets/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -32086,6 +32094,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
+  },
+  {
+    "from": "app/api/admin/members/[id]/counselor/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
   },
   {
     "from": "app/api/admin/members/[id]/coursera-enrollment-approval/route.ts",
@@ -32833,8 +32849,16 @@
   },
   {
     "from": "app/api/admin/members/[id]/notes/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
+    "from": "app/api/admin/members/[id]/notes/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -33568,6 +33592,22 @@
     "target": "lib/email.ts"
   },
   {
+    "from": "app/api/admin/members/[id]/send-eligibility-link/route.ts",
+    "specifier": "@/lib/audit",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit.ts"
+  },
+  {
+    "from": "app/api/admin/members/[id]/send-eligibility-link/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
     "from": "app/api/admin/members/[id]/send-interview-link/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -33865,8 +33905,16 @@
   },
   {
     "from": "app/api/admin/members/[id]/subgroup/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
+    "from": "app/api/admin/members/[id]/subgroup/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -45249,16 +45297,8 @@
   },
   {
     "from": "app/api/cron/at-risk-alerts/route.ts",
-    "specifier": "crypto",
-    "line": 2,
-    "kind": "import",
-    "external": true,
-    "package": "crypto"
-  },
-  {
-    "from": "app/api/cron/at-risk-alerts/route.ts",
     "specifier": "@/lib/cron/at-risk-alerts",
-    "line": 3,
+    "line": 2,
     "kind": "import",
     "external": false,
     "target": "lib/cron/at-risk-alerts.ts"
@@ -45266,7 +45306,7 @@
   {
     "from": "app/api/cron/at-risk-alerts/route.ts",
     "specifier": "@/lib/cron/withCronLogging",
-    "line": 7,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/cron/withCronLogging.ts"
@@ -45274,7 +45314,7 @@
   {
     "from": "app/api/cron/at-risk-alerts/route.ts",
     "specifier": "@/lib/cron/cronExecution",
-    "line": 8,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/cron/cronExecution.ts"
@@ -45282,7 +45322,7 @@
   {
     "from": "app/api/cron/at-risk-alerts/route.ts",
     "specifier": "@/lib/email/pacing",
-    "line": 9,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/email/pacing.ts"
@@ -54033,11 +54073,11 @@
   },
   {
     "from": "app/api/member/readiness/voice-session/route.ts",
-    "specifier": "@/lib/ai/elevenlabsAgents",
+    "specifier": "@/lib/ai/memberVoiceFallback",
     "line": 5,
     "kind": "import",
     "external": false,
-    "target": "lib/ai/elevenlabsAgents.ts"
+    "target": "lib/ai/memberVoiceFallback.ts"
   },
   {
     "from": "app/api/member/readiness/voice-session/route.ts",
@@ -54489,11 +54529,11 @@
   },
   {
     "from": "app/api/member/resume-coach/session/route.ts",
-    "specifier": "@/lib/ai/elevenlabsAgents",
+    "specifier": "@/lib/ai/memberVoiceFallback",
     "line": 6,
     "kind": "import",
     "external": false,
-    "target": "lib/ai/elevenlabsAgents.ts"
+    "target": "lib/ai/memberVoiceFallback.ts"
   },
   {
     "from": "app/api/member/resume-coach/session/route.ts",
@@ -55953,40 +55993,16 @@
   },
   {
     "from": "app/api/member/wioa-qualification/voice-session/route.ts",
-    "specifier": "@/lib/ai/elevenlabsAgents",
+    "specifier": "@/lib/ai/memberVoiceFallback",
     "line": 5,
     "kind": "import",
     "external": false,
-    "target": "lib/ai/elevenlabsAgents.ts"
-  },
-  {
-    "from": "app/api/member/wioa-qualification/voice-session/route.ts",
-    "specifier": "@/lib/ai/elevenlabs",
-    "line": 6,
-    "kind": "import",
-    "external": false,
-    "target": "lib/ai/elevenlabs.ts"
-  },
-  {
-    "from": "app/api/member/wioa-qualification/voice-session/route.ts",
-    "specifier": "@/lib/agents/gateway/startMemberSession",
-    "line": 7,
-    "kind": "import",
-    "external": false,
-    "target": "lib/agents/gateway/startMemberSession.ts"
-  },
-  {
-    "from": "app/api/member/wioa-qualification/voice-session/route.ts",
-    "specifier": "@/lib/db/gucContext",
-    "line": 8,
-    "kind": "import",
-    "external": false,
-    "target": "lib/db/gucContext.ts"
+    "target": "lib/ai/memberVoiceFallback.ts"
   },
   {
     "from": "app/api/member/wioa-qualification/voice-session/route.ts",
     "specifier": "@/lib/ai/elevenlabsPortalContext",
-    "line": 9,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/ai/elevenlabsPortalContext.ts"
@@ -55994,7 +56010,7 @@
   {
     "from": "app/api/member/wioa-qualification/voice-session/route.ts",
     "specifier": "@/lib/events/track",
-    "line": 10,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/events/track.ts"
@@ -56002,7 +56018,7 @@
   {
     "from": "app/api/member/wioa-qualification/voice-session/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 12,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -74738,7 +74754,7 @@
   {
     "from": "components/portal/PortalVoiceSession.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 595,
+    "line": 613,
     "kind": "dynamic-import",
     "external": true,
     "package": "@elevenlabs/client"
@@ -88304,6 +88320,46 @@
     "target": "lib/ai/matchWeights.ts"
   },
   {
+    "from": "lib/ai/memberVoiceFallback.ts",
+    "specifier": "@/lib/ai/elevenlabsAgents",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/elevenlabsAgents.ts"
+  },
+  {
+    "from": "lib/ai/memberVoiceFallback.ts",
+    "specifier": "@/lib/ai/elevenlabs",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/elevenlabs.ts"
+  },
+  {
+    "from": "lib/ai/memberVoiceFallback.ts",
+    "specifier": "@/lib/agents/gateway/startMemberSession",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/agents/gateway/startMemberSession.ts"
+  },
+  {
+    "from": "lib/ai/memberVoiceFallback.ts",
+    "specifier": "@/lib/db/gucContext",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/gucContext.ts"
+  },
+  {
+    "from": "lib/ai/memberVoiceFallback.ts",
+    "specifier": "@/lib/elevenlabs/agentRegistry",
+    "line": 5,
+    "kind": "type",
+    "external": false,
+    "target": "lib/elevenlabs/agentRegistry.ts"
+  },
+  {
     "from": "lib/ai/onetSkills.test.ts",
     "specifier": "node:assert/strict",
     "line": 1,
@@ -89889,8 +89945,24 @@
   },
   {
     "from": "lib/auth/passwordReset.ts",
-    "specifier": "@/lib/email",
+    "specifier": "@/lib/admin/authUserLifecycle",
     "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/authUserLifecycle.ts"
+  },
+  {
+    "from": "lib/auth/passwordReset.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/auth/passwordReset.ts",
+    "specifier": "@/lib/email",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -89898,7 +89970,7 @@
   {
     "from": "lib/auth/passwordReset.ts",
     "specifier": "@/lib/email/send",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/email/send.ts"
@@ -89906,7 +89978,7 @@
   {
     "from": "lib/auth/passwordReset.ts",
     "specifier": "@/lib/email/template",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/email/template.ts"
@@ -89914,7 +89986,7 @@
   {
     "from": "lib/auth/passwordReset.ts",
     "specifier": "@/lib/observability/logger",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/observability/logger.ts"
@@ -96766,6 +96838,14 @@
     "kind": "type",
     "external": false,
     "target": "lib/i18n/config.ts"
+  },
+  {
+    "from": "lib/i18n/date.ts",
+    "specifier": "@/lib/formatDate",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
   },
   {
     "from": "lib/i18n/getT.ts",
@@ -109498,7 +109578,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 846,
+    "line": 897,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -109506,7 +109586,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 872,
+    "line": 923,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -109514,7 +109594,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 1004,
+    "line": 1055,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -109522,7 +109602,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/portalRoleSwitcher",
-    "line": 1011,
+    "line": 1062,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/portalRoleSwitcher.ts"
@@ -109530,7 +109610,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 1027,
+    "line": 1078,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -109538,7 +109618,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/portalRoleSwitcher",
-    "line": 1031,
+    "line": 1082,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/portalRoleSwitcher.ts"
@@ -109546,7 +109626,7 @@
   {
     "from": "tests/api/auth-routes.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 1071,
+    "line": 1122,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -112630,6 +112710,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/recap/generate.ts"
+  },
+  {
+    "from": "tests/api/member-wioa-voice-session.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/member-wioa-voice-session.spec.ts",
+    "specifier": "@/lib/ai/elevenlabs",
+    "line": 41,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/elevenlabs.ts"
+  },
+  {
+    "from": "tests/api/member-wioa-voice-session.spec.ts",
+    "specifier": "@/app/api/member/wioa-qualification/voice-session/route",
+    "line": 42,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/member/wioa-qualification/voice-session/route.ts"
   },
   {
     "from": "tests/api/mentor-letter-route.spec.ts",
@@ -118104,6 +118208,30 @@
     "package": "vitest"
   },
   {
+    "from": "tests/lib/member-voice-fallback.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/member-voice-fallback.spec.ts",
+    "specifier": "@/lib/ai/elevenlabs",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/elevenlabs.ts"
+  },
+  {
+    "from": "tests/lib/member-voice-fallback.spec.ts",
+    "specifier": "@/lib/ai/memberVoiceFallback",
+    "line": 22,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/memberVoiceFallback.ts"
+  },
+  {
     "from": "tests/lib/message-read-cursor.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -118638,6 +118766,22 @@
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
+  },
+  {
+    "from": "tests/lib/password-reset-self-heal.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/password-reset-self-heal.spec.ts",
+    "specifier": "@/lib/auth/passwordReset",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/passwordReset.ts"
   },
   {
     "from": "tests/lib/placement-survey-email-provider.spec.ts",

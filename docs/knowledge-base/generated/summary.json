@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "4fa7f4f1b2e441153490866741f49878f9d7c9075cd4b747d74f964ddd27e58d",
+  "inputTreeSha256": "6e22acd6fd38a8f6d25e244546f049b2ed80c11f00bcc3bdc306943f5bc6d2c4",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4480,
-    "sourceModules": 3161,
-    "importReferences": 14981,
-    "resolvedLocalReferences": 9984,
+    "files": 4484,
+    "sourceModules": 3165,
+    "importReferences": 14999,
+    "resolvedLocalReferences": 10000,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1045,
     "nextRouteFiles": 1013,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 613,
-    "testCandidates": 606,
+    "testFiles": 616,
+    "testCandidates": 609,
     "testHelpers": 7,
-    "staticallySelectedTests": 603,
+    "staticallySelectedTests": 606,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 897
+      "files": 898
     },
     {
       "area": "localization",
@@ -106,13 +106,13 @@
     },
     {
       "area": "tests",
-      "files": 296
+      "files": 299
     }
   ],
   "mostReferenced": [
     {
       "file": "lib/db/prisma.ts",
-      "references": 833
+      "references": 834
     },
     {
       "file": "lib/auth/server.ts",
@@ -136,7 +136,7 @@
     },
     {
       "file": "lib/audit.ts",
-      "references": 206
+      "references": 207
     },
     {
       "file": "app/seo.ts",
@@ -148,7 +148,7 @@
     },
     {
       "file": "lib/audit/log.ts",
-      "references": 181
+      "references": 186
     },
     {
       "file": "components/portal/PageHeader.tsx",
@@ -281,12 +281,12 @@
       "lines": 1726
     },
     {
-      "file": "lib/elevenlabs-member-agent-tools.test.ts",
-      "lines": 1679
+      "file": "tests/api/auth-routes.spec.ts",
+      "lines": 1694
     },
     {
-      "file": "tests/api/auth-routes.spec.ts",
-      "lines": 1643
+      "file": "lib/elevenlabs-member-agent-tools.test.ts",
+      "lines": 1679
     },
     {
       "file": "app/admin/coursera/page.tsx",
@@ -329,6 +329,10 @@
       "lines": 1334
     },
     {
+      "file": "components/portal/PortalVoiceSession.tsx",
+      "lines": 1313
+    },
+    {
       "file": "components/portal/tools/SkillMapperClient.tsx",
       "lines": 1296
     },
@@ -339,10 +343,6 @@
     {
       "file": "tests/portal-audit-five-role.test.ts",
       "lines": 1282
-    },
-    {
-      "file": "components/portal/PortalVoiceSession.tsx",
-      "lines": 1276
     },
     {
       "file": "components/portal/SkillMissionChallenge.tsx",

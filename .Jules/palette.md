@@ -31,3 +31,6 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+## 2024-06-25 - Redundant aria-label on aria-live state buttons
+**Learning:** Discovered an anti-pattern where a button displaying dynamic async state ("Downloading...") correctly had `aria-busy` and `aria-live` added, but was still using an explicitly changing `aria-label` attribute on the parent button itself. This `aria-label` can mask the inner live region, preventing screen readers from correctly announcing the state transition.
+**Action:** When a button text changes dynamically to indicate progress (e.g. "Downloading..."), omit `aria-label` entirely and place context describing the action in a visually hidden `.sr-only` span instead.

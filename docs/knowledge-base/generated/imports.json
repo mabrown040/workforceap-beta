@@ -110392,6 +110392,38 @@
     "target": "lib/ai/prefillFromMemberState.ts"
   },
   {
+    "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+    "specifier": "@/app/api/cron/at-risk-alerts/route",
+    "line": 61,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/cron/at-risk-alerts/route.ts"
+  },
+  {
+    "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+    "specifier": "@/lib/cron/at-risk-alerts",
+    "line": 62,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/at-risk-alerts.ts"
+  },
+  {
+    "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+    "specifier": "@/lib/cron/cronExecution",
+    "line": 66,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/cronExecution.ts"
+  },
+  {
     "from": "tests/api/cron-at-risk-check.spec.ts",
     "specifier": "vitest",
     "line": 1,

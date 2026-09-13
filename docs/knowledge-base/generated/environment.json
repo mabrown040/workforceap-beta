@@ -907,6 +907,14 @@
           "line": 462
         },
         {
+          "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+          "line": 77
+        },
+        {
+          "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+          "line": 81
+        },
+        {
           "file": "tests/api/cron-at-risk-check.spec.ts",
           "line": 80
         },

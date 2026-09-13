@@ -10525,6 +10525,38 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/cron/at-risk-alerts/route.ts",
+        "line": 61
+      },
+      {
+        "file": "lib/cron/at-risk-alerts.ts",
+        "line": 62
+      },
+      {
+        "file": "lib/cron/cronExecution.ts",
+        "line": 66
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/cron-at-risk-check.spec.ts",
     "area": "tests",
     "domain": "tests",

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "6e22acd6fd38a8f6d25e244546f049b2ed80c11f00bcc3bdc306943f5bc6d2c4",
+  "inputTreeSha256": "7d2a8260fa67f831d47e62520012aac455b9a688a634611f7e6f26bdc8c95047",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -146358,6 +146358,29 @@
         {
           "name": "makePostRequest",
           "line": 82,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/cron-at-risk-alerts-auth.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5045,
+      "lines": 134,
+      "sha256": "9fc956bbf894401750f36457213d67e7aba44c4d2b57c94509e425cb46da1303",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "CRON_SECRET",
+          "line": 68,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],

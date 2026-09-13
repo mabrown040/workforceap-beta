@@ -5,7 +5,7 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { hasSuperAdminAccess } from '@/lib/auth/roleAccess';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { crossTenantOK, withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
 import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
@@ -161,6 +161,56 @@ async function _PATCH(
     const supabase = getSupabaseAdmin();
     const normalizedEmail = email.toLowerCase();
     const emailChanged = normalizedEmail !== existing.email.toLowerCase();
+
+    if (emailChanged) {
+      // Email uniqueness is global, so this preflight intentionally crosses
+      // tenant scope. The row is disclosed only after an explicit tenant
+      // comparison; request GUC context alone is not authorization proof.
+      const collisionIdentity = await crossTenantOK(() =>
+        prisma.user.findFirst({
+          where: { email: normalizedEmail, id: { not: id } },
+          select: { id: true, organizationId: true },
+        }),
+      );
+      if (collisionIdentity) {
+        if (collisionIdentity.organizationId !== orgId) {
+          return NextResponse.json(
+            { error: 'That email already has an account.' },
+            { status: 409 },
+          );
+        }
+        const collision = await withTenantScope(orgId, (db) =>
+          db.user.findFirst({
+            where: { id: collisionIdentity.id },
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              profile: { select: { role: true } },
+            },
+          }),
+        );
+        if (!collision) {
+          return NextResponse.json(
+            { error: 'That email already has an account.' },
+            { status: 409 },
+          );
+        }
+        return NextResponse.json(
+          {
+            error: 'That email already has an account. Use the edit or reset tools on the existing user.',
+            user: {
+              id: collision.id,
+              fullName: collision.fullName,
+              email: collision.email,
+              role: collision.profile?.role ?? 'member',
+            },
+          },
+          { status: 409 },
+        );
+      }
+    }
+
     let authEmailChanged = false;
  
     try {
@@ -242,6 +292,12 @@ async function _PATCH(
       }
       if (error instanceof Error && error.message === 'USER_NOT_FOUND_IN_TX') {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      }
+      if ((error as { code?: unknown })?.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
       }
       console.error('[admin/users/:id PATCH]', error);
       return NextResponse.json({ error: 'Failed to update user.' }, { status: 500 });

@@ -14,27 +14,41 @@ export async function ensureAppUser(
     fullName: string;
   }
 ) {
+  const normalizedEmail = data.email.toLowerCase();
   const byId = await tx.user.findFirst({
     where: { id: data.authUserId },
-    select: { id: true },
+    select: { id: true, organizationId: true, email: true, deletedAt: true },
   });
 
   if (byId) {
-    return tx.user.update({
-      where: { id: data.authUserId },
-      data: {
+    // A concurrent tenant may have won the global-email/Auth race. Never
+    // rehome or rewrite that application identity. This transaction-local
+    // guard runs before every User/Profile/UserRole mutation.
+    if (
+      byId.organizationId !== data.organizationId ||
+      byId.email.toLowerCase() !== normalizedEmail ||
+      byId.deletedAt !== null
+    ) {
+      throw new Error('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
+    }
+    const updated = await tx.user.updateMany({
+      where: {
+        id: data.authUserId,
         organizationId: data.organizationId,
-        email: data.email,
-        fullName: data.fullName,
+        email: normalizedEmail,
         deletedAt: null,
       },
-      select: { id: true, fullName: true, email: true },
+      data: { fullName: data.fullName },
     });
+    if (updated.count !== 1) {
+      throw new Error('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
+    }
+    return { id: byId.id, fullName: data.fullName, email: byId.email };
   }
 
   const byEmail = await tx.user.findFirst({
-    where: { email: data.email },
-    select: { id: true },
+    where: { email: normalizedEmail },
+    select: { id: true, organizationId: true },
   });
 
   if (byEmail) {
@@ -45,7 +59,7 @@ export async function ensureAppUser(
     data: {
       id: data.authUserId,
       organizationId: data.organizationId,
-      email: data.email,
+      email: normalizedEmail,
       fullName: data.fullName,
     },
     select: { id: true, fullName: true, email: true },

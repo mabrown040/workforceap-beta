@@ -271,7 +271,7 @@
 | [docs/knowledge-base/integrations.md](../../../docs/knowledge-base/integrations.md) | 133 | documentation |  |
 | [docs/knowledge-base/maintenance.md](../../../docs/knowledge-base/maintenance.md) | 68 | documentation |  |
 | [docs/knowledge-base/operations.md](../../../docs/knowledge-base/operations.md) | 164 | documentation |  |
-| [docs/knowledge-base/technical-debt.md](../../../docs/knowledge-base/technical-debt.md) | 52 | documentation |  |
+| [docs/knowledge-base/technical-debt.md](../../../docs/knowledge-base/technical-debt.md) | 56 | documentation |  |
 | [docs/live-qa-sweep-2026-05-14.md](../../../docs/live-qa-sweep-2026-05-14.md) | 55 | documentation |  |
 | [docs/marketing-perf-audit-2026-05-13.md](../../../docs/marketing-perf-audit-2026-05-13.md) | 272 | documentation |  |
 | [docs/member-portal-content-editor-guide.md](../../../docs/member-portal-content-editor-guide.md) | 149 | documentation |  |

@@ -31384,6 +31384,30 @@
     "target": "lib/db/withRequestGuc.ts"
   },
   {
+    "from": "app/api/admin/jobs/[id]/matches/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "app/api/admin/jobs/[id]/matches/route.ts",
+    "specifier": "@/lib/tenant/organization",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/tenant/organization.ts"
+  },
+  {
+    "from": "app/api/admin/jobs/[id]/matches/route.ts",
+    "specifier": "@/lib/tenant/withTenantScope",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/tenant/withTenantScope.ts"
+  },
+  {
     "from": "app/api/admin/jobs/[id]/reject/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -107872,6 +107896,78 @@
     "package": "@upstash/redis"
   },
   {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/app/api/admin/jobs/[id]/matches/route",
+    "line": 16,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "app/api/admin/jobs/[id]/matches/route.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 17,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 18,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/tenant/organization",
+    "line": 19,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/tenant/organization.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/tenant/withTenantScope",
+    "line": 20,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/tenant/withTenantScope.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 21,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/admin/adminJobMatchesPrismaDeps",
+    "line": 22,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/admin/adminJobMatchesPrismaDeps.ts"
+  },
+  {
+    "from": "tests/api/admin-job-matches-tenant-boundary.spec.ts",
+    "specifier": "@/lib/admin/runAdminJobMatchesGet",
+    "line": 23,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/admin/runAdminJobMatchesGet.ts"
+  },
+  {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -108896,6 +108992,62 @@
     "target": "lib/rate-limit.ts"
   },
   {
+    "from": "tests/api/admin-user-create-active-identity-race.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-user-create-active-identity-race.spec.ts",
+    "specifier": "@/app/api/admin/users/route",
+    "line": 55,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "app/api/admin/users/route.ts"
+  },
+  {
+    "from": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+    "specifier": "@/app/api/admin/users/route",
+    "line": 57,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "app/api/admin/users/route.ts"
+  },
+  {
+    "from": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 58,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+    "specifier": "@/lib/tenant/organization",
+    "line": 59,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/tenant/organization.ts"
+  },
+  {
+    "from": "tests/api/admin-user-create-tenant-conflict.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 60,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
     "from": "tests/api/admin-user-lifecycle.spec.ts",
     "specifier": "vitest",
     "line": 3,
@@ -108946,7 +109098,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/app/api/admin/users/[id]/route",
-    "line": 78,
+    "line": 94,
     "kind": "import",
     "external": false,
     "target": "app/api/admin/users/[id]/route.ts"
@@ -108954,7 +109106,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 79,
+    "line": 95,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -108962,7 +109114,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 80,
+    "line": 96,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -108970,7 +109122,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 81,
+    "line": 97,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -108978,7 +109130,7 @@
   {
     "from": "tests/api/admin-user-patch-route.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 82,
+    "line": 98,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -117096,6 +117248,38 @@
     "target": "lib/admin/boardOutcomes.ts"
   },
   {
+    "from": "tests/lib/admin-job-match-prisma-scope.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/admin-job-match-prisma-scope.spec.ts",
+    "specifier": "@/lib/admin/adminJobMatchesPrismaDeps",
+    "line": 17,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/admin/adminJobMatchesPrismaDeps.ts"
+  },
+  {
+    "from": "tests/lib/admin-job-match-prisma-scope.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 18,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/lib/admin-job-match-prisma-scope.spec.ts",
+    "specifier": "@/lib/admin/aiJobMatchCompute",
+    "line": 19,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/admin/aiJobMatchCompute.ts"
+  },
+  {
     "from": "tests/lib/admin-post-commit-notifications.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -117118,6 +117302,22 @@
     "kind": "import",
     "external": true,
     "package": "node:path"
+  },
+  {
+    "from": "tests/lib/admin-user-provisioning-tenant-race.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/admin-user-provisioning-tenant-race.spec.ts",
+    "specifier": "@/lib/admin/adminUserProvisioning",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/adminUserProvisioning.ts"
   },
   {
     "from": "tests/lib/agent-knowledge-manifest.spec.ts",
@@ -117190,6 +117390,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/ai/aiCoachContext.ts"
+  },
+  {
+    "from": "tests/lib/ai-job-match-cache-scope.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/ai-job-match-cache-scope.spec.ts",
+    "specifier": "@/lib/ai/matchStudents",
+    "line": 4,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/ai/matchStudents.ts"
+  },
+  {
+    "from": "tests/lib/ai-job-match-cache-scope.spec.ts",
+    "specifier": "@/lib/admin/aiJobMatchCompute",
+    "line": 9,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/admin/aiJobMatchCompute.ts"
   },
   {
     "from": "tests/lib/ambassador-auto-assign.spec.ts",
@@ -118192,6 +118416,30 @@
     "package": "node:path"
   },
   {
+    "from": "tests/lib/match-students-tenant-scope.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/match-students-tenant-scope.spec.ts",
+    "specifier": "@/lib/ai/matchStudents",
+    "line": 6,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/ai/matchStudents.ts"
+  },
+  {
+    "from": "tests/lib/match-students-tenant-scope.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 7,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
     "from": "tests/lib/member-program-training-view.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -118610,7 +118858,7 @@
   {
     "from": "tests/lib/notification-triggers-job.spec.ts",
     "specifier": "@/lib/admin/adminJobMatchesPrismaDeps",
-    "line": 30,
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "lib/admin/adminJobMatchesPrismaDeps.ts"
@@ -118618,7 +118866,7 @@
   {
     "from": "tests/lib/notification-triggers-job.spec.ts",
     "specifier": "@/lib/notifications/create",
-    "line": 31,
+    "line": 37,
     "kind": "import",
     "external": false,
     "target": "lib/notifications/create.ts"
@@ -118626,7 +118874,47 @@
   {
     "from": "tests/lib/notification-triggers-job.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 72,
+    "line": 42,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/lib/notification-triggers-job.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 75,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/lib/notification-triggers-job.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 93,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/lib/notification-triggers-job.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 107,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/lib/notification-triggers-job.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 121,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/lib/notification-triggers-job.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 137,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/db/prisma.ts"

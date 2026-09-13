@@ -14,6 +14,7 @@
 | [tests/api/admin-funder-program-summary.spec.ts](../../../tests/api/admin-funder-program-summary.spec.ts) | 108 | tests |  |
 | [tests/api/admin-health-debug.spec.ts](../../../tests/api/admin-health-debug.spec.ts) | 70 | tests |  |
 | [tests/api/admin-health.spec.ts](../../../tests/api/admin-health.spec.ts) | 238 | tests |  |
+| [tests/api/admin-job-matches-tenant-boundary.spec.ts](../../../tests/api/admin-job-matches-tenant-boundary.spec.ts) | 52 | tests |  |
 | [tests/api/admin-member-delete.spec.ts](../../../tests/api/admin-member-delete.spec.ts) | 183 | tests |  |
 | [tests/api/admin-member-enrollment-funding.spec.ts](../../../tests/api/admin-member-enrollment-funding.spec.ts) | 116 | tests |  |
 | [tests/api/admin-member-merge.spec.ts](../../../tests/api/admin-member-merge.spec.ts) | 247 | tests |  |
@@ -30,8 +31,10 @@
 | [tests/api/admin-placements.spec.ts](../../../tests/api/admin-placements.spec.ts) | 409 | tests |  |
 | [tests/api/admin-suggest-matches-route.spec.ts](../../../tests/api/admin-suggest-matches-route.spec.ts) | 137 | tests |  |
 | [tests/api/admin-token-links.spec.ts](../../../tests/api/admin-token-links.spec.ts) | 268 | tests |  |
+| [tests/api/admin-user-create-active-identity-race.spec.ts](../../../tests/api/admin-user-create-active-identity-race.spec.ts) | 223 | tests |  |
+| [tests/api/admin-user-create-tenant-conflict.spec.ts](../../../tests/api/admin-user-create-tenant-conflict.spec.ts) | 131 | tests |  |
 | [tests/api/admin-user-lifecycle.spec.ts](../../../tests/api/admin-user-lifecycle.spec.ts) | 280 | tests |  |
-| [tests/api/admin-user-patch-route.spec.ts](../../../tests/api/admin-user-patch-route.spec.ts) | 215 | tests |  |
+| [tests/api/admin-user-patch-route.spec.ts](../../../tests/api/admin-user-patch-route.spec.ts) | 271 | tests |  |
 | [tests/api/admin-user-reset-password.spec.ts](../../../tests/api/admin-user-reset-password.spec.ts) | 117 | tests |  |
 | [tests/api/agent-gateway-route.spec.ts](../../../tests/api/agent-gateway-route.spec.ts) | 116 | tests |  |
 | [tests/api/ai-interview.spec.ts](../../../tests/api/ai-interview.spec.ts) | 456 | tests |  |
@@ -201,9 +204,12 @@
 | [tests/fixtures/member-message-rls-baseline.json](../../../tests/fixtures/member-message-rls-baseline.json) | 204 | tests |  |
 | [tests/fixtures/xapi/statement-progressed.json](../../../tests/fixtures/xapi/statement-progressed.json) | 18 | learning-coursera |  |
 | [tests/hello.txt](../../../tests/hello.txt) | 1 | tests |  |
-| [tests/lib/admin-post-commit-notifications.spec.ts](../../../tests/lib/admin-post-commit-notifications.spec.ts) | 27 | communications |  |
+| [tests/lib/admin-job-match-prisma-scope.spec.ts](../../../tests/lib/admin-job-match-prisma-scope.spec.ts) | 65 | tests |  |
+| [tests/lib/admin-post-commit-notifications.spec.ts](../../../tests/lib/admin-post-commit-notifications.spec.ts) | 30 | communications |  |
+| [tests/lib/admin-user-provisioning-tenant-race.spec.ts](../../../tests/lib/admin-user-provisioning-tenant-race.spec.ts) | 145 | tests |  |
 | [tests/lib/agent-knowledge-manifest.spec.ts](../../../tests/lib/agent-knowledge-manifest.spec.ts) | 200 | tests |  |
 | [tests/lib/ai-coach-memory-read.spec.ts](../../../tests/lib/ai-coach-memory-read.spec.ts) | 65 | tests |  |
+| [tests/lib/ai-job-match-cache-scope.spec.ts](../../../tests/lib/ai-job-match-cache-scope.spec.ts) | 42 | tests |  |
 | [tests/lib/ambassador-auto-assign.spec.ts](../../../tests/lib/ambassador-auto-assign.spec.ts) | 144 | tests |  |
 | [tests/lib/apply-metadata-image.spec.ts](../../../tests/lib/apply-metadata-image.spec.ts) | 24 | tests |  |
 | [tests/lib/at-risk-curriculum-assignment.spec.ts](../../../tests/lib/at-risk-curriculum-assignment.spec.ts) | 89 | tests |  |
@@ -246,6 +252,7 @@
 | [tests/lib/login-redirect-contract.spec.ts](../../../tests/lib/login-redirect-contract.spec.ts) | 29 | tests |  |
 | [tests/lib/marketing-hero-image.spec.ts](../../../tests/lib/marketing-hero-image.spec.ts) | 90 | tests |  |
 | [tests/lib/marketing-mobile-touch-targets.spec.ts](../../../tests/lib/marketing-mobile-touch-targets.spec.ts) | 25 | tests |  |
+| [tests/lib/match-students-tenant-scope.spec.ts](../../../tests/lib/match-students-tenant-scope.spec.ts) | 25 | tests |  |
 | [tests/lib/member-program-training-view.spec.ts](../../../tests/lib/member-program-training-view.spec.ts) | 171 | tests |  |
 | [tests/lib/member-resources.spec.ts](../../../tests/lib/member-resources.spec.ts) | 50 | tests |  |
 | [tests/lib/member-voice-data-use-disclosures.spec.ts](../../../tests/lib/member-voice-data-use-disclosures.spec.ts) | 90 | tests |  |
@@ -258,7 +265,7 @@
 | [tests/lib/mssc-curriculum-accuracy.spec.ts](../../../tests/lib/mssc-curriculum-accuracy.spec.ts) | 207 | tests |  |
 | [tests/lib/nextBestActions.test.ts](../../../tests/lib/nextBestActions.test.ts) | 246 | tests |  |
 | [tests/lib/notification-triggers-course.spec.ts](../../../tests/lib/notification-triggers-course.spec.ts) | 411 | communications |  |
-| [tests/lib/notification-triggers-job.spec.ts](../../../tests/lib/notification-triggers-job.spec.ts) | 91 | communications |  |
+| [tests/lib/notification-triggers-job.spec.ts](../../../tests/lib/notification-triggers-job.spec.ts) | 156 | communications |  |
 | [tests/lib/notification-triggers-survey.spec.ts](../../../tests/lib/notification-triggers-survey.spec.ts) | 142 | communications |  |
 | [tests/lib/notifications/create.spec.ts](../../../tests/lib/notifications/create.spec.ts) | 219 | communications |  |
 | [tests/lib/outcomesSocialProof.test.ts](../../../tests/lib/outcomesSocialProof.test.ts) | 129 | tests |  |

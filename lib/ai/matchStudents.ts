@@ -16,7 +16,7 @@ export interface StudentMatch {
   matchReasons: string[];
 }
 
-export async function matchStudentsForJob(job: {
+export async function matchStudentsForJob(organizationId: string, job: {
   requirements: string[];
   suggestedPrograms: string[];
   preferredCertifications: string[];
@@ -25,12 +25,12 @@ export async function matchStudentsForJob(job: {
     take: WORK_QUEUE_CAP,
     orderBy: { enrolledAt: 'desc' },
     where: {
+      organizationId,
       deletedAt: null,
       enrolledProgram: { not: null },
     },
     select: {
       id: true,
-      fullName: true,
       enrolledProgram: true,
       assessmentScorePct: true,
       memberProgramProgress: {

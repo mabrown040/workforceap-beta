@@ -98,7 +98,7 @@
 | [app/api/admin/invites/\[id\]/revoke/route.ts](../../../app/api/admin/invites/%5Bid%5D/revoke/route.ts) | 69 | administration | PATCH:10 |
 | [app/api/admin/invites/route.ts](../../../app/api/admin/invites/route.ts) | 316 | administration | GET:69, POST:315 |
 | [app/api/admin/jobs/\[id\]/approve/route.ts](../../../app/api/admin/jobs/%5Bid%5D/approve/route.ts) | 111 | jobs-employers | POST:111 |
-| [app/api/admin/jobs/\[id\]/matches/route.ts](../../../app/api/admin/jobs/%5Bid%5D/matches/route.ts) | 46 | jobs-employers | GET:9 |
+| [app/api/admin/jobs/\[id\]/matches/route.ts](../../../app/api/admin/jobs/%5Bid%5D/matches/route.ts) | 72 | jobs-employers | GET:21 |
 | [app/api/admin/jobs/\[id\]/reject/route.ts](../../../app/api/admin/jobs/%5Bid%5D/reject/route.ts) | 114 | jobs-employers | POST:114 |
 | [app/api/admin/jobs/\[id\]/route.ts](../../../app/api/admin/jobs/%5Bid%5D/route.ts) | 46 | jobs-employers | GET:46 |
 | [app/api/admin/jobs/\[id\]/suggest-matches/route.ts](../../../app/api/admin/jobs/%5Bid%5D/suggest-matches/route.ts) | 246 | jobs-employers | POST:48 |
@@ -202,11 +202,11 @@
 | [app/api/admin/users/\[id\]/free-email/route.ts](../../../app/api/admin/users/%5Bid%5D/free-email/route.ts) | 95 | administration | POST:95 |
 | [app/api/admin/users/\[id\]/reset-password/route.ts](../../../app/api/admin/users/%5Bid%5D/reset-password/route.ts) | 74 | administration | POST:74 |
 | [app/api/admin/users/\[id\]/restore/route.ts](../../../app/api/admin/users/%5Bid%5D/restore/route.ts) | 182 | administration | POST:16 |
-| [app/api/admin/users/\[id\]/route.ts](../../../app/api/admin/users/%5Bid%5D/route.ts) | 254 | administration | DELETE:89, PATCH:254 |
+| [app/api/admin/users/\[id\]/route.ts](../../../app/api/admin/users/%5Bid%5D/route.ts) | 310 | administration | DELETE:89, PATCH:310 |
 | [app/api/admin/users/_deletedEmail.test.ts](../../../app/api/admin/users/_deletedEmail.test.ts) | 31 | administration |  |
 | [app/api/admin/users/_deletedEmail.ts](../../../app/api/admin/users/_deletedEmail.ts) | 21 | administration | buildDeletedEmail:6, parseDeletedEmail:11, isDeletedEmail:15, isDeletedEmailMarker:19 |
 | [app/api/admin/users/free-deleted-emails/route.ts](../../../app/api/admin/users/free-deleted-emails/route.ts) | 85 | administration | POST:85 |
-| [app/api/admin/users/route.ts](../../../app/api/admin/users/route.ts) | 196 | administration | GET:49, POST:196 |
+| [app/api/admin/users/route.ts](../../../app/api/admin/users/route.ts) | 236 | administration | GET:49, POST:236 |
 | [app/api/admin/webhook-events/export/route.ts](../../../app/api/admin/webhook-events/export/route.ts) | 91 | administration | GET:91 |
 | [app/api/admin/webhooks/process-retries/_processRetries.ts](../../../app/api/admin/webhooks/process-retries/_processRetries.ts) | 72 | administration | RetryResult:7, processRetryEvent:40 |
 | [app/api/admin/webhooks/process-retries/route.test.ts](../../../app/api/admin/webhooks/process-retries/route.test.ts) | 100 | administration |  |

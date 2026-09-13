@@ -14921,7 +14921,7 @@
     "exports": [
       {
         "name": "GET",
-        "line": 9,
+        "line": 21,
         "kind": "Variable"
       }
     ],
@@ -14943,6 +14943,16 @@
       {
         "specifier": "@/lib/db/withRequestGuc",
         "line": 7,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/tenant/organization",
+        "line": 9,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/tenant/withTenantScope",
+        "line": 10,
         "kind": "import"
       }
     ]
@@ -19452,7 +19462,7 @@
       },
       {
         "name": "PATCH",
-        "line": 254,
+        "line": 310,
         "kind": "Variable"
       }
     ],
@@ -19568,7 +19578,7 @@
       },
       {
         "name": "POST",
-        "line": 196,
+        "line": 236,
         "kind": "Variable"
       }
     ],

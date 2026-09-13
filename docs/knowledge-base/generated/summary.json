@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "3880bb687ffdd2ffee5492c56ccf874f224f36ab47c7c079b80f51b0a8b1d054",
+  "inputTreeSha256": "523c6448547c4a1c68aa5e1f1d3e7713c839da9446d0be0fac852c7784c9357e",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -10,8 +10,8 @@
   "counts": {
     "files": 4503,
     "sourceModules": 3182,
-    "importReferences": 15087,
-    "resolvedLocalReferences": 10067,
+    "importReferences": 15089,
+    "resolvedLocalReferences": 10069,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1045,
     "nextRouteFiles": 1013,
@@ -172,7 +172,7 @@
     },
     {
       "file": "lib/observability/captureApiError.ts",
-      "references": 93
+      "references": 94
     },
     {
       "file": "lib/email.ts",
@@ -199,15 +199,15 @@
       "references": 53
     },
     {
+      "file": "lib/supabase-admin.ts",
+      "references": 51
+    },
+    {
       "file": "lib/analytics/events.ts",
       "references": 50
     },
     {
       "file": "lib/events/track.ts",
-      "references": 50
-    },
-    {
-      "file": "lib/supabase-admin.ts",
       "references": 50
     },
     {
@@ -345,6 +345,10 @@
       "lines": 1282
     },
     {
+      "file": "app/api/apply/signup/route.test.ts",
+      "lines": 1258
+    },
+    {
       "file": "components/portal/SkillMissionChallenge.tsx",
       "lines": 1226
     },
@@ -375,10 +379,6 @@
     {
       "file": "scripts/p1/test-force-rls.ts",
       "lines": 1126
-    },
-    {
-      "file": "app/api/apply/signup/route.test.ts",
-      "lines": 1096
     },
     {
       "file": "components/admin/CourseraMappingsAdmin.tsx",

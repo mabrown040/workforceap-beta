@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "3880bb687ffdd2ffee5492c56ccf874f224f36ab47c7c079b80f51b0a8b1d054",
+  "inputTreeSha256": "523c6448547c4a1c68aa5e1f1d3e7713c839da9446d0be0fac852c7784c9357e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -29572,9 +29572,9 @@
       "path": "app/api/apply/signup/route.test.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 39846,
-      "lines": 1096,
-      "sha256": "be32dae730ddeeecd640df3f0975849925c06ac407d1aa002ae80db909b61d0c",
+      "bytes": 45637,
+      "lines": 1258,
+      "sha256": "040ed3ee12755f7dfb167b04968473dcfcd1b80779b20672a1f16554dcb6a490",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -29595,22 +29595,22 @@
         },
         {
           "name": "supabaseGetUser",
-          "line": 259,
+          "line": 280,
           "kind": "Variable"
         },
         {
           "name": "supabaseSignUp",
-          "line": 260,
+          "line": 281,
           "kind": "Variable"
         },
         {
           "name": "makeRequest",
-          "line": 286,
+          "line": 312,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resetState",
-          "line": 311,
+          "line": 337,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -29620,36 +29620,51 @@
       "path": "app/api/apply/signup/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 42683,
-      "lines": 958,
-      "sha256": "1d8971a7ba02190a276865c00d0680fce7c2d90e8091171b2e300ec8fd04fdf4",
+      "bytes": 44961,
+      "lines": 1021,
+      "sha256": "290c1cc8ef86ce6475c40329b495f2e40a0cfd3e2dbb7fb73e60051d1326c64c",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 132,
+          "line": 179,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "seatCapNote",
-          "line": 63,
+          "line": 64,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getClientIp",
-          "line": 67,
+          "line": 68,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "accountRecoveryRequiredResponse",
+          "line": 76,
+          "kind": "Variable"
+        },
+        {
+          "name": "isAppEmailCollision",
+          "line": 85,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "compensateFreshApplySignupAuthIdentity",
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "applySignupSchema",
-          "line": 75,
+          "line": 122,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 132,
+          "line": 179,
           "kind": "Variable"
         }
       ],

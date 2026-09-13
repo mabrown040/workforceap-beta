@@ -813,10 +813,10 @@
 | [lib/stripe/customer.ts](../../../lib/stripe/customer.ts) | 24 | partners-funding | getStripeCustomer:3 |
 | [lib/stripe/pricing.ts](../../../lib/stripe/pricing.ts) | 11 | partners-funding | getStripePriceId:9 |
 | [lib/stripe/stripeSubscriptionSnapshot.ts](../../../lib/stripe/stripeSubscriptionSnapshot.ts) | 21 | partners-funding | stripeObjectId:4, canonicalSubscriptionSnapshot:9 |
-| [lib/stripe/subscriptionPersistence.test.ts](../../../lib/stripe/subscriptionPersistence.test.ts) | 165 | partners-funding |  |
+| [lib/stripe/subscriptionPersistence.test.ts](../../../lib/stripe/subscriptionPersistence.test.ts) | 208 | partners-funding |  |
 | [lib/stripe/subscriptionPersistence.ts](../../../lib/stripe/subscriptionPersistence.ts) | 198 | partners-funding | SubscriptionOwner:11, reconcileOrganizationSubscription:79, reconcileEmployerSubscription:134 |
-| [lib/stripe/subscriptionState.test.ts](../../../lib/stripe/subscriptionState.test.ts) | 183 | partners-funding |  |
-| [lib/stripe/subscriptionState.ts](../../../lib/stripe/subscriptionState.ts) | 132 | partners-funding | SubscriptionIntentKind:1, SubscriptionState:9, SubscriptionIntent:18, CanonicalSubscription:27, SubscriptionAuthority:37, SubscriptionReconciliationStore:41, SubscriptionOwnershipUnresolvedError:51, SubscriptionPersistenceContendedError:58, reconcileSubscriptionState:71 |
+| [lib/stripe/subscriptionState.test.ts](../../../lib/stripe/subscriptionState.test.ts) | 202 | partners-funding |  |
+| [lib/stripe/subscriptionState.ts](../../../lib/stripe/subscriptionState.ts) | 129 | partners-funding | SubscriptionIntentKind:1, SubscriptionState:9, SubscriptionIntent:18, CanonicalSubscription:27, SubscriptionAuthority:37, SubscriptionReconciliationStore:41, SubscriptionOwnershipUnresolvedError:51, SubscriptionPersistenceContendedError:58, reconcileSubscriptionState:71 |
 | [lib/supabase-admin.ts](../../../lib/supabase-admin.ts) | 19 | libraries | getSupabaseAdmin:9 |
 | [lib/supabase/browser.ts](../../../lib/supabase/browser.ts) | 10 | identity-tenancy | createSupabaseBrowserClient:3 |
 | [lib/supabase/env.ts](../../../lib/supabase/env.ts) | 13 | identity-tenancy | getSupabaseEnv:6 |

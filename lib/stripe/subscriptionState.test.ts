@@ -181,3 +181,22 @@ test('authorized different binding replacement may adopt canonical tier after te
     { subscriptionId: 'sub-new', status: 'active', tier: 'growth', revision: 4 },
   );
 });
+
+
+test('checkout-only canonical canceled derives basic at every accepted intermediate state', async () => {
+  for (const initial of [
+    { ...empty, subscriptionId: 'sub-1', status: 'active', tier: 'growth' },
+    { ...empty, subscriptionId: null, status: null, tier: null },
+    { ...empty, subscriptionId: 'sub-1', status: 'canceled', tier: 'growth' },
+  ]) {
+    const s = stateful(initial);
+    await apply(s, intent({
+      kind: 'checkout', eventId: `evt-${initial.status ?? 'null'}`,
+      replacesSubscriptionId: initial.subscriptionId, tier: 'growth',
+    }), 'canceled', 'sub-1', 'growth');
+    assert.deepEqual(
+      { status: s.state().status, tier: s.state().tier, revision: s.state().revision },
+      { status: 'canceled', tier: 'basic', revision: 1 },
+    );
+  }
+});

@@ -163,3 +163,46 @@ test('accepted organization CAS preserves terminal tier against stale same-bindi
     stripeSubscriptionEventAt: 100, stripeSubscriptionEventId: 'evt-checkout', stripeSubscriptionRevision: 5,
   });
 });
+
+test('checkout-only canonical canceled employer CAS persists basic terminal tier and mirror from active state', async () => {
+  let row = {
+    stripeSubscriptionId: 'sub-1',
+    stripeSubscriptionStatus: 'active',
+    tier: 'growth',
+    stripeSubscriptionEventAt: 99,
+    stripeSubscriptionEventId: 'evt-active',
+    stripeSubscriptionRevision: 6,
+  };
+  const mirror: Array<{ status: string; tier: string }> = [];
+  const tx: any = {
+    employer: {
+      findUniqueOrThrow: async () => ({ ...row }),
+      updateMany: async ({ where, data }: any) => {
+        assert.equal(where.stripeSubscriptionId, 'sub-1');
+        assert.equal(where.stripeSubscriptionRevision, 6);
+        row = {
+          stripeSubscriptionId: data.stripeSubscriptionId,
+          stripeSubscriptionStatus: data.stripeSubscriptionStatus,
+          tier: data.tier,
+          stripeSubscriptionEventAt: data.stripeSubscriptionEventAt,
+          stripeSubscriptionEventId: data.stripeSubscriptionEventId,
+          stripeSubscriptionRevision: 7,
+        };
+        return { count: 1 };
+      },
+    },
+    $transaction: async (fn: (inner: any) => Promise<unknown>) => fn(tx),
+  };
+  const { reconcileEmployerSubscription } = await import('./subscriptionPersistence');
+  await reconcileEmployerSubscription(tx, { employerId: 'emp-1' }, {
+    subscriptionId: 'sub-1', eventCreated: 100, eventId: 'evt-checkout-only',
+    kind: 'checkout', replacesSubscriptionId: 'sub-1', tier: 'growth',
+  }, async () => ({ id: 'sub-1', customerId: 'cus-1', status: 'canceled', tier: 'growth' }), async (_inner, next) => {
+    mirror.push({ status: next.status!, tier: next.tier! });
+  });
+  assert.deepEqual(row, {
+    stripeSubscriptionId: 'sub-1', stripeSubscriptionStatus: 'canceled', tier: 'basic',
+    stripeSubscriptionEventAt: 100, stripeSubscriptionEventId: 'evt-checkout-only', stripeSubscriptionRevision: 7,
+  });
+  assert.deepEqual(mirror, [{ status: 'canceled', tier: 'basic' }]);
+});

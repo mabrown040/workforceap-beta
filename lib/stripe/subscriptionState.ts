@@ -116,15 +116,12 @@ export async function reconcileSubscriptionState(
       eventCreated: intent.eventCreated,
       eventId: intent.eventId,
       revision: current.revision + 1,
-      // Once this exact binding is terminal, its entitlement is terminal too.
-      // A late checkout/invoice snapshot must not smuggle its paid tier through
-      // while status remains canceled. Only a separately authorized replacement
-      // reaches this branch with a different binding.
-      tier: intent.kind === 'subscription_deleted'
+      // Canceled is terminal entitlement for every accepted binding state:
+      // active, NULL/new, or legacy canceled/growth. Intent/canonical paid tier
+      // is never persisted unless an authorized different binding is active.
+      tier: status === 'canceled'
         ? 'basic'
-        : sameBinding && current.status === 'canceled'
-          ? current.tier ?? 'basic'
-          : canonical.tier ?? intent.tier ?? current.tier,
+        : canonical.tier ?? intent.tier ?? current.tier,
     };
     if (await store.commit(current, next)) return 'applied';
   }

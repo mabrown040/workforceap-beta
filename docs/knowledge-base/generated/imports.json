@@ -103488,6 +103488,14 @@
     "target": "lib/stripe/subscriptionPersistence.ts"
   },
   {
+    "from": "lib/stripe/subscriptionPersistence.test.ts",
+    "specifier": "./subscriptionPersistence",
+    "line": 196,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/stripe/subscriptionPersistence.ts"
+  },
+  {
     "from": "lib/stripe/subscriptionPersistence.ts",
     "specifier": "@prisma/client",
     "line": 1,

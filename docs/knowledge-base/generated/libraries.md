@@ -12,7 +12,7 @@
 | [lib/admin-job-ready-query-structure.test.ts](../../../lib/admin-job-ready-query-structure.test.ts) | 34 | libraries |  |
 | [lib/admin-programs-structure.test.ts](../../../lib/admin-programs-structure.test.ts) | 18 | libraries |  |
 | [lib/admin/adminJobMatchesPrismaDeps.ts](../../../lib/admin/adminJobMatchesPrismaDeps.ts) | 128 | administration | createAdminJobMatchesPrismaDeps:49 |
-| [lib/admin/adminUserProvisioning.ts](../../../lib/admin/adminUserProvisioning.ts) | 119 | administration | ADMIN_USER_ROLES:5, AdminUserRole:6, ensureAppUser:8, ensureProfileRole:63, syncManagedUserRoles:94 |
+| [lib/admin/adminUserProvisioning.ts](../../../lib/admin/adminUserProvisioning.ts) | 125 | administration | ADMIN_USER_ROLES:5, AdminUserRole:6, ensureAppUser:8, ensureProfileRole:69, syncManagedUserRoles:100 |
 | [lib/admin/aiJobMatchCompute.ts](../../../lib/admin/aiJobMatchCompute.ts) | 54 | administration | JobMatchInput:3, AI_JOB_MATCH_EMPTY_COOLDOWN_MS:11, getOrComputeAiJobMatches:16, markAiJobMatchEmptyCooldown:48, clearAiJobMatchEmptyCooldown:52 |
 | [lib/admin/analytics.ts](../../../lib/admin/analytics.ts) | 258 | administration | MemberStatusCounts:14, EnrollmentTrend:21, ProgramProgress:27, PlacementRate:33, CounselorLoad:39, AnalyticsOverview:44, getAnalyticsOverview:61 |
 | [lib/admin/analyticsOverview.ts](../../../lib/admin/analyticsOverview.ts) | 298 | administration | AnalyticsFunnel:15, AnalyticsEngagement:22, AnalyticsOutcomes:30, AnalyticsFundingRow:38, AnalyticsProgramRow:44, AnalyticsAcquisitionStep:50, AnalyticsAcquisition:59, AnalyticsOverview:65, loadAnalyticsOverview:89 |

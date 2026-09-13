@@ -5,7 +5,7 @@ function txWithUser(existing: { id: string; organizationId: string; email: strin
   return {
     user: {
       findFirst: vi.fn().mockResolvedValue(existing),
-      update: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       create: vi.fn(),
     },
     profile: { findFirst: vi.fn(), update: vi.fn(), create: vi.fn() },
@@ -14,7 +14,63 @@ function txWithUser(existing: { id: string; organizationId: string; email: strin
   };
 }
 
+function transactionStore(existing: {
+  id: string;
+  organizationId: string;
+  email: string;
+  fullName: string;
+  deletedAt: Date | null;
+}, afterInitialRead?: (user: typeof existing) => void) {
+  const store = { user: { ...existing } };
+  const tx = {
+    user: {
+      findFirst: vi.fn(async () => {
+        const snapshot = { ...store.user };
+        afterInitialRead?.(store.user);
+        return snapshot;
+      }),
+      updateMany: vi.fn(async ({ where, data }: {
+        where: { id: string; organizationId: string; email: string; deletedAt: null };
+        data: { fullName: string };
+      }) => {
+        if (
+          store.user.id !== where.id ||
+          store.user.organizationId !== where.organizationId ||
+          store.user.email !== where.email ||
+          store.user.deletedAt !== where.deletedAt
+        ) return { count: 0 };
+        store.user.fullName = data.fullName;
+        return { count: 1 };
+      }),
+      create: vi.fn(),
+    },
+  };
+  return { store, tx };
+}
+
 describe('ensureAppUser tenant race boundary', () => {
+  it('rejects an already-retired same-tenant identity without restoring it', async () => {
+    const retiredAt = new Date('2026-09-01T00:00:00Z');
+    const { store, tx } = transactionStore({
+      id: 'auth-retired',
+      organizationId: 'org-a',
+      email: 'retired@example.test',
+      fullName: 'Retired User',
+      deletedAt: retiredAt,
+    });
+
+    await expect(ensureAppUser(tx as never, {
+      authUserId: 'auth-retired',
+      organizationId: 'org-a',
+      email: 'retired@example.test',
+      fullName: 'Implicit Restore',
+    })).rejects.toThrow('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
+
+    expect(tx.user.updateMany).not.toHaveBeenCalled();
+    expect(store.user.deletedAt).toEqual(retiredAt);
+    expect(store.user.fullName).toBe('Retired User');
+  });
+
   it('refuses a reused Auth id owned by another tenant before any mutation', async () => {
     const tx = txWithUser({ id: 'auth-shared', organizationId: 'org-b', email: 'taken@example.test', deletedAt: null });
 
@@ -22,23 +78,72 @@ describe('ensureAppUser tenant race boundary', () => {
       authUserId: 'auth-shared', organizationId: 'org-a', email: 'taken@example.test', fullName: 'Loser Request',
     })).rejects.toThrow('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
 
-    expect(tx.user.update).not.toHaveBeenCalled();
+    expect(tx.user.updateMany).not.toHaveBeenCalled();
     expect(tx.user.create).not.toHaveBeenCalled();
     expect(tx.profile.findFirst).not.toHaveBeenCalled();
     expect(tx.userRole.upsert).not.toHaveBeenCalled();
   });
 
-  it('does not rewrite organization or email when the same tenant resumes its identity', async () => {
+  it('updates an active same-tenant identity using every expected identity field', async () => {
     const tx = txWithUser({ id: 'auth-own', organizationId: 'org-a', email: 'own@example.test', deletedAt: null });
-    tx.user.update.mockResolvedValue({ id: 'auth-own', fullName: 'Own User', email: 'own@example.test' });
 
-    await ensureAppUser(tx as never, {
+    const result = await ensureAppUser(tx as never, {
       authUserId: 'auth-own', organizationId: 'org-a', email: 'OWN@example.test', fullName: 'Own User',
     });
 
-    expect(tx.user.update).toHaveBeenCalledWith(expect.objectContaining({
-      where: { id: 'auth-own' },
-      data: { fullName: 'Own User', deletedAt: null },
-    }));
+    expect(tx.user.updateMany).toHaveBeenCalledWith({
+      where: { id: 'auth-own', organizationId: 'org-a', email: 'own@example.test', deletedAt: null },
+      data: { fullName: 'Own User' },
+    });
+    expect(result).toEqual({ id: 'auth-own', fullName: 'Own User', email: 'own@example.test' });
+  });
+
+  it('creates a new identity with its normalized email', async () => {
+    const tx = txWithUser(null);
+    tx.user.create.mockResolvedValue({
+      id: 'auth-new', fullName: 'New User', email: 'new@example.test',
+    });
+
+    const result = await ensureAppUser(tx as never, {
+      authUserId: 'auth-new', organizationId: 'org-a', email: 'NEW@example.test', fullName: 'New User',
+    });
+
+    expect(tx.user.create).toHaveBeenCalledWith({
+      data: {
+        id: 'auth-new', organizationId: 'org-a', email: 'new@example.test', fullName: 'New User',
+      },
+      select: { id: true, fullName: true, email: true },
+    });
+    expect(result).toEqual({ id: 'auth-new', fullName: 'New User', email: 'new@example.test' });
+  });
+
+  it.each([
+    ['soft-deletion', (user: { deletedAt: Date | null }) => { user.deletedAt = new Date('2026-09-02T00:00:00Z'); }],
+    ['organization takeover', (user: { organizationId: string }) => { user.organizationId = 'org-b'; }],
+    ['email takeover', (user: { email: string }) => { user.email = 'winner@example.test'; }],
+  ])('rejects %s between read and write and stops every downstream effect', async (_label, mutate) => {
+    const { store, tx } = transactionStore({
+      id: 'auth-own', organizationId: 'org-a', email: 'own@example.test', fullName: 'Original', deletedAt: null,
+    }, mutate);
+    const downstream = {
+      profile: vi.fn(), role: vi.fn(), reset: vi.fn(), audit: vi.fn(),
+    };
+
+    await expect((async () => {
+      await ensureAppUser(tx as never, {
+        authUserId: 'auth-own', organizationId: 'org-a', email: 'own@example.test', fullName: 'Loser',
+      });
+      downstream.profile();
+      downstream.role();
+      downstream.reset();
+      downstream.audit();
+    })()).rejects.toThrow('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
+
+    expect(tx.user.updateMany).toHaveBeenCalledTimes(1);
+    expect(store.user.fullName).toBe('Original');
+    expect(downstream.profile).not.toHaveBeenCalled();
+    expect(downstream.role).not.toHaveBeenCalled();
+    expect(downstream.reset).not.toHaveBeenCalled();
+    expect(downstream.audit).not.toHaveBeenCalled();
   });
 });

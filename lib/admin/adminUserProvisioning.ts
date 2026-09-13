@@ -26,18 +26,24 @@ export async function ensureAppUser(
     // guard runs before every User/Profile/UserRole mutation.
     if (
       byId.organizationId !== data.organizationId ||
-      byId.email.toLowerCase() !== normalizedEmail
+      byId.email.toLowerCase() !== normalizedEmail ||
+      byId.deletedAt !== null
     ) {
       throw new Error('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
     }
-    return tx.user.update({
-      where: { id: data.authUserId },
-      data: {
-        fullName: data.fullName,
+    const updated = await tx.user.updateMany({
+      where: {
+        id: data.authUserId,
+        organizationId: data.organizationId,
+        email: normalizedEmail,
         deletedAt: null,
       },
-      select: { id: true, fullName: true, email: true },
+      data: { fullName: data.fullName },
     });
+    if (updated.count !== 1) {
+      throw new Error('ADMIN_USER_AUTH_IDENTITY_CONFLICT');
+    }
+    return { id: byId.id, fullName: data.fullName, email: byId.email };
   }
 
   const byEmail = await tx.user.findFirst({

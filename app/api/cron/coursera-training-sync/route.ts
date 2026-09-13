@@ -5,6 +5,9 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { replayPendingXapiStatements } from '@/lib/coursera/replayPendingXapi';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { createBulkEmailCronPacer, withBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 
 /**
  * GET /api/cron/coursera-training-sync
@@ -15,7 +18,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  */
 async function handle(_request: Request) {
   try {
-    const xapi = await replayPendingXapiStatements(200);
+    const pacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
+    const xapi = await withBulkEmailCronPacer(pacer, () => replayPendingXapiStatements(200));
     const runResult = { xapi };
     await setCronRecordsProcessed(xapi.replayed ?? 0);
     await logCronRun('cron_coursera_training_sync', runResult, 'ok');

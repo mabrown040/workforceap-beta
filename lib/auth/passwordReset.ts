@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { reenableAuthUserAfterRestore } from '@/lib/admin/authUserLifecycle';
 import { prisma } from '@/lib/db/prisma';
 import { getResend } from '@/lib/email';
-import { sendBrandedEmail } from '@/lib/email/send';
+import { sendBrandedEmailOrThrowOnSkip as sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { logger } from '@/lib/observability/logger';
 

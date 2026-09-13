@@ -156,6 +156,24 @@ describe('inactivity email acceptance', () => {
     expect(response.status).toBe(503);
   });
 
+  it('reports fixture suppression as skipped without cooldown, notification, failure, or 503', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: 'fixture', email: 'fixture@example.com', fullName: 'Fixture' },
+    ] as never);
+    vi.mocked(sendInactiveNudgeEmail).mockResolvedValue({
+      ok: false,
+      skipped: true,
+      error: 'fixture_recipient',
+    });
+
+    const response = await inactivityGet(new Request('http://localhost/api/cron/inactivity-nudge') as never);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ok: true, sent: 0, skipped: 1, failed: 0, total: 1 });
+    expect(prisma.memberNudgeLog.create).not.toHaveBeenCalled();
+    expect(createNotification).not.toHaveBeenCalled();
+    expect(setCronRecordsProcessed).toHaveBeenCalledWith(0);
+  });
+
   it('retains accepted sends while reporting a partial provider failure', async () => {
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'accepted', email: 'accepted@example.com', fullName: 'Accepted' },

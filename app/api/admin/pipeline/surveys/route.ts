@@ -21,14 +21,14 @@ export const GET = withApiGuc(async (req: NextRequest) => {
     const orgScope = orgId ? { user: { organizationId: orgId } } : {};
 
     const [totalSent, totalCompleted, atRiskRows] = await Promise.all([
-      prisma.placementSurvey.count({ where: { ...orgScope } }),
-      prisma.placementSurvey.count({ where: { ...orgScope, completedAt: { not: undefined } } }),
+      prisma.placementSurvey.count({ where: { ...orgScope, sentAt: { not: null } } }),
+      prisma.placementSurvey.count({ where: { ...orgScope, sentAt: { not: null }, completedAt: { not: null } } }),
       prisma.placementSurvey.findMany({
         where: {
           ...orgScope,
           wave: 'thirty_day',
           completedAt: { not: null },
-          sentAt: { not: undefined, lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+          sentAt: { not: null, lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         },
         orderBy: { sentAt: 'asc' },
         take: 100,

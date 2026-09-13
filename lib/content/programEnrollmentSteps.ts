@@ -127,14 +127,14 @@ const STEPS_BY_SLUG: Record<string, ProgramEnrollmentStep[]> = {
       id: 'staff_assign',
       title: 'Start your first module right away',
       description:
-        'No Coursera provisioning is needed. Your training page lists ten short DigitalLearn.org modules — open a module, watch its lessons (English or Spanish), and mark it complete. Each DigitalLearn course also offers a printable certificate.',
+        'No Coursera provisioning is needed. Your training page lists ten short WorkforceAP modules with attributed DigitalLearn.org course links or clearly labeled course-material fallbacks. DigitalLearn pages can be opened without an account and provide an English/Español control. Return to WorkforceAP to record each completion.',
     },
     DEFAULT_STEPS[2],
     {
       id: 'exam',
       title: 'Completion and next steps',
       description:
-        'Mark each module complete as you finish it. Afterwards your team will help you decide whether to move into a professional certificate track.',
+        'Mark each module complete in WorkforceAP as you finish it. Your local progress, points, and counselor-visible completion stay in WorkforceAP; DigitalLearn activity and certificates are not synced. Afterwards your team will help you decide whether to move into a professional certificate track.',
     },
     DEFAULT_STEPS[4],
   ],

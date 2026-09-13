@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
@@ -106,7 +106,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return msg;
   });
 
-  void notifyDiscord({
+  after(() => notifyDiscord({
     title: `Member → employer message`,
     body: parsed.data.body.trim().slice(0, 500),
     category: 'application_message',
@@ -114,7 +114,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
       { name: 'applicationId', value: applicationId },
       { name: 'authorId', value: user.id },
     ],
-  });
+  }));
 
   return NextResponse.json({
     message: {

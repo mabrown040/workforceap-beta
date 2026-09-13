@@ -78,7 +78,7 @@ export function createAdminJobMatchesPrismaDeps(
         });
 
         for (const m of newMatches) {
-          void createNotification({
+          await createNotification({
             userId: m.studentId,
             type: 'job_match',
             title: 'New job match',

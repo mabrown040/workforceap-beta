@@ -5,14 +5,29 @@
  * Called by the /api/cron/placement-survey route.
  */
 
+import { randomUUID } from 'node:crypto';
+
 import { prisma } from '@/lib/db/prisma';
 import { CRON_SCOPED_LOOKUP_CAP } from '@/lib/db/scanCaps';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
-import { sendPlacementSurveyEmail, sendPlacementSurveyEscalationEmail } from '@/lib/email';
+import {
+  preparePlacementSurveyEmail,
+  sendPreparedPlacementSurveyEmail,
+  sendPlacementSurveyEscalationEmail,
+} from '@/lib/email';
 import { createNotification } from '@/lib/notifications/create';
 import type { PlacementSurveyWave } from '@prisma/client';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+import {
+  readPlacementSurveyDeliveryPayload,
+  type PlacementSurveyDeliveryPayload,
+} from '@/lib/placement-survey/deliveryPayload';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const SURVEY_TOKEN_TTL_MS = 60 * 24 * 60 * 60 * 1000;
+// The row must exist before provider acceptance so its id can be signed into
+// the survey URL. A null sentAt is the explicit pre-acceptance state.
+const UNSENT_SURVEY_AT = null;
 
 const WAVES: { wave: PlacementSurveyWave; days: number; windowHours: number }[] = [
   { wave: 'thirty_day', days: 30, windowHours: 24 },
@@ -65,7 +80,11 @@ function inWindow(target: Date, windowHours: number): { gte: Date; lte: Date } {
 /**
  * Send surveys for placements that hit their 30/60/90-day mark today.
  */
-export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
+type PlacementEmailPacer = ReturnType<typeof createBulkEmailCronPacer>;
+
+export async function sendDuePlacementSurveys(
+  emailPacer: PlacementEmailPacer = createBulkEmailCronPacer({ maxDurationSeconds: 300 }),
+): Promise<SurveySendResult[]> {
   const results: SurveySendResult[] = [];
 
   for (const { wave, days, windowHours } of WAVES) {
@@ -76,9 +95,15 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
 
     const placements = await prisma.placementRecord.findMany({
       where: {
-        placedAt: { gte, lte },
-        // Placement must exist; we send one survey per wave per placement
-        placementSurveys: { none: { wave } },
+        OR: [
+          {
+            placedAt: { gte, lte },
+            placementSurveys: { none: { wave, sentAt: { not: null } } },
+          },
+          // Retry a prior pre-acceptance row even after its original due-date
+          // window has passed.
+          { placementSurveys: { some: { wave, sentAt: UNSENT_SURVEY_AT } } },
+        ],
       },
       include: {
         user: {
@@ -104,19 +129,28 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
         placementId: { in: placements.map((p) => p.id) },
         wave,
       },
-      select: { placementId: true },
+      select: {
+        id: true,
+        placementId: true,
+        sentAt: true,
+        tokenExpiresAt: true,
+        deliveryAttempt: true,
+        acceptedAttempt: true,
+        deliveryPayload: true,
+      },
     });
-    const existingPlacementIds = new Set(existingSurveys.map((s) => s.placementId));
+    const existingByPlacementId = new Map(
+      existingSurveys.map((survey) => [survey.placementId, survey]),
+    );
 
     for (const placement of placements) {
       const user = placement.user;
-      if (!user?.email) {
-        skipped.push({ userId: placement.userId, reason: 'No email on user' });
-        continue;
-      }
 
-      // Idempotency check (in-memory)
-      if (existingPlacementIds.has(placement.id)) {
+      // Resolve persisted state before consulting mutable profile fields. A
+      // pre-acceptance row owns the complete provider request for its attempt,
+      // including the recipient; retries must not depend on current contact data.
+      const existingSurvey = existingByPlacementId.get(placement.id);
+      if (existingSurvey?.sentAt) {
         skipped.push({ userId: placement.userId, reason: `Survey already exists for ${wave}` });
         continue;
       }
@@ -133,73 +167,134 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
       // PlacementRecord in the same wave window (or a concurrent run) therefore
       // passed the check yet hit a P2002 on insert and crashed the cron. Treat
       // that collision as "already surveyed for this wave" and skip instead.
-      let survey: { id: string };
-      try {
-        survey = await prisma.placementSurvey.create({
-          data: {
-            userId: placement.userId,
-            placementId: placement.id,
-            wave,
-            sentAt: new Date(),
-          },
-          select: { id: true },
-        });
-      } catch (createErr) {
-        const isUniqueViolation =
-          typeof createErr === 'object' &&
-          createErr !== null &&
-          'code' in createErr &&
-          (createErr as { code?: unknown }).code === 'P2002';
-        if (isUniqueViolation) {
-          skipped.push({
-            userId: placement.userId,
-            reason: `Survey already exists for ${wave} (userId+wave)`,
-          });
+      let survey: {
+        id: string;
+        tokenExpiresAt: Date;
+        deliveryAttempt: number;
+        acceptedAttempt: number;
+        deliveryPayload: unknown;
+      };
+      const createdThisRun = !existingSurvey;
+      if (existingSurvey) {
+        survey = existingSurvey;
+      } else {
+        if (!user?.email) {
+          skipped.push({ userId: placement.userId, reason: 'No email on user' });
           continue;
         }
-        throw createErr;
+        const surveyId = randomUUID();
+        const tokenExpiresAt = new Date(now.getTime() + SURVEY_TOKEN_TTL_MS);
+        const token = await issuePlacementSurveyToken({
+          surveyId,
+          expiresAt: tokenExpiresAt,
+        });
+        const deliveryPayload = preparePlacementSurveyEmail({
+          to: user.email,
+          fullName: user.fullName ?? '',
+          programName: user.enrolledProgram,
+          surveyUrl: `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`,
+          wave,
+          idempotencyKey: `placement-survey/${surveyId}/1`,
+        });
+        try {
+          const created = await prisma.placementSurvey.create({
+            data: {
+              id: surveyId,
+              userId: placement.userId,
+              placementId: placement.id,
+              wave,
+              sentAt: UNSENT_SURVEY_AT,
+              tokenExpiresAt,
+              deliveryAttempt: 1,
+              acceptedAttempt: 0,
+              deliveryPayload,
+            },
+            select: {
+              id: true,
+              tokenExpiresAt: true,
+              deliveryAttempt: true,
+              acceptedAttempt: true,
+              deliveryPayload: true,
+            },
+          });
+          // Use the exact in-memory payload that was atomically persisted;
+          // never reconstruct it from a later user/profile read.
+          survey = { ...created, deliveryPayload };
+        } catch (createErr) {
+          const isUniqueViolation =
+            typeof createErr === 'object' &&
+            createErr !== null &&
+            'code' in createErr &&
+            (createErr as { code?: unknown }).code === 'P2002';
+          if (isUniqueViolation) {
+            skipped.push({
+              userId: placement.userId,
+              reason: `Survey already exists for ${wave} (userId+wave)`,
+            });
+            continue;
+          }
+          throw createErr;
+        }
       }
 
-      const token = await issuePlacementSurveyToken({ surveyId: survey.id });
-      const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
+      const deliveryPayload = readPlacementSurveyDeliveryPayload(survey.deliveryPayload);
+      if (!deliveryPayload) {
+        emailFailures.push({
+          userId: placement.userId,
+          error: 'Retryable survey is missing its frozen provider payload; no provider request was made.',
+        });
+        continue;
+      }
 
-      const result = await sendPlacementSurveyEmail({
-        to: user.email,
-        fullName: user.fullName ?? '',
-        programName: user.enrolledProgram,
-        surveyUrl,
-        wave,
-      });
+      const result = await emailPacer.run(() => sendPreparedPlacementSurveyEmail(deliveryPayload));
+
+      if (!result.ok && 'skipped' in result && result.skipped) {
+        skipped.push({ userId: placement.userId, reason: result.error ?? 'Skipped before provider send' });
+        // A row created for a send that was never admitted can be removed.
+        // Preserve a reused row because it may represent an earlier ambiguous
+        // provider attempt that still needs the same key and payload.
+        if (createdThisRun) {
+          try {
+            await prisma.placementSurvey.delete({ where: { id: survey.id } });
+          } catch (deleteErr) {
+            emailFailures.push({
+              userId: placement.userId,
+              error: `Email skipped (${result.error ?? 'unknown'}) and unsent-row rollback failed (${
+                deleteErr instanceof Error ? deleteErr.message : 'unknown'
+              }); row remains unsent and retryable.`,
+            });
+          }
+        }
+        continue;
+      }
 
       if (result.ok) {
+        await prisma.placementSurvey.update({
+          where: { id: survey.id },
+          data: {
+            sentAt: new Date(),
+            acceptedAttempt: survey.deliveryAttempt,
+          },
+        });
         // Fire the in-app notification only after the email succeeds so
-        // a failed-email run doesn't leave an orphan "survey ready"
-        // notification pointing at a row we're about to delete.
-        void createNotification({
+        // a failed-email run doesn't leave an orphan "survey ready" notice.
+        await createNotification({
           userId: placement.userId,
           type: 'survey_due',
           title: 'Placement survey ready',
           body: `Your ${wave.replace('_', '-day ')} placement survey is ready. It only takes 2 minutes.`,
           data: { surveyId: survey.id, wave },
         });
-        sent.push({ userId: placement.userId, email: user.email, surveyId: survey.id });
+        sent.push({ userId: placement.userId, email: deliveryPayload.to, surveyId: survey.id });
       } else {
-        // Rollback so the user gets re-picked on the next cron run.
-        // Best-effort: if the delete itself fails (e.g. transient DB
-        // hiccup), the row leaks and the user will be skipped — surface
-        // both errors in the result.
-        try {
-          await prisma.placementSurvey.delete({ where: { id: survey.id } });
-        } catch (deleteErr) {
-          emailFailures.push({
-            userId: placement.userId,
-            error: `Email failed (${result.error ?? 'unknown'}) and rollback delete also failed (${
-              deleteErr instanceof Error ? deleteErr.message : 'unknown'
-            }); row leaked and user will be skipped on the next run.`,
-          });
-          continue;
-        }
-        emailFailures.push({ userId: placement.userId, error: result.error ?? 'Unknown send error' });
+        // A provider error can be ambiguous (the request may have been
+        // accepted before the response was lost). Keep the row and its stable
+        // provider idempotency key so the next run can reconcile without a
+        // duplicate message.
+        emailFailures.push({
+          userId: placement.userId,
+          error: `${result.error ?? 'Unknown send error'}; row remains unsent and retryable with the same idempotency key.`,
+        });
       }
     }
 
@@ -213,7 +308,9 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
  * Escalate 30/60/90/180-day surveys with no response after 7 days.
  * Alerts the assigned counselor (or admin fallback).
  */
-export async function escalateStalePlacementSurveys(): Promise<EscalationResult> {
+export async function escalateStalePlacementSurveys(
+  emailPacer: PlacementEmailPacer = createBulkEmailCronPacer({ maxDurationSeconds: 300 }),
+): Promise<EscalationResult> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -221,7 +318,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
     where: {
       wave: { in: ESCALATABLE_WAVES },
       completedAt: null,
-      sentAt: { lte: sevenDaysAgo },
+      sentAt: { not: null, lte: sevenDaysAgo },
       escalatedAt: null,
     },
     include: {
@@ -273,7 +370,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
     const token = await issuePlacementSurveyToken({ surveyId: survey.id, ttlSeconds: 14 * 24 * 60 * 60 });
     const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
 
-    const result = await sendPlacementSurveyEscalationEmail({
+    const result = await emailPacer.run(() => sendPlacementSurveyEscalationEmail({
       to: counselorEmail,
       counselorName: counselor.user.fullName ?? 'Counselor',
       memberName: user.fullName ?? 'Member',
@@ -285,7 +382,12 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
         : null,
       surveyUrl,
       wave: survey.wave,
-    });
+    }));
+
+    if (!result.ok && 'skipped' in result && result.skipped) {
+      skipped.push({ userId: user.id, reason: result.error ?? 'Skipped before provider send' });
+      continue;
+    }
 
     if (result.ok) {
       alerted.push({ userId: user.id, counselorEmail });
@@ -299,7 +401,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
       // createNotification never throws (see lib/notifications/create.ts).
       const counselorUserId = counselor.user.id;
       if (counselorUserId) {
-        void createNotification({
+        await createNotification({
           userId: counselorUserId,
           type: 'task_assigned',
           title: 'Placement survey follow-up needed',
@@ -327,7 +429,8 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
  * Full daily run: send due surveys + escalate stale ones.
  */
 export async function runDailyPlacementSurveyCron(): Promise<DailySurveyRunResult> {
-  const waves = await sendDuePlacementSurveys();
-  const escalations = await escalateStalePlacementSurveys();
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: 300 });
+  const waves = await sendDuePlacementSurveys(emailPacer);
+  const escalations = await escalateStalePlacementSurveys(emailPacer);
   return { success: true, waves, escalations };
 }

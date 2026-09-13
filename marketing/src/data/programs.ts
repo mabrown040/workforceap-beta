@@ -41,10 +41,26 @@ export interface ProgramCourse {
   description?: string;
   kind?: 'coursera' | 'workforceap';
   courseraSlug?: string;
-  /** In-platform module content (Digital Literacy): linked video lessons. */
-  lessons?: ReadonlyArray<{ title: string; minutes: number; url: string }>;
+  /** In-platform module content (Digital Literacy): attributed provider destinations. */
+  lessons?: ReadonlyArray<{
+    title: string;
+    minutes: number;
+    url: string;
+    destinationKind?: 'verified-course' | 'course-materials-fallback' | 'course-details-with-materials-fallback';
+    verificationLabel?: string;
+    fallbackUrl?: string;
+    fallbackLabel?: string;
+  }>;
   topics?: readonly string[];
-  provider?: { name: string; url: string };
+  provider?: {
+    name: string;
+    url: string;
+    verifiedOn?: string;
+    accessNote?: string;
+    languageNote?: string;
+    attribution?: string;
+    license?: { name: string; url: string; termsUrl?: string };
+  };
 }
 
 export interface ProgramExtra {
@@ -133,7 +149,7 @@ const BASE_PROGRAMS: Program[] = [
       bestFor: 'Members who are new to computers and the internet — no tech background required. If you already use email and browse the web daily, a program like IT Support or Cybersecurity may be a stronger fit.',
       jobOutcomes: ['Office Support Specialist', 'Customer Service Representative', 'Administrative Assistant'],
       difficulty: 1,
-      rampNote: 'No tech background required. Ten short online modules (about 4 hours of lessons), self-paced, in English or Spanish. Start here if technology feels unfamiliar.',
+      rampNote: 'No tech background required. Ten short online modules (about 4 hours of linked learning), self-paced, with an English/Español control. Start here if technology feels unfamiliar.',
     },
   },
   {

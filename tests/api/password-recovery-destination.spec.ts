@@ -18,7 +18,10 @@ vi.mock('@/lib/tenant/organizationBranding', () => ({
 }));
 vi.mock('@/lib/supabase-admin', () => ({ getSupabaseAdmin: () => ({ auth: { admin: { generateLink: providers.generateLink } } }) }));
 vi.mock('@/lib/email', () => ({ getResend: () => providers.resend }));
-vi.mock('@/lib/email/send', () => ({ sendBrandedEmail: providers.sendEmail }));
+vi.mock('@/lib/email/send', () => ({
+  sendBrandedEmail: providers.sendEmail,
+  sendBrandedEmailOrThrowOnSkip: providers.sendEmail,
+}));
 vi.mock('@/lib/email/template', () => ({ brandedEmailLayout: providers.template }));
 vi.mock('@/lib/observability/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 vi.mock('@supabase/supabase-js', () => ({ createClient: providers.createClient }));

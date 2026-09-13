@@ -22,6 +22,7 @@ export const GET = withApiGuc(async (req: Request) => {
     try {
       const where = {
         ...(orgId ? { user: { organizationId: orgId } } : {}),
+        sentAt: { not: null },
         ...(status === 'completed' ? { completedAt: { not: null } } : {}),
         ...(status === 'pending' ? { completedAt: null } : {}),
       };
@@ -54,8 +55,8 @@ export const GET = withApiGuc(async (req: Request) => {
         avgTrainingRelevanceAgg,
         avgSupportQualityAgg,
       ] = await Promise.all([
-        prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null } } }),
-        prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: null } }),
+        prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), sentAt: { not: null }, completedAt: { not: null } } }),
+        prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), sentAt: { not: null }, completedAt: null } }),
         prisma.placementSurvey.count({
           where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null }, allowTestimonial: true },
         }),

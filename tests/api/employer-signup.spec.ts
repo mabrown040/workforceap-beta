@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 
+const discord = vi.hoisted(() => ({
+  notify: vi.fn<(input: unknown) => Promise<void>>(async () => undefined),
+}));
+vi.mock('@/lib/notify/discord', () => ({ notifyDiscord: discord.notify }));
+
 // ─── Mocks ───
 
 vi.mock('next/server', () => {
@@ -192,7 +197,7 @@ import {
 } from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { prisma } from '@/lib/db/prisma';
-import { NextRequest } from 'next/server';
+import { after, NextRequest } from 'next/server';
 
 const UUIDS = {
   user: '550e8400-e29b-41d4-a716-446655440001',
@@ -290,6 +295,10 @@ describe('POST /api/employer/signup', () => {
     vi.mocked(sendEmployerWelcomeEmail).mockResolvedValue({ ok: true });
     vi.mocked(sendEmployerSignupAdminAlertEmail).mockResolvedValue({ ok: true });
     vi.mocked(sendEmployerVerificationEmail).mockResolvedValue({ ok: true });
+    discord.notify.mockResolvedValue(undefined);
+    vi.mocked(after).mockImplementation(((task: unknown) => {
+      if (typeof task === 'function') void task();
+    }) as typeof after);
   });
 
   it('creates an unconfirmed employer account without signing the user in', async () => {
@@ -352,6 +361,29 @@ describe('POST /api/employer/signup', () => {
         contactEmail: 'jane@acme.com',
       })
     );
+  });
+
+  it('registers Discord work with after and keeps its callback pending until Discord settles', async () => {
+    mockSupabaseAdmin();
+    const callbacks: Array<() => unknown> = [];
+    vi.mocked(after).mockImplementation(((task: unknown) => {
+      if (typeof task === 'function') callbacks.push(task as () => unknown);
+    }) as typeof after);
+    let settle!: () => void;
+    discord.notify.mockImplementationOnce(() => new Promise<void>((resolve) => { settle = resolve; }));
+
+    const res = await employerSignupPost(makeSignupRequest(validPayload));
+    expect(res.status).toBe(200);
+    expect(callbacks).toHaveLength(3);
+    expect(discord.notify).not.toHaveBeenCalled();
+
+    let completed = false;
+    const retained = Promise.resolve(callbacks[2]()).then(() => { completed = true; });
+    await vi.waitFor(() => expect(discord.notify).toHaveBeenCalledOnce());
+    expect(completed).toBe(false);
+    settle();
+    await retained;
+    expect(completed).toBe(true);
   });
 
   it('still succeeds but flags it when the verification link cannot be generated', async () => {

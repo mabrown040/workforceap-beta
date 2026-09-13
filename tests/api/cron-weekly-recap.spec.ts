@@ -17,6 +17,9 @@ vi.mock('@/lib/db/prisma', () => ({
     user: {
       findMany: vi.fn(),
     },
+    weeklyRecap: {
+      update: vi.fn(),
+    },
   },
 }));
 

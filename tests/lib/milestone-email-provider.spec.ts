@@ -17,11 +17,11 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe('milestone provider idempotency boundary', () => {
-  const message = { to: 'synthetic@example.invalid', subject: 'Synthetic milestone', bodyText: 'Synthetic body', idempotencyKey: 'milestone/synthetic/0/stable' };
+  const message = { to: 'member@workforceap.org', subject: 'Synthetic milestone', bodyText: 'Synthetic body', idempotencyKey: 'milestone/synthetic/0/stable' };
   it('threads the exact stable key to Resend and returns its acceptance receipt', async () => {
     const result = await sendMilestoneCascadeEmail(message);
     expect(result).toEqual({ ok: true, messageId: 'synthetic-receipt' });
-    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ to: message.to, subject: message.subject }), { idempotencyKey: message.idempotencyKey });
+    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ to: 'member@workforceap.org', subject: message.subject }), { idempotencyKey: message.idempotencyKey });
   });
   it('does not report accepted when Resend returns no receipt', async () => {
     mocks.send.mockResolvedValue({ data: null, error: null });
@@ -33,7 +33,7 @@ describe('milestone provider idempotency boundary', () => {
   });
   it('preserves the existing one-argument SDK call for unkeyed mail', async () => {
     const resend = { emails: { send: mocks.send } } as unknown as import('resend').Resend;
-    await sendBrandedEmail(resend, { from: 'test@example.invalid', to: message.to, subject: message.subject, html: '<p>Synthetic</p>' });
+    await sendBrandedEmail(resend, { from: 'test@workforceap.org', to: 'member@workforceap.org', subject: message.subject, html: '<p>Synthetic</p>' });
     expect(mocks.send.mock.calls[0]).toHaveLength(1);
   });
 });

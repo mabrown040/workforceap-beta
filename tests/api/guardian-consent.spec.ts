@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, describe, it, expect, vi, beforeEach } from 'vitest';
+import { courseraApprovalBlockedByConsent } from '@/lib/admin/courseraConsentGate';
 
 vi.mock('next/server', () => ({
   NextResponse: {
@@ -13,10 +14,6 @@ vi.mock('next/server', () => ({
 vi.mock('@/lib/db/withRequestGuc', () => ({
   withApiGuc: (handler: any) => handler,
 }));
-vi.mock('@/lib/tokenizedLink', () => ({
-  validateTokenizedLink: vi.fn(),
-  consumeTokenizedLink: vi.fn(),
-}));
 vi.mock('@/lib/rate-limit', () => ({
   checkPublicQuestionnaireSubmitRateLimit: vi.fn(),
 }));
@@ -25,14 +22,122 @@ vi.mock('@/lib/audit/log', () => ({
   auditRequestMeta: vi.fn(() => ({})),
   logAuditEvent: vi.fn(async () => undefined),
 }));
+
+const db = vi.hoisted(() => {
+  type Link = {
+    id: string;
+    token: string;
+    type: 'guardian_consent' | 'interview_prep';
+    subjectUserId: string | null;
+    orgId: string | null;
+    expiresAt: Date;
+    consumedAt: Date | null;
+  };
+  type Profile = {
+    userId: string;
+    isMinor: boolean;
+    parentalConsentGiven: boolean;
+    parentGuardianName: string;
+    parentGuardianEmail: string;
+    parentGuardianPhone: string | null;
+    parentalConsentDate: Date;
+  };
+
+  const state = {
+    links: new Map<string, Link>(),
+    profiles: new Map<string, Profile>(),
+    failNextProfileWrite: false,
+    profileWriteEffects: 0,
+    rawClaimStatements: [] as Array<{ strings: readonly string[]; values: readonly unknown[] }>,
+  };
+
+  // Serialize synthetic transactions and restore both tables on failure. This
+  // models the database guarantee the route must rely on without using real
+  // minor, auth, provider, or production records.
+  let queue = Promise.resolve();
+  const transaction = vi.fn(async (fn: (tx: any) => Promise<unknown>) => {
+    const run = queue.then(async () => {
+      const linksBefore = new Map([...state.links].map(([key, value]) => [key, { ...value }]));
+      const profilesBefore = new Map([...state.profiles].map(([key, value]) => [key, { ...value }]));
+      const effectsBefore = state.profileWriteEffects;
+      const tx = {
+        $queryRaw: vi.fn(async (statement: { strings: readonly string[]; values: readonly unknown[] }) => {
+          const sql = statement.strings.join('?');
+          const link = [...state.links.values()].find((candidate) => statement.values.includes(candidate.token));
+          if (sql.includes('SELECT consumed_at') && sql.includes('FOR UPDATE')) {
+            return link ? [{ consumedAt: link.consumedAt }] : [];
+          }
+          if (sql.includes('UPDATE tokenized_link')) {
+            state.rawClaimStatements.push(statement);
+            const claimedAt = new Date();
+            const eligible = link
+              && link.type === 'guardian_consent'
+              && link.subjectUserId !== null
+              && statement.values.includes(link.id)
+              && statement.values.includes(link.subjectUserId)
+              && link.consumedAt === null
+              && link.expiresAt.getTime() >= claimedAt.getTime();
+            if (!eligible) return [];
+            link.consumedAt = claimedAt;
+            return [{ claimedAt }];
+          }
+          if (sql.includes('expires_at < clock_timestamp()')) {
+            return link ? [{
+              consumedAt: link.consumedAt,
+              expired: link.expiresAt.getTime() < Date.now(),
+            }] : [];
+          }
+          return [];
+        }),
+        tokenizedLink: {
+          findUnique: vi.fn(async ({ where: { token } }: any) => state.links.get(token) ?? null),
+          updateMany: vi.fn(async ({ where, data }: any) => {
+            const link = [...state.links.values()].find((candidate) => candidate.id === where.id);
+            const eligible = link
+              && link.type === where.type
+              && link.consumedAt === null
+              && link.expiresAt.getTime() >= where.expiresAt.gte.getTime();
+            if (!eligible) return { count: 0 };
+            link.consumedAt = data.consumedAt;
+            return { count: 1 };
+          }),
+        },
+        profile: {
+          upsert: vi.fn(async ({ where, create, update }: any) => {
+            if (state.failNextProfileWrite) {
+              state.failNextProfileWrite = false;
+              throw new Error('synthetic profile write failure');
+            }
+            state.profileWriteEffects += 1;
+            state.profiles.set(where.userId, state.profiles.has(where.userId) ? update : create);
+            return state.profiles.get(where.userId);
+          }),
+        },
+      };
+      try {
+        return await fn(tx);
+      } catch (error) {
+        state.links = linksBefore;
+        state.profiles = profilesBefore;
+        state.profileWriteEffects = effectsBefore;
+        throw error;
+      }
+    });
+    queue = run.then(() => undefined, () => undefined);
+    return run;
+  });
+
+  return { state, transaction };
+});
+
 vi.mock('@/lib/db/prisma', () => ({
-  prisma: { profile: { upsert: vi.fn() } },
+  prisma: { $transaction: db.transaction },
 }));
 
 import { POST } from '@/app/api/consent/[token]/route';
-import { validateTokenizedLink, consumeTokenizedLink } from '@/lib/tokenizedLink';
 import { checkPublicQuestionnaireSubmitRateLimit } from '@/lib/rate-limit';
-import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const postReq = (token: string, body: unknown) =>
   new Request(`http://localhost:3000/api/consent/${token}`, {
@@ -42,76 +147,149 @@ const postReq = (token: string, body: unknown) =>
   });
 
 const validBody = {
-  guardianName: 'Alex Guardian',
-  guardianEmail: 'alex@example.com',
-  guardianPhone: '5125550100',
+  guardianName: 'Synthetic Guardian',
+  guardianEmail: 'guardian@example.test',
+  guardianPhone: '5550100',
   attested: true as const,
 };
 
+const submit = (token: string, body: unknown = validBody) =>
+  POST(postReq(token, body) as any, { params: Promise.resolve({ token }) });
+
+function addLink(overrides: Partial<{
+  id: string;
+  token: string;
+  type: 'guardian_consent' | 'interview_prep';
+  subjectUserId: string | null;
+  orgId: string | null;
+  expiresAt: Date;
+  consumedAt: Date | null;
+}> = {}) {
+  const link = {
+    id: 'link-1',
+    token: 't'.repeat(32),
+    type: 'guardian_consent' as const,
+    subjectUserId: 'synthetic-minor-1',
+    orgId: 'synthetic-org-1',
+    expiresAt: new Date(Date.now() + 60_000),
+    consumedAt: null,
+    ...overrides,
+  };
+  db.state.links.set(link.token, link);
+  return link;
+}
+
 describe('POST /api/consent/[token]', () => {
   beforeEach(() => {
+    vi.stubEnv('VERCEL_ENV', 'production');
+    vi.stubEnv('PRISMA_FLATTEN_TX', '0');
     vi.clearAllMocks();
+    db.state.links.clear();
+    db.state.profiles.clear();
+    db.state.failNextProfileWrite = false;
+    db.state.profileWriteEffects = 0;
+    db.state.rawClaimStatements = [];
     vi.mocked(checkPublicQuestionnaireSubmitRateLimit).mockResolvedValue({ success: true });
-    vi.mocked(consumeTokenizedLink).mockResolvedValue(true);
-    vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
   });
 
-  it('returns 410 for an invalid token and never writes', async () => {
-    vi.mocked(validateTokenizedLink).mockResolvedValue({ ok: false, reason: 'not_found' });
-    const res = await POST(postReq('x'.repeat(32), validBody) as any, {
-      params: Promise.resolve({ token: 'x'.repeat(32) }),
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each([
+    ['preview', 'preview', '0'],
+    ['development', 'development', '0'],
+    ['explicit flatten override', 'production', '1'],
+  ])('fails closed before database work when transactions are flattened in %s', async (_name, vercelEnv, flatten) => {
+    vi.stubEnv('VERCEL_ENV', vercelEnv);
+    vi.stubEnv('PRISMA_FLATTEN_TX', flatten);
+    const link = addLink();
+    const request = postReq(link.token, validBody);
+    const parseBody = vi.spyOn(request, 'json');
+
+    const response = await POST(request as any, { params: Promise.resolve({ token: link.token }) });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'Guardian consent is temporarily unavailable. Please try again later.',
     });
-    expect(res.status).toBe(410);
-    expect(prisma.profile.upsert).not.toHaveBeenCalled();
+    expect(parseBody).not.toHaveBeenCalled();
+    expect(db.transaction).not.toHaveBeenCalled();
+    expect(db.state.profileWriteEffects).toBe(0);
+    expect(db.state.links.get(link.token)?.consumedAt).toBeNull();
+    expect(auditLog).not.toHaveBeenCalled();
+    expect(logAuditEvent).not.toHaveBeenCalled();
   });
 
-  it('consumes the token then records guardian consent on the bound member', async () => {
-    vi.mocked(validateTokenizedLink).mockResolvedValue({
-      ok: true,
-      link: {
-        id: 'link-1',
-        type: 'guardian_consent',
-        email: 'alex@example.com',
-        subjectUserId: 'member-1',
-        orgId: 'org-1',
-      },
-    });
-
-    const res = await POST(postReq('tok-consent-1', validBody) as any, {
-      params: Promise.resolve({ token: 'tok-consent-1' }),
-    });
-    expect(res.status).toBe(200);
-    expect(consumeTokenizedLink).toHaveBeenCalledWith('link-1');
-    expect(prisma.profile.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { userId: 'member-1' },
-        create: expect.objectContaining({
-          userId: 'member-1',
-          isMinor: true,
-          parentalConsentGiven: true,
-          parentGuardianName: 'Alex Guardian',
-          parentGuardianEmail: 'alex@example.com',
-        }),
-      }),
-    );
+  it.each([
+    ['invalid', {}, 410, 'This link is no longer valid.'],
+    ['expired', { expiresAt: new Date(Date.now() - 60_000) }, 410, 'This link has expired.'],
+    ['already used', { consumedAt: new Date() }, 410, 'This link has already been used.'],
+    ['wrong type', { type: 'interview_prep' as const }, 410, 'This link is no longer valid.'],
+  ])('returns the truthful terminal response for %s tokens without profile effects', async (_name, overrides, status, message) => {
+    const token = _name === 'invalid' ? 'x'.repeat(32) : addLink(overrides).token;
+    const response = await submit(token);
+    expect(response.status).toBe(status);
+    expect(await response.json()).toEqual({ error: message });
+    expect(db.state.profileWriteEffects).toBe(0);
   });
 
-  it('rejects a submit that is not attested', async () => {
-    vi.mocked(validateTokenizedLink).mockResolvedValue({
-      ok: true,
-      link: {
-        id: 'link-1',
-        type: 'guardian_consent',
-        email: null,
-        subjectUserId: 'member-1',
-        orgId: 'org-1',
-      },
-    });
-    const res = await POST(
-      postReq('tok-consent-1', { ...validBody, attested: false }) as any,
-      { params: Promise.resolve({ token: 'tok-consent-1' }) },
-    );
-    expect(res.status).toBe(400);
-    expect(consumeTokenizedLink).not.toHaveBeenCalled();
+  it('claims with a parameterized database wall clock instead of a captured JavaScript timestamp', async () => {
+    const link = addLink();
+    await submit(link.token);
+
+    expect(db.state.rawClaimStatements).toHaveLength(1);
+    const [claim] = db.state.rawClaimStatements;
+    const sql = claim.strings.join('?');
+    expect(sql).toContain('UPDATE tokenized_link');
+    expect(sql).toContain('expires_at >= clock_timestamp()');
+    expect(sql).toContain('consumed_at = clock_timestamp()');
+    expect(sql).toContain('subject_user_id =');
+    expect(sql).not.toContain(link.token);
+    expect(claim.values).toContain(link.token);
+    expect(claim.values).toContain(link.subjectUserId);
+  });
+
+  it('rolls back token consumption on a forced profile-write failure so the same link can retry', async () => {
+    const link = addLink();
+    db.state.failNextProfileWrite = true;
+
+    const failed = await submit(link.token);
+    expect(failed.status).toBe(500);
+    expect(db.state.links.get(link.token)?.consumedAt).toBeNull();
+    expect(db.state.profiles.has('synthetic-minor-1')).toBe(false);
+
+    const retried = await submit(link.token);
+    expect(retried.status).toBe(200);
+    expect(await retried.json()).toEqual({ ok: true });
+    expect(db.state.links.get(link.token)?.consumedAt).toBeInstanceOf(Date);
+    expect(db.state.profiles.get('synthetic-minor-1')).toEqual(expect.objectContaining({
+      parentalConsentGiven: true,
+      parentGuardianName: 'Synthetic Guardian',
+    }));
+  });
+
+  it('allows exactly one concurrent submission and emits no duplicate downstream effects', async () => {
+    const link = addLink();
+    const responses = await Promise.all([submit(link.token), submit(link.token)]);
+    expect(responses.map((response) => response.status).sort()).toEqual([200, 410]);
+    expect(db.state.profileWriteEffects).toBe(1);
+    expect(auditLog).toHaveBeenCalledTimes(1);
+    expect(logAuditEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('persists consent that opens the existing downstream training-activation gate', async () => {
+    const link = addLink();
+    expect(courseraApprovalBlockedByConsent({ isMinor: true, parentalConsentGiven: false })).toBe(true);
+
+    const response = await submit(link.token);
+    expect(response.status).toBe(200);
+    const profile = db.state.profiles.get('synthetic-minor-1');
+    expect(profile).toBeDefined();
+    expect(courseraApprovalBlockedByConsent(profile)).toBe(false);
+  });
+
+  it('rejects a submit that is not attested before starting a transaction', async () => {
+    const link = addLink();
+    const response = await submit(link.token, { ...validBody, attested: false });
+    expect(response.status).toBe(400);
+    expect(db.transaction).not.toHaveBeenCalled();
   });
 });

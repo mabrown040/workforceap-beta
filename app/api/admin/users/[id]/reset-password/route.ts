@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { hasSuperAdminAccess } from '@/lib/auth/roleAccess';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
@@ -29,11 +30,24 @@ async function _POST(
     const user = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
         where: { id },
-        select: { email: true },
+        select: {
+          email: true,
+          profile: { select: { role: true } },
+          userRoles: { select: { role: { select: { name: true } } } },
+        },
       }),
     );
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  
+    if (
+      hasSuperAdminAccess(
+        user.profile?.role ?? 'member',
+        user.userRoles.map((entry) => entry.role.name),
+      ) &&
+      !(await isSuperAdmin(admin.id))
+    ) {
+      return NextResponse.json({ error: 'Super admin required.' }, { status: 403 });
+    }
+
     try {
       const { error } = await sendPasswordResetEmail(user.email, '/reset-password', { orgId });
       if (error) throw error;

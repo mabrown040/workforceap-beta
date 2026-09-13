@@ -1,14 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { getGucContext, inTransactionStorage } from './gucContext';
 import type { GucContext } from './gucContext';
+import { assertPrismaTransactionPolicySafe } from './transactionPolicy';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 /** Preview/demo pooler (6543 txn-mode) hangs Prisma interactive $transaction — flatten to plain queries. Never prod. */
-const FLATTEN_TX =
-  process.env.PRISMA_FLATTEN_TX === '1' ||
-  process.env.VERCEL_ENV === 'preview' ||
-  process.env.VERCEL_ENV === 'development';
+const TRANSACTION_POLICY = assertPrismaTransactionPolicySafe();
+const FLATTEN_TX = TRANSACTION_POLICY.mode === 'flattened';
 
 function escapeSqlString(value: string): string {
   return value.replace(/'/g, "''");

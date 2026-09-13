@@ -20,7 +20,16 @@ vi.mock('@/lib/admin/authUserLifecycle', () => ({
   reenableAuthUserAfterRestore: mocks.reenable,
 }));
 vi.mock('@/lib/email', () => ({ getResend: mocks.getResend }));
-vi.mock('@/lib/email/send', () => ({ sendBrandedEmail: mocks.sendBrandedEmail }));
+// `lib/auth/passwordReset.ts` imports `sendBrandedEmailOrThrowOnSkip` (aliased
+// to `sendBrandedEmail`) since WAP-14 made a skipped recipient throw rather
+// than return quietly. Both export names resolve to the same spy so this mock
+// keeps intercepting whichever the module imports — otherwise the import is
+// undefined, the call throws, and the route silently falls back to the
+// Supabase path, which is what made these tests report `via: 'supabase'`.
+vi.mock('@/lib/email/send', () => ({
+  sendBrandedEmail: mocks.sendBrandedEmail,
+  sendBrandedEmailOrThrowOnSkip: mocks.sendBrandedEmail,
+}));
 vi.mock('@/lib/email/template', () => ({ brandedEmailLayout: () => '<html/>' }));
 vi.mock('@/lib/tenant/organizationBranding', () => ({
   getOrganizationBranding: vi.fn(async () => ({

@@ -247,6 +247,7 @@
 | [lib/coach/memory.ts](../../../lib/coach/memory.ts) | 165 | libraries | CoachTurn:12, takeLastCoachExchanges:29, formatCoachTranscript:34, deriveCoachMemoryFallback:44, appendCoachMemoryToSystemPrompt:62, loadCoachMemory:71, getCoachMemoryDynamicVariables:79, updateCoachMemory:111 |
 | [lib/coach/memorySafety.test.ts](../../../lib/coach/memorySafety.test.ts) | 78 | libraries |  |
 | [lib/coach/memorySafety.ts](../../../lib/coach/memorySafety.ts) | 94 | libraries | CoachMemoryFields:1, MAX_COACH_MEMORY_SUMMARY_CHARS:7, sanitizeCoachMemoryText:48, sanitizeCoachMemoryFields:58, getSafeCoachMemoryTopic:76, minimizeCoachMemoryTurns:87 |
+| [lib/consent/guardianConsentPersistence.ts](../../../lib/consent/guardianConsentPersistence.ts) | 121 | learning-coursera | GuardianConsentInput:6, GuardianConsentOutcome:14, persistGuardianConsent:18 |
 | [lib/consent/state.ts](../../../lib/consent/state.ts) | 104 | learning-coursera | COOKIE_CONSENT_KEY:14, CONSENT_EVENT:15, ConsentDecision:17, ConsentRecord:19, detectGpc:30, readConsent:36, writeConsent:62, subscribeConsent:73, pushConsentToGtag:87 |
 | [lib/content/benefitsCliff.test.ts](../../../lib/content/benefitsCliff.test.ts) | 182 | public-experience |  |
 | [lib/content/benefitsCliff.ts](../../../lib/content/benefitsCliff.ts) | 390 | public-experience | CliffSource:16, BENEFITS_CLIFF_RULES_VERSION:25, FPL_SOURCE:31, monthlyFpl:43, SNAP_SOURCE:52, SNAP_RULES:61, MEDICAID_ADULT_SOURCE:88, MEDICAID_CHILD_SOURCE:97, MEDICAID_RULES:106, TANF_SOURCE:123, TANF_RULES:132, ALL_CLIFF_SOURCES:145, CliffProgramId:157, CliffInput:159, CliffProgramResult:178, CliffVerdict:192, CliffResult:194, ABOUT_THE_SAME_BAND:211, clampHouseholdSize:215, monthlyEarnings:228, estimateSnapMonthly:249, isAdultMedicaidEligible:272, isChildCoverageEligible:277, estimateTanfMonthly:282, computeCliff:293 |
@@ -431,12 +432,14 @@
 | [lib/db/optionalBuildDb.ts](../../../lib/db/optionalBuildDb.ts) | 16 | libraries | shouldSkipOptionalDbQueriesAtBuild:6 |
 | [lib/db/prisma.no-per-query-guc.test.ts](../../../lib/db/prisma.no-per-query-guc.test.ts) | 28 | libraries |  |
 | [lib/db/prisma.test.ts](../../../lib/db/prisma.test.ts) | 84 | libraries |  |
-| [lib/db/prisma.ts](../../../lib/db/prisma.ts) | 245 | libraries | requiresExplicitTransactionForGucContext:21, buildGucSql:25, prisma:243 |
+| [lib/db/prisma.ts](../../../lib/db/prisma.ts) | 244 | libraries | requiresExplicitTransactionForGucContext:20, buildGucSql:24, prisma:242 |
 | [lib/db/prismaEnumFallback.ts](../../../lib/db/prismaEnumFallback.ts) | 31 | libraries | isMissingPrismaEnumValue:12 |
 | [lib/db/queryCaps.test.ts](../../../lib/db/queryCaps.test.ts) | 108 | libraries |  |
 | [lib/db/queryCaps.ts](../../../lib/db/queryCaps.ts) | 47 | libraries | ADMIN_SSR_LIST_CAP:9, EMPLOYER_LIST_CAP:12, COUNSELOR_ROSTER_CAP:15, MEMBER_HISTORY_CAP:18, LOOKUP_LIST_CAP:21, WIOA_DEMOGRAPHICS_CAP:24, ANALYTICS_SAMPLE_CAP:27, UNBOUNDED_LIST_TAKE_FLOOR:30, clampTake:32, isListTruncated:37, showingFirstLabel:42 |
 | [lib/db/scanCaps.test.ts](../../../lib/db/scanCaps.test.ts) | 105 | libraries |  |
 | [lib/db/scanCaps.ts](../../../lib/db/scanCaps.ts) | 62 | libraries | ANALYTICS_SAMPLE_CAP:14, ANALYTICS_COHORT_DETAIL_CAP:17, REPORT_SAMPLE_CAP:20, WORK_QUEUE_CAP:23, LOOKUP_CATALOG_CAP:26, MEMBER_PROGRESS_CAP:29, COURSERA_B4B_REPORT_CAP:36, COURSERA_B4B_USER_LOOKUP_CAP:39, ONET_SYNC_OCCUPATION_CAP:46, CRON_SCOPED_LOOKUP_CAP:49, UNBOUNDED_SCAN_TAKE_FLOOR:52, clampScanTake:54, sqlCount:59 |
+| [lib/db/transactionPolicy.test.ts](../../../lib/db/transactionPolicy.test.ts) | 52 | libraries |  |
+| [lib/db/transactionPolicy.ts](../../../lib/db/transactionPolicy.ts) | 42 | libraries | PrismaTransactionPolicy:1, resolvePrismaTransactionPolicy:9, interactiveTransactionsGuaranteed:24, assertPrismaTransactionPolicySafe:30 |
 | [lib/db/withDbRetry.test.ts](../../../lib/db/withDbRetry.test.ts) | 126 | libraries |  |
 | [lib/db/withDbRetry.ts](../../../lib/db/withDbRetry.ts) | 142 | libraries | isRetryableDbError:76, isConnectionAcquisitionError:89, DbRetryOptions:99, withDbRetry:120 |
 | [lib/db/withRequestGuc.test.ts](../../../lib/db/withRequestGuc.test.ts) | 66 | libraries |  |

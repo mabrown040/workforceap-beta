@@ -2667,11 +2667,11 @@
         },
         {
           "file": "lib/db/prisma.ts",
-          "line": 78
+          "line": 77
         },
         {
           "file": "lib/db/prisma.ts",
-          "line": 172
+          "line": 171
         },
         {
           "file": "lib/experiments/shared.ts",
@@ -3235,10 +3235,6 @@
       "publicPrefix": false,
       "declaredInRootExample": false,
       "references": [
-        {
-          "file": "lib/db/prisma.ts",
-          "line": 9
-        },
         {
           "file": "lib/member/labWorkspace.ts",
           "line": 25
@@ -4133,14 +4129,6 @@
           "line": 15
         },
         {
-          "file": "lib/db/prisma.ts",
-          "line": 10
-        },
-        {
-          "file": "lib/db/prisma.ts",
-          "line": 11
-        },
-        {
           "file": "lib/member/labWorkspace.ts",
           "line": 25
         },
@@ -4445,7 +4433,7 @@
       "references": [
         {
           "file": "lib/db/prisma.ts",
-          "line": 106
+          "line": 105
         }
       ]
     },

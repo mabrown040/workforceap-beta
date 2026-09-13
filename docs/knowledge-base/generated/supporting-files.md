@@ -49,6 +49,7 @@
 | [artifacts/stage-2-5-cursor-prompt.md](../../../artifacts/stage-2-5-cursor-prompt.md) | 57 | supporting-files |  |
 | [artifacts/state-by-state-compliance-research.md](../../../artifacts/state-by-state-compliance-research.md) | 2140 | supporting-files |  |
 | [artifacts/tmp_cert_salary_avg.py](../../../artifacts/tmp_cert_salary_avg.py) | 34 | supporting-files |  |
+| [artifacts/wap-42/postgres-proof.json](../../../artifacts/wap-42/postgres-proof.json) | 46 | supporting-files |  |
 | [artifacts/workforceap-artifact-pack-2026-03-22.zip](../../../artifacts/workforceap-artifact-pack-2026-03-22.zip) | binary | supporting-files |  |
 | [artifacts/workforceap-call-backlog-2026-03-21.md](../../../artifacts/workforceap-call-backlog-2026-03-21.md) | 376 | supporting-files |  |
 | [artifacts/workforceap-call-office-hours-review-2026-03-21.md](../../../artifacts/workforceap-call-office-hours-review-2026-03-21.md) | 200 | supporting-files |  |

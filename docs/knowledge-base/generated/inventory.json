@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "337618689fa47a8a78dca11f7a345f54aeeaaa41bff5bb9ad7bfc4d134038808",
+  "inputTreeSha256": "4fa7f4f1b2e441153490866741f49878f9d7c9075cd4b747d74f964ddd27e58d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -30026,31 +30026,31 @@
       "path": "app/api/consent/[token]/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4246,
-      "lines": 121,
-      "sha256": "9b315e675e016a4fa9c70c805d0d879272bf26b678d2ffba72c871fa9a7d140a",
+      "bytes": 4094,
+      "lines": 116,
+      "sha256": "8fae9004af68eeb7be34f5bfd8975322d752c771f32880b53150937580f18493",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "submitSchema",
-          "line": 17,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "getClientIp",
-          "line": 24,
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         }
       ],
@@ -46415,6 +46415,15 @@
       "bytes": 894,
       "lines": 34,
       "sha256": "07eff09cb376eea0bc672bbf75ec855759d761656359dc060e0601372b4f754e",
+      "binary": false
+    },
+    {
+      "path": "artifacts/wap-42/postgres-proof.json",
+      "area": "supporting-files",
+      "domain": "supporting-files",
+      "bytes": 992,
+      "lines": 46,
+      "sha256": "32ee444c99e1d82fe23c08ddb4088f3a39f76721a6b20e2067b2105ecfd50915",
       "binary": false
     },
     {
@@ -76917,9 +76926,9 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 6963,
+      "bytes": 7077,
       "lines": 62,
-      "sha256": "bb167a18f703636f79675aab027d0a5afe1ecb8ac2e9946e9ffab2f6b3b4acd5",
+      "sha256": "42ab99e1a9f2e3f7b1c79d0aa42ac783cb3bd1dbb854960394b7685c965a5732",
       "binary": false
     },
     {
@@ -76962,9 +76971,9 @@
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8887,
+      "bytes": 9372,
       "lines": 52,
-      "sha256": "2aa27fe02cfa86621a404d8b53a9f023b7135f747ae83c84dddd621d37863b95",
+      "sha256": "5063351c06a070c3bd2b7ce689543025ca1a34b9eb8a78441c8eda189cde25bf",
       "binary": false
     },
     {
@@ -96076,6 +96085,55 @@
       "directive": null
     },
     {
+      "path": "lib/consent/guardianConsentPersistence.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 3949,
+      "lines": 121,
+      "sha256": "73133eb0490011a1af81516ebb684abbee32a011b31391b65428a25ea65d6767",
+      "binary": false,
+      "exports": [
+        {
+          "name": "GuardianConsentInput",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentOutcome",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "persistGuardianConsent",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "TransactionRoot",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentInput",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GuardianConsentOutcome",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "persistGuardianConsent",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/consent/state.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -107109,71 +107167,76 @@
       "path": "lib/db/prisma.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 11067,
-      "lines": 245,
-      "sha256": "bfb0c444813826254dbd0a34797c673c8fc04ae25e162ce96b4605c63450aa77",
+      "bytes": 11116,
+      "lines": 244,
+      "sha256": "50abfd262e760c49d511eeeb405df72faa70f6b105922b52b0a76a5a07557e48",
       "binary": false,
       "exports": [
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 21,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 25,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "globalForPrisma",
-          "line": 5,
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "TRANSACTION_POLICY",
+          "line": 9,
           "kind": "Variable"
         },
         {
           "name": "FLATTEN_TX",
-          "line": 8,
+          "line": 10,
           "kind": "Variable"
         },
         {
           "name": "escapeSqlString",
-          "line": 13,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isGucSetupQuery",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "requiresExplicitTransactionForGucContext",
-          "line": 21,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGucSql",
-          "line": 25,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "installFlattenTxOverride",
-          "line": 58,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createPrismaClient",
-          "line": 76,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prisma",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
@@ -107532,6 +107595,78 @@
         {
           "name": "sqlCount",
           "line": 59,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/transactionPolicy.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1742,
+      "lines": 52,
+      "sha256": "6c07bc05893420dc0f8724a11c60e5c8daaf543837b5acdfb3adeb56e890e7ce",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "env",
+          "line": 10,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/transactionPolicy.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1426,
+      "lines": 42,
+      "sha256": "13ba2a3ce8869e90466426d3a8ccfbe816987388a9246cad087626088732372f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PrismaTransactionPolicy",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolvePrismaTransactionPolicy",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "interactiveTransactionsGuaranteed",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertPrismaTransactionPolicySafe",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PrismaTransactionPolicy",
+          "line": 1,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolvePrismaTransactionPolicy",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "interactiveTransactionsGuaranteed",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertPrismaTransactionPolicySafe",
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -146571,21 +146706,36 @@
       "path": "tests/api/guardian-consent.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3821,
-      "lines": 117,
-      "sha256": "d62b1d6d213daea92c22cf30f928ef6ff2d2f5879650aee6b94c9b78fe32d4f6",
+      "bytes": 11442,
+      "lines": 295,
+      "sha256": "0c30f9e7364c03189b5862f5dcfd1388323eae26eb56871ee218c51e57955f1d",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "db",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
           "name": "postReq",
-          "line": 37,
+          "line": 142,
           "kind": "Variable"
         },
         {
           "name": "validBody",
-          "line": 44,
+          "line": 149,
           "kind": "Variable"
+        },
+        {
+          "name": "submit",
+          "line": 156,
+          "kind": "Variable"
+        },
+        {
+          "name": "addLink",
+          "line": 159,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

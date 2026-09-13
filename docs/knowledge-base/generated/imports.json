@@ -42777,16 +42777,8 @@
   },
   {
     "from": "app/api/consent/[token]/route.ts",
-    "specifier": "@/lib/tokenizedLink",
-    "line": 5,
-    "kind": "import",
-    "external": false,
-    "target": "lib/tokenizedLink.ts"
-  },
-  {
-    "from": "app/api/consent/[token]/route.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 6,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -42794,7 +42786,7 @@
   {
     "from": "app/api/consent/[token]/route.ts",
     "specifier": "@/lib/audit",
-    "line": 7,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -42802,10 +42794,26 @@
   {
     "from": "app/api/consent/[token]/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 8,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
+  },
+  {
+    "from": "app/api/consent/[token]/route.ts",
+    "specifier": "@/lib/consent/guardianConsentPersistence",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/consent/guardianConsentPersistence.ts"
+  },
+  {
+    "from": "app/api/consent/[token]/route.ts",
+    "specifier": "@/lib/db/transactionPolicy",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/transactionPolicy.ts"
   },
   {
     "from": "app/api/contact/route.ts",
@@ -91048,6 +91056,22 @@
     "target": "lib/coach/memorySafety.ts"
   },
   {
+    "from": "lib/consent/guardianConsentPersistence.ts",
+    "specifier": "@prisma/client",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@prisma/client"
+  },
+  {
+    "from": "lib/consent/guardianConsentPersistence.ts",
+    "specifier": "@/lib/db/transactionPolicy",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/transactionPolicy.ts"
+  },
+  {
     "from": "lib/content/benefitsCliff.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -95128,6 +95152,14 @@
     "target": "lib/db/gucContext.ts"
   },
   {
+    "from": "lib/db/prisma.ts",
+    "specifier": "./transactionPolicy",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/transactionPolicy.ts"
+  },
+  {
     "from": "lib/db/prismaEnumFallback.ts",
     "specifier": "@prisma/client",
     "line": 1,
@@ -95230,6 +95262,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/scanCaps.ts"
+  },
+  {
+    "from": "lib/db/transactionPolicy.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/db/transactionPolicy.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/db/transactionPolicy.test.ts",
+    "specifier": "./transactionPolicy",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/transactionPolicy.ts"
   },
   {
     "from": "lib/db/withDbRetry.test.ts",
@@ -111233,35 +111289,43 @@
   },
   {
     "from": "tests/api/guardian-consent.spec.ts",
+    "specifier": "@/lib/admin/courseraConsentGate",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraConsentGate.ts"
+  },
+  {
+    "from": "tests/api/guardian-consent.spec.ts",
     "specifier": "@/app/api/consent/[token]/route",
-    "line": 32,
+    "line": 137,
     "kind": "import",
     "external": false,
     "target": "app/api/consent/[token]/route.ts"
   },
   {
     "from": "tests/api/guardian-consent.spec.ts",
-    "specifier": "@/lib/tokenizedLink",
-    "line": 33,
-    "kind": "import",
-    "external": false,
-    "target": "lib/tokenizedLink.ts"
-  },
-  {
-    "from": "tests/api/guardian-consent.spec.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 34,
+    "line": 138,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
   },
   {
     "from": "tests/api/guardian-consent.spec.ts",
-    "specifier": "@/lib/db/prisma",
-    "line": 35,
+    "specifier": "@/lib/audit",
+    "line": 139,
     "kind": "import",
     "external": false,
-    "target": "lib/db/prisma.ts"
+    "target": "lib/audit.ts"
+  },
+  {
+    "from": "tests/api/guardian-consent.spec.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 140,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
   },
   {
     "from": "tests/api/health-check.spec.ts",

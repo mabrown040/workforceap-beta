@@ -34,7 +34,7 @@
 | [tests/api/admin-user-create-active-identity-race.spec.ts](../../../tests/api/admin-user-create-active-identity-race.spec.ts) | 223 | tests |  |
 | [tests/api/admin-user-create-tenant-conflict.spec.ts](../../../tests/api/admin-user-create-tenant-conflict.spec.ts) | 131 | tests |  |
 | [tests/api/admin-user-lifecycle.spec.ts](../../../tests/api/admin-user-lifecycle.spec.ts) | 280 | tests |  |
-| [tests/api/admin-user-patch-route.spec.ts](../../../tests/api/admin-user-patch-route.spec.ts) | 273 | tests |  |
+| [tests/api/admin-user-patch-route.spec.ts](../../../tests/api/admin-user-patch-route.spec.ts) | 271 | tests |  |
 | [tests/api/admin-user-reset-password.spec.ts](../../../tests/api/admin-user-reset-password.spec.ts) | 117 | tests |  |
 | [tests/api/agent-gateway-route.spec.ts](../../../tests/api/agent-gateway-route.spec.ts) | 116 | tests |  |
 | [tests/api/ai-interview.spec.ts](../../../tests/api/ai-interview.spec.ts) | 456 | tests |  |

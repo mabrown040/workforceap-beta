@@ -246,7 +246,7 @@
 | [docs/audits/stakeholder-workflows-2026-09-09/referrer-focused-verification.txt](../../../docs/audits/stakeholder-workflows-2026-09-09/referrer-focused-verification.txt) | 9 | documentation |  |
 | [docs/audits/stakeholder-workflows-2026-09-09/referrer.md](../../../docs/audits/stakeholder-workflows-2026-09-09/referrer.md) | 94 | documentation |  |
 | [docs/audits/systems-reliability-2026-09-09.md](../../../docs/audits/systems-reliability-2026-09-09.md) | 71 | documentation |  |
-| [docs/auth-troubleshooting.md](../../../docs/auth-troubleshooting.md) | 47 | documentation |  |
+| [docs/auth-troubleshooting.md](../../../docs/auth-troubleshooting.md) | 53 | documentation |  |
 | [docs/career-launch-evidence-2026-09-08.md](../../../docs/career-launch-evidence-2026-09-08.md) | 60 | documentation |  |
 | [docs/cleanup-log.md](../../../docs/cleanup-log.md) | 7 | documentation |  |
 | [docs/coursera-end-to-end-research-2026-05-06.md](../../../docs/coursera-end-to-end-research-2026-05-06.md) | 329 | learning-coursera |  |

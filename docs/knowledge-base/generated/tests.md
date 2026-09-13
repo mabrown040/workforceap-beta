@@ -43,7 +43,7 @@
 | [tests/api/at-risk-alert.spec.ts](../../../tests/api/at-risk-alert.spec.ts) | 641 | tests |  |
 | [tests/api/at-risk-api.spec.ts](../../../tests/api/at-risk-api.spec.ts) | 362 | tests |  |
 | [tests/api/auth-boundaries.spec.ts](../../../tests/api/auth-boundaries.spec.ts) | 216 | tests |  |
-| [tests/api/auth-routes.spec.ts](../../../tests/api/auth-routes.spec.ts) | 1643 | tests |  |
+| [tests/api/auth-routes.spec.ts](../../../tests/api/auth-routes.spec.ts) | 1694 | tests |  |
 | [tests/api/billing-packets.spec.ts](../../../tests/api/billing-packets.spec.ts) | 279 | tests |  |
 | [tests/api/bulk-email-fixture-accounting.spec.ts](../../../tests/api/bulk-email-fixture-accounting.spec.ts) | 89 | tests |  |
 | [tests/api/concordia-enroll-page.spec.ts](../../../tests/api/concordia-enroll-page.spec.ts) | 69 | tests |  |
@@ -57,6 +57,7 @@
 | [tests/api/coursera-replay-email-pacing.spec.ts](../../../tests/api/coursera-replay-email-pacing.spec.ts) | 62 | learning-coursera |  |
 | [tests/api/coursera-rest-webhook.spec.ts](../../../tests/api/coursera-rest-webhook.spec.ts) | 280 | learning-coursera |  |
 | [tests/api/cover-letter.spec.ts](../../../tests/api/cover-letter.spec.ts) | 167 | tests |  |
+| [tests/api/cron-at-risk-alerts-auth.spec.ts](../../../tests/api/cron-at-risk-alerts-auth.spec.ts) | 134 | tests |  |
 | [tests/api/cron-at-risk-check.spec.ts](../../../tests/api/cron-at-risk-check.spec.ts) | 236 | tests |  |
 | [tests/api/cron-course-accountability.spec.ts](../../../tests/api/cron-course-accountability.spec.ts) | 71 | tests |  |
 | [tests/api/cron-deploy-health.spec.ts](../../../tests/api/cron-deploy-health.spec.ts) | 117 | tests |  |
@@ -100,6 +101,7 @@
 | [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 160 | tests |  |
 | [tests/api/member-training-workspace.spec.ts](../../../tests/api/member-training-workspace.spec.ts) | 198 | tests |  |
 | [tests/api/member-weekly-recap.spec.ts](../../../tests/api/member-weekly-recap.spec.ts) | 168 | tests |  |
+| [tests/api/member-wioa-voice-session.spec.ts](../../../tests/api/member-wioa-voice-session.spec.ts) | 89 | tests |  |
 | [tests/api/mentor-letter-route.spec.ts](../../../tests/api/mentor-letter-route.spec.ts) | 80 | tests |  |
 | [tests/api/milestone-approve-reliability.spec.ts](../../../tests/api/milestone-approve-reliability.spec.ts) | 65 | member-counselor |  |
 | [tests/api/notifications.spec.ts](../../../tests/api/notifications.spec.ts) | 510 | communications |  |
@@ -254,6 +256,7 @@
 | [tests/lib/member-program-training-view.spec.ts](../../../tests/lib/member-program-training-view.spec.ts) | 171 | tests |  |
 | [tests/lib/member-resources.spec.ts](../../../tests/lib/member-resources.spec.ts) | 50 | tests |  |
 | [tests/lib/member-voice-data-use-disclosures.spec.ts](../../../tests/lib/member-voice-data-use-disclosures.spec.ts) | 90 | tests |  |
+| [tests/lib/member-voice-fallback.spec.ts](../../../tests/lib/member-voice-fallback.spec.ts) | 106 | tests |  |
 | [tests/lib/message-read-cursor.spec.ts](../../../tests/lib/message-read-cursor.spec.ts) | 64 | tests |  |
 | [tests/lib/milestone-delivery-queue.spec.ts](../../../tests/lib/milestone-delivery-queue.spec.ts) | 34 | member-counselor |  |
 | [tests/lib/milestone-dispatch-reliability.spec.ts](../../../tests/lib/milestone-dispatch-reliability.spec.ts) | 198 | member-counselor |  |
@@ -270,6 +273,7 @@
 | [tests/lib/partner-notify-reliability.spec.ts](../../../tests/lib/partner-notify-reliability.spec.ts) | 63 | tests |  |
 | [tests/lib/partner-retention-window.spec.ts](../../../tests/lib/partner-retention-window.spec.ts) | 24 | tests |  |
 | [tests/lib/partner-school-schema.spec.ts](../../../tests/lib/partner-school-schema.spec.ts) | 69 | tests |  |
+| [tests/lib/password-reset-self-heal.spec.ts](../../../tests/lib/password-reset-self-heal.spec.ts) | 149 | tests |  |
 | [tests/lib/placement-survey-email-provider.spec.ts](../../../tests/lib/placement-survey-email-provider.spec.ts) | 46 | tests |  |
 | [tests/lib/portal-responsive-single-mount.spec.tsx](../../../tests/lib/portal-responsive-single-mount.spec.tsx) | 75 | tests |  |
 | [tests/lib/profileCompleteness.test.ts](../../../tests/lib/profileCompleteness.test.ts) | 166 | tests |  |

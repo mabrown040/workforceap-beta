@@ -70,6 +70,7 @@ export default function MockInterviewVideoRecorder({
   };
 
   useEffect(() => {
+    const videoEl = videoRef.current;
     return () => {
       uploadGenRef.current += 1;
       startAttemptRef.current += 1;
@@ -82,7 +83,7 @@ export default function MockInterviewVideoRecorder({
       startInFlightRef.current = false;
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
-      if (videoRef.current) videoRef.current.srcObject = null;
+      if (videoEl) videoEl.srcObject = null;
       chunksRef.current = [];
     };
   }, []);

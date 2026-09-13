@@ -113,6 +113,7 @@
 | [lib/ai/jobTailor.ts](../../../lib/ai/jobTailor.ts) | 166 | ai-voice | JobTailorResult:7, JobTailorResponse:15, JobTailorUnavailableError:21, tailorResumeForJob:117 |
 | [lib/ai/matchStudents.ts](../../../lib/ai/matchStudents.ts) | 109 | ai-voice | StudentMatch:13, matchStudentsForJob:19 |
 | [lib/ai/matchWeights.ts](../../../lib/ai/matchWeights.ts) | 115 | ai-voice | MATCH_WEIGHTS:6, scoreProgramAlignment:32, scoreAssessmentReadiness:45, scoreCertifications:56, scoreCourseCompletion:80, scoreSkillsMatching:91 |
+| [lib/ai/memberVoiceFallback.ts](../../../lib/ai/memberVoiceFallback.ts) | 93 | ai-voice | MemberVoiceSessionResult:7, startMemberVoiceSessionWithLilleyFallback:36 |
 | [lib/ai/onetSkills.test.ts](../../../lib/ai/onetSkills.test.ts) | 154 | ai-voice |  |
 | [lib/ai/onetSkills.ts](../../../lib/ai/onetSkills.ts) | 179 | ai-voice | OnetSkill:15, OnetOccupation:22, searchOccupations:28, getOccupationSkills:50, mapSkillsToRadarAxes:72 |
 | [lib/ai/parseJob.test.ts](../../../lib/ai/parseJob.test.ts) | 45 | ai-voice |  |
@@ -197,7 +198,7 @@
 | [lib/auth/mfaConfig.test.ts](../../../lib/auth/mfaConfig.test.ts) | 58 | identity-tenancy |  |
 | [lib/auth/mfaConfig.ts](../../../lib/auth/mfaConfig.ts) | 16 | identity-tenancy | isStaffMfaEnforcementEnabled:9 |
 | [lib/auth/mfaTrust.ts](../../../lib/auth/mfaTrust.ts) | 142 | identity-tenancy | getAdminMfaTrustDays:73, getAdminMfaTrustCookieName:79, issueAdminMfaTrustToken:83, verifyAdminMfaTrustToken:98, getAdminMfaTrustCookieOptions:134 |
-| [lib/auth/passwordReset.ts](../../../lib/auth/passwordReset.ts) | 149 | identity-tenancy | PasswordResetSendResult:9, sendPasswordResetEmail:47 |
+| [lib/auth/passwordReset.ts](../../../lib/auth/passwordReset.ts) | 221 | identity-tenancy | PasswordResetSendResult:11, sendPasswordResetEmail:108 |
 | [lib/auth/portalGuards.ts](../../../lib/auth/portalGuards.ts) | 25 | identity-tenancy | unlinkedEmployerHref:18, unlinkedPartnerHref:23 |
 | [lib/auth/portalRoleSwitcher.test.ts](../../../lib/auth/portalRoleSwitcher.test.ts) | 91 | identity-tenancy |  |
 | [lib/auth/portalRoleSwitcher.ts](../../../lib/auth/portalRoleSwitcher.ts) | 148 | identity-tenancy | PortalSwitcherRole:11, buildPortalSwitcherRoles:27, PortalSwitcherInputs:66, getPortalSwitcherRoles:85 |
@@ -502,7 +503,7 @@
 | [lib/feature-flags/publicApi.ts](../../../lib/feature-flags/publicApi.ts) | 29 | libraries | hashStringToBucket:1, filterVisibleFlags:11 |
 | [lib/feature-flags/useFeatureFlag.test.ts](../../../lib/feature-flags/useFeatureFlag.test.ts) | 28 | libraries |  |
 | [lib/fetchWithTimeout.ts](../../../lib/fetchWithTimeout.ts) | 60 | libraries | fetchWithTimeout:6, fetchAuth:25, getErrorMessageFromResponse:36 |
-| [lib/formatDate.ts](../../../lib/formatDate.ts) | 34 | libraries | formatPortalDate:19, formatPortalDateTime:25 |
+| [lib/formatDate.ts](../../../lib/formatDate.ts) | 34 | libraries | PORTAL_TIMEZONE:10, formatPortalDate:19, formatPortalDateTime:25 |
 | [lib/formatPhone.ts](../../../lib/formatPhone.ts) | 20 | libraries | formatPhone:6 |
 | [lib/gdpr/deleteAuthUser.test.ts](../../../lib/gdpr/deleteAuthUser.test.ts) | 56 | libraries |  |
 | [lib/gdpr/deleteAuthUser.ts](../../../lib/gdpr/deleteAuthUser.ts) | 15 | libraries | deleteSupabaseAuthUser:5 |
@@ -519,7 +520,7 @@
 | [lib/i18n/config.test.ts](../../../lib/i18n/config.test.ts) | 161 | public-experience |  |
 | [lib/i18n/config.ts](../../../lib/i18n/config.ts) | 168 | public-experience | APP_LOCALES:1, AppLocale:2, DEFAULT_LOCALE:4, REVIEWED_LOCALES:15, isReviewedLocale:17, WAP_LOCALE_COOKIE:22, WAP_LOCALE_HEADER:25, isAppLocale:27, RTL_LOCALES:32, isRtlLocale:34, LOCALEABLE_PATH_PREFIXES:45, isLocaleableMarketingPath:57, isAstroMarketingPath:104, isLocaleBypassPath:113, splitLocalePrefix:128, pickLocaleFromAcceptLanguage:142, withLocalePrefix:165 |
 | [lib/i18n/cookieLocale.ts](../../../lib/i18n/cookieLocale.ts) | 12 | public-experience | getAppLocaleFromCookieStore:6 |
-| [lib/i18n/date.ts](../../../lib/i18n/date.ts) | 77 | public-experience | formatDate:32, formatDateTime:42, formatLocalizedDate:65 |
+| [lib/i18n/date.ts](../../../lib/i18n/date.ts) | 83 | public-experience | formatDate:37, formatDateTime:47, formatLocalizedDate:71 |
 | [lib/i18n/getT.ts](../../../lib/i18n/getT.ts) | 4 | public-experience | getTranslations:4 |
 | [lib/i18n/localizeHref.ts](../../../lib/i18n/localizeHref.ts) | 31 | public-experience | LocalizedHrefResolution:4, localizeHref:10, resolveLocalizedHref:22 |
 | [lib/i18n/pickRootClientMessages.test.ts](../../../lib/i18n/pickRootClientMessages.test.ts) | 85 | public-experience |  |
@@ -788,7 +789,7 @@
 | [lib/resume/inferResumeFramework.ts](../../../lib/resume/inferResumeFramework.ts) | 45 | member-counselor | ResumeFramework:1, ResumeFrameworkSignals:3, inferResumeFramework:13, resumeFrameworkPromptBlock:35 |
 | [lib/resume/pendingResumeDraft.test.ts](../../../lib/resume/pendingResumeDraft.test.ts) | 40 | member-counselor |  |
 | [lib/resume/pendingResumeDraft.ts](../../../lib/resume/pendingResumeDraft.ts) | 56 | member-counselor | PendingResumeDraft:6, PENDING_RESUME_DRAFT_KEY_PREFIX:12, LEGACY_PENDING_RESUME_DRAFT_KEY:13, purgePendingResumeDrafts:22, serializePendingResumeDraft:32, parsePendingResumeDraft:37 |
-| [lib/resume/prepareResumeUpload.test.ts](../../../lib/resume/prepareResumeUpload.test.ts) | 168 | member-counselor |  |
+| [lib/resume/prepareResumeUpload.test.ts](../../../lib/resume/prepareResumeUpload.test.ts) | 177 | member-counselor |  |
 | [lib/resume/prepareResumeUpload.ts](../../../lib/resume/prepareResumeUpload.ts) | 145 | member-counselor | MAX_RESUME_UPLOAD_SIZE:11, ResumeUploadExtension:13, ResumeUploadValidationErrorCode:15, ResumeUploadValidationError:21, RESUME_UPLOAD_ERROR_MESSAGES:31, ResumeUploadFileLike:56, isResumeUploadFileLike:63, PreparedResumeUpload:74, prepareResumeUpload:108 |
 | [lib/resume/profileCompleteness.ts](../../../lib/resume/profileCompleteness.ts) | 55 | member-counselor | getProfileCompleteness:38, getProfileMissingFields:48 |
 | [lib/resume/resumeAiSafetyContract.test.ts](../../../lib/resume/resumeAiSafetyContract.test.ts) | 86 | member-counselor |  |

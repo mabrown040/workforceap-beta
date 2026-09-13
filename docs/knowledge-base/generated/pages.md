@@ -135,7 +135,7 @@
 | [app/(portal)/dashboard/ai-tools/resume-analysis/page.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-analysis/page.tsx) | 6 | member-counselor | default:4 |
 | [app/(portal)/dashboard/ai-tools/resume-coach/loading.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-coach/loading.tsx) | 5 | ai-voice | default:3 |
 | [app/(portal)/dashboard/ai-tools/resume-coach/page.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-coach/page.tsx) | 6 | ai-voice | default:4 |
-| [app/(portal)/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx) | 187 | member-counselor | default:174 |
+| [app/(portal)/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx) | 189 | member-counselor | default:176 |
 | [app/(portal)/dashboard/ai-tools/resume-rewriter/loading.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-rewriter/loading.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/dashboard/ai-tools/resume-rewriter/page.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-rewriter/page.tsx) | 6 | member-counselor | default:4 |
 | [app/(portal)/dashboard/ai-tools/resume-studio/page.tsx](../../../app/%28portal%29/dashboard/ai-tools/resume-studio/page.tsx) | 56 | member-counselor | generateMetadata:13, default:22 |

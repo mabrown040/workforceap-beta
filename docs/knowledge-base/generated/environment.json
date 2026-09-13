@@ -1529,7 +1529,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 170
+          "line": 190
         },
         {
           "file": "lib/billing/sendPacket.ts",
@@ -2346,7 +2346,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 114
+          "line": 134
         },
         {
           "file": "lib/auth/server.ts",
@@ -2413,7 +2413,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 113
+          "line": 133
         },
         {
           "file": "lib/auth/server.ts",
@@ -3668,7 +3668,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 126
+          "line": 146
         },
         {
           "file": "lib/email/unsubscribeToken.ts",

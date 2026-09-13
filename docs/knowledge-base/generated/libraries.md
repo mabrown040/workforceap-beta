@@ -198,7 +198,7 @@
 | [lib/auth/mfaConfig.test.ts](../../../lib/auth/mfaConfig.test.ts) | 58 | identity-tenancy |  |
 | [lib/auth/mfaConfig.ts](../../../lib/auth/mfaConfig.ts) | 16 | identity-tenancy | isStaffMfaEnforcementEnabled:9 |
 | [lib/auth/mfaTrust.ts](../../../lib/auth/mfaTrust.ts) | 142 | identity-tenancy | getAdminMfaTrustDays:73, getAdminMfaTrustCookieName:79, issueAdminMfaTrustToken:83, verifyAdminMfaTrustToken:98, getAdminMfaTrustCookieOptions:134 |
-| [lib/auth/passwordReset.ts](../../../lib/auth/passwordReset.ts) | 221 | identity-tenancy | PasswordResetSendResult:11, sendPasswordResetEmail:108 |
+| [lib/auth/passwordReset.ts](../../../lib/auth/passwordReset.ts) | 241 | identity-tenancy | PasswordResetSendResult:11, sendPasswordResetEmail:128 |
 | [lib/auth/portalGuards.ts](../../../lib/auth/portalGuards.ts) | 25 | identity-tenancy | unlinkedEmployerHref:18, unlinkedPartnerHref:23 |
 | [lib/auth/portalRoleSwitcher.test.ts](../../../lib/auth/portalRoleSwitcher.test.ts) | 91 | identity-tenancy |  |
 | [lib/auth/portalRoleSwitcher.ts](../../../lib/auth/portalRoleSwitcher.ts) | 148 | identity-tenancy | PortalSwitcherRole:11, buildPortalSwitcherRoles:27, PortalSwitcherInputs:66, getPortalSwitcherRoles:85 |

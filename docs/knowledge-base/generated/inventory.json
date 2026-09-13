@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "193631cd73cb13f5686d162dd31068fe5d840dfa06840b50fa95a9397400a3eb",
+  "inputTreeSha256": "adb8eccc15b2f816704985a5f157f02fca5d9fa9f08d885bb836150cc2fc6b08",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -93311,9 +93311,9 @@
       "path": "lib/auth/passwordReset.ts",
       "area": "libraries",
       "domain": "identity-tenancy",
-      "bytes": 9130,
-      "lines": 221,
-      "sha256": "986969041dfe6059dccca1de2a6ea6846fd75e82063f3ca079f248c4dde31048",
+      "bytes": 10304,
+      "lines": 241,
+      "sha256": "3710f64bd83afc67ab0d31bae6c52faf58e2ea886a7dd209f271cebb72f6a7b5",
       "binary": false,
       "exports": [
         {
@@ -93323,7 +93323,7 @@
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 108,
+          "line": 128,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -93350,7 +93350,7 @@
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 108,
+          "line": 128,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -151654,9 +151654,9 @@
       "path": "tests/lib/password-reset-self-heal.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5901,
-      "lines": 149,
-      "sha256": "e4dff2a19c371532d07ae025cd72ce577bd2cbc8bfbb6f7135eae0142c1e9ca5",
+      "bytes": 8937,
+      "lines": 210,
+      "sha256": "15313f09b41baa416f8f898113bc438f04a3b4b4f6abfaa919c6d7e36d74f7c3",
       "binary": false,
       "exports": [],
       "declarations": [

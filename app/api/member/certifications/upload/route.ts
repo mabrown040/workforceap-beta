@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
@@ -54,10 +55,11 @@ function storageErrorMessage(error: { message?: string } | null): string {
   
     try {
       const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
       const storagePath = `cert-files/${user.id}/${cert.id}.${ext}`;
       const supabase = getSupabaseAdmin();
   
-      const { error } = await supabase.storage.from(BUCKET).upload(storagePath, arrayBuffer, {
+      const { error } = await supabase.storage.from(BUCKET).upload(storagePath, buffer, {
         upsert: true,
         contentType,
       });

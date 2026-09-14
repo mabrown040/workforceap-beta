@@ -189,7 +189,7 @@ export default function AssessmentsTable({
               <button
                 type="button"
                 style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
-                aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse details for " + u.fullName : "Expand details for " + u.fullName} onClick={() => setExpandedId(isExpanded ? null : u.id)}
+                aria-expanded={isExpanded} aria-controls={`assessment-details-${u.id}`} aria-label={isExpanded ? "Collapse details for " + u.fullName : "Expand details for " + u.fullName} onClick={() => setExpandedId(isExpanded ? null : u.id)}
               >
                 <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
                   {initials}
@@ -204,11 +204,11 @@ export default function AssessmentsTable({
                   <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: scoreColor(u.assessmentScorePct) }}>
                     {u.assessmentScorePct !== null ? `${u.assessmentScorePct}%` : '—'}
                   </span>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
                 </div>
               </button>
               {isExpanded && (
-                <div style={{ padding: '0 1rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div id={`assessment-details-${u.id}`} style={{ padding: '0 1rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', margin: '0.875rem 0' }}>
                     <div>
                       <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Email</p>

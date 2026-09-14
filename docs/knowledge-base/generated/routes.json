@@ -32733,6 +32733,19 @@
     "extraction": "Filename route pattern only; Astro frontmatter and template imports are not AST-indexed."
   },
   {
+    "file": "marketing/src/pages/insights/empowering-nonprofits-through-skill.astro",
+    "kind": "astro-page",
+    "path": "/insights/empowering-nonprofits-through-skill",
+    "groups": [],
+    "routing": "astro-filesystem-unexpanded",
+    "note": "Active static-build source pattern. getStaticPaths expansion, locale expansion, middleware/static/Next precedence and current deployed serving are not proven.",
+    "exports": [],
+    "methods": [],
+    "configuration": {},
+    "boundaryReferences": [],
+    "extraction": "Filename route pattern only; Astro frontmatter and template imports are not AST-indexed."
+  },
+  {
     "file": "marketing/src/pages/interest-profiler.astro",
     "kind": "astro-page",
     "path": "/interest-profiler",

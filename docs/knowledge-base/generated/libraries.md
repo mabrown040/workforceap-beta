@@ -277,7 +277,7 @@
 | [lib/content/faqData.ts](../../../lib/content/faqData.ts) | 84 | public-experience | FaqItem:8, FaqCategoryKey:14, FAQ_CATEGORIES:23, FAQ_DATA:33 |
 | [lib/content/itSupportLabs.test.ts](../../../lib/content/itSupportLabs.test.ts) | 125 | public-experience |  |
 | [lib/content/itSupportLabs.ts](../../../lib/content/itSupportLabs.ts) | 383 | public-experience | IT_SUPPORT_LAB_CONTENT_VERSION:5, IT_SUPPORT_LAB_RUBRIC_VERSION:6, IT_SUPPORT_LAB_PROGRAM_SLUG:7, IT_SUPPORT_LAB_COURSE_SLUG:8, PracticeLab:10, IT_SUPPORT_LAB_SCOPE:35, getPracticeLab:366, listPracticeLabsForAssignment:371 |
-| [lib/content/leadership.ts](../../../lib/content/leadership.ts) | 493 | public-experience | LeaderBioBlock:5, LeaderStat:10, LeaderSpotlightCard:16, LeaderPartnerTile:23, LeaderAchievementTile:24, LeaderSection:26, Leader:28, LEADERS:54, getLeaderBySlug:491 |
+| [lib/content/leadership.ts](../../../lib/content/leadership.ts) | 507 | public-experience | LeaderBioBlock:5, LeaderStat:10, LeaderSpotlightCard:16, LeaderPartnerTile:23, LeaderAchievementTile:24, LeaderWriting:26, LeaderSection:32, Leader:34, LEADERS:61, getLeaderBySlug:505 |
 | [lib/content/learningPathways.test.ts](../../../lib/content/learningPathways.test.ts) | 25 | public-experience |  |
 | [lib/content/learningPathways.ts](../../../lib/content/learningPathways.ts) | 104 | public-experience | LearningPathway:4, PATHWAYS:18, getPathwayForProgram:87, findPathwayById:100 |
 | [lib/content/marketingJourneySteps.ts](../../../lib/content/marketingJourneySteps.ts) | 119 | public-experience | MarketingJourneyStep:5, MARKETING_JOURNEY_STEPS:18 |

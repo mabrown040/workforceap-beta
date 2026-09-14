@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "5576ec6ecb6b32bd5977408877e1791e2c91817323a728f060503412ab111c51",
+  "inputTreeSha256": "d4cf3b8df52356b16143644630e73c50e6df86363046d6fa8edeba5c951bda5e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -45896,9 +45896,9 @@
       "path": "app/sitemap.ts",
       "area": "pages",
       "domain": "pages",
-      "bytes": 5816,
-      "lines": 138,
-      "sha256": "8708d1adab21ac3ed5e4a81b473a70d39cdd41ac953e80eb691f63de8985c2ed",
+      "bytes": 5919,
+      "lines": 139,
+      "sha256": "72ca43b9ab8bbe6153484abb6730cbcc8a0baece29ee467f642b5c5e2c0abd5b",
       "binary": false,
       "exports": [
         {
@@ -45908,7 +45908,7 @@
         },
         {
           "name": "default",
-          "line": 66,
+          "line": 67,
           "kind": "FunctionDeclaration",
           "localName": "sitemap"
         }
@@ -45941,7 +45941,7 @@
         },
         {
           "name": "sitemap",
-          "line": 66,
+          "line": 67,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -97847,9 +97847,9 @@
       "path": "lib/content/leadership.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 27818,
-      "lines": 493,
-      "sha256": "6d9bfafa8fcc76e51f7d75a8b26a51e92289339d52e92c15ddf3eefcae111887",
+      "bytes": 28268,
+      "lines": 507,
+      "sha256": "7fbe5e56c2de0ee56b72db737cafeadec53f759a3c801a3ca6f04c7e9d2c11bc",
       "binary": false,
       "exports": [
         {
@@ -97878,23 +97878,28 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "LeaderSection",
+          "name": "LeaderWriting",
           "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "LeaderSection",
+          "line": 32,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "Leader",
-          "line": 28,
+          "line": 34,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LEADERS",
-          "line": 54,
+          "line": 61,
           "kind": "Variable"
         },
         {
           "name": "getLeaderBySlug",
-          "line": 491,
+          "line": 505,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -97925,23 +97930,28 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "LeaderSection",
+          "name": "LeaderWriting",
           "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "LeaderSection",
+          "line": 32,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "Leader",
-          "line": 28,
+          "line": 34,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LEADERS",
-          "line": 54,
+          "line": 61,
           "kind": "Variable"
         },
         {
           "name": "getLeaderBySlug",
-          "line": 491,
+          "line": 505,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -133586,6 +133596,15 @@
       "binary": false
     },
     {
+      "path": "marketing/public/docs/empowering-nonprofits-through-skill.docx",
+      "area": "astro-marketing",
+      "domain": "astro-marketing",
+      "bytes": 19316,
+      "lines": null,
+      "sha256": "96b1a71e3726ebec3cecd4a8d41721d192a0d078d9f783d9c45dcaa9c049a899",
+      "binary": true
+    },
+    {
       "path": "marketing/public/images/AdobeStock_78118914.webp",
       "area": "astro-marketing",
       "domain": "astro-marketing",
@@ -134412,9 +134431,9 @@
       "path": "marketing/src/data/leadership.ts",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 28219,
-      "lines": 509,
-      "sha256": "dcefb66537d770b41c4cee01059ce48cede2f06d323b76eb0499831f74f86bc6",
+      "bytes": 28669,
+      "lines": 523,
+      "sha256": "baf195f48a60f271d32cef8d55135a80a91b2c02682917938838a5c2977b3588",
       "binary": false,
       "exports": [
         {
@@ -134443,23 +134462,28 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "LeaderSection",
+          "name": "LeaderWriting",
           "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "LeaderSection",
+          "line": 36,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "Leader",
-          "line": 32,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LEADERS",
-          "line": 58,
+          "line": 65,
           "kind": "Variable"
         },
         {
           "name": "getLeaderBySlug",
-          "line": 507,
+          "line": 521,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -134490,23 +134514,28 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "LeaderSection",
+          "name": "LeaderWriting",
           "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "LeaderSection",
+          "line": 36,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "Leader",
-          "line": 32,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LEADERS",
-          "line": 58,
+          "line": 65,
           "kind": "Variable"
         },
         {
           "name": "getLeaderBySlug",
-          "line": 507,
+          "line": 521,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -135158,6 +135187,15 @@
       "binary": false
     },
     {
+      "path": "marketing/src/pages/insights/empowering-nonprofits-through-skill.astro",
+      "area": "astro-marketing",
+      "domain": "astro-marketing",
+      "bytes": 8851,
+      "lines": 105,
+      "sha256": "94a2a36c7991ca3f4e191fff92aeb1a46de2f40db80a467a13168e215dfcd590",
+      "binary": false
+    },
+    {
       "path": "marketing/src/pages/interest-profiler.astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
@@ -135179,9 +135217,9 @@
       "path": "marketing/src/pages/leadership/[slug].astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 19775,
-      "lines": 388,
-      "sha256": "da506c6ebecb0ef2884550eea552b1b56d5efc93802842c3ba186782759ed8bd",
+      "bytes": 20830,
+      "lines": 416,
+      "sha256": "c4a06fe8700539523281af25fb8b99c977a6636bc9c60c5bf045c8aea4a51c5e",
       "binary": false
     },
     {

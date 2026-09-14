@@ -632,6 +632,6 @@
 | [app/robots.ts](../../../app/robots.ts) | 10 | pages | default:5 |
 | [app/seo.ts](../../../app/seo.ts) | 77 | pages | SITE_URL:8, DEFAULT_OG_IMAGE:9, PageSeoInputWithoutLocale:22, buildPageMetadataAsync:25, buildPageMetadata:41 |
 | [app/share/achievement/page.tsx](../../../app/share/achievement/page.tsx) | 144 | pages | dynamic:6, generateMetadata:39, default:78 |
-| [app/sitemap.ts](../../../app/sitemap.ts) | 138 | pages | revalidate:36, default:66 |
+| [app/sitemap.ts](../../../app/sitemap.ts) | 139 | pages | revalidate:36, default:67 |
 | [app/survey/placement/\[token\]/page.tsx](../../../app/survey/placement/%5Btoken%5D/page.tsx) | 108 | jobs-employers | dynamic:5, metadata:6, default:28 |
 | [app/wioa-qualification/page.tsx](../../../app/wioa-qualification/page.tsx) | 41 | partners-funding | generateMetadata:25, default:34 |

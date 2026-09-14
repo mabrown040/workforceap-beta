@@ -11,7 +11,7 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | agent-tooling | 319 | [Open](agent-tooling.md) |
 | api | 516 | [Open](api.md) |
 | assets | 76 | [Open](assets.md) |
-| astro-marketing | 103 | [Open](astro-marketing.md) |
+| astro-marketing | 105 | [Open](astro-marketing.md) |
 | audit-graph | 81 | [Open](audit-graph.md) |
 | communications | 69 | [Open](communications.md) |
 | components | 654 | [Open](components.md) |

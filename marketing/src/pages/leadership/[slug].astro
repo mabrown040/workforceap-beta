@@ -96,12 +96,19 @@ const initials = initialsFor(leader.name);
           </div>
         )}
 
-        {leader.linkedin && (
-          <a class="linkedin" href={leader.linkedin} target="_blank" rel="noopener noreferrer">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.25 8h4.5v15H.25V8zm7.25 0h4.31v2.05h.06c.6-1.14 2.07-2.34 4.26-2.34 4.56 0 5.4 3 5.4 6.9V23h-4.5v-6.5c0-1.55-.03-3.55-2.16-3.55-2.16 0-2.49 1.69-2.49 3.43V23h-4.5V8z"/></svg>
-            LinkedIn Profile
-          </a>
-        )}
+        <div class="hero-acts">
+          {leader.linkedin && (
+            <a class="linkedin" href={leader.linkedin} target="_blank" rel="noopener noreferrer">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.25 8h4.5v15H.25V8zm7.25 0h4.31v2.05h.06c.6-1.14 2.07-2.34 4.26-2.34 4.56 0 5.4 3 5.4 6.9V23h-4.5v-6.5c0-1.55-.03-3.55-2.16-3.55-2.16 0-2.49 1.69-2.49 3.43V23h-4.5V8z"/></svg>
+              LinkedIn Profile
+            </a>
+          )}
+          {(leader.writings?.length ?? 0) > 0 && (
+            <a class="linkedin linkedin--ghost" href={leader.writings![0].href}>
+              Read whitepaper
+            </a>
+          )}
+        </div>
       </div>
 
       <aside class="portrait-col">
@@ -192,6 +199,24 @@ const initials = initialsFor(leader.name);
     </div></section>
   )}
 
+  {(leader.writings?.length ?? 0) > 0 && (
+    <section class="band band--bg"><div class="wrap">
+      <div class="sec-head sec-head--left">
+        <span class="kick kick--gold">Writing</span>
+        <h2>From this biography</h2>
+      </div>
+      <div class="tiles">
+        {leader.writings!.map((w) => (
+          <a class="tile tile--gold tile-link" href={w.href}>
+            <span class="tile-dot tile-dot--gold" aria-hidden="true"></span>
+            <h3>{w.title}</h3>
+            <p>{w.description}</p>
+          </a>
+        ))}
+      </div>
+    </div></section>
+  )}
+
   <!-- ── ALL STATS ── -->
   <section class="band band--surface"><div class="wrap">
     <div class="stats-grid">
@@ -273,11 +298,14 @@ const initials = initialsFor(leader.name);
   .hs-value{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;line-height:1.2;color:#fff}
   .hs-label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f3d28f;margin-top:6px}
 
-  .linkedin{display:inline-flex;align-items:center;gap:9px;margin-top:26px;
+  .hero-acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+  .linkedin{display:inline-flex;align-items:center;gap:9px;
     background:#fff;color:var(--accent-dark);font-weight:800;font-size:14.5px;
     padding:11px 20px;min-height:44px;box-sizing:border-box;border-radius:999px;box-shadow:0 14px 34px -12px rgba(58,10,30,.5)}
+  .linkedin--ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55);box-shadow:none}
   .linkedin:hover{transform:translateY(-1px)}
   .linkedin:active{transform:translateY(0) scale(.985)}
+  .tile-link{display:block;color:inherit;text-decoration:none}
 
   /* portrait + glass pull-quote companion */
   .portrait-col{display:flex;flex-direction:column;gap:20px;align-items:center}

@@ -1034,6 +1034,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /how-it-works | astro-page |  | [marketing/src/pages/how-it-works.astro](../../../marketing/src/pages/how-it-works.astro) |  |
 | /impact | astro-page |  | [marketing/src/pages/impact.astro](../../../marketing/src/pages/impact.astro) |  |
 | / | astro-page |  | [marketing/src/pages/index.astro](../../../marketing/src/pages/index.astro) |  |
+| /insights/empowering-nonprofits-through-skill | astro-page |  | [marketing/src/pages/insights/empowering-nonprofits-through-skill.astro](../../../marketing/src/pages/insights/empowering-nonprofits-through-skill.astro) |  |
 | /interest-profiler | astro-page |  | [marketing/src/pages/interest-profiler.astro](../../../marketing/src/pages/interest-profiler.astro) |  |
 | /leadership | astro-page |  | [marketing/src/pages/leadership.astro](../../../marketing/src/pages/leadership.astro) |  |
 | /leadership/\[slug\] | astro-page |  | [marketing/src/pages/leadership/\[slug\].astro](../../../marketing/src/pages/leadership/%5Bslug%5D.astro) |  |

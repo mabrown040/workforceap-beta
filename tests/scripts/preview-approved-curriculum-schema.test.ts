@@ -23,6 +23,18 @@ const PROD_VERCEL_POOLER =
 const PROD_VERCEL_SESSION =
   'postgres://postgres:prod-secret@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require&options=reference%3Djqddnyuszufndwwezdwp';
 
+function supabaseAnonJwt(ref: string, role = 'anon') {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ iss: 'supabase', ref, role })).toString(
+    'base64url'
+  );
+  return `${header}.${payload}.test-signature`;
+}
+
+const DEMO_ANON = supabaseAnonJwt(guard.DEMO_REF);
+const PROD_ANON = supabaseAnonJwt(guard.PROD_REF);
+const DEMO_PUBLISHABLE = 'sb_publishable_demo_test_key_not_secret';
+
 function vercelEnv(
   scope: 'preview' | 'development' | 'production',
   project: 'demo' | 'prod'
@@ -32,6 +44,7 @@ function vercelEnv(
     VERCEL: '1',
     VERCEL_ENV: scope,
     NEXT_PUBLIC_SUPABASE_URL: isDemo ? DEMO_PUBLIC : PROD_PUBLIC,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: isDemo ? DEMO_ANON : PROD_ANON,
     POSTGRES_PRISMA_URL: isDemo ? DEMO_POOLER : PROD_POOLER,
     POSTGRES_URL_NON_POOLING: isDemo ? DEMO_DIRECT : PROD_DIRECT,
     DATABASE_URL: '',
@@ -64,6 +77,7 @@ describe('Supabase project guard', () => {
     );
     expect(missing.ok).toBe(false);
     expect(missing.errors.join(' ')).toContain('NEXT_PUBLIC_SUPABASE_URL is required');
+    expect(missing.errors.join(' ')).toContain('NEXT_PUBLIC_SUPABASE_ANON_KEY is required');
 
     const unknown = guard.inspectSupabaseEnvironment(
       {
@@ -175,6 +189,88 @@ describe('Supabase project guard', () => {
     expect(result.status).toBe(1);
     expect(`${result.stdout}${result.stderr}`).not.toContain('CI — skipping');
     expect(`${result.stdout}${result.stderr}`).not.toContain('prod-secret');
+  });
+
+  it('fails closed when the anon key is missing even if every URL is valid', () => {
+    const result = guard.inspectSupabaseEnvironment(
+      { ...vercelEnv('production', 'prod'), NEXT_PUBLIC_SUPABASE_ANON_KEY: '' },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(result.ok).toBe(false);
+    expect(result.errors).toEqual(['NEXT_PUBLIC_SUPABASE_ANON_KEY is required on Vercel.']);
+    expect(result.classifications.NEXT_PUBLIC_SUPABASE_ANON_KEY).toBe('unset');
+  });
+
+  it('fails closed for whitespace, truncated JWTs, and unparseable anon keys', () => {
+    const truncatedTwoPart = PROD_ANON.split('.').slice(0, 2).join('.');
+    const truncatedPayload = `${PROD_ANON.split('.')[0]}.${PROD_ANON.split('.')[1].slice(0, 12)}.sig`;
+
+    expect(guard.projectForAnonKey('   ')).toBe('unset');
+    expect(guard.projectForAnonKey(truncatedTwoPart)).toBe('unknown');
+    expect(guard.projectForAnonKey(truncatedPayload)).toBe('unknown');
+    expect(guard.projectForAnonKey('not-a-supabase-key')).toBe('unknown');
+    expect(guard.projectForAnonKey('sb_publishable_short')).toBe('unknown');
+
+    const truncated = guard.inspectSupabaseEnvironment(
+      { ...vercelEnv('production', 'prod'), NEXT_PUBLIC_SUPABASE_ANON_KEY: truncatedTwoPart },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(truncated.ok).toBe(false);
+    expect(truncated.errors.join(' ')).toContain(
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY does not identify an approved Supabase anon key'
+    );
+  });
+
+  it('rejects a service role key in the anon-key slot', () => {
+    const serviceJwt = supabaseAnonJwt(guard.PROD_REF, 'service_role');
+    expect(guard.projectForAnonKey(serviceJwt)).toBe('service_role');
+    expect(guard.projectForAnonKey('sb_secret_this_must_never_be_public')).toBe('service_role');
+
+    const result = guard.inspectSupabaseEnvironment(
+      { ...vercelEnv('production', 'prod'), NEXT_PUBLIC_SUPABASE_ANON_KEY: serviceJwt },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(result.ok).toBe(false);
+    expect(result.errors.join(' ')).toContain('not a service role key');
+  });
+
+  it('rejects an anon JWT from the wrong project even when URLs are correct', () => {
+    const result = guard.inspectSupabaseEnvironment(
+      { ...vercelEnv('production', 'prod'), NEXT_PUBLIC_SUPABASE_ANON_KEY: DEMO_ANON },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(result.ok).toBe(false);
+    expect(result.errors.join(' ')).toContain(
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY points at the wrong Supabase project'
+    );
+  });
+
+  it('accepts new-format publishable keys and still binds the project via the public URL', () => {
+    expect(guard.projectForAnonKey(DEMO_PUBLISHABLE)).toBe('publishable');
+    const result = guard.inspectSupabaseEnvironment(
+      { ...vercelEnv('preview', 'demo'), NEXT_PUBLIC_SUPABASE_ANON_KEY: DEMO_PUBLISHABLE },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it('blocks a Vercel production build that has valid URLs but no anon key', () => {
+    const result = spawnSync(process.execPath, ['scripts/check-supabase-env.mjs'], {
+      cwd: path.resolve(__dirname, '../..'),
+      env: {
+        ...process.env,
+        ...vercelEnv('production', 'prod'),
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+        CI: 'true',
+      },
+      encoding: 'utf8',
+    });
+
+    const output = `${result.stdout}${result.stderr}`;
+    expect(result.status).toBe(1);
+    expect(output).toContain('NEXT_PUBLIC_SUPABASE_ANON_KEY is required on Vercel');
+    expect(output).not.toContain('test-signature');
+    expect(output).not.toContain('prod-secret');
   });
 });
 

@@ -5,8 +5,9 @@
  *   Preview / Development  MUST use the DEMO project (esbdrgaonplpvzmtrdhw)
  *   Production             MUST use the REAL project (jqddnyuszufndwwezdwp)
  *
- * Run in CI / as a predeploy / build step. Reads NEXT_PUBLIC_SUPABASE_URL and
- * the connection URLs and fails loud if a scope is wired to the wrong project.
+ * Run in CI / as a predeploy / build step. Reads NEXT_PUBLIC_SUPABASE_URL,
+ * NEXT_PUBLIC_SUPABASE_ANON_KEY, and the connection URLs and fails loud if a
+ * scope is wired to the wrong project or auth is missing the public anon key.
  *
  * Exit 0 = ok, 1 = misconfigured (block the deploy).
  */
@@ -17,6 +18,7 @@ const {
   DEMO_REF,
   PROD_REF,
   inspectSupabaseEnvironment,
+  projectForAnonKey,
   projectForUrl,
 } = guard;
 
@@ -54,6 +56,8 @@ for (const [name, value] of Object.entries(urls)) {
     );
   }
 }
+
+seen.NEXT_PUBLIC_SUPABASE_ANON_KEY = projectForAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 if (process.env.VERCEL === '1') {
   const strict = inspectSupabaseEnvironment(process.env, {

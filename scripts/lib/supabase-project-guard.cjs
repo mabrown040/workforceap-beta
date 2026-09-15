@@ -60,6 +60,48 @@ function projectForUrl(value, kind = 'database') {
   return 'unknown';
 }
 
+function decodeJwtPayload(token) {
+  const parts = String(token).split('.');
+  if (parts.length !== 3 || parts.some((part) => !part)) return null;
+  try {
+    const padded = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const pad = padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4));
+    const payload = JSON.parse(Buffer.from(padded + pad, 'base64').toString('utf8'));
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function projectForRef(ref) {
+  if (!ref) return 'unknown';
+  for (const [project, expectedRef] of Object.entries(REFS)) {
+    if (ref === expectedRef) return project;
+  }
+  return 'unknown';
+}
+
+// JWT anon keys encode the project ref. New-format `sb_publishable_` keys do
+// not, so they classify as "publishable" and the public URL still binds the
+// project. Secrets (`sb_secret_` / service_role JWTs) must never occupy this slot.
+function projectForAnonKey(value) {
+  if (!value) return 'unset';
+  const key = String(value).trim();
+  if (!key) return 'unset';
+  if (key.startsWith('sb_secret_')) return 'service_role';
+  if (key.startsWith('sb_publishable_')) {
+    return key.length >= 32 ? 'publishable' : 'unknown';
+  }
+
+  const payload = decodeJwtPayload(key);
+  if (!payload) return 'unknown';
+  if (payload.iss && payload.iss !== 'supabase') return 'unknown';
+  if (payload.role === 'service_role') return 'service_role';
+  if (payload.role !== 'anon') return 'unknown';
+  return projectForRef(payload.ref);
+}
+
 function expectedProjectForVercelEnv(vercelEnv) {
   if (vercelEnv === 'production') return 'prod';
   if (vercelEnv === 'preview' || vercelEnv === 'development') return 'demo';
@@ -94,6 +136,9 @@ function inspectSupabaseEnvironment(env = process.env, options = {}) {
     DATABASE_URL: projectForUrl(urls.DATABASE_URL),
   };
 
+  // URL names only. NEXT_PUBLIC_SUPABASE_ANON_KEY is required too, but it is a
+  // JWT / publishable key rather than a URL — classify it separately below.
+  // Shipping without it used to pass this guard and take down both auth paths.
   const requiredNames = ['NEXT_PUBLIC_SUPABASE_URL', 'POSTGRES_PRISMA_URL'];
   if (requireDirectUrl) requiredNames.push('POSTGRES_URL_NON_POOLING');
 
@@ -106,6 +151,24 @@ function inspectSupabaseEnvironment(env = process.env, options = {}) {
     } else if (expected && classification !== expected) {
       errors.push(`${name} points at the wrong Supabase project for VERCEL_ENV=${vercelEnv}.`);
     }
+  }
+
+  const anonKeyClassification = projectForAnonKey(env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '');
+  classifications.NEXT_PUBLIC_SUPABASE_ANON_KEY = anonKeyClassification;
+  if (anonKeyClassification === 'unset') {
+    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required on Vercel.');
+  } else if (anonKeyClassification === 'service_role') {
+    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY must be the public anon key, not a service role key.');
+  } else if (anonKeyClassification === 'unknown') {
+    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY does not identify an approved Supabase anon key.');
+  } else if (
+    anonKeyClassification !== 'publishable' &&
+    expected &&
+    anonKeyClassification !== expected
+  ) {
+    errors.push(
+      `NEXT_PUBLIC_SUPABASE_ANON_KEY points at the wrong Supabase project for VERCEL_ENV=${vercelEnv}.`
+    );
   }
 
   for (const name of ['POSTGRES_URL_NON_POOLING']) {
@@ -160,5 +223,6 @@ module.exports = {
   assertSupabaseEnvironment,
   expectedProjectForVercelEnv,
   inspectSupabaseEnvironment,
+  projectForAnonKey,
   projectForUrl,
 };

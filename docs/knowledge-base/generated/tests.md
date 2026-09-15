@@ -94,12 +94,12 @@
 | [tests/api/member-feedback.spec.ts](../../../tests/api/member-feedback.spec.ts) | 346 | tests |  |
 | [tests/api/member-goals.spec.ts](../../../tests/api/member-goals.spec.ts) | 416 | tests |  |
 | [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 438 | tests |  |
-| [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 520 | tests |  |
+| [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 523 | tests |  |
 | [tests/api/member-profile.spec.ts](../../../tests/api/member-profile.spec.ts) | 469 | tests |  |
 | [tests/api/member-referral-privacy.spec.ts](../../../tests/api/member-referral-privacy.spec.ts) | 29 | tests |  |
 | [tests/api/member-resume.spec.ts](../../../tests/api/member-resume.spec.ts) | 276 | tests |  |
 | [tests/api/member-settings.spec.ts](../../../tests/api/member-settings.spec.ts) | 154 | tests |  |
-| [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 160 | tests |  |
+| [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 161 | tests |  |
 | [tests/api/member-training-workspace.spec.ts](../../../tests/api/member-training-workspace.spec.ts) | 198 | tests |  |
 | [tests/api/member-weekly-recap.spec.ts](../../../tests/api/member-weekly-recap.spec.ts) | 168 | tests |  |
 | [tests/api/member-wioa-voice-session.spec.ts](../../../tests/api/member-wioa-voice-session.spec.ts) | 89 | tests |  |

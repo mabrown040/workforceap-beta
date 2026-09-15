@@ -17,6 +17,7 @@ import guard from './lib/supabase-project-guard.cjs';
 const {
   DEMO_REF,
   PROD_REF,
+  formatSupabaseEnvGuardFailure,
   inspectSupabaseEnvironment,
   projectForAnonKey,
   projectForUrl,
@@ -70,12 +71,10 @@ if (process.env.VERCEL === '1') {
 console.log(`[supabase-env-guard] env=${env} expected=${expected} →`, seen);
 
 if (errors.length) {
-  console.error('\n[supabase-env-guard] BLOCKED — wrong Supabase project for this environment:');
+  const { header, hint } = formatSupabaseEnvGuardFailure(errors, { demo: DEMO_REF, prod: PROD_REF });
+  console.error(`\n${header}`);
   console.error(errors.join('\n'));
-  console.error(
-    `\nFix: in Vercel, the Preview + Development scopes must use the DEMO project (${DEMO_REF}); ` +
-      `Production must use the real project (${PROD_REF}). See docs/STAGING_ENV.md.\n`
-  );
+  console.error(`\n${hint}\n`);
   process.exit(1);
 }
 

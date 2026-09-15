@@ -189,6 +189,9 @@ describe('Supabase project guard', () => {
     expect(result.status).toBe(1);
     expect(`${result.stdout}${result.stderr}`).not.toContain('CI — skipping');
     expect(`${result.stdout}${result.stderr}`).not.toContain('prod-secret');
+    expect(`${result.stdout}${result.stderr}`).toContain(
+      'BLOCKED — wrong Supabase project for this environment'
+    );
   });
 
   it('fails closed when the anon key is missing even if every URL is valid', () => {
@@ -269,8 +272,40 @@ describe('Supabase project guard', () => {
     const output = `${result.stdout}${result.stderr}`;
     expect(result.status).toBe(1);
     expect(output).toContain('NEXT_PUBLIC_SUPABASE_ANON_KEY is required on Vercel');
+    expect(output).toContain('BLOCKED — required Supabase variable is missing');
+    expect(output).toContain('add the missing variable with the correct scope checked');
+    expect(output).not.toContain('wrong Supabase project for this environment');
+    expect(output).not.toContain('must use the DEMO project');
     expect(output).not.toContain('test-signature');
     expect(output).not.toContain('prod-secret');
+  });
+
+  it('prints a missing-variable trail instead of a cross-wired-project trail', () => {
+    const missing = guard.formatSupabaseEnvGuardFailure([
+      '  ✗ NEXT_PUBLIC_SUPABASE_ANON_KEY is required on Vercel.',
+    ]);
+    expect(missing.header).toContain('required Supabase variable is missing');
+    expect(missing.hint).toContain('add the missing variable');
+    expect(missing.hint).not.toContain(guard.DEMO_REF);
+
+    const crossWired = guard.formatSupabaseEnvGuardFailure([
+      '  ✗ NEXT_PUBLIC_SUPABASE_URL points at the PROD project, but VERCEL_ENV="preview" must use DEMO.',
+    ]);
+    expect(crossWired.header).toContain('wrong Supabase project for this environment');
+    expect(crossWired.hint).toContain(guard.DEMO_REF);
+    expect(crossWired.hint).toContain(guard.PROD_REF);
+
+    const mixed = guard.formatSupabaseEnvGuardFailure([
+      '  ✗ NEXT_PUBLIC_SUPABASE_ANON_KEY is required on Vercel.',
+      '  ✗ NEXT_PUBLIC_SUPABASE_URL points at the wrong Supabase project for VERCEL_ENV=preview.',
+    ]);
+    expect(mixed.header).toContain('wrong Supabase project for this environment');
+
+    const truncated = guard.formatSupabaseEnvGuardFailure([
+      '  ✗ NEXT_PUBLIC_SUPABASE_ANON_KEY does not identify an approved Supabase anon key.',
+    ]);
+    expect(truncated.header).toContain('Supabase environment is misconfigured');
+    expect(truncated.hint).not.toContain('must use the DEMO project');
   });
 });
 

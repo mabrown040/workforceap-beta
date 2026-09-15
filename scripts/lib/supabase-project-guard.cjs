@@ -217,11 +217,44 @@ function assertSupabaseEnvironment(env = process.env, options = {}) {
   return result;
 }
 
+function formatSupabaseEnvGuardFailure(errorMessages, refs = { demo: DEMO_REF, prod: PROD_REF }) {
+  const errors = (errorMessages || []).map((message) => String(message));
+  const missingRequired = errors.some((error) => /is required on Vercel\./.test(error));
+  const wrongProject = errors.some(
+    (error) =>
+      /points at the wrong Supabase project/.test(error) ||
+      /points at the (DEMO|PROD) project/.test(error)
+  );
+
+  if (missingRequired && !wrongProject) {
+    return {
+      header: '[supabase-env-guard] BLOCKED — required Supabase variable is missing:',
+      hint:
+        'Fix: in Vercel, add the missing variable with the correct scope checked (Production vs Preview + Development) and redeploy. See docs/STAGING_ENV.md.',
+    };
+  }
+
+  if (wrongProject) {
+    return {
+      header: '[supabase-env-guard] BLOCKED — wrong Supabase project for this environment:',
+      hint:
+        `Fix: in Vercel, the Preview + Development scopes must use the DEMO project (${refs.demo}); ` +
+        `Production must use the real project (${refs.prod}). See docs/STAGING_ENV.md.`,
+    };
+  }
+
+  return {
+    header: '[supabase-env-guard] BLOCKED — Supabase environment is misconfigured:',
+    hint: 'Fix: check the Supabase URL, anon key, and connection strings in Vercel. See docs/STAGING_ENV.md.',
+  };
+}
+
 module.exports = {
   DEMO_REF,
   PROD_REF,
   assertSupabaseEnvironment,
   expectedProjectForVercelEnv,
+  formatSupabaseEnvGuardFailure,
   inspectSupabaseEnvironment,
   projectForAnonKey,
   projectForUrl,

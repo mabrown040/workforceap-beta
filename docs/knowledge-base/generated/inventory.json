@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "82dfcb97db4da763c1998a979176ac18cf6841dccd1fe99935b34de5e6428510",
+  "inputTreeSha256": "b10645dceab3d330f6db0e4e89d7b50e44e2700c76f4dc4cbc0b65f7bf30148c",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -29572,9 +29572,9 @@
       "path": "app/api/apply/signup/route.test.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 45637,
-      "lines": 1258,
-      "sha256": "040ed3ee12755f7dfb167b04968473dcfcd1b80779b20672a1f16554dcb6a490",
+      "bytes": 47952,
+      "lines": 1304,
+      "sha256": "a8f99fa89d6acbddfbdb735fd14601588c5f3dfe31293a80fcdfdabf674c2abc",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -29595,22 +29595,22 @@
         },
         {
           "name": "supabaseGetUser",
-          "line": 280,
+          "line": 292,
           "kind": "Variable"
         },
         {
           "name": "supabaseSignUp",
-          "line": 281,
+          "line": 293,
           "kind": "Variable"
         },
         {
           "name": "makeRequest",
-          "line": 312,
+          "line": 324,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resetState",
-          "line": 337,
+          "line": 349,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -29620,51 +29620,51 @@
       "path": "app/api/apply/signup/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 44961,
-      "lines": 1021,
-      "sha256": "290c1cc8ef86ce6475c40329b495f2e40a0cfd3e2dbb7fb73e60051d1326c64c",
+      "bytes": 45623,
+      "lines": 1030,
+      "sha256": "f185aa694feb5eddcb097bab5556c374e9e6ba6d00046da9d253378d59eb00b3",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 179,
+          "line": 180,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "seatCapNote",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getClientIp",
-          "line": 68,
+          "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "accountRecoveryRequiredResponse",
-          "line": 76,
+          "line": 77,
           "kind": "Variable"
         },
         {
           "name": "isAppEmailCollision",
-          "line": 85,
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "compensateFreshApplySignupAuthIdentity",
-          "line": 97,
+          "line": 98,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "applySignupSchema",
-          "line": 122,
+          "line": 123,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 179,
+          "line": 180,
           "kind": "Variable"
         }
       ],
@@ -37527,26 +37527,26 @@
       "path": "app/api/member/signup/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 10569,
-      "lines": 276,
-      "sha256": "156c1a659a25c95fd2530ef4b223d9a128d6bff692034f32756cbb5702ccf165",
+      "bytes": 11148,
+      "lines": 284,
+      "sha256": "adc9b58d86d82fa5fc89ed0b451a354fc6271fe65e03387a6d2ea788e4be3d9d",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "getClientIp",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -93341,9 +93341,9 @@
       "path": "lib/auth/passwordReset.ts",
       "area": "libraries",
       "domain": "identity-tenancy",
-      "bytes": 9130,
-      "lines": 221,
-      "sha256": "986969041dfe6059dccca1de2a6ea6846fd75e82063f3ca079f248c4dde31048",
+      "bytes": 10304,
+      "lines": 241,
+      "sha256": "3710f64bd83afc67ab0d31bae6c52faf58e2ea886a7dd209f271cebb72f6a7b5",
       "binary": false,
       "exports": [
         {
@@ -93353,7 +93353,7 @@
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 108,
+          "line": 128,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -93380,7 +93380,7 @@
         },
         {
           "name": "sendPasswordResetEmail",
-          "line": 108,
+          "line": 128,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107038,6 +107038,50 @@
           "name": "sourceFiles",
           "line": 17,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/db/exactEmailMatch.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1792,
+      "lines": 41,
+      "sha256": "2929fb052d42f99e2ccf9d25b756f773a3261ad8dec9547ccbfe8718315292e1",
+      "binary": false,
+      "exports": [
+        {
+          "name": "normalizeEmail",
+          "line": 20,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "pickExactEmailMatch",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "EXACT_EMAIL_CANDIDATE_LIMIT",
+          "line": 41,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "normalizeEmail",
+          "line": 20,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "pickExactEmailMatch",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "EXACT_EMAIL_CANDIDATE_LIMIT",
+          "line": 41,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -147811,9 +147855,9 @@
       "path": "tests/api/member-onboard.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 16111,
-      "lines": 520,
-      "sha256": "d4e17cfe230ca96da0f70c1b1b0c7d581fbe742c35b76a02d5b062b076f063ca",
+      "bytes": 16295,
+      "lines": 523,
+      "sha256": "54acf77d9becc4f3ee4184318ba9d94d3e1b24060226495e4e1882345053e9b3",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -147895,9 +147939,9 @@
       "path": "tests/api/member-signup.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7124,
-      "lines": 160,
-      "sha256": "8d250e9afe595c767009e216a5cec9c82df48f2fd526f71df9d91c5c4ee408d2",
+      "bytes": 7179,
+      "lines": 161,
+      "sha256": "14f2fcbf584f1d70c6b334bafb09878408dad4f77987871c0548fe35d1fd6694",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152143,9 +152187,9 @@
       "path": "tests/lib/password-reset-self-heal.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5901,
-      "lines": 149,
-      "sha256": "e4dff2a19c371532d07ae025cd72ce577bd2cbc8bfbb6f7135eae0142c1e9ca5",
+      "bytes": 8937,
+      "lines": 210,
+      "sha256": "15313f09b41baa416f8f898113bc438f04a3b4b4f6abfaa919c6d7e36d74f7c3",
       "binary": false,
       "exports": [],
       "declarations": [

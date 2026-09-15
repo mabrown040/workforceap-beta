@@ -951,7 +951,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 99
+          "line": 100
         },
         {
           "file": "scripts/check-supabase-env.mjs",
@@ -1529,7 +1529,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 170
+          "line": 190
         },
         {
           "file": "lib/billing/sendPacket.ts",
@@ -1890,11 +1890,11 @@
         },
         {
           "file": "app/api/apply/signup/route.test.ts",
-          "line": 365
+          "line": 378
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 260
+          "line": 261
         },
         {
           "file": "app/api/contact/route.ts",
@@ -1910,7 +1910,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 65
+          "line": 66
         },
         {
           "file": "app/api/partner/signup/route.ts",
@@ -2326,11 +2326,11 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.test.ts",
-          "line": 364
+          "line": 377
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 432
+          "line": 433
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2338,7 +2338,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 96
+          "line": 97
         },
         {
           "file": "app/api/partner/signup/route.ts",
@@ -2346,7 +2346,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 114
+          "line": 134
         },
         {
           "file": "lib/auth/server.ts",
@@ -2393,11 +2393,11 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.test.ts",
-          "line": 363
+          "line": 376
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 431
+          "line": 432
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2405,7 +2405,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 95
+          "line": 96
         },
         {
           "file": "app/api/partner/signup/route.ts",
@@ -2413,7 +2413,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 113
+          "line": 133
         },
         {
           "file": "lib/auth/server.ts",
@@ -2488,7 +2488,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 273
+          "line": 274
         },
         {
           "file": "app/api/contact/route.ts",
@@ -2504,7 +2504,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 78
+          "line": 79
         },
         {
           "file": "app/api/partner/signup/route.ts",
@@ -3143,7 +3143,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 99
+          "line": 100
         },
         {
           "file": "prisma/schema.prisma",
@@ -3660,7 +3660,7 @@
       "references": [
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 97
+          "line": 98
         },
         {
           "file": "app/api/partner/signup/route.ts",
@@ -3668,7 +3668,7 @@
         },
         {
           "file": "lib/auth/passwordReset.ts",
-          "line": 126
+          "line": 146
         },
         {
           "file": "lib/email/unsubscribeToken.ts",
@@ -3744,7 +3744,7 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 262
+          "line": 263
         },
         {
           "file": "app/api/contact/route.ts",
@@ -3760,7 +3760,7 @@
         },
         {
           "file": "app/api/member/signup/route.ts",
-          "line": 67
+          "line": 68
         },
         {
           "file": "app/api/partner/signup/route.ts",

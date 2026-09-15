@@ -245,15 +245,15 @@
       },
       {
         "file": "app/api/apply/signup/route.ts",
-        "line": 303
+        "line": 315
       },
       {
         "file": "lib/email.ts",
-        "line": 304
+        "line": 316
       },
       {
         "file": "lib/observability/captureApiError.ts",
-        "line": 310
+        "line": 322
       }
     ],
     "kind": "test-candidate",
@@ -12272,27 +12272,27 @@
       },
       {
         "file": "app/api/member/signup/route.ts",
-        "line": 90
-      },
-      {
-        "file": "app/api/onboarding/complete/route.ts",
-        "line": 91
-      },
-      {
-        "file": "lib/member/service.ts",
-        "line": 92
-      },
-      {
-        "file": "lib/rate-limit.ts",
         "line": 93
       },
       {
-        "file": "lib/auth/server.ts",
+        "file": "app/api/onboarding/complete/route.ts",
+        "line": 94
+      },
+      {
+        "file": "lib/member/service.ts",
         "line": 95
       },
       {
-        "file": "lib/db/prisma.ts",
+        "file": "lib/rate-limit.ts",
         "line": 96
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 98
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 99
       }
     ],
     "kind": "test-candidate",

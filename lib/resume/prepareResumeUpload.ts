@@ -119,7 +119,7 @@ export async function prepareResumeUpload(file: unknown): Promise<PreparedResume
   if (!hasCompatibleMimeType(extension, file.type || '')) fail('invalid_file_type');
 
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   if (buffer.length > MAX_RESUME_UPLOAD_SIZE) fail('file_too_large');
   if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
     fail('invalid_file_type');

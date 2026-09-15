@@ -60,6 +60,45 @@ function projectForUrl(value, kind = 'database') {
   return 'unknown';
 }
 
+/**
+ * Classify NEXT_PUBLIC_SUPABASE_ANON_KEY the way projectForUrl classifies a URL.
+ *
+ * A legacy anon key is a JWT whose payload carries the project `ref`, so the
+ * same prod/demo check the URLs get applies to it. A modern
+ * `sb_publishable_...` key carries no ref, so it can only be checked for
+ * presence — 'opaque' says "supplied, project not determinable" and must not
+ * be treated as a misconfiguration.
+ *
+ * The payload is read, not verified: this is a build-time configuration check,
+ * never an authentication decision. No key material is returned or logged.
+ */
+function projectForAnonKey(value) {
+  if (!value) return 'unset';
+
+  if (/^sb_publishable_[A-Za-z0-9_-]+$/.test(value)) return 'opaque';
+
+  const segments = value.split('.');
+  if (segments.length !== 3) return 'unknown';
+
+  let claims;
+  try {
+    const payload = Buffer.from(
+      segments[1].replace(/-/g, '+').replace(/_/g, '/'),
+      'base64',
+    ).toString('utf8');
+    claims = JSON.parse(payload);
+  } catch {
+    return 'unknown';
+  }
+  if (!claims || typeof claims !== 'object') return 'unknown';
+  if (claims.role !== 'anon') return 'unknown';
+
+  for (const [project, ref] of Object.entries(REFS)) {
+    if (claims.ref === ref) return project;
+  }
+  return 'unknown';
+}
+
 function expectedProjectForVercelEnv(vercelEnv) {
   if (vercelEnv === 'production') return 'prod';
   if (vercelEnv === 'preview' || vercelEnv === 'development') return 'demo';
@@ -87,20 +126,33 @@ function inspectSupabaseEnvironment(env = process.env, options = {}) {
     DATABASE_URL: env.DATABASE_URL || '',
   };
 
+  const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
   const classifications = {
     NEXT_PUBLIC_SUPABASE_URL: projectForUrl(urls.NEXT_PUBLIC_SUPABASE_URL, 'public'),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: projectForAnonKey(anonKey),
     POSTGRES_PRISMA_URL: projectForUrl(urls.POSTGRES_PRISMA_URL),
     POSTGRES_URL_NON_POOLING: projectForUrl(urls.POSTGRES_URL_NON_POOLING),
     DATABASE_URL: projectForUrl(urls.DATABASE_URL),
   };
 
-  const requiredNames = ['NEXT_PUBLIC_SUPABASE_URL', 'POSTGRES_PRISMA_URL'];
+  // The anon key is required: without it every Supabase client constructor
+  // throws at runtime, which takes down sign-in and signup while the build and
+  // every other health signal stay green (prod incident 2026-09-15).
+  const requiredNames = [
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    'POSTGRES_PRISMA_URL',
+  ];
   if (requireDirectUrl) requiredNames.push('POSTGRES_URL_NON_POOLING');
 
   for (const name of requiredNames) {
     const classification = classifications[name];
     if (classification === 'unset') {
       errors.push(`${name} is required on Vercel.`);
+    } else if (classification === 'opaque') {
+      // Supplied, but the value carries no project ref to check.
+      continue;
     } else if (classification === 'unknown') {
       errors.push(`${name} does not identify an approved Supabase project.`);
     } else if (expected && classification !== expected) {
@@ -160,5 +212,6 @@ module.exports = {
   assertSupabaseEnvironment,
   expectedProjectForVercelEnv,
   inspectSupabaseEnvironment,
+  projectForAnonKey,
   projectForUrl,
 };

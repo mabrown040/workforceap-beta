@@ -66,10 +66,25 @@ if (process.env.VERCEL === '1') {
 console.log(`[supabase-env-guard] env=${env} expected=${expected} →`, seen);
 
 if (errors.length) {
-  console.error('\n[supabase-env-guard] BLOCKED — wrong Supabase project for this environment:');
+  // A missing variable and a cross-wired project are different mistakes with
+  // different remedies. Naming the wrong one costs real time mid-incident.
+  const missing = errors.filter((message) => /is required on Vercel\./.test(message));
+  const headline = missing.length
+    ? 'BLOCKED — required Supabase configuration is missing'
+    : 'BLOCKED — wrong Supabase project for this environment';
+  console.error(`\n[supabase-env-guard] ${headline}:`);
   console.error(errors.join('\n'));
+  if (missing.length) {
+    console.error(
+      `\nFix: add the variable(s) above in Vercel → Settings → Environment Variables, ` +
+        `with the "${env}" scope checked, then redeploy. A variable that exists only in ` +
+        `another scope reads as unset here.\n` +
+        `\nNEXT_PUBLIC_SUPABASE_ANON_KEY is the public anon key (safe in the browser), ` +
+        `never the service-role key.\n`
+    );
+  }
   console.error(
-    `\nFix: in Vercel, the Preview + Development scopes must use the DEMO project (${DEMO_REF}); ` +
+    `Scope rule: the Preview + Development scopes must use the DEMO project (${DEMO_REF}); ` +
       `Production must use the real project (${PROD_REF}). See docs/STAGING_ENV.md.\n`
   );
   process.exit(1);

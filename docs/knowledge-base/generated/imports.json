@@ -106760,6 +106760,30 @@
     "package": "node:path"
   },
   {
+    "from": "scripts/lib/supabase-project-guard.test.cjs",
+    "specifier": "node:assert/strict",
+    "line": 3,
+    "kind": "require",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "scripts/lib/supabase-project-guard.test.cjs",
+    "specifier": "node:test",
+    "line": 4,
+    "kind": "require",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "scripts/lib/supabase-project-guard.test.cjs",
+    "specifier": "./supabase-project-guard.cjs",
+    "line": 11,
+    "kind": "require",
+    "external": false,
+    "target": "scripts/lib/supabase-project-guard.cjs"
+  },
+  {
     "from": "scripts/lint/check-coursera-catalog-placeholders.mjs",
     "specifier": "node:fs",
     "line": 34,

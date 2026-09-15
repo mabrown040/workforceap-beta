@@ -41730,7 +41730,7 @@
   {
     "from": "app/api/apply/signup/route.test.ts",
     "specifier": "./route",
-    "line": 303,
+    "line": 315,
     "kind": "import",
     "external": false,
     "target": "app/api/apply/signup/route.ts"
@@ -41738,7 +41738,7 @@
   {
     "from": "app/api/apply/signup/route.test.ts",
     "specifier": "@/lib/email",
-    "line": 304,
+    "line": 316,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -41746,15 +41746,23 @@
   {
     "from": "app/api/apply/signup/route.test.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 310,
+    "line": 322,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
   },
   {
     "from": "app/api/apply/signup/route.ts",
-    "specifier": "@/lib/tenant/withTenantScope",
+    "specifier": "@/lib/db/exactEmailMatch",
     "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/tenant/withTenantScope",
+    "line": 2,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -41762,7 +41770,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "next/server",
-    "line": 2,
+    "line": 3,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -41770,7 +41778,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@supabase/ssr",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": true,
     "package": "@supabase/ssr"
@@ -41778,7 +41786,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "next/headers",
-    "line": 4,
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -41786,7 +41794,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/supabaseCookieOptions",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/supabaseCookieOptions.ts"
@@ -41794,7 +41802,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -41802,7 +41810,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/supabase-admin",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/supabase-admin.ts"
@@ -41810,7 +41818,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/content/programs",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -41818,7 +41826,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -41826,7 +41834,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/content/programSlug",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
@@ -41834,7 +41842,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/member/courseEnrollmentAssignment",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/member/courseEnrollmentAssignment.ts"
@@ -41842,7 +41850,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "zod",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": true,
     "package": "zod"
@@ -41850,7 +41858,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -41858,7 +41866,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/turnstile/verifyTurnstile",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/turnstile/verifyTurnstile.ts"
@@ -41866,7 +41874,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/events/track",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/events/track.ts"
@@ -41874,7 +41882,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/analytics/conversionValue",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/conversionValue.ts"
@@ -41882,7 +41890,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@prisma/client",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
@@ -41890,7 +41898,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/tenant/resolveProvisionOrg",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/resolveProvisionOrg.ts"
@@ -41898,7 +41906,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -41906,7 +41914,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/observability/logger",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/observability/logger.ts"
@@ -41914,7 +41922,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -41922,7 +41930,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/db/withDbRetry",
-    "line": 22,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "lib/db/withDbRetry.ts"
@@ -41930,7 +41938,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/counselor/ambassadorAutoAssign",
-    "line": 23,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/ambassadorAutoAssign.ts"
@@ -41938,7 +41946,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/applyReferralCapture",
-    "line": 24,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/apply/applyReferralCapture.ts"
@@ -41946,7 +41954,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/partners/sponsorship",
-    "line": 29,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/partners/sponsorship.ts"
@@ -41954,7 +41962,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/schoolCollection",
-    "line": 38,
+    "line": 39,
     "kind": "import",
     "external": false,
     "target": "lib/apply/schoolCollection.ts"
@@ -41962,7 +41970,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/eligibilityExtendedFields",
-    "line": 43,
+    "line": 44,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
@@ -41970,7 +41978,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/email",
-    "line": 44,
+    "line": 45,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -55281,8 +55289,16 @@
   },
   {
     "from": "app/api/member/signup/route.ts",
-    "specifier": "@/lib/tenant/withTenantScope",
+    "specifier": "@/lib/db/exactEmailMatch",
     "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/member/signup/route.ts",
+    "specifier": "@/lib/tenant/withTenantScope",
+    "line": 2,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -55290,7 +55306,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 2,
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -55298,7 +55314,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/member/service",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/member/service.ts"
@@ -55306,7 +55322,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "next/server",
-    "line": 4,
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -55314,7 +55330,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@supabase/ssr",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "@supabase/ssr"
@@ -55322,7 +55338,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "next/headers",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -55330,7 +55346,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/supabaseCookieOptions",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/supabaseCookieOptions.ts"
@@ -55338,7 +55354,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/validation/member",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/validation/member.ts"
@@ -55346,7 +55362,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -55354,7 +55370,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/turnstile/verifyTurnstile",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/turnstile/verifyTurnstile.ts"
@@ -55362,7 +55378,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/events/track",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/events/track.ts"
@@ -55370,7 +55386,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/analytics/conversionValue",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/conversionValue.ts"
@@ -55378,7 +55394,7 @@
   {
     "from": "app/api/member/signup/route.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -112818,7 +112834,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@/app/api/member/signup/route",
-    "line": 90,
+    "line": 93,
     "kind": "import",
     "external": false,
     "target": "app/api/member/signup/route.ts"
@@ -112826,7 +112842,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@/app/api/onboarding/complete/route",
-    "line": 91,
+    "line": 94,
     "kind": "import",
     "external": false,
     "target": "app/api/onboarding/complete/route.ts"
@@ -112834,7 +112850,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@/lib/member/service",
-    "line": 92,
+    "line": 95,
     "kind": "import",
     "external": false,
     "target": "lib/member/service.ts"
@@ -112842,7 +112858,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 93,
+    "line": 96,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -112850,7 +112866,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@supabase/ssr",
-    "line": 94,
+    "line": 97,
     "kind": "import",
     "external": true,
     "package": "@supabase/ssr"
@@ -112858,7 +112874,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 95,
+    "line": 98,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -112866,7 +112882,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 96,
+    "line": 99,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -112874,7 +112890,7 @@
   {
     "from": "tests/api/member-onboard.spec.ts",
     "specifier": "next/server",
-    "line": 97,
+    "line": 100,
     "kind": "import",
     "external": true,
     "package": "next"

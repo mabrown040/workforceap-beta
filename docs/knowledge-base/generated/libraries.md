@@ -198,7 +198,7 @@
 | [lib/auth/mfaConfig.test.ts](../../../lib/auth/mfaConfig.test.ts) | 58 | identity-tenancy |  |
 | [lib/auth/mfaConfig.ts](../../../lib/auth/mfaConfig.ts) | 16 | identity-tenancy | isStaffMfaEnforcementEnabled:9 |
 | [lib/auth/mfaTrust.ts](../../../lib/auth/mfaTrust.ts) | 142 | identity-tenancy | getAdminMfaTrustDays:73, getAdminMfaTrustCookieName:79, issueAdminMfaTrustToken:83, verifyAdminMfaTrustToken:98, getAdminMfaTrustCookieOptions:134 |
-| [lib/auth/passwordReset.ts](../../../lib/auth/passwordReset.ts) | 221 | identity-tenancy | PasswordResetSendResult:11, sendPasswordResetEmail:108 |
+| [lib/auth/passwordReset.ts](../../../lib/auth/passwordReset.ts) | 241 | identity-tenancy | PasswordResetSendResult:11, sendPasswordResetEmail:128 |
 | [lib/auth/portalGuards.ts](../../../lib/auth/portalGuards.ts) | 25 | identity-tenancy | unlinkedEmployerHref:18, unlinkedPartnerHref:23 |
 | [lib/auth/portalRoleSwitcher.test.ts](../../../lib/auth/portalRoleSwitcher.test.ts) | 91 | identity-tenancy |  |
 | [lib/auth/portalRoleSwitcher.ts](../../../lib/auth/portalRoleSwitcher.ts) | 148 | identity-tenancy | PortalSwitcherRole:11, buildPortalSwitcherRoles:27, PortalSwitcherInputs:66, getPortalSwitcherRoles:85 |
@@ -428,6 +428,7 @@
 | [lib/csv/export.ts](../../../lib/csv/export.ts) | 60 | libraries | CsvValue:11, CsvColumn:13, dataToCsv:21, csvDownloadResponse:39, exportFilename:57 |
 | [lib/data/applications.ts](../../../lib/data/applications.ts) | 30 | libraries | getStaleApplications:4 |
 | [lib/db/advisoryLockRawQuery.test.ts](../../../lib/db/advisoryLockRawQuery.test.ts) | 48 | libraries |  |
+| [lib/db/exactEmailMatch.ts](../../../lib/db/exactEmailMatch.ts) | 41 | libraries | normalizeEmail:20, pickExactEmailMatch:28, EXACT_EMAIL_CANDIDATE_LIMIT:41 |
 | [lib/db/gucContext.test.ts](../../../lib/db/gucContext.test.ts) | 143 | identity-tenancy |  |
 | [lib/db/gucContext.ts](../../../lib/db/gucContext.ts) | 135 | identity-tenancy | RlsRole:10, GucContext:31, gucContextStorage:39, getGucContext:42, requireGucContext:54, runWithGucContext:70, mapProfileRoleToRlsRole:75, buildGucContext:99, ANONYMOUS_GUC_CONTEXT:116, SYSTEM_GUC_CONTEXT:123, inTransactionStorage:135 |
 | [lib/db/optionalBuildDb.ts](../../../lib/db/optionalBuildDb.ts) | 16 | libraries | shouldSkipOptionalDbQueriesAtBuild:6 |

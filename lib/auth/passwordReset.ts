@@ -53,10 +53,27 @@ async function recreateAuthUserFromPrismaRow(
   try {
     // Explicit $transaction: admin reset-password callers run under a GUC
     // context, where a bare query is flagged by the Prisma middleware.
-    row = await prisma.$transaction((tx) => tx.user.findFirst({
+    //
+    // `mode: 'insensitive'` compiles to ILIKE on PostgreSQL, so `%` and `_` in
+    // the caller-supplied address are WILDCARDS, not literals, and this filter
+    // alone can match a row that is not the requested address at all. This
+    // endpoint is unauthenticated, so matching is never treated as proof of
+    // identity: collect the candidates and then keep only an exact,
+    // case-insensitive match. Selecting the exact row (rather than rejecting
+    // the whole batch) also preserves the self-heal for legitimate addresses
+    // that contain `_`, which would otherwise collide with a same-shaped
+    // address and fail.
+    const candidates = await prisma.$transaction((tx) => tx.user.findMany({
       where: { email: { equals: normalizedEmail, mode: 'insensitive' }, deletedAt: null },
       select: { id: true, email: true, fullName: true, phone: true },
+      take: 25,
     }));
+    row = candidates.find((candidate) => candidate.email.trim().toLowerCase() === normalizedEmail) ?? null;
+    if (!row && candidates.length) {
+      logger.warn('passwordReset: reset lookup matched rows that are not the requested address; refusing self-heal', {
+        candidateCount: candidates.length,
+      });
+    }
   } catch (err) {
     logger.warn('passwordReset: could not look up users row for auth self-heal', {
       err: err instanceof Error ? err.message : String(err),
@@ -67,7 +84,10 @@ async function recreateAuthUserFromPrismaRow(
 
   const result = await reenableAuthUserAfterRestore(admin, {
     id: row.id,
-    email: normalizedEmail,
+    // The matched row's own address, never the request string: the two can
+    // differ (see above), and this value is what gets bound to `row.id` as a
+    // Supabase auth identity.
+    email: row.email,
     fullName: row.fullName,
     phone: row.phone,
   });

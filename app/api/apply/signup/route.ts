@@ -1,3 +1,4 @@
+import { pickExactEmailMatch, normalizeEmail, EXACT_EMAIL_CANDIDATE_LIMIT } from '@/lib/db/exactEmailMatch';
 import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
@@ -467,11 +468,19 @@ export const POST = withApiGuc(async (request: NextRequest) => {
   
     // An existing app identity may have no Auth row after a legacy delete.
     // Never create another identity or transfer its roles/records through signup.
-    const existingAccount = await crossTenantOK(() => withSystemGuc(() => prisma.$transaction((tx) => tx.user.findFirst({
-      where: { email: { equals: email.trim().toLowerCase(), mode: 'insensitive' } },
-      select: { id: true },
+    //
+    // `mode: 'insensitive'` compiles to ILIKE, so the applicant's own address is
+    // used as a PATTERN: an address containing `_` matches same-shaped rows
+    // belonging to other people. Matching a row is therefore not proof that an
+    // account exists for THIS address, and a false positive here hard-blocks a
+    // real applicant out of the funnel with a 409 they cannot self-resolve.
+    // Keep only a genuine equality. See lib/db/exactEmailMatch.ts.
+    const existingCandidates = await crossTenantOK(() => withSystemGuc(() => prisma.$transaction((tx) => tx.user.findMany({
+      where: { email: { equals: normalizeEmail(email), mode: 'insensitive' } },
+      select: { id: true, email: true },
+      take: EXACT_EMAIL_CANDIDATE_LIMIT,
     }))));
-    if (existingAccount) {
+    if (pickExactEmailMatch(existingCandidates, email)) {
       return accountRecoveryRequiredResponse();
     }
 

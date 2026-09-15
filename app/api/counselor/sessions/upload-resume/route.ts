@@ -101,7 +101,7 @@ export const POST = withApiGuc(async (request: Request) => {
           field: 'resumeOriginalPath',
           extension: prepared.extension,
           contentType: prepared.contentType,
-          body: prepared.arrayBuffer,
+          body: prepared.bytes,
         }],
         clearFields: ['resumeEnhancedPath'],
         uploadObject: (path, body, options) => storage.upload(path, body, options),

@@ -103208,6 +103208,70 @@
     "package": "node:url"
   },
   {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:buffer",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:buffer"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:fs/promises",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:module",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:module"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:path",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:test",
+    "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "./atomicResumeObjectSwap",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/resume/atomicResumeObjectSwap.ts"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "./prepareResumeUpload",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/resume/prepareResumeUpload.ts"
+  },
+  {
     "from": "lib/resume/resumeUploadUiContract.test.ts",
     "specifier": "node:assert/strict",
     "line": 1,

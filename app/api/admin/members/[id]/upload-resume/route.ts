@@ -111,7 +111,7 @@ export const POST = withApiGuc(async (
       field: 'resumeOriginalPath',
       extension: preparedOriginal.extension,
       contentType: preparedOriginal.contentType,
-      body: preparedOriginal.arrayBuffer,
+      body: preparedOriginal.bytes,
     });
   }
   if (safeEnhancedText) {

@@ -320,7 +320,11 @@ export default async function AdminTrainingProgressPage({
     const lastActivity = learner.lastActivityTime
       ? new Date(learner.lastActivityTime)
       : undefined;
-    const percentComplete = learner.averageProgressPercent;
+    // averageProgressPercent means over every historical row for the email,
+    // so one stale 0% row halves the real number (38% reads as 19%).
+    // latestProgressPercent is the most recently active course with real
+    // progress — the learner's actual current position.
+    const percentComplete = learner.latestProgressPercent;
     rows.push({
       id: `coursera:${learner.externalEmail}`,
       student: learner.externalName?.trim() || learner.externalEmail,

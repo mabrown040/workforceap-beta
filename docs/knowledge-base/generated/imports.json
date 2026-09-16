@@ -118568,6 +118568,46 @@
     "package": "vitest"
   },
   {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "next/server",
+    "line": 71,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "@/lib/admin/logCronRun",
+    "line": 72,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/logCronRun.ts"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "@/lib/cron/cronExecution",
+    "line": 73,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/cronExecution.ts"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "@/lib/cron/withCronLogging",
+    "line": 74,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/withCronLogging.ts"
+  },
+  {
     "from": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
     "specifier": "node:fs",
     "line": 1,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "de455ca84b3c02f518b3e04e424f8dae7bbd0572935fda547947c959c0f2a264",
+  "inputTreeSha256": "dbcdb4339dca49ff5db78439ae827a9ad1af5c6c349555f7c7cd45b7e1a261ce",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4506,
-    "sourceModules": 3183,
-    "importReferences": 15092,
-    "resolvedLocalReferences": 10072,
+    "files": 4507,
+    "sourceModules": 3184,
+    "importReferences": 15097,
+    "resolvedLocalReferences": 10075,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 630,
-    "testCandidates": 623,
+    "testFiles": 631,
+    "testCandidates": 624,
     "testHelpers": 7,
-    "staticallySelectedTests": 620,
+    "staticallySelectedTests": 621,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 311
+      "files": 312
     }
   ],
   "mostReferenced": [
@@ -232,11 +232,11 @@
     },
     {
       "file": "lib/admin/logCronRun.ts",
-      "references": 36
+      "references": 37
     },
     {
       "file": "lib/cron/cronExecution.ts",
-      "references": 36
+      "references": 37
     },
     {
       "file": "lib/auth/ensureUser.ts",

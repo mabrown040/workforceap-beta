@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "de455ca84b3c02f518b3e04e424f8dae7bbd0572935fda547947c959c0f2a264",
+  "inputTreeSha256": "dbcdb4339dca49ff5db78439ae827a9ad1af5c6c349555f7c7cd45b7e1a261ce",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -151425,6 +151425,49 @@
           "name": "tenantIndexes",
           "line": 17,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/cron-diagnostics-visibility.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 7254,
+      "lines": 204,
+      "sha256": "3d76fe4e1142f492b1812b66cce09c50eb5cc5fba8d53f04a3dd2b78d354795b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "DiagnosticRow",
+          "line": 20,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "diagnostics",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
+          "name": "executions",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "executionSeq",
+          "line": 30,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 76,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "rowsFor",
+          "line": 80,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

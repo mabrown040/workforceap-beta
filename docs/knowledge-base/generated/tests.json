@@ -17184,6 +17184,38 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/logCronRun.ts",
+        "line": 72
+      },
+      {
+        "file": "lib/cron/cronExecution.ts",
+        "line": 73
+      },
+      {
+        "file": "lib/cron/withCronLogging.ts",
+        "line": 74
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
     "area": "tests",
     "domain": "tests",

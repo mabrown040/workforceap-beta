@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "dbcdb4339dca49ff5db78439ae827a9ad1af5c6c349555f7c7cd45b7e1a261ce",
+  "inputTreeSha256": "8a8959b487dce72198b242a25ab14bdcf3b6f28792c0f943230fb37bf9f2d881",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -390,7 +390,7 @@
     },
     {
       "file": "lib/coursera/progressQueries.ts",
-      "lines": 1034
+      "lines": 1043
     }
   ]
 }

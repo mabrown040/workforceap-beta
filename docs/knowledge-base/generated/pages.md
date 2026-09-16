@@ -484,7 +484,7 @@
 | [app/admin/subgroups/page.tsx](../../../app/admin/subgroups/page.tsx) | 123 | administration | generateMetadata:15, default:43 |
 | [app/admin/testimonials/loading.tsx](../../../app/admin/testimonials/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/testimonials/page.tsx](../../../app/admin/testimonials/page.tsx) | 33 | administration | generateMetadata:10, default:18 |
-| [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | 709 | administration | generateMetadata:31, dynamic:40, default:45 |
+| [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | 746 | administration | generateMetadata:31, dynamic:40, default:45 |
 | [app/admin/users/deleted/page.tsx](../../../app/admin/users/deleted/page.tsx) | 117 | administration | generateMetadata:12, default:36 |
 | [app/admin/users/loading.tsx](../../../app/admin/users/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/users/page.tsx](../../../app/admin/users/page.tsx) | 185 | administration | generateMetadata:18, default:66 |

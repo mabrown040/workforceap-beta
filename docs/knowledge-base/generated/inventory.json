@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "dbcdb4339dca49ff5db78439ae827a9ad1af5c6c349555f7c7cd45b7e1a261ce",
+  "inputTreeSha256": "8a8959b487dce72198b242a25ab14bdcf3b6f28792c0f943230fb37bf9f2d881",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -20573,9 +20573,9 @@
       "path": "app/admin/training-progress/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 28018,
-      "lines": 709,
-      "sha256": "b0bc0910e3fb2459795c7274d709863e3cf00d92b5c4d9e1f7bfb3b0e886671a",
+      "bytes": 29927,
+      "lines": 746,
+      "sha256": "39eec2e4f5a0b7064f88412883cc43d9e48df07e11176ceb1f60ce026c3fcf51",
       "binary": false,
       "exports": [
         {
@@ -20618,7 +20618,7 @@
         },
         {
           "name": "renderLegacy",
-          "line": 370,
+          "line": 407,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -102327,9 +102327,9 @@
       "path": "lib/coursera/b4bSync.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 37852,
-      "lines": 974,
-      "sha256": "156f3b255f7e8cfe5d0e040d3bcc278917b98f6afb3c882eccfd378e64bb5291",
+      "bytes": 38544,
+      "lines": 992,
+      "sha256": "da26e5bf9ded7abdd94b9879ceadaba3f59f03d6159d8a13782fb648049432c8",
       "binary": false,
       "exports": [
         {
@@ -102349,67 +102349,67 @@
         },
         {
           "name": "normalizeB4BEnrollmentReport",
-          "line": 96,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "planB4BRowWrite",
-          "line": 123,
+          "line": 135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "nextEnrollmentReportStart",
-          "line": 188,
+          "line": 200,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "selectCanonicalB4BMapping",
-          "line": 270,
+          "line": 282,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BProgressInput",
-          "line": 303,
+          "line": 315,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BSignalSources",
-          "line": 317,
+          "line": 329,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "mergeB4BProgressSignals",
-          "line": 353,
+          "line": 365,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ExistingCourseProgress",
-          "line": 385,
+          "line": 397,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MergedCourseProgress",
-          "line": 391,
+          "line": 403,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "computeCourseProgressUpdate",
-          "line": 422,
+          "line": 434,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EnrolledProgramSyncDecision",
-          "line": 494,
+          "line": 506,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "decideEnrolledProgramSync",
-          "line": 516,
+          "line": 528,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncCourseraB4BEnrollmentReports",
-          "line": 538,
+          "line": 550,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -102441,92 +102441,92 @@
         },
         {
           "name": "finiteNumber",
-          "line": 91,
+          "line": 103,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeB4BEnrollmentReport",
-          "line": 96,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "planB4BRowWrite",
-          "line": 123,
+          "line": 135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getB4BToken",
-          "line": 149,
+          "line": 161,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "nextEnrollmentReportStart",
-          "line": 188,
+          "line": 200,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readB4BResumeStart",
-          "line": 201,
+          "line": 213,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchEnrollmentReports",
-          "line": 222,
+          "line": 234,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "selectCanonicalB4BMapping",
-          "line": 270,
+          "line": 282,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BProgressInput",
-          "line": 303,
+          "line": 315,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BSignalSources",
-          "line": 317,
+          "line": 329,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "mergeB4BProgressSignals",
-          "line": 353,
+          "line": 365,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ExistingCourseProgress",
-          "line": 385,
+          "line": 397,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MergedCourseProgress",
-          "line": 391,
+          "line": 403,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "computeCourseProgressUpdate",
-          "line": 422,
+          "line": 434,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EnrolledProgramSyncDecision",
-          "line": 494,
+          "line": 506,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "decideEnrolledProgramSync",
-          "line": 516,
+          "line": 528,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncCourseraB4BEnrollmentReports",
-          "line": 538,
+          "line": 550,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "updateRollups",
-          "line": 937,
+          "line": 955,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105095,9 +105095,9 @@
       "path": "lib/coursera/progressQueries.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 37664,
-      "lines": 1034,
-      "sha256": "8730bdbe45ce514a80836b7ed75806432c7824fe3ca9efe477a99e1a954363b9",
+      "bytes": 38198,
+      "lines": 1043,
+      "sha256": "54b9d9c2dab9875d8d973dce37484490580b5ac184a8e365ab57487f037829f1",
       "binary": false,
       "exports": [
         {
@@ -105122,77 +105122,77 @@
         },
         {
           "name": "LoadUnmatchedLearnersOptions",
-          "line": 131,
+          "line": 135,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadUnmatchedLearners",
-          "line": 178,
+          "line": 182,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countHiddenTestAccountUnmatchedLearners",
-          "line": 367,
+          "line": 376,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedLearners",
-          "line": 414,
+          "line": 423,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LearnerCourseRow",
-          "line": 454,
+          "line": 463,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerBadgeRow",
-          "line": 472,
+          "line": 481,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerProgressDetail",
-          "line": 487,
+          "line": 496,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadLearnerProgressByUserId",
-          "line": 495,
+          "line": 504,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadLearnerProgressByExternalEmail",
-          "line": 637,
+          "line": 646,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "UnmatchedXapiEventRow",
-          "line": 731,
+          "line": 740,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmail",
-          "line": 764,
+          "line": 773,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedXapiEventsByExternalEmail",
-          "line": 812,
+          "line": 821,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmailPaginated",
-          "line": 847,
+          "line": 856,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SuggestedUserMatch",
-          "line": 892,
+          "line": 901,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "suggestUserMatchesForExternalEmail",
-          "line": 927,
+          "line": 936,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105214,112 +105214,112 @@
         },
         {
           "name": "LoadUnmatchedLearnersOptions",
-          "line": 131,
+          "line": 135,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TEST_ACCOUNT_EXCLUSION_HAVING",
-          "line": 144,
+          "line": 148,
           "kind": "Variable"
         },
         {
           "name": "TEST_ACCOUNT_EXCLUSION_WHERE",
-          "line": 154,
+          "line": 158,
           "kind": "Variable"
         },
         {
           "name": "loadUnmatchedLearners",
-          "line": 178,
+          "line": 182,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countHiddenTestAccountUnmatchedLearners",
-          "line": 367,
+          "line": 376,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedLearners",
-          "line": 414,
+          "line": 423,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LearnerCourseRow",
-          "line": 454,
+          "line": 463,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerBadgeRow",
-          "line": 472,
+          "line": 481,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerProgressDetail",
-          "line": 487,
+          "line": 496,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadLearnerProgressByUserId",
-          "line": 495,
+          "line": 504,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseProgressBaseRow",
-          "line": 519,
+          "line": 528,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "COURSE_PROGRESS_SELECT_COLUMNS",
-          "line": 537,
+          "line": 546,
           "kind": "Variable"
         },
         {
           "name": "mapCourseProgressRow",
-          "line": 555,
+          "line": 564,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCoursesForUserId",
-          "line": 575,
+          "line": 584,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadBadgesForUserId",
-          "line": 585,
+          "line": 594,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadLearnerProgressByExternalEmail",
-          "line": 637,
+          "line": 646,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "UnmatchedXapiEventRow",
-          "line": 731,
+          "line": 740,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmail",
-          "line": 764,
+          "line": 773,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedXapiEventsByExternalEmail",
-          "line": 812,
+          "line": 821,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmailPaginated",
-          "line": 847,
+          "line": 856,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SuggestedUserMatch",
-          "line": 892,
+          "line": 901,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "suggestUserMatchesForExternalEmail",
-          "line": 927,
+          "line": 936,
           "kind": "FunctionDeclaration"
         }
       ],

@@ -368,7 +368,7 @@
         },
         {
           "file": "lib/coursera/b4bSync.ts",
-          "line": 150
+          "line": 162
         },
         {
           "file": "lib/coursera/learnerProgress.test.ts",
@@ -411,7 +411,7 @@
         },
         {
           "file": "lib/coursera/b4bSync.ts",
-          "line": 151
+          "line": 163
         },
         {
           "file": "lib/coursera/learnerProgress.test.ts",
@@ -610,7 +610,7 @@
         },
         {
           "file": "lib/coursera/b4bSync.ts",
-          "line": 539
+          "line": 551
         },
         {
           "file": "lib/coursera/learnerProgress.test.ts",

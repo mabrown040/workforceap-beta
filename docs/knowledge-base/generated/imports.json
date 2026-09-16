@@ -24961,8 +24961,16 @@
   },
   {
     "from": "app/admin/training-progress/page.tsx",
-    "specifier": "@/components/portal/PageHeader",
+    "specifier": "@/lib/admin/trainingProgressRoster",
     "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/components/portal/PageHeader",
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -24970,7 +24978,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -24978,7 +24986,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/admin/TrainingProgressClient",
-    "line": 22,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "components/admin/TrainingProgressClient.tsx"
@@ -24986,7 +24994,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/admin/TrainingProgressRoster",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "components/admin/TrainingProgressRoster.tsx"
@@ -24994,7 +25002,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
-    "line": 27,
+    "line": 28,
     "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
@@ -25002,7 +25010,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 375,
+    "line": 379,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -120098,7 +120106,7 @@
   {
     "from": "tests/lib/training-progress-roster.spec.ts",
     "specifier": "@/lib/admin/trainingProgressGrades",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressGrades.ts"

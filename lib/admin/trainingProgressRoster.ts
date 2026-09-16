@@ -210,6 +210,25 @@ export function summarizeTrainingRows(rows: readonly RosterRow[]): RosterSummary
   };
 }
 
+/**
+ * How many distinct members the roster actually covers.
+ *
+ * A member can hold several rows — one per program they have progress in —
+ * so counting rows inflates this. Member row ids are `<memberId>:<programSlug>`
+ * and unmatched Coursera ids are `coursera:<email>`; the extracted prefix is
+ * cross-checked against the real member list, so a malformed or unexpected id
+ * cannot quietly raise the count.
+ */
+export function countMembersWithTraining(
+  rows: readonly RosterRow[],
+  memberIds: readonly string[],
+): number {
+  const prefixes = new Set(
+    rows.filter((row) => row.inWap !== false).map((row) => row.id.split(':', 1)[0]),
+  );
+  return memberIds.filter((id) => prefixes.has(id)).length;
+}
+
 /** Unique program titles present in the roster, for the program filter. */
 export function rosterProgramOptions(rows: readonly RosterRow[]): string[] {
   return Array.from(new Set(rows.map((row) => row.program))).sort((a, b) => a.localeCompare(b));

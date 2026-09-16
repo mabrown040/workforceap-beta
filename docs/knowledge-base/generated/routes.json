@@ -11149,17 +11149,17 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 32,
+        "line": 33,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "dynamic",
-        "line": 41,
+        "line": 42,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 46,
+        "line": 47,
         "kind": "FunctionDeclaration",
         "localName": "AdminTrainingProgressPage"
       }
@@ -11181,7 +11181,7 @@
       },
       {
         "specifier": "@/lib/tenant/adminPageScope",
-        "line": 375,
+        "line": 379,
         "kind": "type"
       }
     ]

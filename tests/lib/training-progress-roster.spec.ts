@@ -7,6 +7,7 @@ import {
   isLinkFilter,
   isPaceFilter,
   isSortKey,
+  countMembersWithTraining,
   rosterProgramOptions,
   sortTrainingRows,
   summarizeTrainingRows,
@@ -258,6 +259,43 @@ describe('training roster program options', () => {
       'Coursera activity',
       'IT Support Professional Certificate (IBM)',
     ]);
+  });
+});
+
+describe('countMembersWithTraining', () => {
+  const MEMBER_IDS = ['u1', 'u2', 'u3'];
+
+  it('counts each member once when every member holds a single row', () => {
+    expect(countMembersWithTraining([NOEL, JOSEPH, AVERY, UNMATCHED], MEMBER_IDS)).toBe(3);
+  });
+
+  it('counts a multi-program member once, not once per row', () => {
+    // PR #2280 emits one row per program a learner has progress in. Counting
+    // rows here would report more members with training activity than the
+    // organization has members.
+    const multiProgram = [
+      row({ id: 'u1:it', student: 'Noel Gonzalez', percentComplete: 22 }),
+      row({ id: 'u1:ai', student: 'Noel Gonzalez', program: 'AI', percentComplete: 9 }),
+      row({ id: 'u1:sec', student: 'Noel Gonzalez', program: 'Security', percentComplete: 4 }),
+      row({ id: 'u2:it', student: 'Avery Stone', percentComplete: 91 }),
+    ];
+    expect(multiProgram).toHaveLength(4);
+    expect(countMembersWithTraining(multiProgram, MEMBER_IDS)).toBe(2);
+  });
+
+  it('excludes unmatched Coursera identities, which are not members', () => {
+    expect(countMembersWithTraining([UNMATCHED], MEMBER_IDS)).toBe(0);
+  });
+
+  it('ignores a row whose id prefix is not a known member', () => {
+    // Cross-checking against the real member list keeps a stray or malformed
+    // id from inflating the number shown on the page.
+    const stray = [row({ id: 'ghost:it', student: 'Nobody' }), row({ id: 'u2:it', student: 'Avery' })];
+    expect(countMembersWithTraining(stray, MEMBER_IDS)).toBe(1);
+  });
+
+  it('reports zero for an empty roster', () => {
+    expect(countMembersWithTraining([], MEMBER_IDS)).toBe(0);
   });
 });
 

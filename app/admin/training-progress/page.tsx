@@ -17,6 +17,7 @@ import { countUnmatchedLearners, loadUnmatchedLearners } from '@/lib/coursera/pr
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { latestCompletedGradeByUser } from '@/lib/admin/trainingProgressGrades';
+import { countMembersWithTraining } from '@/lib/admin/trainingProgressRoster';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
@@ -343,11 +344,14 @@ export default async function AdminTrainingProgressPage({
   // activity; the guards above skip everyone else. The header says "across all
   // members", so say plainly how many members that leaves out rather than
   // letting the KPI totals read as an organization-wide count.
-  const memberRowCount = rows.filter((row) => row.inWap !== false).length;
-  const membersWithoutTraining = Math.max(0, learnerTotal - memberRowCount);
+  // Counted as distinct members, not rows: a learner with progress in more
+  // than one program contributes several rows, which would otherwise inflate
+  // this straight past the real member count.
+  const memberCountWithTraining = countMembersWithTraining(rows, learnerIds);
+  const membersWithoutTraining = Math.max(0, learnerTotal - memberCountWithTraining);
   const coverageLabel =
     membersWithoutTraining > 0
-      ? `${memberRowCount} of ${learnerTotal} members have training activity · ${membersWithoutTraining} not in a program or course yet`
+      ? `${memberCountWithTraining} of ${learnerTotal} members have training activity · ${membersWithoutTraining} not in a program or course yet`
       : `All ${learnerTotal} members have training activity`;
 
   return (

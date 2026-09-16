@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "ef04beb6fd676ca245f4cba728e3c5a8f3b0968267ce5491de30a9ffce637c21",
+  "inputTreeSha256": "ccebac265871d04f64de886c92d6418e96b5bd50ada90405495436a0d7944f02",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -20573,24 +20573,24 @@
       "path": "app/admin/training-progress/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 28781,
-      "lines": 714,
-      "sha256": "9418db8d3599707921d5f897f6988de294369679ee1b302553d6357a8fe49d05",
+      "bytes": 29082,
+      "lines": 718,
+      "sha256": "7fd3b653d83cd0d691dcaecc3ca25b639cb18af9e54a45f7bb9b18072b9d15b6",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 32,
+          "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 41,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 46,
+          "line": 47,
           "kind": "FunctionDeclaration",
           "localName": "AdminTrainingProgressPage"
         }
@@ -20598,27 +20598,27 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 32,
+          "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 41,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "STALLED_IDLE_DAYS",
-          "line": 44,
+          "line": 45,
           "kind": "Variable"
         },
         {
           "name": "AdminTrainingProgressPage",
-          "line": 46,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "renderLegacy",
-          "line": 375,
+          "line": 379,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -85431,9 +85431,9 @@
       "path": "lib/admin/trainingProgressRoster.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 7324,
-      "lines": 228,
-      "sha256": "c573419c84d9ee29881bdb2b7866429b1c416d27c948e555f7357a8d476bc0e2",
+      "bytes": 8042,
+      "lines": 247,
+      "sha256": "2d26b0b5774ef521a2c2edf7c4d26fb68d0efd60b353e4beb6c4e9d658a74cc2",
       "binary": false,
       "exports": [
         {
@@ -85517,23 +85517,28 @@
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "rosterProgramOptions",
-          "line": 214,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "isPaceFilter",
-          "line": 218,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "isLinkFilter",
+          "name": "countMembersWithTraining",
           "line": 222,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "rosterProgramOptions",
+          "line": 233,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isPaceFilter",
+          "line": 237,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isLinkFilter",
+          "line": 241,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "isSortKey",
-          "line": 226,
+          "line": 245,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -85649,23 +85654,28 @@
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "rosterProgramOptions",
-          "line": 214,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "isPaceFilter",
-          "line": 218,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "isLinkFilter",
+          "name": "countMembersWithTraining",
           "line": 222,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "rosterProgramOptions",
+          "line": 233,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isPaceFilter",
+          "line": 237,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isLinkFilter",
+          "line": 241,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "isSortKey",
-          "line": 226,
+          "line": 245,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152978,45 +152988,45 @@
       "path": "tests/lib/training-progress-roster.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 13310,
-      "lines": 361,
-      "sha256": "82f14dc94cf1b6ea18266f9874999c28b369627bbf462f9916891418408b6327",
+      "bytes": 14999,
+      "lines": 399,
+      "sha256": "69ed3ef787242e348d94c2f7d18e91a5da0d2efafb5ee287274fae373486287d",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "row",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NOEL",
-          "line": 29,
+          "line": 30,
           "kind": "Variable"
         },
         {
           "name": "JOSEPH",
-          "line": 40,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "AVERY",
-          "line": 52,
+          "line": 53,
           "kind": "Variable"
         },
         {
           "name": "UNMATCHED",
-          "line": 62,
+          "line": 63,
           "kind": "Variable"
         },
         {
           "name": "ALL",
-          "line": 73,
+          "line": 74,
           "kind": "Variable"
         },
         {
           "name": "ids",
-          "line": 74,
+          "line": 75,
           "kind": "Variable"
         }
       ],

@@ -120,7 +120,11 @@ export type UnmatchedLearner = {
   lastActivityTime: Date | null;
   /** Latest Coursera course grade 0–100, null when unknown. */
   latestGradePercent: number | null;
-  /** Latest Coursera course overall progress 0–100. */
+  /**
+   * Latest Coursera course overall progress 0–100. Skips 0% rows: those are
+   * enrollments that never started (often with placeholder timestamps), not
+   * a learner regressing to zero.
+   */
   latestProgressPercent: number;
   /** Completed Coursera course rows reported by B4B for this identity. */
   completedCourseCount: number;
@@ -312,7 +316,12 @@ export async function loadUnmatchedLearners(
     for (const row of gradeRows) {
       const email = row.externalEmail;
       const normalizedProgress = Math.max(0, Math.min(100, Number(row.overallProgress) || 0));
-      if (!progressByEmail.has(email)) {
+      // gradeRows arrive ordered by last_activity_time DESC. A 0% row is an
+      // enrollment that never started (often carrying a placeholder midnight
+      // timestamp), and letting it define "latest" showed 0% for a learner
+      // actively at 67%. First row with real progress wins; an all-zero
+      // learner still resolves to 0 via the `?? 0` below.
+      if (!progressByEmail.has(email) && normalizedProgress > 0) {
         progressByEmail.set(email, normalizedProgress);
       }
       const aggregate = progressTotalsByEmail.get(email) ?? { total: 0, count: 0, completed: 0 };

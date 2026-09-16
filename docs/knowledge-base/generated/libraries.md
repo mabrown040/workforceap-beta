@@ -755,7 +755,7 @@
 | [lib/portal/interviewVoice.ts](../../../lib/portal/interviewVoice.ts) | 26 | libraries | InterviewerVoiceOption:1, INTERVIEWER_VOICE_OPTIONS:11, getInterviewerTtsOverrides:16 |
 | [lib/portal/journeyStages.ts](../../../lib/portal/journeyStages.ts) | 85 | libraries | JourneyStageId:8, JourneyStageTool:10, JourneyStage:18, JOURNEY_STAGE_STORAGE_KEY:26, JOURNEY_STAGES:28, isJourneyStageId:83 |
 | [lib/portal/kit-architecture.test.ts](../../../lib/portal/kit-architecture.test.ts) | 48 | libraries |  |
-| [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 46 | learning-coursera |  |
+| [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 76 | learning-coursera |  |
 | [lib/portal/memberResumeUpload.test.ts](../../../lib/portal/memberResumeUpload.test.ts) | 44 | libraries |  |
 | [lib/portal/memberResumeUpload.ts](../../../lib/portal/memberResumeUpload.ts) | 56 | libraries | RESUME_UPLOAD_ACCEPT:5, RESUME_UPLOAD_FORMAT_LABEL:6, getResumeUploadFileError:8, uploadMemberResumeFile:24 |
 | [lib/portal/messagingSurfaces.ts](../../../lib/portal/messagingSurfaces.ts) | 50 | libraries | memberMessagingSurface:12, partnerMessagingSurface:20, employerMessagingSurface:28, counselorStaffMessagingSurface:36, adminMessagingSurface:44 |

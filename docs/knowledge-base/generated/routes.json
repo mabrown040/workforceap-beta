@@ -4555,12 +4555,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 33,
+        "line": 34,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 42,
+        "line": 43,
         "kind": "FunctionDeclaration",
         "localName": "ProgramPage"
       }
@@ -4575,7 +4575,7 @@
       },
       {
         "specifier": "@/lib/auth/roles",
-        "line": 22,
+        "line": 23,
         "kind": "import"
       }
     ]

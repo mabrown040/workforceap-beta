@@ -185,7 +185,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /dashboard/program/change | page |  | [app/(portal)/dashboard/program/change/page.tsx](../../../app/%28portal%29/dashboard/program/change/page.tsx) |  |
 | /dashboard/program/employer-screening | page |  | [app/(portal)/dashboard/program/employer-screening/page.tsx](../../../app/%28portal%29/dashboard/program/employer-screening/page.tsx) | @/lib/auth/server:5 |
 | /dashboard/program | loading |  | [app/(portal)/dashboard/program/loading.tsx](../../../app/%28portal%29/dashboard/program/loading.tsx) |  |
-| /dashboard/program | page |  | [app/(portal)/dashboard/program/page.tsx](../../../app/%28portal%29/dashboard/program/page.tsx) | @/lib/auth/server:8, @/lib/auth/roles:22 |
+| /dashboard/program | page |  | [app/(portal)/dashboard/program/page.tsx](../../../app/%28portal%29/dashboard/program/page.tsx) | @/lib/auth/server:8, @/lib/auth/roles:23 |
 | /dashboard/program/start | page |  | [app/(portal)/dashboard/program/start/page.tsx](../../../app/%28portal%29/dashboard/program/start/page.tsx) | @/lib/auth/server:5 |
 | /dashboard/readiness | loading |  | [app/(portal)/dashboard/readiness/loading.tsx](../../../app/%28portal%29/dashboard/readiness/loading.tsx) |  |
 | /dashboard/readiness | page |  | [app/(portal)/dashboard/readiness/page.tsx](../../../app/%28portal%29/dashboard/readiness/page.tsx) | @/lib/auth/server:5 |

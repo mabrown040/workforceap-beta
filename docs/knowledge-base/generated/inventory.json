@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "7e14e6acee159de8c203fc1b4f63fa58b5846346f0961493c69d819b085e02ce",
+  "inputTreeSha256": "adf4c4200ef50b3e775d9533c897c0696759b7b957472ebf832e0e6cf2569310",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -10339,19 +10339,19 @@
       "path": "app/(portal)/dashboard/program/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 19236,
-      "lines": 409,
-      "sha256": "85bd17c663c85f067f7cc61d3dcb9a4135fa3067d97b4339dda8a04329951740",
+      "bytes": 19579,
+      "lines": 416,
+      "sha256": "3b7ef2d06aa8e4a5262ebe3e96615e750c3b772a60fc38ef42f39dc51d819f74",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 33,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 42,
+          "line": 43,
           "kind": "FunctionDeclaration",
           "localName": "ProgramPage"
         }
@@ -10359,12 +10359,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 33,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ProgramPage",
-          "line": 42,
+          "line": 43,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -70923,19 +70923,19 @@
       "path": "components/portal/kit/pages/member/MemberProgramKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 15200,
-      "lines": 352,
-      "sha256": "248401bd51a1c2930b07dc5fbda40a77c57aae4c44c16c14cb071888c71ee6d2",
+      "bytes": 15655,
+      "lines": 362,
+      "sha256": "dcb6b813d29dad095030c98b04eab3a94e3abb8132e967385d665b0a2102fc11",
       "binary": false,
       "exports": [
         {
           "name": "MemberProgramKitProps",
-          "line": 29,
+          "line": 37,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProgramKit",
-          "line": 90,
+          "line": 98,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -70952,22 +70952,22 @@
         },
         {
           "name": "MemberProgramKitProps",
-          "line": 29,
+          "line": 37,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_MODULES",
-          "line": 56,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "MODULE_META",
-          "line": 58,
+          "line": 66,
           "kind": "Variable"
         },
         {
           "name": "MemberProgramKit",
-          "line": 90,
+          "line": 98,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -124864,9 +124864,9 @@
       "path": "lib/portal/member-program-coursera-links.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 1834,
-      "lines": 46,
-      "sha256": "c833198477c9de76a12262221ee8c5dcf753623134621d4ac32ca07380cb8d29",
+      "bytes": 3012,
+      "lines": 76,
+      "sha256": "aa56f3d1aa8ea5d8c200c236216b7a19ae4d182fd00319c4eaf0af0ccbb1a3a3",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -149428,6 +149428,34 @@
           "name": "savedFromRequest",
           "line": 21,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/member-program-module-links.test.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3665,
+      "lines": 92,
+      "sha256": "b068e7f7d62bf4bdc3c58ef65bb04578779b4ab039c168a0b6d5c433e150ff23",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "RESUME_HREF",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "DIGITAL_LITERACY",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "COURSERA_PROGRAM",
+          "line": 17,
+          "kind": "Variable"
         }
       ],
       "directive": null

@@ -24,6 +24,14 @@ interface ProgramModule {
   slug?: string;
   /** WorkforceAP launch endpoint that resolves and redirects to Coursera. */
   launchHref?: string;
+  /**
+   * In-platform module page for a WorkforceAP-authored course (a pathway that
+   * links out to its provider rather than to Coursera). Without it such a
+   * course has no Coursera launch either, and the Learning Hub anchor fallback
+   * below lands on a page that has no module content — the member loops back to
+   * the dashboard instead of reaching the lesson.
+   */
+  moduleHref?: string;
 }
 
 export interface MemberProgramKitProps {
@@ -227,7 +235,9 @@ export function MemberProgramKit({
                 const dim = m.state === 'locked';
                 const isActive = m.state === 'active';
                 const moduleHref =
-                  m.launchHref ?? (m.slug ? `${resumeHref}#course-${m.slug}` : resumeHref);
+                  m.launchHref
+                  ?? m.moduleHref
+                  ?? (m.slug ? `${resumeHref}#course-${m.slug}` : resumeHref);
                 return (
                   <div
                     key={m.title}

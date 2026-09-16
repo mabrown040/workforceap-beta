@@ -44,3 +44,33 @@ test('live program CTAs launch the selected Coursera course and keep Learning Hu
     />Modules<\/h3>[\s\S]{0,500}href=\{resumeHref\}[\s\S]{0,300}>\s*Learning Hub/,
   );
 });
+
+/**
+ * A WorkforceAP-authored pathway (e.g. the DigitalLearn-linked Digital Literacy
+ * course) has no Coursera launch for any course, so its module CTA used to fall
+ * through to the Learning Hub anchor — a page with no module content — and the
+ * member never reached the provider lesson.
+ */
+test('a WorkforceAP-authored module carries its in-platform destination', () => {
+  // The page supplies it, through the shared helper rather than a second
+  // hand-built copy of the same URL.
+  assert.match(
+    programPage,
+    /import \{[^}]*workforceApCourseHref[^}]*\} from ['"]@\/lib\/content\/courseDelivery['"]/,
+  );
+  assert.match(
+    programPage,
+    /moduleHref:\s*isWorkforceApCourse\(c\)[\s\S]{0,120}workforceApCourseHref\(c\.slug,\s*enrolledSlug\)/,
+  );
+  assert.doesNotMatch(
+    programPage,
+    /moduleHref:\s*`\/dashboard\/learning\/modules\//,
+    'build the module URL through workforceApCourseHref so the two call sites cannot drift',
+  );
+
+  // …and the kit prefers it over the Learning Hub anchor fallback.
+  assert.match(
+    programKit,
+    /const moduleHref =\s*\n\s*m\.launchHref\s*\n?\s*\?\?\s*m\.moduleHref\s*\n?\s*\?\?\s*\(m\.slug/,
+  );
+});

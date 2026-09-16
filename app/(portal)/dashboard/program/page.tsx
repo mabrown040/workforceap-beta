@@ -8,6 +8,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { isWorkforceApCourse, workforceApCourseHref } from '@/lib/content/courseDelivery';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
@@ -209,6 +210,12 @@ export default async function ProgramPage({
         launchHref: launchableCourseSlugs.has(c.slug)
           ? `/api/member/coursera/launch?course=${encodeURIComponent(c.slug)}`
           : undefined,
+        // A WorkforceAP-authored course never has a Coursera launch, so without
+        // this its CTA fell through to the Learning Hub anchor, which renders no
+        // module content.
+        moduleHref: isWorkforceApCourse(c)
+          ? workforceApCourseHref(c.slug, enrolledSlug)
+          : undefined,
         state: done ? ('done' as const) : isNext ? ('active' as const) : ('locked' as const),
       };
     });
@@ -243,7 +250,7 @@ export default async function ProgramPage({
           destinations: curriculumCourses.map((course) => ({
             slug: course.slug,
             ...(course.kind === 'workforceap'
-              ? { moduleHref: `/dashboard/learning/modules/${encodeURIComponent(course.slug)}?program=${encodeURIComponent(enrolledSlug)}` }
+              ? { moduleHref: workforceApCourseHref(course.slug, enrolledSlug) }
               : launchableCourseSlugs.has(course.slug)
                 ? { launchHref: `/api/member/coursera/launch?course=${encodeURIComponent(course.slug)}` }
                 : {}),

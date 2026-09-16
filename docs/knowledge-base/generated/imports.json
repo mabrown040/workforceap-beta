@@ -24986,7 +24986,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 370,
+    "line": 407,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -92970,7 +92970,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 816,
+    "line": 834,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -92978,7 +92978,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/milestones",
-    "line": 819,
+    "line": 837,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/milestones.ts"
@@ -92986,7 +92986,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/milestoneCascade/detectCompletionMilestone",
-    "line": 822,
+    "line": 840,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/milestoneCascade/detectCompletionMilestone.ts"
@@ -92994,7 +92994,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 941,
+    "line": 959,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/member/courseProgress.ts"

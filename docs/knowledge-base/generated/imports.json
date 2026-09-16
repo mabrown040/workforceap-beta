@@ -24953,8 +24953,16 @@
   },
   {
     "from": "app/admin/training-progress/page.tsx",
-    "specifier": "@/components/portal/PageHeader",
+    "specifier": "@/lib/admin/trainingProgressGrades",
     "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressGrades.ts"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/components/portal/PageHeader",
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -24962,7 +24970,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -24970,23 +24978,31 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/admin/TrainingProgressClient",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/admin/TrainingProgressClient.tsx"
   },
   {
     "from": "app/admin/training-progress/page.tsx",
-    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
-    "line": 25,
+    "specifier": "@/components/admin/TrainingProgressRoster",
+    "line": 26,
     "kind": "import",
+    "external": false,
+    "target": "components/admin/TrainingProgressRoster.tsx"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 27,
+    "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
   },
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 370,
+    "line": 375,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -68616,6 +68632,46 @@
     "target": "components/portal/StatusBadge.tsx"
   },
   {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@astryxdesign/core/Button",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
+  },
+  {
     "from": "components/admin/TriageDigestSection.tsx",
     "specifier": "next/link",
     "line": 1,
@@ -80241,8 +80297,16 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "next/link",
+    "specifier": "react",
     "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "next/link",
+    "line": 2,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -80250,14 +80314,6 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
     "specifier": "@astryxdesign/core/Card",
-    "line": 2,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
     "line": 3,
     "kind": "import",
     "external": true,
@@ -80265,7 +80321,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
+    "specifier": "@astryxdesign/core/Button",
     "line": 4,
     "kind": "import",
     "external": true,
@@ -80273,7 +80329,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
+    "specifier": "@astryxdesign/core/Token",
     "line": 5,
     "kind": "import",
     "external": true,
@@ -80281,8 +80337,16 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/Link",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -87494,6 +87558,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
+  },
+  {
+    "from": "lib/admin/trainingProgressGrades.ts",
+    "specifier": "@/lib/coursera/courseGradeDisplay",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/courseGradeDisplay.ts"
   },
   {
     "from": "lib/admin/triageDigest.ts",
@@ -116344,6 +116416,38 @@
     "target": "components/admin/MembersTable.tsx"
   },
   {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "@/components/admin/TrainingProgressRoster",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/TrainingProgressRoster.tsx"
+  },
+  {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 22,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
+  },
+  {
     "from": "tests/components/agent-inbox-retry.spec.tsx",
     "specifier": "vitest",
     "line": 1,
@@ -119974,6 +120078,30 @@
     "kind": "import",
     "external": true,
     "package": "vitest"
+  },
+  {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
+  },
+  {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "@/lib/admin/trainingProgressGrades",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressGrades.ts"
   },
   {
     "from": "tests/lib/training-workspace-schedule.spec.ts",

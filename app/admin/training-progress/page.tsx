@@ -16,16 +16,17 @@ import { humanizeCourseraCourseTitle } from '@/lib/coursera/courseTitle';
 import { countUnmatchedLearners, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { latestCompletedGradeByUser } from '@/lib/admin/trainingProgressGrades';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
   type CurriculumRow,
   type RawCourseraRow,
 } from '@/components/admin/TrainingProgressClient';
-import {
-  TrainingProgressKit,
-  type TrainingRow,
-  type Pace,
+import TrainingProgressRoster from '@/components/admin/TrainingProgressRoster';
+import type {
+  TrainingRow,
+  Pace,
 } from '@/components/portal/kit/pages/admin-subviews/TrainingProgressKit';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -100,6 +101,10 @@ export default async function AdminTrainingProgressPage({
     })),
     prisma.courseProgress.findMany({
       where: { userId: { in: learnerIds } },
+      // Unordered reads made the derived grade and inferred program depend on
+      // whatever order Postgres returned. Newest activity first, slug as the
+      // tie-break, so the same data renders the same page every load.
+      orderBy: [{ lastActivityAt: 'desc' }, { courseSlug: 'asc' }],
       select: {
         userId: true,
         programSlug: true,
@@ -154,8 +159,12 @@ export default async function AdminTrainingProgressPage({
     string,
     { programSlug: string; activityMs: number; percentComplete: number }
   >();
-  const gradeByUserId = new Map<string, number>();
+  // Grade selection is deliberately not inlined here: see
+  // `latestCompletedGradeByUser` for why an in-progress partial score must
+  // never reach this column.
+  let gradeByUserId = new Map<string, number>();
   if (progressResult.status === 'fulfilled') {
+    gradeByUserId = latestCompletedGradeByUser(progressResult.value);
     for (const p of progressResult.value) {
       const canonicalProgramSlug =
         getProgramBySlug(p.programSlug)?.slug ?? canonicalizeProgramSlug(p.programSlug);
@@ -187,10 +196,6 @@ export default async function AdminTrainingProgressPage({
           activityMs,
           percentComplete: p.percentComplete,
         });
-      }
-      if (!gradeByUserId.has(p.userId)) {
-        const pct = scoreScaledToDisplayPercent(p.scoreScaled);
-        if (pct != null) gradeByUserId.set(p.userId, pct);
       }
     }
   } else {
@@ -334,25 +339,25 @@ export default async function AdminTrainingProgressPage({
     });
   }
 
-  const onTrack = rows.filter((r) => r.pace === 'On track' || r.pace === 'Ahead').length;
-  const behind = rows.filter((r) => r.pace === 'Behind').length;
-  const stalled = rows.filter((r) => r.pace === 'Stalled').length;
-  const avgPercent =
-    rows.length > 0
-      ? Math.round(rows.reduce((s, r) => s + r.percentComplete, 0) / rows.length)
-      : 0;
+  // A member only produces a row once they have a program or Coursera
+  // activity; the guards above skip everyone else. The header says "across all
+  // members", so say plainly how many members that leaves out rather than
+  // letting the KPI totals read as an organization-wide count.
+  const memberRowCount = rows.filter((row) => row.inWap !== false).length;
+  const membersWithoutTraining = Math.max(0, learnerTotal - memberRowCount);
+  const coverageLabel =
+    membersWithoutTraining > 0
+      ? `${memberRowCount} of ${learnerTotal} members have training activity · ${membersWithoutTraining} not in a program or course yet`
+      : `All ${learnerTotal} members have training activity`;
 
   return (
     <>
       {trainingSecondaryLoadFailed ? (
         <span hidden data-portal-error-state="admin-training-progress-secondary-load" />
       ) : null}
-      <TrainingProgressKit
+      <TrainingProgressRoster
         rows={rows}
-        onTrack={onTrack}
-        behind={behind}
-        stalled={stalled}
-        avgPercent={avgPercent}
+        coverageLabel={coverageLabel}
         showingLabel={[
           showingFirstLabel(learners.length, learnerTotal, 'member records'),
           showingFirstLabel(

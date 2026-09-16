@@ -10,6 +10,8 @@ vi.mock('@/lib/cron/cronExecution', () => ({
   startCronExecution: vi.fn().mockResolvedValue('exec-id'),
   completeCronExecution: vi.fn(),
   runWithCronExecution: vi.fn(async (_id, fn) => fn()),
+  getCronRecordsProcessed: vi.fn(() => undefined),
+  hasCronDiagnosticBeenLogged: vi.fn(() => false),
 }));
 
 vi.mock('@/lib/cron/authorizeCronRequest', () => ({

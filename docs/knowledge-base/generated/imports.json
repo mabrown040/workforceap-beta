@@ -87064,6 +87064,14 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "lib/admin/logCronRun.ts",
+    "specifier": "@/lib/cron/cronExecution",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/cronExecution.ts"
+  },
+  {
     "from": "lib/admin/memberDeleteStorage.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -110770,7 +110778,7 @@
   {
     "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
     "specifier": "@/app/api/cron/at-risk-alerts/route",
-    "line": 61,
+    "line": 63,
     "kind": "import",
     "external": false,
     "target": "app/api/cron/at-risk-alerts/route.ts"
@@ -110778,7 +110786,7 @@
   {
     "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
     "specifier": "@/lib/cron/at-risk-alerts",
-    "line": 62,
+    "line": 64,
     "kind": "import",
     "external": false,
     "target": "lib/cron/at-risk-alerts.ts"
@@ -110786,7 +110794,7 @@
   {
     "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
     "specifier": "@/lib/cron/cronExecution",
-    "line": 66,
+    "line": 68,
     "kind": "import",
     "external": false,
     "target": "lib/cron/cronExecution.ts"
@@ -111074,7 +111082,7 @@
   {
     "from": "tests/api/cron-smoke-test.spec.ts",
     "specifier": "@/app/api/cron/smoke-test/route",
-    "line": 28,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "app/api/cron/smoke-test/route.ts"
@@ -111082,7 +111090,7 @@
   {
     "from": "tests/api/cron-smoke-test.spec.ts",
     "specifier": "@/lib/admin/logCronRun",
-    "line": 29,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/admin/logCronRun.ts"
@@ -111090,7 +111098,7 @@
   {
     "from": "tests/api/cron-smoke-test.spec.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 30,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -120122,7 +120130,7 @@
   {
     "from": "tests/lib/with-cron-logging.spec.ts",
     "specifier": "@/lib/cron/cronExecution",
-    "line": 26,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "lib/cron/cronExecution.ts"
@@ -120130,7 +120138,7 @@
   {
     "from": "tests/lib/with-cron-logging.spec.ts",
     "specifier": "@/lib/cron/withCronLogging",
-    "line": 27,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/cron/withCronLogging.ts"

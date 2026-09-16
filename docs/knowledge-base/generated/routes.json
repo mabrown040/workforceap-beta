@@ -11181,7 +11181,7 @@
       },
       {
         "specifier": "@/lib/tenant/adminPageScope",
-        "line": 379,
+        "line": 416,
         "kind": "type"
       }
     ]

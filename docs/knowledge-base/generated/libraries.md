@@ -54,7 +54,7 @@
 | [lib/admin/globalSearchSource.ts](../../../lib/admin/globalSearchSource.ts) | 81 | administration | GlobalSearchItem:5, createGlobalSearchSource:27 |
 | [lib/admin/healthScore.ts](../../../lib/admin/healthScore.ts) | 46 | administration | HealthStatus:6, HealthScoreInput:8, calculateHealthStatus:14, getHealthColor:32, getHealthLabel:40 |
 | [lib/admin/jobReadyCandidates.ts](../../../lib/admin/jobReadyCandidates.ts) | 76 | administration | JobReadyProgressRow:8, loadJobReadyProgressPage:20 |
-| [lib/admin/logCronRun.ts](../../../lib/admin/logCronRun.ts) | 22 | administration | logCronRun:5 |
+| [lib/admin/logCronRun.ts](../../../lib/admin/logCronRun.ts) | 28 | administration | logCronRun:6 |
 | [lib/admin/matchSuggestionsConfig.ts](../../../lib/admin/matchSuggestionsConfig.ts) | 16 | administration | getMatchSuggestionsTestRecipient:8, isMatchSuggestionsDryRun:13 |
 | [lib/admin/memberDeleteStorage.test.ts](../../../lib/admin/memberDeleteStorage.test.ts) | 37 | administration |  |
 | [lib/admin/memberMerge.test.ts](../../../lib/admin/memberMerge.test.ts) | 288 | administration |  |
@@ -414,14 +414,14 @@
 | [lib/cron/cronCaps.test.ts](../../../lib/cron/cronCaps.test.ts) | 79 | communications |  |
 | [lib/cron/cronCaps.ts](../../../lib/cron/cronCaps.ts) | 30 | communications | CRON_NUDGE_CANDIDATE_CAP:8, CRON_PARTNER_DIGEST_PARTNER_CAP:11, CRON_PARTNER_DIGEST_REFERRAL_CAP:17, CRON_JOB_EXPIRY_CAP:20, COURSERA_HEAL_UNMATCHED_CAP:23, COURSERA_HEAL_IGNORED_CAP:26, partnerDigestReferralTake:28 |
 | [lib/cron/cronExecution.test.ts](../../../lib/cron/cronExecution.test.ts) | 116 | communications |  |
-| [lib/cron/cronExecution.ts](../../../lib/cron/cronExecution.ts) | 59 | communications | CronStatus:4, startCronExecution:8, setCronRecordsProcessed:19, completeCronExecution:28, getCurrentCronExecutionId:53, runWithCronExecution:57 |
+| [lib/cron/cronExecution.ts](../../../lib/cron/cronExecution.ts) | 92 | communications | CronStatus:4, startCronExecution:20, setCronRecordsProcessed:31, completeCronExecution:44, getCurrentCronExecutionId:69, getCronRecordsProcessed:73, markCronDiagnosticLogged:81, hasCronDiagnosticBeenLogged:86, runWithCronExecution:90 |
 | [lib/cron/isCronEnabled.ts](../../../lib/cron/isCronEnabled.ts) | 19 | communications | isCronEnabled:7 |
 | [lib/cron/nudgeThrottle.ts](../../../lib/cron/nudgeThrottle.ts) | 69 | communications | NUDGE_LOG_COOLDOWN_DAYS:23, filterNudgeEligibleUserIds:30, recordNudgeSent:51 |
 | [lib/cron/placement-surveys.ts](../../../lib/cron/placement-surveys.ts) | 436 | communications | SurveySendResult:47, EscalationResult:54, DailySurveyRunResult:60, sendDuePlacementSurveys:85, escalateStalePlacementSurveys:311, runDailyPlacementSurveyCron:431 |
 | [lib/cron/placementSurveySentStatePolicy.test.ts](../../../lib/cron/placementSurveySentStatePolicy.test.ts) | 47 | communications |  |
 | [lib/cron/wioa-report.test.ts](../../../lib/cron/wioa-report.test.ts) | 43 | communications |  |
 | [lib/cron/wioa-report.ts](../../../lib/cron/wioa-report.ts) | 129 | communications | WioaReportProgram:11, WioaReport:19, generateWioaReport:39 |
-| [lib/cron/withCronLogging.ts](../../../lib/cron/withCronLogging.ts) | 63 | communications | withCronLogging:16 |
+| [lib/cron/withCronLogging.ts](../../../lib/cron/withCronLogging.ts) | 89 | communications | withCronLogging:32 |
 | [lib/csv.ts](../../../lib/csv.ts) | 59 | libraries | csvEscape:13, csvRow:23, buildCsv:28, csvDate:52 |
 | [lib/csv/admin-export.test.ts](../../../lib/csv/admin-export.test.ts) | 204 | libraries |  |
 | [lib/csv/export.test.ts](../../../lib/csv/export.test.ts) | 85 | libraries |  |

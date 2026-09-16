@@ -21,6 +21,8 @@ vi.mock('@/lib/cron/cronExecution', () => ({
   startCronExecution: vi.fn().mockResolvedValue('execution-1'),
   completeCronExecution: vi.fn(),
   runWithCronExecution: vi.fn((_executionId, callback) => callback()),
+  getCronRecordsProcessed: vi.fn(() => undefined),
+  hasCronDiagnosticBeenLogged: vi.fn(() => false),
 }));
 
 import { completeCronExecution } from '@/lib/cron/cronExecution';

@@ -86,7 +86,7 @@ export type B4BSyncResult = {
     email: string;
     courseraCourseSlug: string;
     courseName: string;
-  }>;}
+  }>;
   upsertedUnmatched: number;
   skippedNoEmail: number;
   errors: number;

@@ -779,7 +779,7 @@
 | [lib/portal/interviewVoice.ts](../../../lib/portal/interviewVoice.ts) | 26 | libraries | InterviewerVoiceOption:1, INTERVIEWER_VOICE_OPTIONS:11, getInterviewerTtsOverrides:16 |
 | [lib/portal/journeyStages.ts](../../../lib/portal/journeyStages.ts) | 85 | libraries | JourneyStageId:8, JourneyStageTool:10, JourneyStage:18, JOURNEY_STAGE_STORAGE_KEY:26, JOURNEY_STAGES:28, isJourneyStageId:83 |
 | [lib/portal/kit-architecture.test.ts](../../../lib/portal/kit-architecture.test.ts) | 48 | libraries |  |
-| [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 46 | learning-coursera |  |
+| [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 76 | learning-coursera |  |
 | [lib/portal/memberProfilePhoto.test.ts](../../../lib/portal/memberProfilePhoto.test.ts) | 25 | libraries |  |
 | [lib/portal/memberProfilePhoto.ts](../../../lib/portal/memberProfilePhoto.ts) | 42 | libraries | PROFILE_PHOTO_BUCKET:1, PROFILE_PHOTO_MAX_BYTES:2, PROFILE_PHOTO_OUTPUT_SIZE:3, PROFILE_PHOTO_ACCEPT:4, profilePhotoStoragePath:15, profilePhotoPrefixForUser:19, isProfilePhotoStoragePath:23, resolveProfilePhotoContentType:30, profilePhotoStorageErrorMessage:36 |
 | [lib/portal/memberProfilePhotoUrl.ts](../../../lib/portal/memberProfilePhotoUrl.ts) | 31 | libraries | getMemberProfilePhotoSignedUrl:7 |

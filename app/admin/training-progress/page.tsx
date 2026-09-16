@@ -150,6 +150,10 @@ export default async function AdminTrainingProgressPage({
   };
   const progressByUserProgram = new Map<string, AdminLocalProgressRow[]>();
   const lastActivityByUserProgram = new Map<string, Date>();
+  // Every program a learner holds course_progress in, so multi-program
+  // learners get one roster row per program instead of collapsing to the
+  // single program of their most recent activity.
+  const programSlugsByUser = new Map<string, Set<string>>();
   const inferredProgramByUser = new Map<
     string,
     { programSlug: string; activityMs: number; percentComplete: number }
@@ -168,6 +172,9 @@ export default async function AdminTrainingProgressPage({
         percentComplete: p.percentComplete,
       });
       progressByUserProgram.set(userProgramKey, bucket);
+      const slugsForUser = programSlugsByUser.get(p.userId) ?? new Set<string>();
+      slugsForUser.add(canonicalProgramSlug);
+      programSlugsByUser.set(p.userId, slugsForUser);
       const activityAt = p.lastActivityAt ?? p.lastUpdatedAt;
       if (activityAt) {
         const cur = lastActivityByUserProgram.get(userProgramKey);
@@ -201,26 +208,50 @@ export default async function AdminTrainingProgressPage({
     );
   }
 
+  // Every program a learner should appear under: their stored primary
+  // program first, then every program holding their course progress. Falls
+  // back to the inferred (most-recent-activity) program only when the learner
+  // has no stored program and no progress rows at all.
+  function programSlugsForLearner(learner: {
+    id: string;
+    enrolledProgram: string | null;
+  }): string[] {
+    const slugs = new Set<string>();
+    const enrollment = primaryByUser.get(learner.id);
+    const storedProgramSlug = enrollment?.programSlug ?? learner.enrolledProgram;
+    const storedCanonical = storedProgramSlug
+      ? getProgramBySlug(storedProgramSlug)?.slug
+      : undefined;
+    if (storedCanonical) slugs.add(storedCanonical);
+    for (const slug of programSlugsByUser.get(learner.id) ?? []) {
+      slugs.add(slug);
+    }
+    if (slugs.size === 0) {
+      const inferred = inferredProgramByUser.get(learner.id)?.programSlug;
+      const inferredCanonical = inferred ? getProgramBySlug(inferred)?.slug : undefined;
+      if (inferredCanonical) slugs.add(inferredCanonical);
+    }
+    return [...slugs];
+  }
+
   const curriculumAssignments = new Map<
     string,
     { programSlug: string; curriculumVersion: string }
   >();
   for (const learner of learners) {
     const enrollment = primaryByUser.get(learner.id);
-    const requestedProgramSlug =
-      enrollment?.programSlug ??
-      learner.enrolledProgram ??
-      inferredProgramByUser.get(learner.id)?.programSlug;
-    const program = requestedProgramSlug ? getProgramBySlug(requestedProgramSlug) : null;
-    if (!program) continue;
-    const curriculumVersion =
-      enrollment && programSlugsEquivalent(enrollment.programSlug, program.slug)
-        ? enrollment.curriculumVersion
-        : 'legacy-v1';
-    curriculumAssignments.set(`${program.slug}:${curriculumVersion}`, {
-      programSlug: program.slug,
-      curriculumVersion,
-    });
+    for (const programSlug of programSlugsForLearner(learner)) {
+      const program = getProgramBySlug(programSlug);
+      if (!program) continue;
+      const curriculumVersion =
+        enrollment && programSlugsEquivalent(enrollment.programSlug, program.slug)
+          ? enrollment.curriculumVersion
+          : 'legacy-v1';
+      curriculumAssignments.set(`${program.slug}:${curriculumVersion}`, {
+        programSlug: program.slug,
+        curriculumVersion,
+      });
+    }
   }
   const validatedCourseLists = new Map(
     await Promise.all(
@@ -259,42 +290,44 @@ export default async function AdminTrainingProgressPage({
   for (const learner of learners) {
     const primaryEnrollment = primaryByUser.get(learner.id);
     const storedProgramSlug = primaryEnrollment?.programSlug ?? learner.enrolledProgram;
-    const inferredProgramSlug = inferredProgramByUser.get(learner.id)?.programSlug;
-    const displayProgramSlug = storedProgramSlug ?? inferredProgramSlug;
-    if (!displayProgramSlug) continue;
-    const program = getProgramBySlug(displayProgramSlug);
-    if (!program) continue;
-    const programSlug = program.slug;
-    const curriculumVersion =
-      primaryEnrollment && programSlugsEquivalent(primaryEnrollment.programSlug, programSlug)
-        ? primaryEnrollment.curriculumVersion
-        : 'legacy-v1';
-    const assignedCourses = getProgramCoursesForCurriculumVersion(
-      program,
-      curriculumVersion,
-    );
-    if (assignedCourses.length === 0) continue;
-    const validatedCourses =
-      validatedCourseLists.get(`${programSlug}:${curriculumVersion}`) ?? assignedCourses;
-    const reconciliation = reconcileProgramProgress({
-      validatedCourses,
-      localRows: progressByUserProgram.get(`${learner.id}:${programSlug}`) ?? [],
-    });
-    const percentComplete = reconciliation.programPercent;
-    const lastActivity = lastActivityByUserProgram.get(`${learner.id}:${programSlug}`);
+    // One row per program instead of one row per learner: a learner whose
+    // courses span several programs (e.g. Joseph Ring's software-dev work
+    // plus an AI practitioner course) previously collapsed to whichever
+    // program held their single most-recently-active course.
+    for (const programSlug of programSlugsForLearner(learner)) {
+      const program = getProgramBySlug(programSlug);
+      if (!program) continue;
+      const curriculumVersion =
+        primaryEnrollment && programSlugsEquivalent(primaryEnrollment.programSlug, programSlug)
+          ? primaryEnrollment.curriculumVersion
+          : 'legacy-v1';
+      const assignedCourses = getProgramCoursesForCurriculumVersion(
+        program,
+        curriculumVersion,
+      );
+      if (assignedCourses.length === 0) continue;
+      const validatedCourses =
+        validatedCourseLists.get(`${programSlug}:${curriculumVersion}`) ?? assignedCourses;
+      const reconciliation = reconcileProgramProgress({
+        validatedCourses,
+        localRows: progressByUserProgram.get(`${learner.id}:${programSlug}`) ?? [],
+      });
+      const percentComplete = reconciliation.programPercent;
+      const lastActivity = lastActivityByUserProgram.get(`${learner.id}:${programSlug}`);
 
-    rows.push({
-      id: `${learner.id}:${programSlug}`,
-      student: learner.fullName?.trim() || 'Unnamed learner',
-      program: program.title,
-      modulesDone: reconciliation.completedCount,
-      modulesTotal: reconciliation.totalCourses,
-      percentComplete,
-      pace: derivePace(percentComplete, lastActivity),
-      inWap: true,
-      noProgram: !storedProgramSlug,
-      courseraGrade: gradeByUserId.get(learner.id) ?? null,
-    });
+      rows.push({
+        id: `${learner.id}:${programSlug}`,
+        student: learner.fullName?.trim() || 'Unnamed learner',
+        program: program.title,
+        modulesDone: reconciliation.completedCount,
+        modulesTotal: reconciliation.totalCourses,
+        percentComplete,
+        pace: derivePace(percentComplete, lastActivity),
+        inWap: true,
+        noProgram: !storedProgramSlug,
+        courseraGrade: gradeByUserId.get(learner.id) ?? null,
+      });
+    }
   }
 
   // Sort most-complete first so the live, healthy learners lead.

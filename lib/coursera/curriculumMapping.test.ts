@@ -262,3 +262,80 @@ describe('versioned Coursera curriculum mappings', () => {
     assert.deepEqual(result.targets, []);
   });
 });
+
+describe('Learning Path collection attribution', () => {
+  const legacyAssignments = (programSlug: string) => [
+    { programSlug, curriculumVersion: LEGACY_CURRICULUM_VERSION },
+  ];
+
+  it('narrows an unassigned shared course to the program of the path it was taken under', async () => {
+    const resolution = await resolveProviderCourseMappings({
+      courseraCourseId: 'shared-id',
+      assignments: [],
+      curriculumIndex: buildCurriculumMappingIndex(rows),
+      canonicalIndex: emptyCanonicalMappingIndex(),
+      collectionProgramSlug: 'program-b',
+    });
+    assert.equal(resolution.status, 'unique_unassigned');
+    assert.deepEqual(
+      resolution.targets.map((target) => `${target.programSlug}/${target.courseSlug}`),
+      ['program-b/course-b'],
+    );
+  });
+
+  it('lets an exact assignment match outrank the collection', async () => {
+    const resolution = await resolveProviderCourseMappings({
+      courseraCourseId: 'shared-id',
+      assignments: legacyAssignments('program-a'),
+      curriculumIndex: buildCurriculumMappingIndex(rows),
+      canonicalIndex: emptyCanonicalMappingIndex(),
+      allowLegacyDiscovery: true,
+      collectionProgramSlug: 'program-b',
+    });
+    assert.equal(resolution.status, 'matched_assignment');
+    assert.deepEqual(
+      resolution.targets.map((target) => target.programSlug),
+      ['program-a'],
+    );
+  });
+
+  it('discovers only inside the path program when nothing assigned matched', async () => {
+    const inside = await resolveProviderCourseMappings({
+      courseraCourseId: 'shared-id',
+      assignments: legacyAssignments('program-c'),
+      curriculumIndex: buildCurriculumMappingIndex(rows),
+      canonicalIndex: emptyCanonicalMappingIndex(),
+      allowLegacyDiscovery: true,
+      collectionProgramSlug: 'program-a',
+    });
+    assert.equal(inside.status, 'unique_unassigned');
+    assert.deepEqual(inside.targets.map((target) => target.programSlug), ['program-a']);
+
+    // Coursera says the learner is on a path whose program lists no such
+    // course: no neighbour program may be conjured from the shared id.
+    const outside = await resolveProviderCourseMappings({
+      courseraCourseId: 'shared-id',
+      assignments: legacyAssignments('program-c'),
+      curriculumIndex: buildCurriculumMappingIndex(rows),
+      canonicalIndex: emptyCanonicalMappingIndex(),
+      allowLegacyDiscovery: true,
+      collectionProgramSlug: 'program-z',
+    });
+    assert.equal(outside.status, 'unmapped');
+    assert.deepEqual(outside.targets, []);
+  });
+
+  it('keeps discovery unrestricted when the path is unresolved (null) or absent', async () => {
+    for (const collectionProgramSlug of [null, undefined]) {
+      const resolution = await resolveProviderCourseMappings({
+        courseraCourseId: 'shared-id',
+        assignments: legacyAssignments('program-c'),
+        curriculumIndex: buildCurriculumMappingIndex(rows),
+        canonicalIndex: emptyCanonicalMappingIndex(),
+        allowLegacyDiscovery: true,
+        collectionProgramSlug,
+      });
+      assert.equal(resolution.status, 'ambiguous');
+    }
+  });
+});

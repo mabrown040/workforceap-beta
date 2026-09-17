@@ -271,7 +271,10 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "cybersecurity-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
-    learningPathId: "gCtwKvPFS36rcCrzxSt-Yg",
+    // No verified Learning Path id. The id previously here
+    // (gCtwKvPFS36rcCrzxSt-Yg) is Coursera's combined "Networking and
+    // Cybersecurity Professional Certificate (CompTIA Net+,Sec+)" path, not
+    // Google's certificate; see lib/content/coursera/learningPaths.ts.
     title: "Cyber Security and Networking Professional Certificate (Network+, Sec+)",
     courses: [
       { courseId: "f6gZrWUIEe2piwrmyBNtEQ", slug: "foundations-of-cybersecurity", name: "Foundations of Cybersecurity", partner: "Google" },

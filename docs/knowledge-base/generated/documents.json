@@ -33098,6 +33098,11 @@
         "level": 2,
         "title": "Known gaps",
         "line": 17
+      },
+      {
+        "level": 2,
+        "title": "Learning Paths (`learningPaths.ts`)",
+        "line": 22
       }
     ],
     "datedFilename": false,

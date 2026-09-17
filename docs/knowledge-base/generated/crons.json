@@ -178,12 +178,12 @@
       "exports": [
         {
           "name": "GET",
-          "line": 82,
+          "line": 83,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 83,
+          "line": 84,
           "kind": "Variable"
         }
       ],

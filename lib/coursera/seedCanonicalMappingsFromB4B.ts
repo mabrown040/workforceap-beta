@@ -20,7 +20,10 @@
  * `'server-only'` import chain.
  */
 import { prisma } from '@/lib/db/prisma';
+import { findLearningPathById } from '@/lib/content/coursera/learningPaths';
 import { PROGRAMS, type Program, type ProgramCourse } from '@/lib/content/programs';
+import { normalizeCourseraCourseId } from '@/lib/content/programCurriculumManifest';
+import { courseraCourseIdLookupVariants } from '@/lib/coursera/canonicalMapping';
 
 export type B4BCourseSeedInput = {
   id: string;
@@ -29,6 +32,23 @@ export type B4BCourseSeedInput = {
   contentType?: string;
 };
 
+/**
+ * Only Course-type entries are seeded; Specializations don't carry an
+ * independently-trackable Coursera course id in this pipeline. A registered
+ * Learning Path id is skipped whatever B4B labels it: the AI + Software
+ * Developer path once landed here as a "course-17" mapping because its
+ * certificate name matched a catalog course name. Pure, for unit tests.
+ */
+export function selectSeedableB4BContents<T extends B4BCourseSeedInput>(
+  contents: readonly T[],
+): T[] {
+  return contents.filter(
+    (c) =>
+      (!c.contentType || c.contentType === 'Course')
+      && !findLearningPathById(c.id),
+  );
+}
+
 export type B4BCourseSeedResult = {
   courseraCourseId: string;
   courseraCourseSlug: string | null;
@@ -36,7 +56,13 @@ export type B4BCourseSeedResult = {
   canonicalProgramSlug: string | null;
   canonicalCourseSlug: string | null;
   matchKind: 'name' | 'unmatched';
-  action: 'created' | 'updated' | 'skipped';
+  /**
+   * `conflict`: a row already exists for this course with a DIFFERENT
+   * canonical target. The seeder leaves it alone and reports it here; the
+   * stored target is what `canonicalProgramSlug` / `canonicalCourseSlug`
+   * carry in that case, since that is what the platform actually uses.
+   */
+  action: 'created' | 'updated' | 'skipped' | 'conflict';
 };
 
 export type B4BSeedSummary = {
@@ -46,10 +72,51 @@ export type B4BSeedSummary = {
   coursesUnmatched: number;
   totalCreated: number;
   totalUpdated: number;
+  /**
+   * Courses whose stored mapping disagrees with the catalog name-match. Never
+   * silently overwritten — surfaced so a human decides. Two crons run this
+   * seeder, and "latest write wins" was how the catalog-vs-B4B disagreements
+   * flipped back and forth unnoticed.
+   */
+  totalConflicts: number;
   /** First 50 per-course results, for the admin UI breakdown. Skip is
    *  applied to results returned to the API to keep the payload small. */
   perCourse: B4BCourseSeedResult[];
 };
+
+export type SeedWritePlan =
+  | { action: 'create' }
+  | { action: 'update' }
+  | { action: 'conflict'; existingProgramSlug: string; existingCourseSlug: string };
+
+/**
+ * Decide what the seeder may write for one course, given whatever row is
+ * already stored for it (under any id spelling) and the catalog name-match.
+ *
+ * The rule: never overwrite a differing canonical target. The name-match is a
+ * heuristic; an existing row may be admin-curated or catalog-seeded, and this
+ * seeder runs from two crons. Flipping a mapping on every run is how the
+ * catalog-vs-B4B disagreements went unnoticed — so a differing target is
+ * reported as a conflict for a human to settle, and only the provider slug is
+ * refreshed on rows that already agree.
+ */
+export function planSeedWrite(
+  existing: { canonicalProgramSlug: string; canonicalCourseSlug: string } | null,
+  match: { programSlug: string; courseSlug: string },
+): SeedWritePlan {
+  if (!existing) return { action: 'create' };
+  if (
+    existing.canonicalProgramSlug === match.programSlug &&
+    existing.canonicalCourseSlug === match.courseSlug
+  ) {
+    return { action: 'update' };
+  }
+  return {
+    action: 'conflict',
+    existingProgramSlug: existing.canonicalProgramSlug,
+    existingCourseSlug: existing.canonicalCourseSlug,
+  };
+}
 
 function normalizeCourseName(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -91,18 +158,18 @@ export async function seedCanonicalMappingsFromB4B(args: {
     coursesUnmatched: 0,
     totalCreated: 0,
     totalUpdated: 0,
+    totalConflicts: 0,
     perCourse: [],
   };
 
-  // We only seed Course-type entries; Specializations don't carry an
-  // independently-trackable Coursera course id in this pipeline.
-  const courses = contents.filter(
-    (c) => !c.contentType || c.contentType === 'Course',
-  );
+  const courses = selectSeedableB4BContents(contents);
   summary.coursesScanned = courses.length;
 
   for (const c of courses) {
-    const courseraCourseId = c.id?.trim();
+    // Store the bare id. listContents hands us `Course~<id>` while progress
+    // rows carry `<id>`; seeding the prefixed form is what produced 130
+    // mapping rows the promotion lookup could never match.
+    const courseraCourseId = normalizeCourseraCourseId(c.id);
     const courseraCourseSlug = c.slug?.trim() || null;
     if (!courseraCourseId) continue;
 
@@ -125,11 +192,41 @@ export async function seedCanonicalMappingsFromB4B(args: {
 
     summary.coursesMatched += 1;
 
-    const existing = await prisma.courseraCanonicalCourseMapping.findUnique({
-      where: { courseraCourseId },
-      select: { id: true },
+    // Look under every spelling so a prefixed twin left by an earlier seed is
+    // seen, and prefer the bare row — the one the lookup prefers too.
+    const existingRows = await prisma.courseraCanonicalCourseMapping.findMany({
+      where: { courseraCourseId: { in: courseraCourseIdLookupVariants(courseraCourseId) } },
+      select: { courseraCourseId: true, canonicalProgramSlug: true, canonicalCourseSlug: true },
+    });
+    const bareExisting = existingRows.find((row) => row.courseraCourseId === courseraCourseId);
+    const existing = bareExisting ?? existingRows[0] ?? null;
+
+    const plan = planSeedWrite(existing, {
+      programSlug: match.program.slug,
+      courseSlug: match.course.slug,
     });
 
+    if (plan.action === 'conflict') {
+      summary.totalConflicts += 1;
+      if (summary.perCourse.length < 50) {
+        summary.perCourse.push({
+          courseraCourseId,
+          courseraCourseSlug,
+          courseraName: c.name,
+          canonicalProgramSlug: plan.existingProgramSlug,
+          canonicalCourseSlug: plan.existingCourseSlug,
+          matchKind: 'name',
+          action: 'conflict',
+        });
+      }
+      continue;
+    }
+
+    // Upsert on the bare id so the table converges to one spelling. `update`
+    // refreshes only the provider slug: the canonical target on an existing
+    // row is never touched here (see planSeedWrite), and a prefixed twin is
+    // left in place for a separate, deliberate cleanup rather than deleted
+    // from inside a cron.
     await prisma.courseraCanonicalCourseMapping.upsert({
       where: { courseraCourseId },
       create: {
@@ -142,14 +239,12 @@ export async function seedCanonicalMappingsFromB4B(args: {
       },
       update: {
         courseraCourseSlug,
-        canonicalProgramSlug: match.program.slug,
-        canonicalCourseSlug: match.course.slug,
         // Don't touch notes/createdById on update — preserve manual edits.
       },
     });
 
-    const action: 'created' | 'updated' = existing ? 'updated' : 'created';
-    if (existing) {
+    const action: 'created' | 'updated' = bareExisting ? 'updated' : 'created';
+    if (bareExisting) {
       summary.totalUpdated += 1;
     } else {
       summary.totalCreated += 1;

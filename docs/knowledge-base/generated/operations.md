@@ -31,6 +31,7 @@
 | [scripts/clawpatch-pre-push.sh](../../../scripts/clawpatch-pre-push.sh) | 50 | operations |  |
 | [scripts/cleanup-fixtures.ts](../../../scripts/cleanup-fixtures.ts) | 46 | operations |  |
 | [scripts/coursera-integration-test.ts](../../../scripts/coursera-integration-test.ts) | 605 | learning-coursera |  |
+| [scripts/coursera/generate-curated-collections.ts](../../../scripts/coursera/generate-curated-collections.ts) | 72 | learning-coursera |  |
 | [scripts/crabbox-gate.sh](../../../scripts/crabbox-gate.sh) | 6 | operations |  |
 | [scripts/create-chs-partner.ts](../../../scripts/create-chs-partner.ts) | 311 | operations |  |
 | [scripts/create-employer-michael-brown.ts](../../../scripts/create-employer-michael-brown.ts) | 165 | operations |  |

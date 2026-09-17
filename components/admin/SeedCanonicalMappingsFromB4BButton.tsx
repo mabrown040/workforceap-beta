@@ -19,7 +19,7 @@ type CourseResult = {
   canonicalProgramSlug: string | null;
   canonicalCourseSlug: string | null;
   matchKind: 'name' | 'unmatched';
-  action: 'created' | 'updated' | 'skipped';
+  action: 'created' | 'updated' | 'skipped' | 'conflict';
 };
 
 type Summary = {
@@ -29,6 +29,8 @@ type Summary = {
   coursesUnmatched: number;
   totalCreated: number;
   totalUpdated: number;
+  /** Stored mapping disagrees with the catalog name-match; left untouched. */
+  totalConflicts: number;
   perCourse: CourseResult[];
 };
 
@@ -101,7 +103,31 @@ export default function SeedCanonicalMappingsFromB4BButton() {
           <strong>{summary.coursesMatched}</strong> to catalog,{' '}
           <strong>{summary.coursesUnmatched}</strong> unmatched. Created{' '}
           <strong>{summary.totalCreated}</strong> new mapping{summary.totalCreated === 1 ? '' : 's'}, refreshed{' '}
-          <strong>{summary.totalUpdated}</strong>.
+          <strong>{summary.totalUpdated}</strong>
+          {summary.totalConflicts > 0 ? (
+            <>
+              , left <strong>{summary.totalConflicts}</strong> conflict
+              {summary.totalConflicts === 1 ? '' : 's'} untouched
+            </>
+          ) : null}
+          .
+          {summary.perCourse.some((r) => r.action === 'conflict') ? (
+            <details style={{ marginTop: '0.5rem' }}>
+              <summary style={{ cursor: 'pointer' }}>
+                Conflicting mappings (stored target differs from catalog match — decide manually)
+              </summary>
+              <ul style={{ margin: '0.4rem 0 0', paddingLeft: '1.25rem' }}>
+                {summary.perCourse
+                  .filter((r) => r.action === 'conflict')
+                  .map((r) => (
+                    <li key={r.courseraCourseId}>
+                      <code>{r.courseraCourseId}</code> — {r.courseraName}: stored as{' '}
+                      <code>{r.canonicalProgramSlug}</code> / <code>{r.canonicalCourseSlug}</code>
+                    </li>
+                  ))}
+              </ul>
+            </details>
+          ) : null}
           {summary.perCourse.some((r) => r.matchKind === 'unmatched') ? (
             <details style={{ marginTop: '0.5rem' }}>
               <summary style={{ cursor: 'pointer' }}>

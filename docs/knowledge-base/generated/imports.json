@@ -102753,8 +102753,16 @@
   },
   {
     "from": "lib/resume/atomicResumeObjectSwap.ts",
-    "specifier": "node:crypto",
+    "specifier": "node:buffer",
     "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:buffer"
+  },
+  {
+    "from": "lib/resume/atomicResumeObjectSwap.ts",
+    "specifier": "node:crypto",
+    "line": 2,
     "kind": "import",
     "external": true,
     "package": "node:crypto"

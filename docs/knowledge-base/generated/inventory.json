@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "7e14e6acee159de8c203fc1b4f63fa58b5846346f0961493c69d819b085e02ce",
+  "inputTreeSha256": "50749f1a981277336abb2aa51fc58c4739536344badc1cc5f245b85fd9fc2755",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25710,9 +25710,9 @@
       "path": "app/api/admin/members/[id]/upload-resume/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7221,
+      "bytes": 7216,
       "lines": 195,
-      "sha256": "224639c2da190435bd8536d494fcf9128c985e0c807bf54a86365aefbe5b20db",
+      "sha256": "9ca6748b4e73d172f8c5100cf5ad435997f814700ce73622c1ff2e3e5e7cd477",
       "binary": false,
       "exports": [
         {
@@ -31178,9 +31178,9 @@
       "path": "app/api/counselor/sessions/upload-resume/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5811,
+      "bytes": 5806,
       "lines": 155,
-      "sha256": "6234eb6eda424993bb52a0802133febb94e800c058c3ccc93997e7231764bc01",
+      "sha256": "0bb708c7aa3becab9206bbd01ab289ea2aa3055d8cddafb66d831035717ad09d",
       "binary": false,
       "exports": [
         {
@@ -37410,9 +37410,9 @@
       "path": "app/api/member/resume/upload/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 4787,
+      "bytes": 4782,
       "lines": 115,
-      "sha256": "4f30675dddb305a87bf8a01e8a18c925c5c0f8c68f9e25a092196c9813ca1c3c",
+      "sha256": "299eb0694edc9155a8c2695f65ac32696744647550cffa2a053263c0a1053ac0",
       "binary": false,
       "exports": [
         {
@@ -126989,131 +126989,131 @@
       "path": "lib/resume/atomicResumeObjectSwap.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7786,
-      "lines": 214,
-      "sha256": "b4a898c76a64b5fa64dbd5243d72d6ec197b16747dccf4df9a0f605b7dcaf4ee",
+      "bytes": 7833,
+      "lines": 215,
+      "sha256": "4796c572b8883bb3473a22f87ebc27057b1b2fa321cdf6e34dd6c1b9d6ccdc37",
       "binary": false,
       "exports": [
         {
           "name": "ResumeProfilePathField",
-          "line": 3,
+          "line": 4,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeProfilePaths",
-          "line": 5,
+          "line": 6,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeObjectUpload",
-          "line": 9,
+          "line": 10,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapOptions",
-          "line": 20,
+          "line": 21,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "removeResumeObjectsWithRetry",
-          "line": 48,
+          "line": 49,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapError",
-          "line": 69,
+          "line": 70,
           "kind": "ClassDeclaration"
         },
         {
           "name": "isResumeObjectPathOwnedByUser",
-          "line": 103,
+          "line": 104,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isLegacyResumeProfilePath",
-          "line": 111,
+          "line": 112,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isApplicationResumeSnapshotPath",
-          "line": 118,
+          "line": 119,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "replaceResumeObjectsAtomically",
-          "line": 140,
+          "line": 141,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "ResumeProfilePathField",
-          "line": 3,
+          "line": 4,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeProfilePaths",
-          "line": 5,
+          "line": 6,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeObjectUpload",
-          "line": 9,
+          "line": 10,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StorageResult",
-          "line": 16,
+          "line": 17,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapOptions",
-          "line": 20,
+          "line": 21,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "ResumeObjectCleanupOptions",
-          "line": 40,
+          "line": 41,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "removeResumeObjectsWithRetry",
-          "line": 48,
+          "line": 49,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapError",
-          "line": 69,
+          "line": 70,
           "kind": "ClassDeclaration"
         },
         {
           "name": "objectPrefix",
-          "line": 92,
+          "line": 93,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "safeVersionId",
-          "line": 96,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isResumeObjectPathOwnedByUser",
-          "line": 103,
+          "line": 104,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isLegacyResumeProfilePath",
-          "line": 111,
+          "line": 112,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isApplicationResumeSnapshotPath",
-          "line": 118,
+          "line": 119,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "replaceResumeObjectsAtomically",
-          "line": 140,
+          "line": 141,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -127736,9 +127736,9 @@
       "path": "lib/resume/prepareResumeUpload.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 5164,
+      "bytes": 5206,
       "lines": 145,
-      "sha256": "5c2ea7a19c81302882a566ba56cdd910f4b0719424eb74fcb6e2bade6b15ff29",
+      "sha256": "bc4d3ad5cba0bce6e14c4472b2ffaf67cc8fd17da4ca96092b8422858eeeb9af",
       "binary": false,
       "exports": [
         {

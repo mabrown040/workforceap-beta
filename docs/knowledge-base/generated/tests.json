@@ -4508,6 +4508,10 @@
       {
         "file": "lib/content/programs.ts",
         "line": 5
+      },
+      {
+        "file": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
+        "line": 68
       }
     ],
     "kind": "test-candidate",
@@ -16790,6 +16794,30 @@
       {
         "file": "lib/coursera/upsertMergedCourseProgress.ts",
         "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/coursera-canonical-mapping-normalization.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/coursera/canonicalMapping.ts",
+        "line": 25
       }
     ],
     "kind": "test-candidate",

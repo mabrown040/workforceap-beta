@@ -134,7 +134,7 @@
 | [components/admin/PrintButton.tsx](../../../components/admin/PrintButton.tsx) | 13 | administration | default:3 |
 | [components/admin/RecentSignupsTable.tsx](../../../components/admin/RecentSignupsTable.tsx) | 87 | administration | default:22 |
 | [components/admin/SeedCanonicalMappingsButton.tsx](../../../components/admin/SeedCanonicalMappingsButton.tsx) | 130 | administration | default:32 |
-| [components/admin/SeedCanonicalMappingsFromB4BButton.tsx](../../../components/admin/SeedCanonicalMappingsFromB4BButton.tsx) | 139 | administration | default:38 |
+| [components/admin/SeedCanonicalMappingsFromB4BButton.tsx](../../../components/admin/SeedCanonicalMappingsFromB4BButton.tsx) | 165 | administration | default:40 |
 | [components/admin/SignaturePad.tsx](../../../components/admin/SignaturePad.tsx) | 209 | administration | SignatureValue:5, default:16 |
 | [components/admin/SubgroupForm.tsx](../../../components/admin/SubgroupForm.tsx) | 184 | administration | default:22 |
 | [components/admin/SubgroupMembersTable.tsx](../../../components/admin/SubgroupMembersTable.tsx) | 330 | administration | default:28 |

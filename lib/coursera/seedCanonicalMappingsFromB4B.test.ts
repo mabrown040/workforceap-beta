@@ -62,3 +62,35 @@ test('matches the first catalog hit when name collides across programs', () => {
   assert.ok(match);
   assert.equal(match!.program.slug, 'a');
 });
+
+// ─── planSeedWrite: the seeder must never flip a stored mapping ───
+
+import { planSeedWrite } from './seedCanonicalMappingsFromB4B';
+
+const MATCH = { programSlug: 'it-support-professional-certificate-ibm', courseSlug: 'introduction-to-technical-support' };
+
+test('creates when nothing is stored for the course', () => {
+  assert.deepEqual(planSeedWrite(null, MATCH), { action: 'create' });
+});
+
+test('updates when the stored target already agrees with the catalog match', () => {
+  const existing = { canonicalProgramSlug: MATCH.programSlug, canonicalCourseSlug: MATCH.courseSlug };
+  assert.deepEqual(planSeedWrite(existing, MATCH), { action: 'update' });
+});
+
+test('reports a conflict instead of overwriting a differing program', () => {
+  // Two crons run this seeder. Overwriting here is how the catalog-vs-B4B
+  // disagreements flipped every run without anyone seeing them.
+  const existing = { canonicalProgramSlug: 'comptia-network-professional-certificate', canonicalCourseSlug: MATCH.courseSlug };
+  assert.deepEqual(planSeedWrite(existing, MATCH), {
+    action: 'conflict',
+    existingProgramSlug: 'comptia-network-professional-certificate',
+    existingCourseSlug: MATCH.courseSlug,
+  });
+});
+
+test('reports a conflict when only the course differs', () => {
+  const existing = { canonicalProgramSlug: MATCH.programSlug, canonicalCourseSlug: 'some-other-course' };
+  const plan = planSeedWrite(existing, MATCH);
+  assert.equal(plan.action, 'conflict');
+});

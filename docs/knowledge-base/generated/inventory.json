@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "c4ada44ee100515ddc9105f33306ca57ba7dd4b667e8b5325ae02f4ad81ccd09",
+  "inputTreeSha256": "df6ad1bee17ff728514537befbfa92ee24bcc373693e415ef49824b5d4eed87e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -31506,9 +31506,9 @@
       "path": "app/api/cron/coursera-auto-heal/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4935,
-      "lines": 135,
-      "sha256": "56ea9364c189d8c45e20a4bcdfaab7d5773c96d9eb8c8895a2e688d88c6cd94e",
+      "bytes": 4995,
+      "lines": 136,
+      "sha256": "9dd9e2b53fff2318219c210c756066d08331ed7dd8350934be5ec3c8d567fa7b",
       "binary": false,
       "exports": [
         {
@@ -31518,12 +31518,12 @@
         },
         {
           "name": "GET",
-          "line": 134,
+          "line": 135,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 135,
+          "line": 136,
           "kind": "Variable"
         }
       ],
@@ -31540,12 +31540,12 @@
         },
         {
           "name": "GET",
-          "line": 134,
+          "line": 135,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 135,
+          "line": 136,
           "kind": "Variable"
         }
       ],
@@ -31555,19 +31555,19 @@
       "path": "app/api/cron/coursera-b4b-sync/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 3236,
-      "lines": 82,
-      "sha256": "f164be3bb0a52a7e0652e2336c77f1e749c11db310c2565110edd09298ca8325",
+      "bytes": 3296,
+      "lines": 83,
+      "sha256": "025a96f0f7eb2a7e2162a46d1a8e06676497ca4abed03b288835be5c37213a22",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 81,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 82,
+          "line": 83,
           "kind": "Variable"
         }
       ],
@@ -31584,12 +31584,12 @@
         },
         {
           "name": "GET",
-          "line": 81,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 82,
+          "line": 83,
           "kind": "Variable"
         }
       ],
@@ -52260,14 +52260,14 @@
       "path": "components/admin/SeedCanonicalMappingsFromB4BButton.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 4807,
-      "lines": 139,
-      "sha256": "3e2a92ab7748e9ad5cbe7a95330ad27cf5cf535582ed3e7e37e8b675d513aad4",
+      "bytes": 6024,
+      "lines": 165,
+      "sha256": "35844f876a37b5d681ae4f1b998f71f4b5b112112c6340b94cc198d600a77fc2",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 38,
+          "line": 40,
           "kind": "FunctionDeclaration",
           "localName": "SeedCanonicalMappingsFromB4BButton"
         }
@@ -52285,12 +52285,12 @@
         },
         {
           "name": "CONFIRM_PROMPT",
-          "line": 35,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "SeedCanonicalMappingsFromB4BButton",
-          "line": 38,
+          "line": 40,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -102536,61 +102536,86 @@
       "path": "lib/coursera/canonicalMapping.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 4370,
-      "lines": 124,
-      "sha256": "fb0b1b1c11e400da679bf0f3d2d42baeebb3a0835775d90b08b0fe0b7ac9791e",
+      "bytes": 7224,
+      "lines": 195,
+      "sha256": "e2f9565234d2529929b259e86da8654a81d5e99ac6fa955973ed7b6e946c7d1c",
       "binary": false,
       "exports": [
         {
           "name": "CanonicalMappingHit",
-          "line": 22,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CanonicalMappingIndex",
-          "line": 32,
+          "line": 33,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "emptyCanonicalMappingIndex",
-          "line": 37,
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "courseraCourseIdLookupVariants",
+          "line": 64,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "indexCanonicalMappingRows",
+          "line": 84,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCanonicalMappingsForCourseraIds",
-          "line": 52,
+          "line": 119,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "findCanonicalMappingForCourseraCourse",
-          "line": 96,
+          "line": 152,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "CanonicalMappingHit",
-          "line": 22,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CanonicalMappingIndex",
-          "line": 32,
+          "line": 33,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "emptyCanonicalMappingIndex",
-          "line": 37,
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "courseraCourseIdLookupVariants",
+          "line": 64,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "CanonicalMappingRowLike",
+          "line": 68,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "indexCanonicalMappingRows",
+          "line": 84,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCanonicalMappingsForCourseraIds",
-          "line": 52,
+          "line": 119,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "findCanonicalMappingForCourseraCourse",
-          "line": 96,
+          "line": 152,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105629,9 +105654,9 @@
       "path": "lib/coursera/seedCanonicalMappingsFromB4B.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 2226,
-      "lines": 64,
-      "sha256": "53d8c34af315bf7f82f3724adee3700203a646cf65453fc8717d153fa5d503df",
+      "bytes": 3710,
+      "lines": 96,
+      "sha256": "0cb7d0599632c6e2d81eb23f0175341c32924fc2cef4f7233f7841561d6f9f12",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -105639,6 +105664,11 @@
           "name": "mkProgram",
           "line": 7,
           "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "MATCH",
+          "line": 70,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -105647,66 +105677,86 @@
       "path": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 5338,
-      "lines": 172,
-      "sha256": "1e5429e7d4885720150f06743ac1db77df2cd046276b47c3bc164d804f3a4cc5",
+      "bytes": 8955,
+      "lines": 253,
+      "sha256": "764c9d19c35c999deecd33dea7caa92ff07f2cff2bceb06d77e136a113964841",
       "binary": false,
       "exports": [
         {
           "name": "B4BCourseSeedInput",
-          "line": 25,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BCourseSeedResult",
-          "line": 32,
+          "line": 34,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BSeedSummary",
-          "line": 42,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "SeedWritePlan",
+          "line": 69,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "planSeedWrite",
+          "line": 85,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "matchCourseToCatalog",
-          "line": 64,
+          "line": 113,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedCanonicalMappingsFromB4B",
-          "line": 80,
+          "line": 129,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "B4BCourseSeedInput",
-          "line": 25,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BCourseSeedResult",
-          "line": 32,
+          "line": 34,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BSeedSummary",
-          "line": 42,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "SeedWritePlan",
+          "line": 69,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "planSeedWrite",
+          "line": 85,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "normalizeCourseName",
-          "line": 54,
+          "line": 103,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "matchCourseToCatalog",
-          "line": 64,
+          "line": 113,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedCanonicalMappingsFromB4B",
-          "line": 80,
+          "line": 129,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105838,76 +105888,76 @@
       "path": "lib/coursera/syncUserFromB4B.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 33235,
-      "lines": 860,
-      "sha256": "22766bd1611c90fe60d0dc25a62720305dd5330e2c3c2bb97112848cc1ac361d",
+      "bytes": 33474,
+      "lines": 863,
+      "sha256": "b79b2fa00b236e6bc4fd5d81d37ea8110eedc746407afe411712e635c892707f",
       "binary": false,
       "exports": [
         {
           "name": "DroppedItem",
-          "line": 62,
+          "line": 63,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedCourse",
-          "line": 67,
+          "line": 68,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncUserFromB4BResult",
-          "line": 84,
+          "line": 85,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "resolveContentIdToWapCourse",
-          "line": 126,
+          "line": 127,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncUserFromB4B",
-          "line": 199,
+          "line": 202,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "markUserAutoSynced",
-          "line": 850,
+          "line": 853,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "DroppedItem",
-          "line": 62,
+          "line": 63,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedCourse",
-          "line": 67,
+          "line": 68,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedCourseTarget",
-          "line": 79,
+          "line": 80,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncUserFromB4BResult",
-          "line": 84,
+          "line": 85,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "resolveContentIdToWapCourse",
-          "line": 126,
+          "line": 127,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncUserFromB4B",
-          "line": 199,
+          "line": 202,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "markUserAutoSynced",
-          "line": 850,
+          "line": 853,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -151074,6 +151124,34 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/coursera-canonical-mapping-normalization.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 7459,
+      "lines": 174,
+      "sha256": "3f79cf8b76a31577cf9534c5f44bd008e6c0617dc7147e9a0486117baf924134",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "ID",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "row",
+          "line": 34,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {

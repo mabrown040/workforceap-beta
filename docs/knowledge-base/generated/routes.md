@@ -410,7 +410,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/subgroups | page |  | [app/admin/subgroups/page.tsx](../../../app/admin/subgroups/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/testimonials | loading |  | [app/admin/testimonials/loading.tsx](../../../app/admin/testimonials/loading.tsx) |  |
 | /admin/testimonials | page |  | [app/admin/testimonials/page.tsx](../../../app/admin/testimonials/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
-| /admin/training-progress | page |  | [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | @/lib/auth/server:5, @/lib/tenant/adminPageScope:6, @/lib/tenant/adminPageScope:370 |
+| /admin/training-progress | page |  | [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | @/lib/auth/server:5, @/lib/tenant/adminPageScope:6, @/lib/tenant/adminPageScope:407 |
 | /admin/users/deleted | page |  | [app/admin/users/deleted/page.tsx](../../../app/admin/users/deleted/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/users | loading |  | [app/admin/users/loading.tsx](../../../app/admin/users/loading.tsx) |  |
 | /admin/users | page |  | [app/admin/users/page.tsx](../../../app/admin/users/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/tenant/adminPageScope:8 |
@@ -767,7 +767,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/coursera/launch | route | GET | [app/api/member/coursera/launch/route.ts](../../../app/api/member/coursera/launch/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/coursera/refresh-progress | route | POST | [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | @/lib/auth/server:3, @/lib/db/withRequestGuc:8 |
 | /api/member/coursera | route | GET | [app/api/member/coursera/route.ts](../../../app/api/member/coursera/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:10 |
-| /api/member/courses/complete | route | POST | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:6 |
+| /api/member/courses/complete | route | POST | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/dashboard-profile | route | PATCH | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/delete-account | route | POST | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:7, @/lib/db/withRequestGuc:9 |
 | /api/member/eligibility | route | GET, PATCH | [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |

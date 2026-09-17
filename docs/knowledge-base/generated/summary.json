@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "b10645dceab3d330f6db0e4e89d7b50e44e2700c76f4dc4cbc0b65f7bf30148c",
+  "inputTreeSha256": "21bc607409eff82699ad28af1d3e7a361436f89178b6ebd25ec75720c57c3771",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -10,8 +10,8 @@
   "counts": {
     "files": 4507,
     "sourceModules": 3184,
-    "importReferences": 15099,
-    "resolvedLocalReferences": 10073,
+    "importReferences": 15101,
+    "resolvedLocalReferences": 10075,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -390,7 +390,7 @@
     },
     {
       "file": "lib/coursera/progressQueries.ts",
-      "lines": 1034
+      "lines": 1043
     }
   ]
 }

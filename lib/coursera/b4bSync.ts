@@ -75,6 +75,18 @@ export type B4BSyncResult = {
   upserted: number;
   upsertedKnown: number;
   upsertedUnknown: number;
+  /**
+   * Every (email, course) skipped for course_progress because the Coursera
+   * course has no canonical mapping yet. The raw progress row IS written —
+   * this list exists so an admin can see exactly which courses need a
+   * mapping instead of discovering the gap as a deflated % on the roster.
+   * Surfaced via logCronRun('cron_coursera_b4b_sync', result) metadata.
+   */
+  unknownCourseDetails: Array<{
+    email: string;
+    courseraCourseSlug: string;
+    courseName: string;
+  }>;
   upsertedUnmatched: number;
   skippedNoEmail: number;
   errors: number;
@@ -581,6 +593,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     upserted: 0,
     upsertedKnown: 0,
     upsertedUnknown: 0,
+    unknownCourseDetails: [],
     upsertedUnmatched: 0,
     skippedNoEmail: 0,
     errors: 0,
@@ -721,6 +734,11 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       }
       if (progressTargets.length === 0) {
         result.upsertedUnknown += 1;
+        result.unknownCourseDetails.push({
+          email,
+          courseraCourseSlug: report.contentSlug,
+          courseName: report.contentName,
+        });
         continue;
       }
 

@@ -49,6 +49,7 @@
     "coursera:precreate-tenant-indexes": "node scripts/prisma-env.js npx tsx scripts/precreate-coursera-tenant-indexes.ts",
     "coursera:validate-approved-catalog": "node scripts/prisma-env.js tsx scripts/validate-approved-coursera-catalog.ts",
     "coursera:validate-approved-track": "node scripts/prisma-env.js tsx scripts/validate-approved-coursera-track.ts",
+    "coursera:generate-curated-collections": "tsx scripts/coursera/generate-curated-collections.ts",
     "email": "email dev -p 3001",
     "analyze": "ANALYZE=true npm run build",
     "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh",

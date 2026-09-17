@@ -113,6 +113,9 @@ export type B4BEnrollmentReport = {
   email?: string;
   programName?: string;
   programSlug?: string;
+  /** Learning Path ("collection") the row was taken under; see lib/content/coursera/learningPaths.ts. */
+  collectionId?: string | null;
+  collectionName?: string | null;
 };
 
 export type B4BGradebookReport = {

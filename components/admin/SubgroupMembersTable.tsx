@@ -120,7 +120,14 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
         </div>
       )}
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-        <button type="button" className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setShowAddModal(true)}
+          aria-haspopup="dialog"
+          aria-expanded={showAddModal}
+          aria-controls="add-member-modal"
+        >
           Add member
         </button>
       </div>
@@ -169,6 +176,9 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                     style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
                     onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
                     disabled={!!removing}
+                    aria-haspopup="dialog"
+                    aria-expanded={removeTarget?.id === m.id}
+                    aria-controls="remove-member-modal"
                   >
                     {removing === m.id ? '…' : 'Remove'}
                   </button>
@@ -204,6 +214,9 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                   className="btn btn-outline btn-sm"
                   onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
                   disabled={!!removing}
+                  aria-haspopup="dialog"
+                  aria-expanded={removeTarget?.id === m.id}
+                  aria-controls="remove-member-modal"
                 >
                   {removing === m.id ? '…' : 'Remove'}
                 </button>
@@ -217,6 +230,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       {removeTarget && (
         <div className="admin-confirm-modal-overlay" role="presentation" onClick={closeRemoveTarget} tabIndex={-1}>
           <div
+            id="remove-member-modal"
             ref={removeTrapRef as React.RefObject<HTMLDivElement>}
             className="admin-confirm-modal"
             role="dialog"
@@ -229,7 +243,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
               Remove <strong>{removeTarget.name}</strong> from this subgroup? They keep their WorkforceAP account.
             </p>
             <div className="admin-confirm-modal__actions">
-              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={closeRemoveTarget}>
+              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={closeRemoveTarget} autoFocus>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" disabled={!!removing} onClick={() => void runRemoveMember()}>
@@ -254,6 +268,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
           onClick={closeAddModal}
         >
           <div
+            id="add-member-modal"
             ref={addModalTrapRef as React.RefObject<HTMLDivElement>}
             role="dialog"
             aria-modal="true"
@@ -278,6 +293,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), doSearch())}
                 placeholder="Search by name or email"
                 style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
+                autoFocus
               />
               <button type="button" className="btn btn-primary" onClick={() => doSearch()} disabled={searching}>
                 {searching ? 'Searching…' : 'Search'}

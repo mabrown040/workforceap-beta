@@ -91456,6 +91456,94 @@
     "target": "lib/content/programs.ts"
   },
   {
+    "from": "lib/content/coursera/curatedCollections.generated.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 5,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "./curatedCollections",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.ts",
+    "specifier": "./curatedCollections.generated",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.generated.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 13,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollectionsCsv.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollectionsCsv.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollectionsCsv.test.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
     "from": "lib/content/coursera/learningPaths.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -91497,8 +91585,16 @@
   },
   {
     "from": "lib/content/coursera/learningPaths.test.ts",
-    "specifier": "./learningPaths",
+    "specifier": "./curatedCollections",
     "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "./learningPaths",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/content/coursera/learningPaths.ts"
@@ -91506,7 +91602,7 @@
   {
     "from": "lib/content/coursera/learningPaths.ts",
     "specifier": "@/lib/content/programCurriculumManifest",
-    "line": 26,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/content/programCurriculumManifest.ts"
@@ -91514,7 +91610,7 @@
   {
     "from": "lib/content/coursera/learningPaths.ts",
     "specifier": "@/lib/content/programSlug",
-    "line": 27,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
@@ -93826,15 +93922,23 @@
   {
     "from": "lib/coursera/learningPathAttribution.ts",
     "specifier": "@/lib/content/coursera/learningPaths",
-    "line": 17,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/content/coursera/learningPaths.ts"
   },
   {
     "from": "lib/coursera/learningPathAttribution.ts",
+    "specifier": "@/lib/content/coursera/curatedCollections",
+    "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.ts",
     "specifier": "@/lib/content/programCurriculumManifest",
-    "line": 28,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/content/programCurriculumManifest.ts"
@@ -106470,6 +106574,38 @@
     "kind": "type",
     "external": true,
     "package": "node:crypto"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "node:crypto",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:crypto"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "node:path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "@/lib/content/coursera/curatedCollectionsCsv",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
   },
   {
     "from": "scripts/create-chs-partner.ts",

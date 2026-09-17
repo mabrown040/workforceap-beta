@@ -701,7 +701,7 @@ export async function syncUserFromB4B(args: {
     // preserves fan-out for a shared provider course even when Coursera's
     // enrollment report has not caught up yet.
     const gradebookCollection = resolveReportCollection(
-      { collectionId: gbRow.collectionId, collectionName: gbRow.collectionName },
+      { contentId: courseId, collectionId: gbRow.collectionId, collectionName: gbRow.collectionName },
       learningPathIndex,
     );
     const matches = await resolveProviderCourseTargets(

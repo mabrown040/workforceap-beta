@@ -35,7 +35,11 @@ test('resolves a collection by id first, then by exact name, case-insensitively'
     collectionName: '  networking and cybersecurity professional certificate (comptia net+,sec+) ',
   });
   assert.equal(bySpelledName?.learningPathId, NET_SEC_PATH);
-  assert.equal(bySpelledName?.programSlug, null, 'the combined Net+/Sec+ path has no WAP home yet');
+  assert.equal(
+    bySpelledName?.programSlug,
+    'cybersecurity-professional-certificate-google',
+    'the combined Net+/Sec+ path is WAP\'s own combined program',
+  );
   assert.equal(findLearningPathByCollection({ collectionId: 'nope1', collectionName: 'Nothing' }), null);
 });
 
@@ -70,7 +74,8 @@ test('an unregistered id is a path row only when B4B says so', () => {
 
 test('learns a collection id only from a path row, never from a course row', () => {
   const batch = [
-    // CompTIA A+ path row: registered, but the registry has no collection id for it yet.
+    // CompTIA A+ path row under a collection id the registry does not carry
+    // (as if Coursera had re-created the path since the Curriculum download).
     { contentId: COMPTIA_A_PATH, contentType: 'Specialization', collectionId: 'aAbBc' },
     // A course taken under that collection.
     { contentId: '7sBiclFIEeetjQ5ppGVTyA', contentType: 'Course', collectionId: 'aAbBc' },
@@ -86,7 +91,7 @@ test('learns a collection id only from a path row, never from a course row', () 
     resolveReportCollection(batch[1], index)?.programSlug,
     'comptia-a-professional-certificate',
   );
-  assert.equal(resolveReportCollection(batch[2], index), null);
+  assert.equal(resolveReportCollection(batch[2], index), null, 'a named but unknown collection is never guessed');
   const synthetic = resolveReportCollection(batch[4], index);
   assert.ok(synthetic);
   assert.equal(synthetic.programSlug, null);
@@ -125,16 +130,54 @@ test('real feed rows: the certificate row is a path, the course row inherits its
     resolveReportCollection({ collectionId: '6m4yZ', collectionName: 'AI and Software Developer Professional Certificate (IBM)' })?.programSlug,
     'software-developer-professional-certificate-ibm',
   );
-  // Touker: the combined Net+/Sec+ path resolves to a path but to no program.
-  const netSec = resolveReportCollection({ collectionId: '81uci' });
-  assert.equal(netSec?.path.learningPathId, NET_SEC_PATH);
-  assert.equal(netSec?.programSlug, null);
+  // Touker: "Introduction to Networking" is in both the Network+ collection and
+  // the combined Net+/Sec+ collection; the row's collection id decides.
+  const introToNetworking = 'N0l8fiV4Ee6DuxLo8f8SVQ';
+  const underCombined = resolveReportCollection({ contentId: introToNetworking, collectionId: '81uci' });
+  assert.equal(underCombined?.path.learningPathId, NET_SEC_PATH);
+  assert.equal(underCombined?.programSlug, 'cybersecurity-professional-certificate-google');
+  assert.equal(underCombined?.inferred, false);
+  assert.equal(
+    resolveReportCollection({ contentId: introToNetworking, collectionId: 'LVE2h' })?.programSlug,
+    'comptia-network-professional-certificate',
+  );
+  assert.equal(
+    resolveReportCollection({ contentId: introToNetworking }),
+    null,
+    'without a collection on the row a shared course is not attributed',
+  );
+});
+
+test('a row with no collection falls back to curated membership only when one collection lists the course', () => {
+  // Project Management Fundamentals is listed by the Microsoft PM collection alone.
+  const inferred = resolveReportCollection({ contentId: 'Course~lgy789C8Ee6SjxKHxThXWw', collectionId: null, collectionName: '' });
+  assert.equal(inferred?.programSlug, 'project-management-professional-certificate-microsoft');
+  assert.equal(inferred?.path.collectionId, '1cvGr');
+  assert.equal(inferred?.inferred, true);
+
+  // "Introduction to Artificial Intelligence (AI)" is in both AI collections.
+  assert.equal(resolveReportCollection({ contentId: 'mR7MlUaTEemuHQ4HpHozrA' }), null);
+  // A course Coursera does not list anywhere.
+  assert.equal(resolveReportCollection({ contentId: 'zzzzzzzzzzzzzzzzzzzzzz' }), null);
+  // The row's own collection always wins over membership, even when unknown.
+  assert.equal(resolveReportCollection({ contentId: 'lgy789C8Ee6SjxKHxThXWw', collectionId: 'unkn0' }), null);
+  assert.equal(
+    resolveReportCollection({ contentId: 'lgy789C8Ee6SjxKHxThXWw', collectionId: '0lodU' })?.programSlug,
+    'it-support-professional-certificate-ibm',
+  );
+  // A collection-only registry entry (no path id yet) still resolves by collection.
+  assert.equal(
+    resolveReportCollection({ contentId: '76WGD1CXEe6T2Q7n3ko4Dw', collectionId: 'tEMYo' })?.programSlug,
+    'it-support-and-entry-level-cyber-security-certificate',
+  );
 });
 
 test('raw progress program: path > collection > course target > umbrella', () => {
   const fallbackProgramSlug = 'workforce-advancement-project-8a3f0';
   const knownPath = matchLearningPathReport({ contentId: IT_SUPPORT_PATH })!;
-  const unresolvedPath = matchLearningPathReport({ contentId: NET_SEC_PATH })!;
+  // A path B4B reports that the registry has never heard of stays unresolved.
+  const unresolvedPath = matchLearningPathReport({ contentId: 'yyyyyyyyyyyyyyyyyyyyyy', contentType: 'Specialization' })!;
+  assert.equal(unresolvedPath.known, false);
 
   assert.equal(
     rawProgressProgramSlug({ learningPath: knownPath, collectionProgramSlug: null, targetProgramSlug: 'other', fallbackProgramSlug }),

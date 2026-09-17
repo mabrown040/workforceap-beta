@@ -9,10 +9,12 @@
  *   2. Which path was this course taken under, and which WAP program is that?
  *      → `resolveReportCollection`
  *
- * Collection ids are short opaque tokens that only the feed exposes. A path's
- * own row carries its collection id, so one pass over a batch teaches the
- * index every collection it needs before course rows are attributed
- * (`withLearnedCollections`). Pure; no Prisma or `server-only`.
+ * Collection ids are short opaque tokens. The registry knows every collection
+ * the org's Curriculum download lists; a path's own row also carries its
+ * collection id, so one pass over a batch teaches the index any collection
+ * created since the download (`withLearnedCollections`). A course row that
+ * arrives with no collection at all falls back to curated membership, and only
+ * when exactly one collection lists the course. Pure; no Prisma or `server-only`.
  */
 import {
   addLearningPathToIndex,
@@ -25,6 +27,7 @@ import {
   type CourseraLearningPath,
   type LearningPathIndex,
 } from '@/lib/content/coursera/learningPaths';
+import { uniqueCuratedCollectionForCourse } from '@/lib/content/coursera/curatedCollections';
 import { normalizeCourseraCourseId } from '@/lib/content/programCurriculumManifest';
 
 export type LearningPathReportLike = {
@@ -46,6 +49,11 @@ export type LearningPathMatch = {
 export type CollectionResolution = {
   path: CourseraLearningPath;
   programSlug: string | null;
+  /**
+   * True when the row named no collection and the path was inferred from
+   * curated membership (the course is listed by exactly one collection).
+   */
+  inferred: boolean;
 };
 
 function syntheticPath(report: LearningPathReportLike): CourseraLearningPath {
@@ -53,7 +61,7 @@ function syntheticPath(report: LearningPathReportLike): CourseraLearningPath {
     learningPathId: normalizeCourseraCourseId(report.contentId),
     name: report.contentName?.trim() || report.contentId.trim(),
     programSlug: null,
-    collectionId: report.collectionId?.trim() || undefined,
+    collectionId: report.collectionId?.trim() ?? '',
     unverified: true,
     note: 'Seen on the live feed but not registered in lib/content/coursera/learningPaths.ts.',
   };
@@ -98,13 +106,28 @@ export function withLearnedCollections(
   return index;
 }
 
-/** For a course row: the path it was taken under and that path's WAP program. */
+/**
+ * For a course row: the path it was taken under and that path's WAP program.
+ *
+ * The row's own `collectionId` / `collectionName` is authoritative. A row that
+ * names a collection the registry does not know resolves to nothing rather
+ * than to a guess. Only a row with no collection information at all falls
+ * back to the Curriculum download, and only when exactly one collection lists
+ * the course; the thirteen shared courses stay unresolved.
+ */
 export function resolveReportCollection(
-  report: Pick<LearningPathReportLike, 'collectionId' | 'collectionName'>,
+  report: Pick<LearningPathReportLike, 'collectionId' | 'collectionName'> & { contentId?: string | null },
   index: LearningPathIndex = buildLearningPathIndex(),
 ): CollectionResolution | null {
   const path = findLearningPathByCollection(report, index);
-  return path ? { path, programSlug: learningPathProgramSlug(path) } : null;
+  if (path) return { path, programSlug: learningPathProgramSlug(path), inferred: false };
+  if (report.collectionId?.trim() || report.collectionName?.trim()) return null;
+
+  const curated = uniqueCuratedCollectionForCourse(report.contentId);
+  const byMembership = curated ? index.byCollectionId.get(curated.collectionId) : undefined;
+  return byMembership
+    ? { path: byMembership, programSlug: learningPathProgramSlug(byMembership), inferred: true }
+    : null;
 }
 
 /**

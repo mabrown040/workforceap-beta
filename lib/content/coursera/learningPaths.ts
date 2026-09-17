@@ -16,30 +16,38 @@
  * that knows path → WAP program. It is pure so ingestion code and `node --test`
  * can import it without the Prisma / `server-only` chain.
  *
- * Provenance (all 2026-09-17): path ids come from `courseraDiscoveredCatalog.ts`
- * (`learningPathId`); the six collection ids and the B4B display names were
- * read from live `coursera_course_progress` rows; Coursera path slugs came from
- * a read-only pass over the Coursera admin UI. Paths marked `unverified` have
- * never been seen on the live feed. Update this list when a path is created or
- * renamed in the Coursera admin UI.
+ * Provenance: path ids come from `courseraDiscoveredCatalog.ts`
+ * (`learningPathId`, captured from Coursera admin URLs). Collection ids and
+ * display names for all sixteen collections come from the org's Curriculum
+ * download of 2026-09-17 (`curatedCollections.generated.ts`), which also lists
+ * each collection's courses; the six collections seen on the live enrollment
+ * feed the same day agree with it exactly. Coursera path slugs came from a
+ * read-only pass over the admin UI. `unverified` marks a path whose id has not
+ * yet appeared on the live feed. Update this list when a path is created or
+ * renamed in the Coursera admin UI, and regenerate the curated collections
+ * module from a fresh Curriculum download in the same change.
  */
 import { normalizeCourseraCourseId } from '@/lib/content/programCurriculumManifest';
 import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 
 export type CourseraLearningPath = {
-  /** Path id as enrollmentReports `contentId` and the admin URL report it. */
-  learningPathId: string;
-  /** Display name as B4B reports it on the path's own row (`contentName`). */
+  /**
+   * Path id as enrollmentReports `contentId` and the admin URL report it.
+   * Null for a collection the Curriculum download lists but whose path id has
+   * not been captured yet; such an entry is reachable by collection only.
+   */
+  learningPathId: string | null;
+  /** Display name as Coursera exports it and as B4B reports it on the path's own row. */
   name: string;
-  /** Other spellings B4B has used for the same path (e.g. as `collectionName`). */
+  /** Other spellings B4B or WAP have used for the same path. */
   aliases?: readonly string[];
   /** Canonical WAP program slug, or null while the path has no WAP home. */
   programSlug: string | null;
-  /** Short collection id seen on enrollment rows; learned from the live feed. */
-  collectionId?: string;
+  /** Short collection id, as enrollment rows and the Curriculum download carry it. */
+  collectionId: string;
   /** Coursera URL slug of the path, from the admin UI. */
   courseraSlug?: string;
-  /** True when the id has not yet been observed on the live enrollment feed. */
+  /** True when the path id has not yet been observed on the live enrollment feed. */
   unverified?: boolean;
   note?: string;
 };
@@ -52,7 +60,7 @@ export const COURSERA_LEARNING_PATHS: readonly CourseraLearningPath[] = Object.f
     collectionId: '0TmQl',
     courseraSlug: 'ai-practitioner-professional-learning-path-z271k',
     note:
-      'Distinct from the IBM "AI and Software Developer" path (16 courses each). The WAP program row is still titled "AI Professional Developer Certificate (IBM)"; that title belongs to the other path.',
+      'Distinct from the IBM "AI and Software Developer" path (16 courses each; they share only "Introduction to Artificial Intelligence (AI)"). The WAP program row is still titled "AI Professional Developer Certificate (IBM)"; that title belongs to the other path.',
   },
   {
     learningPathId: 'fT-1P-CkT6q_tT_gpM-qJw',
@@ -76,8 +84,8 @@ export const COURSERA_LEARNING_PATHS: readonly CourseraLearningPath[] = Object.f
   },
   {
     learningPathId: 'iMhjZsGTRkSIY2bBk-ZEhA',
-    // "Heath" is Coursera's spelling on the live feed; keep it so exact-name
-    // matches on `collectionName` succeed.
+    // "Heath" is Coursera's spelling in both the export and the live feed; keep
+    // it so exact-name matches on `collectionName` succeed.
     name: 'Medical Billing, Coding, and Heath Information Technician Certificate (MBCHIT)',
     aliases: ['Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)'],
     programSlug: 'health-information-technology-mchit',
@@ -86,71 +94,110 @@ export const COURSERA_LEARNING_PATHS: readonly CourseraLearningPath[] = Object.f
   {
     learningPathId: 'gCtwKvPFS36rcCrzxSt-Yg',
     name: 'Networking and Cybersecurity Professional Certificate (CompTIA Net+,Sec+)',
-    aliases: ['Cybersecurity and Networking Professional Certificate (Net+,Sec+)'],
-    // Coursera runs Network+ and Security+ as ONE combined path. WAP sells
-    // them as two programs, so this path has no single WAP home yet. Leaving
-    // it unresolved keeps attribution honest: rows under it stay raw-only
-    // instead of being credited to a program by guess.
-    programSlug: null,
+    aliases: [
+      'Cybersecurity and Networking Professional Certificate (Net+,Sec+)',
+      'Networking and Cybersecurity Professional Certificate (Net+, Sec+)',
+    ],
+    // WAP sells this combined path as its own program: the Curriculum download
+    // shows the collection holding all eight Google Cybersecurity courses plus
+    // ten networking courses, and thirteen of the WAP syllabus's fourteen
+    // course names appear in it. Coursera runs separate Network+ (LVE2h) and
+    // Security+ (sxbNZ) collections for the two single-certificate programs.
+    programSlug: 'cybersecurity-professional-certificate-google',
     collectionId: '81uci',
-    note: 'Needs a product decision: a combined WAP program, or a per-course split between CompTIA Network+ and Security+.',
   },
   {
     learningPathId: 'C-5mIgyaSLGuZiIMmrixWg',
-    name: 'CompTIA A+ Professional Certificate',
+    name: 'CompTIA A+ Professional Certificate (CompTIA A+)',
+    aliases: ['CompTIA A+ Professional Certificate'],
     programSlug: 'comptia-a-professional-certificate',
+    collectionId: 'JpPZG',
     courseraSlug: 'comptia-a-professional-certificate-pathway-b0aco',
     unverified: true,
   },
   {
     learningPathId: 'Wj6KdjQrQfm-inY0K6H5xg',
-    name: 'Data Science Professional Certificate (IBM)',
+    name: 'Data Science and Database Administrative (DBA) Professional Certificate (IBM)',
+    aliases: ['Data Science Professional Certificate (IBM)', 'Database Administrator (DBA) Professional Certificate (IBM)'],
     programSlug: 'data-science-professional-certificate-ibm',
+    collectionId: 'pWA8u',
     unverified: true,
+    note:
+      'This is the live learner collection (legacy-v1). The board-approved 2026-approved-v2 curriculum for the same WAP program is a different course set with no Coursera collection yet; see docs/plans/2026-08-30-approved-coursera-curriculum-v2.md.',
   },
   {
     learningPathId: 'Dz4BBgGAS1i-AQYBgLtYgA',
-    name: 'Data Analytics Professional Certificate (Google)',
+    name: 'Management and Data Analyst Professional Certificate (Google/IBM)',
+    aliases: [
+      'Data Analytics Professional Certificate (Google)',
+      'Management Analyst & Business Intelligence Professional Certificate',
+    ],
     programSlug: 'data-analytics-professional-certificate-google',
+    collectionId: 'Qa9KU',
     unverified: true,
+    note: 'Live learner collection (legacy-v1); the approved v2 curriculum has no Coursera collection yet.',
   },
   {
     learningPathId: 'Xvd7I_wBSNO3eyP8AXjTfA',
     name: 'Digital Marketing & E-Commerce Professional Certificate (Google)',
     programSlug: 'digital-marketing-e-commerce-google',
+    collectionId: 'pzskj',
     unverified: true,
   },
   {
     learningPathId: 'rrX4ZPagR5K1-GT2oGeS9Q',
     name: 'UX Design Professional Certificate (Google)',
+    aliases: ['User Experience & Interface Design Professional Certificate'],
     programSlug: 'ux-design-professional-certificate-google',
+    collectionId: 'h0Rk9',
     unverified: true,
+    note: 'Live learner collection (legacy-v1); the approved v2 curriculum has no Coursera collection yet.',
   },
   {
     learningPathId: 'q5z39pYDSM6c9_aWA4jOLw',
-    name: 'AWS Cloud Technology (Amazon)',
+    name: 'AWS Cloud Technology Professional Certificate (AWS)',
+    aliases: ['AWS Cloud Technology (Amazon)', 'AWS Cloud Technology Certificate'],
     programSlug: 'aws-cloud-technology-amazon',
+    collectionId: '61iuX',
     unverified: true,
   },
   {
     learningPathId: 'QnQ2KKmHTmu0Niiphy5rsQ',
-    name: 'IT Automation with Python (Google)',
+    name: 'IT Automation with Python Professional Certificate (Google)',
+    aliases: ['IT Automation with Python (Google)', 'IT Automation with Python Certificate (Google)'],
     programSlug: 'it-automation-with-python-google',
+    collectionId: '54ljP',
     unverified: true,
   },
   {
     learningPathId: 'Qkse5-KHSUyLHufih3lMPg',
-    name: 'CompTIA Network+ Professional Certificate',
+    name: 'CompTIA Network+ Professional Certificate (CompTIA Net+)',
+    aliases: ['CompTIA Network+ Professional Certificate', 'CompTIA Net+ Professional Certificate (CompTIA Net+)'],
     programSlug: 'comptia-network-professional-certificate',
+    collectionId: 'LVE2h',
     unverified: true,
-    note: 'Coursera may deliver Network+ only through the combined Net+/Sec+ path above; this separate id has not been seen on the feed.',
+    note: 'Shares seven networking courses with the combined Net+/Sec+ collection; the row\'s collection id decides which program a shared course counts toward.',
   },
   {
     learningPathId: 'p4o8q6jBSOOKPKuowQjjFw',
-    name: 'CompTIA Security+ Professional Certificate',
+    name: 'CompTIA Security+ Professional Certificate (CompTIA Sec+)',
+    aliases: ['CompTIA Security+ Professional Certificate', 'CompTIA Sec+ Professional Certificate (CompTIA Sec+)'],
     programSlug: 'comptia-security-professional-certificate',
+    collectionId: 'sxbNZ',
     unverified: true,
-    note: 'See the Network+ entry; the combined Net+/Sec+ path is the one the live feed shows.',
+  },
+  {
+    // The Curriculum download lists this collection, but no admin URL for its
+    // path has been captured yet, so it is reachable by collection id only.
+    // Capture the id from `/admin/content/<program>/learning-path/<id>` and
+    // fill it in; nothing else needs to change.
+    learningPathId: null,
+    name: 'IT Support and Entry-Level Cybersecurity Professional Certificate (IBM)',
+    aliases: ['IT Support and Entry-level Cybersecurity Certificate (IBM)'],
+    programSlug: 'it-support-and-entry-level-cyber-security-certificate',
+    collectionId: 'tEMYo',
+    unverified: true,
+    note: 'Path id not yet captured; the WAP program has no courseraDiscoveredCatalog entry, so its course rows stay program-level until one is added.',
   },
 ]);
 
@@ -196,9 +243,10 @@ export function buildLearningPathIndex(
 
 export function addLearningPathToIndex(index: LearningPathIndex, path: CourseraLearningPath): void {
   const id = normalizeCourseraCourseId(path.learningPathId);
-  if (!id) return;
-  index.byId.set(id, path);
-  if (path.collectionId) index.byCollectionId.set(path.collectionId.trim(), path);
+  const collectionId = path.collectionId.trim();
+  if (!id && !collectionId) return;
+  if (id) index.byId.set(id, path);
+  if (collectionId) index.byCollectionId.set(collectionId, path);
   for (const name of [path.name, ...(path.aliases ?? [])]) {
     const key = normalizeLearningPathName(name);
     if (key && !index.byName.has(key)) index.byName.set(key, path);
@@ -242,9 +290,14 @@ export function learningPathProgramSlug(path: CourseraLearningPath | null | unde
   return slug ? canonicalizeProgramSlug(slug) : null;
 }
 
-/** Every registered path id, for SQL exclusions and seeder guards. */
+/** Every registered path id, for SQL exclusions and seeder guards. Collection-only entries have none. */
 export const KNOWN_LEARNING_PATH_IDS: readonly string[] = Object.freeze(
-  COURSERA_LEARNING_PATHS.map((path) => path.learningPathId),
+  COURSERA_LEARNING_PATHS.flatMap((path) => (path.learningPathId ? [path.learningPathId] : [])),
+);
+
+/** Every registered collection id; the Curriculum download must list each one. */
+export const KNOWN_LEARNING_PATH_COLLECTION_IDS: readonly string[] = Object.freeze(
+  COURSERA_LEARNING_PATHS.map((path) => path.collectionId),
 );
 
 const DEFAULT_INDEX = buildLearningPathIndex();

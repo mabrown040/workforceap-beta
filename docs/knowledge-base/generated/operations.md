@@ -73,6 +73,7 @@
 | [scripts/lib/portal-audit-auth.mjs](../../../scripts/lib/portal-audit-auth.mjs) | 157 | operations | PORTAL_AUDIT_ROLES:7, loadPortalAuditEnvFile:36, resolveMemberPortalCredentials:58, hasMemberPortalCredentials:89, resolvePortalRoleCredentials:98, validateDedicatedPortalCredentials:116 |
 | [scripts/lib/portal-audit-browser.mjs](../../../scripts/lib/portal-audit-browser.mjs) | 261 | operations | PORTAL_AUDIT_VIEWPORTS:1, PORTAL_AUDIT_NAVIGATION_TIMEOUT_MS:6, PORTAL_AUDIT_READY_TIMEOUT_MS:7, READ_ONLY_AUDIT_ROOT_SUPPRESSION_MARKER:8, isReadOnlyAuditCapabilityActive:11, sanitizeAuditUrl:19, sanitizeAuditDiagnostic:31, redactDynamicHrefPath:91, waitForPortalReady:131, inspectPortalPage:155, pendingDynamicRoutes:255 |
 | [scripts/lib/portal-audit-classify.mjs](../../../scripts/lib/portal-audit-classify.mjs) | 152 | operations | canonicalPathname:27, classifyPortalAuditRow:46 |
+| [scripts/lib/portal-audit-health-gate.mjs](../../../scripts/lib/portal-audit-health-gate.mjs) | 278 | operations | HEALTH_PATH:28, DEFAULT_HEALTH_GATE_TIMEOUT_MS:29, DEFAULT_HEALTH_GATE_INTERVAL_MS:30, HEALTH_REQUEST_TIMEOUT_MS:31, MIN_VERSION_LENGTH:32, normalizeOriginInput:39, expectedSupabaseRefForMode:45, resolveHealthGateTarget:57, normalizeTrustedSha:66, evaluateHealthPayload:85, formatHealthGateAttempt:158, describeHealthGateFailure:183, waitForTrustedHealth:222, formatPortalAuditTargetErrors:278 |
 | [scripts/lib/portal-audit-inventory.mjs](../../../scripts/lib/portal-audit-inventory.mjs) | 237 | operations | PORTAL_ROLE_PREFIXES:4, routeFromPageFile:52, discoverPortalPageRoutes:64, comparePortalRouteInventory:127, formatPortalRouteInventoryDrift:203, auditPortalRouteInventory:225 |
 | [scripts/lib/portal-audit-paths.mjs](../../../scripts/lib/portal-audit-paths.mjs) | 517 | operations | STATIC_PATHS:12, DYNAMIC_PATHS:201, REQUIRED_DYNAMIC_PATHS:243, SAFE_ACTION_CONTRACTS:256, ATTENDED_ACTION_GATES:351, REDIRECT_ONLY_PATHS:381, PRODUCTION_CANARY_PATHS:474, PRODUCTION_CANARY_ROLES:480, SECTION_LOGIN_REDIRECT:484, ROLE_ACCESS_MATRIX:496 |
 | [scripts/lib/portal-audit-target.mjs](../../../scripts/lib/portal-audit-target.mjs) | 104 | operations | PORTAL_AUDIT_MODES:1, PRODUCTION_PORTAL_ORIGINS:7, normalizePortalAuditMode:13, validatePortalAuditTarget:47, formatPortalAuditTargetErrors:102 |
@@ -84,6 +85,7 @@
 | [scripts/migrate-metadata-async.mjs](../../../scripts/migrate-metadata-async.mjs) | 80 | operations |  |
 | [scripts/migration-collision-baseline.json](../../../scripts/migration-collision-baseline.json) | 137 | operations |  |
 | [scripts/p1/test-force-rls.ts](../../../scripts/p1/test-force-rls.ts) | 1126 | operations |  |
+| [scripts/portal-audit-health-gate.mjs](../../../scripts/portal-audit-health-gate.mjs) | 87 | operations |  |
 | [scripts/portal-screenshots.mjs](../../../scripts/portal-screenshots.mjs) | 291 | operations |  |
 | [scripts/precreate-coursera-tenant-indexes.ts](../../../scripts/precreate-coursera-tenant-indexes.ts) | 225 | learning-coursera |  |
 | [scripts/prisma-env.js](../../../scripts/prisma-env.js) | 75 | operations |  |

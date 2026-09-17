@@ -24240,12 +24240,12 @@
       },
       {
         "name": "OPTIONS",
-        "line": 30,
+        "line": 55,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "GET",
-        "line": 39,
+        "line": 64,
         "kind": "FunctionDeclaration"
       }
     ],

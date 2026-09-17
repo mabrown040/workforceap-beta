@@ -78,7 +78,7 @@
 | [tests/api/gdpr-delete-route.spec.ts](../../../tests/api/gdpr-delete-route.spec.ts) | 131 | tests |  |
 | [tests/api/get-member-resume-plain-text.spec.ts](../../../tests/api/get-member-resume-plain-text.spec.ts) | 99 | tests |  |
 | [tests/api/guardian-consent.spec.ts](../../../tests/api/guardian-consent.spec.ts) | 295 | tests |  |
-| [tests/api/health-check.spec.ts](../../../tests/api/health-check.spec.ts) | 208 | tests |  |
+| [tests/api/health-check.spec.ts](../../../tests/api/health-check.spec.ts) | 232 | tests |  |
 | [tests/api/impact-page.spec.ts](../../../tests/api/impact-page.spec.ts) | 485 | tests |  |
 | [tests/api/invite-validate.spec.ts](../../../tests/api/invite-validate.spec.ts) | 138 | tests |  |
 | [tests/api/job-application-resume-snapshot.spec.ts](../../../tests/api/job-application-resume-snapshot.spec.ts) | 451 | tests |  |
@@ -307,6 +307,7 @@
 | [tests/portal-audit-auth.test.ts](../../../tests/portal-audit-auth.test.ts) | 44 | tests |  |
 | [tests/portal-audit-classify.test.ts](../../../tests/portal-audit-classify.test.ts) | 119 | tests |  |
 | [tests/portal-audit-five-role.test.ts](../../../tests/portal-audit-five-role.test.ts) | 1282 | tests |  |
+| [tests/portal-audit-health-gate.test.ts](../../../tests/portal-audit-health-gate.test.ts) | 397 | tests |  |
 | [tests/rls/member-message-assignment.mjs](../../../tests/rls/member-message-assignment.mjs) | 175 | tests |  |
 | [tests/scripts/preview-approved-curriculum-schema.test.ts](../../../tests/scripts/preview-approved-curriculum-schema.test.ts) | 360 | tests |  |
 | [tests/scripts/preview-member-lab-schema.test.ts](../../../tests/scripts/preview-member-lab-schema.test.ts) | 180 | tests |  |

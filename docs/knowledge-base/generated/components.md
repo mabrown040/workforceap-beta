@@ -83,7 +83,7 @@
 | [components/admin/ConfirmDialog.tsx](../../../components/admin/ConfirmDialog.tsx) | 80 | administration | default:37 |
 | [components/admin/CourseraCsvImportClient.tsx](../../../components/admin/CourseraCsvImportClient.tsx) | 310 | learning-coursera | default:107 |
 | [components/admin/CourseraEnrollmentPipelineTable.tsx](../../../components/admin/CourseraEnrollmentPipelineTable.tsx) | 509 | learning-coursera | default:26 |
-| [components/admin/CourseraInspectByEmailCard.tsx](../../../components/admin/CourseraInspectByEmailCard.tsx) | 653 | learning-coursera | default:145 |
+| [components/admin/CourseraInspectByEmailCard.tsx](../../../components/admin/CourseraInspectByEmailCard.tsx) | 687 | learning-coursera | default:151 |
 | [components/admin/CourseraMappingsAdmin.tsx](../../../components/admin/CourseraMappingsAdmin.tsx) | 1091 | learning-coursera | default:142 |
 | [components/admin/CourseraPipelineFlow.tsx](../../../components/admin/CourseraPipelineFlow.tsx) | 44 | learning-coursera | default:12 |
 | [components/admin/CourseraReconcileCard.tsx](../../../components/admin/CourseraReconcileCard.tsx) | 448 | learning-coursera | default:107 |
@@ -134,7 +134,7 @@
 | [components/admin/PrintButton.tsx](../../../components/admin/PrintButton.tsx) | 13 | administration | default:3 |
 | [components/admin/RecentSignupsTable.tsx](../../../components/admin/RecentSignupsTable.tsx) | 87 | administration | default:22 |
 | [components/admin/SeedCanonicalMappingsButton.tsx](../../../components/admin/SeedCanonicalMappingsButton.tsx) | 130 | administration | default:32 |
-| [components/admin/SeedCanonicalMappingsFromB4BButton.tsx](../../../components/admin/SeedCanonicalMappingsFromB4BButton.tsx) | 139 | administration | default:38 |
+| [components/admin/SeedCanonicalMappingsFromB4BButton.tsx](../../../components/admin/SeedCanonicalMappingsFromB4BButton.tsx) | 165 | administration | default:40 |
 | [components/admin/SignaturePad.tsx](../../../components/admin/SignaturePad.tsx) | 209 | administration | SignatureValue:5, default:16 |
 | [components/admin/SubgroupForm.tsx](../../../components/admin/SubgroupForm.tsx) | 184 | administration | default:22 |
 | [components/admin/SubgroupMembersTable.tsx](../../../components/admin/SubgroupMembersTable.tsx) | 330 | administration | default:28 |

@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { programSlugReadCandidates, programSlugsEquivalent } from '@/lib/content/programSlug';
 import { resolveWorkforceApModule } from '@/lib/content/workforceApModule';
+import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
 import { DesignSurface, PageOpener, StatusTag } from '@/components/portal/kit';
 import WorkforceApModuleCompleteButton from '@/components/portal/WorkforceApModuleCompleteButton';
 
@@ -55,25 +56,35 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
   }
   if (!courseSlug || !requestedProgram) notFound();
 
-  const enrollments = await prisma.courseEnrollment.findMany({
-    where: {
-      userId: user.id,
-      programSlug: { in: programSlugReadCandidates(requestedProgram) },
-    },
-    select: {
-      programSlug: true,
-      curriculumVersion: true,
-      isPrimary: true,
-    },
-  });
-  const enrollment = enrollments.find((row) => row.programSlug === requestedProgram)
-    ?? enrollments.find((row) => row.isPrimary)
-    ?? enrollments.find((row) => programSlugsEquivalent(row.programSlug, requestedProgram));
-  if (!enrollment) notFound();
+  // Digital literacy is ungated: any signed-in member may open its modules
+  // without a program enrollment. All other programs still require enrollment.
+  const ungatedProgram = requestedProgram === DIGITAL_LITERACY_PROGRAM_SLUG;
+
+  let resolvedProgramSlug = requestedProgram;
+  let curriculumVersion = '';
+  if (!ungatedProgram) {
+    const enrollments = await prisma.courseEnrollment.findMany({
+      where: {
+        userId: user.id,
+        programSlug: { in: programSlugReadCandidates(requestedProgram) },
+      },
+      select: {
+        programSlug: true,
+        curriculumVersion: true,
+        isPrimary: true,
+      },
+    });
+    const enrollment = enrollments.find((row) => row.programSlug === requestedProgram)
+      ?? enrollments.find((row) => row.isPrimary)
+      ?? enrollments.find((row) => programSlugsEquivalent(row.programSlug, requestedProgram));
+    if (!enrollment) notFound();
+    resolvedProgramSlug = enrollment.programSlug;
+    curriculumVersion = enrollment.curriculumVersion;
+  }
 
   const course = resolveWorkforceApModule({
-    programSlug: enrollment.programSlug,
-    curriculumVersion: enrollment.curriculumVersion,
+    programSlug: resolvedProgramSlug,
+    curriculumVersion,
     courseSlug,
   });
   if (!course) notFound();
@@ -84,7 +95,7 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
   const completion = await prisma.courseProgress.findFirst({
     where: {
       userId: user.id,
-      programSlug: { in: programSlugReadCandidates(enrollment.programSlug) },
+      programSlug: { in: programSlugReadCandidates(resolvedProgramSlug) },
       courseSlug,
       status: 'COMPLETED',
     },
@@ -224,7 +235,7 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
         <div style={{ marginTop: 20, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
           <WorkforceApModuleCompleteButton
             courseSlug={courseSlug}
-            programSlug={enrollment.programSlug}
+            programSlug={resolvedProgramSlug}
             completed={Boolean(completion)}
             label={hasLessons ? 'Mark module complete in WorkforceAP' : 'Mark lab complete'}
             completedLabel={hasLessons ? 'Completed in WorkforceAP' : 'Completed'}

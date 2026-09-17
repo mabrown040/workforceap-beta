@@ -378,7 +378,7 @@
 | [app/api/member/coursera/launch/route.ts](../../../app/api/member/coursera/launch/route.ts) | 89 | learning-coursera | GET:82 |
 | [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | 45 | learning-coursera | POST:9 |
 | [app/api/member/coursera/route.ts](../../../app/api/member/coursera/route.ts) | 105 | learning-coursera | GET:11 |
-| [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | 71 | learning-coursera | POST:71 |
+| [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | 77 | learning-coursera | POST:77 |
 | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | 142 | member-counselor | PATCH:56 |
 | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | 76 | member-counselor | POST:15 |
 | [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | 312 | member-counselor | GET:127, PATCH:312 |

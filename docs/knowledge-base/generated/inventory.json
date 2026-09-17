@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "7e14e6acee159de8c203fc1b4f63fa58b5846346f0961493c69d819b085e02ce",
+  "inputTreeSha256": "5c05d13da38f6a61f005b613baba0eb90d5f0f7ddc16fe823bdb4893e8724128",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -75318,9 +75318,9 @@
       "path": "docs/STAGING_ENV.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 4399,
-      "lines": 86,
-      "sha256": "051e735b8be40e23a70b61e73e14a88e76eeed47ed2d2fee2b809e9ac85e2530",
+      "bytes": 4564,
+      "lines": 88,
+      "sha256": "84cfc1168a45defd64dcb530f78e68d199415c1233d90d2735a30e566a137424",
       "binary": false
     },
     {
@@ -76992,9 +76992,9 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 23115,
+      "bytes": 23163,
       "lines": 164,
-      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
+      "sha256": "f29d49f99faa815d83fae60e83ab358920c97130825184518779c1d64679ccb7",
       "binary": false
     },
     {
@@ -139941,55 +139941,65 @@
       "path": "scripts/check-supabase-env.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 2745,
-      "lines": 78,
-      "sha256": "49040e4c213c382f19cf01d020a725f4d24b73d4ebaef5bca52fc443dcab3bca",
+      "bytes": 2829,
+      "lines": 81,
+      "sha256": "0de99d11bbc028965756599002c26887f6e734a422ea1ae395878250f6d2de0d",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "DEMO_REF",
-          "line": 16,
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "PROD_REF",
-          "line": 16,
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "formatSupabaseEnvGuardFailure",
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "inspectSupabaseEnvironment",
-          "line": 16,
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "projectForAnonKey",
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "projectForUrl",
-          "line": 16,
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "env",
-          "line": 34,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "urls",
-          "line": 36,
+          "line": 39,
           "kind": "Variable"
         },
         {
           "name": "expected",
-          "line": 43,
+          "line": 46,
           "kind": "Variable"
         },
         {
           "name": "errors",
-          "line": 44,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "seen",
-          "line": 45,
+          "line": 48,
           "kind": "Variable"
         }
       ],
@@ -142917,39 +142927,49 @@
       "path": "scripts/lib/supabase-project-guard.cjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 5963,
-      "lines": 164,
-      "sha256": "c168fc79b7d650151288a3e58a710fe8419ec7f918b363d5113350c0d103e2c0",
+      "bytes": 9985,
+      "lines": 261,
+      "sha256": "2f8279102316471200f09f1279716440cbaf24f385e28d0403a65d1aec6282e9",
       "binary": false,
       "exports": [
         {
           "name": "DEMO_REF",
-          "line": 158,
+          "line": 253,
           "kind": "CommonJSExport"
         },
         {
           "name": "PROD_REF",
-          "line": 159,
+          "line": 254,
           "kind": "CommonJSExport"
         },
         {
           "name": "assertSupabaseEnvironment",
-          "line": 160,
+          "line": 255,
           "kind": "CommonJSExport"
         },
         {
           "name": "expectedProjectForVercelEnv",
-          "line": 161,
+          "line": 256,
+          "kind": "CommonJSExport"
+        },
+        {
+          "name": "formatSupabaseEnvGuardFailure",
+          "line": 257,
           "kind": "CommonJSExport"
         },
         {
           "name": "inspectSupabaseEnvironment",
-          "line": 162,
+          "line": 258,
+          "kind": "CommonJSExport"
+        },
+        {
+          "name": "projectForAnonKey",
+          "line": 259,
           "kind": "CommonJSExport"
         },
         {
           "name": "projectForUrl",
-          "line": 163,
+          "line": 260,
           "kind": "CommonJSExport"
         }
       ],
@@ -142980,18 +143000,38 @@
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "expectedProjectForVercelEnv",
+          "name": "decodeJwtPayload",
           "line": 63,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "projectForRef",
+          "line": 77,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "projectForAnonKey",
+          "line": 88,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expectedProjectForVercelEnv",
+          "line": 105,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "inspectSupabaseEnvironment",
-          "line": 69,
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertSupabaseEnvironment",
-          "line": 146,
+          "line": 209,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "formatSupabaseEnvGuardFailure",
+          "line": 220,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -153002,9 +153042,9 @@
       "path": "tests/scripts/preview-approved-curriculum-schema.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 14153,
-      "lines": 360,
-      "sha256": "770980517f00f12b5a03a9842e1526c557a0c79aa663b7ccb6c0d74a7712e5d3",
+      "bytes": 20375,
+      "lines": 491,
+      "sha256": "8fa620e4a049d8d3a4c2eb6329eb9eaaac301f290525094830797fd3dac084b1",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -153069,8 +153109,28 @@
           "kind": "Variable"
         },
         {
-          "name": "vercelEnv",
+          "name": "supabaseAnonJwt",
           "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "DEMO_ANON",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROD_ANON",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEMO_PUBLISHABLE",
+          "line": 36,
+          "kind": "Variable"
+        },
+        {
+          "name": "vercelEnv",
+          "line": 38,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -153080,9 +153140,9 @@
       "path": "tests/scripts/preview-member-lab-schema.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 11629,
-      "lines": 180,
-      "sha256": "7615992905e7611f1cfed8ab604480494b48f78a30bd78ebd9a9833ea84b3f09",
+      "bytes": 11705,
+      "lines": 181,
+      "sha256": "c82c86c5972d61367dd04150025002972a224a1d0ab23567acfa0750f434b50e",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -153113,27 +153173,27 @@
         },
         {
           "name": "target",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "contract",
           "line": 19,
           "kind": "Variable"
         },
         {
-          "name": "readyState",
+          "name": "contract",
           "line": 20,
           "kind": "Variable"
         },
         {
-          "name": "absentState",
+          "name": "readyState",
           "line": 21,
           "kind": "Variable"
         },
         {
+          "name": "absentState",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
           "name": "fakeClient",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -153143,9 +153203,9 @@
       "path": "tests/scripts/preview-training-workspace-schema.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7754,
-      "lines": 116,
-      "sha256": "dbdccba8d246fcacbd637f91f0e3b0b1358ee85001a22824b37e7943c51dd05d",
+      "bytes": 7830,
+      "lines": 117,
+      "sha256": "1dbb94b268a730c32609025d1d6296761b7a6c83a4373370d1ccdaf7a1b73ecf",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -153176,12 +153236,12 @@
         },
         {
           "name": "readyState",
-          "line": 18,
+          "line": 19,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fakeClient",
-          "line": 39,
+          "line": 40,
           "kind": "FunctionDeclaration"
         }
       ],

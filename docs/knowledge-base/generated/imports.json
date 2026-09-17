@@ -106242,7 +106242,7 @@
   {
     "from": "scripts/check-supabase-env.mjs",
     "specifier": "./lib/supabase-project-guard.cjs",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "scripts/lib/supabase-project-guard.cjs"
@@ -120482,7 +120482,7 @@
   {
     "from": "tests/scripts/preview-approved-curriculum-schema.test.ts",
     "specifier": "node:fs/promises",
-    "line": 283,
+    "line": 414,
     "kind": "dynamic-import",
     "external": true,
     "package": "node:fs"
@@ -120490,7 +120490,7 @@
   {
     "from": "tests/scripts/preview-approved-curriculum-schema.test.ts",
     "specifier": "node:fs/promises",
-    "line": 315,
+    "line": 446,
     "kind": "dynamic-import",
     "external": true,
     "package": "node:fs"

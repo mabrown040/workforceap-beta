@@ -27,7 +27,7 @@
 | [scripts/check-duplicate-migrations.mjs](../../../scripts/check-duplicate-migrations.mjs) | 134 | operations |  |
 | [scripts/check-duplicate-migrations.test.cjs](../../../scripts/check-duplicate-migrations.test.cjs) | 252 | operations |  |
 | [scripts/check-mabrown040.js](../../../scripts/check-mabrown040.js) | 31 | operations |  |
-| [scripts/check-supabase-env.mjs](../../../scripts/check-supabase-env.mjs) | 78 | operations |  |
+| [scripts/check-supabase-env.mjs](../../../scripts/check-supabase-env.mjs) | 81 | operations |  |
 | [scripts/clawpatch-pre-push.sh](../../../scripts/clawpatch-pre-push.sh) | 50 | operations |  |
 | [scripts/cleanup-fixtures.ts](../../../scripts/cleanup-fixtures.ts) | 46 | operations |  |
 | [scripts/coursera-integration-test.ts](../../../scripts/coursera-integration-test.ts) | 605 | learning-coursera |  |
@@ -77,7 +77,7 @@
 | [scripts/lib/portal-audit-paths.mjs](../../../scripts/lib/portal-audit-paths.mjs) | 517 | operations | STATIC_PATHS:12, DYNAMIC_PATHS:201, REQUIRED_DYNAMIC_PATHS:243, SAFE_ACTION_CONTRACTS:256, ATTENDED_ACTION_GATES:351, REDIRECT_ONLY_PATHS:381, PRODUCTION_CANARY_PATHS:474, PRODUCTION_CANARY_ROLES:480, SECTION_LOGIN_REDIRECT:484, ROLE_ACCESS_MATRIX:496 |
 | [scripts/lib/portal-audit-target.mjs](../../../scripts/lib/portal-audit-target.mjs) | 104 | operations | PORTAL_AUDIT_MODES:1, PRODUCTION_PORTAL_ORIGINS:7, normalizePortalAuditMode:13, validatePortalAuditTarget:47, formatPortalAuditTargetErrors:102 |
 | [scripts/lib/prisma-resolve-benign.cjs](../../../scripts/lib/prisma-resolve-benign.cjs) | 36 | operations | isBenignMigrateResolveError:36 |
-| [scripts/lib/supabase-project-guard.cjs](../../../scripts/lib/supabase-project-guard.cjs) | 164 | operations | DEMO_REF:158, PROD_REF:159, assertSupabaseEnvironment:160, expectedProjectForVercelEnv:161, inspectSupabaseEnvironment:162, projectForUrl:163 |
+| [scripts/lib/supabase-project-guard.cjs](../../../scripts/lib/supabase-project-guard.cjs) | 261 | operations | DEMO_REF:253, PROD_REF:254, assertSupabaseEnvironment:255, expectedProjectForVercelEnv:256, formatSupabaseEnvGuardFailure:257, inspectSupabaseEnvironment:258, projectForAnonKey:259, projectForUrl:260 |
 | [scripts/lint/check-coursera-catalog-placeholders.mjs](../../../scripts/lint/check-coursera-catalog-placeholders.mjs) | 204 | learning-coursera |  |
 | [scripts/locked-stakes/check-i18n-safe-diff.mjs](../../../scripts/locked-stakes/check-i18n-safe-diff.mjs) | 296 | operations | checkI18nSafeDiff:225 |
 | [scripts/material-symbol-glyphs.txt](../../../scripts/material-symbol-glyphs.txt) | 217 | operations |  |

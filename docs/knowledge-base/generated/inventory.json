@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "19338178968303530d46afb85c705555fa1fe1d1e06fd7529e37e4583c95d645",
+  "inputTreeSha256": "f42226fec9d2e81bee59acb1d294a64012dadb980e78e246ab433ea11df24aee",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9532,19 +9532,19 @@
       "path": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 11015,
-      "lines": 237,
-      "sha256": "f3733d18de2c6680073cac6bf186d454cec673dd48d02e84f6909f82c5718e62",
+      "bytes": 11530,
+      "lines": 248,
+      "sha256": "eb3f6b222d694b6511a0f5ae5a3333d0184cdf5ad2a72067737b05a0c149beb2",
       "binary": false,
       "exports": [
         {
           "name": "metadata",
-          "line": 12,
+          "line": 13,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 49,
+          "line": 50,
           "kind": "FunctionDeclaration",
           "localName": "WorkforceApModulePage"
         }
@@ -9552,22 +9552,22 @@
       "declarations": [
         {
           "name": "metadata",
-          "line": 12,
+          "line": 13,
           "kind": "Variable"
         },
         {
           "name": "Props",
-          "line": 17,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LAB_ACTIONS",
-          "line": 22,
+          "line": 23,
           "kind": "Variable"
         },
         {
           "name": "WorkforceApModulePage",
-          "line": 49,
+          "line": 50,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -35307,26 +35307,26 @@
       "path": "app/api/member/courses/complete/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 2600,
-      "lines": 71,
-      "sha256": "5e76e6a63fcef444b72e636d39003e833ab4a99b99fef907216ed46ab41cae11",
+      "bytes": 2931,
+      "lines": 77,
+      "sha256": "eb5eb06943b50a00d96bae577e15007aeda676d3e8611f38846cda881838ba7a",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 71,
+          "line": 77,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 10,
+          "line": 11,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 71,
+          "line": 77,
           "kind": "Variable"
         }
       ],

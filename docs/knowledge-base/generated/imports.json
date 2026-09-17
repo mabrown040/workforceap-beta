@@ -7585,8 +7585,16 @@
   },
   {
     "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/shared/digitalLiteracyPathway",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -7594,7 +7602,7 @@
   {
     "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
     "specifier": "@/components/portal/WorkforceApModuleCompleteButton",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
@@ -51481,8 +51489,16 @@
   },
   {
     "from": "app/api/member/courses/complete/route.ts",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "app/api/member/courses/complete/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -51490,7 +51506,7 @@
   {
     "from": "app/api/member/courses/complete/route.ts",
     "specifier": "@/lib/audit",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -51498,7 +51514,7 @@
   {
     "from": "app/api/member/courses/complete/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"

@@ -767,7 +767,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/coursera/launch | route | GET | [app/api/member/coursera/launch/route.ts](../../../app/api/member/coursera/launch/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/coursera/refresh-progress | route | POST | [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | @/lib/auth/server:3, @/lib/db/withRequestGuc:8 |
 | /api/member/coursera | route | GET | [app/api/member/coursera/route.ts](../../../app/api/member/coursera/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:10 |
-| /api/member/courses/complete | route | POST | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:6 |
+| /api/member/courses/complete | route | POST | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/dashboard-profile | route | PATCH | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/delete-account | route | POST | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:7, @/lib/db/withRequestGuc:9 |
 | /api/member/eligibility | route | GET, PATCH | [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |

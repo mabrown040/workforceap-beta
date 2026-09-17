@@ -104,6 +104,7 @@
       "check:tenant-routes",
       "coursera:audit-links",
       "coursera:backfill-catalog",
+      "coursera:generate-curated-collections",
       "coursera:precreate-tenant-indexes",
       "coursera:prove-b4b-link",
       "coursera:test",

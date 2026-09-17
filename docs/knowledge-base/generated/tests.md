@@ -230,6 +230,7 @@
 | [tests/lib/course-progress-completion-lock.spec.ts](../../../tests/lib/course-progress-completion-lock.spec.ts) | 126 | tests |  |
 | [tests/lib/course-progress-xapi.spec.ts](../../../tests/lib/course-progress-xapi.spec.ts) | 160 | tests |  |
 | [tests/lib/coursera-atomic-progress-upsert.spec.ts](../../../tests/lib/coursera-atomic-progress-upsert.spec.ts) | 130 | learning-coursera |  |
+| [tests/lib/coursera-canonical-mapping-normalization.spec.ts](../../../tests/lib/coursera-canonical-mapping-normalization.spec.ts) | 174 | learning-coursera |  |
 | [tests/lib/coursera-course-progress-tenant.spec.ts](../../../tests/lib/coursera-course-progress-tenant.spec.ts) | 170 | learning-coursera |  |
 | [tests/lib/coursera-employer-completion-contract.spec.ts](../../../tests/lib/coursera-employer-completion-contract.spec.ts) | 18 | learning-coursera |  |
 | [tests/lib/coursera-legacy-raw-adoption.spec.ts](../../../tests/lib/coursera-legacy-raw-adoption.spec.ts) | 261 | learning-coursera |  |
@@ -246,6 +247,7 @@
 | [tests/lib/coursera-stage-a-mapping-transaction.spec.ts](../../../tests/lib/coursera-stage-a-mapping-transaction.spec.ts) | 147 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-member-merge-guard.spec.ts](../../../tests/lib/coursera-stage-a-member-merge-guard.spec.ts) | 82 | learning-coursera |  |
 | [tests/lib/coursera-tenant-index-migration.spec.ts](../../../tests/lib/coursera-tenant-index-migration.spec.ts) | 71 | learning-coursera |  |
+| [tests/lib/coursera-unmatched-learners-learning-paths.spec.ts](../../../tests/lib/coursera-unmatched-learners-learning-paths.spec.ts) | 83 | learning-coursera |  |
 | [tests/lib/cron-diagnostics-visibility.spec.ts](../../../tests/lib/cron-diagnostics-visibility.spec.ts) | 204 | tests |  |
 | [tests/lib/curriculum-versioned-read-surfaces.spec.ts](../../../tests/lib/curriculum-versioned-read-surfaces.spec.ts) | 129 | tests |  |
 | [tests/lib/diagnose-member-coursera-tenant.spec.ts](../../../tests/lib/diagnose-member-coursera-tenant.spec.ts) | 119 | learning-coursera |  |

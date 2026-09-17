@@ -3,6 +3,7 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { parseCourseGradeString } from '@/lib/coursera/courseGradeDisplay';
+import { KNOWN_LEARNING_PATH_IDS } from '@/lib/content/coursera/learningPaths';
 
 // Heuristic re-exported from a server-only-free module so it can be unit-
 // tested in isolation. See lib/coursera/testAccountHeuristic.ts for the
@@ -197,6 +198,10 @@ export async function loadUnmatchedLearners(
     };
 
     const havingClause = options.includeTestAccounts ? Prisma.empty : TEST_ACCOUNT_EXCLUSION_HAVING;
+    // A Learning Path's own enrollment row (the certificate, 0% until the
+    // learner finishes everything) is not a course. Counting it doubled the
+    // course count and halved the average for every unmatched learner.
+    const learningPathIds = [...KNOWN_LEARNING_PATH_IDS];
 
     const learners = await prisma.$queryRaw<Row[]>`
       WITH unioned AS (
@@ -212,6 +217,7 @@ export async function loadUnmatchedLearners(
         FROM coursera_course_progress
         WHERE user_id IS NULL
           AND organization_id = ${organizationId}
+          AND coursera_course_id <> ALL(${learningPathIds}::text[])
         GROUP BY LOWER(external_email)
         UNION ALL
         SELECT
@@ -307,6 +313,7 @@ export async function loadUnmatchedLearners(
       WHERE user_id IS NULL
         AND organization_id = ${organizationId}
         AND LOWER(external_email) = ANY(${emails}::text[])
+        AND coursera_course_id <> ALL(${learningPathIds}::text[])
       ORDER BY last_activity_time DESC NULLS LAST
     `;
 

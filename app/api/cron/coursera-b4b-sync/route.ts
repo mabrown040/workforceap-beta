@@ -60,6 +60,7 @@ async function handle(_req: NextRequest) {
       upsertedKnown: result.upsertedKnown,
       upsertedUnknown: result.upsertedUnknown,
       upsertedUnmatched: result.upsertedUnmatched,
+      learningPathRows: result.learningPathRows,
       skippedNoEmail: result.skippedNoEmail,
       errors: result.errors,
       byUserCount: Object.keys(result.byUser).length,

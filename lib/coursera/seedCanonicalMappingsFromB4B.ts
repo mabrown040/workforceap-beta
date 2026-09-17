@@ -20,6 +20,7 @@
  * `'server-only'` import chain.
  */
 import { prisma } from '@/lib/db/prisma';
+import { findLearningPathById } from '@/lib/content/coursera/learningPaths';
 import { PROGRAMS, type Program, type ProgramCourse } from '@/lib/content/programs';
 import { normalizeCourseraCourseId } from '@/lib/content/programCurriculumManifest';
 import { courseraCourseIdLookupVariants } from '@/lib/coursera/canonicalMapping';
@@ -30,6 +31,23 @@ export type B4BCourseSeedInput = {
   name: string;
   contentType?: string;
 };
+
+/**
+ * Only Course-type entries are seeded; Specializations don't carry an
+ * independently-trackable Coursera course id in this pipeline. A registered
+ * Learning Path id is skipped whatever B4B labels it: the AI + Software
+ * Developer path once landed here as a "course-17" mapping because its
+ * certificate name matched a catalog course name. Pure, for unit tests.
+ */
+export function selectSeedableB4BContents<T extends B4BCourseSeedInput>(
+  contents: readonly T[],
+): T[] {
+  return contents.filter(
+    (c) =>
+      (!c.contentType || c.contentType === 'Course')
+      && !findLearningPathById(c.id),
+  );
+}
 
 export type B4BCourseSeedResult = {
   courseraCourseId: string;
@@ -144,11 +162,7 @@ export async function seedCanonicalMappingsFromB4B(args: {
     perCourse: [],
   };
 
-  // We only seed Course-type entries; Specializations don't carry an
-  // independently-trackable Coursera course id in this pipeline.
-  const courses = contents.filter(
-    (c) => !c.contentType || c.contentType === 'Course',
-  );
+  const courses = selectSeedableB4BContents(contents);
   summary.coursesScanned = courses.length;
 
   for (const c of courses) {

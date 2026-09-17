@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { matchCourseToCatalog } from './seedCanonicalMappingsFromB4B';
+import { matchCourseToCatalog,
+  selectSeedableB4BContents,
+} from './seedCanonicalMappingsFromB4B';
 import type { Program } from '@/lib/content/programs';
 
 function mkProgram(slug: string, title: string, courseNames: string[]): Program {
@@ -93,4 +95,19 @@ test('reports a conflict when only the course differs', () => {
   const existing = { canonicalProgramSlug: MATCH.programSlug, canonicalCourseSlug: 'some-other-course' };
   const plan = planSeedWrite(existing, MATCH);
   assert.equal(plan.action, 'conflict');
+});
+
+test('never seeds a registered Learning Path id as a course, whatever B4B labels it', () => {
+  const contents = [
+    { id: 'rNyuLa-pEeytqw64hz8ZCw', slug: 'introduction-to-technical-support', name: 'Introduction to Technical Support', contentType: 'Course' },
+    // The IBM AI + Software Developer path, mislabelled as a Course upstream.
+    { id: 'fT-1P-CkT6q_tT_gpM-qJw', slug: null, name: 'AI and Software Developer Professional Certificate (IBM)', contentType: 'Course' },
+    // The same path labelled honestly.
+    { id: 'Course~o9PJJ-ReQ_KTySfkXuPyHw', slug: null, name: 'IT Support Professional Certificate (IBM)', contentType: 'Specialization' },
+    { id: 'wtYRSE1kEeyLIRLL9niz0w', slug: 'introduction-to-hardware-and-operating-systems', name: 'Introduction to Hardware and Operating Systems' },
+  ];
+  assert.deepEqual(
+    selectSeedableB4BContents(contents).map((c) => c.id),
+    ['rNyuLa-pEeytqw64hz8ZCw', 'wtYRSE1kEeyLIRLL9niz0w'],
+  );
 });

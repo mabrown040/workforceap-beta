@@ -1,4 +1,5 @@
 import 'server-only';
+import { normalizeCourseraCourseId } from '@/lib/content/programCurriculumManifest';
 
 import { CourseProgressStatus } from '@prisma/client';
 
@@ -131,7 +132,9 @@ export function resolveContentIdToWapCourse(
   wapCourseSlug: string;
   courseraProgramId: string | null;
 } | null {
-  const needle = contentId.trim();
+  // The index is keyed by the bare id; normalize so a `Course~`-prefixed
+  // contentId from any caller still lands on the same row.
+  const needle = normalizeCourseraCourseId(contentId);
   if (!needle || needle.startsWith('TODO_')) return null;
 
   const dbHit = canonicalMappings?.byCourseraCourseId.get(needle) ?? null;

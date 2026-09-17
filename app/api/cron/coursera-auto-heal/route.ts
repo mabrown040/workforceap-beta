@@ -70,7 +70,7 @@ async function handle(_request: Request) {
   // Seed + ignored-replay only when ignored events exist. Quiet hours leave
   // canonical mapping refresh to the staggered 6h B4B sync.
   let canonicalSeed:
-    | { matched: number; unmatched: number; created: number; updated: number; skipped?: string }
+    | { matched: number; unmatched: number; created: number; updated: number; conflicts?: number; skipped?: string }
     | { error: string } = { matched: 0, unmatched: 0, created: 0, updated: 0, skipped: 'no_ignored_events' };
   let ignoredReplay:
     | { processed: number; matched: number; errors: number; skipped?: string }
@@ -85,6 +85,7 @@ async function handle(_request: Request) {
         unmatched: seed.coursesUnmatched,
         created: seed.totalCreated,
         updated: seed.totalUpdated,
+        conflicts: seed.totalConflicts,
       };
     } catch (err) {
       captureApiError(err, {

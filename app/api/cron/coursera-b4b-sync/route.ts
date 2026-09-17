@@ -31,7 +31,7 @@ async function handle(_req: NextRequest) {
     // Refresh canonical mappings from the live B4B directory. Best-effort:
     // a B4B credential / network blip shouldn't fail the whole cron.
     let canonicalSeed:
-      | { matched: number; unmatched: number; created: number; updated: number }
+      | { matched: number; unmatched: number; created: number; updated: number; conflicts?: number }
       | { error: string } = { matched: 0, unmatched: 0, created: 0, updated: 0 };
     try {
       const contents = await loadB4BContents();
@@ -41,6 +41,7 @@ async function handle(_req: NextRequest) {
         unmatched: seed.coursesUnmatched,
         created: seed.totalCreated,
         updated: seed.totalUpdated,
+        conflicts: seed.totalConflicts,
       };
     } catch (seedErr) {
       captureApiError(seedErr, {

@@ -115,6 +115,30 @@ describe('getMemberState', () => {
     expect(getMemberResumePlainText).not.toHaveBeenCalled();
   });
 
+  it('falls back to the last resume analysis when resume text loading throws, instead of failing the page', async () => {
+    vi.mocked(getMemberResumePlainText).mockRejectedValueOnce(
+      new Error('SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL required for admin operations'),
+    );
+    findAiToolResult.mockResolvedValue({ output: 'Resume analysis: '.padEnd(80, 'x') });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const state = await getMemberState('member-1');
+
+    expect(state.hasResume).toBe(true);
+    expect(error).toHaveBeenCalledTimes(1);
+    error.mockRestore();
+  });
+
+  it('still renders with no resume when both the file and the analysis are unavailable', async () => {
+    vi.mocked(getMemberResumePlainText).mockRejectedValueOnce(new Error('storage unavailable'));
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const state = await getMemberState('member-1');
+
+    expect(state.hasResume).toBe(false);
+    error.mockRestore();
+  });
+
   it('returns hasCompletedInterviewPractice=true when the completion event exists', async () => {
     findMemberEvent.mockResolvedValue({ id: 'event-1' });
 

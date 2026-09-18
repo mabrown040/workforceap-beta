@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "bece4f8e56ae4daf09459bd487cc931a125bea66bafd63cfde8434e31d1ee913",
+  "inputTreeSha256": "93c4d09536ddc5223fdcdc46aae70d579cf3284a057f912427fbaba8c128f12a",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,24 +8,24 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4503,
-    "sourceModules": 3182,
-    "importReferences": 15089,
-    "resolvedLocalReferences": 10069,
+    "files": 4519,
+    "sourceModules": 3196,
+    "importReferences": 15140,
+    "resolvedLocalReferences": 10106,
     "unresolvedLocalReferences": 0,
-    "routeFiles": 1045,
+    "routeFiles": 1046,
     "nextRouteFiles": 1013,
     "apiHandlers": 486,
     "pageFiles": 309,
-    "astroPageFiles": 32,
+    "astroPageFiles": 33,
     "configuredCrons": 30,
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 630,
-    "testCandidates": 623,
+    "testFiles": 637,
+    "testCandidates": 630,
     "testHelpers": 7,
-    "staticallySelectedTests": 620,
+    "staticallySelectedTests": 627,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -46,7 +46,7 @@
     },
     {
       "area": "astro-marketing",
-      "files": 103
+      "files": 105
     },
     {
       "area": "audit-graph",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 903
+      "files": 913
     },
     {
       "area": "localization",
@@ -86,7 +86,7 @@
     },
     {
       "area": "operations",
-      "files": 115
+      "files": 116
     },
     {
       "area": "pages",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 311
+      "files": 314
     }
   ],
   "mostReferenced": [
@@ -128,7 +128,7 @@
     },
     {
       "file": "lib/content/programs.ts",
-      "references": 257
+      "references": 258
     },
     {
       "file": "lib/tenant/organization.ts",
@@ -187,12 +187,12 @@
       "references": 63
     },
     {
-      "file": "lib/audit/readOnlyPortalAudit.ts",
-      "references": 59
+      "file": "lib/content/programSlug.ts",
+      "references": 60
     },
     {
-      "file": "lib/content/programSlug.ts",
-      "references": 58
+      "file": "lib/audit/readOnlyPortalAudit.ts",
+      "references": 59
     },
     {
       "file": "components/portal/ui/DataTable.tsx",
@@ -211,12 +211,12 @@
       "references": 50
     },
     {
-      "file": "lib/member/curriculumAssignment.ts",
+      "file": "lib/content/programCurriculumManifest.ts",
       "references": 49
     },
     {
-      "file": "lib/content/programCurriculumManifest.ts",
-      "references": 43
+      "file": "lib/member/curriculumAssignment.ts",
+      "references": 49
     },
     {
       "file": "components/LocalizedLink.tsx",
@@ -333,6 +333,10 @@
       "lines": 1313
     },
     {
+      "file": "app/api/apply/signup/route.test.ts",
+      "lines": 1304
+    },
+    {
       "file": "components/portal/tools/SkillMapperClient.tsx",
       "lines": 1296
     },
@@ -343,10 +347,6 @@
     {
       "file": "tests/portal-audit-five-role.test.ts",
       "lines": 1282
-    },
-    {
-      "file": "app/api/apply/signup/route.test.ts",
-      "lines": 1258
     },
     {
       "file": "components/portal/SkillMissionChallenge.tsx",
@@ -385,12 +385,12 @@
       "lines": 1091
     },
     {
-      "file": "components/portal/counselor/AtRiskDashboard.tsx",
-      "lines": 1045
+      "file": "lib/coursera/progressQueries.ts",
+      "lines": 1050
     },
     {
-      "file": "lib/coursera/progressQueries.ts",
-      "lines": 1034
+      "file": "components/portal/counselor/AtRiskDashboard.tsx",
+      "lines": 1045
     }
   ]
 }

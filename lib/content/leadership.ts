@@ -23,6 +23,12 @@ export type LeaderSpotlightCard = {
 export type LeaderPartnerTile = { icon: string; name: string; desc: string };
 export type LeaderAchievementTile = { icon: string; title: string; desc: string };
 
+export type LeaderWriting = {
+  title: string;
+  href: string;
+  description: string;
+};
+
 export type LeaderSection = 'executive' | 'board' | 'consultant';
 
 export type Leader = {
@@ -49,6 +55,7 @@ export type Leader = {
   spotlightCards?: LeaderSpotlightCard[];
   partnerTiles?: LeaderPartnerTile[];
   achievementTiles?: LeaderAchievementTile[];
+  writings?: LeaderWriting[];
 };
 
 export const LEADERS: Leader[] = [
@@ -134,6 +141,13 @@ export const LEADERS: Leader[] = [
         icon: 'payments',
         title: '$15M+ Funding Directed',
         desc: 'Raised and directed grants, contracts, and partnerships for workforce development across multiple organizations.',
+      },
+    ],
+    writings: [
+      {
+        title: 'Empowering Nonprofits Through Skill-Based Certification Training',
+        href: '/insights/empowering-nonprofits-through-skill',
+        description: 'How in-house certification training and Federal ITA grants can generate unrestricted funds and expand nonprofit impact.',
       },
     ],
   },

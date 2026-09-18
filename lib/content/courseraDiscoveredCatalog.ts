@@ -271,6 +271,12 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "cybersecurity-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    // Coursera's combined "Networking and Cybersecurity Professional
+    // Certificate (CompTIA Net+,Sec+)" path (collection 81uci). The 2026-09-17
+    // Curriculum download lists 18 courses in it: the eight Google
+    // Cybersecurity courses below plus ten networking courses that the WAP
+    // syllabus names but this entry does not yet carry ids for. See
+    // lib/content/coursera/learningPaths.ts.
     learningPathId: "gCtwKvPFS36rcCrzxSt-Yg",
     title: "Cyber Security and Networking Professional Certificate (Network+, Sec+)",
     courses: [

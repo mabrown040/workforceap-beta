@@ -11,7 +11,7 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | agent-tooling | 319 | [Open](agent-tooling.md) |
 | api | 516 | [Open](api.md) |
 | assets | 76 | [Open](assets.md) |
-| astro-marketing | 103 | [Open](astro-marketing.md) |
+| astro-marketing | 105 | [Open](astro-marketing.md) |
 | audit-graph | 81 | [Open](audit-graph.md) |
 | communications | 69 | [Open](communications.md) |
 | components | 654 | [Open](components.md) |
@@ -19,11 +19,11 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | database | 200 | [Open](database.md) |
 | delivery | 8 | [Open](delivery.md) |
 | documentation | 355 | [Open](documentation.md) |
-| libraries | 903 | [Open](libraries.md) |
+| libraries | 913 | [Open](libraries.md) |
 | localization | 6 | [Open](localization.md) |
-| operations | 115 | [Open](operations.md) |
+| operations | 116 | [Open](operations.md) |
 | pages | 631 | [Open](pages.md) |
 | root | 54 | [Open](root.md) |
 | styles | 16 | [Open](styles.md) |
 | supporting-files | 72 | [Open](supporting-files.md) |
-| tests | 311 | [Open](tests.md) |
+| tests | 314 | [Open](tests.md) |

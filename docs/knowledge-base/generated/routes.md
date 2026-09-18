@@ -410,7 +410,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/subgroups | page |  | [app/admin/subgroups/page.tsx](../../../app/admin/subgroups/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/testimonials | loading |  | [app/admin/testimonials/loading.tsx](../../../app/admin/testimonials/loading.tsx) |  |
 | /admin/testimonials | page |  | [app/admin/testimonials/page.tsx](../../../app/admin/testimonials/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
-| /admin/training-progress | page |  | [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | @/lib/auth/server:5, @/lib/tenant/adminPageScope:6, @/lib/tenant/adminPageScope:370 |
+| /admin/training-progress | page |  | [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | @/lib/auth/server:5, @/lib/tenant/adminPageScope:6, @/lib/tenant/adminPageScope:407 |
 | /admin/users/deleted | page |  | [app/admin/users/deleted/page.tsx](../../../app/admin/users/deleted/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/users | loading |  | [app/admin/users/loading.tsx](../../../app/admin/users/loading.tsx) |  |
 | /admin/users | page |  | [app/admin/users/page.tsx](../../../app/admin/users/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/tenant/adminPageScope:8 |
@@ -633,7 +633,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/ai/salary-negotiation | route | POST | [app/api/ai/salary-negotiation/route.ts](../../../app/api/ai/salary-negotiation/route.ts) | @/lib/auth/server:2, @/lib/auth/ensureUser:3, @/lib/rate-limit:4, @/lib/auth/actAsSubject:9, @/lib/db/withRequestGuc:15 |
 | /api/ai/skill-mapper | route | GET | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | @/lib/auth/server:8, @/lib/auth/ensureUser:9, @/lib/rate-limit:12, @/lib/db/withRequestGuc:17 |
 | /api/apply/confirmation-email | route | POST | [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | @/lib/rate-limit:4, @/lib/db/withRequestGuc:9 |
-| /api/apply/signup | route | POST | [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | @/lib/tenant/withTenantScope:1, @/lib/rate-limit:13, @/lib/tenant/resolveProvisionOrg:18, @/lib/db/withRequestGuc:21 |
+| /api/apply/signup | route | POST | [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | @/lib/tenant/withTenantScope:2, @/lib/rate-limit:14, @/lib/tenant/resolveProvisionOrg:19, @/lib/db/withRequestGuc:22 |
 | /api/apply/status-lookup | route | POST | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | @/lib/rate-limit:3, @/lib/db/withRequestGuc:6 |
 | /api/auth/check-mfa-required | route | GET | [app/api/auth/check-mfa-required/route.ts](../../../app/api/auth/check-mfa-required/route.ts) | @/lib/auth/mfaTrust:5, @/lib/auth/mfaConfig:7, @/lib/rate-limit:8, @/lib/db/withRequestGuc:13 |
 | /api/auth/forgot-password | route | POST | [app/api/auth/forgot-password/route.ts](../../../app/api/auth/forgot-password/route.ts) | @/lib/rate-limit:2, @/lib/auth/passwordReset:4, @/lib/auth/postLoginRedirect:5 |
@@ -767,7 +767,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/coursera/launch | route | GET | [app/api/member/coursera/launch/route.ts](../../../app/api/member/coursera/launch/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/coursera/refresh-progress | route | POST | [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | @/lib/auth/server:3, @/lib/db/withRequestGuc:8 |
 | /api/member/coursera | route | GET | [app/api/member/coursera/route.ts](../../../app/api/member/coursera/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:10 |
-| /api/member/courses/complete | route | POST | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:6 |
+| /api/member/courses/complete | route | POST | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/dashboard-profile | route | PATCH | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/delete-account | route | POST | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:7, @/lib/db/withRequestGuc:9 |
 | /api/member/eligibility | route | GET, PATCH | [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
@@ -828,7 +828,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/resume/upload | route | POST | [app/api/member/resume/upload/route.ts](../../../app/api/member/resume/upload/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:18, @/lib/rate-limit:21 |
 | /api/member/saved-jobs | route | GET, POST, DELETE | [app/api/member/saved-jobs/route.ts](../../../app/api/member/saved-jobs/route.ts) | @/lib/auth/server:2, @/lib/auth/ensureUser:3, @/lib/db/withRequestGuc:8 |
 | /api/member/settings | route | PATCH | [app/api/member/settings/route.ts](../../../app/api/member/settings/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
-| /api/member/signup | route | POST | [app/api/member/signup/route.ts](../../../app/api/member/signup/route.ts) | @/lib/tenant/withTenantScope:1, @/lib/db/withRequestGuc:2, @/lib/rate-limit:9 |
+| /api/member/signup | route | POST | [app/api/member/signup/route.ts](../../../app/api/member/signup/route.ts) | @/lib/tenant/withTenantScope:2, @/lib/db/withRequestGuc:3, @/lib/rate-limit:10 |
 | /api/member/skill-assessment | route | POST | [app/api/member/skill-assessment/route.ts](../../../app/api/member/skill-assessment/route.ts) | @/lib/auth/ensureUser:4, @/lib/auth/server:5, @/lib/db/withRequestGuc:10 |
 | /api/member/skill-checkpoints | route | POST | [app/api/member/skill-checkpoints/route.ts](../../../app/api/member/skill-checkpoints/route.ts) | @/lib/auth/server:2, @/lib/auth/ensureUser:3, @/lib/db/withRequestGuc:9 |
 | /api/member/skill-profile | route | GET | [app/api/member/skill-profile/route.ts](../../../app/api/member/skill-profile/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:10 |
@@ -1034,6 +1034,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /how-it-works | astro-page |  | [marketing/src/pages/how-it-works.astro](../../../marketing/src/pages/how-it-works.astro) |  |
 | /impact | astro-page |  | [marketing/src/pages/impact.astro](../../../marketing/src/pages/impact.astro) |  |
 | / | astro-page |  | [marketing/src/pages/index.astro](../../../marketing/src/pages/index.astro) |  |
+| /insights/empowering-nonprofits-through-skill | astro-page |  | [marketing/src/pages/insights/empowering-nonprofits-through-skill.astro](../../../marketing/src/pages/insights/empowering-nonprofits-through-skill.astro) |  |
 | /interest-profiler | astro-page |  | [marketing/src/pages/interest-profiler.astro](../../../marketing/src/pages/interest-profiler.astro) |  |
 | /leadership | astro-page |  | [marketing/src/pages/leadership.astro](../../../marketing/src/pages/leadership.astro) |  |
 | /leadership/\[slug\] | astro-page |  | [marketing/src/pages/leadership/\[slug\].astro](../../../marketing/src/pages/leadership/%5Bslug%5D.astro) |  |

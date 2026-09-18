@@ -10,6 +10,7 @@
 | [marketing/astro.config.mjs](../../../marketing/astro.config.mjs) | 22 | astro-marketing | default:4 |
 | [marketing/package-lock.json](../../../marketing/package-lock.json) | 5740 | astro-marketing |  |
 | [marketing/package.json](../../../marketing/package.json) | 16 | astro-marketing |  |
+| [marketing/public/docs/empowering-nonprofits-through-skill.docx](../../../marketing/public/docs/empowering-nonprofits-through-skill.docx) | binary | astro-marketing |  |
 | [marketing/public/images/AdobeStock_78118914.webp](../../../marketing/public/images/AdobeStock_78118914.webp) | binary | astro-marketing |  |
 | [marketing/public/images/adriane-brown.jpg](../../../marketing/public/images/adriane-brown.jpg) | binary | astro-marketing |  |
 | [marketing/public/images/blog/1434030216411-0b793f4b4173.jpg](../../../marketing/public/images/blog/1434030216411-0b793f4b4173.jpg) | binary | public-experience |  |
@@ -60,7 +61,7 @@
 | [marketing/src/components/Icon.astro](../../../marketing/src/components/Icon.astro) | 73 | astro-marketing |  |
 | [marketing/src/components/InterestProfilerQuiz.tsx](../../../marketing/src/components/InterestProfilerQuiz.tsx) | 343 | astro-marketing | default:46 |
 | [marketing/src/data/blog.ts](../../../marketing/src/data/blog.ts) | 455 | astro-marketing | BlogPost:6, BLOG_POSTS:18, getDefaultImage:410, resolveHeroImage:417, formatPublishedDate:425, getPublishedPosts:435, getCategories:442, getRelatedPosts:451 |
-| [marketing/src/data/leadership.ts](../../../marketing/src/data/leadership.ts) | 509 | astro-marketing | LeaderBioBlock:9, LeaderStat:14, LeaderSpotlightCard:20, LeaderPartnerTile:27, LeaderAchievementTile:28, LeaderSection:30, Leader:32, LEADERS:58, getLeaderBySlug:507 |
+| [marketing/src/data/leadership.ts](../../../marketing/src/data/leadership.ts) | 523 | astro-marketing | LeaderBioBlock:9, LeaderStat:14, LeaderSpotlightCard:20, LeaderPartnerTile:27, LeaderAchievementTile:28, LeaderWriting:30, LeaderSection:36, Leader:38, LEADERS:65, getLeaderBySlug:521 |
 | [marketing/src/data/programComparison.ts](../../../marketing/src/data/programComparison.ts) | 251 | astro-marketing | ComparisonTrack:21, PROGRAM_COMPARISON_TRACKS:38, STARTER_SLUGS:247 |
 | [marketing/src/data/programs.ts](../../../marketing/src/data/programs.ts) | 657 | astro-marketing | LanguageSupportLevel:30, LanguageSupport:31, ProgramCourse:37, ProgramExtra:66, Program:73, partnerBadge:109, salaryRangeDisplay:118, PROGRAMS:651, getProgramBySlug:653, WORKFORCEAP_PROGRAM_CATALOG_SIZE:657 |
 | [marketing/src/data/salaryGuide.ts](../../../marketing/src/data/salaryGuide.ts) | 314 | astro-marketing | SalaryLevel:18, SalaryRamp:19, SalaryGuideRow:21, salaryGuideRows:35, SalaryGuideSummaryStats:238, salaryGuideSummaryStats:246, salaryGuideProgramCount:254, SalaryInsight:260, salaryInsights:266, GrowthPhase:303, growthPhases:309 |
@@ -89,9 +90,10 @@
 | [marketing/src/pages/how-it-works.astro](../../../marketing/src/pages/how-it-works.astro) | 443 | astro-marketing |  |
 | [marketing/src/pages/impact.astro](../../../marketing/src/pages/impact.astro) | 228 | astro-marketing |  |
 | [marketing/src/pages/index.astro](../../../marketing/src/pages/index.astro) | 456 | astro-marketing |  |
+| [marketing/src/pages/insights/empowering-nonprofits-through-skill.astro](../../../marketing/src/pages/insights/empowering-nonprofits-through-skill.astro) | 105 | astro-marketing |  |
 | [marketing/src/pages/interest-profiler.astro](../../../marketing/src/pages/interest-profiler.astro) | 207 | astro-marketing |  |
 | [marketing/src/pages/leadership.astro](../../../marketing/src/pages/leadership.astro) | 266 | astro-marketing |  |
-| [marketing/src/pages/leadership/\[slug\].astro](../../../marketing/src/pages/leadership/%5Bslug%5D.astro) | 388 | astro-marketing |  |
+| [marketing/src/pages/leadership/\[slug\].astro](../../../marketing/src/pages/leadership/%5Bslug%5D.astro) | 416 | astro-marketing |  |
 | [marketing/src/pages/lp/google-it-automation.astro](../../../marketing/src/pages/lp/google-it-automation.astro) | 369 | astro-marketing |  |
 | [marketing/src/pages/mentor.astro](../../../marketing/src/pages/mentor.astro) | 259 | astro-marketing |  |
 | [marketing/src/pages/partners.astro](../../../marketing/src/pages/partners.astro) | 642 | astro-marketing |  |

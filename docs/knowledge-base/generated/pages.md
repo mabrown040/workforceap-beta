@@ -193,7 +193,7 @@
 | [app/(portal)/dashboard/learning/interest-profiler/page.tsx](../../../app/%28portal%29/dashboard/learning/interest-profiler/page.tsx) | 48 | learning-coursera | generateMetadata:10, default:19 |
 | [app/(portal)/dashboard/learning/labs/\[labId\]/page.tsx](../../../app/%28portal%29/dashboard/learning/labs/%5BlabId%5D/page.tsx) | 36 | learning-coursera | metadata:10, default:16 |
 | [app/(portal)/dashboard/learning/loading.tsx](../../../app/%28portal%29/dashboard/learning/loading.tsx) | 6 | learning-coursera | default:3 |
-| [app/(portal)/dashboard/learning/modules/\[courseSlug\]/page.tsx](../../../app/%28portal%29/dashboard/learning/modules/%5BcourseSlug%5D/page.tsx) | 237 | learning-coursera | metadata:12, default:49 |
+| [app/(portal)/dashboard/learning/modules/\[courseSlug\]/page.tsx](../../../app/%28portal%29/dashboard/learning/modules/%5BcourseSlug%5D/page.tsx) | 248 | learning-coursera | metadata:13, default:50 |
 | [app/(portal)/dashboard/learning/page.tsx](../../../app/%28portal%29/dashboard/learning/page.tsx) | 569 | learning-coursera | generateMetadata:27, default:43 |
 | [app/(portal)/dashboard/learning/wioa-qualification/loading.tsx](../../../app/%28portal%29/dashboard/learning/wioa-qualification/loading.tsx) | 6 | learning-coursera | default:3 |
 | [app/(portal)/dashboard/learning/wioa-qualification/page.tsx](../../../app/%28portal%29/dashboard/learning/wioa-qualification/page.tsx) | 76 | learning-coursera | generateMetadata:32, default:40 |
@@ -350,7 +350,7 @@
 | [app/admin/board/loading.tsx](../../../app/admin/board/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/board/page.tsx](../../../app/admin/board/page.tsx) | 197 | administration | generateMetadata:21, default:33 |
 | [app/admin/board/print/page.tsx](../../../app/admin/board/print/page.tsx) | 96 | administration | generateMetadata:13, default:31 |
-| [app/admin/career-mappings/CareerMappingsClient.tsx](../../../app/admin/career-mappings/CareerMappingsClient.tsx) | 709 | administration | AuditEntry:32, default:97 |
+| [app/admin/career-mappings/CareerMappingsClient.tsx](../../../app/admin/career-mappings/CareerMappingsClient.tsx) | 714 | administration | AuditEntry:32, default:97 |
 | [app/admin/career-mappings/loading.tsx](../../../app/admin/career-mappings/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/career-mappings/page.tsx](../../../app/admin/career-mappings/page.tsx) | 171 | administration | generateMetadata:15, default:31 |
 | [app/admin/certifications/loading.tsx](../../../app/admin/certifications/loading.tsx) | 6 | administration | default:3 |
@@ -484,7 +484,7 @@
 | [app/admin/subgroups/page.tsx](../../../app/admin/subgroups/page.tsx) | 123 | administration | generateMetadata:15, default:43 |
 | [app/admin/testimonials/loading.tsx](../../../app/admin/testimonials/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/testimonials/page.tsx](../../../app/admin/testimonials/page.tsx) | 33 | administration | generateMetadata:10, default:18 |
-| [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | 709 | administration | generateMetadata:31, dynamic:40, default:45 |
+| [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | 746 | administration | generateMetadata:31, dynamic:40, default:45 |
 | [app/admin/users/deleted/page.tsx](../../../app/admin/users/deleted/page.tsx) | 117 | administration | generateMetadata:12, default:36 |
 | [app/admin/users/loading.tsx](../../../app/admin/users/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/users/page.tsx](../../../app/admin/users/page.tsx) | 185 | administration | generateMetadata:18, default:66 |
@@ -632,6 +632,6 @@
 | [app/robots.ts](../../../app/robots.ts) | 10 | pages | default:5 |
 | [app/seo.ts](../../../app/seo.ts) | 77 | pages | SITE_URL:8, DEFAULT_OG_IMAGE:9, PageSeoInputWithoutLocale:22, buildPageMetadataAsync:25, buildPageMetadata:41 |
 | [app/share/achievement/page.tsx](../../../app/share/achievement/page.tsx) | 144 | pages | dynamic:6, generateMetadata:39, default:78 |
-| [app/sitemap.ts](../../../app/sitemap.ts) | 138 | pages | revalidate:36, default:66 |
+| [app/sitemap.ts](../../../app/sitemap.ts) | 139 | pages | revalidate:36, default:67 |
 | [app/survey/placement/\[token\]/page.tsx](../../../app/survey/placement/%5Btoken%5D/page.tsx) | 108 | jobs-employers | dynamic:5, metadata:6, default:28 |
 | [app/wioa-qualification/page.tsx](../../../app/wioa-qualification/page.tsx) | 41 | partners-funding | generateMetadata:25, default:34 |

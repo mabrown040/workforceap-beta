@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
+import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -30,33 +31,38 @@ async function _POST(request: Request) {
       return NextResponse.json({ error: 'programSlug is required' }, { status: 400 });
     }
 
-    const enrollment = await prisma.courseEnrollment.findUnique({
-      where: {
-        userId_programSlug: {
-          userId: user.id,
-          programSlug,
+    // Digital literacy is ungated: completion may be recorded without enrollment.
+    let resolvedProgramSlug = programSlug;
+    if (programSlug !== DIGITAL_LITERACY_PROGRAM_SLUG) {
+      const enrollment = await prisma.courseEnrollment.findUnique({
+        where: {
+          userId_programSlug: {
+            userId: user.id,
+            programSlug,
+          },
         },
-      },
-      select: { programSlug: true },
-    });
-    if (!enrollment) {
-      return NextResponse.json(
-        {
-          error: 'This program is not assigned to your account.',
-          code: 'PROGRAM_NOT_ASSIGNED',
-        },
-        { status: 403 },
-      );
+        select: { programSlug: true },
+      });
+      if (!enrollment) {
+        return NextResponse.json(
+          {
+            error: 'This program is not assigned to your account.',
+            code: 'PROGRAM_NOT_ASSIGNED',
+          },
+          { status: 403 },
+        );
+      }
+      resolvedProgramSlug = enrollment.programSlug;
     }
   
     try {
       const result = await completeMemberCourse({
         userId: user.id,
         courseSlug,
-        resolvedProgramSlug: enrollment.programSlug,
+        resolvedProgramSlug,
         source: 'member',
       });
-      auditLog({ actorUserId: user.id, action: 'member.course.complete', targetType: 'CourseCompletion', targetId: user.id, metadata: { courseSlug, programSlug: enrollment.programSlug } }).catch(() => {});
+      auditLog({ actorUserId: user.id, action: 'member.course.complete', targetType: 'CourseCompletion', targetId: user.id, metadata: { courseSlug, programSlug: resolvedProgramSlug } }).catch(() => {});
       logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'CourseCompletion', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json(result);
     } catch (error) {

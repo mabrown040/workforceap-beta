@@ -3996,12 +3996,12 @@
     "exports": [
       {
         "name": "metadata",
-        "line": 12,
+        "line": 13,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 49,
+        "line": 50,
         "kind": "FunctionDeclaration",
         "localName": "WorkforceApModulePage"
       }
@@ -11181,7 +11181,7 @@
       },
       {
         "specifier": "@/lib/tenant/adminPageScope",
-        "line": 370,
+        "line": 407,
         "kind": "type"
       }
     ]
@@ -20532,7 +20532,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 179,
+        "line": 180,
         "kind": "Variable"
       }
     ],
@@ -20543,22 +20543,22 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/tenant/withTenantScope",
-        "line": 1,
+        "line": 2,
         "kind": "import"
       },
       {
         "specifier": "@/lib/rate-limit",
-        "line": 13,
+        "line": 14,
         "kind": "import"
       },
       {
         "specifier": "@/lib/tenant/resolveProvisionOrg",
-        "line": 18,
+        "line": 19,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 21,
+        "line": 22,
         "kind": "import"
       }
     ]
@@ -22387,12 +22387,12 @@
       },
       {
         "name": "GET",
-        "line": 134,
+        "line": 135,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 135,
+        "line": 136,
         "kind": "Variable"
       }
     ],
@@ -22414,12 +22414,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 81,
+        "line": 83,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 82,
+        "line": 84,
         "kind": "Variable"
       }
     ],
@@ -25274,7 +25274,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 71,
+        "line": 77,
         "kind": "Variable"
       }
     ],
@@ -25290,7 +25290,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 6,
+        "line": 7,
         "kind": "import"
       }
     ]
@@ -27328,7 +27328,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 23,
+        "line": 24,
         "kind": "FunctionDeclaration"
       }
     ],
@@ -27339,17 +27339,17 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/tenant/withTenantScope",
-        "line": 1,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/db/withRequestGuc",
         "line": 2,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/db/withRequestGuc",
+        "line": 3,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/rate-limit",
-        "line": 9,
+        "line": 10,
         "kind": "import"
       }
     ]
@@ -32723,6 +32723,19 @@
     "file": "marketing/src/pages/index.astro",
     "kind": "astro-page",
     "path": "/",
+    "groups": [],
+    "routing": "astro-filesystem-unexpanded",
+    "note": "Active static-build source pattern. getStaticPaths expansion, locale expansion, middleware/static/Next precedence and current deployed serving are not proven.",
+    "exports": [],
+    "methods": [],
+    "configuration": {},
+    "boundaryReferences": [],
+    "extraction": "Filename route pattern only; Astro frontmatter and template imports are not AST-indexed."
+  },
+  {
+    "file": "marketing/src/pages/insights/empowering-nonprofits-through-skill.astro",
+    "kind": "astro-page",
+    "path": "/insights/empowering-nonprofits-through-skill",
     "groups": [],
     "routing": "astro-filesystem-unexpanded",
     "note": "Active static-build source pattern. getStaticPaths expansion, locale expansion, middleware/static/Next precedence and current deployed serving are not proven.",

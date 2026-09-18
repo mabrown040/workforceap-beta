@@ -255,6 +255,15 @@ export async function resolveProviderCourseMappings(args: {
   canonicalIndex?: CanonicalMappingIndex;
   /** B4B-only compatibility: allow one unambiguous unassigned legacy program. */
   allowLegacyDiscovery?: boolean;
+  /**
+   * WAP program of the Coursera Learning Path the row was taken under
+   * (`lib/coursera/learningPathAttribution.ts`). An assignment match is still
+   * authoritative, but when nothing assigned matches, only candidates inside
+   * this program may be discovered: Coursera has said which path the learner
+   * is on, so a shared course must not conjure an enrollment in a neighbour
+   * program. Null or undefined leaves discovery unrestricted.
+   */
+  collectionProgramSlug?: string | null;
 }): Promise<CurriculumMappingResolution> {
   const rawProviderId = args.courseraCourseId?.trim() ?? '';
   const providerId = normalizeCourseraCourseId(rawProviderId);
@@ -262,6 +271,12 @@ export async function resolveProviderCourseMappings(args: {
   if (!providerId && !providerSlug) {
     return { targets: [], status: 'unmapped' };
   }
+  const collectionProgram = args.collectionProgramSlug?.trim()
+    ? canonicalizeProgramSlug(args.collectionProgramSlug)
+    : null;
+  const insideCollectionProgram = (candidate: CurriculumMappingTarget) =>
+    collectionProgram === null
+    || canonicalizeProgramSlug(candidate.programSlug) === collectionProgram;
 
   const [curriculumIndex, canonicalIndex] = await Promise.all([
     args.curriculumIndex
@@ -290,7 +305,8 @@ export async function resolveProviderCourseMappings(args: {
     return selectCurriculumMappingTargets({
       candidates: candidates.filter(
         (candidate) =>
-          candidate.curriculumVersion === LEGACY_CURRICULUM_VERSION,
+          candidate.curriculumVersion === LEGACY_CURRICULUM_VERSION
+          && insideCollectionProgram(candidate),
       ),
       assignments: [],
     });
@@ -324,7 +340,8 @@ export async function resolveProviderCourseMappings(args: {
     candidates: candidates.filter(
       (candidate) =>
         candidate.curriculumVersion === LEGACY_CURRICULUM_VERSION &&
-        !approvedPrograms.has(canonicalizeProgramSlug(candidate.programSlug)),
+        !approvedPrograms.has(canonicalizeProgramSlug(candidate.programSlug)) &&
+        insideCollectionProgram(candidate),
     ),
     assignments: [],
   });

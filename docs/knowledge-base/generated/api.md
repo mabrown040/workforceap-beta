@@ -233,8 +233,8 @@
 | [app/api/ai/salary-negotiation/route.ts](../../../app/api/ai/salary-negotiation/route.ts) | 112 | ai-voice | POST:16 |
 | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | 206 | ai-voice | GET:23 |
 | [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 85 | applications-enrollment | POST:85 |
-| [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1258 | applications-enrollment |  |
-| [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1021 | applications-enrollment | POST:179 |
+| [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1304 | applications-enrollment |  |
+| [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1030 | applications-enrollment | POST:180 |
 | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | 55 | applications-enrollment | POST:28 |
 | [app/api/auth/check-mfa-required/route.ts](../../../app/api/auth/check-mfa-required/route.ts) | 120 | identity-tenancy | GET:14 |
 | [app/api/auth/forgot-password/route.ts](../../../app/api/auth/forgot-password/route.ts) | 78 | identity-tenancy | POST:10 |
@@ -285,8 +285,8 @@
 | [app/api/cron/at-risk-alerts/route.ts](../../../app/api/cron/at-risk-alerts/route.ts) | 51 | communications | runtime:10, maxDuration:11, GET:50, POST:51 |
 | [app/api/cron/at-risk-check/route.ts](../../../app/api/cron/at-risk-check/route.ts) | 147 | communications | runtime:18, maxDuration:19, GET:146, POST:147 |
 | [app/api/cron/course-accountability/route.ts](../../../app/api/cron/course-accountability/route.ts) | 159 | communications | maxDuration:14, GET:158, POST:159 |
-| [app/api/cron/coursera-auto-heal/route.ts](../../../app/api/cron/coursera-auto-heal/route.ts) | 135 | learning-coursera | maxDuration:16, GET:134, POST:135 |
-| [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 82 | learning-coursera | GET:81, POST:82 |
+| [app/api/cron/coursera-auto-heal/route.ts](../../../app/api/cron/coursera-auto-heal/route.ts) | 136 | learning-coursera | maxDuration:16, GET:135, POST:136 |
+| [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 84 | learning-coursera | GET:83, POST:84 |
 | [app/api/cron/coursera-sync/route.ts](../../../app/api/cron/coursera-sync/route.ts) | 171 | learning-coursera | GET:170, POST:171 |
 | [app/api/cron/coursera-training-sync/route.ts](../../../app/api/cron/coursera-training-sync/route.ts) | 38 | learning-coursera | maxDuration:10, GET:38 |
 | [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 33 | communications | GET:32, POST:33 |
@@ -378,7 +378,7 @@
 | [app/api/member/coursera/launch/route.ts](../../../app/api/member/coursera/launch/route.ts) | 89 | learning-coursera | GET:82 |
 | [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | 45 | learning-coursera | POST:9 |
 | [app/api/member/coursera/route.ts](../../../app/api/member/coursera/route.ts) | 105 | learning-coursera | GET:11 |
-| [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | 71 | learning-coursera | POST:71 |
+| [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | 77 | learning-coursera | POST:77 |
 | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | 142 | member-counselor | PATCH:56 |
 | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | 76 | member-counselor | POST:15 |
 | [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | 312 | member-counselor | GET:127, PATCH:312 |
@@ -441,7 +441,7 @@
 | [app/api/member/resume/upload/route.ts](../../../app/api/member/resume/upload/route.ts) | 115 | member-counselor | POST:25 |
 | [app/api/member/saved-jobs/route.ts](../../../app/api/member/saved-jobs/route.ts) | 93 | member-counselor | GET:27, POST:69, DELETE:93 |
 | [app/api/member/settings/route.ts](../../../app/api/member/settings/route.ts) | 46 | member-counselor | PATCH:8 |
-| [app/api/member/signup/route.ts](../../../app/api/member/signup/route.ts) | 276 | applications-enrollment | POST:23 |
+| [app/api/member/signup/route.ts](../../../app/api/member/signup/route.ts) | 284 | applications-enrollment | POST:24 |
 | [app/api/member/skill-assessment/route.ts](../../../app/api/member/skill-assessment/route.ts) | 72 | member-counselor | POST:13 |
 | [app/api/member/skill-checkpoints/route.ts](../../../app/api/member/skill-checkpoints/route.ts) | 63 | member-counselor | POST:63 |
 | [app/api/member/skill-profile/route.ts](../../../app/api/member/skill-profile/route.ts) | 431 | member-counselor | GET:247 |

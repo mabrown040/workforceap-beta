@@ -1,3 +1,4 @@
+import { pickExactEmailMatch, normalizeEmail, EXACT_EMAIL_CANDIDATE_LIMIT } from '@/lib/db/exactEmailMatch';
 import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
 import { createMember } from '@/lib/member/service';
@@ -130,11 +131,18 @@ export async function POST(request: NextRequest) {
   
     // An existing app identity may have no Auth row after a legacy delete.
     // Never create another identity or transfer its roles/records through signup.
-    const existingAccount = await crossTenantOK(() => withSystemGuc(() => prisma.$transaction((tx) => tx.user.findFirst({
-      where: { email: { equals: data.email, mode: 'insensitive' } },
-      select: { id: true },
+    //
+    // `mode: 'insensitive'` compiles to ILIKE, so `data.email` is used as a
+    // PATTERN and an address containing `_` matches same-shaped rows belonging
+    // to other people. A false positive here blocks a real person from signing
+    // up with a 409 they cannot self-resolve, so keep only a genuine equality.
+    // See lib/db/exactEmailMatch.ts.
+    const existingCandidates = await crossTenantOK(() => withSystemGuc(() => prisma.$transaction((tx) => tx.user.findMany({
+      where: { email: { equals: normalizeEmail(data.email), mode: 'insensitive' } },
+      select: { id: true, email: true },
+      take: EXACT_EMAIL_CANDIDATE_LIMIT,
     }))));
-    if (existingAccount) {
+    if (pickExactEmailMatch(existingCandidates, data.email)) {
       return NextResponse.json(
         {
           code: 'ACCOUNT_RECOVERY_REQUIRED',

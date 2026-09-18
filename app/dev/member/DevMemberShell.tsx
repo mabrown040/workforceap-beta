@@ -23,6 +23,7 @@ const DEV_HREF: Record<string, string> = {
   '/dashboard/missions': '/dev/member/missions',
   '/dashboard/certifications': '/dev/member/certificates',
   '/dashboard/jobs': '/dev/member/jobs',
+  '/dashboard/resume': '/dev/member/resume-studio',
   '/dashboard/readiness': '/dev/member/progress',
   '/dashboard/ai-tools': '/dev/member/toolkit',
   '/dashboard/messages': '/dev/member/messages',

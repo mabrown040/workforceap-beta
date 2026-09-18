@@ -22,7 +22,7 @@ import {
 } from '../../scripts/lib/portal-hub-smoke-paths.mjs';
 import { hasPortalRoleCredentials, loginPortalRole } from './auth-helpers';
 
-type HubSmokeRole = (typeof PORTAL_HUB_SMOKE_ROLES)[number];
+type HubSmokeRole = keyof typeof PORTAL_HUB_SMOKE_PATHS;
 
 async function assertInsideRole(page: Page, role: HubSmokeRole): Promise<void> {
   await expect(page).not.toHaveURL(/\/login([?#]|$)/, { timeout: 20_000 });
@@ -33,7 +33,7 @@ async function assertInsideRole(page: Page, role: HubSmokeRole): Promise<void> {
   ).toBe(true);
 }
 
-for (const role of PORTAL_HUB_SMOKE_ROLES) {
+for (const role of PORTAL_HUB_SMOKE_ROLES as readonly HubSmokeRole[]) {
   const paths = PORTAL_HUB_SMOKE_PATHS[role];
 
   test.describe(`portal hub smoke: ${role}`, () => {

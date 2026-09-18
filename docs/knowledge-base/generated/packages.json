@@ -146,6 +146,7 @@
       "start",
       "test",
       "test:e2e",
+      "test:e2e:portal-hubs",
       "test:e2e:ui",
       "test:unit",
       "test:vitest",

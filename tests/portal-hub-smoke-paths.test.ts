@@ -6,22 +6,25 @@ import {
 } from '../scripts/lib/portal-hub-smoke-paths.mjs';
 import { SECTION_LOGIN_REDIRECT } from '../scripts/lib/portal-audit-paths.mjs';
 
+type PortalHubSmokeRole = keyof typeof PORTAL_HUB_SMOKE_PATHS;
+const HUB_SMOKE_ROLES = PORTAL_HUB_SMOKE_ROLES as readonly PortalHubSmokeRole[];
+
 describe('portal hub smoke paths', () => {
   it('covers member, counselor, and employer only', () => {
-    expect([...PORTAL_HUB_SMOKE_ROLES]).toEqual(['member', 'counselor', 'employer']);
-    expect(Object.keys(PORTAL_HUB_SMOKE_PATHS).sort()).toEqual(
-      [...PORTAL_HUB_SMOKE_ROLES].sort(),
+    expect([...HUB_SMOKE_ROLES]).toEqual(['member', 'counselor', 'employer']);
+    expect((Object.keys(PORTAL_HUB_SMOKE_PATHS) as PortalHubSmokeRole[]).sort()).toEqual(
+      [...HUB_SMOKE_ROLES].sort(),
     );
   });
 
   it('uses hub roots that match the portal audit login redirects', () => {
-    for (const role of PORTAL_HUB_SMOKE_ROLES) {
+    for (const role of HUB_SMOKE_ROLES) {
       expect(PORTAL_HUB_SMOKE_PATHS[role].hub).toBe(SECTION_LOGIN_REDIRECT[role]);
     }
   });
 
   it('keeps each deep link inside its role root', () => {
-    for (const role of PORTAL_HUB_SMOKE_ROLES) {
+    for (const role of HUB_SMOKE_ROLES) {
       const { hub, deepLink } = PORTAL_HUB_SMOKE_PATHS[role];
       expect(deepLink.startsWith(`${hub}/`)).toBe(true);
       expect(isPortalHubSmokePath(deepLink, role)).toBe(true);

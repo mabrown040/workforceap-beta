@@ -118320,6 +118320,14 @@
     "target": "scripts/lib/portal-audit-auth.mjs"
   },
   {
+    "from": "tests/e2e/auth-helpers.ts",
+    "specifier": "../../scripts/lib/portal-audit-paths.mjs",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-paths.mjs"
+  },
+  {
     "from": "tests/e2e/auth.spec.ts",
     "specifier": "@playwright/test",
     "line": 1,
@@ -118510,6 +118518,30 @@
     "kind": "import",
     "external": true,
     "package": "@playwright/test"
+  },
+  {
+    "from": "tests/e2e/portal-hub-smoke.spec.ts",
+    "specifier": "@playwright/test",
+    "line": 17,
+    "kind": "import",
+    "external": true,
+    "package": "@playwright/test"
+  },
+  {
+    "from": "tests/e2e/portal-hub-smoke.spec.ts",
+    "specifier": "../../scripts/lib/portal-hub-smoke-paths.mjs",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-hub-smoke-paths.mjs"
+  },
+  {
+    "from": "tests/e2e/portal-hub-smoke.spec.ts",
+    "specifier": "./auth-helpers",
+    "line": 23,
+    "kind": "import",
+    "external": false,
+    "target": "tests/e2e/auth-helpers.ts"
   },
   {
     "from": "tests/e2e/portal-revenue-flows.spec.ts",
@@ -121630,6 +121662,30 @@
     "kind": "import",
     "external": false,
     "target": "scripts/lib/portal-audit-health-gate.mjs"
+  },
+  {
+    "from": "tests/portal-hub-smoke-paths.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/portal-hub-smoke-paths.test.ts",
+    "specifier": "../scripts/lib/portal-hub-smoke-paths.mjs",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-hub-smoke-paths.mjs"
+  },
+  {
+    "from": "tests/portal-hub-smoke-paths.test.ts",
+    "specifier": "../scripts/lib/portal-audit-paths.mjs",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-paths.mjs"
   },
   {
     "from": "tests/rls/member-message-assignment.mjs",

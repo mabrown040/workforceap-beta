@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { Avatar, StatusTag, StageTrack, type KitTone } from '@/components/portal/kit';
+import { Avatar, KitEmptyState, StatusTag, StageTrack, type KitTone } from '@/components/portal/kit';
 import { PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
+import { useTranslations } from 'next-intl';
 
 export type PartnerMemberRow = {
   id: string;
@@ -38,6 +39,7 @@ function stageTrackIndex(stage: string): number {
 }
 
 export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMemberRow[] }) {
+  const t = useTranslations('partner');
   const [filter, setFilter] = useState<Filter>('all');
 
   const counts = useMemo(
@@ -101,16 +103,13 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
 
       <div style={{ padding: '0 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
         {rows.length === 0 ? (
-          <div className="wa-kit-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-            <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--wa-text)', marginBottom: 4 }}>No members yet</p>
-            <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
-              You haven&rsquo;t referred any members yet. Tap Invite Member above to start building your pipeline.
-            </p>
+          <div className="wa-kit-card">
+            <KitEmptyState title={t('noMembersYet')} description={t('noMembersYetDescription')} />
           </div>
         ) : filtered.length === 0 ? (
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', textAlign: 'center', padding: '1.5rem' }}>
-            No members match this filter. Try a different filter option.
-          </p>
+          <div className="wa-kit-card">
+            <KitEmptyState title={t('noMembersYet')} description={t('noMembersMatchFilter')} />
+          </div>
         ) : (
           filtered.map((row) => {
             const initials = (row.fullName ?? '?')

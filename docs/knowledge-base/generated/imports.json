@@ -13433,11 +13433,27 @@
   },
   {
     "from": "app/(portal)/partner/attention/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/components/portal/PageHeader",
     "line": 11,
     "kind": "import",
     "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/attention/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 12,
+    "kind": "import",
+    "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/(portal)/partner/attention/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 13,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "app/(portal)/partner/error.tsx",
@@ -13521,8 +13537,16 @@
   },
   {
     "from": "app/(portal)/partner/exports/page.tsx",
-    "specifier": "lucide-react",
+    "specifier": "@/components/portal/PageHeader",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/exports/page.tsx",
+    "specifier": "lucide-react",
+    "line": 10,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -13530,10 +13554,18 @@
   {
     "from": "app/(portal)/partner/exports/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/(portal)/partner/exports/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 12,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "app/(portal)/partner/guide/loading.tsx",
@@ -13841,8 +13873,16 @@
   },
   {
     "from": "app/(portal)/partner/messages/page.tsx",
-    "specifier": "lucide-react",
+    "specifier": "@/components/portal/PageHeader",
     "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/messages/page.tsx",
+    "specifier": "lucide-react",
+    "line": 15,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -13850,7 +13890,7 @@
   {
     "from": "app/(portal)/partner/messages/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -13858,7 +13898,7 @@
   {
     "from": "app/(portal)/partner/messages/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -13866,10 +13906,18 @@
   {
     "from": "app/(portal)/partner/messages/page.tsx",
     "specifier": "@/lib/messages/contextSelection",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/messages/contextSelection.ts"
+  },
+  {
+    "from": "app/(portal)/partner/messages/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 19,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "app/(portal)/partner/milestones/loading.tsx",
@@ -13953,11 +14001,27 @@
   },
   {
     "from": "app/(portal)/partner/milestones/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/components/portal/PageHeader",
     "line": 10,
     "kind": "import",
     "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/milestones/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 11,
+    "kind": "import",
+    "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/(portal)/partner/milestones/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 12,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "app/(portal)/partner/not-found.tsx",
@@ -14057,8 +14121,16 @@
   },
   {
     "from": "app/(portal)/partner/outcomes/page.tsx",
-    "specifier": "next-intl/server",
+    "specifier": "@/components/portal/PageHeader",
     "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/outcomes/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 12,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -14066,7 +14138,7 @@
   {
     "from": "app/(portal)/partner/outcomes/page.tsx",
     "specifier": "lucide-react",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -14074,7 +14146,7 @@
   {
     "from": "app/(portal)/partner/outcomes/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -14082,7 +14154,7 @@
   {
     "from": "app/(portal)/partner/outcomes/page.tsx",
     "specifier": "@/components/portal/kit/pages/PartnerOverviewKit",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/PartnerOverviewKit.tsx"
@@ -14713,8 +14785,16 @@
   },
   {
     "from": "app/(portal)/partner/referred-members/page.tsx",
-    "specifier": "next-intl/server",
+    "specifier": "@/components/portal/PageHeader",
     "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/referred-members/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 14,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -14722,7 +14802,7 @@
   {
     "from": "app/(portal)/partner/referred-members/page.tsx",
     "specifier": "lucide-react",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -14730,7 +14810,7 @@
   {
     "from": "app/(portal)/partner/referred-members/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -14817,8 +14897,16 @@
   },
   {
     "from": "app/(portal)/partner/resources/page.tsx",
-    "specifier": "@/lib/db/prisma",
+    "specifier": "@/components/portal/PageHeader",
     "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/resources/page.tsx",
+    "specifier": "@/lib/db/prisma",
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -14826,7 +14914,7 @@
   {
     "from": "app/(portal)/partner/resources/page.tsx",
     "specifier": "lucide-react",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -14834,10 +14922,18 @@
   {
     "from": "app/(portal)/partner/resources/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/(portal)/partner/resources/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 14,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "app/(portal)/partner/settings/loading.tsx",
@@ -14921,8 +15017,16 @@
   },
   {
     "from": "app/(portal)/partner/settings/page.tsx",
-    "specifier": "@/components/partner/PartnerNotificationPrefs",
+    "specifier": "@/components/portal/PageHeader",
     "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/partner/settings/page.tsx",
+    "specifier": "@/components/partner/PartnerNotificationPrefs",
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/partner/PartnerNotificationPrefs.tsx"
@@ -14930,7 +15034,7 @@
   {
     "from": "app/(portal)/partner/settings/page.tsx",
     "specifier": "@/components/partner/PartnerContactEditForm",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "components/partner/PartnerContactEditForm.tsx"
@@ -14938,10 +15042,18 @@
   {
     "from": "app/(portal)/partner/settings/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/(portal)/partner/settings/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 14,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "app/(portal)/profile/page.tsx",
@@ -71448,6 +71560,14 @@
     "target": "components/portal/kit/index.ts"
   },
   {
+    "from": "components/partner/PartnerAttentionClient.tsx",
+    "specifier": "next-intl",
+    "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
     "from": "components/partner/PartnerConnectPayoutButton.tsx",
     "specifier": "react",
     "line": 3,
@@ -71512,6 +71632,14 @@
     "target": "components/portal/kit/index.ts"
   },
   {
+    "from": "components/partner/PartnerMilestonesMobile.tsx",
+    "specifier": "next-intl",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
     "from": "components/partner/PartnerMilestonesView.tsx",
     "specifier": "react",
     "line": 3,
@@ -71554,10 +71682,18 @@
   {
     "from": "components/partner/PartnerMilestonesView.tsx",
     "specifier": "@/lib/pipeline/stage",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/pipeline/stage.ts"
+  },
+  {
+    "from": "components/partner/PartnerMilestonesView.tsx",
+    "specifier": "next-intl",
+    "line": 18,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "components/partner/PartnerNotificationPrefs.tsx",
@@ -71654,6 +71790,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/pipeline/stage.ts"
+  },
+  {
+    "from": "components/partner/PartnerReferredMembersMobile.tsx",
+    "specifier": "next-intl",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
   },
   {
     "from": "components/partner/PartnerSettingsEditRequest.tsx",
@@ -117282,7 +117426,7 @@
   {
     "from": "tests/app/partner-contextual-messages.spec.tsx",
     "specifier": "@/app/(portal)/partner/messages/page",
-    "line": 51,
+    "line": 60,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/partner/messages/page.tsx"
@@ -117290,7 +117434,7 @@
   {
     "from": "tests/app/partner-contextual-messages.spec.tsx",
     "specifier": "@/lib/auth/server",
-    "line": 52,
+    "line": 61,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -117298,7 +117442,7 @@
   {
     "from": "tests/app/partner-contextual-messages.spec.tsx",
     "specifier": "@/lib/auth/roles",
-    "line": 53,
+    "line": 62,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -117306,7 +117450,7 @@
   {
     "from": "tests/app/partner-contextual-messages.spec.tsx",
     "specifier": "@/lib/db/prisma",
-    "line": 54,
+    "line": 63,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -117314,10 +117458,34 @@
   {
     "from": "tests/app/partner-contextual-messages.spec.tsx",
     "specifier": "@/lib/messages/portalThreads",
-    "line": 55,
+    "line": 64,
     "kind": "import",
     "external": false,
     "target": "lib/messages/portalThreads.ts"
+  },
+  {
+    "from": "tests/app/partner-pageheader-kit.spec.ts",
+    "specifier": "node:fs",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/app/partner-pageheader-kit.spec.ts",
+    "specifier": "node:path",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/app/partner-pageheader-kit.spec.ts",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
   },
   {
     "from": "tests/app/partner-referral-pages.spec.tsx",

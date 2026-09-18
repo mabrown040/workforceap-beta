@@ -8,14 +8,17 @@ import PartnerAttentionClient from '@/components/partner/PartnerAttentionClient'
 import PartnerWorkflowTimeline from '@/components/partner/PartnerWorkflowTimeline';
 import { listPartnerWorkflowEvents } from '@/lib/portal/workflowEvents';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Attention queue',
-  description: 'Members who may need a partner check-in.',
-  path: '/partner/attention',
-});
+    title: t('attentionQueue'),
+    description: t('attentionQueueGoal'),
+    path: '/partner/attention',
+  });
 }
 
 export default async function PartnerAttentionPage({
@@ -29,6 +32,7 @@ export default async function PartnerAttentionPage({
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
   const sp = (await searchParams) ?? {};
   const tr = sp.tier;
   /** Default to high urgency so partners land on actionable items first (`all` is one click away). */
@@ -48,11 +52,7 @@ export default async function PartnerAttentionPage({
   return (
     <PortalPageFrame>
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6 wa-pb-24 md:wa-pb-8">
-        <SectionHeader
-          kicker="Partner Portal"
-          title="Attention Queue"
-          goal="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
-        />
+        <PageHeader title={t('attentionQueue')} subtitle={t('attentionQueueGoal')} />
         <PartnerWorkflowTimeline events={events} />
         <PartnerAttentionClient initialTier={initialTier} />
       </DesignSurface>

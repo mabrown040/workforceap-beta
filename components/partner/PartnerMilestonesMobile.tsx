@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Flag } from 'lucide-react';
-import { StatusTag, type KitTone } from '@/components/portal/kit';
+import { ChevronDown } from 'lucide-react';
+import { KitEmptyState, StatusTag, type KitTone } from '@/components/portal/kit';
+import { useTranslations } from 'next-intl';
 
 type Milestone = {
   id: string;
@@ -27,6 +28,7 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 export default function PartnerMilestonesMobile() {
+  const t = useTranslations('partner');
   const [milestones, setMilestones] = useState<Milestone[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [completedOpen, setCompletedOpen] = useState(false);
@@ -68,10 +70,8 @@ export default function PartnerMilestonesMobile() {
 
   if (milestones.length === 0) {
     return (
-      <div className="wa-kit-card" style={{ margin: '0 1.5rem', padding: '2rem 1.5rem', textAlign: 'center' }}>
-        <Flag aria-hidden size={28} style={{ color: 'var(--wa-muted)', display: 'block', margin: '0 auto 0.75rem' }} />
-        <p style={{ color: 'var(--wa-text)', fontWeight: 700, marginBottom: '0.25rem' }}>No milestones yet</p>
-        <p style={{ color: 'var(--wa-muted)', fontSize: '0.75rem' }}>Milestones will appear here as your members progress through training.</p>
+      <div className="wa-kit-card" style={{ margin: '0 1.5rem' }}>
+        <KitEmptyState title={t('noMilestonesYet')} description={t('noMilestonesYetDescription')} />
       </div>
     );
   }

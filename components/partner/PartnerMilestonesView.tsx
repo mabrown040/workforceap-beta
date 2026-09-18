@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Activity, Award, Briefcase } from 'lucide-react';
 import {
   CardHead,
+  KitEmptyState,
   SegmentedProgress,
   StageTrack,
   StatusTag,
@@ -14,6 +15,7 @@ import {
   type KitTone,
 } from '@/components/portal/kit';
 import { PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
+import { useTranslations } from 'next-intl';
 
 type Milestone = {
   id: string;
@@ -65,6 +67,7 @@ function stageTrackFor(kind: string): { index: number; total: number } | null {
 }
 
 export default function PartnerMilestonesView() {
+  const t = useTranslations('partner');
   const [milestones, setMilestones] = useState<Milestone[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,11 +115,8 @@ export default function PartnerMilestonesView() {
   }
   if (milestones.length === 0) {
     return (
-      <div className="wa-kit-card" style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
-        <p style={{ color: 'var(--wa-text)', fontWeight: 700, marginBottom: '0.25rem' }}>No milestones yet</p>
-        <p style={{ color: 'var(--wa-muted)', fontSize: '0.875rem' }}>
-          Milestones will appear here as your members progress through training.
-        </p>
+      <div className="wa-kit-card">
+        <KitEmptyState title={t('noMilestonesYet')} description={t('noMilestonesYetDescription')} />
       </div>
     );
   }

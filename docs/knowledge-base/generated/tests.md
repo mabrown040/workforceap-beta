@@ -152,7 +152,8 @@
 | [tests/app/member-dashboard-layout.spec.tsx](../../../tests/app/member-dashboard-layout.spec.tsx) | 89 | tests |  |
 | [tests/app/member-referrals-page.spec.tsx](../../../tests/app/member-referrals-page.spec.tsx) | 33 | tests |  |
 | [tests/app/member-training-feedback.spec.tsx](../../../tests/app/member-training-feedback.spec.tsx) | 78 | tests |  |
-| [tests/app/partner-contextual-messages.spec.tsx](../../../tests/app/partner-contextual-messages.spec.tsx) | 130 | tests |  |
+| [tests/app/partner-contextual-messages.spec.tsx](../../../tests/app/partner-contextual-messages.spec.tsx) | 139 | tests |  |
+| [tests/app/partner-pageheader-kit.spec.ts](../../../tests/app/partner-pageheader-kit.spec.ts) | 63 | tests |  |
 | [tests/app/partner-referral-pages.spec.tsx](../../../tests/app/partner-referral-pages.spec.tsx) | 75 | tests |  |
 | [tests/app/root-auth-bootstrap.spec.tsx](../../../tests/app/root-auth-bootstrap.spec.tsx) | 83 | tests |  |
 | [tests/components/admin-command-center-presentation.spec.tsx](../../../tests/components/admin-command-center-presentation.spec.tsx) | 55 | tests |  |

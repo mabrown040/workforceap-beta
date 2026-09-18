@@ -7,6 +7,7 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 vi.mock('next/headers', () => ({ headers: vi.fn(async () => new Headers()) }));
+vi.mock('next-intl/server', () => ({ getTranslations: async () => (key: string) => key }));
 vi.mock('@/app/seo', () => ({ buildPageMetadataAsync: vi.fn() }));
 vi.mock('@/lib/auth/portalGuards', () => ({ unlinkedPartnerHref: vi.fn(async () => '/partner/setup') }));
 vi.mock('@/lib/audit/readOnlyPortalAudit', () => ({ isReadOnlyPortalAuditHeader: vi.fn(() => false) }));
@@ -24,9 +25,17 @@ vi.mock('@/lib/messages/counselorThread', () => ({ serializeMessage: vi.fn((mess
 vi.mock('@/components/portal/PortalPageFrame', () => ({
   default: ({ children }: { children: React.ReactNode }) => <main>{children}</main>,
 }));
+vi.mock('@/components/portal/PageHeader', () => ({
+  default: ({ title }: { title: string }) => <h1>{title}</h1>,
+}));
 vi.mock('@/components/portal/kit', () => ({
   DesignSurface: ({ children }: { children: React.ReactNode }) => <section>{children}</section>,
-  SectionHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
+  KitEmptyState: ({ title, description }: { title: string; description?: string }) => (
+    <div data-testid="kit-empty-state">
+      <h3>{title}</h3>
+      {description ? <p>{description}</p> : null}
+    </div>
+  ),
   Avatar: () => <span>WA</span>,
 }));
 vi.mock('@/components/portal/PortalTeamChatClient', () => ({

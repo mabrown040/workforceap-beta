@@ -11,21 +11,21 @@ import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import { getOrCreatePartnerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 import { ChevronRight } from 'lucide-react';
-import { DesignSurface, SectionHeader, Avatar } from '@/components/portal/kit';
+import { DesignSurface, Avatar, KitEmptyState } from '@/components/portal/kit';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { resolveAuthorizedPartnerMessageMember } from '@/lib/messages/contextSelection';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-    title: 'Messages',
-    description: 'Message the WorkforceAP team.',
+    title: t('messages'),
+    description: t('messagesMetaDescription'),
     path: '/partner/messages',
   });
 }
-
-const MESSAGES_SUBTITLE =
-  'Direct line to your WorkforceAP partnership team — referrals, milestones, and resources.';
 
 type Props = {
   searchParams?: Promise<{ memberId?: string | string[] }>;
@@ -38,6 +38,7 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
   const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
   const query = await searchParams;
   const [thread, permittedReferrals] = await Promise.all([
@@ -61,15 +62,17 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
     permittedReferrals.map((referral) => referral.member),
     query?.memberId,
   );
+
+  const header = <PageHeader title={t('messages')} subtitle={t('messagesSubtitle')} />;
+
   if (!thread) {
     return (
       <PortalPageFrame maxWidth="80rem">
         {readOnlyAudit && <span hidden data-portal-audit-suppressed="partner-message-thread-provisioning" />}
         <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
-          <SectionHeader kicker="Partner Portal" title="Messages" goal={MESSAGES_SUBTITLE} />
+          {header}
           <div className="wa-kit-card">
-            <h2 style={{ marginTop: 0 }}>No messages yet</h2>
-            <p style={{ marginBottom: 0 }}>Your WorkforceAP partnership conversation will appear here after the first message.</p>
+            <KitEmptyState title={t('noMessagesYetTitle')} description={t('noMessagesYetDescription')} />
           </div>
         </DesignSurface>
       </PortalPageFrame>
@@ -81,9 +84,9 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
       <PortalPageFrame maxWidth="80rem">
         <span hidden data-portal-audit-suppressed="partner-message-read-receipt-realtime-and-content" />
         <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
-          <SectionHeader kicker="Partner Portal" title="Messages" goal={MESSAGES_SUBTITLE} />
+          {header}
           <div className="wa-kit-card">
-            Messaging access is available. Message content, read receipts, and realtime sync are paused for this audit.
+            <KitEmptyState title={t('messages')} description={t('messagesAuditPaused')} />
           </div>
         </DesignSurface>
       </PortalPageFrame>
@@ -100,12 +103,12 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
   const serializedMessages = messages.reverse().map(serializeMessage);
   const last = serializedMessages[serializedMessages.length - 1] as { body?: string } | undefined;
   const previewText =
-    serializedMessages.length > 0 ? last?.body ?? 'No messages yet' : 'No messages yet — ask us anything';
+    serializedMessages.length > 0 ? last?.body ?? t('noMessagesYetTitle') : t('noMessagesYetTitle');
 
   return (
     <PortalPageFrame maxWidth="80rem">
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
-        <SectionHeader kicker="Partner Portal" title="Messages" goal={MESSAGES_SUBTITLE} />
+        {header}
 
         <div className="wa-max-w-full wa-overflow-x-hidden wa-pb-24 md:wa-overflow-x-visible md:wa-pb-0">
           <div className="wa-mb-4 md:wa-hidden">

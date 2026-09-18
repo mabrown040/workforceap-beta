@@ -14999,25 +14999,44 @@
     "localReferences": [
       {
         "file": "app/(portal)/partner/messages/page.tsx",
-        "line": 51
+        "line": 60
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 52
+        "line": 61
       },
       {
         "file": "lib/auth/roles.ts",
-        "line": 53
+        "line": 62
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 54
+        "line": 63
       },
       {
         "file": "lib/messages/portalThreads.ts",
-        "line": 55
+        "line": 64
       }
     ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/app/partner-pageheader-kit.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
     "kind": "test-candidate",
     "declaredRunners": [
       {

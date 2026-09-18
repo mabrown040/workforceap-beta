@@ -8,6 +8,7 @@ import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
 import { Award, CheckCircle2, Clock, GraduationCap, Trophy, Users } from 'lucide-react';
 import {
@@ -108,10 +109,9 @@ export default async function PartnerOutcomesPage() {
   return (
     <PortalPageFrame maxWidth="80rem">
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
-        <SectionHeader
-          kicker={t('partnerDashboard')}
+        <PageHeader
           title={t('outcomesSnapshotTitle')}
-          goal={t('quickCountsFor', { partnerName: ctx.partner.name })}
+          subtitle={t('quickCountsFor', { partnerName: ctx.partner.name })}
           action={
             <a href="/partner" style={overviewLinkStyle} className="wa-kit-focus">
               {t('partnerOverviewBtn')}

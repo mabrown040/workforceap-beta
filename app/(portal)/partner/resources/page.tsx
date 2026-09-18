@@ -7,14 +7,17 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 import { BookOpen, CircleHelp, Mail, Route } from 'lucide-react';
-import { DesignSurface, SectionHeader, CardHead, FeatureTile } from '@/components/portal/kit';
+import { DesignSurface, CardHead, FeatureTile } from '@/components/portal/kit';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-    title: 'Partner resources',
-    description: 'Links and contacts for partner organizations.',
+    title: t('resourcesTitle'),
+    description: t('resourcesGoal', { partnerName: 'partners' }),
     path: '/partner/resources',
   });
 }
@@ -28,14 +31,14 @@ const PUBLIC_LINKS: {
 }[] = [
   {
     href: '/programs',
-    label: 'Training Programs',
+    label: 'Training programs',
     desc: 'Certificates and pathways we offer.',
     icon: <BookOpen size={22} aria-hidden />,
     tone: 'crimson',
   },
   {
     href: '/how-it-works',
-    label: 'How It Works',
+    label: 'How it works',
     desc: 'Timeline from application to job search support.',
     icon: <Route size={22} aria-hidden />,
     tone: 'gold',
@@ -63,6 +66,8 @@ export default async function PartnerResourcesPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
+
   const partner = await prisma.partner.findUnique({
     where: { id: ctx.partnerId },
     select: { contactName: true, contactEmail: true, contactPhone: true },
@@ -73,10 +78,9 @@ export default async function PartnerResourcesPage() {
   return (
     <PortalPageFrame maxWidth="80rem">
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
-        <SectionHeader
-          kicker="Partner Portal"
-          title="Resources"
-          goal={`Quick links for ${ctx.partner.name} and your internal team.`}
+        <PageHeader
+          title={t('resourcesTitle')}
+          subtitle={t('resourcesGoal', { partnerName: ctx.partner.name })}
         />
 
         {hasContact ? (

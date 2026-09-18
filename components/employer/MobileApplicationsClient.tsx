@@ -178,7 +178,7 @@ export default function MobileApplicationsClient({
                 {/* Card header — tap to expand */}
                 <button type="button"
                   style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'flex-start', background: 'none', border: 'none', cursor: 'pointer' }}
-                  aria-expanded={isExpanded} aria-label={isExpanded ? `Collapse details for ${studentName}` : `Expand details for ${studentName}`} onClick={() => {
+                  aria-expanded={isExpanded} aria-controls={`application-details-${app.id}`} aria-label={isExpanded ? `Collapse details for ${studentName}` : `Expand details for ${studentName}`} onClick={() => {
                     const nextExpanded = isExpanded ? null : app.id;
                     setExpandedId(nextExpanded);
                     if (nextExpanded !== app.id && openChatId === app.id) {
@@ -219,7 +219,7 @@ export default function MobileApplicationsClient({
 
                 {/* Expandable detail */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--surface-container)' }}>
+                  <div id={`application-details-${app.id}`} className="px-4 pb-4 border-t" style={{ borderColor: 'var(--surface-container)' }}>
                     <div className="pt-4 mb-4">
                       <p className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: 'var(--color-on-surface-variant)' }}>Email</p>
                       <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)' }}>{app.student.email}</p>

@@ -17,6 +17,9 @@ describe('Digital Literacy provider and completion truth', () => {
     assert.match(source, /Mark module complete in WorkforceAP/);
     assert.match(source, /does not verify DigitalLearn activity or issue a DigitalLearn certificate/);
     assert.match(source, /\/dashboard\/certifications/);
+    assert.match(source, /Back to my program/);
+    assert.match(source, /WorkforceApModuleNav/);
+    assert.match(source, /Use this module to build your resume/);
   });
 
   it('shows the same attribution and provider-progress boundary on the public program page', () => {

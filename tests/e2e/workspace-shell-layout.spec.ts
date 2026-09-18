@@ -71,9 +71,8 @@ test.describe('desktop WorkspaceShell layout', () => {
       await expect(selectedTheme).toHaveAttribute('tabindex', '0');
       await expect(signOut).toBeVisible();
 
-      await accountGroup.focus();
-      await page.keyboard.press('Enter');
       await expect(finalDestination).toBeVisible();
+      await accountGroup.focus();
       await page.keyboard.press('Tab');
       await expect(certificates).toBeFocused();
       await page.keyboard.press('Tab');

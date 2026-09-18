@@ -144,6 +144,7 @@ export default function WorkspaceShell({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
   const [badgeFetchError, setBadgeFetchError] = useState(false);
   const isCollapsedDesktop = collapsed && wide;
@@ -645,9 +646,13 @@ export default function WorkspaceShell({
                     <li key={group} className="workspace-sidebar-group">
                       {disclose ? (
                         <details
-                          key={`${group}:${activeHref}`}
+                          key={group}
                           className="workspace-sidebar-section"
-                          open={inGroup.some((item) => item.href === activeHref)}
+                          open={openSections[group] ?? true}
+                          onToggle={(event) => {
+                            const nextOpen = event.currentTarget.open;
+                            setOpenSections((current) => (current[group] === nextOpen ? current : { ...current, [group]: nextOpen }));
+                          }}
                         >
                           <summary className="workspace-sidebar-section-toggle">
                             <span>{memberGroupLabels[group] ?? translateLabel(groupLabel ?? group)}</span>

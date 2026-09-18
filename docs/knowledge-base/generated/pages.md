@@ -193,7 +193,7 @@
 | [app/(portal)/dashboard/learning/interest-profiler/page.tsx](../../../app/%28portal%29/dashboard/learning/interest-profiler/page.tsx) | 48 | learning-coursera | generateMetadata:10, default:19 |
 | [app/(portal)/dashboard/learning/labs/\[labId\]/page.tsx](../../../app/%28portal%29/dashboard/learning/labs/%5BlabId%5D/page.tsx) | 36 | learning-coursera | metadata:10, default:16 |
 | [app/(portal)/dashboard/learning/loading.tsx](../../../app/%28portal%29/dashboard/learning/loading.tsx) | 6 | learning-coursera | default:3 |
-| [app/(portal)/dashboard/learning/modules/\[courseSlug\]/page.tsx](../../../app/%28portal%29/dashboard/learning/modules/%5BcourseSlug%5D/page.tsx) | 248 | learning-coursera | metadata:13, default:50 |
+| [app/(portal)/dashboard/learning/modules/\[courseSlug\]/page.tsx](../../../app/%28portal%29/dashboard/learning/modules/%5BcourseSlug%5D/page.tsx) | 315 | learning-coursera | metadata:14, default:78 |
 | [app/(portal)/dashboard/learning/page.tsx](../../../app/%28portal%29/dashboard/learning/page.tsx) | 569 | learning-coursera | generateMetadata:27, default:43 |
 | [app/(portal)/dashboard/learning/wioa-qualification/loading.tsx](../../../app/%28portal%29/dashboard/learning/wioa-qualification/loading.tsx) | 6 | learning-coursera | default:3 |
 | [app/(portal)/dashboard/learning/wioa-qualification/page.tsx](../../../app/%28portal%29/dashboard/learning/wioa-qualification/page.tsx) | 76 | learning-coursera | generateMetadata:32, default:40 |
@@ -545,7 +545,7 @@
 | [app/dev/dashboard/page.tsx](../../../app/dev/dashboard/page.tsx) | 131 | member-counselor | dynamic:24, default:53 |
 | [app/dev/kit/layout.tsx](../../../app/dev/kit/layout.tsx) | 10 | pages | metadata:6, default:8 |
 | [app/dev/kit/page.tsx](../../../app/dev/kit/page.tsx) | 203 | pages | dynamic:30, default:189 |
-| [app/dev/member/DevMemberShell.tsx](../../../app/dev/member/DevMemberShell.tsx) | 87 | member-counselor | default:54 |
+| [app/dev/member/DevMemberShell.tsx](../../../app/dev/member/DevMemberShell.tsx) | 89 | member-counselor | default:55 |
 | [app/dev/member/assessment/page.tsx](../../../app/dev/member/assessment/page.tsx) | 123 | member-counselor | dynamic:17, default:19 |
 | [app/dev/member/benefits-cliff/page.tsx](../../../app/dev/member/benefits-cliff/page.tsx) | 21 | member-counselor | dynamic:8, default:10 |
 | [app/dev/member/career-business-coach/page.tsx](../../../app/dev/member/career-business-coach/page.tsx) | 14 | member-counselor | dynamic:8, default:10 |

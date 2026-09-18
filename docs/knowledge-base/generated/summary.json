@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "141259002ba8adcbad4607511c06fb04f7dafe3450b4b202ceb59fe51df84d1d",
+  "inputTreeSha256": "8c3b83e4e064255632a3f9e80a51e2b2134fd038f0f13cc4b6c4bbbede1f3561",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4519,
-    "sourceModules": 3196,
-    "importReferences": 15140,
-    "resolvedLocalReferences": 10106,
+    "files": 4520,
+    "sourceModules": 3197,
+    "importReferences": 15146,
+    "resolvedLocalReferences": 10110,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 654
+      "files": 655
     },
     {
       "area": "content",
@@ -289,12 +289,12 @@
       "lines": 1679
     },
     {
-      "file": "app/admin/coursera/page.tsx",
-      "lines": 1619
+      "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
+      "lines": 1642
     },
     {
-      "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
-      "lines": 1616
+      "file": "app/admin/coursera/page.tsx",
+      "lines": 1619
     },
     {
       "file": "scripts/audit-portal-routes.mjs",

@@ -53,9 +53,9 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   `PageOpener` labels use sentence case; keep intentional names such as
   “AI Career Tools” intact.
   Member rails use a 232px budget (208px on smaller laptops, 72px collapsed),
-  with daily destinations visible and secondary groups disclosed on demand.
-  The current route opens its group and only the most specific destination
-  receives `aria-current`. Staff rails use 240px and the shared desktop header
+  with daily destinations visible and secondary groups expanded by default so
+  every destination stays in view. Members can still collapse a group; only the
+  most specific destination receives `aria-current`. Staff rails use 240px and the shared desktop header
   uses a 68px minimum height. Destination lists scroll independently so appearance
   and language remain reachable at the foot of the expanded rail. Collapsing any
   rail hides its preference controls; expanding restores them. Appearance options

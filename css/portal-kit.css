@@ -767,6 +767,42 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-training-tools a > span { display: flex; flex: 1; flex-direction: column; gap: .25rem; }
 .wa-kit-training-tools a small { color: var(--wa-muted); font-size: var(--wa-type-meta); }
 .wa-kit-training-tools a svg { flex-shrink: 0; color: var(--wa-accent); }
+.wa-kit-training-stepnav { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: .75rem; align-items: center; margin-top: var(--wa-pad-sm); }
+.wa-kit-training-stepnav button { display: flex; align-items: flex-start; gap: .5rem; min-height: 2.75rem; padding: .5rem 0; border: 0; background: transparent; color: var(--wa-text); font: inherit; text-align: left; cursor: pointer; }
+.wa-kit-training-stepnav button span { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.wa-kit-training-stepnav button small { color: var(--wa-muted); font-size: var(--wa-type-meta); }
+.wa-kit-training-stepnav button strong { font-weight: 650; line-height: 1.35; }
+.wa-kit-training-stepnav button:hover strong { color: var(--wa-accent); text-decoration: underline; }
+.wa-kit-training-stepnav__next { justify-self: end; text-align: right; }
+.wa-kit-training-stepnav__next span { align-items: flex-end; }
+.wa-kit-training-stepnav__position { font-size: var(--wa-type-meta); color: var(--wa-muted); font-variant-numeric: tabular-nums; text-align: center; }
+.wa-kit-module-nav { display: flex; flex-direction: column; gap: .75rem; margin-bottom: var(--wa-pad); }
+.wa-kit-module-nav__program { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; width: fit-content; color: var(--wa-accent); font-weight: 650; text-decoration: none; }
+.wa-kit-module-nav__program:hover { text-decoration: underline; }
+.wa-kit-module-nav__position { margin: 0; color: var(--wa-muted); font-size: var(--wa-type-meta); font-variant-numeric: tabular-nums; }
+.wa-kit-module-nav__steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .75rem; }
+.wa-kit-module-nav__step { display: flex; align-items: center; gap: .5rem; min-height: 2.75rem; padding: .65rem .75rem; border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); background: var(--wa-surface); color: var(--wa-text); text-decoration: none; }
+.wa-kit-module-nav__step span { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.wa-kit-module-nav__step small { color: var(--wa-muted); font-size: var(--wa-type-meta); }
+.wa-kit-module-nav__step strong { font-weight: 650; line-height: 1.35; }
+.wa-kit-module-nav__step--next { justify-content: flex-end; text-align: right; }
+.wa-kit-module-nav__step--next span { align-items: flex-end; }
+.wa-kit-module-nav__step:hover strong { color: var(--wa-accent); text-decoration: underline; }
+.wa-kit-module-nav__step.is-placeholder { border-color: transparent; background: transparent; }
+.wa-kit-training-resume { display: flex; flex-direction: column; gap: .75rem; padding: var(--wa-pad-sm); border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); background: var(--wa-accent-soft); }
+.wa-kit-training-resume a { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 2.75rem; color: var(--wa-text); text-decoration: none; }
+.wa-kit-training-resume a strong { color: var(--wa-accent); }
+.wa-kit-training-resume a:hover strong { text-decoration: underline; }
+.wa-kit-tool-jumps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.wa-kit-tool-jump { display: flex; flex-direction: column; align-items: flex-start; gap: .35rem; min-height: 2.75rem; padding: .75rem; border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); background: var(--wa-surface); color: var(--wa-text); font: inherit; text-align: left; cursor: pointer; }
+.wa-kit-tool-jump span { color: var(--wa-muted); font-size: var(--wa-type-meta); line-height: 1.45; }
+.wa-kit-tool-jump.is-current { border-color: var(--wa-accent); background: var(--wa-accent-soft); }
+.wa-kit-tool-jump:hover strong { color: var(--wa-accent); }
+.wa-kit-tool-groups { display: flex; flex-wrap: wrap; gap: .5rem .75rem; }
+.wa-kit-tool-groups a { color: var(--wa-accent); font-weight: 650; min-height: 2.75rem; display: inline-flex; align-items: center; }
+@media (max-width: 700px) {
+  .wa-kit-tool-jumps { grid-template-columns: 1fr; }
+}
 .wa-kit-training-schedule { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: calc(var(--wa-pad) * 1.5); align-items: start; }
 .wa-kit-training-plan { padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); }
 .wa-kit-training-estimate { display: flex; flex-direction: column; gap: .25rem; padding-block: var(--wa-pad-sm); border-block: 1px solid var(--wa-border); }
@@ -797,4 +833,7 @@ html.dark [data-surface] .wa-kit-card,
   .wa-kit-training-tabs button { font-size: .875rem; }
   .wa-kit-training-tabs > span { flex-basis: 100%; margin: 0 0 .5rem; }
   .wa-kit-training-weeklist li { grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .wa-kit-training-stepnav, .wa-kit-module-nav__steps { grid-template-columns: 1fr; }
+  .wa-kit-training-stepnav__next, .wa-kit-module-nav__step--next { justify-self: stretch; text-align: left; }
+  .wa-kit-training-stepnav__next span, .wa-kit-module-nav__step--next span { align-items: flex-start; }
 }

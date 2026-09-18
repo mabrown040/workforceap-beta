@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, BookOpen, CalendarDays, Check, ChevronRight, Clock3, FileCheck2, GraduationCap, MessageCircle, Save } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, FileCheck2, GraduationCap, MessageCircle, Save } from 'lucide-react';
 import { Button } from '@astryxdesign/core/Button';
 import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { TextArea } from '@astryxdesign/core/TextArea';
@@ -16,6 +16,7 @@ import SkillMissionChallenge from '@/components/portal/SkillMissionChallenge';
 import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
 import { buildTrainingSchedule, isValidPlanDate, type TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 import { IT_SUPPORT_LAB_SCOPE, listPracticeLabsForAssignment } from '@/lib/content/itSupportLabs';
+import { isDigitalLiteracyResumeModule } from '@/shared/digitalLiteracyPathway';
 
 export type TrainingCourseDestination = { slug: string; launchHref?: string; moduleHref?: string };
 export interface MemberTrainingWorkspaceProps {
@@ -94,6 +95,12 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
   const validPace = Number.isInteger(pace) && pace >= 1 && pace <= 40;
   const weeks = validPace ? Math.ceil(hoursRemaining / pace) : 0;
   const finishDate = validPace && startDate && weeks ? addDays(startDate, weeks * 7 - 1) : null;
+  const selectedIndex = workspace.courses.findIndex((course) => course.slug === selectedSlug);
+  const previousCourse = selectedIndex > 0 ? workspace.courses[selectedIndex - 1] ?? null : null;
+  const nextAssignedCourse = selectedIndex >= 0 && selectedIndex < workspace.courses.length - 1
+    ? workspace.courses[selectedIndex + 1] ?? null
+    : null;
+  const resumeModule = selected ? isDigitalLiteracyResumeModule(workspace.programSlug, selected.slug) : false;
   const selectedDestination = destinations.find((course) => course.slug === selectedSlug);
   const selectedPractice = practiceMissions.find((row) => row.assignedCourseSlug === selectedSlug)?.mission;
   const selectedLabs = listPracticeLabsForAssignment({ programSlug: workspace.programSlug, curriculumVersion: workspace.curriculumVersion, courseSlug: selectedSlug });
@@ -233,7 +240,15 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
                 </VStack></section> : selectedDestination?.launchHref ? <VStack gap={2}>
                   <TrackedCourseraLaunchLink href={selectedDestination.launchHref} courseSlug={selected.slug} className="wa-kit-cta wa-kit-focus">{completed.has(selected.slug) ? 'Review course in Coursera' : 'Open course in Coursera'} <ArrowRight size={16} aria-hidden="true" /></TrackedCourseraLaunchLink>
                   <p className="wa-kit-training-muted">Opens in a new tab.{trainingEmail ? ` Use your training email: ${trainingEmail}.` : ' Use the training account assigned by your counselor.'}</p>
-                </VStack> : selectedDestination?.moduleHref ? <Link href={selectedDestination.moduleHref} className="wa-kit-cta wa-kit-focus">Open lessons and lab <ArrowRight size={16} aria-hidden="true" /></Link> : <p className="wa-kit-training-notice">Use this workspace for your assigned activities. Your counselor can provide the lesson or lab instructions. <Link href="/dashboard/messages">Ask your counselor</Link></p>}
+                </VStack> : selectedDestination?.moduleHref ? <Link href={selectedDestination.moduleHref} className="wa-kit-cta wa-kit-focus">{resumeModule ? 'Open resume and job-search lessons' : 'Open lessons and lab'} <ArrowRight size={16} aria-hidden="true" /></Link> : <p className="wa-kit-training-notice">Use this workspace for your assigned activities. Your counselor can provide the lesson or lab instructions. <Link href="/dashboard/messages">Ask your counselor</Link></p>}
+                {resumeModule ? <section className="wa-kit-training-resume" aria-label="Resume next steps">
+                  <VStack gap={2}>
+                    <h3>Build your resume next</h3>
+                    <p className="wa-kit-training-muted">Finish the DigitalLearn lessons, then create or upload your resume and improve it in Resume Studio.</p>
+                    <Link href="/dashboard/resume" className="wa-kit-focus"><span><strong>Build or upload your resume</strong><span className="wa-kit-training-muted">Keep the file you will attach to applications.</span></span><ArrowRight size={16} aria-hidden="true" /></Link>
+                    <Link href="/dashboard/ai-tools?tab=studio" className="wa-kit-focus"><span><strong>Open Resume Studio</strong><span className="wa-kit-training-muted">Score, fix, and rewrite bullets.</span></span><ArrowRight size={16} aria-hidden="true" /></Link>
+                  </VStack>
+                </section> : null}
 
                 {selectedPractice ? <section aria-label="Course skill practice">
                   <VStack gap={3}>
@@ -260,6 +275,21 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
                     <p className="wa-kit-training-muted">Saving work keeps your draft. It does not submit an assessment or mark the course complete.</p>
                   </VStack>
                 </form>
+                <nav className="wa-kit-training-stepnav" aria-label="Course sequence">
+                  {previousCourse ? (
+                    <button type="button" className="wa-kit-focus" onClick={() => selectCourse(previousCourse.slug)}>
+                      <ChevronLeft size={16} aria-hidden="true" />
+                      <span><small>Previous</small><strong>{previousCourse.name}</strong></span>
+                    </button>
+                  ) : <span />}
+                  <p className="wa-kit-training-stepnav__position">Course {selectedIndex + 1} of {workspace.courses.length}</p>
+                  {nextAssignedCourse ? (
+                    <button type="button" className="wa-kit-training-stepnav__next wa-kit-focus" onClick={() => selectCourse(nextAssignedCourse.slug)}>
+                      <span><small>Next</small><strong>{nextAssignedCourse.name}</strong></span>
+                      <ChevronRight size={16} aria-hidden="true" />
+                    </button>
+                  ) : <span />}
+                </nav>
                 <footer className="wa-kit-training-tools">
                   <h3>Put this learning to work</h3>
                   <Link href="/dashboard/missions"><FileCheck2 size={18} aria-hidden="true" /><span><strong>Practice with Skill Missions</strong><small>Apply your skills and get feedback.</small></span><ArrowRight size={16} aria-hidden="true" /></Link>

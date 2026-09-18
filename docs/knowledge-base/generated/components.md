@@ -289,7 +289,7 @@
 | [components/portal/CourseraProgressCard.test.tsx](../../../components/portal/CourseraProgressCard.test.tsx) | 54 | learning-coursera |  |
 | [components/portal/CourseraProgressCard.tsx](../../../components/portal/CourseraProgressCard.tsx) | 231 | learning-coursera | default:61 |
 | [components/portal/CourseraProgressCardView.tsx](../../../components/portal/CourseraProgressCardView.tsx) | 346 | learning-coursera | CourseraProgressRow:6, CourseraProgressCardViewProps:33, default:110 |
-| [components/portal/DashboardFooter.tsx](../../../components/portal/DashboardFooter.tsx) | 40 | components | default:7 |
+| [components/portal/DashboardFooter.tsx](../../../components/portal/DashboardFooter.tsx) | 41 | components | default:7 |
 | [components/portal/DashboardHomeClient.tsx](../../../components/portal/DashboardHomeClient.tsx) | 800 | components | DashboardApplicationStatusProps:25, default:81 |
 | [components/portal/DashboardPageErrorBoundary.tsx](../../../components/portal/DashboardPageErrorBoundary.tsx) | 54 | components | default:15 |
 | [components/portal/DashboardProfileForm.test.tsx](../../../components/portal/DashboardProfileForm.test.tsx) | 137 | components |  |
@@ -443,7 +443,8 @@
 | [components/portal/WioaQualificationClient.tsx](../../../components/portal/WioaQualificationClient.tsx) | 546 | partners-funding | default:50 |
 | [components/portal/WorkforceApModuleCompleteButton.test.tsx](../../../components/portal/WorkforceApModuleCompleteButton.test.tsx) | 57 | components |  |
 | [components/portal/WorkforceApModuleCompleteButton.tsx](../../../components/portal/WorkforceApModuleCompleteButton.tsx) | 63 | components | default:6 |
-| [components/portal/WorkspaceShell.tsx](../../../components/portal/WorkspaceShell.tsx) | 715 | components | default:48 |
+| [components/portal/WorkforceApModuleNav.tsx](../../../components/portal/WorkforceApModuleNav.tsx) | 50 | components | WorkforceApModuleNav:4 |
+| [components/portal/WorkspaceShell.tsx](../../../components/portal/WorkspaceShell.tsx) | 720 | components | default:48 |
 | [components/portal/YouthDashboardNotice.tsx](../../../components/portal/YouthDashboardNotice.tsx) | 123 | components | default:4 |
 | [components/portal/counselor/AtRiskDashboard.tsx](../../../components/portal/counselor/AtRiskDashboard.tsx) | 1045 | member-counselor | AtRiskFactor:49, AtRiskMember:55, AtRiskDashboardViewProps:180, AtRiskDashboardView:195, default:721 |
 | [components/portal/counselor/AtRiskDetailModal.tsx](../../../components/portal/counselor/AtRiskDetailModal.tsx) | 547 | member-counselor | default:70 |
@@ -504,7 +505,7 @@
 | [components/portal/kit/index.ts](../../../components/portal/kit/index.ts) | 49 | components | DesignSurface:14, useSurface:14, SurfaceMode:14, cx:15, KitBaseProps:15, KitDataAttrs:15, useFocusTrap:16, getFocusable:16, FocusTrapOptions:16, useListFocus:17, LIST_ITEM_ATTR:17, ListFocusOptions:17, useAnnounce:18, announce:18, StatTile:19, KpiStrip:20, KpiItem:20, StatusTag:21, JobListingRow:22, JobListingRowSkeleton:22, KitEmptyState:23, SectionHeader:24, PageOpener:25, ProgressRing:26, ProgressBar:27, Avatar:28, DataTable:29, Column:29, FeatureTile:30, QueueRow:31, QueueTone:31, WorkQueueItem:32, KanbanBoard:33, KanbanColumnHeader:33, KanbanColumnData:33, KanbanCardData:33, BarChartMini:34, RankBars:34, Sparkline:34, AreaChartMini:34, ChartDatum:34, RankDatum:34, CardHead:36, DeltaChip:37, StatSparkTile:38, StageTrack:39, SegmentedProgress:40, SparkStat:41, FormField:43, Toggle:43, ChatThread:44, ChatMessage:44, AppShellSidebar:45, NavItem:45, NavGroup:45, AppShellMember:46, MemberTab:46, UniversalSearch:47, MemberDashboardKit:48, MemberDashboardKitProps:48, colorVar:49, KitColor:49, KitTone:49 |
 | [components/portal/kit/pages/PartnerOverviewKit.module.css](../../../components/portal/kit/pages/PartnerOverviewKit.module.css) | 20 | components |  |
 | [components/portal/kit/pages/PartnerOverviewKit.tsx](../../../components/portal/kit/pages/PartnerOverviewKit.tsx) | 268 | components | PartnerKpiTile:37, PartnerKpiGrid:54, PartnerFunnelStage:77, PartnerReferralFunnel:85, PartnerPayoutLedgerRow:101, PartnerPayoutLedger:112, PartnerAttentionCard:142, PartnerAssistantAccordion:167, PartnerQuickAction:207, PartnerQuickActions:227 |
-| [components/portal/kit/pages/VoiceStudioKit.tsx](../../../components/portal/kit/pages/VoiceStudioKit.tsx) | 1616 | components | VoiceStudioAgentKey:75, VOICE_STUDIO_AGENT_KEYS:76, SessionAgentConfig:83, ResumeStudioIssue:169, ResumeStudioData:170, VoiceStudioKitProps:179, VoiceStudioKit:198 |
+| [components/portal/kit/pages/VoiceStudioKit.tsx](../../../components/portal/kit/pages/VoiceStudioKit.tsx) | 1642 | components | VoiceStudioAgentKey:75, VOICE_STUDIO_AGENT_KEYS:76, SessionAgentConfig:83, ResumeStudioIssue:174, ResumeStudioData:175, VoiceStudioKitProps:184, VoiceStudioKit:203 |
 | [components/portal/kit/pages/admin-subviews/AdminDashboardKit.tsx](../../../components/portal/kit/pages/admin-subviews/AdminDashboardKit.tsx) | 370 | components | AdminDashboardFunnel:65, AdminDashboardTrendPoint:73, AdminDashboardSummary:78, AdminDashboardWorkItem:96, AdminDashboardKitProps:105, AdminDashboardKit:124, default:370 |
 | [components/portal/kit/pages/admin-subviews/AgentInboxKit.tsx](../../../components/portal/kit/pages/admin-subviews/AgentInboxKit.tsx) | 225 | components | AgentInboxRow:32, AgentInboxKitProps:50, AgentInboxKit:62 |
 | [components/portal/kit/pages/admin-subviews/AiEfficacyKit.tsx](../../../components/portal/kit/pages/admin-subviews/AiEfficacyKit.tsx) | 118 | components | AiEfficacyKitProps:20, AiEfficacyKit:48 |
@@ -580,7 +581,7 @@
 | [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 352 | member-counselor | MemberProgramKitProps:29, MemberProgramKit:90 |
 | [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |
-| [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 280 | member-counselor | TrainingCourseDestination:20, MemberTrainingWorkspaceProps:21, MemberTrainingWorkspace:46 |
+| [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 310 | member-counselor | TrainingCourseDestination:21, MemberTrainingWorkspaceProps:22, MemberTrainingWorkspace:47 |
 | [components/portal/kit/pages/member/ResumeRewriterKit.tsx](../../../components/portal/kit/pages/member/ResumeRewriterKit.tsx) | 55 | member-counselor | ResumeRewriterKit:15 |
 | [components/portal/kit/pages/member/ResumeStrengthKit.tsx](../../../components/portal/kit/pages/member/ResumeStrengthKit.tsx) | 50 | member-counselor | ResumeStrengthKit:16 |
 | [components/portal/kit/pages/member/ResumeStudioKit.tsx](../../../components/portal/kit/pages/member/ResumeStudioKit.tsx) | 63 | member-counselor | ResumeStudioKit:16 |

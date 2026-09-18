@@ -7608,6 +7608,14 @@
     "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
   },
   {
+    "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
+    "specifier": "@/components/portal/WorkforceApModuleNav",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApModuleNav.tsx"
+  },
+  {
     "from": "app/(portal)/dashboard/learning/page.tsx",
     "specifier": "next",
     "line": 1,
@@ -62561,8 +62569,16 @@
   },
   {
     "from": "app/dev/member/DevMemberShell.tsx",
-    "specifier": "@/lib/nav/portalNav",
+    "specifier": "@/components/portal/DashboardFooter",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/DashboardFooter.tsx"
+  },
+  {
+    "from": "app/dev/member/DevMemberShell.tsx",
+    "specifier": "@/lib/nav/portalNav",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/nav/portalNav.ts"
@@ -62570,7 +62586,7 @@
   {
     "from": "app/dev/member/DevMemberShell.tsx",
     "specifier": "@/lib/nav/workspaceCopy",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/nav/workspaceCopy.ts"
@@ -76416,6 +76432,22 @@
     "package": "next"
   },
   {
+    "from": "components/portal/WorkforceApModuleNav.tsx",
+    "specifier": "next/link",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/WorkforceApModuleNav.tsx",
+    "specifier": "lucide-react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "lucide-react"
+  },
+  {
     "from": "components/portal/WorkspaceShell.tsx",
     "specifier": "next/image",
     "line": 3,
@@ -78626,7 +78658,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 698,
+    "line": 717,
     "kind": "dynamic-import",
     "external": true,
     "package": "@elevenlabs/client"
@@ -81758,6 +81790,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/content/itSupportLabs.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
   },
   {
     "from": "components/portal/kit/pages/member/ResumeRewriterKit.tsx",
@@ -117158,6 +117198,14 @@
     "kind": "type",
     "external": false,
     "target": "lib/member/trainingCoursePractice.ts"
+  },
+  {
+    "from": "tests/components/member-training-workspace.test.tsx",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
   },
   {
     "from": "tests/components/mfa-status-banner.spec.tsx",

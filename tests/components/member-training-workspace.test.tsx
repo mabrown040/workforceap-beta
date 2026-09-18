@@ -5,6 +5,7 @@ import { MemberTrainingWorkspace } from '@/components/portal/kit/pages/member/Me
 import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 import { PROGRAM_SYLLABI } from '@/shared/programSyllabi';
 import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
+import { DIGITAL_LITERACY_PROGRAM_SLUG, DIGITAL_LITERACY_PROGRAM_TITLE, digitalLiteracyCatalogCourses } from '@/shared/digitalLiteracyPathway';
 
 // This is the server action called by the real Coursera launch link. Keep the
 // actual link, form controls, kit components, and workspace behavior mounted.
@@ -213,6 +214,47 @@ describe('member training workspace', () => {
       weeklyHours: 40, planStartDate: '2026-09-09',
     });
     expect(screen.getByText('Saved pace · adjust it whenever your week changes.')).toBeInTheDocument();
+  });
+
+  it('keeps the Digital Literacy resume module in the visible course list with a next-step path', async () => {
+    const courses = digitalLiteracyCatalogCourses();
+    const workspace: TrainingWorkspace = {
+      programSlug: DIGITAL_LITERACY_PROGRAM_SLUG,
+      programTitle: DIGITAL_LITERACY_PROGRAM_TITLE,
+      curriculumVersion: 'legacy-v1',
+      weeklyHours: null,
+      planStartDate: null,
+      planUpdatedAt: null,
+      totalEstimatedHours: courses.reduce((sum, course) => sum + course.estimatedHours, 0),
+      publishedSyllabusHours: courses.reduce((sum, course) => sum + course.estimatedHours, 0),
+      courses: courses.map((course) => ({
+        slug: course.slug,
+        name: course.name,
+        estimatedHours: course.estimatedHours,
+        description: course.description,
+        kind: 'workforceap',
+        notes: '',
+        artifactUrl: null,
+        updatedAt: null,
+      })),
+    };
+    render(<MemberTrainingWorkspace workspace={workspace} programTitle={workspace.programTitle}
+      completedSlugs={[]} syllabusHours={workspace.publishedSyllabusHours}
+      destinations={courses.map((course) => ({
+        slug: course.slug,
+        moduleHref: `/dashboard/learning/modules/${course.slug}?program=${DIGITAL_LITERACY_PROGRAM_SLUG}`,
+      }))} />);
+
+    for (const course of courses) expect(within(outline()).getByText(course.name)).toBeInTheDocument();
+    await userEvent.click(within(outline()).getByText('Online Job Searching and Applications').closest('button')!);
+    expect(within(editor()).getByRole('link', { name: /Open resume and job-search lessons/ })).toHaveAttribute(
+      'href',
+      `/dashboard/learning/modules/${courses[9].slug}?program=${DIGITAL_LITERACY_PROGRAM_SLUG}`,
+    );
+    expect(within(editor()).getByRole('link', { name: /Build or upload your resume/ })).toHaveAttribute('href', '/dashboard/resume');
+    expect(within(editor()).getByRole('link', { name: /Open Resume Studio/ })).toHaveAttribute('href', '/dashboard/ai-tools?tab=studio');
+    await userEvent.click(within(editor()).getByRole('button', { name: /Previous/ }));
+    expect(within(editor()).getByRole('heading', { level: 2, name: 'Microsoft Word Basics' })).toBeInTheDocument();
   });
 
   it('uses the assigned Coursera and internal lesson destinations', async () => {

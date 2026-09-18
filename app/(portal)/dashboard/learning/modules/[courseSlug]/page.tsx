@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { BookOpen, BriefcaseBusiness, MessageCircle, Mic2 } from 'lucide-react';
+import { BookOpen, BriefcaseBusiness, MessageCircle, Mic2, Sparkles } from 'lucide-react';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { programSlugReadCandidates, programSlugsEquivalent } from '@/lib/content/programSlug';
-import { resolveWorkforceApModule } from '@/lib/content/workforceApModule';
-import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
+import { getWorkforceApModuleNeighbors, resolveWorkforceApModule, workforceApModuleHref } from '@/lib/content/workforceApModule';
+import { DIGITAL_LITERACY_PROGRAM_SLUG, isDigitalLiteracyResumeModule } from '@/shared/digitalLiteracyPathway';
 import { DesignSurface, PageOpener, StatusTag } from '@/components/portal/kit';
 import WorkforceApModuleCompleteButton from '@/components/portal/WorkforceApModuleCompleteButton';
+import { WorkforceApModuleNav } from '@/components/portal/WorkforceApModuleNav';
 
 export const metadata: Metadata = {
   title: 'WorkforceAP Lab',
@@ -43,6 +44,33 @@ const LAB_ACTIONS = [
     href: '/dashboard/messages',
     title: 'Ask for feedback',
     detail: 'Send your counselor the artifact or question before you finish.',
+    icon: MessageCircle,
+  },
+] as const;
+
+const RESUME_MODULE_ACTIONS = [
+  {
+    href: '/dashboard/resume',
+    title: '1. Build or upload your resume',
+    detail: 'Create a WorkforceAP resume or add the file you already have.',
+    icon: BriefcaseBusiness,
+  },
+  {
+    href: '/dashboard/ai-tools?tab=studio',
+    title: '2. Improve it in Resume Studio',
+    detail: 'Get an instant structure score, top fixes, and a rewrite.',
+    icon: Sparkles,
+  },
+  {
+    href: '/dashboard/jobs',
+    title: '3. Practice applying',
+    detail: 'Use your resume on the job board after you finish the DigitalLearn lessons.',
+    icon: BookOpen,
+  },
+  {
+    href: '/dashboard/messages',
+    title: 'Ask for feedback',
+    detail: 'Send your counselor a question about this resume or application.',
     icon: MessageCircle,
   },
 ] as const;
@@ -88,6 +116,34 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
     courseSlug,
   });
   if (!course) notFound();
+  const sequence = getWorkforceApModuleNeighbors({
+    programSlug: resolvedProgramSlug,
+    curriculumVersion,
+    courseSlug,
+  });
+  const resumeModule = isDigitalLiteracyResumeModule(resolvedProgramSlug, courseSlug);
+  const followUpActions = resumeModule ? RESUME_MODULE_ACTIONS : LAB_ACTIONS;
+  const programHref = `/dashboard/program?course=${encodeURIComponent(courseSlug)}`;
+  const moduleNav = (
+    <WorkforceApModuleNav
+      programHref={programHref}
+      positionLabel={
+        sequence.index >= 0
+          ? `Module ${sequence.index + 1} of ${sequence.modules.length}`
+          : 'WorkforceAP module'
+      }
+      previous={
+        sequence.previous
+          ? { href: workforceApModuleHref(resolvedProgramSlug, sequence.previous.slug), name: sequence.previous.name }
+          : null
+      }
+      next={
+        sequence.next
+          ? { href: workforceApModuleHref(resolvedProgramSlug, sequence.next.slug), name: sequence.next.name }
+          : null
+      }
+    />
+  );
 
   const hasLessons = Boolean(course.lessons && course.lessons.length > 0);
   const lessonMinutes = (course.lessons ?? []).reduce((sum, lesson) => sum + lesson.minutes, 0);
@@ -105,6 +161,7 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
   return (
     <DesignSurface surface="warm">
       <main style={{ maxWidth: 960, margin: '0 auto', padding: 'var(--wa-pad-sm)', paddingBottom: '5rem' }}>
+        {moduleNav}
         <PageOpener
           kicker={hasLessons ? `${course.provider?.name ?? 'WorkforceAP'} module` : 'WorkforceAP applied lab'}
           title={course.name}
@@ -208,14 +265,22 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
         ) : null}
 
         <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>{hasLessons ? 'Keep your learning moving' : 'Complete the applied work'}</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>
+            {resumeModule
+              ? 'Use this module to build your resume'
+              : hasLessons
+                ? 'Keep your learning moving'
+                : 'Complete the applied work'}
+          </h2>
           <p style={{ margin: '8px 0 20px', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
-            {hasLessons
-              ? 'Use these optional WorkforceAP tools to practice, document, and discuss what you learned.'
-              : 'Work through these portal tools, keep your project evidence, and mark the lab complete when your required work is finished.'}
+            {resumeModule
+              ? 'Finish the DigitalLearn lessons first. Then upload or build your resume here, improve it in Resume Studio, and practice applying.'
+              : hasLessons
+                ? 'Use these optional WorkforceAP tools to practice, document, and discuss what you learned.'
+                : 'Work through these portal tools, keep your project evidence, and mark the lab complete when your required work is finished.'}
           </p>
           <div style={{ display: 'grid', gap: 12 }}>
-            {LAB_ACTIONS.map(({ href, title, detail, icon: Icon }) => (
+            {followUpActions.map(({ href, title, detail, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
@@ -240,8 +305,10 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
             label={hasLessons ? 'Mark module complete in WorkforceAP' : 'Mark lab complete'}
             completedLabel={hasLessons ? 'Completed in WorkforceAP' : 'Completed'}
           />
-          <Link href="/dashboard/learning" className="btn btn-outline">Back to Learning Hub</Link>
+          <Link href={programHref} className="btn btn-outline">Back to my program</Link>
+          <Link href="/dashboard/learning" className="btn btn-ghost">Learning Hub</Link>
         </div>
+        {moduleNav}
       </main>
     </DesignSurface>
   );

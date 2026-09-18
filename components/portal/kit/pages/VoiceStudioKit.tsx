@@ -159,10 +159,15 @@ const TOOL_HREF = {
 } as const;
 
 const TABS: Array<{ id: StudioTab; label: string }> = [
-  { id: 'coaches', label: 'Coaches' },
-  { id: 'session', label: 'Practice' },
-  { id: 'studio', label: 'Resume' },
-  { id: 'toolkit', label: 'All Tools' },
+  { id: 'coaches', label: 'Voice coaches' },
+  { id: 'session', label: 'Live practice' },
+  { id: 'studio', label: 'Resume studio' },
+  { id: 'toolkit', label: 'All tools' },
+];
+const TOOL_JUMPS: Array<{ id: StudioTab; label: string; detail: string }> = [
+  { id: 'coaches', label: 'Talk with a coach', detail: 'Spoken help for your next step' },
+  { id: 'studio', label: 'Work on your resume', detail: 'Score, fix, and rewrite' },
+  { id: 'toolkit', label: 'Browse every tool', detail: 'Cover letters, interviews, and more' },
 ];
 
 /** Real, instant structural-read data for the Resume Studio tab. */
@@ -256,14 +261,28 @@ export function VoiceStudioKit({
         <PageOpener
           kicker="Career studio"
           title="AI Career Tools"
-          lede="Voice coaches and the AI toolkit."
+          lede="Pick a voice coach, work on your resume, or open any tool. Every destination is one tap away."
           icon={<AudioLines size={13} aria-hidden="true" />}
         />
+        <nav aria-label="AI Career Tools shortcuts" className="wa-kit-tool-jumps">
+          {TOOL_JUMPS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`wa-kit-tool-jump wa-kit-focus${tab === item.id ? ' is-current' : ''}`}
+              aria-current={tab === item.id ? 'page' : undefined}
+              onClick={() => selectTab(item.id)}
+            >
+              <strong>{item.label}</strong>
+              <span>{item.detail}</span>
+            </button>
+          ))}
+        </nav>
         <div className="wa-page-tabs">
           <SegmentedControl
             value={tab}
             onChange={(v) => selectTab(v as StudioTab)}
-            label="Voice studio sections"
+            label="AI Career Tools sections"
             size="sm"
             layout="hug"
           >
@@ -383,7 +402,7 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div className="wa-flex wa-items-center wa-justify-between wa-flex-wrap" style={{ gap: 12 }}>
         <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0, maxWidth: '42rem' }}>
-          Real-time spoken coaching. Your program context is included automatically.
+          Start with a spoken coach, or skip ahead to Resume Studio and the full toolkit. Your program context is included automatically.
         </p>
         <HStack
           gap={2}
@@ -1500,11 +1519,18 @@ function ToolkitPanel() {
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0 }}>
-        {toolCount} tools. Work top to bottom.
+        {toolCount} tools. Jump to a group or work top to bottom.
       </p>
+      <nav aria-label="Tool groups" className="wa-kit-tool-groups">
+        {TOOLKIT_STEPS.map((step) => (
+          <a key={step.n} href={`#ai-tool-step-${step.n}`} className="wa-kit-focus">
+            {step.n}. {step.title}
+          </a>
+        ))}
+      </nav>
 
       {TOOLKIT_STEPS.map((step) => (
-        <div key={step.n}>
+        <div key={step.n} id={`ai-tool-step-${step.n}`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <span
               style={{

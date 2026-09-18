@@ -15214,6 +15214,10 @@
       {
         "file": "lib/member/trainingCoursePractice.ts",
         "line": 7
+      },
+      {
+        "file": "shared/digitalLiteracyPathway.ts",
+        "line": 8
       }
     ],
     "kind": "test-candidate",

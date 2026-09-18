@@ -15,8 +15,8 @@
 | [css/marketing.css](../../../css/marketing.css) | 1498 | styles |  |
 | [css/mobile-dashboard-fixes.css](../../../css/mobile-dashboard-fixes.css) | 160 | styles |  |
 | [css/portal-a11y.css](../../../css/portal-a11y.css) | 33 | styles |  |
-| [css/portal-kit.css](../../../css/portal-kit.css) | 800 | styles |  |
-| [css/portal-main-extracted.css](../../../css/portal-main-extracted.css) | 9923 | styles |  |
+| [css/portal-kit.css](../../../css/portal-kit.css) | 839 | styles |  |
+| [css/portal-main-extracted.css](../../../css/portal-main-extracted.css) | 9934 | styles |  |
 | [css/portal-tokens.css](../../../css/portal-tokens.css) | 248 | styles |  |
 | [css/portal-ui-kit.css](../../../css/portal-ui-kit.css) | 268 | styles |  |
 | [css/portal.css](../../../css/portal.css) | 3329 | styles |  |

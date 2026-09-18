@@ -67,6 +67,8 @@ describe('workspace navigation', () => {
     expect(css).toMatch(/\.workspace-shell-main \{[\s\S]*?flex: 1 1 auto;[\s\S]*?width: auto;[\s\S]*?height: 100%;[\s\S]*?min-height: 0;[\s\S]*?overflow: auto;/);
     expect(css).toMatch(/\.workspace-sidebar \{[\s\S]*?align-self: stretch;[\s\S]*?height: 100%;[\s\S]*?overflow-y: hidden;/);
     expect(css).toMatch(/\.workspace-sidebar-nav \{[\s\S]*?min-height: 0;[\s\S]*?overflow-y: auto;/);
+    expect(css).toMatch(/\.workspace-shell-main--stack \{[\s\S]*?min-height: 100%;/);
+    expect(css).toMatch(/\.workspace-shell-main--stack > \.workspace-shell-main-inner \{[\s\S]*?flex: 1 0 auto;/);
     expect(css).toMatch(/@media \(max-height: 40rem\)[\s\S]*?\.workspace-shell-root\[data-workspace-role\] \.workspace-sidebar \{[\s\S]*?overflow-y: auto;/);
   });
 
@@ -85,13 +87,15 @@ describe('workspace navigation', () => {
     expect(container.querySelectorAll('.workspace-sidebar [aria-current="page"]')).toHaveLength(1);
   });
 
-  it('opens the section containing the active route and keeps other groups quiet', () => {
+  it('shows every secondary group so destinations stay visible', () => {
     location.pathname = '/dashboard/assessment';
     const { container } = show();
     const groups = [...container.querySelectorAll('details')];
     expect(groups).toHaveLength(3);
-    expect(groups.filter((group) => group.open)).toHaveLength(1);
-    expect(groups.find((group) => group.open)).toHaveTextContent('Training preassessment');
+    expect(groups.every((group) => group.open)).toBe(true);
+    expect(screen.getByRole('link', { name: 'Training preassessment' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'AI Career Tools' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Profile' })).toBeVisible();
   });
 
   it('keeps every distinct member destination reachable through the disclosures', () => {
@@ -99,7 +103,7 @@ describe('workspace navigation', () => {
     const actual = [...container.querySelectorAll('.workspace-sidebar-nav a')].map((link) => link.getAttribute('href'));
     expect(new Set(actual)).toEqual(new Set(MEMBER_PORTAL_NAV_ITEMS.map((item) => item.href)));
     expect(actual).toHaveLength(new Set(actual).size);
-    expect(container.querySelector('.workspace-sidebar details[open]')).toBeNull();
+    expect(container.querySelectorAll('.workspace-sidebar details[open]')).toHaveLength(3);
   });
 
   it('retains the collapse preference and reveals destinations in the compact rail', async () => {

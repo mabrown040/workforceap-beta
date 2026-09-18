@@ -9,6 +9,8 @@
 
 export const DIGITAL_LITERACY_PROGRAM_SLUG = 'digital-literacy-empowerment-class';
 export const DIGITAL_LITERACY_PROGRAM_TITLE = 'Workforce AP Digital Literacy Course';
+/** Last module: job search, applications, and creating/uploading a résumé. */
+export const DIGITAL_LITERACY_RESUME_MODULE_KEY = 'online-job-searching';
 export const DIGITALLEARN_HOME_URL = 'https://www.digitallearn.org/';
 export const DIGITALLEARN_COURSES_URL = 'https://www.digitallearn.org/courses';
 export const DIGITALLEARN_PROVIDER_NAME = 'DigitalLearn.org';
@@ -255,6 +257,15 @@ export function digitalLiteracyModuleHours(module: DigitalLiteracyModule): numbe
 }
 
 export const DIGITAL_LITERACY_DURATION_LABEL = `Online, self-paced — ${DIGITAL_LITERACY_MODULES.length} modules, about ${Math.round(DIGITAL_LITERACY_TOTAL_MINUTES / 60)} hours of linked learning (${DIGITALLEARN_PROVIDER_NAME})`;
+
+export function digitalLiteracyResumeCourseSlug(programSlug: string = DIGITAL_LITERACY_PROGRAM_SLUG): string {
+  const index = DIGITAL_LITERACY_MODULES.findIndex((module) => module.key === DIGITAL_LITERACY_RESUME_MODULE_KEY);
+  return `${programSlug}-course-${index + 1}`;
+}
+
+export function isDigitalLiteracyResumeModule(programSlug: string, courseSlug: string): boolean {
+  return programSlug === DIGITAL_LITERACY_PROGRAM_SLUG && courseSlug === digitalLiteracyResumeCourseSlug(programSlug);
+}
 
 export const DIGITAL_LITERACY_DESCRIPTION =
   'A free, beginner-friendly, online and self-paced pathway for members who are new to computers, smartphones, or the internet. Ten WorkforceAP modules link to current DigitalLearn.org course pages or clearly labeled course-material fallbacks. DigitalLearn provides an English/Español control and does not require sign-in to open course pages. Return to WorkforceAP after each module to record completion, points, and counselor-visible progress; provider-side activity and certificates are not synced or promised.';

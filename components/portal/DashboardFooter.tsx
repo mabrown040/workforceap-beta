@@ -12,6 +12,7 @@ export default function DashboardFooter() {
       style={{
         background: 'var(--surface-container-lowest)',
         marginTop: 'auto',
+        flexShrink: 0,
       }}
     >
       <div

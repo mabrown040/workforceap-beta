@@ -37,7 +37,7 @@ export function ToolkitToolChrome({
               className="wa-page-action wa-kit-focus"
             >
               <ArrowLeft size={14} aria-hidden="true" />
-              Back to Career Studio
+              Back to AI Career Tools
             </Link>
           }
         />

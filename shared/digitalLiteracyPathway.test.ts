@@ -6,8 +6,12 @@ import {
   DIGITALLEARN_PROVIDER,
   DIGITALLEARN_TERMS_URL,
   DIGITAL_LITERACY_MODULES,
+  DIGITAL_LITERACY_PROGRAM_SLUG,
+  DIGITAL_LITERACY_RESUME_MODULE_KEY,
   DIGITAL_LITERACY_TOTAL_MINUTES,
   digitalLiteracyCatalogCourses,
+  digitalLiteracyResumeCourseSlug,
+  isDigitalLiteracyResumeModule,
 } from './digitalLiteracyPathway';
 
 const EXPECTED_MODULES = [
@@ -95,4 +99,11 @@ test('catalog modules retain WorkforceAP completion routing and truthful provide
   assert.equal(DIGITALLEARN_LICENSE_NAME, 'CC BY-NC-SA 4.0');
   assert.equal(DIGITALLEARN_LICENSE_URL, 'https://creativecommons.org/licenses/by-nc-sa/4.0/');
   assert.equal(DIGITALLEARN_TERMS_URL, 'https://training.digitallearn.org/terms_of_use');
+});
+
+test('the job-search module is the stable resume destination', () => {
+  assert.equal(DIGITAL_LITERACY_RESUME_MODULE_KEY, 'online-job-searching');
+  assert.equal(digitalLiteracyResumeCourseSlug(), 'digital-literacy-empowerment-class-course-10');
+  assert.equal(isDigitalLiteracyResumeModule(DIGITAL_LITERACY_PROGRAM_SLUG, digitalLiteracyResumeCourseSlug()), true);
+  assert.equal(isDigitalLiteracyResumeModule(DIGITAL_LITERACY_PROGRAM_SLUG, 'digital-literacy-empowerment-class-course-1'), false);
 });

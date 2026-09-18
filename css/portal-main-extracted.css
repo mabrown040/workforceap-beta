@@ -1865,7 +1865,7 @@ html.dark .workspace-sidebar-group-label {
 .workspace-shell-main--stack {
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 100%;
 }
 .workspace-shell-main-inner {
     flex: 1;
@@ -1878,6 +1878,17 @@ html.dark .workspace-sidebar-group-label {
     margin-right: auto;
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
+}
+/* Grow with page content so the legal footer stays after the last section
+   instead of pinning to the viewport and appearing mid-dashboard. */
+.workspace-shell-main--stack > .workspace-shell-main-inner {
+    flex: 1 0 auto;
+    min-height: auto;
+}
+.workspace-shell-main--stack > .dashboard-site-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    width: 100%;
 }
 .portal-page-frame {
     box-sizing: border-box;
@@ -9699,7 +9710,7 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
 }
 
 /* Member shell: a quiet rail around the training workspace. Daily destinations
-   stay visible; secondary groups disclose on demand and open for their route. */
+   stay visible; secondary groups start expanded so every destination is visible. */
 .workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-link {
   min-height: 2.75rem;
   font-size: 1rem;

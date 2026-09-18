@@ -30,6 +30,9 @@ describe('Career Studio consolidation', () => {
     expect(studio).toContain("new URLSearchParams(searchParams?.toString() ?? '')");
     expect(studio).toContain("router.replace(`${pathname}${query ? `?${query}` : ''}`, { scroll: false })");
     expect(studio).toContain("selectTab(v as StudioTab)");
+    expect(studio).toContain("label: 'Voice coaches'");
+    expect(studio).toContain("label: 'All tools'");
+    expect(studio).toContain('Browse every tool');
   });
 
   it('redirects duplicate entrypoints into canonical Studio tabs', () => {

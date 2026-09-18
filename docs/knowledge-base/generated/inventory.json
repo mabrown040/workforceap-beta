@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "334a0d80edad5f2039ab2d105258276e06d8f1ddfb4389849d83f2d383ca6a3d",
+  "inputTreeSha256": "65a0eb5642735718960144f383c94b4056ff2a333c0c79f6e5cd67bf850103b0",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -136576,9 +136576,9 @@
       "path": "middleware.ts",
       "area": "root",
       "domain": "identity-tenancy",
-      "bytes": 18014,
+      "bytes": 18023,
       "lines": 443,
-      "sha256": "19eb8caf99bf7fa6925ec931268cfe36b30809cd18663addc799f49498e3e126",
+      "sha256": "38b2e473847cce2cfd118d560eda32a3f4dd395de25a2c2cc01e77a0559f9105",
       "binary": false,
       "exports": [
         {
@@ -136700,14 +136700,14 @@
       "path": "next.config.ts",
       "area": "root",
       "domain": "root",
-      "bytes": 18484,
-      "lines": 351,
-      "sha256": "a15604caf5c8a4ef061890d2971a40ba086c1ab3b2a8b4ba4b101d34f37ec7d7",
+      "bytes": 20478,
+      "lines": 392,
+      "sha256": "f670f176a15aed6abfe89baa05380bdbfd2acdeb38ea8e5055599df99e5b1e21",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 349,
+          "line": 390,
           "kind": "ExportAssignment"
         }
       ],
@@ -136739,7 +136739,7 @@
         },
         {
           "name": "sentryBuildOptions",
-          "line": 327,
+          "line": 368,
           "kind": "Variable"
         }
       ],
@@ -151757,9 +151757,9 @@
       "path": "tests/e2e/portal-revenue-flows.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2384,
-      "lines": 58,
-      "sha256": "bc6ff88918656822d2ba2a1d605d32e24eda16993df7364f2ff405cc8c4e38e8",
+      "bytes": 2458,
+      "lines": 59,
+      "sha256": "c409cd355d91e2c0d4a16dbae21804feb9616de941c7f645163c75d2e5691186",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -154505,6 +154505,34 @@
         {
           "name": "assertFollowOnColumns",
           "line": 82,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/next-config-redirect-destinations.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2396,
+      "lines": 57,
+      "sha256": "b3bcb999ac1782280646311414239ddaa8e67e66c99d8712d1a2b39101217049",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "Redirect",
+          "line": 7,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "root",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "marketingPageExists",
+          "line": 11,
           "kind": "FunctionDeclaration"
         }
       ],

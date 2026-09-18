@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "8e5d51458b87292cf40a2f1df7cbbcdf2c291f39171ad1989e2936eb050145b7",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -66948,256 +66948,261 @@
       "path": "components/portal/kit/pages/VoiceStudioKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 66155,
-      "lines": 1616,
-      "sha256": "a5a34faac5447748f33bf2a97733fd33e19c1cbeba17ab86841859e604a19874",
+      "bytes": 66310,
+      "lines": 1629,
+      "sha256": "5bf6c6db0b5d7eecff458cd06e5bcaaf254939ffb746ce94da9262910767c3a4",
       "binary": false,
       "exports": [
         {
           "name": "VoiceStudioAgentKey",
-          "line": 75,
+          "line": 77,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "VOICE_STUDIO_AGENT_KEYS",
-          "line": 76,
+          "line": 78,
           "kind": "Variable"
         },
         {
           "name": "SessionAgentConfig",
-          "line": 83,
+          "line": 85,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeStudioIssue",
-          "line": 169,
+          "line": 171,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeStudioData",
-          "line": 170,
+          "line": 172,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "VoiceStudioKitProps",
-          "line": 179,
+          "line": 181,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "VoiceStudioKit",
-          "line": 198,
+          "line": 200,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "StudioTab",
-          "line": 74,
+          "line": 76,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "VoiceStudioAgentKey",
-          "line": 75,
+          "line": 77,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "VOICE_STUDIO_AGENT_KEYS",
-          "line": 76,
+          "line": 78,
           "kind": "Variable"
         },
         {
           "name": "SessionAgentConfig",
-          "line": 83,
+          "line": 85,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LILLEY_DATA_USE_NOTICE",
-          "line": 101,
+          "line": 103,
           "kind": "Variable"
         },
         {
           "name": "AGENT_ACCENT",
-          "line": 104,
+          "line": 106,
           "kind": "Variable"
         },
         {
           "name": "SESSION_AGENTS",
-          "line": 110,
+          "line": 112,
           "kind": "Variable"
         },
         {
           "name": "TOOL_HREF",
-          "line": 139,
+          "line": 141,
           "kind": "Variable"
         },
         {
           "name": "TABS",
-          "line": 161,
+          "line": 163,
           "kind": "Variable"
         },
         {
           "name": "ResumeStudioIssue",
-          "line": 169,
+          "line": 171,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResumeStudioData",
-          "line": 170,
+          "line": 172,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "VoiceStudioKitProps",
-          "line": 179,
+          "line": 181,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "VoiceStudioKit",
-          "line": 198,
+          "line": 200,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CoachCard",
-          "line": 297,
+          "line": 299,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "COACH_CARDS",
-          "line": 312,
+          "line": 314,
           "kind": "Variable"
         },
         {
           "name": "CoachesPanel",
-          "line": 381,
+          "line": 383,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CoachCardView",
-          "line": 412,
+          "line": 414,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SessionPhase",
-          "line": 537,
+          "line": 539,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TranscriptLine",
-          "line": 538,
+          "line": 540,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SESSION_FAINT",
-          "line": 541,
-          "kind": "Variable"
-        },
-        {
-          "name": "SESSION_SOFT",
-          "line": 542,
-          "kind": "Variable"
-        },
-        {
-          "name": "SESSION_MUTED",
           "line": 543,
           "kind": "Variable"
         },
         {
-          "name": "SESSION_INK",
+          "name": "SESSION_SOFT",
           "line": 544,
           "kind": "Variable"
         },
         {
-          "name": "SESSION_CHIP",
+          "name": "SESSION_MUTED",
           "line": 545,
           "kind": "Variable"
         },
         {
-          "name": "SESSION_CHIP_STRONG",
+          "name": "SESSION_INK",
           "line": 546,
           "kind": "Variable"
         },
         {
-          "name": "formatClock",
+          "name": "SESSION_CHIP",
+          "line": 547,
+          "kind": "Variable"
+        },
+        {
+          "name": "SESSION_CHIP_STRONG",
           "line": 548,
+          "kind": "Variable"
+        },
+        {
+          "name": "formatClock",
+          "line": 550,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SessionPanel",
-          "line": 561,
+          "line": 563,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SessionStat",
-          "line": 1140,
+          "line": 1142,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "circleBtn",
-          "line": 1149,
+          "line": 1151,
           "kind": "Variable"
         },
         {
           "name": "bubble",
-          "line": 1162,
+          "line": 1164,
           "kind": "Variable"
         },
         {
           "name": "transcriptLabelCoach",
-          "line": 1167,
+          "line": 1169,
           "kind": "Variable"
         },
         {
           "name": "transcriptLabelYou",
-          "line": 1176,
+          "line": 1178,
           "kind": "Variable"
         },
         {
           "name": "scoreBand",
-          "line": 1190,
+          "line": 1192,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "StudioPanel",
-          "line": 1196,
+          "line": 1198,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "IssueRow",
-          "line": 1408,
+          "line": 1410,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "ToolAccent",
-          "line": 1444,
+          "name": "ToolTag",
+          "line": 1446,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ToolCard",
-          "line": 1446,
+          "line": 1448,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "ToolStep",
-          "line": 1456,
+          "line": 1457,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TOOLKIT_STEPS",
-          "line": 1462,
+          "line": 1465,
           "kind": "Variable"
         },
         {
+          "name": "ToolkitToolTag",
+          "line": 1502,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "ToolkitPanel",
-          "line": 1496,
+          "line": 1515,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ToolCardView",
-          "line": 1538,
+          "line": 1575,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ORB_CSS",
-          "line": 1584,
+          "line": 1597,
           "kind": "Variable"
         }
       ],
@@ -75001,9 +75006,9 @@
       "path": "css/portal-kit.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 31292,
-      "lines": 878,
-      "sha256": "3dd677fc796b53749a8964e779c4cc4e4c364920dd6514cdf4a0bae126bb712a",
+      "bytes": 37070,
+      "lines": 1136,
+      "sha256": "8a112253e318631a931d6fdfbdd6c4b6b32ea3909829c384bc9ecacde52b74be",
       "binary": false
     },
     {
@@ -75442,9 +75447,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 26327,
-      "lines": 383,
-      "sha256": "900c0770de25ca025b3266d7c989a91185772a157b90c5968c00290c3c6cf2c5",
+      "bytes": 26473,
+      "lines": 385,
+      "sha256": "34cfe0c48514e681be127f4f29a859b0645914ebca72fd51b55a795158d5680d",
       "binary": false
     },
     {
@@ -154611,9 +154616,9 @@
       "path": "tests/lib/career-studio-consolidation.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4593,
-      "lines": 88,
-      "sha256": "c9746e0b4d617c02f9dcf73482c201741399fdeeaaa6af362ad118369c7c840c",
+      "bytes": 6463,
+      "lines": 134,
+      "sha256": "39c3fc40bb78253e7af61c59824d237b916be3a226427da5b14b3bf9210c7376",
       "binary": false,
       "exports": [],
       "declarations": [

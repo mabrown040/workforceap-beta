@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "d95ac53c330d4127907beb4f2b34206223e24b618ef52c2e3205c4d992b9c92d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -10383,19 +10383,19 @@
       "path": "app/(portal)/dashboard/program/start/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 7193,
-      "lines": 174,
-      "sha256": "6385fbf9fc4f646eb0bee51f362b40c5e352fd6edc4a352d8c77929e6002c0b6",
+      "bytes": 7675,
+      "lines": 181,
+      "sha256": "2f50e6923feb23264ea1ab818183ffdd2c985420ed6bd00de78beaff80659adc",
       "binary": false,
       "exports": [
         {
           "name": "metadata",
-          "line": 13,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration",
           "localName": "ProgramStartPage"
         }
@@ -10403,12 +10403,12 @@
       "declarations": [
         {
           "name": "metadata",
-          "line": 13,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "ProgramStartPage",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75604,9 +75604,9 @@
       "path": "docs/PORTALS.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 11511,
+      "bytes": 11589,
       "lines": 367,
-      "sha256": "fb27c27eea1c15f8edc55884b3fc5bfd6cdf25569c7e65c6fecdf5a6959a31c3",
+      "sha256": "78643c5cf13e5d609dcecf735c099e741e9138ab2a34d218d51434b9a66f0794",
       "binary": false
     },
     {
@@ -77386,18 +77386,18 @@
       "path": "docs/knowledge-base/agent-context.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 3699,
+      "bytes": 3889,
       "lines": 33,
-      "sha256": "9bfdaaa5476089d5fa3f9489e2cbdb5ab6ac382a8974cddbed6ad2861ce030a4",
+      "sha256": "4e04700703bd44cc92cfe1e00c4369f394d92b328d18b4c83258ce608a137c9b",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/architecture.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 16370,
+      "bytes": 16633,
       "lines": 193,
-      "sha256": "52de220284da62260c98a15a60ed424d293b9c3dc704e9aa092987cfa9dff96d",
+      "sha256": "05ab635aa895951ac0734963496b89c42bcf29a721b4eda118ff9b9c85642c29",
       "binary": false
     },
     {
@@ -77431,9 +77431,9 @@
       "path": "docs/knowledge-base/features.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10493,
+      "bytes": 10911,
       "lines": 36,
-      "sha256": "ed9e02b9e0bbc2ddf41ffd12e015b2eec1894ac8cf3cb1f01bd0142340adedb9",
+      "sha256": "2a57ffc631f88182bc17125eb300b1f278342b3c4a4cb7403623db3ab17d9578",
       "binary": false
     },
     {
@@ -120125,6 +120125,73 @@
       "directive": null
     },
     {
+      "path": "lib/member/programStartEnrollment.test.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 3085,
+      "lines": 84,
+      "sha256": "7ecb57911afc30b8537ee5e48ea47d6d3938a3c3e56616239b11e7c60da49b9e",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ROOT",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "enrollment",
+          "line": 16,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/member/programStartEnrollment.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 1253,
+      "lines": 40,
+      "sha256": "1dc6ac564ee157d7a3789c797f90ed73578958a18fed350725c24e2940c06a11",
+      "binary": false,
+      "exports": [
+        {
+          "name": "ProgramStartAccess",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolveProgramStartAccess",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "programStartAccessFromDashboardView",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "ProgramStartAccess",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolveProgramStartAccess",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "programStartAccessFromDashboardView",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/member/recommendPrograms.ts",
       "area": "libraries",
       "domain": "member-counselor",
@@ -120416,9 +120483,9 @@
       "path": "lib/member/resolveActiveDashboardProgram.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 5037,
-      "lines": 140,
-      "sha256": "118f642620b5a56f419e53a9e23423f1e2b649bd23be909e905fe79d00706897",
+      "bytes": 5526,
+      "lines": 150,
+      "sha256": "cfd22604a6c8532eb13daddbd94cfe2f1c2b073140b095b7af6582438ef26c1d",
       "binary": false,
       "exports": [],
       "declarations": [

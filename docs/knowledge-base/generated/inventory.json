@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "3a74f3829428762cb37f927eeb544604a5cd693e80e95a9b835a5592281a4072",
+  "inputTreeSha256": "2e8a07e728931027536ee28209548ddb21a2cabb539a8b02758fca789ab3b9c9",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -138374,27 +138374,27 @@
       "path": "marketing/src/i18n/es.json",
       "area": "astro-marketing",
       "domain": "public-experience",
-      "bytes": 189287,
+      "bytes": 189389,
       "lines": 2803,
-      "sha256": "ce666eedfb070832b023de78fc93996ef5f469d7d88f4414a2f2f2a92a2483d3",
+      "sha256": "9c14a8ab0d3fc1ba097bf500c14a1c7e3be3e66a6d38d49d0a6da783652bf226",
       "binary": false
     },
     {
       "path": "marketing/src/i18n/fr.json",
       "area": "astro-marketing",
       "domain": "public-experience",
-      "bytes": 195384,
+      "bytes": 195508,
       "lines": 2804,
-      "sha256": "d1baf71aeffb85040f498cd30da753c56898be7f87172fcc80ceca86bc94bbf7",
+      "sha256": "3b3750eab66399c7265380d79d9a375c14d37e164a6c07040da8df3655cf9801",
       "binary": false
     },
     {
       "path": "marketing/src/i18n/pt.json",
       "area": "astro-marketing",
       "domain": "public-experience",
-      "bytes": 187643,
+      "bytes": 187741,
       "lines": 2804,
-      "sha256": "129f5758e04e6cf844d5119f18828fc48eb7dc75b4dee334be5090d4637bdfc1",
+      "sha256": "e11568319c51acf9e3c71fa701aa3951164360b5abd9ced9a7399cfb5255739a",
       "binary": false
     },
     {

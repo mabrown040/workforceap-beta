@@ -65920,6 +65920,30 @@
     "target": "components/error/ErrorBoundary.tsx"
   },
   {
+    "from": "components/Footer.test.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/Footer.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/Footer.test.tsx",
+    "specifier": "./Footer",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/Footer.tsx"
+  },
+  {
     "from": "components/Footer.tsx",
     "specifier": "next/image",
     "line": 1,

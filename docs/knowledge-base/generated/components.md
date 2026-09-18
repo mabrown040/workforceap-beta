@@ -12,7 +12,8 @@
 | [components/DeferredAnalytics.tsx](../../../components/DeferredAnalytics.tsx) | 46 | components | default:38 |
 | [components/DeferredRootChrome.tsx](../../../components/DeferredRootChrome.tsx) | 18 | components | default:10 |
 | [components/ErrorBoundary.tsx](../../../components/ErrorBoundary.tsx) | 3 | components | default:3 |
-| [components/Footer.tsx](../../../components/Footer.tsx) | 121 | components | default:7 |
+| [components/Footer.test.tsx](../../../components/Footer.test.tsx) | 84 | components |  |
+| [components/Footer.tsx](../../../components/Footer.tsx) | 123 | components | default:7 |
 | [components/FundingBadge.tsx](../../../components/FundingBadge.tsx) | 72 | components | default:7 |
 | [components/JsonLd.tsx](../../../components/JsonLd.tsx) | 60 | components | default:7 |
 | [components/JsonLdArticle.tsx](../../../components/JsonLdArticle.tsx) | 59 | components | default:19 |

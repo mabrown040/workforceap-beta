@@ -110,7 +110,7 @@ export function buildProactiveInsights(input: ProactiveInsightsInput): Proactive
           ? "You're 1 course from your certificate"
           : `You're ${remainingCourses} ${unit} from your certificate`,
       body: `So close, ${name} — finish strong and that credential is yours.`,
-      href: '/dashboard/training',
+      href: '/dashboard/program',
       cta: 'Pick up where you left off',
       weight: 90,
     });
@@ -145,7 +145,7 @@ export function buildProactiveInsights(input: ProactiveInsightsInput): Proactive
         eyebrow: 'We missed you',
         title: 'Good to see you back',
         body: `Your training picks up right where you left off, ${name}. No pressure — even ten minutes counts.`,
-        href: '/dashboard/training',
+        href: '/dashboard/program',
         cta: 'Continue training',
         weight: 78,
       });

@@ -366,7 +366,9 @@ function shapeHome(args: {
 
   const topAction = args.row.nextBestActions[0] ?? null;
   const programHref = '/dashboard/program';
-  const resumeHref = assignedSlug && slug ? '/dashboard/training' : programHref;
+  // /dashboard/training only redirects back to /dashboard, so enrolled members
+  // must resume on My Program — otherwise Continue/Resume is a do-loop.
+  const resumeHref = programHref;
   const doThisNext: NextBestAction | null = topAction
     ? {
         id: topAction.id,

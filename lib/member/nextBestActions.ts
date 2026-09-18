@@ -120,9 +120,9 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'continue_training',
       title: `Continue training: ${ctx.nextIncompleteCourseName}`,
-      body: 'Open My Training for Coursera links, xAPI sync status, and your course checklist.',
-      href: '/dashboard/training',
-      cta: 'Open My Training',
+      body: 'Open My Program for your next module, lesson links, and course checklist.',
+      href: '/dashboard/program',
+      cta: 'Open My Program',
       variant: 'urgent',
       weight: 86,
     });
@@ -151,10 +151,10 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
   ) {
     out.push({
       id: 'launch_first_course',
-      title: 'Launch your first Coursera course',
+      title: 'Launch your first course',
       body: 'Start training now so your first certificate, resume work, and job-readiness steps stay in motion together.',
-      href: '/dashboard/training',
-      cta: 'Open Coursera',
+      href: '/dashboard/program',
+      cta: 'Open My Program',
       variant: 'urgent',
       weight: 86,
     });

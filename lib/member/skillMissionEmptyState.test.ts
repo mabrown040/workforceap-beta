@@ -25,7 +25,7 @@ test('enrolled members without catalog missions keep training, not choose-a-prog
   });
   assert.equal(empty.title, 'No missions for AI Professional Practitioner Certificate yet');
   assert.doesNotMatch(empty.primaryAction.label, /Choose program/i);
-  assert.equal(empty.primaryAction.href, '/dashboard/training');
+  assert.equal(empty.primaryAction.href, '/dashboard/program');
   assert.equal(empty.primaryAction.label, 'Continue training');
 });
 
@@ -35,7 +35,7 @@ test('falls back to "this program" when the catalog title is missing', () => {
     programTitle: null,
   });
   assert.equal(empty.title, 'No missions for this program yet');
-  assert.equal(empty.primaryAction.href, '/dashboard/training');
+  assert.equal(empty.primaryAction.href, '/dashboard/program');
 });
 
 test('missions page uses the dashboard program helper, not only User.enrolledProgram', () => {

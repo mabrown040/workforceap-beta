@@ -137,7 +137,7 @@ function AssessmentCompletedCard({
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
         <Link
-          href="/dashboard/training"
+          href="/dashboard/program"
           className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
         >
           Continue training

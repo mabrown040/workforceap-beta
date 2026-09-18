@@ -30,7 +30,7 @@ function makeRow(overrides: Record<string, unknown> = {}) {
         id: 'nba-1',
         title: 'Finish Hardware module',
         description: 'Resume where you left off',
-        ctaHref: '/dashboard/training',
+        ctaHref: '/dashboard/program',
         ctaLabel: 'Continue',
         priority: 5,
       },
@@ -197,7 +197,7 @@ test('loadMemberDashboardHome combines enrollment + progress into kit props', as
   assert.equal(view.pipeline[0].stage, 'Interviewing');
   assert.equal(view.pointsLedger[0].color, 'accent');
   assert.ok((view.pointsThisWeek ?? 0) >= 80);
-  assert.equal(view.resumeHref, '/dashboard/training');
+  assert.equal(view.resumeHref, '/dashboard/program');
   assert.equal(view.programHref, '/dashboard/program');
   assert.equal(view.coursesHref, '/dashboard/learning');
   assert.equal(view.doThisNext?.variant, 'urgent');

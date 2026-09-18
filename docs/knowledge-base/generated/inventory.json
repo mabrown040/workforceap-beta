@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "2aa4f3a9e3aad9649882818802d41a57602162bbc44c5ce4e3f2c14721858660",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -115770,9 +115770,9 @@
       "path": "lib/marketing-public-ui-regressions.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 6232,
-      "lines": 129,
-      "sha256": "55d2da302a6ff528e4cb73ae92ccedb077258953f33a1e4fbaea5edca6eab979",
+      "bytes": 6860,
+      "lines": 144,
+      "sha256": "d39544dc5fee58b02af143fdb383b52f21f53a5075ae5e1d148d83e564a9fa8f",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -138130,9 +138130,9 @@
       "path": "marketing/src/pages/program-comparison.astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 25058,
-      "lines": 440,
-      "sha256": "fbf2fd23d81479eba26f53c383afd0dab5047f7933d9df12d244f91d83bd0bde",
+      "bytes": 37056,
+      "lines": 699,
+      "sha256": "730b264009f53203b4d61b382a90bd484543f121c2e263c7e5e462269f1003cd",
       "binary": false
     },
     {

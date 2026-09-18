@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
 import { Card } from '@astryxdesign/core/Card';
@@ -14,6 +15,13 @@ import {
   type Column,
   type KpiItem,
 } from '@/components/portal/kit';
+import { ariaSortForColumn, useKitTableSort } from '@/components/portal/kit/kitTableSort';
+import {
+  DEFAULT_PLACEMENT_SORT_DIRECTION,
+  DEFAULT_PLACEMENT_SORT_KEY,
+  sortPlacementRows,
+  type PlacementSortKey,
+} from '@/lib/admin/placementsRosterSort';
 
 /**
  * Placements — confirmed hires & wage data (dense).
@@ -91,6 +99,15 @@ export function PlacementsKit({
   loadError = null,
 }: PlacementsKitProps) {
   const router = useRouter();
+  const { sortKey, sortDirection, sortHeader } = useKitTableSort<PlacementSortKey>(
+    DEFAULT_PLACEMENT_SORT_KEY,
+    DEFAULT_PLACEMENT_SORT_DIRECTION,
+    ['student', 'employer', 'role'],
+  );
+  const sortedPlacements = useMemo(
+    () => sortPlacementRows(placements, sortKey, sortDirection),
+    [placements, sortKey, sortDirection],
+  );
 
   const kpis: KpiItem[] = [
     { label: 'YTD', value: ytd, color: 'success' },
@@ -104,7 +121,10 @@ export function PlacementsKit({
   const columns: Column<PlacementRow>[] = [
     {
       key: 'student',
-      header: 'Student',
+      header: sortHeader('student', 'Student'),
+      stickyLeft: true,
+      minWidth: 160,
+      ariaSort: ariaSortForColumn('student', sortKey, sortDirection),
       render: (row) => (
         <span
           style={{
@@ -114,6 +134,7 @@ export function PlacementsKit({
             whiteSpace: 'nowrap',
             display: 'block',
           }}
+          title={row.student}
         >
           {row.student}
         </span>
@@ -121,31 +142,49 @@ export function PlacementsKit({
     },
     {
       key: 'employer',
-      header: 'Employer',
+      header: sortHeader('employer', 'Employer'),
+      minWidth: 140,
+      ariaSort: ariaSortForColumn('employer', sortKey, sortDirection),
       render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.employer}</span>,
     },
     {
       key: 'role',
-      header: 'Role',
+      header: sortHeader('role', 'Role'),
+      minWidth: 140,
+      ariaSort: ariaSortForColumn('role', sortKey, sortDirection),
       render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.role}</span>,
     },
     {
       key: 'wage',
-      header: 'Wage',
+      header: sortHeader('wage', 'Wage'),
       align: 'right',
+      minWidth: 72,
+      ariaSort: ariaSortForColumn('wage', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ ...numStyle, fontWeight: 700 }}>{row.wage}</span>
+        <span style={{ ...numStyle, fontWeight: 700, whiteSpace: 'nowrap' }}>{row.wage}</span>
       ),
     },
     {
       key: 'survey',
-      header: 'Survey',
-      render: (row) => <Token label={row.survey} size="sm" color={SURVEY_TONE[row.survey]} />,
+      header: sortHeader('survey', 'Survey'),
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('survey', sortKey, sortDirection),
+      render: (row) => (
+        <span style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+          <Token label={row.survey} size="sm" color={SURVEY_TONE[row.survey]} />
+        </span>
+      ),
     },
     {
       key: 'status',
-      header: 'Status',
-      render: (row) => <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />,
+      header: sortHeader('status', 'Status'),
+      minWidth: 108,
+      ariaSort: ariaSortForColumn('status', sortKey, sortDirection),
+      render: (row) => (
+        <span style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+          <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />
+        </span>
+      ),
     },
   ];
 
@@ -201,9 +240,9 @@ export function PlacementsKit({
 
       <DataTable<PlacementRow>
         columns={columns}
-        rows={placements}
+        rows={sortedPlacements}
         rowKey={(row) => row.id}
-        minWidth={720}
+        minWidth={800}
         onRowClick={(row) => {
           if (row.memberId) router.push(`/admin/members/${row.memberId}`);
         }}

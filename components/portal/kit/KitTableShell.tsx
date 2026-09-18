@@ -6,8 +6,13 @@ import { KitEmptyState } from './KitEmptyState';
 
 export type KitTableShellColumn = {
   key: string;
-  header: string;
+  header: ReactNode;
   align?: 'left' | 'right';
+  /** Pin column on horizontal scroll (typically the row label). */
+  stickyLeft?: boolean;
+  /** Minimum width for this column so badges/tokens are not clipped. */
+  minWidth?: number | string;
+  ariaSort?: 'ascending' | 'descending' | 'none';
 };
 
 export type KitTableShellRow = {
@@ -64,7 +69,12 @@ export function KitTableShell({
                 <th
                   key={c.key}
                   scope="col"
-                  style={c.align === 'right' ? { textAlign: 'right' } : undefined}
+                  aria-sort={c.ariaSort}
+                  className={cx(c.stickyLeft && 'wa-kit-table-sticky-left')}
+                  style={{
+                    ...(c.align === 'right' ? { textAlign: 'right' } : undefined),
+                    ...(c.minWidth != null ? { minWidth: c.minWidth } : undefined),
+                  }}
                 >
                   {c.header}
                 </th>
@@ -100,7 +110,11 @@ export function KitTableShell({
                   {columns.map((c, i) => (
                     <td
                       key={c.key}
-                      style={c.align === 'right' ? { textAlign: 'right' } : undefined}
+                      className={cx(c.stickyLeft && 'wa-kit-table-sticky-left')}
+                      style={{
+                        ...(c.align === 'right' ? { textAlign: 'right' } : undefined),
+                        ...(c.minWidth != null ? { minWidth: c.minWidth } : undefined),
+                      }}
                     >
                       {row.cells[i]}
                     </td>

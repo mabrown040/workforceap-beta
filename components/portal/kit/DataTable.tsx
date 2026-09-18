@@ -6,10 +6,13 @@ import { KitTableShell } from './KitTableShell';
 export interface Column<T> {
   /** Stable key for React. */
   key: string;
-  header: string;
+  header: ReactNode;
   /** Cell renderer; defaults to String(row[key]) when omitted. */
   render?: (row: T) => ReactNode;
   align?: 'left' | 'right';
+  stickyLeft?: boolean;
+  minWidth?: number | string;
+  ariaSort?: 'ascending' | 'descending' | 'none';
 }
 
 interface DataTableProps<T> extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
@@ -52,7 +55,14 @@ export function DataTable<T>({
   const cell = (col: Column<T>, row: T): ReactNode =>
     col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '');
 
-  const shellColumns = columns.map((c) => ({ key: c.key, header: c.header, align: c.align }));
+  const shellColumns = columns.map((c) => ({
+    key: c.key,
+    header: c.header,
+    align: c.align,
+    stickyLeft: c.stickyLeft,
+    minWidth: c.minWidth,
+    ariaSort: c.ariaSort,
+  }));
   const shellRows = rows.map((row) => ({
     key: rowKey(row),
     cells: columns.map((c) => cell(c, row)),

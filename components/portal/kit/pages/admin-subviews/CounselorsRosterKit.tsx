@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo } from 'react';
 import {
   DesignSurface,
   SectionHeader,
@@ -7,6 +10,13 @@ import {
   type Column,
   type KpiItem,
 } from '@/components/portal/kit';
+import { ariaSortForColumn, useKitTableSort } from '@/components/portal/kit/kitTableSort';
+import {
+  DEFAULT_COUNSELOR_SORT_DIRECTION,
+  DEFAULT_COUNSELOR_SORT_KEY,
+  sortCounselorRows,
+  type CounselorSortKey,
+} from '@/lib/admin/counselorsRosterSort';
 import { Card } from '@astryxdesign/core/Card';
 import { Token, type TokenColor } from '@astryxdesign/core/Token';
 
@@ -63,6 +73,16 @@ export function CounselorsRosterKit({
   atRiskOwned,
   avgResponse,
 }: CounselorsRosterKitProps) {
+  const { sortKey, sortDirection, sortHeader } = useKitTableSort<CounselorSortKey>(
+    DEFAULT_COUNSELOR_SORT_KEY,
+    DEFAULT_COUNSELOR_SORT_DIRECTION,
+    ['name'],
+  );
+  const sortedCounselors = useMemo(
+    () => sortCounselorRows(counselors, sortKey, sortDirection),
+    [counselors, sortKey, sortDirection],
+  );
+
   const kpis: KpiItem[] = [
     { label: 'Counselors', value: total },
     { label: 'Avg Caseload', value: avgCaseload, color: 'info' },
@@ -102,19 +122,30 @@ export function CounselorsRosterKit({
   const numStyle = { fontVariantNumeric: 'tabular-nums' as const };
 
   const columns: Column<CounselorRow>[] = [
-    { key: 'name', header: 'Counselor', render: (row) => <CounselorCell row={row} /> },
+    {
+      key: 'name',
+      header: sortHeader('name', 'Counselor'),
+      stickyLeft: true,
+      minWidth: 200,
+      ariaSort: ariaSortForColumn('name', sortKey, sortDirection),
+      render: (row) => <CounselorCell row={row} />,
+    },
     {
       key: 'caseload',
-      header: 'Caseload',
+      header: sortHeader('caseload', 'Caseload'),
       align: 'right',
+      minWidth: 88,
+      ariaSort: ariaSortForColumn('caseload', sortKey, sortDirection),
       render: (row) => (
         <span style={{ ...numStyle, fontWeight: 700 }}>{row.caseload}</span>
       ),
     },
     {
       key: 'atRisk',
-      header: 'At-risk',
+      header: sortHeader('atRisk', 'At-risk'),
       align: 'right',
+      minWidth: 80,
+      ariaSort: ariaSortForColumn('atRisk', sortKey, sortDirection),
       render: (row) => (
         <span
           style={{
@@ -129,8 +160,10 @@ export function CounselorsRosterKit({
     },
     {
       key: 'placements',
-      header: 'Placements',
+      header: sortHeader('placements', 'Placements'),
       align: 'right',
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('placements', sortKey, sortDirection),
       render: (row) => (
         <span style={{ ...numStyle, color: 'var(--wa-success)', fontWeight: 700 }}>
           {row.placements}
@@ -139,16 +172,26 @@ export function CounselorsRosterKit({
     },
     {
       key: 'avgResponse',
-      header: 'Avg response',
+      header: sortHeader('avgResponse', 'Avg response'),
       align: 'right',
+      minWidth: 108,
+      ariaSort: ariaSortForColumn('avgResponse', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ ...numStyle, color: 'var(--wa-muted)' }}>{row.avgResponse}</span>
+        <span style={{ ...numStyle, color: 'var(--wa-muted)', whiteSpace: 'nowrap' }}>
+          {row.avgResponse}
+        </span>
       ),
     },
     {
       key: 'load',
-      header: 'Load',
-      render: (row) => <Token label={row.load} size="sm" color={LOAD_TOKEN_COLOR[row.load]} />,
+      header: sortHeader('load', 'Load'),
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('load', sortKey, sortDirection),
+      render: (row) => (
+        <span style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+          <Token label={row.load} size="sm" color={LOAD_TOKEN_COLOR[row.load]} />
+        </span>
+      ),
     },
   ];
 
@@ -166,9 +209,9 @@ export function CounselorsRosterKit({
 
       <DataTable<CounselorRow>
         columns={columns}
-        rows={counselors}
+        rows={sortedCounselors}
         rowKey={(row) => row.id}
-        minWidth={680}
+        minWidth={760}
         mobile="cards"
         cardRender={(row) => (
           <Card>

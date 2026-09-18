@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import NextLink from 'next/link';
 import { Card } from '@astryxdesign/core/Card';
@@ -12,15 +14,17 @@ import {
   type Column,
   type KpiItem,
 } from '@/components/portal/kit';
+import { KitSortHeader } from '@/components/portal/kit/KitSortHeader';
+import { ariaSortForColumn } from '@/components/portal/kit/kitTableSort';
+import type { SortDirection, SortKey } from '@/lib/admin/trainingProgressRoster';
 
 /**
  * Training progress — live B4B + LMS progress across all members (dense).
  * Mockup: workforceap-admin-full.html "training-progress" view.
  * Target route: /admin/training-progress
  *
- * Server-rendered (no interactivity): all aggregation happens in the page
- * loader and lands here as plain rows. DataTable mobile="cards" so the wide
- * progress table stacks on mobile instead of squishing.
+ * Desktop: wide roster table with sticky Student column, horizontal scroll, and
+ * clickable sort headers. Mobile: stacked cards (headers not on screen).
  */
 
 /** Pace classification derived from progress + recent activity. */
@@ -66,6 +70,10 @@ export interface TrainingProgressKitProps {
    * sort controls through here.
    */
   toolbar?: ReactNode;
+  /** Active sort column — drives header `aria-sort` and row order upstream. */
+  sortKey: SortKey;
+  sortDirection: SortDirection;
+  onSortColumn: (key: SortKey) => void;
 }
 
 const PACE_TOKEN_COLOR: Record<Pace, TokenColor> = {
@@ -75,6 +83,15 @@ const PACE_TOKEN_COLOR: Record<Pace, TokenColor> = {
   Behind: 'yellow',
 };
 
+const SORTABLE_COLUMNS: { key: SortKey; label: string }[] = [
+  { key: 'student', label: 'Student' },
+  { key: 'program', label: 'Program' },
+  { key: 'modules', label: 'Modules' },
+  { key: 'percentComplete', label: '% Complete' },
+  { key: 'courseraGrade', label: 'Coursera grade' },
+  { key: 'pace', label: 'Pace' },
+];
+
 export function TrainingProgressKit({
   rows,
   onTrack,
@@ -83,6 +100,9 @@ export function TrainingProgressKit({
   avgPercent,
   showingLabel,
   toolbar,
+  sortKey,
+  sortDirection,
+  onSortColumn,
 }: TrainingProgressKitProps) {
   const kpis: KpiItem[] = [
     { label: 'On Track', value: onTrack, color: 'success' },
@@ -93,42 +113,69 @@ export function TrainingProgressKit({
 
   const numStyle = { fontVariantNumeric: 'tabular-nums' as const };
 
+  function sortHeader(key: SortKey, label: string) {
+    return (
+      <KitSortHeader
+        label={label}
+        columnKey={key}
+        active={sortKey === key}
+        direction={sortDirection}
+        onSort={(columnKey) => onSortColumn(columnKey as SortKey)}
+      />
+    );
+  }
+
   const columns: Column<TrainingRow>[] = [
     {
       key: 'student',
-      header: 'Student',
+      header: sortHeader('student', 'Student'),
+      stickyLeft: true,
+      minWidth: 168,
+      ariaSort: ariaSortForColumn('student', sortKey, sortDirection),
       render: (row) => (
-        <span
-          style={{
-            fontWeight: 700,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ minWidth: 140 }}>
+          <div
+            style={{
+              fontWeight: 700,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+            title={row.student}
+          >
             {row.student}
-          </span>
-          {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
-          {row.inWap !== false && row.noProgram ? <Token label="No program" size="sm" color="yellow" /> : null}
-        </span>
+          </div>
+          {row.inWap === false || row.noProgram ? (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 4,
+                marginTop: 4,
+              }}
+            >
+              {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
+              {row.inWap !== false && row.noProgram ? (
+                <Token label="No program" size="sm" color="yellow" />
+              ) : null}
+            </div>
+          ) : null}
+        </div>
       ),
     },
     {
       key: 'program',
-      header: 'Program',
+      header: sortHeader('program', 'Program'),
+      minWidth: 200,
+      ariaSort: ariaSortForColumn('program', sortKey, sortDirection),
       render: (row) => (
         <span
           style={{
             color: 'var(--wa-muted)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
             display: 'block',
+            minWidth: 180,
           }}
+          title={row.program}
         >
           {row.program}
           {row.inWap !== false && row.noProgram ? ' (inferred)' : ''}
@@ -137,28 +184,36 @@ export function TrainingProgressKit({
     },
     {
       key: 'modules',
-      header: 'Modules',
+      header: sortHeader('modules', 'Modules'),
       align: 'right',
+      minWidth: 88,
+      ariaSort: ariaSortForColumn('modules', sortKey, sortDirection),
       render: (row) => (
-        <span style={numStyle}>
+        <span style={{ ...numStyle, whiteSpace: 'nowrap' }}>
           {row.modulesDone} / {row.modulesTotal}
         </span>
       ),
     },
     {
       key: 'percentComplete',
-      header: '% Complete',
+      header: sortHeader('percentComplete', '% Complete'),
       align: 'right',
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('percentComplete', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ ...numStyle, fontWeight: 700 }}>{row.percentComplete}%</span>
+        <span style={{ ...numStyle, fontWeight: 700, whiteSpace: 'nowrap' }}>
+          {row.percentComplete}%
+        </span>
       ),
     },
     {
       key: 'courseraGrade',
-      header: 'Coursera grade',
+      header: sortHeader('courseraGrade', 'Coursera grade'),
       align: 'right',
+      minWidth: 112,
+      ariaSort: ariaSortForColumn('courseraGrade', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ ...numStyle, fontWeight: 700 }}>
+        <span style={{ ...numStyle, fontWeight: 700, whiteSpace: 'nowrap' }}>
           {row.courseraGrade != null && Number.isFinite(row.courseraGrade)
             ? `${Math.round(row.courseraGrade * 100) / 100}%`
             : '—'}
@@ -167,8 +222,14 @@ export function TrainingProgressKit({
     },
     {
       key: 'pace',
-      header: 'Pace',
-      render: (row) => <Token label={row.pace} size="sm" color={PACE_TOKEN_COLOR[row.pace]} />,
+      header: sortHeader('pace', 'Pace'),
+      minWidth: 108,
+      ariaSort: ariaSortForColumn('pace', sortKey, sortDirection),
+      render: (row) => (
+        <span style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+          <Token label={row.pace} size="sm" color={PACE_TOKEN_COLOR[row.pace]} />
+        </span>
+      ),
     },
   ];
 
@@ -195,14 +256,14 @@ export function TrainingProgressKit({
         columns={columns}
         rows={rows}
         rowKey={(row) => row.id}
-        minWidth={680}
+        minWidth={960}
         mobile="cards"
         cardRender={(row) => (
           <Card>
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 justifyContent: 'space-between',
                 gap: 10,
               }}
@@ -234,6 +295,7 @@ export function TrainingProgressKit({
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
+                    marginTop: 4,
                   }}
                 >
                   {row.program}
@@ -293,3 +355,6 @@ export function TrainingProgressKit({
     </DesignSurface>
   );
 }
+
+/** Column keys exposed for tests and toolbar labels. */
+export const TRAINING_PROGRESS_SORT_COLUMNS = SORTABLE_COLUMNS;

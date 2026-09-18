@@ -66,9 +66,10 @@ function studentsInTable(): string[] {
   const table = document.querySelector('table');
   if (!table) return [];
   return Array.from(table.querySelectorAll('tbody tr'))
-    .map((row) => row.querySelector('td span span')?.textContent?.trim() ?? '')
-    // An empty roster still renders one row — the empty state — which carries
-    // no student-name span.
+    .map((row) => {
+      const nameCell = row.querySelector('td:first-child');
+      return nameCell?.querySelector(':scope > div > div')?.textContent?.trim() ?? '';
+    })
     .filter((student) => student !== '');
 }
 
@@ -116,6 +117,30 @@ describe('admin training roster — sorting', () => {
     renderRoster();
     fireEvent.change(screen.getByLabelText('Sort by'), { target: { value: 'pace' } });
     fireEvent.change(screen.getByLabelText('Order'), { target: { value: 'asc' } });
+    expect(studentsInTable()[0]).toBe('Avery Stone');
+  });
+
+  it('re-sorts when a column header is clicked', () => {
+    renderRoster();
+    fireEvent.click(screen.getByRole('button', { name: /^Sort by Student/ }));
+    expect(studentsInTable()[0]).toBe('Avery Stone');
+  });
+
+  it('reverses when the same column header is clicked again', () => {
+    renderRoster();
+    const studentHeader = screen.getByRole('button', { name: /^Sort by Student/ });
+    fireEvent.click(studentHeader);
+    fireEvent.click(studentHeader);
+    expect(studentsInTable()[0]).toBe('Zed Coursera');
+  });
+
+  it('sorts by % complete from the column header', () => {
+    renderRoster();
+    // Default is % complete descending (Avery first). One click flips to ascending.
+    const completeHeader = screen.getByRole('button', { name: /^Sort by % Complete/ });
+    fireEvent.click(completeHeader);
+    expect(studentsInTable()[0]).toBe('Dana Reed');
+    fireEvent.click(screen.getByRole('button', { name: /^Sort by % Complete, ascending/ }));
     expect(studentsInTable()[0]).toBe('Avery Stone');
   });
 });

@@ -37,9 +37,9 @@ import {
  * rows, because a filtered table above unfiltered totals invites reading the
  * totals as the filter's result.
  *
- * Sorting lives in this toolbar rather than in clickable column headers: the
- * table renders as stacked cards on mobile, where headers are not on screen at
- * all, and that is where this page is mostly read.
+ * Sorting is available from the toolbar selects and from clickable column
+ * headers on desktop; mobile keeps cards without headers, so the toolbar
+ * remains the primary sort control on narrow viewports.
  */
 
 const SORT_LABELS: Record<SortKey, string> = {
@@ -116,6 +116,20 @@ export default function TrainingProgressRoster({
 
   function update<K extends keyof RosterFilters>(key: K, value: RosterFilters[K]) {
     setFilters((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function onSortColumn(key: SortKey) {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortKey(key);
+    // Match toolbar defaults: text columns A→Z, metrics high→low.
+    if (key === 'student' || key === 'program') {
+      setSortDirection('asc');
+      return;
+    }
+    setSortDirection('desc');
   }
 
   const toolbar = (
@@ -249,6 +263,9 @@ export default function TrainingProgressRoster({
       avgPercent={summary.avgPercent}
       toolbar={toolbar}
       showingLabel={[coverageLabel, showingLabel].filter(Boolean).join(' · ') || undefined}
+      sortKey={sortKey}
+      sortDirection={sortDirection}
+      onSortColumn={onSortColumn}
     />
   );
 }

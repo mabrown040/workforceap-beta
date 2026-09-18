@@ -26,7 +26,7 @@ concurrency:
 jobs:
   mirror:
     name: Point preview at master
-    if: github.repository == 'mabrown040/workforceap-beta' && github.ref == 'refs/heads/master'
+    if: github.repository == 'workforceap/workforceap-beta' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:

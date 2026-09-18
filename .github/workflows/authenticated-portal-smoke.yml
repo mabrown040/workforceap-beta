@@ -24,7 +24,7 @@ jobs:
     name: Run trusted authenticated portal audit
     # Secrets are only exposed to the canonical repository's trusted master workflow.
     # Dispatching a feature-branch copy results in a skipped job.
-    if: github.repository == 'mabrown040/workforceap-beta' && github.ref == 'refs/heads/master'
+    if: github.repository == 'workforceap/workforceap-beta' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -45,8 +45,8 @@ jobs:
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           remote="$(git remote get-url origin)"
-          test "$remote" = "https://github.com/mabrown040/workforceap-beta" || \
-            test "$remote" = "https://github.com/mabrown040/workforceap-beta.git"
+          test "$remote" = "https://github.com/workforceap/workforceap-beta" || \
+            test "$remote" = "https://github.com/workforceap/workforceap-beta.git"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d4cf3b8df52356b16143644630e73c50e6df86363046d6fa8edeba5c951bda5e",
+  "inputTreeSha256": "476a38402bb11dda827f7322c41ad0e4f3fd7fb7cbc32f9ac23397ac97eefee8",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25,9 +25,9 @@
       "path": ".Jules/palette.md",
       "area": "agent-tooling",
       "domain": "agent-tooling",
-      "bytes": 7668,
-      "lines": 33,
-      "sha256": "48d3c39646cd65f559d4db04e38e63f2a249dac3046545a87625ba64c73abee4",
+      "bytes": 8435,
+      "lines": 36,
+      "sha256": "d0e5bd3389ac885d4c8dfaab0c351d9862126a9d8b9a7a623853d15d5d621194",
       "binary": false
     },
     {
@@ -49384,9 +49384,9 @@
       "path": "components/admin/AssessmentsTable.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 18686,
+      "bytes": 18784,
       "lines": 416,
-      "sha256": "997f133d6a8e2facda8e54e0ae20dc02f5fbcbdaf52f971f1e3e50c96ce1974b",
+      "sha256": "66f0ae7b8fccc522f3648ef43fdc3c91c97d35a49af4107f460540ccde8091b7",
       "binary": false,
       "exports": [
         {
@@ -54252,9 +54252,9 @@
       "path": "components/employer/MobileApplicationsClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 13447,
+      "bytes": 13532,
       "lines": 298,
-      "sha256": "3dc4245e4da532eed60238e7808aba93707ee074cfe4cf1daae67cc49341b7fe",
+      "sha256": "fb783f04fd2bf1b7da6d45a2632703e447f4e86a949515968bb49bd71b8e25eb",
       "binary": false,
       "exports": [
         {

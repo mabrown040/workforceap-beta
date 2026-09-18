@@ -16,11 +16,8 @@ describe('buildFactualReadinessRecap', () => {
     expect(recap).toContain('86 of 105 weighted points');
     expect(recap).toContain('Resume & Profile');
     expect(recap).toContain('Engagement');
-    expect(recap).toContain('Training & Certs is 60%');
-    expect(recap).toContain('Complete pathway steps (6/15)');
-    expect(recap).toContain('Track certificates (0/5)');
-    expect(recap).toContain('Interview & Jobs is 83%');
-    expect(recap).toContain('Add applications (10/15)');
+    expect(recap).toContain('Training & Certs is 60% because Track certificates (0/5); Complete pathway steps (6/15).');
+    expect(recap).toContain('Interview & Jobs is 83% because Add applications (10/15).');
     expect(recap).toContain('Apply to at least 3 jobs');
     expect(recap).not.toMatch(/preassessment/i);
     expect(recap).not.toMatch(/AWS/i);

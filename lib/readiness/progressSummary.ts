@@ -29,7 +29,7 @@ function incompleteReason(view: ReadinessProgressView): string {
       }
       return `${cat.label} is ${cat.pct}% because ${unfinished.join('; ')}`;
     })
-    .join(' ');
+    .join('. ');
 }
 
 /**
@@ -52,10 +52,12 @@ export function buildFactualReadinessRecap(view: ReadinessProgressView): string 
     ? `Next: ${view.priorityAction.label}`
     : 'Every scored category is complete.';
 
+  const gapSentence = gapBit && !/[.!?]$/.test(gapBit) ? `${gapBit}.` : gapBit;
+
   return [
     `Your readiness score is ${view.overallScore}% (${view.overallEarned} of ${view.overallMax} weighted points, capped at 100).`,
     completeBit,
-    gapBit,
+    gapSentence,
     next,
   ]
     .filter((part) => part.trim().length > 0)

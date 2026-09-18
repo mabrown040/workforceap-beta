@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d9d5342dc94a8099d6278b4d9228bc707336e6d9ac7801207273c0b3392d2425",
+  "inputTreeSha256": "e5ea5af9b033ab7ad05106f7f3b23db07d1a5357f98b0ac82d17751939e80d5f",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -59967,9 +59967,9 @@
       "path": "components/portal/MemberPortalTopNav.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3777,
-      "lines": 91,
-      "sha256": "d5be7cbe0028fd3ac24d5974ba203d796977e85543d8f90c244938f19f1dbaf7",
+      "bytes": 3866,
+      "lines": 92,
+      "sha256": "bbdb46b65f9fdde83b677385b5d037534b6a6cce0e74e86feb66d512394f5915",
       "binary": false,
       "exports": [
         {
@@ -59980,7 +59980,7 @@
         },
         {
           "name": "_topNavStyleRef",
-          "line": 91,
+          "line": 92,
           "kind": "Variable"
         }
       ],
@@ -59992,7 +59992,7 @@
         },
         {
           "name": "_topNavStyleRef",
-          "line": 91,
+          "line": 92,
           "kind": "Variable"
         }
       ],
@@ -75229,9 +75229,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 26227,
-      "lines": 381,
-      "sha256": "7f0a0ef856211806f8578d2a7a23506d32e16ad3abc7230e4d9c9686a162432c",
+      "bytes": 26327,
+      "lines": 383,
+      "sha256": "900c0770de25ca025b3266d7c989a91185772a157b90c5968c00290c3c6cf2c5",
       "binary": false
     },
     {
@@ -75400,9 +75400,9 @@
       "path": "docs/PORTAL_NAV_SPEC.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 3889,
-      "lines": 97,
-      "sha256": "056e3cc76556c7509e1a2f00876c7294f375e77d12a0ecae08e063db67dd39af",
+      "bytes": 4157,
+      "lines": 101,
+      "sha256": "45f8a5e9146ede1563790f9b5c2618f505b3c9ce253535131ca946482b446a01",
       "binary": false
     },
     {
@@ -75472,9 +75472,9 @@
       "path": "docs/REVIEW_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 4559,
+      "bytes": 4670,
       "lines": 47,
-      "sha256": "5c375ba3df3c302a74e1d47e6a7f868eff44d37f624c3824b7b21c7111d2d143",
+      "sha256": "3e3b5ab32b65c7584dd040f5b72070afe61cb1593e95eb754bac491faacd77a2",
       "binary": false
     },
     {
@@ -115172,9 +115172,9 @@
       "path": "lib/marketing-public-ui-regressions.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 5511,
-      "lines": 116,
-      "sha256": "534c07265262851c18da72051c5e4a1d2e0a10bc0f65fb422af59363c78b83c8",
+      "bytes": 6232,
+      "lines": 129,
+      "sha256": "55d2da302a6ff528e4cb73ae92ccedb077258953f33a1e4fbaea5edca6eab979",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -122428,9 +122428,9 @@
       "path": "lib/nav/portalNav.i18n.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 4181,
+      "bytes": 4176,
       "lines": 136,
-      "sha256": "8118bb87311e80cb3275235d8a452321268189520d7ac90972515bcd68591e7c",
+      "sha256": "75f01ba4a594133e8fd0bac77cb7402237557b225de6bf9d93c61b723d5d7ae7",
       "binary": false,
       "exports": [
         {
@@ -122457,9 +122457,9 @@
       "path": "lib/nav/portalNav.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 3027,
-      "lines": 60,
-      "sha256": "92add3a9a6b2ae331201e084bb8766c074a937f52e76f5aeeb41f97e550b7633",
+      "bytes": 4210,
+      "lines": 81,
+      "sha256": "61006a80ca77ddd14cda130a1f8c0e708d647d0df62ae29c34df7ee58139ccf0",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -122480,9 +122480,9 @@
       "path": "lib/nav/portalNav.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 20242,
+      "bytes": 20358,
       "lines": 494,
-      "sha256": "dd8d522401accb3a317114359e357ee76669c216f0e5c807d059bb1ba0632d62",
+      "sha256": "c4fffcceb4eb9f517fed3ee89b55a5ca988619ecd288bf882697ab9e72aa05a8",
       "binary": false,
       "exports": [
         {
@@ -152662,9 +152662,9 @@
       "path": "tests/components/workspace-sidebar.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 15048,
-      "lines": 284,
-      "sha256": "a2531264b9be40694ef71badb94a5590dc69d6e9cb39087f52705430512ecfde",
+      "bytes": 16299,
+      "lines": 300,
+      "sha256": "ba8f512a84efa068e54addf118c0291d2e24fc4d63d12bed1495212913cbea49",
       "binary": false,
       "exports": [],
       "declarations": [

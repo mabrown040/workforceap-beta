@@ -203,7 +203,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
         <LocalizedLink href="/contact" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-on-accent)', borderColor: 'color-mix(in srgb, var(--color-on-accent) 30%, transparent)' }}>
           {t('helpCta1')}
         </LocalizedLink>
-        <a href="tel:+15127771808" className="btn btn-primary mdx-btn mdx-btn--solid" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
+        <a href="tel:+15127771808" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-on-accent)', borderColor: 'color-mix(in srgb, var(--color-on-accent) 30%, transparent)' }}>
           {t('helpCta2')}
         </a>
       </div>
@@ -288,7 +288,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
                 {isSchool ? null : <li>{t('nextStep5')}</li>}
               </ol>
               <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
-                {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
+                {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-marketing-gold-on-light)', fontWeight: 700 }}>(512) 777-1808</a>
               </p>
             </div>
           </details>
@@ -415,7 +415,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
         }
 
         .apply-hero-help-compact__link {
-          color: var(--color-gold);
+          color: var(--color-on-accent);
           font-weight: 700;
           text-decoration: underline;
           text-underline-offset: 2px;
@@ -425,8 +425,8 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
           margin: var(--space-5) auto 0;
           min-width: min(100%, 320px);
           min-height: 48px;
-          background: var(--color-gold);
-          color: var(--color-on-surface);
+          background: var(--color-accent);
+          color: var(--color-on-accent, #fff);
           font-weight: 700;
         }
 
@@ -512,8 +512,8 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
             margin: 0 auto;
             display: flex;
             min-height: 48px;
-            background: var(--color-gold);
-            color: var(--color-on-surface);
+            background: var(--color-accent);
+            color: var(--color-on-accent, #fff);
             font-weight: 700;
           }
 

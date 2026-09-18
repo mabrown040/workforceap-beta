@@ -151,6 +151,25 @@ describe('buildNextBestActions', () => {
     expect(actions.some((a) => a.id === 'weekly_recap')).toBe(true);
   });
 
+  it('shows skills_assessment for state C while the preassessment is still open', () => {
+    const actions = buildNextBestActions(makeCtx({
+      state: 'C',
+      enrolledProgram: 'cyber',
+      assessmentCompleted: false,
+    }));
+    expect(actions.some((a) => a.id === 'skills_assessment')).toBe(true);
+    expect(actions.find((a) => a.id === 'skills_assessment')?.href).toBe('/dashboard/assessment');
+  });
+
+  it('does not show skills_assessment after the preassessment is complete', () => {
+    const actions = buildNextBestActions(makeCtx({
+      state: 'C',
+      enrolledProgram: 'cyber',
+      assessmentCompleted: true,
+    }));
+    expect(actions.some((a) => a.id === 'skills_assessment')).toBe(false);
+  });
+
   it('shows continue_training when training incomplete with next course', () => {
     const actions = buildNextBestActions(makeCtx({
       state: 'C',

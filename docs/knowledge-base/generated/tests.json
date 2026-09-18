@@ -935,6 +935,35 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "area": "components",
+    "domain": "components",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/programs.ts",
+        "line": 4
+      },
+      {
+        "file": "components/portal/LearningHubEnrolledCourses.tsx",
+        "line": 5
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "components/portal/MemberTodayNextStep.test.tsx",
     "area": "components",
     "domain": "components",
@@ -1032,11 +1061,11 @@
     "localReferences": [
       {
         "file": "lib/content/programs.ts",
-        "line": 4
+        "line": 7
       },
       {
         "file": "components/portal/ProgramPicker.tsx",
-        "line": 5
+        "line": 8
       }
     ],
     "kind": "test-candidate",
@@ -6779,6 +6808,38 @@
       {
         "file": "lib/content/programs.ts",
         "line": 11
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/member/programStartEnrollment.test.ts",
+    "area": "libraries",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "shared/digitalLiteracyPathway.ts",
+        "line": 7
+      },
+      {
+        "file": "lib/member/resolveActiveDashboardProgram.ts",
+        "line": 8
+      },
+      {
+        "file": "lib/member/programStartEnrollment.ts",
+        "line": 9
       }
     ],
     "kind": "test-candidate",
@@ -16266,6 +16327,31 @@
       {
         "file": "lib/member/trainingWorkspace.ts",
         "line": 7
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/workforce-ap-module-lessons.test.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/portal/WorkforceApModuleLessons.tsx",
+        "line": 3
       }
     ],
     "kind": "test-candidate",

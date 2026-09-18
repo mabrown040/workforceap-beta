@@ -138,6 +138,8 @@ export interface MemberHomeKitProps {
   goalsHref?: string;
   /** Dominant next-best-action banner rendered above the bento grid. `null`/omitted renders nothing (no empty shell). */
   doThisNext?: NextBestAction | null;
+  /** Ungated Digital Literacy lesson 1. Shown when the member has no enrolled program. */
+  ungatedDigitalBasicsHref?: string | null;
   /** Sparkline + delta chip for the course-progress stat tile. Omit to hide both. */
   courseSpark?: StatSpark;
   /** Sparkline + delta chip for the active-jobs stat tile. */
@@ -566,6 +568,7 @@ export function MemberHomeKit({
   goals = [],
   goalsHref = '/dashboard?ui=legacy&tab=learning#goals',
   doThisNext = null,
+  ungatedDigitalBasicsHref = null,
   courseSpark,
   activeJobsSpark,
   certsSpark,
@@ -637,6 +640,24 @@ export function MemberHomeKit({
         {/* 2. Dominant next-best-action banner. Renders nothing when there's no
             pending action (see MemberDoThisNextCard). */}
         <MemberDoThisNextCard action={doThisNext} variant="kit" paddingX="0" />
+
+        {!programTitle && ungatedDigitalBasicsHref ? (
+          <div className="wa-kit-card" style={{ display: 'grid', gap: 10 }}>
+            <p className="wa-kit-meta" style={{ margin: 0, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              No application needed
+            </p>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>Start digital basics</h3>
+            <p className="wa-kit-lede" style={{ margin: 0 }}>
+              Ten self-paced computer lessons. Open lesson 1 now.
+            </p>
+            <Link
+              href={ungatedDigitalBasicsHref}
+              className="wa-kit-cta wa-kit-cta--xl wa-kit-cta--block wa-kit-focus hover:wa-opacity-90"
+            >
+              Start this lesson
+            </Link>
+          </div>
+        ) : null}
 
         {/* 3. Stat tiles — icon + delta chip + value/label + optional sparkline. */}
         <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">

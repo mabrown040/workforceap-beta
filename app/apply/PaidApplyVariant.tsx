@@ -143,7 +143,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
         }
 
         .paid-apply-hero__help-compact__link {
-          color: var(--color-gold);
+          color: var(--color-on-accent);
           font-weight: 700;
           text-decoration: underline;
           text-underline-offset: 2px;

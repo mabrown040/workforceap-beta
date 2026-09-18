@@ -21,7 +21,7 @@ export default function WorkforceApModuleCompleteButton({
   const [error, setError] = useState<string | null>(null);
 
   if (completed) {
-    return <span className="btn btn-outline" role="status">{completedLabel}</span>;
+    return <span className="wa-kit-cta wa-kit-cta--ghost" role="status">{completedLabel}</span>;
   }
 
   const complete = async () => {
@@ -50,7 +50,7 @@ export default function WorkforceApModuleCompleteButton({
     <div>
       <button
         type="button"
-        className="btn btn-primary"
+        className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus"
         onClick={complete}
         disabled={saving}
         aria-busy={saving}

@@ -38,8 +38,8 @@ const config: Config = {
           'accent-dark': '#8c0f37',
           'accent-light': '#ffb2bc',
           blue: '#2b7bb9',
-          gold: '#FFBB00',
-          'gold-light': '#ffd54f',
+          gold: '#a47f38',
+          'gold-light': '#c79a45',
           green: '#4a9b4f',
         },
         // Stitch surface-container tonal scale

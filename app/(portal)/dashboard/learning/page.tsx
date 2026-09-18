@@ -23,6 +23,7 @@ import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgres
 import { readinessVoiceSurface } from '@/lib/portal/voice';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
+import { digitalLiteracyFirstModuleHref } from '@/lib/content/courseDelivery';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -140,8 +141,9 @@ export default async function LearningPage() {
               </span>
             }
             title="No active learning pathway"
-            description="Enroll in a program to see your courses, milestones, and progress here."
-            primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+            description="Start digital basics now — no application needed — or choose a funded program."
+            primaryAction={{ href: digitalLiteracyFirstModuleHref(), label: 'Start digital basics, no application needed' }}
+            secondaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
           />
         </div>
       )}
@@ -164,18 +166,71 @@ export default async function LearningPage() {
         </div>
       </section>
       )}
+    </div>
 
-      <LearningHubEnrolledCourses
-        variant="mobile"
-        programSlug={enrolledProgram}
-        programTitle={programMeta?.title ?? null}
-        courses={coursesForMember}
-        completedSlugs={coursesCompletedSlugs}
-        assessmentCompleted={dbUser?.assessmentCompleted ?? false}
-        eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
-        languagesSupported={programMeta?.languagesSupported}
-      />
+    {/* ── Desktop header ── */}
+    <div className="wa-hidden md:wa-block">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
+        <div>
+          <PageHeader
+            title="The Learning Hub"
+            subtitle="Your pathways, searchable career resources, and program-specific tools — organized so you always know where to look next."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Learning Hub' }]}
+            titleHeadingLevel={2}
+          />
+        </div>
 
+        {ACTIVE_PATHWAY && (
+        <div
+          style={{
+            background: 'var(--surface-container)',
+            borderRadius: 'var(--radius-xl)',
+            padding: 'var(--space-4) var(--space-6)',
+            minWidth: '200px',
+            textAlign: 'right',
+          }}
+        >
+          <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-2)' }}>
+            Pathway Progress
+          </div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)', fontVariantNumeric: 'tabular-nums' }}>
+            {overallPct}%
+          </div>
+          <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${Math.min(100, overallPct)}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
+          </div>
+        </div>
+        )}
+      </div>
+
+      {!ACTIVE_PATHWAY && (
+        <div style={{ marginBottom: 'var(--space-8)' }}>
+          <PortalEmptyState
+            icon={
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                school
+              </span>
+            }
+            title="No active learning pathway"
+            description="Start digital basics now — no application needed — or choose a funded program."
+            primaryAction={{ href: digitalLiteracyFirstModuleHref(), label: 'Start digital basics, no application needed' }}
+            secondaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+          />
+        </div>
+      )}
+    </div>
+
+    <LearningHubEnrolledCourses
+      programSlug={enrolledProgram}
+      programTitle={programMeta?.title ?? null}
+      courses={coursesForMember}
+      completedSlugs={coursesCompletedSlugs}
+      assessmentCompleted={dbUser?.assessmentCompleted ?? false}
+      eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
+      languagesSupported={programMeta?.languagesSupported}
+    />
+
+    <div className="md:wa-hidden">
       {memberSkillsetProgress.length > 0 && (
         <div className="portal-card portal-card--flat" style={{ margin: '0 1.5rem 1.5rem', padding: '1rem' }}>
           <SkillsetProgressList rows={memberSkillsetProgress} variant="member" />
@@ -200,7 +255,7 @@ export default async function LearningPage() {
           <h4 className="wa-text-xl wa-font-bold wa-leading-snug" style={{ marginBottom: '1.25rem' }}>{ACTIVE_PATHWAY.title}</h4>
           <p className="text-white/80 wa-text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
           <Link
-            href="/dashboard"
+            href="/dashboard/program"
             className="wa-bg-white wa-text-[var(--color-accent)] wa-font-bold hover:wa-opacity-90 active:wa-scale-95 wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
             style={{
               width: '100%',
@@ -300,68 +355,6 @@ export default async function LearningPage() {
 
     {/* ── Desktop view ── */}
     <div className="wa-hidden md:wa-block">
-      {/* Top bar: label + heading + progress */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
-        <div>
-          <PageHeader
-            title="The Learning Hub"
-            subtitle="Your pathways, searchable career resources, and program-specific tools — organized so you always know where to look next."
-            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Learning Hub' }]}
-            titleHeadingLevel={2}
-          />
-        </div>
-
-        {/* Overall completion */}
-        {ACTIVE_PATHWAY && (
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-4) var(--space-6)',
-            minWidth: '200px',
-            textAlign: 'right',
-          }}
-        >
-          <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-2)' }}>
-            Pathway Progress
-          </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)', fontVariantNumeric: 'tabular-nums' }}>
-            {overallPct}%
-          </div>
-          <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min(100, overallPct)}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
-          </div>
-        </div>
-        )}
-      </div>
-
-      {/* Empty state when no enrolled program */}
-      {!ACTIVE_PATHWAY && (
-        <div style={{ marginBottom: 'var(--space-8)' }}>
-          <PortalEmptyState
-            icon={
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
-                school
-              </span>
-            }
-            title="No active learning pathway"
-            description="Enroll in a program to see your courses, milestones, and progress here."
-            primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
-          />
-        </div>
-      )}
-
-      <LearningHubEnrolledCourses
-        variant="desktop"
-        programSlug={enrolledProgram}
-        programTitle={programMeta?.title ?? null}
-        courses={coursesForMember}
-        completedSlugs={coursesCompletedSlugs}
-        assessmentCompleted={dbUser?.assessmentCompleted ?? false}
-        eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
-        languagesSupported={programMeta?.languagesSupported}
-      />
-
       {memberSkillsetProgress.length > 0 && (
         <section
           className="portal-card portal-card--flat"
@@ -441,7 +434,7 @@ export default async function LearningPage() {
           </div>
           <div>
             <Link
-              href="/dashboard"
+              href="/dashboard/program"
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',

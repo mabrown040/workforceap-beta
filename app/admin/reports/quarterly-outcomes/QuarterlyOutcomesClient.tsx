@@ -6,7 +6,7 @@ import PageHeader from '@/components/portal/PageHeader';
 const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
 const GREEN = '#4a9b4f';
-const GOLD = '#FFBB00';
+const GOLD = '#a47f38';
 
 interface QuarterlyReport {
   quarter: string;

@@ -1,10 +1,13 @@
 import { notFound } from 'next/navigation';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, BookOpen } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
 import ProgramPicker from '@/components/portal/ProgramPicker';
-import { DesignSurface, PageOpener } from '@/components/portal/kit';
+import { DesignSurface, PageOpener, StatusTag } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
 import { MemberTrainingWorkspace } from '@/components/portal/kit/pages/member/MemberTrainingWorkspace';
+import WorkforceApModuleLessons from '@/components/portal/WorkforceApModuleLessons';
+import WorkforceApModuleCompleteButton from '@/components/portal/WorkforceApModuleCompleteButton';
+import { DIGITAL_LITERACY_MODULES } from '@/shared/digitalLiteracyPathway';
 import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 
 /**
@@ -14,6 +17,7 @@ import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
  *   /dev/member/program            — enrolled path
  *   /dev/member/program?state=empty — choose-your-program picker (preview)
  *   /dev/member/program?state=workspace — training overview + Continue this course
+ *   /dev/member/program?state=lessons — DigitalLearn lesson CTAs (WAP-127)
  */
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +65,43 @@ export default async function DevMemberProgramPage({
 }) {
   if (process.env.VERCEL_ENV === 'production') notFound();
   const { state } = await searchParams;
+  if (state === 'lessons') {
+    const previewModule = DIGITAL_LITERACY_MODULES[0];
+    return (
+      <DesignSurface surface="warm">
+        <main style={{ maxWidth: 960, margin: '0 auto', padding: 'var(--wa-pad-sm)', paddingBottom: '5rem' }}>
+          <PageOpener
+            kicker="DigitalLearn module"
+            title={previewModule.name}
+            lede={previewModule.summary}
+            icon={<BookOpen size={14} aria-hidden="true" />}
+            action={<StatusTag tone="warn">{previewModule.lessons.reduce((sum, lesson) => sum + lesson.minutes, 0)} min of lessons</StatusTag>}
+          />
+          <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Open course pages and materials</h2>
+            <p style={{ margin: '8px 0 16px', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
+              These links open on DigitalLearn in a new tab. Access is free and a provider account is optional.
+            </p>
+            <WorkforceApModuleLessons
+              lessons={[
+                ...DIGITAL_LITERACY_MODULES[0].lessons,
+                ...DIGITAL_LITERACY_MODULES[2].lessons,
+              ]}
+            />
+          </section>
+          <div style={{ marginTop: 20, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+            <WorkforceApModuleCompleteButton
+              courseSlug="digital-literacy-empowerment-class-course-1"
+              programSlug="digital-literacy-empowerment-class"
+              completed={false}
+              label="Mark module complete in WorkforceAP"
+            />
+          </div>
+        </main>
+      </DesignSurface>
+    );
+  }
+
   if (state === 'empty') {
     return (
       <DesignSurface surface="warm">
@@ -105,7 +146,7 @@ export default async function DevMemberProgramPage({
       modules={[
         { title: 'Cloud Concepts', state: 'done', slug: 'cloud-concepts' },
         { title: 'Security & Compliance', state: 'done', slug: 'security-compliance' },
-        { title: 'Shared Responsibility Model', state: 'active', slug: 'shared-responsibility' },
+        { title: 'Shared Responsibility Model', state: 'active', slug: 'shared-responsibility', moduleHref: '/dev/member/program?state=lessons' },
         { title: 'Billing & Pricing', state: 'locked', slug: 'billing-pricing' },
         { title: 'Exam Readiness', state: 'locked', slug: 'exam-readiness' },
       ]}

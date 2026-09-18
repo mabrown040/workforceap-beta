@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
@@ -55,9 +55,19 @@ const sampleAction: NextBestAction = {
   weight: 10,
 };
 
+/** Persisted MemberNextBestAction rows carry a UUID id; synthetic ones do not. */
+const persistedAction: NextBestAction = {
+  ...sampleAction,
+  id: '7f1c3a2e-5b6d-4c8f-9a0b-1d2e3f4a5b6c',
+};
+
 describe('MemberDoThisNextCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('labels the primary CTA as Today', () => {
@@ -79,6 +89,31 @@ describe('MemberDoThisNextCard', () => {
       'href',
       '/dashboard/program',
     );
+  });
+
+  it('completes the persisted action when the kit CTA is clicked, so the banner clears', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<MemberDoThisNextCard action={persistedAction} variant="kit" paddingX="0" />);
+    fireEvent.click(screen.getByRole('link', { name: /Open course/ }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`/api/member/nba/${persistedAction.id}`);
+    expect(init.method).toBe('PATCH');
+    expect(JSON.parse(String(init.body))).toEqual({ status: 'COMPLETED' });
+  });
+
+  it('does not PATCH synthetic (non-UUID) actions', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<MemberDoThisNextCard action={sampleAction} variant="kit" paddingX="0" />);
+    fireEvent.click(screen.getByRole('link', { name: /Open course/ }));
+
+    await Promise.resolve();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 

@@ -19,6 +19,7 @@ const navItems = [
     children: [
       { href: '/what-we-do', label: 'What We Do' },
       { href: '/how-it-works', label: 'How It Works' },
+      { href: '/apply', label: 'Membership' },
       { href: '/leadership', label: 'Leadership' },
       { href: '/faq', label: 'FAQ' },
       { href: '/donate', label: 'Donate' },
@@ -26,10 +27,13 @@ const navItems = [
   },
   {
     label: 'Programs',
+    // Keep parity with marketing Layout.astro Programs dropdown.
     children: [
       { href: '/programs', label: 'Programs' },
       { href: '/find-your-path', label: 'Find Your Path' },
       { href: '/career-quiz', label: 'Free Career Quiz' },
+      { href: '/program-comparison', label: 'Compare Programs' },
+      { href: '/salary-guide', label: 'Salary Guide' },
     ],
   },
   { href: '/partners', label: 'Partners' },
@@ -130,6 +134,10 @@ export default function MainNav() {
       'Programs': tNav('programs'),
       'Check Eligibility': tNav('checkEligibility'),
       'Find Your Path': tNav('findYourPath'),
+      'Free Career Quiz': tNav('freeCareerQuiz'),
+      'Compare Programs': tNav('comparePrograms'),
+      'Salary Guide': tNav('salaryGuide'),
+      'Membership': tNav('membership'),
       'Partners': tNav('partners'),
       'Employers': tNav('employers'),
       'Blog': tNav('blog'),

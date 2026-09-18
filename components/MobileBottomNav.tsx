@@ -16,7 +16,8 @@ const MOBILE_NAV_BREAKPOINT = 768;
 // the active locale instead of hardcoded English.
 const MARKETING_TABS = [
   { href: '/', labelKey: 'marketing.home', icon: 'home' },
-  { href: '/career-quiz', labelKey: 'marketing.quiz', icon: 'explore' },
+  // Primary pathfinder (same destination as MainNav “Find Your Path”).
+  { href: '/find-your-path', labelKey: 'marketing.quiz', icon: 'explore' },
   { href: '/programs', labelKey: 'marketing.programs', icon: 'school' },
   { href: '/apply', labelKey: 'marketing.apply', icon: 'assignment_turned_in' },
 ];
@@ -43,10 +44,11 @@ const PARTNER_TABS = [
   { href: '/partner/outcomes', labelKey: 'partner.outcomes', icon: 'bar_chart' },
 ];
 
+// Match ADMIN_PORTAL_NAV_ITEMS daily destinations (Command Center / Students / Messages).
 const ADMIN_TABS = [
   { href: '/admin', labelKey: 'admin.today', icon: 'home' },
-  { href: '/admin/command-center', labelKey: 'admin.queue', icon: 'assignment_ind' },
-  { href: '/admin/members', labelKey: 'admin.members', icon: 'groups' },
+  { href: '/admin/students', labelKey: 'admin.students', icon: 'groups' },
+  { href: '/admin/messages', labelKey: 'admin.messages', icon: 'chat' },
 ];
 
 interface MobileBottomNavProps {
@@ -56,7 +58,7 @@ interface MobileBottomNavProps {
 
 function prefetchForBottomTab(variant: MobileBottomNavProps['variant'], href: string): boolean {
   if (variant === 'marketing') {
-    return href === '/apply' || href === '/programs' || href === '/career-quiz';
+    return href === '/apply' || href === '/programs' || href === '/find-your-path';
   }
   return false;
 }

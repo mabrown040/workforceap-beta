@@ -80,10 +80,14 @@
       },
       "admin": {
         "today": "Hoje",
-        "queue": "Fila",
-        "members": "Membros"
+        "students": "Estudantes",
+        "messages": "Mensagens"
       }
-    }
+    },
+    "freeCareerQuiz": "Quiz de carreira grátis",
+    "comparePrograms": "Comparar programas",
+    "salaryGuide": "Guia salarial",
+    "membership": "Torne-se membro"
   },
   "cta": {
     "applyNow": "Candidatar-se Agora",
@@ -138,7 +142,8 @@
     "employerPartners": "Parceiros empregadores",
     "copyright": "© {year} Workforce Advancement Project. Treinamento profissional e suporte de prontidão para emprego sem custo para membros qualificados.",
     "onetAttribution": "Este site incorpora informações dos Serviços Web O*NET do Departamento do Trabalho dos EUA, Administração de Emprego e Treinamento (USDOL/ETA). O*NET® é uma marca registrada do USDOL/ETA.",
-    "careers": "Careers"
+    "careers": "Careers",
+    "freeCareerQuiz": "Quiz de carreira grátis"
   },
   "form": {
     "fullName": "Nome completo",

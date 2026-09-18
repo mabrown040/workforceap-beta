@@ -74056,6 +74056,46 @@
     "target": "lib/wioa/wioaAvailability.ts"
   },
   {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "react",
+    "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "@/lib/content/programs",
+    "line": 4,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "./LearningHubEnrolledCourses",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/LearningHubEnrolledCourses.tsx"
+  },
+  {
     "from": "components/portal/LearningHubEnrolledCourses.tsx",
     "specifier": "next/link",
     "line": 3,
@@ -100609,19 +100649,19 @@
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",
-    "specifier": "@/lib/member/nextBestActions",
-    "line": 11,
-    "kind": "type",
-    "external": false,
-    "target": "lib/member/nextBestActions.ts"
-  },
-  {
-    "from": "lib/member/loadMemberDashboardHome.ts",
     "specifier": "@/lib/member/memberProgramHref",
-    "line": 12,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/member/memberProgramHref.ts"
+  },
+  {
+    "from": "lib/member/loadMemberDashboardHome.ts",
+    "specifier": "@/lib/member/nextBestActions",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/nextBestActions.ts"
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",

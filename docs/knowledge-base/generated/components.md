@@ -323,7 +323,8 @@
 | [components/portal/LanguageToggle.tsx](../../../components/portal/LanguageToggle.tsx) | 99 | components | default:23 |
 | [components/portal/LearningCivicBotPanel.tsx](../../../components/portal/LearningCivicBotPanel.tsx) | 94 | components | default:5 |
 | [components/portal/LearningHubDestinationCards.tsx](../../../components/portal/LearningHubDestinationCards.tsx) | 83 | components | default:10 |
-| [components/portal/LearningHubEnrolledCourses.tsx](../../../components/portal/LearningHubEnrolledCourses.tsx) | 208 | components | default:42 |
+| [components/portal/LearningHubEnrolledCourses.test.tsx](../../../components/portal/LearningHubEnrolledCourses.test.tsx) | 53 | components |  |
+| [components/portal/LearningHubEnrolledCourses.tsx](../../../components/portal/LearningHubEnrolledCourses.tsx) | 204 | components | default:44 |
 | [components/portal/LearningPathCard.tsx](../../../components/portal/LearningPathCard.tsx) | 134 | components | default:9 |
 | [components/portal/LegacyViewNotice.tsx](../../../components/portal/LegacyViewNotice.tsx) | 38 | components | default:13 |
 | [components/portal/MatchedRoles.tsx](../../../components/portal/MatchedRoles.tsx) | 156 | components | default:16 |

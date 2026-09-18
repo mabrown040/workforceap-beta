@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "34f173eeedcabee0989ba0b0eebf8e4692670c7627767cdc2736e012f1a20ee3",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9586,9 +9586,9 @@
       "path": "app/(portal)/dashboard/learning/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 26804,
-      "lines": 569,
-      "sha256": "1d2864972530ed3aa7e58ed2e06af482c84efd30e57c3e808bef227d8f4237ea",
+      "bytes": 26341,
+      "lines": 559,
+      "sha256": "577e956c6a99763cc65f3d580dee1b60e057064263f5ffee4d6fb61ad2500760",
       "binary": false,
       "exports": [
         {
@@ -59441,17 +59441,35 @@
       "directive": "use client"
     },
     {
+      "path": "components/portal/LearningHubEnrolledCourses.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 2149,
+      "lines": 53,
+      "sha256": "eaaec92544086c8fad30fa721d6e79093465f47321991f9914848b2639c0557e",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "courses",
+          "line": 13,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/LearningHubEnrolledCourses.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 7200,
-      "lines": 208,
-      "sha256": "99857f239b5bf9207397e6faafced5296cffefd407a90550326596f8d4a5c968",
+      "bytes": 7136,
+      "lines": 204,
+      "sha256": "57aec71c6ab83ef67946e50a98da1d21510c83688c94e85166aa8fb3da03c560",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 42,
+          "line": 44,
           "kind": "FunctionDeclaration",
           "localName": "LearningHubEnrolledCourses"
         }
@@ -59464,22 +59482,27 @@
         },
         {
           "name": "LANGUAGE_LABELS",
-          "line": 21,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "LANGUAGE_LEVEL_LABELS",
-          "line": 27,
+          "line": 26,
           "kind": "Variable"
         },
         {
           "name": "buildLanguageSupportLine",
-          "line": 34,
+          "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "ENROLLED_COURSES_WRAP_CLASS",
+          "line": 41,
+          "kind": "Variable"
+        },
+        {
           "name": "LearningHubEnrolledCourses",
-          "line": 42,
+          "line": 44,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119089,9 +119112,9 @@
       "path": "lib/member/loadMemberDashboardHome.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 12294,
-      "lines": 340,
-      "sha256": "8a39bc5e39d29d0effc71a4c707bf0167abce7f33f57e4bbb24f5cb193bd919e",
+      "bytes": 15263,
+      "lines": 430,
+      "sha256": "486635fcd8a4df535b994ce9b5891b2329ce5893c59f54bb7110fbdbfd7a69ac",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -119107,7 +119130,7 @@
         },
         {
           "name": "mockDb",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119117,9 +119140,9 @@
       "path": "lib/member/loadMemberDashboardHome.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 18176,
-      "lines": 576,
-      "sha256": "ff777c2d0d30e34c17180ab167e4cf816b35085247c72a958998476f4aea6c99",
+      "bytes": 21235,
+      "lines": 662,
+      "sha256": "c814c3f2a5b87e11ace8efe2bbf874e761a27b67865d733706bb714166a19cc9",
       "binary": false,
       "exports": [
         {
@@ -119154,32 +119177,32 @@
         },
         {
           "name": "mapPipelineRows",
-          "line": 186,
+          "line": 187,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pointsLedgerColor",
-          "line": 203,
+          "line": 204,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapPointsLedger",
-          "line": 213,
+          "line": 214,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapGoalSummaries",
-          "line": 223,
+          "line": 224,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveNextBadge",
-          "line": 245,
+          "line": 246,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberDashboardHome",
-          "line": 554,
+          "line": 640,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119241,62 +119264,77 @@
         },
         {
           "name": "STAGE_TONE_BY_STATUS",
-          "line": 175,
+          "line": 176,
           "kind": "Variable"
         },
         {
           "name": "mapPipelineRows",
-          "line": 186,
+          "line": 187,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pointsLedgerColor",
-          "line": 203,
+          "line": 204,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapPointsLedger",
-          "line": 213,
+          "line": 214,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapGoalSummaries",
-          "line": 223,
+          "line": 224,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveNextBadge",
-          "line": 245,
+          "line": 246,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "displayFirstName",
-          "line": 274,
+          "line": 275,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "dashboardHomeStateLetter",
+          "line": 288,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "fallbackDashboardHomeAction",
+          "line": 299,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolveDashboardHomeNextAction",
+          "line": 330,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "emptyHome",
-          "line": 287,
+          "line": 356,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "shapeHome",
-          "line": 316,
+          "line": 396,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "userSelect",
-          "line": 427,
+          "line": 512,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchHomeRow",
-          "line": 523,
+          "line": 609,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberDashboardHome",
-          "line": 554,
+          "line": 640,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119759,9 +119797,9 @@
       "path": "lib/member/nextBestActions.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 5145,
-      "lines": 157,
-      "sha256": "9de02b7056766cde09609cfe013889b2ddc673a62032bcbfc9e5bbe7882ed524",
+      "bytes": 5718,
+      "lines": 174,
+      "sha256": "41e9413cfd9cb9c0c6dad60fa923ec477a65505014e684ef60f6ad3171b5f260",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -119771,9 +119809,9 @@
       "path": "lib/member/nextBestActions.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 10786,
+      "bytes": 10837,
       "lines": 324,
-      "sha256": "8f615a74c7e797b06f46e5c931070fcaf9dd5b37f2b70cdd25d84d9a545065a6",
+      "sha256": "79197f294dde1f6c20ab8f0f2e0951131c3bf8cc2a3cce1018d84f8e1204067d",
       "binary": false,
       "exports": [
         {
@@ -150981,9 +151019,9 @@
       "path": "tests/api/member-course-complete.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4517,
-      "lines": 129,
-      "sha256": "8b3cd785b4c11bd85a01f7eb21f5caa2935f26f9b0e0d3f8fd8e18225b127af7",
+      "bytes": 4822,
+      "lines": 135,
+      "sha256": "786cf324e44cc5f78bf8d029f3142f66e8bed4dca703d565e60513d4376ba96d",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -155782,9 +155820,9 @@
       "path": "tests/lib/nextBestActions.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 10028,
-      "lines": 247,
-      "sha256": "e2d0c3abcbeb9f34406847e3d0544bc5e7209c90ad2dc8808268ad470756298c",
+      "bytes": 10751,
+      "lines": 266,
+      "sha256": "caa03e6f2778a05b9de1207bf2744859e45b23a3cdc1deff2f7bd27598675565",
       "binary": false,
       "exports": [],
       "declarations": [

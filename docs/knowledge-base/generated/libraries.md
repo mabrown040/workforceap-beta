@@ -627,8 +627,8 @@
 | [lib/member/labApi.ts](../../../lib/member/labApi.ts) | 38 | member-counselor | LAB_PRIVATE_HEADERS:5, labJson:17, labFailure:18, requireLabMutationOrigin:23, readLabJson:31 |
 | [lib/member/labWorkspace.ts](../../../lib/member/labWorkspace.ts) | 261 | member-counselor | LabWorkspaceError:15, loadLabWorkspace:110, saveLabDraft:169, submitLabEvidence:170, loadLabReviewQueue:201, loadLabReview:233, reviewLabEvidence:237 |
 | [lib/member/labWorkspaceTypes.ts](../../../lib/member/labWorkspaceTypes.ts) | 103 | member-counselor | LAB_MAX_ANSWER_LENGTH:4, LAB_MAX_ARTIFACT_URL_LENGTH:5, LAB_MAX_FEEDBACK_LENGTH:6, LAB_MAX_CRITERION_FEEDBACK_LENGTH:7, LAB_MAX_REQUEST_LENGTH:8, labDraftInputSchema:27, labSubmitInputSchema:28, LabDraftInput:29, LabSubmitInput:30, labReviewInputSchema:31, LabReviewInput:41, LabReviewStatus:42, labReviewStatusSchema:43, LabEvidenceReview:45, LabEvidenceSubmission:55, LabReviewRouting:69, LabWorkspace:74, LabReviewQueueItem:82, LabReviewQueue:95, LabStaffReviewWorkspace:96, LabApiError:103 |
-| [lib/member/loadMemberDashboardHome.test.ts](../../../lib/member/loadMemberDashboardHome.test.ts) | 340 | member-counselor |  |
-| [lib/member/loadMemberDashboardHome.ts](../../../lib/member/loadMemberDashboardHome.ts) | 576 | member-counselor | MEMBER_DASHBOARD_HOME_PRISMA_BUDGET:35, DashboardPipelineRow:40, DashboardGoalSummary:50, DashboardPointsLedgerEntry:55, MemberDashboardHomeView:61, LoadMemberDashboardHomeArgs:96, mapPipelineRows:186, pointsLedgerColor:203, mapPointsLedger:213, mapGoalSummaries:223, deriveNextBadge:245, loadMemberDashboardHome:554 |
+| [lib/member/loadMemberDashboardHome.test.ts](../../../lib/member/loadMemberDashboardHome.test.ts) | 430 | member-counselor |  |
+| [lib/member/loadMemberDashboardHome.ts](../../../lib/member/loadMemberDashboardHome.ts) | 662 | member-counselor | MEMBER_DASHBOARD_HOME_PRISMA_BUDGET:35, DashboardPipelineRow:40, DashboardGoalSummary:50, DashboardPointsLedgerEntry:55, MemberDashboardHomeView:61, LoadMemberDashboardHomeArgs:96, mapPipelineRows:187, pointsLedgerColor:204, mapPointsLedger:214, mapGoalSummaries:224, deriveNextBadge:246, loadMemberDashboardHome:640 |
 | [lib/member/loadProgramCourses.ts](../../../lib/member/loadProgramCourses.ts) | 101 | member-counselor | loadProgramCourses:25, loadProgramCourseCount:91 |
 | [lib/member/loadTrainingWorkspace.ts](../../../lib/member/loadTrainingWorkspace.ts) | 112 | member-counselor | TrainingWorkspaceError:14, loadTrainingWorkspace:81, saveTrainingWorkspace:85 |
 | [lib/member/memberApplicationStatus.test.ts](../../../lib/member/memberApplicationStatus.test.ts) | 98 | member-counselor |  |
@@ -641,7 +641,7 @@
 | [lib/member/mentorsEmptyState.ts](../../../lib/member/mentorsEmptyState.ts) | 24 | member-counselor | MENTORS_MEMBER_EMPTY:6, MENTORS_ADMIN_EMPTY:19 |
 | [lib/member/missionCourseUnlock.test.ts](../../../lib/member/missionCourseUnlock.test.ts) | 33 | member-counselor |  |
 | [lib/member/missionCourseUnlock.ts](../../../lib/member/missionCourseUnlock.ts) | 44 | member-counselor | MissionUnlockCourse:8, normalizeCourseName:13, resolveMissionUnlockSlugs:22, isMissionCourseComplete:37 |
-| [lib/member/nextBestActions.test.ts](../../../lib/member/nextBestActions.test.ts) | 157 | member-counselor |  |
+| [lib/member/nextBestActions.test.ts](../../../lib/member/nextBestActions.test.ts) | 174 | member-counselor |  |
 | [lib/member/nextBestActions.ts](../../../lib/member/nextBestActions.ts) | 324 | member-counselor | NextBestAction:6, NextBestActionsContext:17, buildNextBestActions:43 |
 | [lib/member/parseCourseSlugList.ts](../../../lib/member/parseCourseSlugList.ts) | 11 | member-counselor | parseCourseSlugList:5 |
 | [lib/member/points.ts](../../../lib/member/points.ts) | 72 | member-counselor | LevelName:6, getLevelForPoints:7, getNextLevel:7, LEVELS:7, awardPoints:13, getMemberPoints:56, getStreak:72 |

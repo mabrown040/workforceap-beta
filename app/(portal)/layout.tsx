@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
+import { Suspense } from 'react';
 import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
 import { pickPortalClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import '@/css/portal.css';
@@ -35,7 +36,9 @@ export default async function PortalLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <PartnerExclusiveServerGate />
-      <LegacyViewNotice />
+      <Suspense fallback={null}>
+        <LegacyViewNotice />
+      </Suspense>
       <PortalLayoutClient>{children}</PortalLayoutClient>
     </NextIntlClientProvider>
   );

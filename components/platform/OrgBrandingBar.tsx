@@ -6,24 +6,13 @@ export default function OrgBrandingBar({ branding }: { branding: OrgBranding }) 
   const logo = branding.logo?.trim();
   if (!logo) return null;
   return (
-    <div
-      className="org-branding-bar"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.75rem',
-        padding: '0.35rem 1rem',
-        background: 'var(--color-light, #f5f5f5)',
-        borderBottom: '1px solid var(--outline-variant)',
-      }}
-    >
+    <div className="org-branding-bar">
       <Image
         src={logo}
         alt=""
         width={120}
         height={36}
-        style={{ maxHeight: 36, width: 'auto', height: 'auto', objectFit: 'contain' }}
+        className="org-branding-bar__logo"
         sizes="120px"
       />
     </div>

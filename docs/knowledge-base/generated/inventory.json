@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "97f0d012e2304812c1a49d49ef506d487733023c638a4f662ca4f5c863d2ac6d",
+  "inputTreeSha256": "d172107f3226323357562847a2ebe81e00993ceb2998c08a51435810d61993ae",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -12553,24 +12553,24 @@
       "path": "app/(portal)/layout.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 1536,
-      "lines": 42,
-      "sha256": "c14b297d14a93e1df28c0a58846ce1fa8dcb86b87405583d662dc27ee5f48a2d",
+      "bytes": 1623,
+      "lines": 45,
+      "sha256": "3d2f090768a062aa7bf54fa31abf9850e35d5b428c6ef39499cccfb27d470cdf",
       "binary": false,
       "exports": [
         {
           "name": "metadata",
-          "line": 14,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "maxDuration",
-          "line": 27,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 29,
+          "line": 30,
           "kind": "FunctionDeclaration",
           "localName": "PortalLayout"
         }
@@ -12578,17 +12578,17 @@
       "declarations": [
         {
           "name": "metadata",
-          "line": 14,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "maxDuration",
-          "line": 27,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "PortalLayout",
-          "line": 29,
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -17510,24 +17510,24 @@
       "path": "app/admin/layout.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 4510,
-      "lines": 112,
-      "sha256": "616398ca96e7110b307c833022e2f1cae5ed055f26a22c87b12a8079582d7867",
+      "bytes": 4763,
+      "lines": 117,
+      "sha256": "41a1e92218eafdb341a369cdb108940d2afe7272468fe76ed124a981e78d0f3e",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 21,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "metadata",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 30,
+          "line": 31,
           "kind": "FunctionDeclaration",
           "localName": "AdminLayout"
         }
@@ -17535,17 +17535,17 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 21,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "metadata",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "AdminLayout",
-          "line": 30,
+          "line": 31,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56874,9 +56874,9 @@
       "path": "components/platform/OrgBrandingBar.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 902,
-      "lines": 31,
-      "sha256": "43bd380b93d77c6bddb6e762356b8e9cb18915d7d67569f2402cc6d371b5fe92",
+      "bytes": 568,
+      "lines": 20,
+      "sha256": "818f33b1933d7290204e2305e2d582c7a57e6e5ae3744b4d6085b39f35f9d357",
       "binary": false,
       "exports": [
         {
@@ -59326,9 +59326,9 @@
       "path": "components/portal/LegacyViewNotice.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 1796,
-      "lines": 51,
-      "sha256": "9af5e4776462a6e451a350d4b4e1b474aff2af1b712f2ffe9a0ce8e0b63cc913",
+      "bytes": 1351,
+      "lines": 38,
+      "sha256": "a276c5e0131704963b693422dd05f6f77bc09e1a8c7d901ab6a767ec1e13007b",
       "binary": false,
       "exports": [
         {
@@ -74679,9 +74679,9 @@
       "path": "css/portal.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 78512,
-      "lines": 3329,
-      "sha256": "eb21bce8612b3eeaa494c64634bf9deb4ae8a4f955e1af44496c63b448ad0bd4",
+      "bytes": 79625,
+      "lines": 3372,
+      "sha256": "a62b545e7dd1de0b8fbb310b4e889c678049a88efdbb758bdf066eafca92e848",
       "binary": false
     },
     {
@@ -81685,19 +81685,19 @@
       "path": "instrumentation-client.ts",
       "area": "root",
       "domain": "root",
-      "bytes": 6862,
-      "lines": 189,
-      "sha256": "5ef438a539f1d65dadf526ea6211d8328efab479a73c9fb66f209038399c0814",
+      "bytes": 8267,
+      "lines": 225,
+      "sha256": "0d0fd19de62e6cda1282af86ff31bde9e76fc33e30564d9d60b6e3aa3f99b715",
       "binary": false,
       "exports": [
         {
           "name": "onRouterTransitionStart",
-          "line": 158,
+          "line": 194,
           "kind": "Variable"
         },
         {
           "name": "setSentryUser",
-          "line": 177,
+          "line": 213,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -81753,23 +81753,28 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "isExtensionStyleHydrationNoise",
+          "line": 79,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "initSentry",
-          "line": 78,
+          "line": 109,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "maybeInitSentry",
-          "line": 148,
+          "line": 184,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "onRouterTransitionStart",
-          "line": 158,
+          "line": 194,
           "kind": "Variable"
         },
         {
           "name": "setSentryUser",
-          "line": 177,
+          "line": 213,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -151065,6 +151070,18 @@
       "directive": null
     },
     {
+      "path": "tests/components/admin-hydration-hardening.test.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1353,
+      "lines": 34,
+      "sha256": "e67d786de229e52ae7cf8276fc87f3707e4fa04b20e9d8474174a0194df33e05",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
       "path": "tests/components/admin-subgroup-members-table.test.tsx",
       "area": "tests",
       "domain": "tests",
@@ -152513,6 +152530,18 @@
       "lines": 1,
       "sha256": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
       "binary": false
+    },
+    {
+      "path": "tests/instrumentation-client-hydration-filter.test.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 499,
+      "lines": 13,
+      "sha256": "d9f72dadb134ed5b809f81eaadc402029a8995a69382906bda156ee3b1b6eff4",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
     },
     {
       "path": "tests/lib/admin-job-match-prisma-scope.spec.ts",

@@ -258,7 +258,7 @@
 | [components/partner/PartnerSignupForm.tsx](../../../components/partner/PartnerSignupForm.tsx) | 261 | partners-funding | default:34 |
 | [components/partner/PartnerWorkflowTimeline.tsx](../../../components/partner/PartnerWorkflowTimeline.tsx) | 43 | partners-funding | default:10 |
 | [components/partner/PendingApprovalBanner.tsx](../../../components/partner/PendingApprovalBanner.tsx) | 34 | partners-funding | default:3 |
-| [components/platform/OrgBrandingBar.tsx](../../../components/platform/OrgBrandingBar.tsx) | 31 | administration | default:5 |
+| [components/platform/OrgBrandingBar.tsx](../../../components/platform/OrgBrandingBar.tsx) | 20 | administration | default:5 |
 | [components/platform/OrgBrandingStyle.tsx](../../../components/platform/OrgBrandingStyle.tsx) | 18 | administration | default:7 |
 | [components/portal/AIHistoryList.tsx](../../../components/portal/AIHistoryList.tsx) | 227 | components | default:80 |
 | [components/portal/AdminPortalShell.tsx](../../../components/portal/AdminPortalShell.tsx) | 40 | components | default:10 |
@@ -325,7 +325,7 @@
 | [components/portal/LearningHubDestinationCards.tsx](../../../components/portal/LearningHubDestinationCards.tsx) | 83 | components | default:10 |
 | [components/portal/LearningHubEnrolledCourses.tsx](../../../components/portal/LearningHubEnrolledCourses.tsx) | 208 | components | default:42 |
 | [components/portal/LearningPathCard.tsx](../../../components/portal/LearningPathCard.tsx) | 134 | components | default:9 |
-| [components/portal/LegacyViewNotice.tsx](../../../components/portal/LegacyViewNotice.tsx) | 51 | components | default:13 |
+| [components/portal/LegacyViewNotice.tsx](../../../components/portal/LegacyViewNotice.tsx) | 38 | components | default:13 |
 | [components/portal/MatchedRoles.tsx](../../../components/portal/MatchedRoles.tsx) | 156 | components | default:16 |
 | [components/portal/MemberCareerPathSection.tsx](../../../components/portal/MemberCareerPathSection.tsx) | 88 | components | default:4 |
 | [components/portal/MemberCounselorChatClient.tsx](../../../components/portal/MemberCounselorChatClient.tsx) | 241 | components | default:41 |

@@ -19,4 +19,4 @@
 | [css/portal-main-extracted.css](../../../css/portal-main-extracted.css) | 9923 | styles |  |
 | [css/portal-tokens.css](../../../css/portal-tokens.css) | 248 | styles |  |
 | [css/portal-ui-kit.css](../../../css/portal-ui-kit.css) | 268 | styles |  |
-| [css/portal.css](../../../css/portal.css) | 3329 | styles |  |
+| [css/portal.css](../../../css/portal.css) | 3372 | styles |  |

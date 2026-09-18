@@ -9817,8 +9817,24 @@
   },
   {
     "from": "app/(portal)/dashboard/program/start/page.tsx",
-    "specifier": "@/components/portal/PageHeader",
+    "specifier": "@/lib/member/getActiveProgramForDashboard",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/getActiveProgramForDashboard.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/program/start/page.tsx",
+    "specifier": "@/lib/member/programStartEnrollment",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/programStartEnrollment.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/program/start/page.tsx",
+    "specifier": "@/components/portal/PageHeader",
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -9826,7 +9842,7 @@
   {
     "from": "app/(portal)/dashboard/program/start/page.tsx",
     "specifier": "@/components/portal/ui/PortalCard",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/PortalCard.tsx"
@@ -9834,7 +9850,7 @@
   {
     "from": "app/(portal)/dashboard/program/start/page.tsx",
     "specifier": "@/components/portal/ProgramCommitmentPanel",
-    "line": 11,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/ProgramCommitmentPanel.tsx"
@@ -101198,6 +101214,78 @@
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "node:url",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:url"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "./resolveActiveDashboardProgram",
+    "line": 8,
+    "kind": "type",
+    "external": false,
+    "target": "lib/member/resolveActiveDashboardProgram.ts"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.test.ts",
+    "specifier": "./programStartEnrollment",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/programStartEnrollment.ts"
+  },
+  {
+    "from": "lib/member/programStartEnrollment.ts",
+    "specifier": "./resolveActiveDashboardProgram",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/resolveActiveDashboardProgram.ts"
   },
   {
     "from": "lib/member/recommendPrograms.ts",

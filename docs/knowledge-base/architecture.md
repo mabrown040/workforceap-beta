@@ -136,7 +136,7 @@ This is the current training/enrollment architecture, not a wish list. Collectin
 ### Replacement order (do not skip steps)
 
 1. **One enrollment writer.** Route remaining `courseEnrollment.create` / copied alias lookups through `upsertEquivalentCourseEnrollment`. Keep curriculumVersion immutable on retry.
-2. **One read resolver.** Every product path that needs "the member's program" calls the same helper: primary `CourseEnrollment`, else mirrored legacy pointer, else none. Stop adding new `User.enrolledProgram` reads.
+2. **One read resolver.** Every product path that needs "the member's program" calls the same helper: primary `CourseEnrollment`, else mirrored legacy pointer, else none. Stop adding new `User.enrolledProgram` reads. Member `/dashboard/program` and `/dashboard/program/start` both go through [getActiveProgramForDashboard](../../lib/member/getActiveProgramForDashboard.ts); start must not bounce on a null leftover `User.enrolledProgram` when a primary `CourseEnrollment` exists.
 3. **Demote the user columns to a derived projection.** Writers may keep filling them until recap, partner queues and leftover admin views migrate. Then drop the columns.
 4. **One public catalog for hours/titles.** Reconcile marketing vs app (remove `KNOWN_HOUR_DRIFT` by making one list authoritative) before treating either as TWC-accurate.
 5. **Do not promote Prisma `Course` or B4B live lists to assignment authority** until curriculumVersion and the app catalog agree. Live Coursera contents are evidence, not the enrollment contract.

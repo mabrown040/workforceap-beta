@@ -39,6 +39,16 @@ test('falls back to legacy User.enrolledProgram when no CourseEnrollment rows ex
   assert.equal(result.legacyEnrolledProgramMismatch, false);
 });
 
+test('uses the primary CourseEnrollment when User.enrolledProgram is null', () => {
+  const result = resolveActiveDashboardProgram({
+    enrollments: [enrollment('digital-literacy-empowerment-class', { isPrimary: true })],
+    legacyEnrolledProgram: null,
+  });
+  assert.equal(result.activeProgramSlug, 'digital-literacy-empowerment-class');
+  assert.equal(result.primaryProgramSlug, 'digital-literacy-empowerment-class');
+  assert.equal(result.legacyEnrolledProgramMismatch, false);
+});
+
 test('uses the primary enrollment when legacy field disagrees (the mabrown040 bug)', () => {
   const result = resolveActiveDashboardProgram({
     enrollments: [

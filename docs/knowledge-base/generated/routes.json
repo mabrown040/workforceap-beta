@@ -4591,12 +4591,12 @@
     "exports": [
       {
         "name": "metadata",
-        "line": 13,
+        "line": 15,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 19,
+        "line": 21,
         "kind": "FunctionDeclaration",
         "localName": "ProgramStartPage"
       }

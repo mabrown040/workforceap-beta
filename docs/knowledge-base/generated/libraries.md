@@ -649,12 +649,14 @@
 | [lib/member/proactiveInsights.ts](../../../lib/member/proactiveInsights.ts) | 236 | member-counselor | ProactiveInsightTone:21, ProactiveInsight:23, ProactiveInsightsInput:39, buildProactiveInsights:70, buildInsightNotificationPayload:214 |
 | [lib/member/programCourseMatch.ts](../../../lib/member/programCourseMatch.ts) | 292 | member-counselor | CanonicalMappingHit:22, CanonicalMappingIndex:22, findCanonicalMappingForCourseraCourse:24, loadCanonicalMappingsForCourseraIds:25, resolveProgramCourse:51, resolveProgramCourseWithCatalogFallback:149 |
 | [lib/member/programCourseResolution.test.ts](../../../lib/member/programCourseResolution.test.ts) | 69 | member-counselor |  |
+| [lib/member/programStartEnrollment.test.ts](../../../lib/member/programStartEnrollment.test.ts) | 84 | member-counselor |  |
+| [lib/member/programStartEnrollment.ts](../../../lib/member/programStartEnrollment.ts) | 40 | member-counselor | ProgramStartAccess:6, resolveProgramStartAccess:19, programStartAccessFromDashboardView:32 |
 | [lib/member/recommendPrograms.ts](../../../lib/member/recommendPrograms.ts) | 53 | member-counselor | DEFAULT_RECOMMENDED_PROGRAM_SLUGS:5, RecommendedProgramSummary:7, resolveRecommendedProgramSlugs:18, resolveRecommendedProgramSummaries:34 |
 | [lib/member/referralRules.ts](../../../lib/member/referralRules.ts) | 34 | applications-enrollment | MEMBER_REFERRAL_COOKIE:5, CODE_ALPHABET:8, CODE_LENGTH:9, REFERRAL_CODE_PATTERN:11, normalizeReferralCode:13, isValidReferralCode:17, ReferralGuardInput:22, referralRewardEligibility:27 |
 | [lib/member/referralSharing.ts](../../../lib/member/referralSharing.ts) | 12 | applications-enrollment | ReferralShareDataSchema:3, ReferralShareData:8, buildReferralInvitation:10 |
 | [lib/member/referrals.test.ts](../../../lib/member/referrals.test.ts) | 69 | applications-enrollment |  |
 | [lib/member/referrals.ts](../../../lib/member/referrals.ts) | 159 | applications-enrollment | MEMBER_REFERRAL_COOKIE:33, REFERRAL_CODE_PATTERN:34, normalizeReferralCode:35, isValidReferralCode:36, referralRewardEligibility:37, getOrCreateReferralCode:50, resolveReferralCode:72, getRewardedReferralCount:80, rewardReferralOnEnrollment:107 |
-| [lib/member/resolveActiveDashboardProgram.test.ts](../../../lib/member/resolveActiveDashboardProgram.test.ts) | 140 | member-counselor |  |
+| [lib/member/resolveActiveDashboardProgram.test.ts](../../../lib/member/resolveActiveDashboardProgram.test.ts) | 150 | member-counselor |  |
 | [lib/member/resolveActiveDashboardProgram.ts](../../../lib/member/resolveActiveDashboardProgram.ts) | 55 | member-counselor | DashboardEnrollment:11, ResolvedActiveDashboardProgram:19, resolveActiveDashboardProgram:28 |
 | [lib/member/service.ts](../../../lib/member/service.ts) | 129 | member-counselor | CreateMemberOptions:30, createMember:35 |
 | [lib/member/skillMissionCurriculum.test.ts](../../../lib/member/skillMissionCurriculum.test.ts) | 179 | member-counselor |  |

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "bb3f448c02d7702167dd01183fd6b1eb288e630abdb07114608f26607d84cfc1",
+  "inputTreeSha256": "6ec60a9ee9f34cffaa3fef2a9bd6dfbeaa7e730202562c4d4446169438d00aba",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4520,
-    "sourceModules": 3197,
-    "importReferences": 15148,
-    "resolvedLocalReferences": 10108,
+    "files": 4524,
+    "sourceModules": 3200,
+    "importReferences": 15151,
+    "resolvedLocalReferences": 10114,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,14 +22,14 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 638,
-    "testCandidates": 631,
+    "testFiles": 639,
+    "testCandidates": 632,
     "testHelpers": 7,
-    "staticallySelectedTests": 628,
+    "staticallySelectedTests": 629,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
-    "environmentNames": 194
+    "environmentNames": 199
   },
   "areas": [
     {
@@ -70,7 +70,7 @@
     },
     {
       "area": "delivery",
-      "files": 8
+      "files": 9
     },
     {
       "area": "documentation",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 914
+      "files": 913
     },
     {
       "area": "localization",
@@ -86,7 +86,7 @@
     },
     {
       "area": "operations",
-      "files": 116
+      "files": 118
     },
     {
       "area": "pages",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 314
+      "files": 316
     }
   ],
   "mostReferenced": [
@@ -232,14 +232,14 @@
     },
     {
       "file": "lib/admin/logCronRun.ts",
-      "references": 36
-    },
-    {
-      "file": "lib/auth/ensureUser.ts",
-      "references": 35
+      "references": 37
     },
     {
       "file": "lib/cron/cronExecution.ts",
+      "references": 37
+    },
+    {
+      "file": "lib/auth/ensureUser.ts",
       "references": 35
     },
     {

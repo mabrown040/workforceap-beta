@@ -17,13 +17,13 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | components | 654 | [Open](components.md) |
 | content | 14 | [Open](content.md) |
 | database | 200 | [Open](database.md) |
-| delivery | 8 | [Open](delivery.md) |
+| delivery | 9 | [Open](delivery.md) |
 | documentation | 355 | [Open](documentation.md) |
 | libraries | 914 | [Open](libraries.md) |
 | localization | 6 | [Open](localization.md) |
-| operations | 116 | [Open](operations.md) |
+| operations | 118 | [Open](operations.md) |
 | pages | 631 | [Open](pages.md) |
 | root | 54 | [Open](root.md) |
 | styles | 16 | [Open](styles.md) |
 | supporting-files | 72 | [Open](supporting-files.md) |
-| tests | 314 | [Open](tests.md) |
+| tests | 316 | [Open](tests.md) |

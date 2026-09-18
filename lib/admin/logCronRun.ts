@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/db/prisma';
+import { markCronDiagnosticLogged } from '@/lib/cron/cronExecution';
 
 export async function logCronRun(
   workflowKey: string,
@@ -16,6 +17,11 @@ export async function logCronRun(
       summary: `Scheduled run: ${JSON.stringify(result).slice(0, 200)}`,
       metadata,
     },
+  }).then(() => {
+    // Only a row that actually landed suppresses the wrapper's fallback row.
+    // If this write failed, withCronLogging should still get its chance to
+    // leave a trace rather than both layers staying silent.
+    markCronDiagnosticLogged();
   }).catch((err) => {
     console.error(`[logCronRun] Failed to write workflowDiagnostic for ${workflowKey}:`, err);
   });

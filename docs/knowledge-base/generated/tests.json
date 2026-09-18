@@ -10874,15 +10874,15 @@
     "localReferences": [
       {
         "file": "app/api/cron/at-risk-alerts/route.ts",
-        "line": 61
+        "line": 63
       },
       {
         "file": "lib/cron/at-risk-alerts.ts",
-        "line": 62
+        "line": 64
       },
       {
         "file": "lib/cron/cronExecution.ts",
-        "line": 66
+        "line": 68
       }
     ],
     "kind": "test-candidate",
@@ -11122,15 +11122,15 @@
     "localReferences": [
       {
         "file": "app/api/cron/smoke-test/route.ts",
-        "line": 28
+        "line": 30
       },
       {
         "file": "lib/admin/logCronRun.ts",
-        "line": 29
+        "line": 31
       },
       {
         "file": "lib/observability/captureApiError.ts",
-        "line": 30
+        "line": 32
       }
     ],
     "kind": "test-candidate",
@@ -17388,6 +17388,38 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/logCronRun.ts",
+        "line": 72
+      },
+      {
+        "file": "lib/cron/cronExecution.ts",
+        "line": 73
+      },
+      {
+        "file": "lib/cron/withCronLogging.ts",
+        "line": 74
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -18880,11 +18912,11 @@
     "localReferences": [
       {
         "file": "lib/cron/cronExecution.ts",
-        "line": 26
+        "line": 28
       },
       {
         "file": "lib/cron/withCronLogging.ts",
-        "line": 27
+        "line": 29
       }
     ],
     "kind": "test-candidate",
@@ -19092,6 +19124,30 @@
       {
         "file": "scripts/lib/portal-audit-target.mjs",
         "line": 49
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/portal-audit-health-gate.test.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "scripts/lib/portal-audit-health-gate.mjs",
+        "line": 2
       }
     ],
     "kind": "test-candidate",

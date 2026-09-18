@@ -115,6 +115,30 @@ describe('GET /api/health', () => {
     expect(body.version).toBe('local');
   });
 
+  it('reports the Supabase project ref behind NEXT_PUBLIC_SUPABASE_URL', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://esbdrgaonplpvzmtrdhw.supabase.co/';
+
+    const res = await healthGET(new Request('http://localhost:3000/api/health'));
+
+    const body = await res.json();
+    expect(body.supabaseRef).toBe('esbdrgaonplpvzmtrdhw');
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('reports a null Supabase ref when the URL is unset, malformed, or not a Supabase host', async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    let body = await (await healthGET(new Request('http://localhost:3000/api/health'))).json();
+    expect(body.supabaseRef).toBeNull();
+
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'not a url';
+    body = await (await healthGET(new Request('http://localhost:3000/api/health'))).json();
+    expect(body.supabaseRef).toBeNull();
+
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://esbdrgaonplpvzmtrdhw.example.com';
+    body = await (await healthGET(new Request('http://localhost:3000/api/health'))).json();
+    expect(body.supabaseRef).toBeNull();
+  });
+
   it('includes max-age=5 cache header', async () => {
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 

@@ -119280,6 +119280,22 @@
     "package": "vitest"
   },
   {
+    "from": "tests/lib/member-resume-plain-text-missing-admin-env.spec.ts",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/member-resume-plain-text-missing-admin-env.spec.ts",
+    "specifier": "@/lib/member/getMemberResumePlainText",
+    "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/getMemberResumePlainText.ts"
+  },
+  {
     "from": "tests/lib/member-voice-data-use-disclosures.spec.ts",
     "specifier": "node:fs",
     "line": 1,

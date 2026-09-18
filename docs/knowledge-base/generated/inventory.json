@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "fd51d49ce659d744beaabd80f0431f81fd779275549864c73d47d07c19e617c9",
+  "inputTreeSha256": "d801aa2b414dd98e0099f69826b934a8f9e30269d36277fc7e9de018f91ec6a3",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1436,9 +1436,9 @@
       "path": ".github/workflows/authenticated-portal-smoke.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 5096,
+      "bytes": 5099,
       "lines": 122,
-      "sha256": "bbfdf6ac806e6e187103551c947d932867ca2ce92eb626539516d6e7e9e35c4e",
+      "sha256": "4c80d8135eabea8c8d2f6a731df6ff3183782070d2a65d8841f954026a87e110",
       "binary": false
     },
     {
@@ -1499,9 +1499,9 @@
       "path": ".github/workflows/mirror-master-to-preview.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 2791,
+      "bytes": 2792,
       "lines": 69,
-      "sha256": "76ada22b8f44cfc6fc4dbdec90d967478ebb35efaadd5b73d6a8b5b05af5fc41",
+      "sha256": "aee438766de6d43004f238978dff1bbea375d9a95d5e5e2af492c6cb0c4c9f34",
       "binary": false
     },
     {

@@ -360,7 +360,7 @@
 | [app/admin/counselors/page.tsx](../../../app/admin/counselors/page.tsx) | 210 | administration | generateMetadata:18, default:52 |
 | [app/admin/coursera/csv-import/page.tsx](../../../app/admin/coursera/csv-import/page.tsx) | 60 | learning-coursera | metadata:11, dynamic:17, default:19 |
 | [app/admin/coursera/enrollment/page.tsx](../../../app/admin/coursera/enrollment/page.tsx) | 89 | learning-coursera | generateMetadata:13, dynamic:22, default:31 |
-| [app/admin/coursera/health/page.tsx](../../../app/admin/coursera/health/page.tsx) | 1385 | learning-coursera | generateMetadata:18, dynamic:27, default:632 |
+| [app/admin/coursera/health/page.tsx](../../../app/admin/coursera/health/page.tsx) | 1486 | learning-coursera | generateMetadata:22, dynamic:31, default:636 |
 | [app/admin/coursera/learners/\[userId\]/page.tsx](../../../app/admin/coursera/learners/%5BuserId%5D/page.tsx) | 378 | learning-coursera | metadata:26, dynamic:32, default:78 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/events/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/events/page.tsx) | 250 | learning-coursera | metadata:18, dynamic:24, default:46 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/page.tsx) | 463 | learning-coursera | metadata:26, dynamic:32, default:45 |

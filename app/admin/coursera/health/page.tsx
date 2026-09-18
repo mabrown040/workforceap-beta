@@ -14,6 +14,10 @@ import { prisma } from '@/lib/db/prisma';
 import IgnoredXapiSummaryCard from '@/components/admin/IgnoredXapiSummaryCard';
 import { auditCourseraLinkHealth } from '@/lib/coursera/linkHealth';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
+import {
+  buildCatalogCoverageReport,
+  catalogCoverageIssueLabel,
+} from '@/lib/content/coursera/catalogCoverage';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -712,6 +716,8 @@ export default async function AdminCourseraHealthPage() {
   const lastB4bCron = cronRuns.find((r) => r.workflow === 'cron_coursera_b4b_sync');
   const lastB4bCronFailed = lastB4bCron?.status === 'error';
 
+  const catalogCoverage = buildCatalogCoverageReport();
+
   // --- Build the four summary cards. ---
 
   const cards: SummaryCard[] = [];
@@ -736,6 +742,27 @@ export default async function AdminCourseraHealthPage() {
         ? 'No mappings — every xAPI event is being ignored. Add mappings via /admin/coursera below.'
         : undefined,
       severity: isZero ? 'bad' : 'ok',
+    });
+  }
+
+  // Card 1b: committed catalog coverage (curated vs discovered)
+  {
+    const { summary } = catalogCoverage;
+    const severity: CardSeverity =
+      summary.missingDiscoveredCatalog > 0 || summary.missingLearningPathIds > 0
+        ? 'warn'
+        : summary.pathsWithCourseDrift > 0
+          ? 'warn'
+          : 'ok';
+    cards.push({
+      title: 'Catalog coverage',
+      primary: `${summary.pathsWithIssues}/${summary.pathCount}`,
+      secondary: `${summary.pathsWithIssues} path(s) with gaps · drift ${summary.pathsWithCourseDrift}`,
+      hint:
+        severity === 'warn'
+          ? 'Curated Curriculum download vs discovered catalog — see table below. Refreshing course lists changes member progress keys.'
+          : undefined,
+      severity,
     });
   }
 
@@ -921,6 +948,80 @@ export default async function AdminCourseraHealthPage() {
       {/* Section 1.5 — ignored xAPI events (top stuck slugs). */}
       <section style={{ marginBottom: '1rem' }}>
         <IgnoredXapiSummaryCard />
+      </section>
+
+      {/* Section 1.6 — committed Coursera catalog coverage (no live API). */}
+      <section className="content-card" style={sectionStyle}>
+        <h2 style={sectionHeadingStyle}>Learning Path catalog coverage</h2>
+        <p style={{ ...cardSecondaryStyle, marginBottom: '0.6rem' }}>
+          Compares the committed Curriculum download, Learning Path registry, and{' '}
+          <code>courseraDiscoveredCatalog</code>. No live Coursera call. Course-list
+          refreshes change member-visible progress keys — treat drift as ops work, not a
+          silent rewrite.
+        </p>
+        {catalogCoverage.summary.pathsWithIssues === 0 ? (
+          <span style={cardSecondaryStyle}>All registered paths match curated membership and the discovered catalog.</span>
+        ) : (
+          <DataTable
+            density="compact"
+            rows={catalogCoverage.rows.filter((row) => row.issues.length > 0)}
+            rowKey={(row) => row.collectionId}
+            columns={[
+              {
+                key: 'collection',
+                header: 'Collection',
+                cell: (row) => (
+                  <>
+                    <code>{row.collectionId}</code>
+                    <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                      {row.name}
+                    </div>
+                    {!row.learningPathId ? (
+                      <div style={{ color: 'var(--color-warn, #b45309)', marginTop: '0.15rem' }}>
+                        learningPathId: null
+                      </div>
+                    ) : null}
+                  </>
+                ),
+              },
+              {
+                key: 'program',
+                header: 'WAP program',
+                cell: (row) => (row.programSlug ? <code>{row.programSlug}</code> : '—'),
+              },
+              {
+                key: 'curated',
+                header: 'Curated',
+                cell: (row) => row.curatedCourseCount,
+              },
+              {
+                key: 'discovered',
+                header: 'Discovered',
+                cell: (row) => (
+                  <>
+                    {row.discoveredCourseCount === null ? '—' : row.discoveredCourseCount}
+                    {row.curatedOnlyCourseIds.length > 0 ? (
+                      <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                        +{row.curatedOnlyCourseIds.length} curated-only
+                      </div>
+                    ) : null}
+                    {row.discoveredOnlyCourseIds.length > 0 ? (
+                      <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                        +{row.discoveredOnlyCourseIds.length} discovered-only
+                      </div>
+                    ) : null}
+                  </>
+                ),
+              },
+              {
+                key: 'issues',
+                header: 'Issues',
+                cell: (row) =>
+                  row.issues.map((issue) => catalogCoverageIssueLabel(issue)).join(' · '),
+              },
+            ]}
+          />
+        )}
       </section>
 
       {/* Section 2 — recent cron runs. */}

@@ -14,7 +14,11 @@ import { CURATED_COURSE_ID } from './curatedCollectionsCsv';
 
 test('the generated module is the 2026-09-17 Curriculum download: 16 collections, 172 course rows, 159 courses', () => {
   assert.equal(CURATED_COLLECTIONS_SOURCE.programId, 'TpIlAogTQ8-SJQKIE8PP9w');
-  assert.equal(CURATED_COLLECTIONS_SOURCE.exportedAt, '2026-09-17T22:05:40.249Z');
+  assert.equal(CURATED_COLLECTIONS_SOURCE.exportedAt, '2026-09-17T21:57:49.000Z');
+  assert.match(
+    CURATED_COLLECTIONS_SOURCE.fileName,
+    /^CuratedCurriculum\b.*2026-09-17.*UTC\.csv$/i,
+  );
   assert.equal(CURATED_COLLECTIONS.length, 16);
   const rows = CURATED_COLLECTIONS.flatMap((collection) => collection.courses);
   assert.equal(rows.length, 172);

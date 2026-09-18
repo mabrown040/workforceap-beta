@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
 import { PROGRAM_COMPARISON_TRACKS, STARTER_SLUGS } from '../data/programComparison';
 import { PROGRAMS, partnerBadge } from '../data/programs';
+import { languageSupportLine } from '../data/languageSupport';
 
 // Preserve the familiar grouping while using the same current syllabus facts
 // as program details. Historical salary/demand scores are not outcome evidence.
@@ -16,6 +17,7 @@ const tracks = PROGRAM_COMPARISON_TRACKS.map((track) => {
     categoryLabel: track.categoryLabel,
     categoryOrder: track.categoryOrder,
     provider: partnerBadge(program),
+    languages: languageSupportLine(program.languagesSupported) ?? 'English',
     preparation: program.syllabus?.recommendedPrerequisite
       ?? (program.syllabus
         ? 'No recommended prerequisite listed in the syllabus; confirm fit with an advisor.'
@@ -165,7 +167,7 @@ const factors = [
   <div class="sec-head" style="text-align:left;align-items:flex-start;max-width:46rem">
     <span class="eyebrow">Side-by-side</span>
     <h2 style="margin-bottom:8px">Compare all {trackCount} career tracks</h2>
-    <p>Published study commitment, preparation, training providers, and roles to research — grouped by field.</p>
+    <p>Published study commitment, Coursera language support, preparation, training providers, and roles to research — grouped by field.</p>
   </div>
 
   <!-- Wide table wraps with horizontal scroll on narrow screens -->
@@ -175,6 +177,7 @@ const factors = [
         <tr>
           <th scope="col" class="cmp-track">Track</th>
           <th scope="col">Duration</th>
+          <th scope="col">Languages</th>
           <th scope="col">Preparation</th>
           <th scope="col">Roles to research</th>
           <th scope="col">Training providers</th>
@@ -184,13 +187,14 @@ const factors = [
       <tbody>
         {categories.map((cat) => (
           <>
-            <tr class="cmp-cat"><th scope="colgroup" colspan="6">{cat.label}</th></tr>
+            <tr class="cmp-cat"><th scope="colgroup" colspan="7">{cat.label}</th></tr>
             {cat.tracks.map((t) => (
               <tr>
                 <th scope="row" class="cmp-track" data-label="Track">
                   <a href={`/programs/${t.slug}`}>{t.title}</a>
                 </th>
                 <td data-label="Duration">{t.duration}</td>
+                <td data-label="Languages">{t.languages}</td>
                 <td data-label="Preparation">{t.preparation}</td>
                 <td data-label="Roles to research">{t.roles.join(' · ')}</td>
                 <td data-label="Training providers">{t.provider}</td>

@@ -26,17 +26,29 @@ function readArg(name: string): string {
 function main(): void {
   const csvPath = readArg('--csv');
   const outPath = readArg('--out') || GENERATED_MODULE_PATH;
+  const programIdOverride = readArg('--program-id');
   const check = process.argv.includes('--check');
   if (!csvPath) {
     throw new Error(
-      'Usage: tsx scripts/coursera/generate-curated-collections.ts --csv <CuratedCollections-*.csv> [--out <file>] [--check]',
+      'Usage: tsx scripts/coursera/generate-curated-collections.ts --csv <CuratedCollections-*.csv|CuratedCurriculum*.csv> [--out <file>] [--program-id <id>] [--check]',
     );
   }
 
   const csvBuffer = readFileSync(resolve(csvPath));
   const sha256 = createHash('sha256').update(csvBuffer).digest('hex');
-  const parsed = parseCuratedCollectionsCsv(csvBuffer.toString('utf8'), { fileName: basename(csvPath), sha256 });
-  const source = serializeCuratedCollectionsModule(parsed);
+  const parsed = parseCuratedCollectionsCsv(csvBuffer.toString('utf8'), {
+    fileName: basename(csvPath),
+    sha256,
+  });
+  // Enterprise CurriculumReport ZIPs omit the program id from the file name;
+  // keep the known WAP umbrella id so registry tests and operators stay aligned.
+  const withProgramId = {
+    ...parsed,
+    programId:
+      parsed.programId ??
+      (programIdOverride || process.env.COURSERA_B4B_PROGRAM_ID?.trim() || 'TpIlAogTQ8-SJQKIE8PP9w'),
+  };
+  const source = serializeCuratedCollectionsModule(withProgramId);
   const target = resolve(outPath);
 
   if (check) {
@@ -54,11 +66,11 @@ function main(): void {
   console.log(
     JSON.stringify({
       out: outPath,
-      programId: parsed.programId,
-      exportedAt: parsed.exportedAt,
-      collections: parsed.collections.length,
-      courseRows: parsed.courseRows,
-      skippedRows: parsed.skippedRows,
+      programId: withProgramId.programId,
+      exportedAt: withProgramId.exportedAt,
+      collections: withProgramId.collections.length,
+      courseRows: withProgramId.courseRows,
+      skippedRows: withProgramId.skippedRows,
       sha256,
     }),
   );

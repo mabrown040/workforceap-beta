@@ -37,6 +37,9 @@ const sharedSlugs = [...marketingBySlug.keys()].filter((slug) => appBySlug.has(s
 
 const KNOWN_HOUR_DRIFT = new Set([
   'it-support-professional-certificate-ibm',
+  // Curriculum sync (2026-09-17) added a 12-course discovered catalog for this
+  // slug; marketing still carries the prior 6-name hand syllabus (60 vs 120 hrs).
+  'it-support-and-entry-level-cyber-security-certificate',
   'project-management-professional-certificate-microsoft',
   'data-analytics-professional-certificate-google',
   'data-science-professional-certificate-ibm',

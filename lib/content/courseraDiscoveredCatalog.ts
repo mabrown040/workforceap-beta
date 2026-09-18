@@ -200,12 +200,14 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "aws-cloud-technology-amazon": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "q5z39pYDSM6c9_aWA4jOLw",
-    title: "AWS Cloud Technology Certificate",
+    title: "AWS Cloud Technology Professional Certificate (AWS)",
     courses: [
       { courseId: "gRUEQ0kLEe68aRLfH8OQLw", slug: "information-technology-and-aws", name: "Introduction to Information Technology and AWS Cloud", partner: "Amazon Web Services" },
+      { courseId: "dQdSvWdUEeuI4Aqy1at7YQ", slug: "aws-cloud-technical-essentials", name: "AWS Cloud Technical Essentials", partner: "Amazon Web Services" },
       { courseId: "gEIVp0wWEe68aRLfH8OQLw", slug: "technical-support-for-aws-workloads", name: "Providing Technical Support for AWS Workloads", partner: "Amazon Web Services" },
-      { courseId: "WyjQhRE-Ee63NRKAiQUvxw", slug: "developing-applications-in-python-on-aws", name: "Developing Applications in Python on AWS", partner: "Amazon Web Services" },
       { courseId: "oQrDBkwiEe6XUQp7mwOjCw", slug: "aws-cloud-consultant-skills", name: "Skills for Working as an AWS Cloud Consultant", partner: "Amazon Web Services" },
+      { courseId: "-N8vIjSrEeuqnBLYBE3j1Q", slug: "aws-cloud-practitioner-essentials", name: "AWS Cloud Practitioner Essentials", partner: "Amazon Web Services" },
+      { courseId: "WyjQhRE-Ee63NRKAiQUvxw", slug: "developing-applications-in-python-on-aws", name: "Developing Applications in Python on AWS", partner: "Amazon Web Services" },
       { courseId: "FaV_7UwmEe6XUQp7mwOjCw", slug: "devops-and-project-management-aws", name: "DevOps on AWS and Project Management", partner: "Amazon Web Services" },
       { courseId: "_wAorUwnEe6XUQp7mwOjCw", slug: "automation-in-aws", name: "Automation in the AWS Cloud", partner: "Amazon Web Services" },
       { courseId: "9rSF60wpEe6pFg5BQAqraQ", slug: "data-analytics-and-databases-aws", name: "Data Analytics and Databases on AWS", partner: "Amazon Web Services" },
@@ -218,6 +220,9 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     title: "AI and Software Developer Professional Certificate (IBM)",
     courses: [
       { courseId: "FkAMrrwEEey8ogoy0lwspQ", slug: "introduction-to-software-engineering", name: "Introduction to Software Engineering", partner: "IBM" },
+      { courseId: "mR7MlUaTEemuHQ4HpHozrA", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
+      { courseId: "I3MKFTq0Ee6PABLgKXk5yQ", slug: "generative-ai-introduction-and-applications", name: "Generative AI: Introduction and Applications", partner: "IBM" },
+      { courseId: "nI__WUzdEe64qQ7qqom4Rw", slug: "generative-ai-prompt-engineering-for-everyone", name: "Generative AI: Prompt Engineering Basics", partner: "IBM" },
       { courseId: "yI8fAUhFEe6cKg41IVwGGw", slug: "introduction-html-css-javascript", name: "Introduction to HTML, CSS, & JavaScript", partner: "IBM" },
       { courseId: "qpVajkliEeyq9Q4Bl6meLw", slug: "getting-started-with-git-and-github", name: "Getting Started with Git and GitHub", partner: "IBM" },
       { courseId: "ejOz7RDUEei99hK0xs-tsg", slug: "python-for-applied-data-science-ai", name: "Python for Data Science, AI & Development", partner: "IBM" },
@@ -226,6 +231,9 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "RRhnJTQqEeuGxw6YZU0gNQ", slug: "developing-applications-with-sql-databases-and-django", name: "Django Application Development with SQL and Databases", partner: "IBM" },
       { courseId: "GGlYeNHJEeq7SQ7kpEztwQ", slug: "ibm-containers-docker-kubernetes-openshift", name: "Introduction to Containers w/ Docker, Kubernetes & OpenShift", partner: "IBM" },
       { courseId: "ZhjmFVU3Eeibyw6mhOxdLA", slug: "applications-development-microservices-serverless-openshift", name: "Application Development using Microservices and Serverless", partner: "IBM" },
+      { courseId: "R8T6cD8QEeuWjxL2VTBhwQ", slug: "python-project-for-ai-application-development", name: "Developing AI Applications with Python and Flask", partner: "IBM" },
+      { courseId: "gdzwYpiAEe6Yvg6sv84HSQ", slug: "building-gen-ai-powered-applications", name: "Building Generative AI-Powered Applications with Python", partner: "IBM" },
+      { courseId: "FTSm_5CLEe63Ww6tPe9iow", slug: "generative-ai-elevate-software-development-career", name: "Generative AI: Elevate your Software Development Career", partner: "IBM" },
       { courseId: "gQ_b82HOEeyipgpI5l_HwQ", slug: "software-developer-career-guide-and-interview-preparation", name: "Software Developer Career Guide and Interview Preparation", partner: "IBM" },
     ],
   },
@@ -245,13 +253,13 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "comptia-network-plus-professional-certificate": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "Qkse5-KHSUyLHufih3lMPg",
-    title: "CompTIA Network+ Professional Certificate",
+    title: "CompTIA Network+ Professional Certificate (CompTIA Net+)",
     courses: [
-      { courseId: "0fUXSbYpEfCYqAr_4Pp9Mw", slug: "packt-networking-basics-and-tcp-ip-fundamentals-6cthe", name: "Networking Basics and TCP/IP Fundamentals", partner: "Packt" },
-      { courseId: "mHhLzQN2EfCttRIgtBdAwQ", slug: "packt-networking-fundamentals-3mbff", name: "Networking Fundamentals", partner: "Packt" },
-      { courseId: "X_YaRAFBEe6-2RLGGJPzEw", slug: "intro-to-os-and-hardware-1a", name: "Introduction to Contemporary Operating Systems and Hardware 1a", partner: "LearnQuest" },
+      { courseId: "N0l8fiV4Ee6DuxLo8f8SVQ", slug: "introduction-to-networking-nvidia", name: "Introduction to Networking", partner: "NVIDIA" },
+      { courseId: "YEzwgUUYEe2WggqTpXEoiw", slug: "akamai-networking", name: "Networking Fundamentals", partner: "Akamai Technologies, Inc." },
+      { courseId: "_Z744wFBEe6-2RLGGJPzEw", slug: "intro-to-os-and-hardware-1b", name: "Introduction to Contemporary Operating Systems and Hardware 1b", partner: "Illinois Tech" },
       { courseId: "P0ciGZT0EeyHuA5cIqn4NQ", slug: "introduction-to-networking-and-storage", name: "Introduction to Networking and Storage", partner: "IBM" },
-      { courseId: "kVrMZeXIEe2dBg70uMCUbw", slug: "basics-of-cisco-networking", name: "Basics of Cisco Networking", partner: "Cisco Learning and Certifications" },
+      { courseId: "kVrMZeXIEe2dBg70uMCUbw", slug: "basics-of-cisco-networking", name: "Basics of Cisco Networking", partner: "LearnQuest" },
       { courseId: "PwpVaWbaEe-99A4YM4NoOw", slug: "packt-fundamentals-of-networking-and-cisco-devices-gvjwp", name: "CCNA Foundations – Networking Basics and Cisco IOS Essentials", partner: "Packt" },
       { courseId: "KfuykmTsEeeqbxLIz9M6nA", slug: "tcp-ip-advanced", name: "TCP/IP and Advanced Topics", partner: "University of Colorado System" },
       { courseId: "RP5nqGeBEe-ZVAr_5CUYPw", slug: "packt-operating-systems-and-networking-fundamentals-bokjh", name: "Operating Systems and Networking Fundamentals", partner: "Packt" },
@@ -271,23 +279,47 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "cybersecurity-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
-    // Coursera's combined "Networking and Cybersecurity Professional
-    // Certificate (CompTIA Net+,Sec+)" path (collection 81uci). The 2026-09-17
-    // Curriculum download lists 18 courses in it: the eight Google
-    // Cybersecurity courses below plus ten networking courses that the WAP
-    // syllabus names but this entry does not yet carry ids for. See
-    // lib/content/coursera/learningPaths.ts.
     learningPathId: "gCtwKvPFS36rcCrzxSt-Yg",
-    title: "Cyber Security and Networking Professional Certificate (Network+, Sec+)",
+    title: "Networking and Cybersecurity Professional Certificate (CompTIA Net+,Sec+)",
     courses: [
+      { courseId: "N0l8fiV4Ee6DuxLo8f8SVQ", slug: "introduction-to-networking-nvidia", name: "Introduction to Networking", partner: "NVIDIA" },
+      { courseId: "mHhLzQN2EfCttRIgtBdAwQ", slug: "packt-networking-fundamentals-3mbff", name: "Networking Fundamentals", partner: "Packt" },
+      { courseId: "DZbN0Xc6Ee-cBRK_mZB3Bw", slug: "packt-network-foundation-and-addressing-zkkwy", name: "Network Foundations and Addressing", partner: "Packt" },
+      { courseId: "PwpVaWbaEe-99A4YM4NoOw", slug: "packt-fundamentals-of-networking-and-cisco-devices-gvjwp", name: "CCNA Foundations – Networking Basics and Cisco IOS Essentials", partner: "Packt" },
+      { courseId: "KfuykmTsEeeqbxLIz9M6nA", slug: "tcp-ip-advanced", name: "TCP/IP and Advanced Topics", partner: "University of Colorado System" },
+      { courseId: "kVrMZeXIEe2dBg70uMCUbw", slug: "basics-of-cisco-networking", name: "Basics of Cisco Networking", partner: "LearnQuest" },
+      { courseId: "S3G1qWbiEe-EPwr_9XyAcQ", slug: "packt-networking-peripherals-and-wireless-technologies-fhkx1", name: "Networking, Peripherals, and Wireless Technologies", partner: "Packt" },
+      { courseId: "SCCkqlPwEe-mywr_6bZvLw", slug: "networking-in-google-cloud-network-security", name: "Networking in Google Cloud: Network Security", partner: "Google Cloud" },
       { courseId: "f6gZrWUIEe2piwrmyBNtEQ", slug: "foundations-of-cybersecurity", name: "Foundations of Cybersecurity", partner: "Google" },
-      { courseId: "y6mmi2UIEe21jBLFGcIQ1w", slug: "manage-security-risks", name: "Play It Safe: Manage Security Risks", partner: "Google" },
       { courseId: "PeAVvmUJEe2NnA4jep2fLw", slug: "networks-and-network-security", name: "Connect and Protect: Networks and Network Security", partner: "Google" },
+      { courseId: "y6mmi2UIEe21jBLFGcIQ1w", slug: "manage-security-risks", name: "Play It Safe: Manage Security Risks", partner: "Google" },
+      { courseId: "7LHOTGUJEe21jBLFGcIQ1w", slug: "automate-cybersecurity-tasks-with-python", name: "Automate Cybersecurity Tasks with Python", partner: "Google" },
       { courseId: "h_qSTmUJEe21jBLFGcIQ1w", slug: "linux-and-sql", name: "Tools of the Trade: Linux and SQL", partner: "Google" },
       { courseId: "z5Fx9mUJEe2piwrmyBNtEQ", slug: "assets-threats-and-vulnerabilities", name: "Assets, Threats, and Vulnerabilities", partner: "Google" },
       { courseId: "3obxa2UJEe2NnA4jep2fLw", slug: "detection-and-response", name: "Sound the Alarm: Detection and Response", partner: "Google" },
-      { courseId: "7LHOTGUJEe21jBLFGcIQ1w", slug: "automate-cybersecurity-tasks-with-python", name: "Automate Cybersecurity Tasks with Python", partner: "Google" },
       { courseId: "-TDPq2UJEe2piwrmyBNtEQ", slug: "prepare-for-cybersecurity-jobs", name: "Put It to Work: Prepare for Cybersecurity Jobs", partner: "Google" },
+      { courseId: "_jlsu7N_EfChNw6iIZDwyw", slug: "comptia-network", name: "CompTIA Network+", partner: "Infosec" },
+      { courseId: "bfGb13eJEe-cBRK_mZB3Bw", slug: "comptia-security-701", name: "CompTIA Security+ 701", partner: "Infosec" },
+    ],
+  },
+  "it-support-and-entry-level-cyber-security-certificate": {
+    courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    // learningPathId not yet captured from Coursera admin URL.
+    // learningPathId: null,
+    title: "IT Support and Entry-Level Cybersecurity Professional Certificate (IBM)",
+    courses: [
+      { courseId: "76WGD1CXEe6T2Q7n3ko4Dw", slug: "introduction-to-cybersecurity-careers", name: "Introduction to Cybersecurity Careers", partner: "IBM" },
+      { courseId: "R6HowJ7zEfCQWhJnHfeigQ", slug: "packt-cyber-security-professional-beginners-career-guide-avsuq", name: "Cyber Security Professional – Beginner’s Career Guide", partner: "Packt" },
+      { courseId: "zKDPJ53-EfCozQ6GZcbqBQ", slug: "packt-cyber-security-for-absolute-beginners-part-1-rgokz", name: "The Absolute Beginner's Guide to Cyber Security 2026 - Part 1", partner: "Packt" },
+      { courseId: "YlfzdXJKEeyKjA79ESMRTQ", slug: "introduction-to-cybersecurity-essentials", name: "Introduction to Cybersecurity Essentials", partner: "IBM" },
+      { courseId: "sgUmXKaiEfCPbwr_73Z1yw", slug: "packt-cybersecurity-essentials-from-zero-to-secure-iexc7", name: "Cybersecurity Essentials - From Zero to Secure", partner: "Packt" },
+      { courseId: "f6gZrWUIEe2piwrmyBNtEQ", slug: "foundations-of-cybersecurity", name: "Foundations of Cybersecurity", partner: "Google" },
+      { courseId: "PeAVvmUJEe2NnA4jep2fLw", slug: "networks-and-network-security", name: "Connect and Protect: Networks and Network Security", partner: "Google" },
+      { courseId: "0FMl8S8GEemvsQrYkluC5g", slug: "introduction-cybersecurity-cyber-attacks", name: "Introduction to Cybersecurity Tools & Cyberattacks", partner: "IBM" },
+      { courseId: "ZTCxCE0jEfGWtRJ02S6Hnw", slug: "gen-ai-cybersecurity", name: "Fundamentals of Gen AI Cybersecurity", partner: "SkillsBooster Academy" },
+      { courseId: "Ns_65Av8EfGaeQr_0lkuzQ", slug: "packt-hack-the-cybersecurity-interview", name: "Hack the Cybersecurity Interview", partner: "Packt" },
+      { courseId: "dkcUhxxaEfGQ2w5GCXwtVw", slug: "packt-cybersecurity-fundamentals-isc2-certification-prep-fibdm", name: "Cybersecurity Fundamentals – ISC2 Certification Prep", partner: "Packt" },
+      { courseId: "J_dVmgTOEfCd-gr_6GMchQ", slug: "packt-cyber-security-projects-for-your-dream-job-plgum", name: "Cyber Security Projects for Your Dream Job", partner: "Packt" },
     ],
   },
 };

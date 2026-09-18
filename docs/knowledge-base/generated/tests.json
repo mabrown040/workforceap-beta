@@ -3503,6 +3503,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/content/coursera/catalogCoverage.test.ts",
+    "area": "libraries",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/coursera/catalogCoverage.ts",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/content/coursera/curatedCollections.test.ts",
     "area": "libraries",
     "domain": "learning-coursera",

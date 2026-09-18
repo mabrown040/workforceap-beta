@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { PROGRAMS as CATALOG } from '../data/programs';
+import { languageSupportLine } from '../data/languageSupport';
 import Icon from '../components/Icon.astro';
 
 // Card rows derive title/duration/partner/funding/skills from the
@@ -24,6 +25,7 @@ function row(slug: string, category: string, cat: string, icon: string) {
     partner: p.partner,
     funding: fundingLabel(p.fundingSource ?? 'WIOA'),
     skills: p.skills.slice(0, 3),
+    languages: languageSupportLine(p.languagesSupported),
     external: p.externalCourseUrl ?? '',
   };
 }
@@ -79,7 +81,8 @@ const journey = [
 // ════════════════════════════════════════════════════════════════════
 type P = {
   slug: string; category: string; cat: string; icon: string; title: string;
-  duration: string; partner: string; funding: string; skills: string[]; external: string;
+  duration: string; partner: string; funding: string; skills: string[];
+  languages: string | null; external: string;
 };
 
 // Category accent → blend pill class (crimson / gold / blue / green / neutral)
@@ -305,7 +308,7 @@ const filterChips = [
       <p class="subgroup-desc">{sg.description}</p>
       <div class="pgrid">
         {sg.programs.map((p) => (
-          <div class="pcard" data-cat={sg.id} data-text={`${p.title} ${p.skills.join(' ')} ${p.partner} ${p.category}`.toLowerCase()}>
+          <div class="pcard" data-cat={sg.id} data-text={`${p.title} ${p.skills.join(' ')} ${p.partner} ${p.category} ${p.languages ?? ''}`.toLowerCase()}>
             <div class="pcard-top">
               <div class="ptags">
                 <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
@@ -315,6 +318,7 @@ const filterChips = [
             </div>
             <h4>{p.title}</h4>
             <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span></div>
+            {p.languages ? <p class="plang">Languages: {p.languages}</p> : null}
             <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
             <div class="pcard-foot">
               <span class="ppartner">Partner: {p.partner}</span>
@@ -569,6 +573,7 @@ const filterChips = [
   .pcard h4{font-size:18px;font-weight:700;margin-bottom:10px;min-height:3.6em}
   .pmeta{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin-bottom:8px}
   .pmeta span{display:inline-flex;align-items:center;gap:6px}
+  .plang{font-size:13px;color:var(--muted);line-height:1.4;margin:0 0 12px}
   .prange-inline b{color:var(--crimson)}
   .pdisc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}
   .pskills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}

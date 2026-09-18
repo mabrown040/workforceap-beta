@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "0808b4d13cc04c9622499e5894f071f2bbe5f91e4322b6ef3df745139b7e898c",
+  "inputTreeSha256": "f755b56772120b1a96999f03c1e0d2b480aa6fb703b879970db76dbef0ffd606",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -15280,24 +15280,24 @@
       "path": "app/admin/coursera/health/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 47164,
-      "lines": 1385,
-      "sha256": "a57d6ac669a0b7b892f419f24e45427914fd2adf4a8573520a56e742729c2b39",
+      "bytes": 51284,
+      "lines": 1486,
+      "sha256": "b4c66bcb76cb155896241bc480c8208316382ff4121e13fb14f53de7a41c93d7",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 18,
+          "line": 22,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 27,
+          "line": 31,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 632,
+          "line": 636,
           "kind": "FunctionDeclaration",
           "localName": "AdminCourseraHealthPage"
         }
@@ -15305,202 +15305,202 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 18,
+          "line": 22,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 27,
-          "kind": "Variable"
-        },
-        {
-          "name": "COURSERA_CRON_WORKFLOW_KEYS",
           "line": 31,
           "kind": "Variable"
         },
         {
+          "name": "COURSERA_CRON_WORKFLOW_KEYS",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
           "name": "CardSeverity",
-          "line": 37,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SummaryCard",
-          "line": 39,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CronRunRow",
-          "line": 47,
+          "line": 51,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "IgnoredSlugRow",
-          "line": 56,
+          "line": 60,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "UnmatchedActorRow",
-          "line": 61,
+          "line": 65,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DriftRow",
-          "line": 66,
+          "line": 70,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "OutOfCatalogRow",
-          "line": 76,
+          "line": 80,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncDriftRow",
-          "line": 83,
+          "line": 87,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WrongProgramRow",
-          "line": 92,
+          "line": 96,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "fmtDateTime",
-          "line": 101,
+          "line": 105,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "relativeAge",
-          "line": 106,
+          "line": 110,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityBackground",
-          "line": 119,
+          "line": 123,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityBorder",
-          "line": 131,
+          "line": 135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityAccent",
-          "line": 143,
+          "line": 147,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pluralize",
-          "line": 155,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "loadCanonicalMappingCount",
           "line": 159,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "loadCanonicalMappingCount",
+          "line": 163,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "loadXapiTrafficSummary",
-          "line": 168,
+          "line": 172,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4bSummary",
-          "line": 188,
+          "line": 192,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadIgnoredRatio",
-          "line": 215,
+          "line": 219,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadRecentCronRuns",
-          "line": 239,
+          "line": 243,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadTopIgnoredSlugs",
-          "line": 268,
+          "line": 272,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadTopUnmatchedActors",
-          "line": 296,
+          "line": 300,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4BvsOursDrift",
-          "line": 331,
+          "line": 335,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadOutOfCatalogXapi",
-          "line": 379,
+          "line": 383,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadSyncDriftPairs",
-          "line": 423,
+          "line": 427,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadWrongProgramStudying",
-          "line": 470,
+          "line": 474,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4BProgramsSafe",
-          "line": 534,
+          "line": 538,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "cardStyle",
-          "line": 545,
+          "line": 549,
           "kind": "Variable"
         },
         {
           "name": "cardTitleStyle",
-          "line": 553,
+          "line": 557,
           "kind": "Variable"
         },
         {
           "name": "cardPrimaryStyle",
-          "line": 561,
+          "line": 565,
           "kind": "Variable"
         },
         {
           "name": "cardSecondaryStyle",
-          "line": 568,
+          "line": 572,
           "kind": "Variable"
         },
         {
           "name": "cardHintStyle",
-          "line": 573,
+          "line": 577,
           "kind": "Variable"
         },
         {
           "name": "sectionHeadingStyle",
-          "line": 579,
+          "line": 583,
           "kind": "Variable"
         },
         {
           "name": "sectionStyle",
-          "line": 585,
+          "line": 589,
           "kind": "Variable"
         },
         {
           "name": "pickStatusColor",
-          "line": 590,
+          "line": 594,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "summarizeMetadataCounts",
-          "line": 599,
+          "line": 603,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminCourseraHealthPage",
-          "line": 632,
+          "line": 636,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -97903,9 +97903,9 @@
       "path": "lib/content/coursera/README.md",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 4996,
-      "lines": 57,
-      "sha256": "53edb81ffc54712694b26981460b1565fd1e98e40a8d1d3cdcefc0dfc5d079a0",
+      "bytes": 5318,
+      "lines": 59,
+      "sha256": "34151129ae880e3fb1e35ba5ba6d24d59972e87487cf8f6697debf1d594cfd01",
       "binary": false
     },
     {
@@ -97918,12 +97918,128 @@
       "binary": false
     },
     {
+      "path": "lib/content/coursera/catalogCoverage.test.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 2455,
+      "lines": 53,
+      "sha256": "e5d3c767853b7cc572e82df6c3e9006b84946dc8734e6cf4b9e895ef04b6ee83",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/content/coursera/catalogCoverage.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 5576,
+      "lines": 167,
+      "sha256": "eb51b39a77c212465ac72933df4fcf85e22c9781882b4328fcd1e78dcb73233e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "CatalogCoverageIssue",
+          "line": 19,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CatalogCoverageRow",
+          "line": 26,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CatalogCoverageSummary",
+          "line": 38,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CatalogCoverageReport",
+          "line": 46,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildCatalogCoverageRow",
+          "line": 79,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildCatalogCoverageReport",
+          "line": 117,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "catalogCoverageIssueLabel",
+          "line": 150,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CatalogCoverageIssue",
+          "line": 19,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CatalogCoverageRow",
+          "line": 26,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CatalogCoverageSummary",
+          "line": 38,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CatalogCoverageReport",
+          "line": 46,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "courseIdSet",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortedIds",
+          "line": 60,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "discoveredCourseIdsForProgram",
+          "line": 64,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "curatedCourseIdsForCollection",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildCatalogCoverageRow",
+          "line": 79,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildCatalogCoverageReport",
+          "line": 117,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "catalogCoverageIssueLabel",
+          "line": 150,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/content/coursera/curatedCollections.generated.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 50345,
+      "bytes": 71391,
       "lines": 285,
-      "sha256": "becb97af50cdf797d6e855f47d1bc5f3b4639579e3b0e109dd06fe40476810a1",
+      "sha256": "11897c4728210e1a759621bc89695063c3d3c9c1fd993c007dc2a104439a1a8a",
       "binary": false,
       "exports": [
         {
@@ -97955,9 +98071,9 @@
       "path": "lib/content/coursera/curatedCollections.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 3227,
-      "lines": 63,
-      "sha256": "da4dce188f32393aed9ded3bbd6b4c08e91013f6e3d156e7592eb3ac27e2df86",
+      "bytes": 3341,
+      "lines": 67,
+      "sha256": "5e14b51dcb90510fcd2de9f8711e7fc6d76ec2d0ffe3eef5769bd64c1269b5e6",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -98089,9 +98205,9 @@
       "path": "lib/content/coursera/curatedCollectionsCsv.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 9855,
-      "lines": 265,
-      "sha256": "89eadae1a9d5405959d5631d6813da19e3d78c592ed6f63aedc86de24462104a",
+      "bytes": 10642,
+      "lines": 289,
+      "sha256": "e2e9e90a55219bd811d111c682f5f33bb2a12c898729d844201953aa6e610157",
       "binary": false,
       "exports": [
         {
@@ -98121,27 +98237,27 @@
         },
         {
           "name": "parseCsv",
-          "line": 70,
+          "line": 77,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseExportFileName",
-          "line": 126,
+          "line": 133,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseCuratedCollectionsCsv",
-          "line": 145,
+          "line": 163,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GENERATED_MODULE_PATH",
-          "line": 225,
+          "line": 249,
           "kind": "Variable"
         },
         {
           "name": "serializeCuratedCollectionsModule",
-          "line": 228,
+          "line": 252,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -98178,42 +98294,47 @@
         },
         {
           "name": "EXPORT_FILE_NAME",
-          "line": 64,
+          "line": 65,
+          "kind": "Variable"
+        },
+        {
+          "name": "ENTERPRISE_CURRICULUM_FILE_NAME",
+          "line": 70,
           "kind": "Variable"
         },
         {
           "name": "parseCsv",
-          "line": 70,
+          "line": 77,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseExportFileName",
-          "line": 126,
+          "line": 133,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "splitList",
-          "line": 132,
+          "line": 150,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseCuratedCollectionsCsv",
-          "line": 145,
+          "line": 163,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ts",
-          "line": 218,
+          "line": 242,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GENERATED_MODULE_PATH",
-          "line": 225,
+          "line": 249,
           "kind": "Variable"
         },
         {
           "name": "serializeCuratedCollectionsModule",
-          "line": 228,
+          "line": 252,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -98414,29 +98535,29 @@
       "path": "lib/content/courseraDiscoveredCatalog.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 33568,
-      "lines": 337,
-      "sha256": "30b534b6090aed7b45fa88acb1d60b0921960c0a8f9343ff22149e40c9e8c73c",
+      "bytes": 38429,
+      "lines": 369,
+      "sha256": "ab4db45359b6ecacd2532aba7471ac39ac99d0d4a8512240d9054a33c8f45fe8",
       "binary": false,
       "exports": [
         {
           "name": "CourseraProgramSlug",
-          "line": 295,
+          "line": 327,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredProgram",
-          "line": 300,
+          "line": 332,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredCourse",
-          "line": 312,
+          "line": 344,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DISCOVERED_COURSERA_PROGRAMS",
-          "line": 336,
+          "line": 368,
           "kind": "Variable"
         }
       ],
@@ -98448,42 +98569,42 @@
         },
         {
           "name": "CourseraProgramSlug",
-          "line": 295,
+          "line": 327,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredProgramInner",
-          "line": 296,
+          "line": 328,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredCourseInner",
-          "line": 297,
+          "line": 329,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredProgram",
-          "line": 300,
+          "line": 332,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredCourse",
-          "line": 312,
+          "line": 344,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WAP_PROGRAM_DISCOVERED_ALIASES",
-          "line": 315,
+          "line": 347,
           "kind": "Variable"
         },
         {
           "name": "mergeDiscoveredWithWapAliases",
-          "line": 325,
+          "line": 357,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DISCOVERED_COURSERA_PROGRAMS",
-          "line": 336,
+          "line": 368,
           "kind": "Variable"
         }
       ],
@@ -99231,9 +99352,9 @@
       "path": "lib/content/programCatalogParity.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 3250,
-      "lines": 74,
-      "sha256": "484ad1c93aaf151a1e35c3c09015478f4eab1297c4a3d8a98c3c8bdf0ebeca9e",
+      "bytes": 3472,
+      "lines": 77,
+      "sha256": "517f7c44ff7d5e6e61cc12667d8e59d2e117e675b001a061ccf458b2a81267a4",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -99303,9 +99424,9 @@
       "path": "lib/content/programComparisonTracks.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 5633,
-      "lines": 193,
-      "sha256": "e32fe358ec1b46ee74cf80152e385c61b6fbb6f10d0d98591276d92df95d4fc3",
+      "bytes": 5841,
+      "lines": 196,
+      "sha256": "0c6933a77d7784082d63def3e53c8e4ec098c161cd482904dd770306407161a7",
       "binary": false,
       "exports": [
         {
@@ -99315,12 +99436,12 @@
         },
         {
           "name": "PROGRAM_COMPARISON_FEATURED",
-          "line": 36,
+          "line": 38,
           "kind": "Variable"
         },
         {
           "name": "getProgramComparisonTracks",
-          "line": 175,
+          "line": 177,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -99332,22 +99453,22 @@
         },
         {
           "name": "FeaturedEntry",
-          "line": 27,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PROGRAM_COMPARISON_FEATURED",
-          "line": 36,
+          "line": 38,
           "kind": "Variable"
         },
         {
           "name": "difficultyStars",
-          "line": 164,
+          "line": 166,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramComparisonTracks",
-          "line": 175,
+          "line": 177,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -104265,9 +104386,9 @@
       "path": "lib/coursera/csvImport.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 12200,
-      "lines": 243,
-      "sha256": "faa57adbb362efb8fa22ddb3a763194e101fdd2e4099a10b0ba709aa1bad31f1",
+      "bytes": 13293,
+      "lines": 258,
+      "sha256": "31955ed34fe5d716556588093118699d9ba996af309604a8a226999b531cc22a",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -104290,6 +104411,11 @@
           "name": "HEADER",
           "line": 29,
           "kind": "Variable"
+        },
+        {
+          "name": "HEADER_WITHOUT_LONG_HOURS",
+          "line": 245,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -104298,64 +104424,64 @@
       "path": "lib/coursera/csvImport.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 15827,
-      "lines": 474,
-      "sha256": "ff8ad48ade0be53ab57b264f0aab4aea4ae0586a7a0711a8d30aec355e743e77",
+      "bytes": 16638,
+      "lines": 494,
+      "sha256": "f7cef598007015a269771ba3798c0d7c45ae784236b01f76533afae4f1e6f89d",
       "binary": false,
       "exports": [
         {
           "name": "ParsedCourseActivityRow",
-          "line": 39,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "IngestResult",
-          "line": 67,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ParsedBadgeRow",
-          "line": 85,
+          "line": 90,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "BadgeIngestResult",
-          "line": 106,
+          "line": 111,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CsvKind",
-          "line": 115,
+          "line": 120,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "detectCourseraCsvKind",
-          "line": 121,
+          "line": 126,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clampCourseraPercent",
-          "line": 258,
+          "line": 266,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseCourseActivityCsv",
-          "line": 278,
+          "line": 286,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ingestCourseActivityRows",
-          "line": 373,
+          "line": 393,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseLearningPathActivityCsv",
-          "line": 390,
+          "line": 410,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ingestLearningPathActivityRows",
-          "line": 468,
+          "line": 488,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -104366,103 +104492,108 @@
           "kind": "Variable"
         },
         {
-          "name": "REQUIRED_BADGE_HEADERS",
+          "name": "COURSE_ACTIVITY_HOURS_HEADERS",
           "line": 25,
           "kind": "Variable"
         },
         {
+          "name": "REQUIRED_BADGE_HEADERS",
+          "line": 30,
+          "kind": "Variable"
+        },
+        {
           "name": "ParsedCourseActivityRow",
-          "line": 39,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "IngestResult",
-          "line": 67,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ParsedBadgeRow",
-          "line": 85,
+          "line": 90,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "BadgeIngestResult",
-          "line": 106,
+          "line": 111,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CsvKind",
-          "line": 115,
+          "line": 120,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "detectCourseraCsvKind",
-          "line": 121,
+          "line": 126,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "splitCsvLine",
-          "line": 145,
+          "line": 153,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "splitCsvRows",
-          "line": 197,
+          "line": 205,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseDateOrNull",
-          "line": 231,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "parseYesNo",
           "line": 239,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "parseYesNoNullable",
-          "line": 243,
+          "name": "parseYesNo",
+          "line": 247,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "parseNumberOrZero",
+          "name": "parseYesNoNullable",
           "line": 251,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "parseNumberOrZero",
+          "line": 259,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "clampCourseraPercent",
-          "line": 258,
+          "line": 266,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parsePercentOrZero",
-          "line": 263,
+          "line": 271,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "nullable",
-          "line": 267,
+          "line": 275,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseCourseActivityCsv",
-          "line": 278,
+          "line": 286,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ingestCourseActivityRows",
-          "line": 373,
+          "line": 393,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseLearningPathActivityCsv",
-          "line": 390,
+          "line": 410,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ingestLearningPathActivityRows",
-          "line": 468,
+          "line": 488,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105953,9 +106084,9 @@
       "path": "lib/coursera/programCourseList.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 14242,
-      "lines": 434,
-      "sha256": "0f8069d4fac86c4b171fa114712ea69157f15ecd49e32597b926b773d9ae681b",
+      "bytes": 15008,
+      "lines": 450,
+      "sha256": "6b2d8bbbe0dad800a255c48e699c203a41e6ba335c915ca9f60f2a0cc329e028",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -135700,6 +135831,60 @@
       "directive": null
     },
     {
+      "path": "marketing/src/data/languageSupport.ts",
+      "area": "astro-marketing",
+      "domain": "astro-marketing",
+      "bytes": 1920,
+      "lines": 65,
+      "sha256": "60b7e44a41ccff906283fd859010deaa9969503bfc15bdf3d14f5029d7509182",
+      "binary": false,
+      "exports": [
+        {
+          "name": "ActiveLanguageSupport",
+          "line": 31,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "activeLanguageSupports",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "languageSupportLine",
+          "line": 59,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "LANGUAGE_LABELS",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "levelSuffix",
+          "line": 14,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ActiveLanguageSupport",
+          "line": 31,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "activeLanguageSupports",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "languageSupportLine",
+          "line": 59,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "marketing/src/data/leadership.ts",
       "area": "astro-marketing",
       "domain": "astro-marketing",
@@ -136543,18 +136728,18 @@
       "path": "marketing/src/pages/program-comparison.astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 24788,
-      "lines": 436,
-      "sha256": "ecbeb2c51c67f1a1a9cc62417f0b690bcc30575c8d6d455a111d12bbcde476ca",
+      "bytes": 25058,
+      "lines": 440,
+      "sha256": "fbf2fd23d81479eba26f53c383afd0dab5047f7933d9df12d244f91d83bd0bde",
       "binary": false
     },
     {
       "path": "marketing/src/pages/programs.astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 34294,
-      "lines": 618,
-      "sha256": "f1cc1d7e77adaade81092572f00346b23c31ff51bdd48df42b10df35e9c999ac",
+      "bytes": 34621,
+      "lines": 623,
+      "sha256": "c1141ff157b4e418aafea8bac471b357155d358398bcfd5bedc0ff01065864b1",
       "binary": false
     },
     {
@@ -136851,9 +137036,9 @@
       "path": "package.json",
       "area": "root",
       "domain": "root",
-      "bytes": 7192,
-      "lines": 140,
-      "sha256": "b4e56973d033158acf6dc85036e414be422ac84f2f28cbcff46305f5eecf84cb",
+      "bytes": 7389,
+      "lines": 142,
+      "sha256": "2f5b6a1d695a5db2178f8e4644996960fedb722cffdb13faab55c3a5a36cca81",
       "binary": false
     },
     {
@@ -141452,9 +141637,9 @@
       "path": "scripts/coursera/generate-curated-collections.ts",
       "area": "operations",
       "domain": "learning-coursera",
-      "bytes": 2572,
-      "lines": 72,
-      "sha256": "04292c1dad75ed5adf0a0e778a2eee5bf4e298457b5181c3e9060b96cd70b5ee",
+      "bytes": 3070,
+      "lines": 84,
+      "sha256": "a005eca59cdde5e663395d1c9f7188d3c20495939b63d0372b0f264e208e3902",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -141466,6 +141651,92 @@
         {
           "name": "main",
           "line": 26,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "scripts/coursera/ingest-enterprise-export-zips.ts",
+      "area": "operations",
+      "domain": "learning-coursera",
+      "bytes": 9516,
+      "lines": 270,
+      "sha256": "52afe2096bf9af36d55036e006c90afac3289692b2899933655b0cfbb550d9d6",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ZipPlan",
+          "line": 44,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "readArgs",
+          "line": 50,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sha256File",
+          "line": 70,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "unzip",
+          "line": 74,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "classifyCsv",
+          "line": 92,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "maybeIngest",
+          "line": 115,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "main",
+          "line": 131,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "scripts/coursera/sync-discovered-from-curated.ts",
+      "area": "operations",
+      "domain": "learning-coursera",
+      "bytes": 5143,
+      "lines": 137,
+      "sha256": "ee18927496dcbc38466ce938d8aa2d86adaef584272cda7976a3699f55ab79c8",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "CATALOG_PATH",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "SYNC_COLLECTION_IDS",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "courseLiteral",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "programBlock",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "main",
+          "line": 56,
           "kind": "FunctionDeclaration"
         }
       ],

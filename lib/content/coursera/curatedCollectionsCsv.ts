@@ -61,7 +61,14 @@ const REQUIRED_COLUMNS = [
 ] as const;
 
 export const CURATED_COURSE_ID = /^[A-Za-z0-9_-]{22}$/;
+/** Admin Curriculum download: `CuratedCollections-<programId>-<ms>.csv`. */
 const EXPORT_FILE_NAME = /^CuratedCollections-([A-Za-z0-9_-]{22})-(\d{13})\.csv$/;
+/**
+ * Enterprise CurriculumReport ZIP: `CuratedCurriculum … YYYY-MM-DD HH-MM-SS UTC.csv`
+ * (program id is not in the file name — callers may still supply it).
+ */
+const ENTERPRISE_CURRICULUM_FILE_NAME =
+  /^CuratedCurriculum\b.*\b(\d{4}-\d{2}-\d{2})[ _](\d{2})-(\d{2})-(\d{2})\s+UTC\.csv$/i;
 
 /**
  * Minimal RFC 4180 reader: quoted fields, doubled quotes, embedded newlines,
@@ -123,10 +130,21 @@ export function parseCsv(input: string): string[][] {
   return rows.filter((cells) => !(cells.length === 1 && cells[0] === ''));
 }
 
-export function parseExportFileName(fileName: string): { programId: string; exportedAt: string } | null {
-  const match = EXPORT_FILE_NAME.exec(fileName.trim());
-  if (!match) return null;
-  return { programId: match[1], exportedAt: new Date(Number(match[2])).toISOString() };
+export function parseExportFileName(
+  fileName: string,
+): { programId: string | null; exportedAt: string } | null {
+  const trimmed = fileName.trim();
+  const match = EXPORT_FILE_NAME.exec(trimmed);
+  if (match) {
+    return { programId: match[1], exportedAt: new Date(Number(match[2])).toISOString() };
+  }
+  const enterprise = ENTERPRISE_CURRICULUM_FILE_NAME.exec(trimmed);
+  if (enterprise) {
+    const [, ymd, hh, mm, ss] = enterprise;
+    const exportedAt = new Date(`${ymd}T${hh}:${mm}:${ss}.000Z`).toISOString();
+    return { programId: null, exportedAt };
+  }
+  return null;
 }
 
 function splitList(value: string | undefined): string[] {
@@ -195,7 +213,13 @@ export function parseCuratedCollectionsCsv(
       name: cell(row, 'Item Name'),
       partner: cell(row, 'Partner Name'),
       durationHours: cell(row, 'Duration') !== '' && Number.isFinite(duration) ? duration : null,
-      specializationIds: splitList(row[column.get('Part Of Specialization ID') ?? -1]),
+      specializationIds: splitList(
+        row[
+          column.get('Part Of Specialization ID') ??
+            column.get('Part of Specialization ID') ??
+            -1
+        ],
+      ),
     });
     courseRows += 1;
   }

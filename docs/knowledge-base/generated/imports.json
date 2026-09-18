@@ -17048,6 +17048,14 @@
     "target": "lib/audit/readOnlyPortalAudit.ts"
   },
   {
+    "from": "app/admin/coursera/health/page.tsx",
+    "specifier": "@/lib/content/coursera/catalogCoverage",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/catalogCoverage.ts"
+  },
+  {
     "from": "app/admin/coursera/learners/[userId]/page.tsx",
     "specifier": "next",
     "line": 1,
@@ -91616,6 +91624,70 @@
     "target": "lib/content/programs.ts"
   },
   {
+    "from": "lib/content/coursera/catalogCoverage.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.test.ts",
+    "specifier": "./catalogCoverage",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/catalogCoverage.ts"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.ts",
+    "specifier": "@/lib/content/courseraDiscoveredCatalog",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/courseraDiscoveredCatalog.ts"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.ts",
+    "specifier": "./curatedCollections",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/content/coursera/catalogCoverage.ts",
+    "specifier": "./learningPaths",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
     "from": "lib/content/coursera/curatedCollections.generated.ts",
     "specifier": "./curatedCollectionsCsv",
     "line": 5,
@@ -93706,7 +93778,7 @@
   {
     "from": "lib/coursera/csvImport.ts",
     "specifier": "./csvImport.server",
-    "line": 377,
+    "line": 397,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/csvImport.server.ts"
@@ -93714,7 +93786,7 @@
   {
     "from": "lib/coursera/csvImport.ts",
     "specifier": "./csvImport.server",
-    "line": 472,
+    "line": 492,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/csvImport.server.ts"
@@ -105696,6 +105768,14 @@
     "target": "marketing/src/lib/marketingDataLayer.ts"
   },
   {
+    "from": "marketing/src/data/languageSupport.ts",
+    "specifier": "./programs",
+    "line": 6,
+    "kind": "type",
+    "external": false,
+    "target": "marketing/src/data/programs.ts"
+  },
+  {
     "from": "marketing/src/data/programs.ts",
     "specifier": "../../../shared/programSyllabi",
     "line": 14,
@@ -106838,6 +106918,86 @@
     "kind": "import",
     "external": false,
     "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "scripts/coursera/ingest-enterprise-export-zips.ts",
+    "specifier": "node:child_process",
+    "line": 26,
+    "kind": "import",
+    "external": true,
+    "package": "node:child_process"
+  },
+  {
+    "from": "scripts/coursera/ingest-enterprise-export-zips.ts",
+    "specifier": "node:crypto",
+    "line": 27,
+    "kind": "import",
+    "external": true,
+    "package": "node:crypto"
+  },
+  {
+    "from": "scripts/coursera/ingest-enterprise-export-zips.ts",
+    "specifier": "node:fs",
+    "line": 28,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "scripts/coursera/ingest-enterprise-export-zips.ts",
+    "specifier": "node:path",
+    "line": 36,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "scripts/coursera/ingest-enterprise-export-zips.ts",
+    "specifier": "@/lib/coursera/csvImport",
+    "line": 38,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/csvImport.ts"
+  },
+  {
+    "from": "scripts/coursera/ingest-enterprise-export-zips.ts",
+    "specifier": "@/lib/coursera/csvImport.server",
+    "line": 120,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/coursera/csvImport.server.ts"
+  },
+  {
+    "from": "scripts/coursera/sync-discovered-from-curated.ts",
+    "specifier": "node:fs",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "scripts/coursera/sync-discovered-from-curated.ts",
+    "specifier": "node:path",
+    "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "scripts/coursera/sync-discovered-from-curated.ts",
+    "specifier": "@/lib/content/coursera/curatedCollections",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "scripts/coursera/sync-discovered-from-curated.ts",
+    "specifier": "@/lib/content/coursera/learningPaths",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
   },
   {
     "from": "scripts/create-chs-partner.ts",

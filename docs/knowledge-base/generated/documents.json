@@ -57,6 +57,11 @@
         "level": 2,
         "title": "2024-06-25 - Expandable Action Button Accessibility in Admin Panel",
         "line": 31
+      },
+      {
+        "level": 2,
+        "title": "2024-05-30 - Expandable Action Button and Async Submit States in Career Mappings",
+        "line": 35
       }
     ],
     "datedFilename": false,

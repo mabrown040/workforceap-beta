@@ -243,17 +243,17 @@
 | [components/onboarding/TourContext.tsx](../../../components/onboarding/TourContext.tsx) | 118 | applications-enrollment | useTour:40, TourProvider:49 |
 | [components/onboarding/TourProviderWrapper.tsx](../../../components/onboarding/TourProviderWrapper.tsx) | 13 | applications-enrollment | default:6 |
 | [components/partner/CopyReferralLink.tsx](../../../components/partner/CopyReferralLink.tsx) | 51 | partners-funding | default:11 |
-| [components/partner/PartnerAttentionClient.tsx](../../../components/partner/PartnerAttentionClient.tsx) | 415 | partners-funding | default:82 |
+| [components/partner/PartnerAttentionClient.tsx](../../../components/partner/PartnerAttentionClient.tsx) | 417 | partners-funding | default:83 |
 | [components/partner/PartnerConnectPayoutButton.tsx](../../../components/partner/PartnerConnectPayoutButton.tsx) | 55 | partners-funding | default:5 |
 | [components/partner/PartnerContactEditForm.tsx](../../../components/partner/PartnerContactEditForm.tsx) | 119 | partners-funding | default:6 |
 | [components/partner/PartnerCopyTextButton.tsx](../../../components/partner/PartnerCopyTextButton.tsx) | 55 | partners-funding | default:5 |
-| [components/partner/PartnerMilestonesMobile.tsx](../../../components/partner/PartnerMilestonesMobile.tsx) | 172 | partners-funding | default:29 |
-| [components/partner/PartnerMilestonesView.tsx](../../../components/partner/PartnerMilestonesView.tsx) | 204 | partners-funding | default:67 |
+| [components/partner/PartnerMilestonesMobile.tsx](../../../components/partner/PartnerMilestonesMobile.tsx) | 172 | partners-funding | default:30 |
+| [components/partner/PartnerMilestonesView.tsx](../../../components/partner/PartnerMilestonesView.tsx) | 204 | partners-funding | default:69 |
 | [components/partner/PartnerNotificationPrefs.tsx](../../../components/partner/PartnerNotificationPrefs.tsx) | 75 | communications | default:20 |
 | [components/partner/PartnerReferralResourcesSection.tsx](../../../components/partner/PartnerReferralResourcesSection.tsx) | 96 | partners-funding | default:6 |
 | [components/partner/PartnerReferralShare.module.css](../../../components/partner/PartnerReferralShare.module.css) | 29 | partners-funding |  |
 | [components/partner/PartnerReferralShare.tsx](../../../components/partner/PartnerReferralShare.tsx) | 31 | partners-funding | default:9 |
-| [components/partner/PartnerReferredMembersMobile.tsx](../../../components/partner/PartnerReferredMembersMobile.tsx) | 172 | partners-funding | PartnerMemberRow:8, default:40 |
+| [components/partner/PartnerReferredMembersMobile.tsx](../../../components/partner/PartnerReferredMembersMobile.tsx) | 171 | partners-funding | PartnerMemberRow:9, default:41 |
 | [components/partner/PartnerSettingsEditRequest.tsx](../../../components/partner/PartnerSettingsEditRequest.tsx) | 141 | partners-funding | default:13 |
 | [components/partner/PartnerSignupForm.tsx](../../../components/partner/PartnerSignupForm.tsx) | 261 | partners-funding | default:34 |
 | [components/partner/PartnerWorkflowTimeline.tsx](../../../components/partner/PartnerWorkflowTimeline.tsx) | 43 | partners-funding | default:10 |

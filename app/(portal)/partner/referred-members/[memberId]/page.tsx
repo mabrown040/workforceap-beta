@@ -262,15 +262,15 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
     <PortalPageFrame>
       {readOnlyAudit ? <span hidden data-portal-audit-suppressed="partner-member-coursera-course-resolution" /> : null}
       <div style={{ paddingBottom: '6rem' }}>
-        <Link href="/partner/referred-members" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
+        <Link href="/partner/referred-members" style={{ color: 'var(--wa-accent)', display: 'inline-block', marginBottom: '1rem' }}>
           ← Back to referred members
         </Link>
         <PageHeader
           title={member.fullName}
           subtitle="Read-only overview. Contact information, assessments, and benefit requests are not shown in the partner portal."
           breadcrumbs={[
-            { label: 'Referred Members', href: '/partner/referred-members' },
-            { label: 'Member Details' },
+            { label: 'Referred members', href: '/partner/referred-members' },
+            { label: 'Member details' },
           ]}
         />
 

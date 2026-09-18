@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { AlertTriangle, Bell, Clock, Eye, MessageSquare } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { CardHead, FormField, QueueRow, StatusTag, type QueueTone } from '@/components/portal/kit';
+import { CardHead, FormField, KitEmptyState, QueueRow, StatusTag, type QueueTone } from '@/components/portal/kit';
+import { useTranslations } from 'next-intl';
 
 type AttentionMember = {
   memberId: string;
@@ -80,6 +81,7 @@ const kitSmallSelectStyle: React.CSSProperties = {
 };
 
 export default function PartnerAttentionClient({ initialTier = 'high' as TierFilter }) {
+  const t = useTranslations('partner');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -279,7 +281,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
         ) : !rows ? (
           <p style={{ color: 'var(--wa-muted)' }}>Loading…</p>
         ) : filtered.length === 0 ? (
-          <p style={{ color: 'var(--wa-muted)' }}>No members in this filter. Try &ldquo;All&rdquo; or check back later.</p>
+          <KitEmptyState title={t('attentionQueue')} description={t('noMembersInFilter')} />
         ) : (
           <div className="wa-flex wa-flex-col wa-gap-3">
             {filtered.map((m) => {

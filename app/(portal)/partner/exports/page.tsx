@@ -6,13 +6,16 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 import { Download, FileSpreadsheet, Users } from 'lucide-react';
-import { DesignSurface, SectionHeader, StatusTag, colorVar } from '@/components/portal/kit';
+import { DesignSurface, StatusTag, colorVar } from '@/components/portal/kit';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-    title: 'Exports',
-    description: 'Download referral outcomes as CSV.',
+    title: t('exportsTitle'),
+    description: t('exportsGoal'),
     path: '/partner/exports',
   });
 }
@@ -130,14 +133,12 @@ export default async function PartnerExportsPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
+
   return (
     <PortalPageFrame maxWidth="80rem">
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
-        <SectionHeader
-          kicker="Reporting"
-          title="Exports"
-          goal="Download a CSV of every referred member, stage, program progress, and last update — scoped to your organization only. Open in Excel or Google Sheets."
-        />
+        <PageHeader title={t('exportsTitle')} subtitle={t('exportsGoal')} />
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
           {EXPORTS.map((option) => (

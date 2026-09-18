@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "7a4bb7672d1fb32c910d0f5454e9b7eb749646827ff29f0b8b736a3bd3038b45",
+  "inputTreeSha256": "33c9002a306d1e1c28638562bc669b7e2b62d1092858e047bbb7fa413cd0dfb1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -12738,19 +12738,19 @@
       "path": "app/(portal)/partner/attention/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 2295,
+      "bytes": 2359,
       "lines": 61,
-      "sha256": "1bb0b524b6d6f6fac1ec946a6b52fb364df4cdf9c14109aa0dd0dc2e44a59df1",
+      "sha256": "3af97dba0f974ebb63e9b69ea06ea07ff6371bdf76858ab7bf92cb1b23cb2441",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 13,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 21,
+          "line": 24,
           "kind": "FunctionDeclaration",
           "localName": "PartnerAttentionPage"
         }
@@ -12758,12 +12758,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 13,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerAttentionPage",
-          "line": 21,
+          "line": 24,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -12823,19 +12823,19 @@
       "path": "app/(portal)/partner/exports/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 4701,
-      "lines": 150,
-      "sha256": "c5ecb70b0eca25ba197b9f1ae520cc183532d25a50559e332b29f10936285fe0",
+      "bytes": 4695,
+      "lines": 151,
+      "sha256": "9d5e8e9910d6c6501b5869f8e1c386df4b11250cb217049c7eb4dca63fd71c94",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 12,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 126,
+          "line": 129,
           "kind": "FunctionDeclaration",
           "localName": "PartnerExportsPage"
         }
@@ -12843,37 +12843,37 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 12,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ExportTone",
-          "line": 20,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ExportOption",
-          "line": 22,
+          "line": 25,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TONE_TINT",
-          "line": 32,
+          "line": 35,
           "kind": "Variable"
         },
         {
           "name": "EXPORTS",
-          "line": 38,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "ExportTile",
-          "line": 66,
+          "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerExportsPage",
-          "line": 126,
+          "line": 129,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13088,14 +13088,14 @@
       "path": "app/(portal)/partner/messages/page.tsx",
       "area": "pages",
       "domain": "communications",
-      "bytes": 6669,
-      "lines": 157,
-      "sha256": "66600c631318a4bd189f8f85bfb508bbe9287ac68579a108009ed855e16f4e75",
+      "bytes": 6488,
+      "lines": 160,
+      "sha256": "06a2a3b5f283088e381165d8fd46774ac9319c2523db587c833fe0b8cf122277",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
@@ -13108,13 +13108,8 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "MESSAGES_SUBTITLE",
-          "line": 27,
-          "kind": "Variable"
         },
         {
           "name": "Props",
@@ -13158,19 +13153,19 @@
       "path": "app/(portal)/partner/milestones/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 1762,
-      "lines": 47,
-      "sha256": "ace6c4fef69000211fb160acc62b785cf8b758367c22fc91e75c2d68fbf5a9e0",
+      "bytes": 1816,
+      "lines": 48,
+      "sha256": "e2d392d2ce04d5946369ce9c666efb3f07dd7568f44e6b22929a8fb5599ef46e",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 12,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 20,
+          "line": 23,
           "kind": "FunctionDeclaration",
           "localName": "PartnerMilestonesPage"
         }
@@ -13178,12 +13173,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 12,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerMilestonesPage",
-          "line": 20,
+          "line": 23,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13243,19 +13238,19 @@
       "path": "app/(portal)/partner/outcomes/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 5999,
+      "bytes": 6016,
       "lines": 162,
-      "sha256": "fc3f18b757c3685e003ec1d294af6c5c0edb5c9bb9cac5b8d64680a2463c3688",
+      "sha256": "a669f3dc50234eee867f63a8ae141f72483fe2088f53edb3d6ac09ab0703b299",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 51,
+          "line": 52,
           "kind": "FunctionDeclaration",
           "localName": "PartnerOutcomesPage"
         }
@@ -13263,22 +13258,22 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "overviewLinkStyle",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "PendingReviewRow",
-          "line": 45,
+          "line": 46,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PartnerOutcomesPage",
-          "line": 51,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13328,9 +13323,9 @@
       "path": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 25091,
+      "bytes": 25088,
       "lines": 530,
-      "sha256": "a6eee773bedb7d520d31da7d5e4682d02d80b828767e53047fc544f8170bbfbf",
+      "sha256": "d75caefabd28faf5d0775a5fb165b25d0c81803dfcddde109a4fae3c02f105f8",
       "binary": false,
       "exports": [
         {
@@ -13413,19 +13408,19 @@
       "path": "app/(portal)/partner/referred-members/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 3172,
+      "bytes": 3182,
       "lines": 80,
-      "sha256": "f22cec56d179300aa0fb79a7702ff822093d2dafb29a2e8832fdf8ec1536c752",
+      "sha256": "febe5cad461aedad1644a3b7c852b0dc42cfbbf8e11ac1b179c2092740fe43b4",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration",
           "localName": "PartnerReferredMembersPage"
         }
@@ -13433,12 +13428,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerReferredMembersPage",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13473,19 +13468,19 @@
       "path": "app/(portal)/partner/resources/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 4315,
-      "lines": 129,
-      "sha256": "90ead80d2c29f5a2aeff45ff00580dffb392b7aa11684a747216029e8e9b3774",
+      "bytes": 4471,
+      "lines": 133,
+      "sha256": "60194982c1b0e689aec7e73f5cb635f8a78f9c4380d4319ac8597889447e8016",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 59,
+          "line": 62,
           "kind": "FunctionDeclaration",
           "localName": "PartnerResourcesPage"
         }
@@ -13493,17 +13488,17 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PUBLIC_LINKS",
-          "line": 22,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "PartnerResourcesPage",
-          "line": 59,
+          "line": 62,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13538,19 +13533,19 @@
       "path": "app/(portal)/partner/settings/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 4958,
-      "lines": 141,
-      "sha256": "72118e76e6b59fc42fc2b09b511f1a282326165587376f19a77b5246d63dd4f8",
+      "bytes": 5039,
+      "lines": 142,
+      "sha256": "7b3c6da64d6d5a92f6ef7ddbe08362e058c143ca4305ba64e9250af683c0cb27",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 58,
+          "line": 61,
           "kind": "FunctionDeclaration",
           "localName": "PartnerSettingsPage"
         }
@@ -13558,27 +13553,27 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InfoRow",
-          "line": 22,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fmtBool",
-          "line": 50,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fmtDate",
-          "line": 54,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerSettingsPage",
-          "line": 58,
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56375,14 +56370,14 @@
       "path": "components/partner/PartnerAttentionClient.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 15580,
-      "lines": 415,
-      "sha256": "b246856da8e968c5ffa33ad48d532722e7557cc01ee7f99a3e687ecc11237308",
+      "bytes": 15649,
+      "lines": 417,
+      "sha256": "3e4734f7f9fe8e79b126eee7281951d29674b91d71f5479ba5c20e32d73145af",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 82,
+          "line": 83,
           "kind": "FunctionDeclaration",
           "localName": "PartnerAttentionClient"
         }
@@ -56390,57 +56385,57 @@
       "declarations": [
         {
           "name": "AttentionMember",
-          "line": 10,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LogRow",
-          "line": 24,
+          "line": 25,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberOption",
-          "line": 34,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "TeamUser",
           "line": 35,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "TeamUser",
+          "line": 36,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "TierFilter",
-          "line": 37,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TIER_ORDER",
-          "line": 39,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "TIER_TONE",
-          "line": 46,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "TIER_ICON",
-          "line": 53,
+          "line": 54,
           "kind": "Variable"
         },
         {
           "name": "kitFieldStyle",
-          "line": 60,
+          "line": 61,
           "kind": "Variable"
         },
         {
           "name": "kitSmallSelectStyle",
-          "line": 72,
+          "line": 73,
           "kind": "Variable"
         },
         {
           "name": "PartnerAttentionClient",
-          "line": 82,
+          "line": 83,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56525,14 +56520,14 @@
       "path": "components/partner/PartnerMilestonesMobile.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 6945,
+      "bytes": 6720,
       "lines": 172,
-      "sha256": "d0daa1ed67ff35c351aa017e2809473a30dfd17cc33a0dd843f74e9847b54bfe",
+      "sha256": "2f6851c582bcdc82d48d3143b5255045fac4394e18700c4be65975060db77d0c",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 29,
+          "line": 30,
           "kind": "FunctionDeclaration",
           "localName": "PartnerMilestonesMobile"
         }
@@ -56540,22 +56535,22 @@
       "declarations": [
         {
           "name": "Milestone",
-          "line": 8,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "KIND_TONE",
-          "line": 17,
+          "line": 18,
           "kind": "Variable"
         },
         {
           "name": "KIND_LABEL",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "PartnerMilestonesMobile",
-          "line": 29,
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56565,14 +56560,14 @@
       "path": "components/partner/PartnerMilestonesView.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 7128,
+      "bytes": 6999,
       "lines": 204,
-      "sha256": "f9af52b5c827c8167165b0f43b521ec4b84322f2bf3956e0735d1f712e2cbf14",
+      "sha256": "fe703b63fbefe98d6ccc2e37b9d38306e087b9f8dc1321b6d359b3c1c0cdf88c",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 67,
+          "line": 69,
           "kind": "FunctionDeclaration",
           "localName": "PartnerMilestonesView"
         }
@@ -56580,42 +56575,42 @@
       "declarations": [
         {
           "name": "Milestone",
-          "line": 18,
+          "line": 20,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "KIND_TONE",
-          "line": 27,
+          "line": 29,
           "kind": "Variable"
         },
         {
           "name": "KIND_LABEL",
-          "line": 33,
+          "line": 35,
           "kind": "Variable"
         },
         {
           "name": "KIND_ICON",
-          "line": 39,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "KIND_COLOR",
-          "line": 45,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "KIND_STAGE",
-          "line": 54,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "stageTrackFor",
-          "line": 59,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerMilestonesView",
-          "line": 67,
+          "line": 69,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56719,19 +56714,19 @@
       "path": "components/partner/PartnerReferredMembersMobile.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 6692,
-      "lines": 172,
-      "sha256": "57b7c33a04ce912de409440ff4effb0c7b9eed51f693b2fc3b6075ae8e8a79ff",
+      "bytes": 6478,
+      "lines": 171,
+      "sha256": "fe95d6cde0a1a4a2594524cc5a074e04d6b6f6702be048ad299d0bdbb9550b58",
       "binary": false,
       "exports": [
         {
           "name": "PartnerMemberRow",
-          "line": 8,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 40,
+          "line": 41,
           "kind": "FunctionDeclaration",
           "localName": "PartnerReferredMembersMobile"
         }
@@ -56739,32 +56734,32 @@
       "declarations": [
         {
           "name": "PartnerMemberRow",
-          "line": 8,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Filter",
-          "line": 21,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "STAGE_ORDER",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "STAGE_TONE",
-          "line": 25,
+          "line": 26,
           "kind": "Variable"
         },
         {
           "name": "stageTrackIndex",
-          "line": 35,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerReferredMembersMobile",
-          "line": 40,
+          "line": 41,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -137124,27 +137119,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 189628,
-      "lines": 3107,
-      "sha256": "07adc60750ff97ba1d76da2d006ef4325297a7d3dc0025b3b4669837817c85d5",
+      "bytes": 191334,
+      "lines": 3128,
+      "sha256": "4f611b9e0d54e70ede82a0a730303d6958918577341952184357b1e4593f9f41",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 208098,
-      "lines": 3094,
-      "sha256": "d7d8d8f2f819f8b854da0e5ea037cea7d2e5127e1c758cedebfe7886c3c6819d",
+      "bytes": 209924,
+      "lines": 3115,
+      "sha256": "235b77c775ba023ab6de362e06321b4c70c696b0a13bd3fe6ee6eaa31464247a",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 209046,
-      "lines": 3047,
-      "sha256": "5c5b75b173cf9a2e65a5d622f517b9c64f99e9cc8ca712790924b92e53dc644f",
+      "bytes": 210912,
+      "lines": 3068,
+      "sha256": "ebea83723d5e0d88eeb5f3ba0091e1b1118f20dce5092c9a4e94441d1a00b10f",
       "binary": false
     },
     {
@@ -137160,9 +137155,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 201067,
-      "lines": 3047,
-      "sha256": "86539e3b5d27ff599c5242a78a82316f7768fa2153094180a5d444f3683c64ba",
+      "bytes": 202864,
+      "lines": 3068,
+      "sha256": "94d21477cc6a008f53f90fe253ce9c8c86eba62afe0d21258e4b056b1ff4cee8",
       "binary": false
     },
     {
@@ -151319,12 +151314,40 @@
       "path": "tests/app/partner-contextual-messages.spec.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5229,
-      "lines": 130,
-      "sha256": "791884848b22aaef042e80cf137dc86cc9778f6e5ffe262f503b2dfcc69df81b",
+      "bytes": 5588,
+      "lines": 139,
+      "sha256": "dee2eed3ba3dee416f3bb3376b2e99ee4ac72c2b690320c0192fa5ce2f19dedb",
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/app/partner-pageheader-kit.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2649,
+      "lines": 63,
+      "sha256": "039166d8a3f3f4530375895a1de65df00bdb139725587210a597d80eb4e3a2f6",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "read",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "PAGE_HEADER_ROUTES",
+          "line": 11,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {

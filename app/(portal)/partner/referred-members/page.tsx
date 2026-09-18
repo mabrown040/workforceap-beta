@@ -10,17 +10,18 @@ import { getUser } from '@/lib/auth/server';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMembersMobile';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
 import { Download } from 'lucide-react';
-import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import { DesignSurface } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: t('referredMembers'),
-  description: t('referredMembersDescription'),
-  path: '/partner/referred-members',
-});
+    title: t('referredMembers'),
+    description: t('referredMembersDescription'),
+    path: '/partner/referred-members',
+  });
 }
 
 export default async function PartnerReferredMembersPage() {
@@ -37,10 +38,9 @@ export default async function PartnerReferredMembersPage() {
   return (
     <PortalPageFrame>
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6 wa-pb-24 md:wa-pb-8">
-        <SectionHeader
-          kicker={t('partnerDashboard')}
+        <PageHeader
           title={t('referredMembers')}
-          goal={t('searchAndFilter')}
+          subtitle={t('searchAndFilter')}
           action={
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               <PartnerInviteMemberButton />

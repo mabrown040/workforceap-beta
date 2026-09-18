@@ -7,14 +7,17 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
 import PartnerContactEditForm from '@/components/partner/PartnerContactEditForm';
-import { DesignSurface, SectionHeader, CardHead } from '@/components/portal/kit';
+import { DesignSurface, CardHead } from '@/components/portal/kit';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-    title: 'Partner settings',
-    description: 'Partner portal settings.',
+    title: t('settingsTitle'),
+    description: t('settingsGoal'),
     path: '/partner/settings',
   });
 }
@@ -62,6 +65,8 @@ export default async function PartnerSettingsPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
+
   const partner = await prisma.partner.findUnique({
     where: { id: ctx.partnerId },
     select: {
@@ -87,11 +92,7 @@ export default async function PartnerSettingsPage() {
     <PortalPageFrame maxWidth="48rem">
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
         <div style={{ paddingBottom: '5rem' }} className="wa-flex wa-flex-col wa-gap-6">
-          <SectionHeader
-            kicker="Partner Portal"
-            title="Settings"
-            goal="Your organization profile and notification preferences."
-          />
+          <PageHeader title={t('settingsTitle')} subtitle={t('settingsGoal')} />
 
           <div className="wa-kit-card">
             <CardHead title="Organization" />

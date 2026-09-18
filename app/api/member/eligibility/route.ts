@@ -6,6 +6,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
+import { scoreEmploymentEligibility } from '@/lib/apply/employmentEligibility';
+import { normalizeHouseholdSize, povertyGuidelineLabel } from '@/lib/apply/householdPoverty';
+import { lookupWorkforceCenter, workforceCenterPlainLine } from '@/lib/apply/workforceCenters';
 import {
   sendEligibilityScreeningAdminEmail,
   sendEligibilityScreeningConfirmationEmail,
@@ -34,6 +37,8 @@ const eligibilitySchema = z.object({
   q1: z.enum(['yes', 'no']).optional().nullable(),
   q2: z.enum(['yes', 'no']).optional().nullable(),
   q3: z.enum(['yes', 'no']).optional().nullable(),
+  underemployed: z.enum(['yes', 'no']).optional().nullable(),
+  householdSize: z.number().int().min(1).max(4).optional().nullable(),
   receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
   exhaustedUnemployment: z.enum(['yes', 'no']).optional().nullable(),
   layoffCompany: z.string().trim().max(200).optional().nullable(),
@@ -51,6 +56,8 @@ type EligibilityFormMeta = {
   q1: string | null;
   q2: string | null;
   q3: string | null;
+  underemployed: string | null;
+  householdSize: number | null;
   receivingUnemployment: string | null;
   exhaustedUnemployment: string | null;
   layoffCompany: string | null;
@@ -78,6 +85,8 @@ async function _GET() {
             q1: true,
             q2: true,
             q3: true,
+            underemployed: true,
+            householdSize: true,
             receivingUnemployment: true,
             exhaustedUnemployment: true,
             layoffCompany: true,
@@ -110,6 +119,8 @@ async function _GET() {
       q1: meta?.q1 ?? screening?.q1 ?? null,
       q2: meta?.q2 ?? screening?.q2 ?? null,
       q3: meta?.q3 ?? screening?.q3 ?? null,
+      underemployed: meta?.underemployed ?? screening?.underemployed ?? null,
+      householdSize: meta?.householdSize ?? screening?.householdSize ?? null,
       receivingUnemployment: meta?.receivingUnemployment ?? screening?.receivingUnemployment ?? null,
       exhaustedUnemployment: meta?.exhaustedUnemployment ?? screening?.exhaustedUnemployment ?? null,
       layoffCompany: meta?.layoffCompany ?? screening?.layoffCompany ?? null,
@@ -156,6 +167,8 @@ async function _PATCH(request: Request) {
       q1,
       q2,
       q3,
+      underemployed,
+      householdSize,
       receivingUnemployment,
       exhaustedUnemployment,
       layoffCompany,
@@ -171,6 +184,8 @@ async function _PATCH(request: Request) {
       q1: normalizeYesNo(q1),
       q2: normalizeYesNo(q2),
       q3: normalizeYesNo(q3),
+      underemployed: normalizeYesNo(underemployed),
+      householdSize: normalizeHouseholdSize(householdSize),
       receivingUnemployment: normalizeYesNo(receivingUnemployment),
       exhaustedUnemployment: normalizeYesNo(exhaustedUnemployment),
       layoffCompany: layoffCompany?.trim() ? layoffCompany.trim().slice(0, 200) : null,
@@ -180,6 +195,25 @@ async function _PATCH(request: Request) {
       partnerAmbassadorReferral: partnerAmbassadorReferral?.trim()
         ? partnerAmbassadorReferral.trim().slice(0, 200)
         : null,
+    };
+    const employment = scoreEmploymentEligibility({
+      unemployed: extended.q1,
+      receivingUnemployment: extended.receivingUnemployment,
+      exhaustedUnemployment: extended.exhaustedUnemployment,
+      underemployed: extended.underemployed,
+    });
+    const eligibilityEmailFields = {
+      ...extended,
+      ageGroup: ageGroup ?? null,
+      zip: zip?.trim() || null,
+      city: city?.trim() || null,
+      state: state?.trim() || null,
+      county: county?.trim() || null,
+      workforceCenter: workforceCenterPlainLine(lookupWorkforceCenter({ zip, county, state })),
+      povertyGuideline: povertyGuidelineLabel(extended.householdSize),
+      employmentFit: employment.fit,
+      qualifies: employment.qualifies,
+      yesCount: employment.yesCount,
     };
 
     const notifyMeta = await prisma.$transaction(async (tx) => {
@@ -220,14 +254,15 @@ async function _PATCH(request: Request) {
       });
 
       if (extended.q1 && extended.q2 && current?.organizationId) {
-        const yesCount = [extended.q1, extended.q2, extended.q3].filter((v) => v === 'yes').length;
         const screening = {
           organizationId: current.organizationId,
           q1: extended.q1,
           q2: extended.q2,
           q3: extended.q3,
-          qualifies: yesCount >= 1,
-          yesCount,
+          qualifies: employment.qualifies,
+          yesCount: employment.yesCount,
+          underemployed: extended.underemployed,
+          householdSize: extended.householdSize,
           receivingUnemployment: extended.receivingUnemployment,
           exhaustedUnemployment: extended.exhaustedUnemployment,
           layoffCompany: extended.layoffCompany,
@@ -256,7 +291,6 @@ async function _PATCH(request: Request) {
     // invocation alive until Resend finishes. Bare fire-and-forget promises
     // are often frozen when the JSON response returns. Failures must not roll
     // back the saved answers.
-    const eligibilityEmailFields = { ...extended };
     if (notifyMeta.email) {
       const displayName = (notifyMeta.fullName ?? '').trim() || notifyMeta.email;
       after(() =>

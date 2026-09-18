@@ -27,6 +27,7 @@ Append-only record of shipped work that was previously tracked in backlogs or sp
 | 2026-08 | Member dashboard loader | Kit-default `/dashboard` extracted to `loadMemberDashboardHome` (1–2 Prisma ops in one `$transaction`). Coursera auto-sync off the render path (cron `coursera-training-sync`). `?ui=legacy` still fat. Redis `getMemberState` not required. | SCALE Phase 2 / `clm_hot_dashboard_query_fanout`. Proposed rule `rul_dashboard_query_budget`. |
 
 | 2026-08 | Go-live UI + health probes | Rewrote apply `PreLaunchTag` off “Pilot Program”; cheap `/api/health` liveness + `/api/health/ready` Prisma/org probe; apply dark-mode tokens; cookie Accept token + focus trap; contact error next-step; placements empty/error CTA | Pre-prod. Operators: `docs/HEALTH-PROBES.md`. |
+| 2026-09 | Apply + dashboard eligibility | Adult screener now asks unemployed → receiving UI → benefits exhausted → part-time/underemployed; household-size FPL dropdown; ZIP required on create-account with DOL one-stop hint; identical SNAP wording on apply / dashboard / `/q`; admin emails list every answer; Resume + AI Career Tools pinned in the member primary rail | Screening columns `underemployed` + `household_size`. |
 
 ## Live site comparison (workforceap.org)
 

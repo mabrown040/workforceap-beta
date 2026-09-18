@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "8c657161519698cf3c9c8c44efd18f0368ecf00182f0b4716b603a362f7a0059",
+  "inputTreeSha256": "8b78e395e4996d0f5f17253784a733b427846878eac9de74fd1a53de150d3271",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -7874,9 +7874,9 @@
       "path": "app/(portal)/dashboard/ai-tools/skill-mapper/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 2284,
+      "bytes": 2283,
       "lines": 70,
-      "sha256": "e2529fa14c2f621fa50e2ed0bc47f8b1f738983c5d247c9ad898f910d34db009",
+      "sha256": "1453b3ed6b70bdca9fff40336effb38db7dd76ece84dfc70dd57f45491579744",
       "binary": false,
       "exports": [
         {
@@ -8619,19 +8619,19 @@
       "path": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 14017,
-      "lines": 396,
-      "sha256": "4ba8d7264f34291cc18b382523cb0ea93c0bf31d0bdd32865eb1182a32613593",
+      "bytes": 16530,
+      "lines": 457,
+      "sha256": "0e07f027fa4005e5ac7ebff326e3eb8f299458726f4c07c69b1816d4e8fbd611",
       "binary": false,
       "exports": [
         {
           "name": "EligibilityInitial",
-          "line": 23,
+          "line": 31,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 104,
+          "line": 125,
           "kind": "FunctionDeclaration",
           "localName": "EligibilityForm"
         }
@@ -8639,37 +8639,37 @@
       "declarations": [
         {
           "name": "AGE_GROUPS",
-          "line": 15,
+          "line": 23,
           "kind": "Variable"
         },
         {
           "name": "AgeGroupValue",
-          "line": 21,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EligibilityInitial",
-          "line": 23,
+          "line": 31,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "labelStyle",
-          "line": 42,
+          "line": 52,
           "kind": "Variable"
         },
         {
           "name": "inputStyle",
-          "line": 50,
+          "line": 60,
           "kind": "Variable"
         },
         {
           "name": "YesNoRow",
-          "line": 60,
+          "line": 70,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EligibilityForm",
-          "line": 104,
+          "line": 125,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -8704,19 +8704,19 @@
       "path": "app/(portal)/dashboard/eligibility/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 4503,
-      "lines": 118,
-      "sha256": "5f35f512b513688c3305c4ea350cf9836b3ba25be9a5e6cd170585c648acd8b0",
+      "bytes": 4887,
+      "lines": 125,
+      "sha256": "9103523987f72ce356b6ba97c4f1b9debc2ab6d17bb2e28732349a2f0270ebbf",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 8,
+          "line": 9,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration",
           "localName": "EligibilityPage"
         }
@@ -8724,22 +8724,22 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 8,
+          "line": 9,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AGE_GROUP_VALUES",
-          "line": 16,
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "AgeGroupValue",
-          "line": 17,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EligibilityPage",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -29577,9 +29577,9 @@
       "path": "app/api/apply/signup/route.test.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 47952,
-      "lines": 1304,
-      "sha256": "a8f99fa89d6acbddfbdb735fd14601588c5f3dfe31293a80fcdfdabf674c2abc",
+      "bytes": 48345,
+      "lines": 1312,
+      "sha256": "0ee065f9d3f2f1c389b1233e8192c3f7f7b14983fd7a726919714f14285a1c1f",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -29625,51 +29625,51 @@
       "path": "app/api/apply/signup/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 45623,
-      "lines": 1030,
-      "sha256": "f185aa694feb5eddcb097bab5556c374e9e6ba6d00046da9d253378d59eb00b3",
+      "bytes": 46579,
+      "lines": 1057,
+      "sha256": "fe54f78010d8d341e815783a322c4f4f5c83acedb21635e07098980566d4dec8",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 180,
+          "line": 192,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "seatCapNote",
-          "line": 65,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getClientIp",
           "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "getClientIp",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "accountRecoveryRequiredResponse",
-          "line": 77,
+          "line": 81,
           "kind": "Variable"
         },
         {
           "name": "isAppEmailCollision",
-          "line": 86,
+          "line": 90,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "compensateFreshApplySignupAuthIdentity",
-          "line": 98,
+          "line": 102,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "applySignupSchema",
-          "line": 123,
+          "line": 127,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 180,
+          "line": 192,
           "kind": "Variable"
         }
       ],
@@ -35404,56 +35404,56 @@
       "path": "app/api/member/eligibility/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 12237,
-      "lines": 312,
-      "sha256": "235adbb4f90ef970e823957070e8331f03d1d768ed53d3937c4aeb5e0c81d955",
+      "bytes": 13829,
+      "lines": 346,
+      "sha256": "2ea6599efb183cb235bcded914bebf552f6a364784700c71345cbb3ca26ebe17",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 127,
+          "line": 138,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 312,
+          "line": 346,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "AGE_GROUP_VALUES",
-          "line": 25,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "eligibilitySchema",
-          "line": 27,
+          "line": 30,
           "kind": "Variable"
         },
         {
           "name": "EligibilityFormMeta",
-          "line": 46,
+          "line": 51,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "_GET",
-          "line": 63,
+          "line": 70,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 127,
+          "line": 138,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 129,
+          "line": 140,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 312,
+          "line": 346,
           "kind": "Variable"
         }
       ],
@@ -39559,41 +39559,41 @@
       "path": "app/api/q/[token]/submit/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 14745,
-      "lines": 361,
-      "sha256": "61bd3765301a6c6591ebe8c6ca1f143ca971f45544600cd75ec47aec0f018114",
+      "bytes": 16283,
+      "lines": 391,
+      "sha256": "a880804343329e6cfc2d369ba6f48a612e196f21a051338c49f4088d1f985fab",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 87,
+          "line": 97,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "AGE_GROUP_VALUES",
-          "line": 37,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "submitSchema",
-          "line": 39,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "EligibilityFormMeta",
-          "line": 62,
+          "line": 70,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getClientIp",
-          "line": 79,
+          "line": 89,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 87,
+          "line": 97,
           "kind": "Variable"
         }
       ],
@@ -40293,52 +40293,52 @@
       "path": "app/apply/ApplyEligibilityClient.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 41862,
-      "lines": 1023,
-      "sha256": "fda489ce4cc5dadbea0da9b69537d659ab624cb585cad589a7d865ea86f50c21",
+      "bytes": 46776,
+      "lines": 1120,
+      "sha256": "599f359ca9156d1d485ea639a37b2cee8f9105487341ff2b0c6d57908ee78abd",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 102,
+          "line": 113,
           "kind": "FunctionDeclaration",
           "localName": "ApplyEligibilityClient"
         },
         {
           "name": "APPLY_STORAGE_KEY",
-          "line": 1023,
+          "line": 1120,
           "kind": "ReExport"
         }
       ],
       "declarations": [
         {
           "name": "APPLY_STORAGE_KEY",
-          "line": 33,
-          "kind": "Variable"
-        },
-        {
-          "name": "ADULT_AGE_GROUPS",
-          "line": 35,
-          "kind": "Variable"
-        },
-        {
-          "name": "APPLY_DRAFT_TTL_MS",
           "line": 42,
           "kind": "Variable"
         },
         {
-          "name": "readDraft",
+          "name": "ADULT_AGE_GROUPS",
           "line": 44,
+          "kind": "Variable"
+        },
+        {
+          "name": "APPLY_DRAFT_TTL_MS",
+          "line": 51,
+          "kind": "Variable"
+        },
+        {
+          "name": "readDraft",
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "writeDraft",
-          "line": 64,
+          "line": 73,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ApplyEligibilityClient",
-          "line": 102,
+          "line": 113,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -40527,14 +40527,14 @@
       "path": "app/apply/create-account/ApplyCreateAccountForm.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 46615,
-      "lines": 1140,
-      "sha256": "8cca555e688330e4f28059ce7972b3070d914a69f9ad3b923251d465b18205f7",
+      "bytes": 47954,
+      "lines": 1162,
+      "sha256": "4d08dc15a5eda3da47199c8acf94a75a1425c92670c4fde9cbadeeae1e34452a",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration",
           "localName": "ApplyCreateAccountForm"
         }
@@ -40542,42 +40542,42 @@
       "declarations": [
         {
           "name": "Turnstile",
-          "line": 27,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "CAPTCHA_ENABLED",
-          "line": 29,
-          "kind": "Variable"
-        },
-        {
-          "name": "TURNSTILE_SITE_KEY",
           "line": 30,
           "kind": "Variable"
         },
         {
+          "name": "TURNSTILE_SITE_KEY",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
           "name": "APPLY_ACCOUNT_DRAFT_KEY",
-          "line": 36,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "AccountDraft",
-          "line": 37,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getPasswordStrengthScore",
-          "line": 52,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatPhoneInput",
-          "line": 61,
+          "line": 62,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ApplyCreateAccountForm",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -45598,19 +45598,19 @@
       "path": "app/q/[token]/PublicEligibilityForm.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 13843,
-      "lines": 356,
-      "sha256": "2c6a7e3a0b443b882b36d0d197c446e66317e6dc7380e784b1a6a8280c695d08",
+      "bytes": 16851,
+      "lines": 439,
+      "sha256": "a919a5b75f56032152f461484b5d7f3a33f0369d01d07dcd265fb102952ead3b",
       "binary": false,
       "exports": [
         {
           "name": "PublicEligibilityPrefill",
-          "line": 22,
+          "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 87,
+          "line": 120,
           "kind": "FunctionDeclaration",
           "localName": "PublicEligibilityForm"
         }
@@ -45618,37 +45618,37 @@
       "declarations": [
         {
           "name": "AGE_GROUPS",
-          "line": 16,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "PublicEligibilityPrefill",
-          "line": 22,
+          "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "fieldGroup",
-          "line": 45,
+          "line": 55,
           "kind": "Variable"
         },
         {
           "name": "labelStyle",
-          "line": 46,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "inputStyle",
-          "line": 47,
+          "line": 57,
           "kind": "Variable"
         },
         {
           "name": "YesNoGroup",
-          "line": 54,
+          "line": 64,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PublicEligibilityForm",
-          "line": 87,
+          "line": 120,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -45658,19 +45658,19 @@
       "path": "app/q/[token]/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 4829,
-      "lines": 145,
-      "sha256": "bd8a5862f3c050136fc22f6636a764984d934eb0af5161d1af510f97988b2f76",
+      "bytes": 6910,
+      "lines": 191,
+      "sha256": "19b5298c04d375e76a8033dfbd936e544c7d7ee8d62b700320789e3bb53f03f7",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 5,
+          "line": 6,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 50,
+          "line": 63,
           "kind": "FunctionDeclaration",
           "localName": "PublicQuestionnairePage"
         }
@@ -45678,27 +45678,27 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 5,
+          "line": 6,
           "kind": "Variable"
         },
         {
           "name": "EligibilityFormMeta",
-          "line": 7,
+          "line": 8,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PAGE_WRAP",
-          "line": 14,
+          "line": 27,
           "kind": "Variable"
         },
         {
           "name": "MessageCard",
-          "line": 20,
+          "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PublicQuestionnairePage",
-          "line": 50,
+          "line": 63,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -53229,6 +53229,31 @@
         }
       ],
       "directive": "use client"
+    },
+    {
+      "path": "components/apply/WorkforceCenterHint.tsx",
+      "area": "components",
+      "domain": "applications-enrollment",
+      "bytes": 1042,
+      "lines": 35,
+      "sha256": "e3f6c539397ceb2993b3a4799239977e3afc1826e4ea2c37f7f619395390e4c6",
+      "binary": false,
+      "exports": [
+        {
+          "name": "default",
+          "line": 3,
+          "kind": "FunctionDeclaration",
+          "localName": "WorkforceCenterHint"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "WorkforceCenterHint",
+          "line": 3,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
     },
     {
       "path": "components/billing/BillingPacketList.tsx",
@@ -72873,82 +72898,87 @@
       "path": "components/portal/tools/SkillMapperClient.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 69711,
-      "lines": 1296,
-      "sha256": "ab0ed70a1f3006082e62c88728669b5767ec7eb6962cda8ac49d90026d0968ae",
+      "bytes": 68218,
+      "lines": 1312,
+      "sha256": "57cc2b57a2f2d2e1aff973486ced0987f04059302e0480f4e41c1efbebc627ab",
       "binary": false,
       "exports": [
         {
+          "name": "SkillMapperPreviewSeed",
+          "line": 36,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "default",
-          "line": 436,
+          "line": 410,
           "kind": "FunctionDeclaration",
           "localName": "SkillMapperClient"
         }
       ],
       "declarations": [
         {
+          "name": "SkillMapperPreviewSeed",
+          "line": 36,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "DEMO_RADAR",
-          "line": 29,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "DEMO_SKILLS",
-          "line": 37,
+          "line": 55,
           "kind": "Variable"
         },
         {
           "name": "DEMO_SALES_RADAR",
-          "line": 46,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "DEMO_SALES_SKILLS",
-          "line": 54,
+          "line": 72,
           "kind": "Variable"
         },
         {
           "name": "AXIS_DESCRIPTIONS",
-          "line": 62,
+          "line": 80,
           "kind": "Variable"
         },
         {
           "name": "primaryPillStyle",
-          "line": 82,
+          "line": 100,
           "kind": "Variable"
         },
         {
           "name": "outlinePillStyleSm",
-          "line": 96,
+          "line": 114,
           "kind": "Variable"
         },
         {
           "name": "AxisLegend",
-          "line": 108,
+          "line": 126,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isSalesQuery",
-          "line": 158,
+          "line": 176,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "RadarChart",
-          "line": 163,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "DualRadarChart",
-          "line": 195,
+          "line": 181,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CoursePathForGaps",
-          "line": 244,
+          "line": 218,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillMapperClient",
-          "line": 436,
+          "line": 410,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -74524,9 +74554,9 @@
       "path": "css/main.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 237525,
-      "lines": 8748,
-      "sha256": "0c579ac88f5625c055a9a77571ed61074f41cc0a4d5ffb27c819efe71eda1e5a",
+      "bytes": 238260,
+      "lines": 8777,
+      "sha256": "a2fcd1a024a36a1a910621993795bee1fc349c1df68a869d1345d3955449b183",
       "binary": false
     },
     {
@@ -74614,9 +74644,9 @@
       "path": "css/portal.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 78512,
-      "lines": 3329,
-      "sha256": "eb21bce8612b3eeaa494c64634bf9deb4ae8a4f955e1af44496c63b448ad0bd4",
+      "bytes": 79669,
+      "lines": 3378,
+      "sha256": "006446c73edd0afbb0b09cfaa03198eeb5adac5ecefb6763b0c56cd30a57fb6f",
       "binary": false
     },
     {
@@ -74731,9 +74761,9 @@
       "path": "docs/COMPLETED-WORK-LOG.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 8021,
-      "lines": 39,
-      "sha256": "7057b315c61e75329eb00201b1017f1514d46014abb525d4f34f49e4f4ba09ce",
+      "bytes": 8454,
+      "lines": 40,
+      "sha256": "e42ad2ecf7987cdeec30ec4f6f65d3321a345682f8a6cc35545a7683788b5143",
       "binary": false
     },
     {
@@ -79264,14 +79294,14 @@
       "path": "emails/eligibility-screening-summary.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 1805,
-      "lines": 56,
-      "sha256": "43faeb20896576253e61f67afe5af95b97d0857255e4a408f0fa42ae3972f9a8",
+      "bytes": 2455,
+      "lines": 68,
+      "sha256": "1d92ed9d4ee2491d42877e496c20ab5e634257770cc441eb4f9d8aeece4865f6",
       "binary": false,
       "exports": [
         {
           "name": "eligibilityScreeningSummaryHtml",
-          "line": 20,
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -79282,8 +79312,13 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "fitLabel",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "eligibilityScreeningSummaryHtml",
-          "line": 20,
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -79293,9 +79328,9 @@
       "path": "emails/eligibility-screening-ws5.test.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 4330,
+      "bytes": 4423,
       "lines": 119,
-      "sha256": "6d350a1c201b6b68d0a1aa314a046ba489dbc708f8cc2ec7ec16da8b27d5747e",
+      "sha256": "ef5476619cc17e19e6ee288c81a1501d3bf58645d61aaa7ba7b4d18ae5828476",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -84087,9 +84122,9 @@
       "path": "lib/admin/eligibilityDatasheet.test.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 4731,
-      "lines": 135,
-      "sha256": "96b7ab943a8cc6220f16027d4ce9b4958391aa4bb1a780b5f5e905d745908159",
+      "bytes": 5142,
+      "lines": 141,
+      "sha256": "58af97b1deff282aec713b73734b16f5006f1d39f7368e57eb6afa7aea76359a",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -91633,9 +91668,9 @@
       "path": "lib/apply/applyProgramStorage.ts",
       "area": "libraries",
       "domain": "applications-enrollment",
-      "bytes": 2699,
-      "lines": 77,
-      "sha256": "fe0e60f8bd9f36c27080b16e92aee4b8a74eb71b4f8bb317940a3495f87cea3a",
+      "bytes": 2776,
+      "lines": 79,
+      "sha256": "90487ed97effc656408f534f76b10a41035a127416ea7ccc878d70b91351a480",
       "binary": false,
       "exports": [
         {
@@ -91665,12 +91700,12 @@
         },
         {
           "name": "CareerQuizSignupPayload",
-          "line": 44,
+          "line": 46,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCareerQuizPayloadFromStorage",
-          "line": 52,
+          "line": 54,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -91702,12 +91737,12 @@
         },
         {
           "name": "CareerQuizSignupPayload",
-          "line": 44,
+          "line": 46,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCareerQuizPayloadFromStorage",
-          "line": 52,
+          "line": 54,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -91892,9 +91927,9 @@
       "path": "lib/apply/eligibilityExtendedFields.ts",
       "area": "libraries",
       "domain": "applications-enrollment",
-      "bytes": 2848,
-      "lines": 80,
-      "sha256": "fb9221e42e12ebdb34b4a08106f8a847cb6f0197443082f0a4d9b1e4632d18a4",
+      "bytes": 3044,
+      "lines": 84,
+      "sha256": "948f15fd7f5b3c18d671a9f475a50e5ecbecac27374d6b602df7d44654be4868",
       "binary": false,
       "exports": [
         {
@@ -91908,53 +91943,58 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "APPLY_HEAR_ABOUT_OPTIONS",
-          "line": 24,
+          "name": "FOOD_STAMPS_QUESTION",
+          "line": 19,
           "kind": "Variable"
         },
         {
-          "name": "ApplyHearAboutOption",
-          "line": 26,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "APPLY_HEAR_ABOUT_OTHER",
+          "name": "APPLY_HEAR_ABOUT_OPTIONS",
           "line": 28,
           "kind": "Variable"
         },
         {
-          "name": "APPLY_HEAR_ABOUT_AMBASSADOR",
+          "name": "ApplyHearAboutOption",
           "line": 30,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "APPLY_HEAR_ABOUT_OTHER",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "APPLY_HEAR_ABOUT_AMBASSADOR",
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "isYesNo",
-          "line": 32,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "normalizeYesNo",
           "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "normalizeYesNo",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "normalizeHearAbout",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hearAboutNeedsOther",
-          "line": 48,
+          "line": 52,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hearAboutSuggestsAmbassador",
-          "line": 58,
+          "line": 62,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "layoffCompanyApplicable",
-          "line": 74,
+          "line": 78,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -91970,53 +92010,58 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "APPLY_HEAR_ABOUT_OPTIONS",
-          "line": 24,
+          "name": "FOOD_STAMPS_QUESTION",
+          "line": 19,
           "kind": "Variable"
         },
         {
-          "name": "ApplyHearAboutOption",
-          "line": 26,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "APPLY_HEAR_ABOUT_OTHER",
+          "name": "APPLY_HEAR_ABOUT_OPTIONS",
           "line": 28,
           "kind": "Variable"
         },
         {
-          "name": "APPLY_HEAR_ABOUT_AMBASSADOR",
+          "name": "ApplyHearAboutOption",
           "line": 30,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "APPLY_HEAR_ABOUT_OTHER",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "APPLY_HEAR_ABOUT_AMBASSADOR",
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "isYesNo",
-          "line": 32,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "normalizeYesNo",
           "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "normalizeYesNo",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "normalizeHearAbout",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hearAboutNeedsOther",
-          "line": 48,
+          "line": 52,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hearAboutSuggestsAmbassador",
-          "line": 58,
+          "line": 62,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "layoffCompanyApplicable",
-          "line": 74,
+          "line": 78,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -92026,9 +92071,9 @@
       "path": "lib/apply/eligibilityScreeningFields.ts",
       "area": "libraries",
       "domain": "applications-enrollment",
-      "bytes": 3645,
-      "lines": 106,
-      "sha256": "21d0c9ff4da0ca6006cd6d5788f8f68ea5b965ad553f93da0e0965b169ded0d6",
+      "bytes": 5646,
+      "lines": 158,
+      "sha256": "730819d3f57a898b7e49ebd0586523e2a3c2cc14b49fe6f2a6bf50f781dc7369",
       "binary": false,
       "exports": [
         {
@@ -92038,27 +92083,27 @@
         },
         {
           "name": "ELIGIBILITY_DATASHEET_COLUMNS",
-          "line": 23,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "EligibilityDatasheetColumn",
-          "line": 38,
+          "line": 55,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "hasEligibilityScreeningFields",
-          "line": 40,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "eligibilityDatasheetCells",
-          "line": 61,
+          "line": 85,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "eligibilityFieldsPlainLines",
-          "line": 82,
+          "line": 119,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -92070,27 +92115,214 @@
         },
         {
           "name": "ELIGIBILITY_DATASHEET_COLUMNS",
-          "line": 23,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "EligibilityDatasheetColumn",
-          "line": 38,
+          "line": 55,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "hasEligibilityScreeningFields",
-          "line": 40,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "eligibilityDatasheetCells",
-          "line": 61,
+          "line": 85,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "fitPlainLabel",
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "eligibilityFieldsPlainLines",
-          "line": 82,
+          "line": 119,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/apply/employmentEligibility.test.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 1518,
+      "lines": 56,
+      "sha256": "81c75a87d4e1e49694c2e0199a7218f9daf371ac1acd578446bf8e954756857d",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/apply/employmentEligibility.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 1742,
+      "lines": 59,
+      "sha256": "87039b1ea1c2b1b222c64267510bf1a3a1966785fc577d9c60a8c7352251a057",
+      "binary": false,
+      "exports": [
+        {
+          "name": "EmploymentAnswers",
+          "line": 15,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EmploymentFit",
+          "line": 22,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EmploymentEligibilityScore",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "scoreEmploymentEligibility",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "employmentFitLabel",
+          "line": 46,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "EmploymentAnswers",
+          "line": 15,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EmploymentFit",
+          "line": 22,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EmploymentEligibilityScore",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "scoreEmploymentEligibility",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "employmentFitLabel",
+          "line": 46,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/apply/householdPoverty.test.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 952,
+      "lines": 26,
+      "sha256": "2a61a4f6262c7e35edac287bbb5efce18ff9808537df32c6360acd32b13885e7",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/apply/householdPoverty.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 1542,
+      "lines": 48,
+      "sha256": "90206c5afa127ef66f06042cadabc7204886eb9f7229ff43f0ac25a591758548",
+      "binary": false,
+      "exports": [
+        {
+          "name": "HOUSEHOLD_SIZE_OPTIONS",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "HouseholdSizeOption",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "HouseholdPovertyOption",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "HOUSEHOLD_POVERTY_SOURCE",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "formatUsd",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "householdPovertyOptions",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeHouseholdSize",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "povertyGuidelineLabel",
+          "line": 45,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "HOUSEHOLD_SIZE_OPTIONS",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "HouseholdSizeOption",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "HouseholdPovertyOption",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "HOUSEHOLD_POVERTY_SOURCE",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "formatUsd",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "householdPovertyOptions",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeHouseholdSize",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "povertyGuidelineLabel",
+          "line": 45,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -92638,6 +92870,97 @@
         }
       ],
       "directive": "use client"
+    },
+    {
+      "path": "lib/apply/workforceCenters.test.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 1047,
+      "lines": 26,
+      "sha256": "a2333dd51c1b10e9710bded6d90ce4748a02327debda3b5d49940e453caea375",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/apply/workforceCenters.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 6461,
+      "lines": 196,
+      "sha256": "adc95ad1f42abd049bac245b909d8904de752ae4a42de1b21acd044a68814a5c",
+      "binary": false,
+      "exports": [
+        {
+          "name": "WorkforceCenterMatch",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "careerOneStopFinderUrl",
+          "line": 141,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "lookupWorkforceCenter",
+          "line": 149,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "workforceCenterPlainLine",
+          "line": 191,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "WorkforceCenterMatch",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "BoardRecord",
+          "line": 19,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CAREERONESTOP_FINDER",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "TEXAS_BOARDS",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "normalizeCounty",
+          "line": 133,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "zip3Of",
+          "line": 137,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "careerOneStopFinderUrl",
+          "line": 141,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "lookupWorkforceCenter",
+          "line": 149,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "workforceCenterPlainLine",
+          "line": 191,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
     },
     {
       "path": "lib/assessment/answer-key.ts",
@@ -96451,9 +96774,9 @@
       "path": "lib/content/benefitsCliff.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 6404,
-      "lines": 182,
-      "sha256": "de5a23e348e3664937dc05f03432e570aee8a31ff05ce8dfb749646730648ef1",
+      "bytes": 6491,
+      "lines": 185,
+      "sha256": "ed7ab048e9217293e293990e65b14e4b984a99ebee935004735d9d1b0a3bbc17",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -96463,9 +96786,9 @@
       "path": "lib/content/benefitsCliff.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 17498,
-      "lines": 390,
-      "sha256": "902a271e80022f0ab327578e070cc83a5656801b7934ac04f4b0bc966d9c908b",
+      "bytes": 17669,
+      "lines": 395,
+      "sha256": "2e7641bf844ca362922de015573a55201d2c77ba619ea194bc81f1ecbb3810b9",
       "binary": false,
       "exports": [
         {
@@ -96484,113 +96807,118 @@
           "kind": "Variable"
         },
         {
-          "name": "monthlyFpl",
+          "name": "annualFpl",
           "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "monthlyFpl",
+          "line": 49,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "SNAP_SOURCE",
-          "line": 52,
+          "line": 57,
           "kind": "Variable"
         },
         {
           "name": "SNAP_RULES",
-          "line": 61,
+          "line": 66,
           "kind": "Variable"
         },
         {
           "name": "MEDICAID_ADULT_SOURCE",
-          "line": 88,
+          "line": 93,
           "kind": "Variable"
         },
         {
           "name": "MEDICAID_CHILD_SOURCE",
-          "line": 97,
+          "line": 102,
           "kind": "Variable"
         },
         {
           "name": "MEDICAID_RULES",
-          "line": 106,
+          "line": 111,
           "kind": "Variable"
         },
         {
           "name": "TANF_SOURCE",
-          "line": 123,
+          "line": 128,
           "kind": "Variable"
         },
         {
           "name": "TANF_RULES",
-          "line": 132,
+          "line": 137,
           "kind": "Variable"
         },
         {
           "name": "ALL_CLIFF_SOURCES",
-          "line": 145,
+          "line": 150,
           "kind": "Variable"
         },
         {
           "name": "CliffProgramId",
-          "line": 157,
+          "line": 162,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffInput",
-          "line": 159,
+          "line": 164,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffProgramResult",
-          "line": 178,
+          "line": 183,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffVerdict",
-          "line": 192,
+          "line": 197,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffResult",
-          "line": 194,
+          "line": 199,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ABOUT_THE_SAME_BAND",
-          "line": 211,
+          "line": 216,
           "kind": "Variable"
         },
         {
           "name": "clampHouseholdSize",
-          "line": 215,
+          "line": 220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "monthlyEarnings",
-          "line": 228,
+          "line": 233,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "estimateSnapMonthly",
-          "line": 249,
+          "line": 254,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isAdultMedicaidEligible",
-          "line": 272,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "isChildCoverageEligible",
           "line": 277,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "estimateTanfMonthly",
+          "name": "isChildCoverageEligible",
           "line": 282,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "estimateTanfMonthly",
+          "line": 287,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "computeCliff",
-          "line": 293,
+          "line": 298,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -96621,133 +96949,138 @@
           "kind": "Variable"
         },
         {
-          "name": "monthlyFpl",
+          "name": "annualFpl",
           "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "monthlyFpl",
+          "line": 49,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "SNAP_SOURCE",
-          "line": 52,
+          "line": 57,
           "kind": "Variable"
         },
         {
           "name": "SNAP_RULES",
-          "line": 61,
+          "line": 66,
           "kind": "Variable"
         },
         {
           "name": "MEDICAID_ADULT_SOURCE",
-          "line": 88,
+          "line": 93,
           "kind": "Variable"
         },
         {
           "name": "MEDICAID_CHILD_SOURCE",
-          "line": 97,
+          "line": 102,
           "kind": "Variable"
         },
         {
           "name": "MEDICAID_RULES",
-          "line": 106,
+          "line": 111,
           "kind": "Variable"
         },
         {
           "name": "TANF_SOURCE",
-          "line": 123,
+          "line": 128,
           "kind": "Variable"
         },
         {
           "name": "TANF_RULES",
-          "line": 132,
+          "line": 137,
           "kind": "Variable"
         },
         {
           "name": "ALL_CLIFF_SOURCES",
-          "line": 145,
+          "line": 150,
           "kind": "Variable"
         },
         {
           "name": "CliffProgramId",
-          "line": 157,
+          "line": 162,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffInput",
-          "line": 159,
+          "line": 164,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffProgramResult",
-          "line": 178,
+          "line": 183,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffVerdict",
-          "line": 192,
+          "line": 197,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CliffResult",
-          "line": 194,
+          "line": 199,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ABOUT_THE_SAME_BAND",
-          "line": 211,
+          "line": 216,
           "kind": "Variable"
         },
         {
           "name": "MAX_HOUSEHOLD_SIZE",
-          "line": 213,
+          "line": 218,
           "kind": "Variable"
         },
         {
           "name": "clampHouseholdSize",
-          "line": 215,
+          "line": 220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "tableValue",
-          "line": 221,
+          "line": 226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "monthlyEarnings",
-          "line": 228,
+          "line": 233,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "round2",
-          "line": 234,
+          "line": 239,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "snapStandardDeduction",
-          "line": 238,
+          "line": 243,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "estimateSnapMonthly",
-          "line": 249,
+          "line": 254,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isAdultMedicaidEligible",
-          "line": 272,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "isChildCoverageEligible",
           "line": 277,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "estimateTanfMonthly",
+          "name": "isChildCoverageEligible",
           "line": 282,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "estimateTanfMonthly",
+          "line": 287,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "computeCliff",
-          "line": 293,
+          "line": 298,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -121463,9 +121796,9 @@
       "path": "lib/nav/portalNav.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 20242,
+      "bytes": 20238,
       "lines": 494,
-      "sha256": "dd8d522401accb3a317114359e357ee76669c216f0e5c807d059bb1ba0632d62",
+      "sha256": "a3a666a418613f3f130bfeb733f0b4e1bf24e4d05656af7fbeb4577b311b8f50",
       "binary": false,
       "exports": [
         {
@@ -136267,27 +136600,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 187509,
-      "lines": 3066,
-      "sha256": "4f6fe71c5c8117bd46725c806e48d1abcd334c8ec215d31804bf65ab1ea82386",
+      "bytes": 188410,
+      "lines": 3076,
+      "sha256": "7a15268dc73338f615fbaf2609791f47b76211465704aa1511c6912b7746e209",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 205857,
-      "lines": 3053,
-      "sha256": "3a195ddd8efd1fcfe67f27a0eb52dfd6573094bfbb5b6ebd61e42fadbd0462a3",
+      "bytes": 206792,
+      "lines": 3063,
+      "sha256": "d281ee9bb4c21545cf602090ba9efb875d67224ada4d882df99a1c69050a64b1",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206785,
-      "lines": 3006,
-      "sha256": "25d7cd31127722ee3a05dee025118894d21bc6f889cad88eccbfffcb7d161d59",
+      "bytes": 207756,
+      "lines": 3016,
+      "sha256": "6352be331e1e2a511dc4d406cf115aa00d94f197a81eb7e1cbd2c61eedae8a48",
       "binary": false
     },
     {
@@ -136303,9 +136636,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 198816,
-      "lines": 3006,
-      "sha256": "9e7959da7ed84677dc29fdad2fa10d76f7f56d20c4c01e3f6319b0d430a6b54f",
+      "bytes": 199710,
+      "lines": 3016,
+      "sha256": "fc6950a6bb03b74832bf2101fafb1a2322648dd5c5c47fa5548a64227d3a85cf",
       "binary": false
     },
     {
@@ -138247,6 +138580,15 @@
       "binary": false
     },
     {
+      "path": "prisma/migrations/20260918010000_apply_eligibility_underemployed_household/migration.sql",
+      "area": "database",
+      "domain": "database",
+      "bytes": 286,
+      "lines": 5,
+      "sha256": "fb851952c00780d1365e34d29ef2f22607ae88560d8f6fcda243ee4a5b0f24e6",
+      "binary": false
+    },
+    {
       "path": "prisma/migrations/migration_lock.toml",
       "area": "database",
       "domain": "database",
@@ -138259,9 +138601,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 134017,
-      "lines": 3173,
-      "sha256": "2c614655f097e33019ccea4d0db2b6d543698687b4fe099e3dd2bb627f4aa8b2",
+      "bytes": 134270,
+      "lines": 3177,
+      "sha256": "d5b4bb8efcceeb208f91603e53a05e6ad6a78a3fbd34ae0ca8ebe6fba3b0e4a7",
       "binary": false
     },
     {
@@ -150666,9 +151008,9 @@
       "path": "tests/components/workspace-sidebar.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 12705,
-      "lines": 233,
-      "sha256": "614530199a1a17f43628c0c9598ac362f994b46c6c7045cecf88c772dd03193a",
+      "bytes": 13077,
+      "lines": 239,
+      "sha256": "7b8b7e7d9441463966deff0a2976a669d86e65d18f889281d663a950c2b08745",
       "binary": false,
       "exports": [],
       "declarations": [

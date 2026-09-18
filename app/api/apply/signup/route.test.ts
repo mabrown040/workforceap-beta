@@ -905,6 +905,8 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
         eligibilityQ3: 'yes',
         eligibilityYesCount: 3,
         eligibilityQualifies: true,
+        underemployed: 'yes',
+        householdSize: 2,
         receivingUnemployment: 'yes',
         exhaustedUnemployment: 'no',
         layoffCompany: 'Acme Logistics',
@@ -923,16 +925,22 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
       q3: 'yes',
       receivingUnemployment: 'yes',
       exhaustedUnemployment: 'no',
+      underemployed: 'yes',
+      householdSize: 2,
       layoffCompany: 'Acme Logistics',
       snapWic: 'yes',
       hearAbout: 'Partner or community ambassador',
       partnerAmbassadorReferral: 'Ambassador Jane / code-abc',
-      yesCount: 3,
+      yesCount: 2,
       qualifies: true,
     });
     const notes = state.applicationCreates[0]?.data.notes ?? '';
-    expect(notes).toContain('Receiving unemployment: yes');
-    expect(notes).toContain('SNAP/WIC: yes');
+    expect(notes).toContain('2. Receiving unemployment (case-by-case if this is the only yes): yes');
+    expect(notes).toContain('TANF / WIC / Food stamps (SNAP): yes');
+    expect(notes).toContain('4. Part-time / underemployed: yes');
+    expect(notes).toContain('Household size: 2');
+    expect(notes).toContain('ZIP: 78701');
+    expect(notes).toContain('Workforce / one-stop center:');
     expect(notes).toContain('Layoff / last employer: Acme Logistics');
     expect(notes).toContain('Heard about us: Partner or community ambassador');
     expect(notes).toContain('Partner/ambassador referral: Ambassador Jane / code-abc');

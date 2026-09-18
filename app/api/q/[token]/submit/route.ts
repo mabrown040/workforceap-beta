@@ -10,6 +10,9 @@ import { checkPublicQuestionnaireSubmitRateLimit } from '@/lib/rate-limit';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
+import { scoreEmploymentEligibility } from '@/lib/apply/employmentEligibility';
+import { normalizeHouseholdSize, povertyGuidelineLabel } from '@/lib/apply/householdPoverty';
+import { lookupWorkforceCenter, workforceCenterPlainLine } from '@/lib/apply/workforceCenters';
 import {
   sendEligibilityScreeningAdminEmail,
   sendEligibilityScreeningConfirmationEmail,
@@ -50,6 +53,11 @@ const submitSchema = z.object({
   q1: z.enum(['yes', 'no']).optional().nullable(),
   q2: z.enum(['yes', 'no']).optional().nullable(),
   q3: z.enum(['yes', 'no']).optional().nullable(),
+  underemployed: z.enum(['yes', 'no']).optional().nullable(),
+  householdSize: z
+    .union([z.number().int().min(1).max(4), z.enum(['1', '2', '3', '4'])])
+    .optional()
+    .nullable(),
   receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
   exhaustedUnemployment: z.enum(['yes', 'no']).optional().nullable(),
   layoffCompany: z.string().trim().max(200).optional().nullable(),
@@ -67,6 +75,8 @@ type EligibilityFormMeta = {
   q1: string | null;
   q2: string | null;
   q3: string | null;
+  underemployed: string | null;
+  householdSize: number | null;
   receivingUnemployment: string | null;
   exhaustedUnemployment: string | null;
   layoffCompany: string | null;
@@ -126,10 +136,19 @@ export const POST = withApiGuc(
       const barrierTypes = (data.primaryBarriers ?? [])
         .map((b) => b.trim())
         .filter((b) => b && b !== 'none');
+      const householdSize = normalizeHouseholdSize(data.householdSize);
+      const employment = scoreEmploymentEligibility({
+        unemployed: normalizeYesNo(data.q1),
+        receivingUnemployment: normalizeYesNo(data.receivingUnemployment),
+        exhaustedUnemployment: normalizeYesNo(data.exhaustedUnemployment),
+        underemployed: normalizeYesNo(data.underemployed),
+      });
       const extendedMeta = {
         q1: normalizeYesNo(data.q1),
         q2: normalizeYesNo(data.q2),
         q3: normalizeYesNo(data.q3),
+        underemployed: normalizeYesNo(data.underemployed),
+        householdSize,
         receivingUnemployment: normalizeYesNo(data.receivingUnemployment),
         exhaustedUnemployment: normalizeYesNo(data.exhaustedUnemployment),
         layoffCompany: data.layoffCompany?.trim() ? data.layoffCompany.trim().slice(0, 200) : null,
@@ -139,6 +158,18 @@ export const POST = withApiGuc(
         partnerAmbassadorReferral: data.partnerAmbassadorReferral?.trim()
           ? data.partnerAmbassadorReferral.trim().slice(0, 200)
           : null,
+        ageGroup: data.ageGroup ?? null,
+        zip: data.zip?.trim() || null,
+        city: data.city?.trim() || null,
+        state: data.state?.trim() || null,
+        county: data.county?.trim() || null,
+        workforceCenter: workforceCenterPlainLine(
+          lookupWorkforceCenter({ zip: data.zip, county: data.county, state: data.state }),
+        ),
+        povertyGuideline: povertyGuidelineLabel(householdSize),
+        employmentFit: employment.fit,
+        qualifies: employment.qualifies,
+        yesCount: employment.yesCount,
       };
 
       // Atomic single-use consume BEFORE the write, so concurrent submits
@@ -191,16 +222,15 @@ export const POST = withApiGuc(
           });
 
           if (extendedMeta.q1 && extendedMeta.q2 && current?.organizationId) {
-            const yesCount = [extendedMeta.q1, extendedMeta.q2, extendedMeta.q3].filter(
-              (v) => v === 'yes',
-            ).length;
             const screening = {
               organizationId: current.organizationId,
               q1: extendedMeta.q1,
               q2: extendedMeta.q2,
               q3: extendedMeta.q3,
-              qualifies: yesCount >= 1,
-              yesCount,
+              qualifies: employment.qualifies,
+              yesCount: employment.yesCount,
+              underemployed: extendedMeta.underemployed,
+              householdSize: extendedMeta.householdSize,
               receivingUnemployment: extendedMeta.receivingUnemployment,
               exhaustedUnemployment: extendedMeta.exhaustedUnemployment,
               layoffCompany: extendedMeta.layoffCompany,

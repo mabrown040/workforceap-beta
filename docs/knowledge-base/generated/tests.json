@@ -2722,6 +2722,54 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/apply/employmentEligibility.test.ts",
+    "area": "libraries",
+    "domain": "applications-enrollment",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/apply/employmentEligibility.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/apply/householdPoverty.test.ts",
+    "area": "libraries",
+    "domain": "applications-enrollment",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/apply/householdPoverty.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/apply/layoffCompanyUi.test.ts",
     "area": "libraries",
     "domain": "applications-enrollment",
@@ -2803,6 +2851,30 @@
     "localReferences": [
       {
         "file": "lib/apply/schoolCollection.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/apply/workforceCenters.test.ts",
+    "area": "libraries",
+    "domain": "applications-enrollment",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/apply/workforceCenters.ts",
         "line": 3
       }
     ],

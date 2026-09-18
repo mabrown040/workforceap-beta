@@ -15,6 +15,10 @@ import {
 export const YES_NO = ['yes', 'no'] as const;
 export type YesNo = (typeof YES_NO)[number];
 
+/** Canonical SNAP / TANF / WIC question — keep identical on apply, dashboard, and /q forms. */
+export const FOOD_STAMPS_QUESTION =
+  'Are you receiving TANF, WIC, and/or Food stamps (SNAP)?';
+
 /**
  * Hear-about options for the public apply screener (adult / paid paths).
  * The 9/2/26 ops list dropped the duplicate "Partner or community ambassador"

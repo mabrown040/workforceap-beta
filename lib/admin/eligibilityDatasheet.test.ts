@@ -28,6 +28,12 @@ test('eligibility datasheet columns include WS4 screening fields', () => {
   assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('SNAP/WIC'));
   assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Heard About Us'));
   assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Partner/Ambassador Referral'));
+  assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Underemployed'));
+  assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Household Size'));
+  assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Employment Fit'));
+  assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Age Group'));
+  assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('ZIP'));
+  assert.ok(ELIGIBILITY_DATASHEET_COLUMNS.includes('Workforce Center'));
 });
 
 test('eligibilityDatasheetCells align with column order', () => {

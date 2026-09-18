@@ -9,7 +9,7 @@
 | [css/counselor.css](../../../css/counselor.css) | 513 | styles |  |
 | [css/enroll-school.css](../../../css/enroll-school.css) | 165 | styles |  |
 | [css/language-toggle.css](../../../css/language-toggle.css) | 128 | styles |  |
-| [css/main.css](../../../css/main.css) | 8748 | styles |  |
+| [css/main.css](../../../css/main.css) | 8777 | styles |  |
 | [css/marketing-a11y.css](../../../css/marketing-a11y.css) | 33 | styles |  |
 | [css/marketing-depth.css](../../../css/marketing-depth.css) | 257 | styles |  |
 | [css/marketing.css](../../../css/marketing.css) | 1498 | styles |  |
@@ -19,4 +19,4 @@
 | [css/portal-main-extracted.css](../../../css/portal-main-extracted.css) | 9934 | styles |  |
 | [css/portal-tokens.css](../../../css/portal-tokens.css) | 248 | styles |  |
 | [css/portal-ui-kit.css](../../../css/portal-ui-kit.css) | 268 | styles |  |
-| [css/portal.css](../../../css/portal.css) | 3329 | styles |  |
+| [css/portal.css](../../../css/portal.css) | 3378 | styles |  |

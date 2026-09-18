@@ -189,10 +189,10 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     aliases: ['/dashboard/ai-tools/application-tracker', '/applications'],
     badgeKey: 'applications_new',
   },
-  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
+  { href: '/dashboard/resume', label: 'Resume', group: 'primary', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'My progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'primary', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
   {
     href: '/dashboard/learning',

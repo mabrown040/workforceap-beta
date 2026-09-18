@@ -39,10 +39,15 @@ export const FPL_SOURCE: CliffSource = {
 const FPL_ANNUAL_FIRST_PERSON = 15650;
 const FPL_ANNUAL_PER_ADDITIONAL = 5500;
 
+/** Annual federal poverty level for a household size (2025 guidelines). */
+export function annualFpl(householdSize: number): number {
+  const size = clampHouseholdSize(householdSize);
+  return FPL_ANNUAL_FIRST_PERSON + FPL_ANNUAL_PER_ADDITIONAL * (size - 1);
+}
+
 /** Monthly federal poverty level for a household size (2025 guidelines). */
 export function monthlyFpl(householdSize: number): number {
-  const size = clampHouseholdSize(householdSize);
-  return (FPL_ANNUAL_FIRST_PERSON + FPL_ANNUAL_PER_ADDITIONAL * (size - 1)) / 12;
+  return annualFpl(householdSize) / 12;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { validateTokenizedLink } from '@/lib/tokenizedLink';
+import { normalizeHouseholdSize } from '@/lib/apply/householdPoverty';
 import PublicEligibilityForm, { type PublicEligibilityPrefill } from './PublicEligibilityForm';
 
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,18 @@ type EligibilityFormMeta = {
   updatedAt?: string;
   ageGroup?: string | null;
   county?: string | null;
+  q1?: string | null;
+  q2?: string | null;
+  q3?: string | null;
+  underemployed?: string | null;
+  householdSize?: number | string | null;
+  receivingUnemployment?: string | null;
+  exhaustedUnemployment?: string | null;
+  layoffCompany?: string | null;
+  snapWic?: string | null;
+  hearAbout?: string | null;
+  hearAboutOther?: string | null;
+  partnerAmbassadorReferral?: string | null;
 };
 
 const PAGE_WRAP: React.CSSProperties = {
@@ -108,6 +121,23 @@ export default async function PublicQuestionnairePage({
         phone: true,
         wioaQualificationJson: true,
         profile: { select: { city: true, state: true, zip: true, barrierTypes: true } },
+        applyEligibilityScreenings: {
+          take: 1,
+          select: {
+            q1: true,
+            q2: true,
+            q3: true,
+            underemployed: true,
+            householdSize: true,
+            receivingUnemployment: true,
+            exhaustedUnemployment: true,
+            layoffCompany: true,
+            snapWic: true,
+            hearAbout: true,
+            hearAboutOther: true,
+            partnerAmbassadorReferral: true,
+          },
+        },
       },
     });
     if (dbUser) {
@@ -116,6 +146,9 @@ export default async function PublicQuestionnairePage({
         snapshot && typeof snapshot.eligibilityForm === 'object' && snapshot.eligibilityForm !== null
           ? (snapshot.eligibilityForm as EligibilityFormMeta)
           : null;
+      const screening = dbUser.applyEligibilityScreenings[0] ?? null;
+      const asYesNo = (v: string | null | undefined): 'yes' | 'no' | null =>
+        v === 'yes' || v === 'no' ? v : null;
       const [firstName, ...rest] = (dbUser.fullName ?? '').trim().split(/\s+/);
       prefill = {
         firstName: firstName ?? '',
@@ -128,6 +161,19 @@ export default async function PublicQuestionnairePage({
         zip: dbUser.profile?.zip ?? '',
         county: meta?.county ?? '',
         primaryBarriers: dbUser.profile?.barrierTypes ?? [],
+        q1: asYesNo(meta?.q1 ?? screening?.q1),
+        q2: asYesNo(meta?.q2 ?? screening?.q2),
+        q3: asYesNo(meta?.q3 ?? screening?.q3),
+        underemployed: asYesNo(meta?.underemployed ?? screening?.underemployed),
+        householdSize: normalizeHouseholdSize(meta?.householdSize ?? screening?.householdSize),
+        receivingUnemployment: asYesNo(meta?.receivingUnemployment ?? screening?.receivingUnemployment),
+        exhaustedUnemployment: asYesNo(meta?.exhaustedUnemployment ?? screening?.exhaustedUnemployment),
+        layoffCompany: meta?.layoffCompany ?? screening?.layoffCompany ?? '',
+        snapWic: asYesNo(meta?.snapWic ?? screening?.snapWic),
+        hearAbout: meta?.hearAbout ?? screening?.hearAbout ?? '',
+        hearAboutOther: meta?.hearAboutOther ?? screening?.hearAboutOther ?? '',
+        partnerAmbassadorReferral:
+          meta?.partnerAmbassadorReferral ?? screening?.partnerAmbassadorReferral ?? '',
       };
     }
   }

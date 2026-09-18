@@ -11,6 +11,7 @@ import {
   estimateTanfMonthly,
   isAdultMedicaidEligible,
   isChildCoverageEligible,
+  annualFpl,
   monthlyEarnings,
   monthlyFpl,
 } from './benefitsCliff';
@@ -43,6 +44,8 @@ test('clampHouseholdSize bounds and floors', () => {
 test('monthlyFpl matches 2025 guidelines', () => {
   assert.ok(Math.abs(monthlyFpl(1) - 15650 / 12) < 0.01);
   assert.ok(Math.abs(monthlyFpl(3) - (15650 + 2 * 5500) / 12) < 0.01);
+  assert.equal(annualFpl(1), 15650);
+  assert.equal(annualFpl(4), 32150);
 });
 
 test('SNAP: zero income gets the maximum allotment', () => {

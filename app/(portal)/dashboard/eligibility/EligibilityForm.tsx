@@ -3,12 +3,20 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import WorkforceCenterHint from '@/components/apply/WorkforceCenterHint';
 import {
+  FOOD_STAMPS_QUESTION,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
   normalizeYesNo,
   type YesNo,
 } from '@/lib/apply/eligibilityExtendedFields';
+import {
+  householdPovertyOptions,
+  normalizeHouseholdSize,
+  povertyGuidelineLabel,
+  type HouseholdSizeOption,
+} from '@/lib/apply/householdPoverty';
 
 // Mirror the apply flow's option lists so member-supplied data stays
 // consistent with the public application (app/apply/ApplyEligibilityClient.tsx).
@@ -30,6 +38,8 @@ export type EligibilityInitial = {
   q1?: YesNo | null;
   q2?: YesNo | null;
   q3?: YesNo | null;
+  underemployed?: YesNo | null;
+  householdSize?: number | null;
   receivingUnemployment?: YesNo | null;
   exhaustedUnemployment?: YesNo | null;
   layoffCompany?: string;
@@ -71,31 +81,42 @@ function YesNoRow({
   return (
     <fieldset style={{ border: 'none', margin: 0, padding: 0 }}>
       <legend style={{ ...labelStyle, marginBottom: '0.5rem' }}>{label}</legend>
-      <div role="radiogroup" style={{ display: 'flex', gap: '1rem' }}>
-        {(['yes', 'no'] as const).map((opt) => (
-          <label
-            key={opt}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              minHeight: '44px',
-              fontSize: '0.875rem',
-              color: 'var(--color-on-surface)',
-              cursor: 'pointer',
-            }}
-          >
-            <input
-              type="radio"
-              name={name}
-              value={opt}
-              checked={value === opt}
-              onChange={() => onChange(opt)}
-              style={{ accentColor: 'var(--color-accent)' }}
-            />
-            {opt === 'yes' ? 'Yes' : 'No'}
-          </label>
-        ))}
+      <div role="radiogroup" className="form-radio-cards" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+        {(['yes', 'no'] as const).map((opt) => {
+          const selected = value === opt;
+          return (
+            <label
+              key={opt}
+              className={`form-radio-card${selected ? ' selected' : ''}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                minHeight: '48px',
+                fontSize: '0.9375rem',
+                fontWeight: 700,
+                color: selected ? 'var(--color-on-accent, #fff)' : 'var(--color-on-surface)',
+                background: selected ? 'var(--color-accent)' : 'var(--surface-container-lowest)',
+                border: selected
+                  ? '2px solid var(--color-accent)'
+                  : '1px solid var(--outline-variant, rgba(0,0,0,0.18))',
+                borderRadius: 'var(--radius-md, 8px)',
+                cursor: 'pointer',
+              }}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={opt}
+                checked={selected}
+                onChange={() => onChange(opt)}
+                style={{ accentColor: 'var(--color-accent)' }}
+              />
+              {opt === 'yes' ? 'Yes' : 'No'}
+            </label>
+          );
+        })}
       </div>
     </fieldset>
   );
@@ -113,6 +134,10 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   const [q1, setQ1] = useState<YesNo | null>(normalizeYesNo(initial.q1));
   const [q2, setQ2] = useState<YesNo | null>(normalizeYesNo(initial.q2));
   const [q3, setQ3] = useState<YesNo | null>(normalizeYesNo(initial.q3));
+  const [underemployed, setUnderemployed] = useState<YesNo | null>(normalizeYesNo(initial.underemployed));
+  const [householdSize, setHouseholdSize] = useState<HouseholdSizeOption | ''>(
+    normalizeHouseholdSize(initial.householdSize) ?? '',
+  );
   const [receivingUnemployment, setReceivingUnemployment] = useState<YesNo | null>(
     normalizeYesNo(initial.receivingUnemployment),
   );
@@ -169,6 +194,8 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
             q1,
             q2,
             q3,
+            underemployed,
+            householdSize: householdSize || null,
             receivingUnemployment,
             exhaustedUnemployment,
             layoffCompany: layoffCompany.trim() || null,
@@ -194,18 +221,24 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem' }}>
-      <YesNoRow name="q1" label="Unemployed / underemployed?" value={q1} onChange={setQ1} />
+      <YesNoRow name="q1" label="1. Are you currently unemployed?" value={q1} onChange={setQ1} />
       <YesNoRow
         name="receivingUnemployment"
-        label="Currently receiving unemployment benefits?"
+        label="2. Are you currently receiving unemployment benefits?"
         value={receivingUnemployment}
         onChange={setReceivingUnemployment}
       />
       <YesNoRow
         name="exhaustedUnemployment"
-        label="Exhausted unemployment benefits?"
+        label="3. Have you exhausted unemployment benefits?"
         value={exhaustedUnemployment}
         onChange={setExhaustedUnemployment}
+      />
+      <YesNoRow
+        name="underemployed"
+        label="4. Are you working part-time or underemployed?"
+        value={underemployed}
+        onChange={setUnderemployed}
       />
       {showLayoff ? (
         <div>
@@ -222,8 +255,35 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
           />
         </div>
       ) : null}
-      <YesNoRow name="q2" label="Household income below $60,000?" value={q2} onChange={setQ2} />
-      <YesNoRow name="snapWic" label="Receiving TANF, WIC, and/or Food stamps (SNAP)?" value={snapWic} onChange={setSnapWic} />
+      <div>
+        <label htmlFor="elig-household-size" style={labelStyle}>
+          Household size — federal poverty guideline
+        </label>
+        <select
+          id="elig-household-size"
+          value={householdSize === '' ? '' : String(householdSize)}
+          onChange={(e) => setHouseholdSize(normalizeHouseholdSize(e.target.value) ?? '')}
+          style={inputStyle}
+        >
+          <option value="">Select household size to see the poverty level</option>
+          {householdPovertyOptions().map((option) => (
+            <option key={option.size} value={option.size}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <YesNoRow
+        name="q2"
+        label={
+          householdSize
+            ? `Is your household income at or below ${povertyGuidelineLabel(householdSize)}?`
+            : 'Is your household income at or below the federal poverty level for your household size?'
+        }
+        value={q2}
+        onChange={setQ2}
+      />
+      <YesNoRow name="snapWic" label={FOOD_STAMPS_QUESTION} value={snapWic} onChange={setSnapWic} />
       <YesNoRow name="q3" label="Authorized to work in the U.S.?" value={q3} onChange={setQ3} />
 
       <div>
@@ -263,6 +323,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
             ZIP
           </label>
           <input id="elig-zip" type="text" value={zip} onChange={(e) => setZip(e.target.value)} style={inputStyle} inputMode="numeric" autoComplete="postal-code" />
+          <WorkforceCenterHint zip={zip} county={county} state={state} />
         </div>
         <div>
           <label htmlFor="elig-county" style={labelStyle}>

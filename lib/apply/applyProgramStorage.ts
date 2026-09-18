@@ -27,6 +27,8 @@ export type ApplyFlowDraftV1 = {
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
   q3?: 'yes' | 'no' | null;
+  underemployed?: 'yes' | 'no' | null;
+  householdSize?: 1 | 2 | 3 | 4 | '';
   receivingUnemployment?: 'yes' | 'no' | null;
   exhaustedUnemployment?: 'yes' | 'no' | null;
   layoffCompany?: string;

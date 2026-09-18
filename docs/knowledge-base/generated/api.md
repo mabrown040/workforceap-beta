@@ -233,8 +233,8 @@
 | [app/api/ai/salary-negotiation/route.ts](../../../app/api/ai/salary-negotiation/route.ts) | 112 | ai-voice | POST:16 |
 | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | 206 | ai-voice | GET:23 |
 | [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 86 | applications-enrollment | POST:86 |
-| [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1304 | applications-enrollment |  |
-| [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1030 | applications-enrollment | POST:180 |
+| [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1312 | applications-enrollment |  |
+| [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1057 | applications-enrollment | POST:192 |
 | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | 55 | applications-enrollment | POST:28 |
 | [app/api/auth/check-mfa-required/route.ts](../../../app/api/auth/check-mfa-required/route.ts) | 120 | identity-tenancy | GET:14 |
 | [app/api/auth/forgot-password/route.ts](../../../app/api/auth/forgot-password/route.ts) | 78 | identity-tenancy | POST:10 |
@@ -381,7 +381,7 @@
 | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | 77 | learning-coursera | POST:77 |
 | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | 142 | member-counselor | PATCH:56 |
 | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | 76 | member-counselor | POST:15 |
-| [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | 312 | member-counselor | GET:127, PATCH:312 |
+| [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | 346 | member-counselor | GET:138, PATCH:346 |
 | [app/api/member/enroll/route.ts](../../../app/api/member/enroll/route.ts) | 209 | applications-enrollment | POST:26 |
 | [app/api/member/enrollments/\[id\]/route.ts](../../../app/api/member/enrollments/%5Bid%5D/route.ts) | 51 | member-counselor | GET:6 |
 | [app/api/member/enrollments/\[id\]/set-primary/route.ts](../../../app/api/member/enrollments/%5Bid%5D/set-primary/route.ts) | 81 | member-counselor | POST:9 |
@@ -497,7 +497,7 @@
 | [app/api/public/wioa-qualification/route.ts](../../../app/api/public/wioa-qualification/route.ts) | 113 | partners-funding | POST:113 |
 | [app/api/public/wioa-qualification/voice-session/route.ts](../../../app/api/public/wioa-qualification/voice-session/route.ts) | 66 | partners-funding | POST:15 |
 | [app/api/push/subscribe/route.ts](../../../app/api/push/subscribe/route.ts) | 65 | communications | POST:64, DELETE:65 |
-| [app/api/q/\[token\]/submit/route.ts](../../../app/api/q/%5Btoken%5D/submit/route.ts) | 361 | api | POST:87 |
+| [app/api/q/\[token\]/submit/route.ts](../../../app/api/q/%5Btoken%5D/submit/route.ts) | 391 | api | POST:97 |
 | [app/api/recommend/route.ts](../../../app/api/recommend/route.ts) | 35 | api | GET:15 |
 | [app/api/referral-sources/route.ts](../../../app/api/referral-sources/route.ts) | 33 | applications-enrollment | GET:12 |
 | [app/api/skill-missions/\[courseSlug\]/evaluate/route.ts](../../../app/api/skill-missions/%5BcourseSlug%5D/evaluate/route.ts) | 234 | api | POST:47 |

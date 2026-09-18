@@ -5127,6 +5127,35 @@ body.inner-page {
 .apply-form:hover {
     box-shadow: var(--shadow-md);
 }
+.apply-workforce-center {
+    margin: 0.75rem 0 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    background: var(--surface-container-low);
+}
+.apply-workforce-center__title {
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--color-on-surface);
+}
+.apply-workforce-center__board {
+    margin: 0;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+.apply-workforce-center__office,
+.apply-workforce-center__links {
+    margin: 0.2rem 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--color-on-surface-variant);
+}
+.apply-workforce-center__links a {
+    color: var(--color-accent);
+    font-weight: 600;
+}
 .form-group { margin-bottom: 1.35rem; }
 .form-group:last-child { margin-bottom: 0; }
 .form-group label {

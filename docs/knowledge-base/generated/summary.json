@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "8c657161519698cf3c9c8c44efd18f0368ecf00182f0b4716b603a362f7a0059",
+  "inputTreeSha256": "8b78e395e4996d0f5f17253784a733b427846878eac9de74fd1a53de150d3271",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,11 +8,11 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4522,
-    "sourceModules": 3199,
-    "importReferences": 15155,
-    "resolvedLocalReferences": 10117,
-    "unresolvedLocalReferences": 0,
+    "files": 4530,
+    "sourceModules": 3206,
+    "importReferences": 15190,
+    "resolvedLocalReferences": 10144,
+    "unresolvedLocalReferences": 2,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
     "apiHandlers": 486,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 638,
-    "testCandidates": 631,
+    "testFiles": 641,
+    "testCandidates": 634,
     "testHelpers": 7,
-    "staticallySelectedTests": 628,
+    "staticallySelectedTests": 631,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 655
+      "files": 656
     },
     {
       "area": "content",
@@ -66,7 +66,7 @@
     },
     {
       "area": "database",
-      "files": 200
+      "files": 201
     },
     {
       "area": "delivery",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 913
+      "files": 919
     },
     {
       "area": "localization",
@@ -334,11 +334,11 @@
     },
     {
       "file": "app/api/apply/signup/route.test.ts",
-      "lines": 1304
+      "lines": 1312
     },
     {
       "file": "components/portal/tools/SkillMapperClient.tsx",
-      "lines": 1296
+      "lines": 1312
     },
     {
       "file": "lib/admin/boardOutcomes.ts",
@@ -374,23 +374,23 @@
     },
     {
       "file": "app/apply/create-account/ApplyCreateAccountForm.tsx",
-      "lines": 1140
+      "lines": 1162
     },
     {
       "file": "scripts/p1/test-force-rls.ts",
       "lines": 1126
     },
     {
+      "file": "app/apply/ApplyEligibilityClient.tsx",
+      "lines": 1120
+    },
+    {
       "file": "components/admin/CourseraMappingsAdmin.tsx",
       "lines": 1091
     },
     {
-      "file": "lib/coursera/progressQueries.ts",
-      "lines": 1050
-    },
-    {
-      "file": "components/portal/counselor/AtRiskDashboard.tsx",
-      "lines": 1045
+      "file": "app/api/apply/signup/route.ts",
+      "lines": 1057
     }
   ]
 }

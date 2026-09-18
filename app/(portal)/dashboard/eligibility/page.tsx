@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { normalizeHouseholdSize } from '@/lib/apply/householdPoverty';
 import EligibilityForm, { type EligibilityInitial } from './EligibilityForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,6 +32,8 @@ export default async function EligibilityPage() {
           q1: true,
           q2: true,
           q3: true,
+          underemployed: true,
+          householdSize: true,
           receivingUnemployment: true,
           exhaustedUnemployment: true,
           layoffCompany: true,
@@ -52,6 +55,8 @@ export default async function EligibilityPage() {
           q1?: string | null;
           q2?: string | null;
           q3?: string | null;
+          underemployed?: string | null;
+          householdSize?: number | null;
           receivingUnemployment?: string | null;
           exhaustedUnemployment?: string | null;
           layoffCompany?: string | null;
@@ -81,6 +86,8 @@ export default async function EligibilityPage() {
     q1: asYesNo(meta?.q1 ?? screening?.q1),
     q2: asYesNo(meta?.q2 ?? screening?.q2),
     q3: asYesNo(meta?.q3 ?? screening?.q3),
+    underemployed: asYesNo(meta?.underemployed ?? screening?.underemployed),
+    householdSize: normalizeHouseholdSize(meta?.householdSize ?? screening?.householdSize),
     receivingUnemployment: asYesNo(meta?.receivingUnemployment ?? screening?.receivingUnemployment),
     exhaustedUnemployment: asYesNo(meta?.exhaustedUnemployment ?? screening?.exhaustedUnemployment),
     layoffCompany: meta?.layoffCompany ?? screening?.layoffCompany ?? '',

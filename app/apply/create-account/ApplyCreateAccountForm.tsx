@@ -22,6 +22,7 @@ import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 import { isSchoolCollectionSignup, schoolPrimaryBarriers } from '@/lib/apply/schoolCollection';
+import WorkforceCenterHint from '@/components/apply/WorkforceCenterHint';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
@@ -188,20 +189,19 @@ export default function ApplyCreateAccountForm() {
           setAddressLine1(draft.addressLine1);
           setOptionalAddressOpen(true);
         }
-        if (draft.addressLine2) setAddressLine2(draft.addressLine2);
+        if (draft.addressLine2) {
+          setAddressLine2(draft.addressLine2);
+          setOptionalAddressOpen(true);
+        }
         if (draft.city) {
           setCity(draft.city);
-          setOptionalAddressOpen(true);
         } else if (elig?.city) {
           setCity(elig.city);
-          setOptionalAddressOpen(true);
         }
         if (draft.state) {
           setStateVal(toStateAbbr(draft.state));
-          setOptionalAddressOpen(true);
         } else if (elig?.state) {
           setStateVal(toStateAbbr(elig.state));
-          setOptionalAddressOpen(true);
         }
         if (draft.zip) {
           setZip(draft.zip);
@@ -225,14 +225,8 @@ export default function ApplyCreateAccountForm() {
             setPhone(elig.phone);
           }
         }
-        if (elig.city) {
-          setCity(elig.city);
-          setOptionalAddressOpen(true);
-        }
-        if (elig.state) {
-          setStateVal(toStateAbbr(elig.state));
-          setOptionalAddressOpen(true);
-        }
+        if (elig.city) setCity(elig.city);
+        if (elig.state) setStateVal(toStateAbbr(elig.state));
         if (elig.zip) setZip(elig.zip);
       }
     } catch {
@@ -347,7 +341,9 @@ export default function ApplyCreateAccountForm() {
     if (phoneError) {
       nextFieldErrors.phone = phoneError;
     }
-    if (zip.trim() && !isValidPostalCode(zip)) {
+    if (!zip.trim()) {
+      nextFieldErrors.zip = t('errZipRequired');
+    } else if (!isValidPostalCode(zip)) {
       nextFieldErrors.zip = t('errZipFormat');
     }
     if (password.length < 8) {
@@ -406,6 +402,11 @@ export default function ApplyCreateAccountForm() {
         q1?: 'yes' | 'no';
         q2?: 'yes' | 'no';
         q3?: 'yes' | 'no';
+        underemployed?: 'yes' | 'no';
+        householdSize?: 1 | 2 | 3 | 4;
+        employmentFit?: 'qualify' | 'case_by_case' | 'review';
+        povertyGuideline?: string;
+        workforceCenter?: string;
         receivingUnemployment?: 'yes' | 'no';
         exhaustedUnemployment?: 'yes' | 'no';
         layoffCompany?: string;
@@ -472,6 +473,11 @@ export default function ApplyCreateAccountForm() {
           eligibilityQ1: schoolSignup ? undefined : eligibilityPayload?.q1,
           eligibilityQ2: schoolSignup ? undefined : eligibilityPayload?.q2,
           eligibilityQ3: schoolSignup ? undefined : eligibilityPayload?.q3,
+          underemployed: schoolSignup ? undefined : eligibilityPayload?.underemployed,
+          householdSize: schoolSignup ? undefined : eligibilityPayload?.householdSize,
+          employmentFit: schoolSignup ? undefined : eligibilityPayload?.employmentFit,
+          povertyGuideline: schoolSignup ? undefined : eligibilityPayload?.povertyGuideline,
+          workforceCenter: schoolSignup ? undefined : eligibilityPayload?.workforceCenter,
           receivingUnemployment: schoolSignup ? undefined : eligibilityPayload?.receivingUnemployment,
           exhaustedUnemployment: schoolSignup ? undefined : eligibilityPayload?.exhaustedUnemployment,
           layoffCompany: schoolSignup ? undefined : eligibilityPayload?.layoffCompany,
@@ -804,6 +810,75 @@ export default function ApplyCreateAccountForm() {
           {fieldErrors.phone ? <p id="phone-error" className="form-error" role="alert">{fieldErrors.phone}</p> : null}
         </div>
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="zip">{t('accountZipRequired')}</label>
+          <input
+            id="zip"
+            type="text"
+            inputMode="text"
+            value={zip}
+            onChange={(e) => {
+              setZip(e.target.value);
+              if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
+            }}
+            onBlur={() => {
+              const digits = zip.replace(/\D/g, '').slice(0, 5);
+              if (digits.length < 5) return;
+              void fetch(`https://api.zippopotam.us/us/${digits}`)
+                .then((res) => (res.ok ? res.json() : null))
+                .then((data: { places?: Array<{ 'place name'?: string; 'state abbreviation'?: string }> } | null) => {
+                  const place = data?.places?.[0];
+                  if (!place) return;
+                  setCity((current) => current.trim() || place['place name'] || current);
+                  setStateVal((current) => current.trim() || place['state abbreviation'] || current);
+                })
+                .catch(() => undefined);
+            }}
+            autoComplete="postal-code"
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.zip}
+          />
+          {fieldErrors.zip ? <p className="form-error" role="alert">{fieldErrors.zip}</p> : null}
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="city">{t('accountCityOptional')}</label>
+          <input
+            id="city"
+            type="text"
+            value={city}
+            onChange={(e) => {
+              setCity(e.target.value);
+              if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
+            }}
+            autoComplete="address-level2"
+            inputMode="text"
+            aria-invalid={!!fieldErrors.city}
+          />
+          {fieldErrors.city ? <p className="form-error" role="alert">{fieldErrors.city}</p> : null}
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="state">{t('accountStateOptional')}</label>
+          <select
+            id="state"
+            value={stateVal}
+            onChange={(e) => {
+              setStateVal(e.target.value);
+              if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
+            }}
+            autoComplete="address-level1"
+            aria-invalid={!!fieldErrors.state}
+          >
+            <option value="">{t('accountStateSelect')}</option>
+            {US_STATES.map((s) => (
+              <option key={s.abbr} value={s.abbr}>{s.name}</option>
+            ))}
+          </select>
+          {fieldErrors.state ? <p className="form-error" role="alert">{fieldErrors.state}</p> : null}
+        </div>
+      </div>
+      <WorkforceCenterHint zip={zip} state={stateVal} />
       <details
         open={optionalAddressOpen}
         onToggle={(e) => setOptionalAddressOpen((e.currentTarget as HTMLDetailsElement).open)}
@@ -847,59 +922,6 @@ export default function ApplyCreateAccountForm() {
             autoComplete="address-line2"
             inputMode="text"
           />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="city">{t('accountCityOptional')}</label>
-            <input
-              id="city"
-              type="text"
-              value={city}
-              onChange={(e) => {
-                setCity(e.target.value);
-                if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
-              }}
-              autoComplete="address-level2"
-              inputMode="text"
-              aria-invalid={!!fieldErrors.city}
-            />
-            {fieldErrors.city ? <p className="form-error" role="alert">{fieldErrors.city}</p> : null}
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="state">{t('accountStateOptional')}</label>
-            <select
-              id="state"
-              value={stateVal}
-              onChange={(e) => {
-                setStateVal(e.target.value);
-                if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
-              }}
-              autoComplete="address-level1"
-              aria-invalid={!!fieldErrors.state}
-            >
-              <option value="">{t('accountStateSelect')}</option>
-              {US_STATES.map((s) => (
-                <option key={s.abbr} value={s.abbr}>{s.name}</option>
-              ))}
-            </select>
-            {fieldErrors.state ? <p className="form-error" role="alert">{fieldErrors.state}</p> : null}
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="zip">{t('accountZipOptional')}</label>
-            <input
-              id="zip"
-              type="text"
-              inputMode="text"
-              value={zip}
-              onChange={(e) => {
-                setZip(e.target.value);
-                if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
-              }}
-              autoComplete="postal-code"
-              aria-invalid={!!fieldErrors.zip}
-            />
-            {fieldErrors.zip ? <p className="form-error" role="alert">{fieldErrors.zip}</p> : null}
-          </div>
         </div>
       </details>
       <div className="form-group">

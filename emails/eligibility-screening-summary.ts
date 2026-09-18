@@ -9,9 +9,19 @@ import {
   type EligibilityScreeningFields,
 } from '@/lib/apply/eligibilityScreeningFields';
 
-function row(label: string, value: string | null | undefined): string {
-  if (!value) return '';
-  return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</li>`;
+function row(label: string, value: string | number | null | undefined): string {
+  if (value == null || value === '') return '';
+  return `<li><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</li>`;
+}
+
+function fitLabel(fields: EligibilityScreeningFields): string | null {
+  if (fields.employmentFit === 'case_by_case') {
+    return `case by case (${fields.yesCount ?? 0} auto-qualify yeses)`;
+  }
+  if (typeof fields.qualifies === 'boolean') {
+    return `${fields.qualifies ? 'yes' : 'review'} (${fields.yesCount ?? 0} auto-qualify yeses)`;
+  }
+  return fields.employmentFit ?? null;
 }
 
 /**
@@ -24,22 +34,24 @@ export function eligibilityScreeningSummaryHtml(
   if (!hasEligibilityScreeningFields(fields)) return '';
   const f = fields!;
   const heading = opts?.heading ?? 'Eligibility screening answers';
-  const qualifyLine =
-    typeof f.qualifies === 'boolean'
-      ? row(
-          'Quick eligibility fit',
-          `${f.qualifies ? 'yes' : 'review'} (${f.yesCount ?? 0}/3)`,
-        )
-      : '';
   const items = [
-    qualifyLine,
-    row('Unemployed / underemployed (Q1)', f.q1),
-    row('Household income under $60k (Q2)', f.q2),
-    row('Work authorization (Q3)', f.q3),
-    row('Receiving unemployment', f.receivingUnemployment),
-    row('Exhausted unemployment', f.exhaustedUnemployment),
+    row('Quick eligibility fit', fitLabel(f)),
+    row('Age group', f.ageGroup),
+    row('City', f.city),
+    row('State', f.state),
+    row('ZIP', f.zip),
+    row('County', f.county),
+    row('Workforce / one-stop center', f.workforceCenter),
+    row('1. Unemployed', f.q1),
+    row('2. Receiving unemployment', f.receivingUnemployment),
+    row('3. Unemployment benefits exhausted', f.exhaustedUnemployment),
+    row('4. Part-time / underemployed', f.underemployed),
+    row('Household size', f.householdSize),
+    row('Poverty guideline shown', f.povertyGuideline),
+    row('Household income at or below poverty guideline', f.q2),
+    row('Work authorization', f.q3),
     row('Layoff / last employer', f.layoffCompany),
-    row('SNAP/WIC', f.snapWic),
+    row('TANF / WIC / Food stamps (SNAP)', f.snapWic),
     row('Heard about us', f.hearAbout),
     row('Heard about us (other)', f.hearAboutOther),
     row('Partner / ambassador referral', f.partnerAmbassadorReferral),

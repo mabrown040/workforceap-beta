@@ -1894,7 +1894,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 261
+          "line": 275
         },
         {
           "file": "app/api/contact/route.ts",
@@ -1918,7 +1918,7 @@
         },
         {
           "file": "app/apply/create-account/ApplyCreateAccountForm.tsx",
-          "line": 29
+          "line": 30
         },
         {
           "file": "app/careers/CareersInterestForm.tsx",
@@ -2330,7 +2330,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 433
+          "line": 472
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2397,7 +2397,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 432
+          "line": 471
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2488,7 +2488,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 274
+          "line": 288
         },
         {
           "file": "app/api/contact/route.ts",
@@ -2512,7 +2512,7 @@
         },
         {
           "file": "app/apply/create-account/ApplyCreateAccountForm.tsx",
-          "line": 30
+          "line": 31
         },
         {
           "file": "app/careers/CareersInterestForm.tsx",
@@ -3744,7 +3744,7 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 263
+          "line": 277
         },
         {
           "file": "app/api/contact/route.ts",

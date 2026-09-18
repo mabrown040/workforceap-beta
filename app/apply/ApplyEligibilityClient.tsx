@@ -16,11 +16,20 @@ import {
   PRIMARY_BARRIER_OPTIONS,
 } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import WorkforceCenterHint from '@/components/apply/WorkforceCenterHint';
 import {
   hearAboutNeedsOther,
   layoffCompanyApplicable,
   type YesNo,
 } from '@/lib/apply/eligibilityExtendedFields';
+import { scoreEmploymentEligibility } from '@/lib/apply/employmentEligibility';
+import {
+  householdPovertyOptions,
+  normalizeHouseholdSize,
+  povertyGuidelineLabel,
+  type HouseholdSizeOption,
+} from '@/lib/apply/householdPoverty';
+import { workforceCenterPlainLine, lookupWorkforceCenter } from '@/lib/apply/workforceCenters';
 import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
 import {
   SCHOOL_AGE_GROUPS,
@@ -80,6 +89,8 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       q1: payload.q1,
       q2: payload.q2,
       q3: payload.q3,
+      underemployed: payload.underemployed,
+      householdSize: payload.householdSize,
       receivingUnemployment: payload.receivingUnemployment,
       exhaustedUnemployment: payload.exhaustedUnemployment,
       layoffCompany: payload.layoffCompany,
@@ -137,6 +148,8 @@ export default function ApplyEligibilityClient({
     );
 
   const [q1, setQ1] = useState<YesNo | null>(null);
+  const [underemployed, setUnderemployed] = useState<YesNo | null>(null);
+  const [householdSize, setHouseholdSize] = useState<HouseholdSizeOption | ''>('');
   const [gradeLevel, setGradeLevel] = useState('');
   const [parentGuardianName, setParentGuardianName] = useState('');
   const [parentGuardianEmail, setParentGuardianEmail] = useState('');
@@ -174,6 +187,8 @@ export default function ApplyEligibilityClient({
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
     setQ3(draft.q3 ?? null);
+    setUnderemployed(draft.underemployed ?? null);
+    setHouseholdSize(normalizeHouseholdSize(draft.householdSize) ?? '');
     setReceivingUnemployment(draft.receivingUnemployment ?? null);
     setExhaustedUnemployment(draft.exhaustedUnemployment ?? null);
     setLayoffCompany(draft.layoffCompany ?? '');
@@ -226,6 +241,7 @@ export default function ApplyEligibilityClient({
       stateVal.trim().length > 0 &&
       zipOk &&
       county.trim().length > 0 &&
+      !!householdSize &&
       primaryBarriers.length > 0 &&
       hearAbout.trim().length > 0 &&
       (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0);
@@ -233,6 +249,7 @@ export default function ApplyEligibilityClient({
     q1,
     receivingUnemployment,
     exhaustedUnemployment,
+    underemployed,
     q2,
     snapWic,
     q3,
@@ -244,14 +261,21 @@ export default function ApplyEligibilityClient({
     fundingAnswersOk;
   const ageOptions = isSchool ? SCHOOL_AGE_GROUPS : ADULT_AGE_GROUPS;
   const missingEligibilityAnswers = yesNoAnswers.filter((answer) => answer === null).length;
-  const fundingYesCount = [q1, q2, q3].filter((answer) => answer === 'yes').length;
-  const yesCount = fundingYesCount;
-  const qualifies = fundingYesCount >= 1;
+  const employmentScore = scoreEmploymentEligibility({
+    unemployed: q1,
+    receivingUnemployment,
+    exhaustedUnemployment,
+    underemployed,
+  });
+  const yesCount = employmentScore.yesCount;
+  const qualifies = employmentScore.qualifies;
+  const employmentFit = employmentScore.fit;
   const showLayoffCompany = layoffCompanyApplicable({
-    unemployedOrUnderemployed: q1,
+    unemployedOrUnderemployed: q1 === 'yes' || underemployed === 'yes' ? 'yes' : q1,
     receivingUnemployment,
     exhaustedUnemployment,
   });
+  const workforceCenter = lookupWorkforceCenter({ zip, county, state: stateVal });
 
   const draftPayload = () => ({
     firstName,
@@ -267,6 +291,8 @@ export default function ApplyEligibilityClient({
     q1: isSchool ? null : q1,
     q2: isSchool ? null : q2,
     q3: isSchool ? null : q3,
+    underemployed: isSchool ? null : underemployed,
+    householdSize: isSchool ? '' : householdSize,
     receivingUnemployment: isSchool ? null : receivingUnemployment,
     exhaustedUnemployment: isSchool ? null : exhaustedUnemployment,
     layoffCompany: isSchool ? '' : layoffCompany,
@@ -291,7 +317,7 @@ export default function ApplyEligibilityClient({
     trackApplyFunnel(1, 'eligibility_progress', {
       answered_count: answeredCountRef.current,
     });
-  }, [q1, q2, q3, receivingUnemployment, exhaustedUnemployment, snapWic]);
+  }, [q1, q2, q3, receivingUnemployment, exhaustedUnemployment, underemployed, snapWic]);
 
   useEffect(() => {
     return () => {
@@ -336,6 +362,8 @@ export default function ApplyEligibilityClient({
     q1,
     q2,
     q3,
+    underemployed,
+    householdSize,
     receivingUnemployment,
     exhaustedUnemployment,
     layoffCompany,
@@ -375,8 +403,8 @@ export default function ApplyEligibilityClient({
     }
 
     completedRef.current = true;
-    trackApplyFunnel(2, 'qualification_completed', { qualifies, yes_count: yesCount });
-    trackApplyFunnel(1, 'eligibility_complete', { qualifies, yes_count: yesCount });
+    trackApplyFunnel(2, 'qualification_completed', { qualifies, yes_count: yesCount, employment_fit: employmentFit });
+    trackApplyFunnel(1, 'eligibility_complete', { qualifies, yes_count: yesCount, employment_fit: employmentFit });
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem(APPLY_FLOW_DRAFT_KEY);
@@ -387,6 +415,10 @@ export default function ApplyEligibilityClient({
         q1: isSchool ? null : q1,
         q2: isSchool ? null : q2,
         q3: isSchool ? null : q3,
+        underemployed: isSchool ? null : underemployed,
+        householdSize: isSchool ? undefined : householdSize || undefined,
+        povertyGuideline: isSchool ? undefined : povertyGuidelineLabel(householdSize || null) ?? undefined,
+        employmentFit: isSchool ? undefined : employmentFit,
         receivingUnemployment: isSchool ? null : receivingUnemployment,
         exhaustedUnemployment: isSchool ? null : exhaustedUnemployment,
         layoffCompany: isSchool ? undefined : layoffCompany.trim() || undefined,
@@ -411,6 +443,7 @@ export default function ApplyEligibilityClient({
         state: stateVal.trim(),
         zip: zip.trim(),
         county: county.trim(),
+        workforceCenter: isSchool ? undefined : workforceCenterPlainLine(workforceCenter) ?? undefined,
         primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
         gradeLevel: gradeLevel.trim() || undefined,
         parentGuardianName: parentGuardianName.trim() || undefined,
@@ -433,13 +466,29 @@ export default function ApplyEligibilityClient({
   return (
     <div className={`apply-flow apply-flow--step1${isPaid ? ' apply-flow--paid' : ''}`} data-variant={isPaid ? 'paid' : 'organic'}>
       <style>{`
-        .apply-flow--step1 .form-radio-cards { gap: 0.5rem; }
+        .apply-flow--step1 .form-radio-cards {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
         .apply-flow--step1 .form-radio-card {
           display: flex;
           align-items: center;
-          gap: 0.625rem;
-          padding: 0.75rem 1rem;
-          min-height: 44px;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.85rem 1rem;
+          min-height: 48px;
+          font-weight: 700;
+        }
+        .apply-flow--step1 .form-radio-card.selected {
+          background: var(--color-accent);
+          color: var(--color-on-accent, #fff);
+          border-color: var(--color-accent);
+        }
+        .apply-flow--step1 .form-radio-card.selected .radio-dot {
+          background: var(--color-on-accent, #fff);
+          border-color: var(--color-on-accent, #fff);
+          box-shadow: inset 0 0 0 3px var(--color-accent);
         }
         .apply-flow--step1 .form-radio-card .radio-dot {
           display: inline-block;
@@ -569,14 +618,43 @@ export default function ApplyEligibilityClient({
               { key: 'q1', value: q1, set: setQ1, legendKey: 'eligibilityQ1Legend', promptKey: 'eligibilityQ1Prompt', errorId: 'apply-eligibility-q1-error' },
               { key: 'receivingUnemployment', value: receivingUnemployment, set: setReceivingUnemployment, legendKey: 'eligibilityReceivingUnemploymentLegend', promptKey: 'eligibilityReceivingUnemploymentPrompt', errorId: 'apply-eligibility-receiving-error' },
               { key: 'exhaustedUnemployment', value: exhaustedUnemployment, set: setExhaustedUnemployment, legendKey: 'eligibilityExhaustedUnemploymentLegend', promptKey: 'eligibilityExhaustedUnemploymentPrompt', errorId: 'apply-eligibility-exhausted-error' },
+              { key: 'underemployed', value: underemployed, set: setUnderemployed, legendKey: 'eligibilityUnderemployedLegend', promptKey: 'eligibilityUnderemployedPrompt', errorId: 'apply-eligibility-underemployed-error' },
               { key: 'q2', value: q2, set: setQ2, legendKey: 'eligibilityQ2Legend', promptKey: 'eligibilityQ2Prompt', errorId: 'apply-eligibility-q2-error' },
               { key: 'snapWic', value: snapWic, set: setSnapWic, legendKey: 'eligibilitySnapWicLegend', promptKey: 'eligibilitySnapWicPrompt', errorId: 'apply-eligibility-snap-error' },
               { key: 'q3', value: q3, set: setQ3, legendKey: 'eligibilityQ3Legend', promptKey: 'eligibilityQ3Prompt', errorId: 'apply-eligibility-q3-error' },
             ] as const
           ).map((item) => (
-            <fieldset key={item.key} className="form-group apply-eligibility-fieldset">
+            <div key={item.key}>
+            {item.key === 'q2' ? (
+              <div className="form-group">
+                <label htmlFor="apply-household-size">{t('eligibilityHouseholdSizeLabel')}</label>
+                <select
+                  id="apply-household-size"
+                  name="householdSize"
+                  value={householdSize === '' ? '' : String(householdSize)}
+                  onChange={(e) => setHouseholdSize(normalizeHouseholdSize(e.target.value) ?? '')}
+                  required
+                  aria-invalid={attemptedContinue && !householdSize}
+                >
+                  <option value="">{t('eligibilityHouseholdSizePlaceholder')}</option>
+                  {householdPovertyOptions().map((option) => (
+                    <option key={option.size} value={option.size}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="apply-field-hint">{t('eligibilityHouseholdSizeHint')}</p>
+              </div>
+            ) : null}
+            <fieldset className="form-group apply-eligibility-fieldset">
               <legend className="apply-eligibility-legend">{t(item.legendKey)}</legend>
-              <p className="apply-eligibility-prompt">{t(item.promptKey)}</p>
+              <p className="apply-eligibility-prompt">
+                {item.key === 'q2' && householdSize
+                  ? t('eligibilityQ2PromptWithAmount', {
+                      amount: povertyGuidelineLabel(householdSize) ?? '',
+                    })
+                  : t(item.promptKey)}
+              </p>
               <div
                 className="form-radio-cards"
                 role="radiogroup"
@@ -614,6 +692,7 @@ export default function ApplyEligibilityClient({
                 </p>
               )}
             </fieldset>
+            </div>
           ))}
           {showLayoffCompany ? (
             <div className="form-group">
@@ -634,9 +713,13 @@ export default function ApplyEligibilityClient({
         ) : null}
         {!isSchool && canContinue && (
           <div className={`funding-banner ${qualifies ? 'funding-banner-qualify' : 'funding-banner-neutral'}`}>
-            {qualifies ? (
+            {employmentFit === 'qualify' ? (
               <p>
                 <strong>{t('fundingBannerQualifyStrong')}</strong> {t('fundingBannerQualifyRest')}
+              </p>
+            ) : employmentFit === 'case_by_case' ? (
+              <p>
+                <strong>{t('fundingBannerCaseByCaseStrong')}</strong> {t('fundingBannerCaseByCaseRest')}
               </p>
             ) : (
               <p>
@@ -874,9 +957,23 @@ export default function ApplyEligibilityClient({
                 inputMode="text"
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
+                onBlur={() => {
+                  const digits = zip.replace(/\D/g, '').slice(0, 5);
+                  if (digits.length < 5) return;
+                  void fetch(`https://api.zippopotam.us/us/${digits}`)
+                    .then((res) => (res.ok ? res.json() : null))
+                    .then((data: { places?: Array<{ 'place name'?: string; 'state abbreviation'?: string }> } | null) => {
+                      const place = data?.places?.[0];
+                      if (!place) return;
+                      setCity((current) => current.trim() || place['place name'] || current);
+                      setStateVal((current) => current.trim() || place['state abbreviation'] || current);
+                    })
+                    .catch(() => undefined);
+                }}
                 required
                 aria-invalid={attemptedContinue && !zipOk}
               />
+              <WorkforceCenterHint zip={zip} county={county} state={stateVal} />
             </div>
             {!isSchool ? (
               <div className="form-group apply-form-group--full">

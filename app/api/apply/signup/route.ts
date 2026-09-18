@@ -42,6 +42,10 @@ import {
   schoolProfileBarriers,
 } from '@/lib/apply/schoolCollection';
 import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
+import { scoreEmploymentEligibility } from '@/lib/apply/employmentEligibility';
+import { eligibilityFieldsPlainLines } from '@/lib/apply/eligibilityScreeningFields';
+import { normalizeHouseholdSize, povertyGuidelineLabel } from '@/lib/apply/householdPoverty';
+import { lookupWorkforceCenter, workforceCenterPlainLine } from '@/lib/apply/workforceCenters';
 import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
@@ -152,10 +156,18 @@ const applySignupSchema = z.object({
   primaryBarrier: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
   eligibilityQualifies: z.boolean().optional().nullable(),
-  eligibilityYesCount: z.number().int().min(0).max(3).optional().nullable(),
+  eligibilityYesCount: z.number().int().min(0).max(4).optional().nullable(),
   eligibilityQ1: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ2: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ3: z.enum(['yes', 'no']).optional().nullable(),
+  underemployed: z.enum(['yes', 'no']).optional().nullable(),
+  householdSize: z
+    .union([z.number().int().min(1).max(4), z.enum(['1', '2', '3', '4'])])
+    .optional()
+    .nullable(),
+  employmentFit: z.enum(['qualify', 'case_by_case', 'review']).optional().nullable(),
+  povertyGuideline: z.string().trim().max(200).optional().nullable(),
+  workforceCenter: z.string().trim().max(400).optional().nullable(),
   receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
   exhaustedUnemployment: z.enum(['yes', 'no']).optional().nullable(),
   layoffCompany: z.string().trim().max(200).optional().nullable(),
@@ -227,11 +239,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       county,
       primaryBarrier,
       primaryBarriers,
-      eligibilityQualifies,
-      eligibilityYesCount,
       eligibilityQ1,
       eligibilityQ2,
       eligibilityQ3,
+      underemployed,
+      householdSize,
+      povertyGuideline,
+      workforceCenter,
       receivingUnemployment,
       exhaustedUnemployment,
       layoffCompany,
@@ -319,27 +333,52 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     const hearAboutOtherNormalized = normalizeHearAbout(hearAboutOther);
     const receivingUnemploymentNormalized = normalizeYesNo(receivingUnemployment);
     const exhaustedUnemploymentNormalized = normalizeYesNo(exhaustedUnemployment);
+    const underemployedNormalized = normalizeYesNo(underemployed);
+    const householdSizeNormalized = normalizeHouseholdSize(householdSize);
     const snapWicNormalized = normalizeYesNo(snapWic);
     const layoffCompanyNormalized = layoffCompany?.trim() ? layoffCompany.trim().slice(0, 200) : null;
     const partnerAmbassadorNormalized = partnerAmbassadorReferral?.trim()
       ? partnerAmbassadorReferral.trim().slice(0, 200)
       : null;
-
+    const employment = scoreEmploymentEligibility({
+      unemployed: normalizeYesNo(eligibilityQ1),
+      receivingUnemployment: receivingUnemploymentNormalized,
+      exhaustedUnemployment: exhaustedUnemploymentNormalized,
+      underemployed: underemployedNormalized,
+    });
+    const workforceCenterResolved =
+      workforceCenter?.trim() ||
+      workforceCenterPlainLine(lookupWorkforceCenter({ zip, county, state })) ||
+      null;
+    const povertyGuidelineResolved =
+      povertyGuideline?.trim() || povertyGuidelineLabel(householdSizeNormalized);
+    const eligibilityEmailFields = {
+      q1: eligibilityQ1 ?? null,
+      q2: eligibilityQ2 ?? null,
+      q3: eligibilityQ3 ?? null,
+      qualifies: employment.qualifies,
+      yesCount: employment.yesCount,
+      employmentFit: employment.fit,
+      underemployed: underemployedNormalized,
+      householdSize: householdSizeNormalized,
+      povertyGuideline: povertyGuidelineResolved,
+      receivingUnemployment: receivingUnemploymentNormalized,
+      exhaustedUnemployment: exhaustedUnemploymentNormalized,
+      layoffCompany: layoffCompanyNormalized,
+      snapWic: snapWicNormalized,
+      hearAbout: hearAboutNormalized,
+      hearAboutOther: hearAboutOtherNormalized,
+      partnerAmbassadorReferral: partnerAmbassadorNormalized,
+      ageGroup: ageGroup ?? null,
+      zip: zip?.trim() || null,
+      city: city?.trim() || null,
+      state: state?.trim() || null,
+      county: county?.trim() || null,
+      workforceCenter: workforceCenterResolved,
+    };
     let applicationNotes = [
-      ageGroup ? `Age group: ${ageGroup}` : null,
-      city?.trim() ? `City: ${city.trim()}` : null,
-      state?.trim() ? `State: ${state.trim()}` : null,
-      zip?.trim() ? `ZIP: ${zip.trim()}` : null,
-      county?.trim() ? `County: ${county.trim()}` : null,
       profileBarrierTypes.length > 0 ? `Primary barrier(s): ${profileBarrierTypes.join(', ')}` : null,
-      typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
-      receivingUnemploymentNormalized ? `Receiving unemployment: ${receivingUnemploymentNormalized}` : null,
-      exhaustedUnemploymentNormalized ? `Exhausted unemployment: ${exhaustedUnemploymentNormalized}` : null,
-      layoffCompanyNormalized ? `Layoff / last employer: ${layoffCompanyNormalized}` : null,
-      snapWicNormalized ? `SNAP/WIC: ${snapWicNormalized}` : null,
-      hearAboutNormalized ? `Heard about us: ${hearAboutNormalized}` : null,
-      hearAboutOtherNormalized ? `Heard about us (other): ${hearAboutOtherNormalized}` : null,
-      partnerAmbassadorNormalized ? `Partner/ambassador referral: ${partnerAmbassadorNormalized}` : null,
+      ...eligibilityFieldsPlainLines(eligibilityEmailFields),
     ].filter(Boolean).join('\n');
     let hasEmploymentBarrier = profileBarrierTypes.length > 0;
   
@@ -743,8 +782,10 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             q1: eligibilityQ1,
             q2: eligibilityQ2,
             q3: eligibilityQ3 ?? null,
-            qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
-            yesCount: eligibilityYesCount ?? 0,
+            qualifies: employment.qualifies,
+            yesCount: employment.yesCount,
+            underemployed: underemployedNormalized,
+            householdSize: householdSizeNormalized,
             receivingUnemployment: receivingUnemploymentNormalized,
             exhaustedUnemployment: exhaustedUnemploymentNormalized,
             layoffCompany: layoffCompanyNormalized,
@@ -801,21 +842,6 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         sourcePage: '/apply/create-account',
       });
   
-      const eligibilityEmailFields = {
-        q1: eligibilityQ1 ?? null,
-        q2: eligibilityQ2 ?? null,
-        q3: eligibilityQ3 ?? null,
-        qualifies: eligibilityQualifies ?? null,
-        yesCount: eligibilityYesCount ?? null,
-        receivingUnemployment: receivingUnemploymentNormalized,
-        exhaustedUnemployment: exhaustedUnemploymentNormalized,
-        layoffCompany: layoffCompanyNormalized,
-        snapWic: snapWicNormalized,
-        hearAbout: hearAboutNormalized,
-        hearAboutOther: hearAboutOtherNormalized,
-        partnerAmbassadorReferral: partnerAmbassadorNormalized,
-      };
-
       // Applicant receipt is awaited before the success response — the promise
       // the confirmation page makes ("receipt on file"). Serverless `after()`
       // alone still races on Vercel: the function can freeze before Resend
@@ -826,6 +852,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           to: user.email!,
           fullName,
           eligibility: eligibilityEmailFields,
+          applicationId: createdApplicationId,
         });
         if (!result.ok) {
           throw new Error(result.error ?? 'Application confirmation email failed');

@@ -94,8 +94,14 @@ describe('workspace navigation', () => {
     expect(groups).toHaveLength(3);
     expect(groups.every((group) => group.open)).toBe(true);
     expect(screen.getByRole('link', { name: 'Training preassessment' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Resume' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'AI Career Tools' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Profile' })).toBeVisible();
+    const primaryHrefs = [...container.querySelectorAll('.workspace-sidebar-nav a')]
+      .filter((link) => !link.closest('details'))
+      .map((link) => link.getAttribute('href'));
+    expect(primaryHrefs).toContain('/dashboard/resume');
+    expect(primaryHrefs).toContain('/dashboard/ai-tools');
   });
 
   it('keeps every distinct member destination reachable through the disclosures', () => {

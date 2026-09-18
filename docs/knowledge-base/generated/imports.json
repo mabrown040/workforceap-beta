@@ -6473,11 +6473,27 @@
   },
   {
     "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
-    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "specifier": "@/components/apply/WorkforceCenterHint",
     "line": 6,
     "kind": "import",
     "external": false,
+    "target": "components/apply/WorkforceCenterHint.tsx"
+  },
+  {
+    "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
+    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "line": 7,
+    "kind": "import",
+    "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
+    "specifier": "@/lib/apply/householdPoverty",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
   },
   {
     "from": "app/(portal)/dashboard/eligibility/loading.tsx",
@@ -6529,8 +6545,16 @@
   },
   {
     "from": "app/(portal)/dashboard/eligibility/page.tsx",
-    "specifier": "./EligibilityForm",
+    "specifier": "@/lib/apply/householdPoverty",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/eligibility/page.tsx",
+    "specifier": "./EligibilityForm",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx"
@@ -41993,8 +42017,40 @@
   },
   {
     "from": "app/api/apply/signup/route.ts",
-    "specifier": "@/lib/email",
+    "specifier": "@/lib/apply/employmentEligibility",
     "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/employmentEligibility.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/apply/eligibilityScreeningFields",
+    "line": 46,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/eligibilityScreeningFields.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/apply/householdPoverty",
+    "line": 47,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/apply/workforceCenters",
+    "line": 48,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/workforceCenters.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/email",
+    "line": 49,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -51713,8 +51769,32 @@
   },
   {
     "from": "app/api/member/eligibility/route.ts",
-    "specifier": "@/lib/email",
+    "specifier": "@/lib/apply/employmentEligibility",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/employmentEligibility.ts"
+  },
+  {
+    "from": "app/api/member/eligibility/route.ts",
+    "specifier": "@/lib/apply/householdPoverty",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/api/member/eligibility/route.ts",
+    "specifier": "@/lib/apply/workforceCenters",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/workforceCenters.ts"
+  },
+  {
+    "from": "app/api/member/eligibility/route.ts",
+    "specifier": "@/lib/email",
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -51722,7 +51802,7 @@
   {
     "from": "app/api/member/eligibility/route.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 13,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -51730,7 +51810,7 @@
   {
     "from": "app/api/member/eligibility/route.ts",
     "specifier": "@/lib/observability/logger",
-    "line": 14,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/observability/logger.ts"
@@ -51738,7 +51818,7 @@
   {
     "from": "app/api/member/eligibility/route.ts",
     "specifier": "@/lib/counselor/ambassadorAutoAssign",
-    "line": 15,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/ambassadorAutoAssign.ts"
@@ -58505,8 +58585,32 @@
   },
   {
     "from": "app/api/q/[token]/submit/route.ts",
-    "specifier": "@/lib/email",
+    "specifier": "@/lib/apply/employmentEligibility",
     "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/employmentEligibility.ts"
+  },
+  {
+    "from": "app/api/q/[token]/submit/route.ts",
+    "specifier": "@/lib/apply/householdPoverty",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/api/q/[token]/submit/route.ts",
+    "specifier": "@/lib/apply/workforceCenters",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/workforceCenters.ts"
+  },
+  {
+    "from": "app/api/q/[token]/submit/route.ts",
+    "specifier": "@/lib/email",
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -58514,7 +58618,7 @@
   {
     "from": "app/api/q/[token]/submit/route.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 17,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -58522,7 +58626,7 @@
   {
     "from": "app/api/q/[token]/submit/route.ts",
     "specifier": "@/lib/observability/logger",
-    "line": 18,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/observability/logger.ts"
@@ -58530,7 +58634,7 @@
   {
     "from": "app/api/q/[token]/submit/route.ts",
     "specifier": "@/lib/counselor/ambassadorAutoAssign",
-    "line": 19,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/ambassadorAutoAssign.ts"
@@ -58538,7 +58642,7 @@
   {
     "from": "app/api/q/[token]/submit/route.ts",
     "specifier": "@/lib/apply/eligibilityScreeningFields",
-    "line": 20,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityScreeningFields.ts"
@@ -59785,16 +59889,48 @@
   },
   {
     "from": "app/apply/ApplyEligibilityClient.tsx",
-    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "specifier": "@/components/apply/WorkforceCenterHint",
     "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "components/apply/WorkforceCenterHint.tsx"
+  },
+  {
+    "from": "app/apply/ApplyEligibilityClient.tsx",
+    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
   },
   {
     "from": "app/apply/ApplyEligibilityClient.tsx",
+    "specifier": "@/lib/apply/employmentEligibility",
+    "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/employmentEligibility.ts"
+  },
+  {
+    "from": "app/apply/ApplyEligibilityClient.tsx",
+    "specifier": "@/lib/apply/householdPoverty",
+    "line": 26,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/apply/ApplyEligibilityClient.tsx",
+    "specifier": "@/lib/apply/workforceCenters",
+    "line": 32,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/workforceCenters.ts"
+  },
+  {
+    "from": "app/apply/ApplyEligibilityClient.tsx",
     "specifier": "@/lib/apply/resolveSchoolApply",
-    "line": 24,
+    "line": 33,
     "kind": "type",
     "external": false,
     "target": "lib/apply/resolveSchoolApply.ts"
@@ -59802,7 +59938,7 @@
   {
     "from": "app/apply/ApplyEligibilityClient.tsx",
     "specifier": "@/lib/apply/schoolCollection",
-    "line": 25,
+    "line": 34,
     "kind": "import",
     "external": false,
     "target": "lib/apply/schoolCollection.ts"
@@ -60297,8 +60433,16 @@
   },
   {
     "from": "app/apply/create-account/ApplyCreateAccountForm.tsx",
-    "specifier": "@marsidev/react-turnstile",
+    "specifier": "@/components/apply/WorkforceCenterHint",
     "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "components/apply/WorkforceCenterHint.tsx"
+  },
+  {
+    "from": "app/apply/create-account/ApplyCreateAccountForm.tsx",
+    "specifier": "@marsidev/react-turnstile",
+    "line": 26,
     "kind": "type",
     "external": true,
     "package": "@marsidev/react-turnstile"
@@ -60306,7 +60450,7 @@
   {
     "from": "app/apply/create-account/ApplyCreateAccountForm.tsx",
     "specifier": "@marsidev/react-turnstile",
-    "line": 27,
+    "line": 28,
     "kind": "dynamic-import",
     "external": true,
     "package": "@marsidev/react-turnstile"
@@ -64953,16 +65097,32 @@
   },
   {
     "from": "app/q/[token]/PublicEligibilityForm.tsx",
-    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "specifier": "@/components/apply/WorkforceCenterHint",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/apply/WorkforceCenterHint.tsx"
+  },
+  {
+    "from": "app/q/[token]/PublicEligibilityForm.tsx",
+    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
   },
   {
     "from": "app/q/[token]/PublicEligibilityForm.tsx",
+    "specifier": "@/lib/apply/householdPoverty",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/q/[token]/PublicEligibilityForm.tsx",
     "specifier": "@/lib/validation/postalCode",
-    "line": 11,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/validation/postalCode.ts"
@@ -64985,8 +65145,16 @@
   },
   {
     "from": "app/q/[token]/page.tsx",
-    "specifier": "./PublicEligibilityForm",
+    "specifier": "@/lib/apply/householdPoverty",
     "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "app/q/[token]/page.tsx",
+    "specifier": "./PublicEligibilityForm",
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "app/q/[token]/PublicEligibilityForm.tsx"
@@ -69094,6 +69262,14 @@
     "kind": "import",
     "external": true,
     "package": "next-intl"
+  },
+  {
+    "from": "components/apply/WorkforceCenterHint.tsx",
+    "specifier": "@/lib/apply/workforceCenters",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/workforceCenters.ts"
   },
   {
     "from": "components/billing/BillingPacketList.tsx",
@@ -83386,7 +83562,7 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "@/components/portal/PortalInlineSpinner",
-    "line": 21,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalInlineSpinner.tsx"
@@ -83394,7 +83570,7 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "next/link",
-    "line": 22,
+    "line": 21,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -83402,7 +83578,7 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "./ToolFollowThrough",
-    "line": 23,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/portal/tools/ToolFollowThrough.tsx"
@@ -83410,7 +83586,7 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "@/lib/analytics/events",
-    "line": 24,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/events.ts"
@@ -83418,7 +83594,7 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 25,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -83426,7 +83602,7 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "@/lib/content/courseSkillMap",
-    "line": 26,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/content/courseSkillMap.ts"
@@ -83434,10 +83610,26 @@
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 27,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperClient.tsx",
+    "specifier": "@/lib/ai/skillMapperCompare",
+    "line": 27,
+    "kind": "import",
+    "external": false,
+    "target": null
+  },
+  {
+    "from": "components/portal/tools/SkillMapperClient.tsx",
+    "specifier": "./SkillMapperComparePanel",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": null
   },
   {
     "from": "components/portal/tools/ToolFollowThrough.tsx",
@@ -89640,6 +89832,70 @@
     "target": "lib/referralSources.ts"
   },
   {
+    "from": "lib/apply/employmentEligibility.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/apply/employmentEligibility.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/apply/employmentEligibility.test.ts",
+    "specifier": "./employmentEligibility",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/employmentEligibility.ts"
+  },
+  {
+    "from": "lib/apply/employmentEligibility.ts",
+    "specifier": "@/lib/apply/eligibilityExtendedFields",
+    "line": 13,
+    "kind": "type",
+    "external": false,
+    "target": "lib/apply/eligibilityExtendedFields.ts"
+  },
+  {
+    "from": "lib/apply/householdPoverty.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/apply/householdPoverty.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/apply/householdPoverty.test.ts",
+    "specifier": "./householdPoverty",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/householdPoverty.ts"
+  },
+  {
+    "from": "lib/apply/householdPoverty.ts",
+    "specifier": "@/lib/content/benefitsCliff",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/benefitsCliff.ts"
+  },
+  {
     "from": "lib/apply/layoffCompanyUi.test.ts",
     "specifier": "node:test",
     "line": 5,
@@ -89798,6 +90054,30 @@
     "kind": "import",
     "external": true,
     "package": "react"
+  },
+  {
+    "from": "lib/apply/workforceCenters.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/apply/workforceCenters.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/apply/workforceCenters.test.ts",
+    "specifier": "./workforceCenters",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/apply/workforceCenters.ts"
   },
   {
     "from": "lib/assessment/answer-key.ts",

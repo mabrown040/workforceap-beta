@@ -160,6 +160,7 @@
 | [components/apply/HearAboutSelect.tsx](../../../components/apply/HearAboutSelect.tsx) | 62 | applications-enrollment | default:26 |
 | [components/apply/PaidApplyProofBlock.tsx](../../../components/apply/PaidApplyProofBlock.tsx) | 30 | applications-enrollment | default:4 |
 | [components/apply/ShareButtons.tsx](../../../components/apply/ShareButtons.tsx) | 85 | applications-enrollment | default:26 |
+| [components/apply/WorkforceCenterHint.tsx](../../../components/apply/WorkforceCenterHint.tsx) | 35 | applications-enrollment | default:3 |
 | [components/billing/BillingPacketList.tsx](../../../components/billing/BillingPacketList.tsx) | 126 | partners-funding | default:30 |
 | [components/counselor/StaffMemberResumePanel.tsx](../../../components/counselor/StaffMemberResumePanel.tsx) | 364 | member-counselor | default:24 |
 | [components/dashboard/DashboardSkeleton.tsx](../../../components/dashboard/DashboardSkeleton.tsx) | 130 | member-counselor | default:6 |
@@ -617,7 +618,7 @@
 | [components/portal/tools/ResumeStrengthForm.tsx](../../../components/portal/tools/ResumeStrengthForm.tsx) | 371 | components | default:125 |
 | [components/portal/tools/SalaryNegotiationForm.tsx](../../../components/portal/tools/SalaryNegotiationForm.tsx) | 289 | components | default:58 |
 | [components/portal/tools/SkillAssessmentForm.tsx](../../../components/portal/tools/SkillAssessmentForm.tsx) | 464 | components | default:66 |
-| [components/portal/tools/SkillMapperClient.tsx](../../../components/portal/tools/SkillMapperClient.tsx) | 1296 | components | default:436 |
+| [components/portal/tools/SkillMapperClient.tsx](../../../components/portal/tools/SkillMapperClient.tsx) | 1312 | components | SkillMapperPreviewSeed:36, default:410 |
 | [components/portal/tools/SkillMapperRadar.tsx](../../../components/portal/tools/SkillMapperRadar.tsx) | 91 | components | default:5 |
 | [components/portal/tools/ToolFollowThrough.tsx](../../../components/portal/tools/ToolFollowThrough.tsx) | 70 | components | default:8 |
 | [components/portal/tools/VoiceInterviewScaffold.tsx](../../../components/portal/tools/VoiceInterviewScaffold.tsx) | 394 | components | default:70 |

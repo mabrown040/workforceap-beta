@@ -108712,6 +108712,46 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "next/server",
+    "line": 20,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "@/app/api/admin/coursera/backfill-xapi/route",
+    "line": 55,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/coursera/backfill-xapi/route.ts"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "@/app/api/admin/coursera/sync-user-from-b4b/route",
+    "line": 56,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/coursera/sync-user-from-b4b/route.ts"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "next/server",
+    "line": 77,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
     "from": "tests/api/admin-coursera-map-unmatched.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -121374,6 +121414,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/cron/withCronLogging.ts"
+  },
+  {
+    "from": "tests/lib/xapi-exact-email-match.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/xapi-exact-email-match.spec.ts",
+    "specifier": "@/lib/xapi/mappings",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/mappings.ts"
+  },
+  {
+    "from": "tests/lib/xapi-exact-email-match.spec.ts",
+    "specifier": "@/lib/xapi/reprocess",
+    "line": 46,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/reprocess.ts"
   },
   {
     "from": "tests/lib/xapi-first-completion-side-effects.spec.ts",

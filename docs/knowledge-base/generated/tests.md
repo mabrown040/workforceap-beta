@@ -7,6 +7,7 @@
 | [tests/admin-global-search.test.ts](../../../tests/admin-global-search.test.ts) | 125 | tests |  |
 | [tests/admin-health-dashboard.spec.tsx](../../../tests/admin-health-dashboard.spec.tsx) | 164 | tests |  |
 | [tests/api/admin-analytics.spec.ts](../../../tests/api/admin-analytics.spec.ts) | 199 | tests |  |
+| [tests/api/admin-coursera-exact-email-match.spec.ts](../../../tests/api/admin-coursera-exact-email-match.spec.ts) | 268 | learning-coursera |  |
 | [tests/api/admin-coursera-map-unmatched.spec.ts](../../../tests/api/admin-coursera-map-unmatched.spec.ts) | 80 | learning-coursera |  |
 | [tests/api/admin-coursera-mappings.spec.ts](../../../tests/api/admin-coursera-mappings.spec.ts) | 283 | learning-coursera |  |
 | [tests/api/admin-coursera-sync-progress.spec.ts](../../../tests/api/admin-coursera-sync-progress.spec.ts) | 81 | learning-coursera |  |
@@ -312,6 +313,7 @@
 | [tests/lib/twc-syllabus-accuracy.spec.ts](../../../tests/lib/twc-syllabus-accuracy.spec.ts) | 283 | tests |  |
 | [tests/lib/voice-studio-card-contrast.spec.ts](../../../tests/lib/voice-studio-card-contrast.spec.ts) | 52 | tests |  |
 | [tests/lib/with-cron-logging.spec.ts](../../../tests/lib/with-cron-logging.spec.ts) | 60 | tests |  |
+| [tests/lib/xapi-exact-email-match.spec.ts](../../../tests/lib/xapi-exact-email-match.spec.ts) | 318 | tests |  |
 | [tests/lib/xapi-first-completion-side-effects.spec.ts](../../../tests/lib/xapi-first-completion-side-effects.spec.ts) | 263 | tests |  |
 | [tests/lib/xapi-replay-tenant-boundary.spec.ts](../../../tests/lib/xapi-replay-tenant-boundary.spec.ts) | 121 | tests |  |
 | [tests/lib/xapi-reprocess-tenant-boundary.spec.ts](../../../tests/lib/xapi-reprocess-tenant-boundary.spec.ts) | 121 | tests |  |

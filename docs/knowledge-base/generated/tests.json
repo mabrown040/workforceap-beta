@@ -8773,6 +8773,34 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/coursera/backfill-xapi/route.ts",
+        "line": 55
+      },
+      {
+        "file": "app/api/admin/coursera/sync-user-from-b4b/route.ts",
+        "line": 56
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/admin-coursera-map-unmatched.spec.ts",
     "area": "tests",
     "domain": "learning-coursera",
@@ -19245,6 +19273,34 @@
       {
         "file": "lib/cron/withCronLogging.ts",
         "line": 29
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/xapi-exact-email-match.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/xapi/mappings.ts",
+        "line": 45
+      },
+      {
+        "file": "lib/xapi/reprocess.ts",
+        "line": 46
       }
     ],
     "kind": "test-candidate",

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "da8e75c7ad43dda56eeda6e16a957f10f9d586f5b5df4c7aefa9d3dde63292c2",
+  "inputTreeSha256": "ca041962561c6a8faeaf1c0bcc8227d5184977c5872d70d8e61b54eb7d473ae1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -147505,6 +147505,39 @@
       "directive": null
     },
     {
+      "path": "tests/api/admin-coursera-exact-email-match.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 9106,
+      "lines": 268,
+      "sha256": "59e7e23a8d8957a7adb7cb2d3757b4643768a99e6e6b18e418896a27b9ba3fd1",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PATTERN_ADDRESS",
+          "line": 64,
+          "kind": "Variable"
+        },
+        {
+          "name": "backfillRequest",
+          "line": 66,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "syncRequest",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/admin-coursera-map-unmatched.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
@@ -155043,6 +155076,39 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/xapi-exact-email-match.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 10344,
+      "lines": 318,
+      "sha256": "d00631dbf23958dc83720dc2618cb15238555204bbba1e360288706c0d2aef70",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PATTERN_ADDRESS",
+          "line": 60,
+          "kind": "Variable"
+        },
+        {
+          "name": "NEIGHBOUR",
+          "line": 61,
+          "kind": "Variable"
+        },
+        {
+          "name": "OWNER",
+          "line": 67,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {

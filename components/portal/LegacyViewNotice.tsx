@@ -22,28 +22,15 @@ export default function LegacyViewNotice() {
   const currentViewHref = `${pathname}${qs ? `?${qs}` : ''}`;
 
   return (
-    <div
-      role="note"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        flexWrap: 'wrap',
-        padding: '0.4rem 1rem',
-        fontSize: '0.8125rem',
-        fontWeight: 600,
-        color: 'var(--color-on-surface-variant, #57534e)',
-        background: 'var(--surface-container-high, #f1efed)',
-        borderBottom: '1px solid var(--outline-variant, #e5e1de)',
-      }}
-    >
-      <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+    <div role="note" className="legacy-view-notice">
+      <span className="material-symbols-outlined legacy-view-notice__icon" aria-hidden="true">
         history
       </span>
       <span>Legacy view</span>
-      <span aria-hidden="true" style={{ opacity: 0.5 }}>·</span>
-      <a href={currentViewHref} style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline' }}>
+      <span aria-hidden="true" className="legacy-view-notice__sep">
+        ·
+      </span>
+      <a href={currentViewHref} className="legacy-view-notice__link">
         switch to the current view
       </a>
     </div>

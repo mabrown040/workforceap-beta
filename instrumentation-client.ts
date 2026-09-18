@@ -75,6 +75,37 @@ function scrubUrlForBreadcrumb(value: string): string {
   }
 }
 
+/** Replay hydration diffs that only mention extension-injected style attrs. */
+function isExtensionStyleHydrationNoise(event: {
+  message?: string;
+  exception?: { values?: Array<{ type?: string; value?: string }> };
+  contexts?: Record<string, unknown>;
+  extra?: Record<string, unknown>;
+}): boolean {
+  const pieces: string[] = [];
+  if (typeof event.message === 'string') pieces.push(event.message);
+  for (const value of event.exception?.values ?? []) {
+    if (value.type) pieces.push(value.type);
+    if (value.value) pieces.push(value.value);
+  }
+  try {
+    pieces.push(JSON.stringify(event.contexts ?? {}));
+    pieces.push(JSON.stringify(event.extra ?? {}));
+  } catch {
+    // ignore serialization failures
+  }
+  const blob = pieces.join('\n').toLowerCase();
+  if (!blob.includes('hydration')) return false;
+  return (
+    blob.includes('caret-color') ||
+    blob.includes('border-top-style') ||
+    blob.includes('border-right-style') ||
+    blob.includes('border-bottom-style') ||
+    blob.includes('border-left-style') ||
+    blob.includes('outline-style')
+  );
+}
+
 async function initSentry() {
   if (!dsn || !isProduction || isReadOnlyPortalAuditDocument()) return;
 
@@ -113,7 +144,12 @@ async function initSentry() {
       }),
     ],
     beforeSend(event) {
-      return isReadOnlyPortalAuditDocument() ? null : event;
+      if (isReadOnlyPortalAuditDocument()) return null;
+      // Password managers / form fillers inject caret-color and empty border
+      // styles before hydrate. Sentry Replay records these as "Hydration Error"
+      // on /admin and other portals (JAVASCRIPT-NEXTJS-1) — not actionable app bugs.
+      if (isExtensionStyleHydrationNoise(event)) return null;
+      return event;
     },
     beforeSendTransaction(event) {
       return isReadOnlyPortalAuditDocument() ? null : event;

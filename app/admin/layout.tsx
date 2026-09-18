@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUser } from '@/lib/auth/server';
@@ -72,7 +73,11 @@ export default async function AdminLayout({
           <span hidden data-portal-audit-suppressed="admin-organization-branding-data-cache" />
         )}
         <OrgBrandingBar branding={branding} />
-        <LegacyViewNotice />
+        {/* useSearchParams requires a Suspense boundary or the admin shell can
+            hydrate as a CSR bailout / mismatch (Sentry JAVASCRIPT-NEXTJS-1). */}
+        <Suspense fallback={null}>
+          <LegacyViewNotice />
+        </Suspense>
         <AdminPortalShell
           superAdmin={scope.superAdmin}
           portalRoles={portalRoles}

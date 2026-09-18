@@ -2416,6 +2416,8 @@
     "importJobsMetaDesc": "Importez des offres d'emploi depuis des URLs, LinkedIn ou des pages carrières comme brouillons modifiables.",
     "applicationReviewMetaTitle": "Examen de la candidature",
     "applicationReviewMetaDesc": "Examinez les détails du candidat et mettez à jour le statut.",
+    "applyingForJob": "Candidature pour {title}",
+    "backToApplicants": "Retour aux candidats",
     "reviewCandidatesMobile": "Examiner et répondre aux candidats",
     "reviewCandidatesDesktop": "Examiner et répondre aux candidats pour vos postes ouverts",
     "checkoutSuccess": "Votre abonnement a été configuré avec succès. Bienvenue !",

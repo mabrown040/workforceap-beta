@@ -244,9 +244,9 @@
 | [app/(portal)/dashboard/weekly-recap/loading.tsx](../../../app/%28portal%29/dashboard/weekly-recap/loading.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/dashboard/weekly-recap/page.tsx](../../../app/%28portal%29/dashboard/weekly-recap/page.tsx) | 103 | member-counselor | generateMetadata:13, default:32 |
 | [app/(portal)/employer/applications/\[id\]/loading.tsx](../../../app/%28portal%29/employer/applications/%5Bid%5D/loading.tsx) | 5 | jobs-employers | default:3 |
-| [app/(portal)/employer/applications/\[id\]/page.tsx](../../../app/%28portal%29/employer/applications/%5Bid%5D/page.tsx) | 256 | jobs-employers | generateMetadata:16, default:25 |
+| [app/(portal)/employer/applications/\[id\]/page.tsx](../../../app/%28portal%29/employer/applications/%5Bid%5D/page.tsx) | 234 | jobs-employers | generateMetadata:16, default:25 |
 | [app/(portal)/employer/applications/loading.tsx](../../../app/%28portal%29/employer/applications/loading.tsx) | 6 | jobs-employers | default:3 |
-| [app/(portal)/employer/applications/page.tsx](../../../app/%28portal%29/employer/applications/page.tsx) | 130 | jobs-employers | generateMetadata:23, default:32 |
+| [app/(portal)/employer/applications/page.tsx](../../../app/%28portal%29/employer/applications/page.tsx) | 155 | jobs-employers | generateMetadata:23, default:32 |
 | [app/(portal)/employer/billing/TierCheckoutForm.tsx](../../../app/%28portal%29/employer/billing/TierCheckoutForm.tsx) | 63 | jobs-employers | default:13 |
 | [app/(portal)/employer/billing/loading.tsx](../../../app/%28portal%29/employer/billing/loading.tsx) | 5 | jobs-employers | default:3 |
 | [app/(portal)/employer/billing/page.tsx](../../../app/%28portal%29/employer/billing/page.tsx) | 198 | jobs-employers | generateMetadata:16, default:25 |

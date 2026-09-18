@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "db86ba32c5a8422c6c360f867b5ffc5012a3ce4143baeeb4b818222fa9eefb23",
+  "inputTreeSha256": "1ff5ebf3400af834a814939c713aec9ba879773c8e27292e17ed3320328ad8db",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -11223,9 +11223,9 @@
       "path": "app/(portal)/employer/applications/[id]/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 11010,
-      "lines": 256,
-      "sha256": "c5ffbf901804425795cde893484b6c5012379707b457f889f90dc5d25d135ac1",
+      "bytes": 10043,
+      "lines": 234,
+      "sha256": "e109730046c0ab2198e5629d592d294950bc9c321e094f659c832ee15031f187",
       "binary": false,
       "exports": [
         {
@@ -11283,9 +11283,9 @@
       "path": "app/(portal)/employer/applications/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 5522,
-      "lines": 130,
-      "sha256": "5ac6faf2debe8c9d8519c851d3d34c184b6ab70b0f2a9cf6dc5f24df846660ff",
+      "bytes": 5583,
+      "lines": 155,
+      "sha256": "9dea9306138e2aca9ddc89e9555f706aa625ed85a99d1e07cc207ade307bfb03",
       "binary": false,
       "exports": [
         {
@@ -136999,27 +136999,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 187896,
-      "lines": 3075,
-      "sha256": "3a1421ffd673175bb193567a33a9785fab7c86627ced6ae72a4c629fb9c67d05",
+      "bytes": 187988,
+      "lines": 3077,
+      "sha256": "86d72bdffff724ba499423e6826c91c94d086f129fb28cbe067818fedba833c8",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206265,
-      "lines": 3062,
-      "sha256": "805444a610105c325b7860221df6c9aef1e2cf6c001c80992b2123e1677dcab9",
+      "bytes": 206357,
+      "lines": 3064,
+      "sha256": "3c6954a3ea433f93dc58b9a52af22691dc34b7ab24444c8b1cf0b5a818370c48",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 207193,
-      "lines": 3015,
-      "sha256": "d9e72d5ea5ecede9b61ab480eeef28daf7af2792de309ed2ef8122be946fe3b2",
+      "bytes": 207291,
+      "lines": 3017,
+      "sha256": "8b3491ed487c2c786dde8971f5e9e129f756c4779407b892dae1b3da61528435",
       "binary": false
     },
     {
@@ -137035,9 +137035,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 199239,
-      "lines": 3015,
-      "sha256": "9cd8bfbf840375d62684e6b3d60f39d620094a942559cd1e3d382fe046c364b5",
+      "bytes": 199338,
+      "lines": 3017,
+      "sha256": "6680183f835903e631000c29acb79d816e3ec6e1dd595ea23a8d2f2e07df491d",
       "binary": false
     },
     {
@@ -150930,6 +150930,29 @@
         {
           "name": "load",
           "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/employer-applications-pageheader.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1384,
+      "lines": 33,
+      "sha256": "08135b0df8844f20f6b81718d009187b6c4733b6f76ae89dd61298c204731c6f",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "read",
+          "line": 7,
           "kind": "FunctionDeclaration"
         }
       ],

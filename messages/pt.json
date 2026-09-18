@@ -2416,6 +2416,8 @@
     "importJobsMetaDesc": "Importe publicações de vagas de URLs, LinkedIn ou páginas de carreira como rascunhos editáveis.",
     "applicationReviewMetaTitle": "Revisão de candidatura",
     "applicationReviewMetaDesc": "Revise os detalhes do candidato e atualize o status.",
+    "applyingForJob": "Candidatura para {title}",
+    "backToApplicants": "Voltar aos candidatos",
     "reviewCandidatesMobile": "Revise e responda aos candidatos",
     "reviewCandidatesDesktop": "Revise e responda aos candidatos para suas vagas abertas",
     "checkoutSuccess": "Sua assinatura foi configurada com sucesso. Bem-vindo!",

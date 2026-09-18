@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "0a273f77a9ad18eb0410e6a70d6fcc4243f5a25c8edd241684ac9c5d6a33a7d1",
+  "inputTreeSha256": "e5b440229d94de6d1b83aac2654cb1ead11fae583c7d1d568de2d98966dc0e27",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -35467,9 +35467,9 @@
       "path": "app/api/member/enroll/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 7635,
-      "lines": 209,
-      "sha256": "94de7f985ad82f15af2a396fff899a36671f6d14a305eb009ff16406c7346bb5",
+      "bytes": 7926,
+      "lines": 214,
+      "sha256": "39945f8fbb501e4a840860b0b80c1628fa41ad8f599b397ba5f12ffcff8b1fe0",
       "binary": false,
       "exports": [
         {
@@ -36267,9 +36267,9 @@
       "path": "app/api/member/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5561,
-      "lines": 149,
-      "sha256": "dbda396768290ba3af0c0f41743057f2708e7c114ad385c9b7a9b5559866df83",
+      "bytes": 6967,
+      "lines": 191,
+      "sha256": "93b67ba2a8f6d714f1cabedd0461bda0ff0f8eff5ab40f5cc6faa40de0ad1418",
       "binary": false,
       "exports": [
         {
@@ -36279,12 +36279,12 @@
         },
         {
           "name": "POST",
-          "line": 124,
+          "line": 166,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 148,
+          "line": 190,
           "kind": "Variable"
         }
       ],
@@ -36306,17 +36306,17 @@
         },
         {
           "name": "POST",
-          "line": 124,
+          "line": 166,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 124,
+          "line": 166,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 148,
+          "line": 190,
           "kind": "Variable"
         }
       ],
@@ -75443,6 +75443,15 @@
       "bytes": 78540,
       "lines": 707,
       "sha256": "eb2c3155fb04411ce72cfb0f47cc9870a7da585ed97f465d21f3bd7ff79b717b",
+      "binary": false
+    },
+    {
+      "path": "docs/MEMBER-FUNNEL-BRIEF-2026-09-18.md",
+      "area": "documentation",
+      "domain": "documentation",
+      "bytes": 37703,
+      "lines": 318,
+      "sha256": "879ac6e87d5cc36bc809e300c29d508efb432b296fd9a273de08b3626a35e8fe",
       "binary": false
     },
     {
@@ -151053,15 +151062,15 @@
       "path": "tests/api/member-messages.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 13966,
-      "lines": 438,
-      "sha256": "d7c2a9da560197442dc2bd9490737721a8a470fc9b907661dfd030aa6f6aca48",
+      "bytes": 16120,
+      "lines": 501,
+      "sha256": "95f320ed1e2a7edd21f6c5ed3c1bc36b37de1b43b922d4105205246b5c7182f9",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "makeRequest",
-          "line": 119,
+          "line": 126,
           "kind": "Variable"
         }
       ],
@@ -151627,9 +151636,9 @@
       "path": "tests/api/program-enrollment.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 13049,
-      "lines": 347,
-      "sha256": "28426105cf869de9f23526ff56be5d0332cecbf8da12cafdda82f1e7d84b6bdd",
+      "bytes": 15345,
+      "lines": 409,
+      "sha256": "5ad6798fee7faee012180d25001c47f936e3a058897cf53352d78908295ae3b7",
       "binary": false,
       "exports": [],
       "declarations": [

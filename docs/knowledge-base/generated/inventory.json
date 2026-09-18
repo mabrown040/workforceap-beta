@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "99ef8ed4624f8f9ffedd3abac4a582652cc4b43cde6f223e9bc2a1be9013b28b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -60535,9 +60535,9 @@
       "path": "components/portal/PageHeader.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 999,
-      "lines": 31,
-      "sha256": "4bd0b51129d4c8d5e5b83b7da610e67ba9986a2705b15450a978562791dd5246",
+      "bytes": 1074,
+      "lines": 33,
+      "sha256": "6e17f73afefeb65b346de248d0308ec3218b76ab0da588e29f0d0a3cbe8ca2ea",
       "binary": false,
       "exports": [
         {
@@ -60752,9 +60752,9 @@
       "path": "components/portal/PortalBreadcrumb.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 2848,
+      "bytes": 2864,
       "lines": 84,
-      "sha256": "f338e2da4b668ade21ecf36f6788fa2c1d87e6c9d5a100975b00af27ff726035",
+      "sha256": "79470cc010999d794815b81301605688863cc3471cbecef51901addb82fc7f52",
       "binary": false,
       "exports": [
         {
@@ -75010,9 +75010,9 @@
       "path": "css/portal-main-extracted.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 268505,
-      "lines": 9990,
-      "sha256": "e87b096b2c86a0f4d4488adc9e8180a8c574d5f3198b4eff1cf41c8f1bc921b2",
+      "bytes": 268618,
+      "lines": 9996,
+      "sha256": "eeab015b01b5fe1cf27445c86f80d96d46b9a7f6fb35464d71aeae77538530a6",
       "binary": false
     },
     {
@@ -75037,9 +75037,9 @@
       "path": "css/portal.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 79625,
-      "lines": 3372,
-      "sha256": "a62b545e7dd1de0b8fbb310b4e889c678049a88efdbb758bdf066eafca92e848",
+      "bytes": 80286,
+      "lines": 3397,
+      "sha256": "f8c88740c6ba1861ab72b1ed97853b997e34617c022852463ac82c5b98c1fe8c",
       "binary": false
     },
     {

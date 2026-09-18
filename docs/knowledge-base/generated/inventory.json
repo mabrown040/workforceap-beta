@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "1ff5ebf3400af834a814939c713aec9ba879773c8e27292e17ed3320328ad8db",
+  "inputTreeSha256": "15e984e7a540207f849dcf37cf0ed15ef814ab355737b15108fbf540976d469b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -114751,31 +114751,31 @@
       "path": "lib/jobs/publicJobFilters.ts",
       "area": "libraries",
       "domain": "jobs-employers",
-      "bytes": 851,
-      "lines": 25,
-      "sha256": "fbcdb3ba3c3107d14738f634cb697e8aa9244a5708a727f4cd77f13faf7bd9a5",
+      "bytes": 1222,
+      "lines": 36,
+      "sha256": "7d0f0abfb0ff36fcc360deacde6a56dad99238a769349ef7072a7d2fdbed23a5",
       "binary": false,
       "exports": [
         {
           "name": "isExcludedPublicEmployerName",
-          "line": 4,
+          "line": 8,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isExcludedPublicJobTitle",
-          "line": 21,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "isExcludedPublicEmployerName",
-          "line": 4,
+          "line": 8,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isExcludedPublicJobTitle",
-          "line": 21,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154527,6 +154527,18 @@
       "bytes": 1048,
       "lines": 22,
       "sha256": "276b4cc60b08a241803a325875c342cc55eae6ade9e9e99a9c2efc0bdec37af8",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/public-job-filters.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2302,
+      "lines": 81,
+      "sha256": "4dbcf5c32416fb1bc857c4c3de2b8653303f19148650b823525f1e5cdd9f3da1",
       "binary": false,
       "exports": [],
       "declarations": [],

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "1ff5ebf3400af834a814939c713aec9ba879773c8e27292e17ed3320328ad8db",
+  "inputTreeSha256": "15e984e7a540207f849dcf37cf0ed15ef814ab355737b15108fbf540976d469b",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4547,
-    "sourceModules": 3223,
-    "importReferences": 15239,
-    "resolvedLocalReferences": 10159,
+    "files": 4548,
+    "sourceModules": 3224,
+    "importReferences": 15241,
+    "resolvedLocalReferences": 10160,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 652,
-    "testCandidates": 645,
+    "testFiles": 653,
+    "testCandidates": 646,
     "testHelpers": 7,
-    "staticallySelectedTests": 642,
+    "staticallySelectedTests": 643,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 325
+      "files": 326
     }
   ],
   "mostReferenced": [

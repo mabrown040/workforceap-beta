@@ -1,11 +1,18 @@
+import type { ReactNode } from 'react';
 import { Check, Mic, TrendingUp, Zap, Flag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface, PageOpener, ProgressRing, KitEmptyState } from '@/components/portal/kit';
+import type { ReadinessPriorityAction } from '@/lib/readiness/progressView';
 
 /**
- * Member Portal — progress / readiness (kit ProgressRing + weekly stats +
- * milestones). Live at `/dashboard/readiness`; proof at `/dev/member/progress`.
- * Surface: warm (member-facing).
+ * Member Portal — progress / readiness (kit ProgressRing + area percents +
+ * milestones + optional progress summary). Live at `/dashboard/readiness`;
+ * proof at `/dev/member/progress`. Surface: warm (member-facing).
+ *
+ * Numbers are passed in from `buildReadinessProgressView` (weighted score
+ * breakdown). This kit does not invent scores. A load failure is an explicit
+ * empty/error, not a 0% ring. The summary slot is kit-token UI composed by
+ * the page — do not mount Astryx inside this file.
  */
 
 interface WeekStat {
@@ -23,13 +30,18 @@ interface Milestone {
 }
 
 export interface MemberProgressKitProps {
-  /** Job-readiness score 0–100. */
+  /** Job-readiness score 0–100 (capped weighted point total). */
   readinessScore?: number;
   readinessNote?: string;
   weekStats?: WeekStat[];
   statsHeading?: string;
   milestones?: Milestone[];
   readinessCoachHref?: string;
+  nextAction?: ReadinessPriorityAction | null;
+  /** Honest error when the score breakdown failed to load. */
+  loadFailed?: boolean;
+  /** Kit-token recap (factual, then optional AI rewrite of the same facts). */
+  summary?: ReactNode;
 }
 
 const DEFAULT_WEEK_STATS: WeekStat[] = [];
@@ -44,11 +56,14 @@ const MILESTONE_META: Record<MilestoneState, { icon: LucideIcon; iconSize: numbe
 
 export function MemberProgressKit({
   readinessScore = 0,
-  readinessNote = 'Complete Training Preassessment to see a score.',
+  readinessNote = 'Your score fills in from profile, resume, training, and job activity.',
   weekStats = DEFAULT_WEEK_STATS,
   statsHeading = 'Progress by area',
   milestones = DEFAULT_MILESTONES,
   readinessCoachHref = '/dashboard/ai-tools/studio?tab=session&agent=readiness',
+  nextAction = null,
+  loadFailed = false,
+  summary,
 }: MemberProgressKitProps) {
   const score = Math.max(0, Math.min(100, Math.round(readinessScore)));
 
@@ -61,6 +76,20 @@ export function MemberProgressKit({
           lede="Score, this week, next milestone."
           icon={<TrendingUp size={13} aria-hidden="true" />}
         />
+        {loadFailed ? (
+          <div className="wa-kit-card" data-portal-error-state="member-readiness-load">
+            <KitEmptyState
+              title="Couldn't load your readiness score"
+              description="Refresh the page. If this keeps happening, message your counselor."
+              action={
+                <a href={readinessCoachHref} className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                  <Mic size={14} aria-hidden="true" />
+                  Open readiness coach
+                </a>
+              }
+            />
+          </div>
+        ) : (
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Job readiness ring */}
           <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -71,10 +100,36 @@ export function MemberProgressKit({
               Score
             </h2>
             <ProgressRing pct={score} size={160} color="success" label="Readiness score" />
-            <p className="wa-kit-lede" style={{ marginTop: 12 }}>{readinessNote}</p>
+            {nextAction ? (
+              <p className="wa-kit-lede" style={{ marginTop: 12 }}>
+                Next:{' '}
+                <a
+                  href={nextAction.href}
+                  className="wa-kit-focus hover:wa-opacity-90"
+                  style={{ color: 'var(--wa-accent)', fontWeight: 700 }}
+                >
+                  {nextAction.label}
+                </a>
+              </p>
+            ) : (
+              <p className="wa-kit-lede" style={{ marginTop: 12 }}>{readinessNote}</p>
+            )}
+            {nextAction ? (
+              <a
+                href={nextAction.href}
+                className="wa-kit-cta wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                style={{ marginTop: 16 }}
+              >
+                {nextAction.ctaLabel}
+              </a>
+            ) : null}
             <a
               href={readinessCoachHref}
-              className="wa-kit-cta wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+              className={
+                nextAction
+                  ? 'wa-kit-cta wa-kit-cta--ghost wa-kit-cta--block wa-kit-focus hover:wa-opacity-90'
+                  : 'wa-kit-cta wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none'
+              }
               style={{ marginTop: 16 }}
             >
               <Mic size={14} aria-hidden />
@@ -90,10 +145,10 @@ export function MemberProgressKit({
             {weekStats.length === 0 ? (
               <KitEmptyState
                 title="No category scores yet"
-                description="Scores appear after Training Preassessment."
+                description="Scores appear as you complete profile, resume, training, and job applications."
                 action={
-                  <a href="/dashboard/assessment" className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
-                    Open skills check
+                  <a href="/dashboard/profile" className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                    Open profile
                   </a>
                 }
               />
@@ -114,7 +169,7 @@ export function MemberProgressKit({
             {milestones.length === 0 ? (
               <KitEmptyState
                 title="No milestones yet"
-                description="Milestones fill in as you complete intake, training, and interviews."
+                description="Milestones follow the four readiness areas as profile, training, jobs, and engagement fill in."
               />
             ) : (
             <div className="wa-space-y-3">
@@ -147,6 +202,8 @@ export function MemberProgressKit({
             )}
           </div>
         </div>
+        )}
+        {summary}
       </div>
     </DesignSurface>
   );

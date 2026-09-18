@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "e5ea5af9b033ab7ad05106f7f3b23db07d1a5357f98b0ac82d17751939e80d5f",
+  "inputTreeSha256": "0a273f77a9ad18eb0410e6a70d6fcc4243f5a25c8edd241684ac9c5d6a33a7d1",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,24 +8,24 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4577,
-    "sourceModules": 3252,
-    "importReferences": 15379,
-    "resolvedLocalReferences": 10241,
+    "files": 4588,
+    "sourceModules": 3263,
+    "importReferences": 15414,
+    "resolvedLocalReferences": 10263,
     "unresolvedLocalReferences": 0,
-    "routeFiles": 1049,
-    "nextRouteFiles": 1016,
+    "routeFiles": 1051,
+    "nextRouteFiles": 1018,
     "apiHandlers": 488,
-    "pageFiles": 310,
+    "pageFiles": 312,
     "astroPageFiles": 33,
     "configuredCrons": 30,
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 669,
-    "testCandidates": 662,
+    "testFiles": 671,
+    "testCandidates": 664,
     "testHelpers": 7,
-    "staticallySelectedTests": 659,
+    "staticallySelectedTests": 661,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 658
+      "files": 660
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 932
+      "files": 936
     },
     {
       "area": "localization",
@@ -86,11 +86,11 @@
     },
     {
       "area": "operations",
-      "files": 121
+      "files": 122
     },
     {
       "area": "pages",
-      "files": 632
+      "files": 634
     },
     {
       "area": "root",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 336
+      "files": 338
     }
   ],
   "mostReferenced": [

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "e5ea5af9b033ab7ad05106f7f3b23db07d1a5357f98b0ac82d17751939e80d5f",
+  "inputTreeSha256": "0a273f77a9ad18eb0410e6a70d6fcc4243f5a25c8edd241684ac9c5d6a33a7d1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -20242,9 +20242,9 @@
       "path": "app/admin/students/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 13080,
-      "lines": 345,
-      "sha256": "0844123de405fa611d4132808f03cb4a17b7ec72ad76b282cd53659855b39113",
+      "bytes": 13235,
+      "lines": 348,
+      "sha256": "83667e34185fa0f1fb1e70daff452269530ca52a9f8d8c1a3ee067d717a4bf99",
       "binary": false,
       "exports": [
         {
@@ -44640,6 +44640,106 @@
       "directive": null
     },
     {
+      "path": "app/dev/staff/students-roster/page.tsx",
+      "area": "pages",
+      "domain": "pages",
+      "bytes": 2280,
+      "lines": 70,
+      "sha256": "3b1571c47910ff7a189c79c07ab118c18d34280a44ed5187206e69557914e9c3",
+      "binary": false,
+      "exports": [
+        {
+          "name": "dynamic",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 66,
+          "kind": "FunctionDeclaration",
+          "localName": "DevStaffStudentsRosterPage"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "dynamic",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROGRAMS",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "STATUSES",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "STUDENTS",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "DevStaffStudentsRosterPage",
+          "line": 66,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "app/dev/staff/training-progress/page.tsx",
+      "area": "pages",
+      "domain": "pages",
+      "bytes": 2128,
+      "lines": 61,
+      "sha256": "741487b868b44bc05371be7a1c162ab716114f6891bc11094da116c3095d2f4e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "dynamic",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 51,
+          "kind": "FunctionDeclaration",
+          "localName": "DevStaffTrainingProgressPage"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "dynamic",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROGRAMS",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "PACES",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "ROWS",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "DevStaffTrainingProgressPage",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "app/dev/voice-studio/layout.tsx",
       "area": "pages",
       "domain": "pages",
@@ -52667,9 +52767,9 @@
       "path": "components/admin/TrainingProgressRoster.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 7532,
-      "lines": 254,
-      "sha256": "b414039e61daf4fb1391298c45753f73324203baab893e446cf6a59bd3b1505f",
+      "bytes": 8006,
+      "lines": 271,
+      "sha256": "5bfb60632fa434d02e2318c793ac9a9164335dd3113e9ef83d9aec765ef714aa",
       "binary": false,
       "exports": [
         {
@@ -65164,9 +65264,9 @@
       "path": "components/portal/kit/DataTable.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3606,
-      "lines": 122,
-      "sha256": "dcf04b200b68737e81665e5f0f41a701c41371193235e9e28c114efa3b293676",
+      "bytes": 3810,
+      "lines": 132,
+      "sha256": "e35fa3434e2196da71148e23b783259414cc1876ffe88869a10983fdcd27dbf9",
       "binary": false,
       "exports": [
         {
@@ -65176,7 +65276,7 @@
         },
         {
           "name": "DataTable",
-          "line": 37,
+          "line": 40,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -65188,12 +65288,12 @@
         },
         {
           "name": "DataTableProps",
-          "line": 15,
+          "line": 18,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DataTable",
-          "line": 37,
+          "line": 40,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -65449,12 +65549,51 @@
       "directive": null
     },
     {
+      "path": "components/portal/kit/KitSortHeader.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 935,
+      "lines": 37,
+      "sha256": "3f9fdd6ef98287fc54f6ca90c2a173f7b3f4b29673818d5395cfe14836bae4cc",
+      "binary": false,
+      "exports": [
+        {
+          "name": "KitSortDirection",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "KitSortHeader",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "KitSortDirection",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "KitSortHeaderProps",
+          "line": 5,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "KitSortHeader",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
+    },
+    {
       "path": "components/portal/kit/KitTableShell.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3405,
-      "lines": 116,
-      "sha256": "a74f03acadf60f62be531438e9133d68d39702cd3a9fcd731d93de1b1c573363",
+      "bytes": 4128,
+      "lines": 130,
+      "sha256": "fc593d52920b634719f81b930d02ef17641dc88173006b03f8a8e1262310149c",
       "binary": false,
       "exports": [
         {
@@ -65464,12 +65603,12 @@
         },
         {
           "name": "KitTableShellRow",
-          "line": 13,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "KitTableShell",
-          "line": 38,
+          "line": 43,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -65481,17 +65620,17 @@
         },
         {
           "name": "KitTableShellRow",
-          "line": 13,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "KitTableShellProps",
-          "line": 18,
+          "line": 23,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "KitTableShell",
-          "line": 38,
+          "line": 43,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -66629,6 +66768,45 @@
       "directive": null
     },
     {
+      "path": "components/portal/kit/kitTableSort.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 1656,
+      "lines": 55,
+      "sha256": "1cd308f6defb9dcad96ed8ce00b5841d8f741a49759e67abf068612c36fedfeb",
+      "binary": false,
+      "exports": [
+        {
+          "name": "KitSortDirection",
+          "line": 6,
+          "kind": "ReExport"
+        },
+        {
+          "name": "ariaSortForColumn",
+          "line": 8,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "useKitTableSort",
+          "line": 21,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "ariaSortForColumn",
+          "line": 8,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "useKitTableSort",
+          "line": 21,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
+    },
+    {
       "path": "components/portal/kit/pages/PartnerOverviewKit.module.css",
       "area": "components",
       "domain": "components",
@@ -67688,50 +67866,50 @@
       "path": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 6676,
-      "lines": 234,
-      "sha256": "ac8709122f3d741e825f1ca2c07b58c8668d7ec4c47ae61f2065d8bd758497f2",
+      "bytes": 8186,
+      "lines": 277,
+      "sha256": "a5f25e19b3913808d55c092ce9e9a0e241170421b2632fbafb8a38a68b26d00a",
       "binary": false,
       "exports": [
         {
           "name": "CounselorRow",
-          "line": 23,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CounselorsRosterKitProps",
-          "line": 41,
+          "line": 51,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CounselorsRosterKit",
-          "line": 59,
+          "line": 69,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "CounselorRow",
-          "line": 23,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CounselorsRosterKitProps",
-          "line": 41,
+          "line": 51,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "LOAD_TOKEN_COLOR",
-          "line": 53,
+          "line": 63,
           "kind": "Variable"
         },
         {
           "name": "CounselorsRosterKit",
-          "line": 59,
+          "line": 69,
           "kind": "FunctionDeclaration"
         }
       ],
-      "directive": null
+      "directive": "use client"
     },
     {
       "path": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
@@ -68589,61 +68767,61 @@
       "path": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 6462,
-      "lines": 237,
-      "sha256": "45c0c6187eb9f8d67cbecaaa88a9d92daa393a97816b405e670d0212cbafda3c",
+      "bytes": 7793,
+      "lines": 270,
+      "sha256": "0132f1f89c1718fd0433dcd8d6030e7f66ce73dccbd646a20fe753dee0f01fd9",
       "binary": false,
       "exports": [
         {
           "name": "JobDisplayStatus",
-          "line": 29,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "JobRow",
-          "line": 37,
+          "line": 45,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "JobsBoardKitProps",
-          "line": 49,
+          "line": 57,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "JobsBoardKit",
-          "line": 96,
+          "line": 104,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "JobDisplayStatus",
-          "line": 29,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "JobRow",
-          "line": 37,
+          "line": 45,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "JobsBoardKitProps",
-          "line": 49,
+          "line": 57,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_JOBS",
-          "line": 57,
+          "line": 65,
           "kind": "Variable"
         },
         {
           "name": "STATUS_TONE",
-          "line": 87,
+          "line": 95,
           "kind": "Variable"
         },
         {
           "name": "JobsBoardKit",
-          "line": 96,
+          "line": 104,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -68982,71 +69160,71 @@
       "path": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8968,
-      "lines": 289,
-      "sha256": "53102edd6af6d92ffd4c6d057b235753a26af8b12828c901e85a26ae5c3d6f69",
+      "bytes": 10566,
+      "lines": 328,
+      "sha256": "5e4e9cc3300a1e487b199e97cc9bb820a55b931c1159dfea36036109b1a25be7",
       "binary": false,
       "exports": [
         {
           "name": "SurveyStatus",
-          "line": 33,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ConfirmStatus",
-          "line": 35,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PlacementRow",
-          "line": 37,
+          "line": 45,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PlacementsKitProps",
-          "line": 58,
+          "line": 66,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PlacementsKit",
-          "line": 84,
+          "line": 92,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "SurveyStatus",
-          "line": 33,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ConfirmStatus",
-          "line": 35,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PlacementRow",
-          "line": 37,
+          "line": 45,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PlacementsKitProps",
-          "line": 58,
+          "line": 66,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "SURVEY_TONE",
-          "line": 74,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "STATUS_TONE",
-          "line": 79,
+          "line": 87,
           "kind": "Variable"
         },
         {
           "name": "PlacementsKit",
-          "line": 84,
+          "line": 92,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -69307,96 +69485,96 @@
       "path": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 11393,
-      "lines": 346,
-      "sha256": "c778b0736b2cb18e09973938ed29c142571457d0236521b73af470d260819716",
+      "bytes": 13483,
+      "lines": 414,
+      "sha256": "74c537e49ac67762be12920ead31021b87790184df4d3a801f2e3379baa7d790",
       "binary": false,
       "exports": [
         {
           "name": "StudentStatus",
-          "line": 30,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentRow",
-          "line": 32,
+          "line": 39,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StudentFilter",
-          "line": 58,
+          "line": 67,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentsRosterKitProps",
-          "line": 60,
+          "line": 69,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StudentsRosterKit",
-          "line": 156,
+          "line": 165,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "StudentStatus",
-          "line": 30,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentRow",
-          "line": 32,
+          "line": 39,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StudentFilter",
-          "line": 58,
+          "line": 67,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentsRosterKitProps",
-          "line": 60,
+          "line": 69,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_STUDENTS",
-          "line": 66,
+          "line": 75,
           "kind": "Variable"
         },
         {
           "name": "FILTERS",
-          "line": 121,
+          "line": 130,
           "kind": "Variable"
         },
         {
           "name": "STATUS_TOKEN_COLOR",
-          "line": 124,
+          "line": 133,
           "kind": "Variable"
         },
         {
           "name": "matchesFilter",
-          "line": 132,
+          "line": 141,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatRosterGrade",
-          "line": 139,
+          "line": 148,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readinessColor",
-          "line": 145,
+          "line": 154,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readinessVar",
-          "line": 152,
+          "line": 161,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "StudentsRosterKit",
-          "line": 156,
+          "line": 165,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -69564,60 +69742,75 @@
       "path": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 9142,
-      "lines": 295,
-      "sha256": "70580bd2740f596ee7e38f02f1e11e561c86230661be69e86835e570365ca356",
+      "bytes": 11433,
+      "lines": 360,
+      "sha256": "d1a8a2c920b8e7481dda7aeb2fb612457560ec46599469045347bc9bed1a1499",
       "binary": false,
       "exports": [
         {
           "name": "Pace",
-          "line": 27,
+          "line": 31,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TrainingRow",
-          "line": 29,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TrainingProgressKitProps",
-          "line": 51,
+          "line": 55,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TrainingProgressKit",
-          "line": 78,
+          "line": 95,
           "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "TRAINING_PROGRESS_SORT_COLUMNS",
+          "line": 360,
+          "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "Pace",
-          "line": 27,
+          "line": 31,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TrainingRow",
-          "line": 29,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TrainingProgressKitProps",
-          "line": 51,
+          "line": 55,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PACE_TOKEN_COLOR",
-          "line": 71,
+          "line": 79,
+          "kind": "Variable"
+        },
+        {
+          "name": "SORTABLE_COLUMNS",
+          "line": 86,
           "kind": "Variable"
         },
         {
           "name": "TrainingProgressKit",
-          "line": 78,
+          "line": 95,
           "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "TRAINING_PROGRESS_SORT_COLUMNS",
+          "line": 360,
+          "kind": "Variable"
         }
       ],
-      "directive": null
+      "directive": "use client"
     },
     {
       "path": "components/portal/kit/pages/admin-subviews/UsersKit.tsx",
@@ -74788,9 +74981,9 @@
       "path": "css/portal-kit.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 29580,
-      "lines": 800,
-      "sha256": "b746c099a567c8626c37b654edec2e35052373f82f3af195a4e17dbae75c1aa0",
+      "bytes": 30590,
+      "lines": 848,
+      "sha256": "99fda843dc945c1f5010d591e23f91afeb8157b4c97b8a1415ce640e52ba6e10",
       "binary": false
     },
     {
@@ -83825,6 +84018,95 @@
       "directive": null
     },
     {
+      "path": "lib/admin/counselorsRosterSort.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 2277,
+      "lines": 74,
+      "sha256": "38361c1c6095e90634026473d3811693ff6e93f041c09cdd4fbfec5cd4c8c218",
+      "binary": false,
+      "exports": [
+        {
+          "name": "COUNSELOR_SORT_KEYS",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "CounselorSortKey",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CounselorSortDirection",
+          "line": 13,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_COUNSELOR_SORT_KEY",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_COUNSELOR_SORT_DIRECTION",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "sortCounselorRows",
+          "line": 54,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "COUNSELOR_SORT_KEYS",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "CounselorSortKey",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CounselorSortDirection",
+          "line": 13,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_COUNSELOR_SORT_KEY",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_COUNSELOR_SORT_DIRECTION",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "LOAD_RANK",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "responseMinutes",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "compareOn",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortCounselorRows",
+          "line": 54,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/courseraConsentGate.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -84934,6 +85216,95 @@
       "directive": null
     },
     {
+      "path": "lib/admin/jobsBoardSort.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 1964,
+      "lines": 65,
+      "sha256": "596e856975c55dcec8fd2fb4a64c808293740c64c116af0289b206cb69132f9f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "JOB_SORT_KEYS",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "JobSortKey",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "JobSortDirection",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_JOB_SORT_KEY",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_JOB_SORT_DIRECTION",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "sortJobRows",
+          "line": 45,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "JOB_SORT_KEYS",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "JobSortKey",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "JobSortDirection",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_JOB_SORT_KEY",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_JOB_SORT_DIRECTION",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "STATUS_RANK",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "wageValue",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "compareOn",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortJobRows",
+          "line": 45,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/logCronRun.ts",
       "area": "libraries",
       "domain": "administration",
@@ -85464,6 +85835,100 @@
       "directive": null
     },
     {
+      "path": "lib/admin/placementsRosterSort.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 2200,
+      "lines": 72,
+      "sha256": "b9425353f2368e66120b73622a544ffb80ac06ac88163dc6d78583dede1aa389",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PLACEMENT_SORT_KEYS",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "PlacementSortKey",
+          "line": 16,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PlacementSortDirection",
+          "line": 17,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_PLACEMENT_SORT_KEY",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_PLACEMENT_SORT_DIRECTION",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "sortPlacementRows",
+          "line": 52,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PLACEMENT_SORT_KEYS",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "PlacementSortKey",
+          "line": 16,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PlacementSortDirection",
+          "line": 17,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_PLACEMENT_SORT_KEY",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_PLACEMENT_SORT_DIRECTION",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "SURVEY_RANK",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "STATUS_RANK",
+          "line": 23,
+          "kind": "Variable"
+        },
+        {
+          "name": "wageValue",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "compareOn",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortPlacementRows",
+          "line": 52,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/roleLabels.ts",
       "area": "libraries",
       "domain": "administration",
@@ -85687,6 +86152,110 @@
         {
           "name": "loadStudentRosterEnrichment",
           "line": 78,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/studentsRosterSort.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 2887,
+      "lines": 98,
+      "sha256": "5f01449ab5f05249cb2f182e02823833e92ba13929c20991e8b18f4aaf5e1b69",
+      "binary": false,
+      "exports": [
+        {
+          "name": "STUDENT_SORT_KEYS",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "StudentSortKey",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "StudentSortDirection",
+          "line": 19,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_STUDENT_SORT_KEY",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_STUDENT_SORT_DIRECTION",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "sortStudentRows",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isStudentSortKey",
+          "line": 96,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "STUDENT_SORT_KEYS",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "StudentSortKey",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "StudentSortDirection",
+          "line": 19,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_STUDENT_SORT_KEY",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_STUDENT_SORT_DIRECTION",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "STATUS_RANK",
+          "line": 24,
+          "kind": "Variable"
+        },
+        {
+          "name": "gradeOf",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "lastActiveMs",
+          "line": 37,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "compareOn",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortStudentRows",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isStudentSortKey",
+          "line": 96,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -141900,6 +142469,39 @@
       "directive": null
     },
     {
+      "path": "scripts/capture-roster-after-screenshots.mjs",
+      "area": "operations",
+      "domain": "operations",
+      "bytes": 2747,
+      "lines": 85,
+      "sha256": "0dd2d863151f775dd4b531f058a85650c3daf627d8c6101b912ea4a4a7e3039d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "OUT_DIR",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "TARGETS",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "waitForServer",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "captureComposite",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "scripts/check-b4b-programs.ts",
       "area": "operations",
       "domain": "operations",
@@ -152034,9 +152636,9 @@
       "path": "tests/components/admin-training-progress-roster.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 9799,
-      "lines": 237,
-      "sha256": "c07add67c967fb3d96c878f44719cb86265644b6accb2c5e79f54adf16957ba7",
+      "bytes": 10801,
+      "lines": 262,
+      "sha256": "b165071ebbfd3fc66c0f084515a1299e0ac63f9680bca1ccd7b9cd5dead263cf",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152062,12 +152664,12 @@
         },
         {
           "name": "kpi",
-          "line": 80,
+          "line": 81,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "renderRoster",
-          "line": 87,
+          "line": 88,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152621,9 +153223,9 @@
       "path": "tests/components/students-roster-identity.spec.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2250,
-      "lines": 51,
-      "sha256": "a68f52c83c973bcdb2a695b253b6ba937141f60a6672c91caeeaa7653bfad297",
+      "bytes": 2345,
+      "lines": 53,
+      "sha256": "b5a2493dc87e8acc216f12bff9edb252f879931d5fc9a67e07aab6991ca18f9c",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152636,6 +153238,29 @@
           "name": "students",
           "line": 9,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/students-roster-sort.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2981,
+      "lines": 92,
+      "sha256": "5c0c494bf12f5cbd33ce206f16d05784abdae3d91a902b05da28631644905f58",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "rows",
+          "line": 23,
+          "kind": "Variable"
+        },
+        {
+          "name": "namesInTable",
+          "line": 65,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -155654,6 +156279,44 @@
         {
           "name": "validatedCourses",
           "line": 39,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/students-roster-sort.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2159,
+      "lines": 56,
+      "sha256": "d749898257aa0869ea24db9fedf6012136c68c183b4749973df2e2ab56c649ae",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "row",
+          "line": 10,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "A",
+          "line": 25,
+          "kind": "Variable"
+        },
+        {
+          "name": "B",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "C",
+          "line": 27,
+          "kind": "Variable"
+        },
+        {
+          "name": "ALL",
+          "line": 28,
           "kind": "Variable"
         }
       ],

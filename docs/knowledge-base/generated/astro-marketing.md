@@ -100,7 +100,7 @@
 | [marketing/src/pages/partners.astro](../../../marketing/src/pages/partners.astro) | 642 | astro-marketing |  |
 | [marketing/src/pages/partners/thank-you.astro](../../../marketing/src/pages/partners/thank-you.astro) | 214 | partners-funding |  |
 | [marketing/src/pages/privacy.astro](../../../marketing/src/pages/privacy.astro) | 621 | astro-marketing |  |
-| [marketing/src/pages/program-comparison.astro](../../../marketing/src/pages/program-comparison.astro) | 440 | astro-marketing |  |
+| [marketing/src/pages/program-comparison.astro](../../../marketing/src/pages/program-comparison.astro) | 699 | astro-marketing |  |
 | [marketing/src/pages/programs.astro](../../../marketing/src/pages/programs.astro) | 623 | astro-marketing |  |
 | [marketing/src/pages/programs/\[slug\].astro](../../../marketing/src/pages/programs/%5Bslug%5D.astro) | 577 | public-experience |  |
 | [marketing/src/pages/programs/google-it-support.astro](../../../marketing/src/pages/programs/google-it-support.astro) | 327 | public-experience |  |

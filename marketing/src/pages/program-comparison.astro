@@ -12,6 +12,7 @@ const tracks = PROGRAM_COMPARISON_TRACKS.map((track) => {
   if (!program) throw new Error(`Comparison program missing: ${track.slug}`);
   return {
     slug: program.slug,
+    shortName: track.shortName,
     title: program.title,
     duration: program.duration,
     categoryLabel: track.categoryLabel,
@@ -120,7 +121,7 @@ const factors = [
   <div class="sec-head">
     <span class="eyebrow">How to use this page</span>
     <h2>Pick based on <span class="grad-text">what matters most</span></h2>
-    <p>Start with your interests and available study time. Use the published preparation notes and an advisor conversation to narrow your choices.</p>
+    <p>Start with your interests and available study time. Select 2 to 4 tracks to open the side-by-side matrix. Use the published preparation notes and an advisor conversation to narrow your choices.</p>
   </div>
   <div class="choose">
     {factors.map((f, i) => (
@@ -136,7 +137,7 @@ const factors = [
 
 <!-- ══════════════════════════════ RECOMMENDED STARTING POINTS ══════════════════════════════ -->
 <section class="band band--surface"><div class="wrap">
-  <div class="sec-head" style="max-width:640px">
+  <div class="sec-head">
     <span class="eyebrow">Recommended starting points</span>
     <h2>Three common <span class="grad-text">front doors</span></h2>
     <p>Explore these starting points, then compare preparation and course content before choosing a track.</p>
@@ -152,6 +153,10 @@ const factors = [
         </div>
         <div class="acard-acts">
           <a class="btn btn--ghost" href={`/programs/${t.slug}`}>Program detail</a>
+          <label class="cmp-check">
+            <input type="checkbox" data-compare-slug={t.slug} aria-label={`Add ${t.shortName} to comparison`} />
+            <span>Compare</span>
+          </label>
           <a class="btn btn--primary" href={`/apply?program=${t.slug}`}>Apply →</a>
         </div>
       </article>
@@ -164,17 +169,43 @@ const factors = [
 
 <!-- ══════════════════════════════ SIDE-BY-SIDE COMPARISON TABLE ══════════════════════════════ -->
 <section class="band" id="compare-table"><div class="wrap">
-  <div class="sec-head" style="text-align:left;align-items:flex-start;max-width:46rem">
+  <div class="sec-head sec-head--left">
     <span class="eyebrow">Side-by-side</span>
-    <h2 style="margin-bottom:8px">Compare all {trackCount} career tracks</h2>
-    <p>Published study commitment, Coursera language support, preparation, training providers, and roles to research — grouped by field.</p>
+    <h2>Compare all {trackCount} career tracks</h2>
+    <p>Check 2 to 4 programs, then scan the matrix. Published study commitment, Coursera language support, preparation, training providers, and roles to research — grouped by field.</p>
   </div>
 
+  <div class="cmp-toolbar">
+    <p id="compare-status" aria-live="polite">
+      <strong>Select 2–4 programs</strong> from the starters or the table. <span class="cmp-toolbar-count">0 selected — add 2 more.</span>
+    </p>
+  </div>
+
+  <section class="cmp-sidebyside" id="compare-matrix" hidden aria-labelledby="sidebyside-heading">
+    <div class="cmp-sidebyside-header">
+      <h3 id="sidebyside-heading">Side-by-side comparison</h3>
+      <button type="button" class="btn btn--ghost btn--sm" id="clear-compare">Clear selection</button>
+    </div>
+    <div class="cmp-matrix-wrap" role="region" aria-label="Selected program comparison" tabindex="0" aria-describedby="compare-matrix-hint">
+      <p class="cmp-scroll-hint" id="compare-matrix-hint">Scroll sideways to see every selected track.</p>
+      <table class="cmp-matrix">
+        <thead>
+          <tr id="compare-matrix-head">
+            <th scope="col">Criteria</th>
+          </tr>
+        </thead>
+        <tbody id="compare-matrix-body"></tbody>
+      </table>
+    </div>
+  </section>
+
   <!-- Wide table wraps with horizontal scroll on narrow screens -->
-  <div class="cmp-wrap" role="region" aria-label="Program comparison table" tabindex="0">
+  <div class="cmp-wrap" role="region" aria-label="Program comparison table" tabindex="0" aria-describedby="compare-table-hint">
+    <p class="cmp-scroll-hint" id="compare-table-hint">On a wide screen, the track name stays in view while you scroll.</p>
     <table class="cmp">
       <thead>
         <tr>
+          <th scope="col" class="cmp-pick">Compare</th>
           <th scope="col" class="cmp-track">Track</th>
           <th scope="col">Duration</th>
           <th scope="col">Languages</th>
@@ -187,9 +218,26 @@ const factors = [
       <tbody>
         {categories.map((cat) => (
           <>
-            <tr class="cmp-cat"><th scope="colgroup" colspan="7">{cat.label}</th></tr>
+            <tr class="cmp-cat"><th scope="colgroup" colspan="8">{cat.label}</th></tr>
             {cat.tracks.map((t) => (
-              <tr>
+              <tr
+                class="cmp-track-row"
+                data-slug={t.slug}
+                data-short={t.shortName}
+                data-href={`/programs/${t.slug}`}
+                data-apply={`/apply?program=${t.slug}`}
+                data-duration={t.duration}
+                data-languages={t.languages}
+                data-preparation={t.preparation}
+                data-roles={t.roles.join(' · ')}
+                data-provider={t.provider}
+              >
+                <td class="cmp-pick" data-label="Compare">
+                  <label class="cmp-check">
+                    <input type="checkbox" data-compare-slug={t.slug} aria-label={`Include ${t.shortName} in comparison`} />
+                    <span class="cmp-check-text">Compare</span>
+                  </label>
+                </td>
                 <th scope="row" class="cmp-track" data-label="Track">
                   <a href={`/programs/${t.slug}`}>{t.title}</a>
                 </th>
@@ -199,7 +247,7 @@ const factors = [
                 <td data-label="Roles to research">{t.roles.join(' · ')}</td>
                 <td data-label="Training providers">{t.provider}</td>
                 <td data-label="Apply" class="cmp-act">
-                  <a class="btn btn--ghost" style="padding:11px 16px;font-size:13px" href={`/apply?program=${t.slug}`}>Apply</a>
+                  <a class="btn btn--ghost btn--sm" href={`/apply?program=${t.slug}`}>Apply</a>
                 </td>
               </tr>
             ))}
@@ -214,6 +262,11 @@ const factors = [
 
 <!-- ══════════════════════════════ HELP / NO-COST BAND ══════════════════════════════ -->
 <section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">After you compare</span>
+    <h2>Need a hand choosing?</h2>
+    <p>An advisor can map a sequence from the tracks you just compared. Qualifying members train at no cost.</p>
+  </div>
   <div class="help-grid">
     <div class="help-card">
       <div class="help-ic"><Icon name="map" size={24} /></div>
@@ -253,7 +306,181 @@ const factors = [
 
 </div>
 
-<style>
+<script is:inline>
+  // Pick 2–4 tracks → side-by-side matrix (progressive enhancement).
+  (function () {
+    var MIN_PICK = 2;
+    var MAX_PICK = 4;
+    var CRITERIA = [
+      { key: 'duration', label: 'Duration' },
+      { key: 'languages', label: 'Languages' },
+      { key: 'preparation', label: 'Preparation' },
+      { key: 'roles', label: 'Roles to research' },
+      { key: 'provider', label: 'Training providers' }
+    ];
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-compare-slug]'));
+    var rows = Array.prototype.slice.call(document.querySelectorAll('.cmp-track-row'));
+    var matrix = document.getElementById('compare-matrix');
+    var headRow = document.getElementById('compare-matrix-head');
+    var body = document.getElementById('compare-matrix-body');
+    var status = document.getElementById('compare-status');
+    var countEl = status ? status.querySelector('.cmp-toolbar-count') : null;
+    var clearBtn = document.getElementById('clear-compare');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!boxes.length || !matrix || !headRow || !body) return;
+
+    var selected = [];
+    var wasOpen = false;
+
+    function uniqueSlugs() {
+      var seen = {};
+      var out = [];
+      selected.forEach(function (slug) {
+        if (!seen[slug]) { seen[slug] = true; out.push(slug); }
+      });
+      return out;
+    }
+
+    function rowFor(slug) {
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].getAttribute('data-slug') === slug) return rows[i];
+      }
+      return null;
+    }
+
+    function syncBoxes() {
+      var picked = uniqueSlugs();
+      var atMax = picked.length >= MAX_PICK;
+      boxes.forEach(function (box) {
+        var slug = box.getAttribute('data-compare-slug');
+        var on = picked.indexOf(slug) !== -1;
+        box.checked = on;
+        box.disabled = !on && atMax;
+      });
+    }
+
+    function setStatus() {
+      var n = uniqueSlugs().length;
+      var more = Math.max(0, MIN_PICK - n);
+      var text;
+      if (n >= MIN_PICK) text = n + ' selected — matrix is on above.';
+      else if (n === 0) text = '0 selected — add ' + MIN_PICK + ' more.';
+      else text = n + ' selected — add ' + more + ' more.';
+      if (countEl) countEl.textContent = text;
+    }
+
+    function writeUrl() {
+      var slugs = uniqueSlugs();
+      var url = new URL(window.location.href);
+      if (slugs.length >= MIN_PICK) url.searchParams.set('compare', slugs.join(','));
+      else url.searchParams.delete('compare');
+      history.replaceState({}, '', url);
+    }
+
+    function cell(tag, text, attrs) {
+      var el = document.createElement(tag);
+      if (text) el.textContent = text;
+      if (attrs) Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      return el;
+    }
+
+    function renderMatrix() {
+      var slugs = uniqueSlugs();
+      var open = slugs.length >= MIN_PICK;
+      matrix.hidden = !open;
+      if (!open) {
+        headRow.replaceChildren(cell('th', 'Criteria', { scope: 'col' }));
+        body.replaceChildren();
+        wasOpen = false;
+        return;
+      }
+      var tracks = slugs.map(rowFor).filter(Boolean);
+      headRow.replaceChildren();
+      headRow.appendChild(cell('th', 'Criteria', { scope: 'col' }));
+      tracks.forEach(function (row) {
+        var name = row.getAttribute('data-short') || row.getAttribute('data-slug');
+        var href = row.getAttribute('data-href') || '#';
+        var th = cell('th', '', { scope: 'col' });
+        var a = cell('a', name, { href: href });
+        th.appendChild(a);
+        headRow.appendChild(th);
+      });
+      body.replaceChildren();
+      CRITERIA.forEach(function (crit) {
+        var tr = document.createElement('tr');
+        tr.appendChild(cell('th', crit.label, { scope: 'row' }));
+        tracks.forEach(function (row) {
+          var td = cell('td', row.getAttribute('data-' + crit.key) || '—', {
+            'data-label': row.getAttribute('data-short') || ''
+          });
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+      var next = document.createElement('tr');
+      next.appendChild(cell('th', 'Next step', { scope: 'row' }));
+      tracks.forEach(function (row) {
+        var name = row.getAttribute('data-short') || 'program';
+        var apply = row.getAttribute('data-apply') || '/apply';
+        var td = cell('td', '', { 'data-label': name });
+        td.appendChild(cell('a', 'Apply', {
+          class: 'btn btn--ghost btn--sm',
+          href: apply
+        }));
+        next.appendChild(td);
+      });
+      body.appendChild(next);
+      if (!wasOpen) {
+        matrix.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+      }
+      wasOpen = true;
+    }
+
+    function apply() {
+      syncBoxes();
+      setStatus();
+      renderMatrix();
+      writeUrl();
+    }
+
+    function toggle(slug, on) {
+      var i = selected.indexOf(slug);
+      if (on) {
+        if (i === -1 && uniqueSlugs().length < MAX_PICK) selected.push(slug);
+      } else if (i !== -1) {
+        selected = selected.filter(function (s) { return s !== slug; });
+      }
+      apply();
+    }
+
+    boxes.forEach(function (box) {
+      box.addEventListener('change', function () {
+        toggle(box.getAttribute('data-compare-slug'), box.checked);
+      });
+    });
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function () {
+        selected = [];
+        apply();
+        var first = boxes[0];
+        if (first) first.focus();
+      });
+    }
+
+    var raw = new URL(window.location.href).searchParams.get('compare');
+    if (raw) {
+      raw.split(',').forEach(function (part) {
+        var slug = part.trim();
+        if (!slug) return;
+        if (!rowFor(slug)) return;
+        if (uniqueSlugs().length < MAX_PICK) selected.push(slug);
+      });
+    }
+    apply();
+  })();
+</script>
+
+<style is:global>
   /* ===================================================================
      PROGRAM COMPARISON — DEPTH aesthetic (matches programs.astro).
      depth stage hero + glass card → light alternating bands w/ a clean
@@ -320,9 +547,12 @@ const factors = [
   .band--surface{background:var(--surface)}
 
   .sec-head{max-width:720px;margin:0 auto 44px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .sec-head--left{text-align:left;align-items:flex-start;max-width:46rem;margin-left:0;margin-right:auto}
   .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+  .sec-head h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);line-height:1.15;letter-spacing:-.02em;margin:0}
   .sec-head p{color:var(--muted);font-size:19px;line-height:1.55}
   .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .btn--sm{padding:12px 16px;font-size:16px;min-height:44px;justify-content:center}
 
   /* how-to-choose grid — stat-led cards: the factor becomes a big headline
      (the "number" of the card) over a small colored index chip, instead of
@@ -339,7 +569,7 @@ const factors = [
   .fcard:nth-child(3) .fcard-idx{background:rgba(164,127,56,.14);color:var(--gold-dark)}
   .fcard:nth-child(4) .fcard-idx{background:rgba(74,155,79,.12);color:#2f6b34}
   .fcard-hero{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.15;margin-bottom:8px}
-  .fcard p{color:var(--muted);font-size:14.5px;line-height:1.55}
+  .fcard p{color:var(--muted);font-size:16px;line-height:1.55}
   @media(max-width:880px){.choose{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.choose{grid-template-columns:1fr}}
 
@@ -353,7 +583,7 @@ const factors = [
     padding:28px;box-shadow:var(--shadow);border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
   .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
   .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
-  .acard p{color:var(--muted);font-size:15px;line-height:1.55;margin-bottom:18px}
+  .acard p{color:var(--muted);font-size:16px;line-height:1.55;margin-bottom:18px}
   .acard-meta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:14px;color:var(--muted);margin-bottom:18px}
   .acard-meta span{display:inline-flex;align-items:center;gap:6px}
   .acard-stars{color:var(--gold-dark);letter-spacing:1px}
@@ -364,44 +594,73 @@ const factors = [
   @media(max-width:880px){.tri{grid-template-columns:1fr}}
 
   /* ---------------- COMPARISON TABLE ---------------- */
-  .cmp-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);background:var(--surface);-webkit-overflow-scrolling:touch}
-  .cmp-wrap:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
-  .cmp{width:100%;border-collapse:collapse;min-width:760px;font-size:15px}
-  .cmp thead th{text-align:left;padding:14px 16px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  .cmp-toolbar{margin:0 0 16px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:16px;line-height:1.5}
+  .cmp-toolbar p{margin:0}
+  .cmp-toolbar-count{color:var(--muted)}
+  .cmp-check{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;cursor:pointer;font-size:16px;font-weight:700;color:var(--text)}
+  .cmp-check input{width:20px;height:20px;accent-color:var(--crimson);flex-shrink:0}
+  .cmp-scroll-hint{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .cmp-sidebyside{margin:0 0 24px;padding:20px 22px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .cmp-sidebyside[hidden]{display:none}
+  .cmp-sidebyside-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .cmp-sidebyside-header h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-.02em;margin:0;color:var(--text)}
+  .cmp-matrix-wrap,.cmp-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);background:var(--surface);-webkit-overflow-scrolling:touch}
+  .cmp-matrix-wrap{box-shadow:none}
+  .cmp-wrap:focus-visible,.cmp-matrix-wrap:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
+  .cmp,.cmp-matrix{width:100%;border-collapse:collapse;min-width:760px;font-size:16px}
+  .cmp-matrix{min-width:520px}
+  .cmp thead th,.cmp-matrix thead th{text-align:left;padding:14px 16px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
     color:var(--muted);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap}
-  .cmp tbody td,.cmp tbody th{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:left;font-weight:400}
+  .cmp tbody td,.cmp tbody th,.cmp-matrix tbody td,.cmp-matrix tbody th{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:top;text-align:left;font-weight:400}
   .cmp tbody tr:hover td,.cmp tbody tr:hover th{background:var(--surface-2)}
-  .cmp .cmp-track{font-weight:700}
-  .cmp .cmp-track a{color:var(--text);font-weight:700;text-decoration:none}
-  .cmp .cmp-track a:hover{color:var(--crimson);text-decoration:underline}
+  .cmp .cmp-track{font-weight:700;position:sticky;left:3.5rem;z-index:1;background:var(--surface)}
+  .cmp thead .cmp-track{left:3.5rem;z-index:2}
+  .cmp .cmp-pick{width:3.5rem;text-align:center;position:sticky;left:0;z-index:2;background:var(--surface-2)}
+  .cmp tbody .cmp-pick{background:var(--surface)}
+  .cmp .cmp-check-text{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+  .cmp .cmp-track a,.cmp-matrix thead a{color:var(--text);font-weight:700;text-decoration:none}
+  .cmp .cmp-track a:hover,.cmp-matrix thead a:hover{color:var(--crimson);text-decoration:underline}
   .cmp .cmp-sal{color:var(--crimson);font-weight:800;white-space:nowrap}
   .cmp .cmp-act{text-align:right}
-  .cmp tr.cmp-cat th{background:rgba(173,44,77,.07);color:var(--crimson);font-size:11px;font-weight:800;letter-spacing:.08em;
-    text-transform:uppercase;padding:8px 16px;border-top:1px solid rgba(173,44,77,.18);border-bottom:1px solid rgba(173,44,77,.18)}
+  .cmp tr.cmp-cat th{background:color-mix(in srgb, var(--crimson) 7%, var(--surface));color:var(--crimson);font-size:13px;font-weight:800;letter-spacing:.08em;
+    text-transform:uppercase;padding:8px 16px;border-top:1px solid color-mix(in srgb, var(--crimson) 18%, var(--border));border-bottom:1px solid color-mix(in srgb, var(--crimson) 18%, var(--border));position:sticky;left:0}
+  .cmp-matrix tbody th[scope="row"]{background:var(--surface-2);font-weight:700;white-space:nowrap;position:sticky;left:0;z-index:1}
+  .cmp-matrix thead th:first-child{position:sticky;left:0;z-index:2}
   .demand{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;
     background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
-  .demand--vh{background:rgba(74,155,79,.12);border-color:transparent;color:var(--green)}
+  .demand--vh{background:color-mix(in srgb, var(--green) 12%, transparent);border-color:transparent;color:var(--green)}
 
   .catalog-foot{margin-top:18px;font-size:13px;color:var(--muted);max-width:760px;line-height:1.5}
 
   /* card-stack the table on phones so nothing overflows the viewport */
   @media(max-width:680px){
-    .cmp-wrap{overflow-x:visible;border:none;box-shadow:none;background:transparent}
-    .cmp{min-width:0;border-collapse:separate;border-spacing:0 0}
+    .cmp-scroll-hint{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    .cmp-wrap,.cmp-matrix-wrap{overflow-x:visible;border:none;box-shadow:none;background:transparent}
+    .cmp,.cmp-matrix{min-width:0;border-collapse:separate;border-spacing:0 0;display:block}
     .cmp thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
     .cmp tbody tr:not(.cmp-cat){display:block;background:var(--surface);border:1px solid var(--border);
       border-radius:var(--radius);box-shadow:var(--shadow);padding:6px 4px;margin-bottom:14px}
     .cmp tbody tr.cmp-cat{display:block;margin:18px 0 10px}
-    .cmp tr.cmp-cat th{display:block;border-radius:8px}
+    .cmp tr.cmp-cat th{display:block;border-radius:8px;position:static}
     .cmp tbody td,.cmp tbody th{display:flex;justify-content:space-between;gap:16px;align-items:center;
       border-bottom:1px solid var(--border);padding:10px 14px;text-align:right}
     .cmp tbody tr:not(.cmp-cat) :last-child{border-bottom:none}
-    .cmp tbody td::before,.cmp tbody th[data-label]::before{content:attr(data-label);font-size:12px;font-weight:800;
+    .cmp tbody td::before,.cmp tbody th[data-label]::before{content:attr(data-label);font-size:13px;font-weight:800;
       letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:left}
-    .cmp .cmp-track{justify-content:space-between}
+    .cmp .cmp-track,.cmp .cmp-pick{position:static;justify-content:space-between;background:transparent}
     .cmp .cmp-track::before{content:'Track'}
+    .cmp .cmp-check-text{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:unset;clip-path:none}
     .cmp .cmp-act{justify-content:flex-end}
     .cmp tbody tr:hover td,.cmp tbody tr:hover th{background:transparent}
+    .cmp-matrix thead{display:none}
+    .cmp-matrix tbody{display:block}
+    .cmp-matrix tbody tr{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+    .cmp-matrix tbody th[scope="row"]{display:block;position:static;padding:0 0 10px;margin-bottom:8px;border-bottom:1px solid var(--border);white-space:normal}
+    .cmp-matrix tbody td{display:block;padding:8px 0;border-bottom:none}
+    .cmp-matrix tbody td + td{border-top:1px solid var(--border);margin-top:6px;padding-top:10px}
+    .cmp-matrix tbody td::before{content:attr(data-label);display:block;font-size:13px;font-weight:800;letter-spacing:.04em;
+      text-transform:uppercase;color:var(--muted);margin-bottom:4px;text-align:left}
   }
 
   /* ---------------- HELP / NO-COST GRID ---------------- */
@@ -410,7 +669,7 @@ const factors = [
   .help-card{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--border);
     border-radius:var(--radius);padding:30px;box-shadow:var(--shadow)}
   .help-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:800}
-  .help-card p{color:var(--muted);font-size:15px;line-height:1.6}
+  .help-card p{color:var(--muted);font-size:16px;line-height:1.6}
   .help-ic{width:48px;height:48px;border-radius:12px;background:rgba(173,44,77,.12);display:grid;place-items:center;color:var(--crimson)}
   .help-acts{margin-top:auto;display:flex;gap:10px;flex-wrap:wrap}
   .help-card--accent{background:var(--crimson);color:#fff;border-color:transparent}

@@ -15,6 +15,21 @@ test('program search hidden cards override the flex card layout', () => {
   assert.match(programs, /\.pcard\[hidden\]\s*\{\s*display\s*:\s*none\s*\}/);
 });
 
+test('program comparison pick-to-compare matrix is in the Astro page', () => {
+  const page = source('marketing/src/pages/program-comparison.astro');
+
+  assert.match(page, /data-compare-slug/);
+  assert.match(page, /id="compare-matrix"/);
+  assert.match(page, /id="sidebyside-heading"/);
+  assert.match(page, /MIN_PICK = 2/);
+  assert.match(page, /MAX_PICK = 4/);
+  assert.match(page, /aria-live="polite"/);
+  assert.match(page, /<h2>Need a hand choosing\?<\/h2>/);
+  assert.match(page, /<h3 id="sidebyside-heading">Side-by-side comparison<\/h3>/);
+  assert.match(page, /btn--sm/);
+  assert.doesNotMatch(page, /<h4[\s>]/);
+});
+
 test('both pathfinders link to the real comparison page without unsupported selection copy', () => {
   const marketingPathfinder = source('marketing/src/components/FindYourPathQuiz.tsx');
   const appPathfinder = source('app/(decision-journey)/find-your-path/FindYourPathClient.tsx');

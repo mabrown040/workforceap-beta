@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "991389357cb8f4c3ae5b1f8e6d85ebaadae1c8c09513bd108960236abc25a2f0",
+  "inputTreeSha256": "9e693326dca5fa4657d334a3f89e035160386b1a625ca2d7aa43bf1fc847021e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -58149,14 +58149,14 @@
       "path": "components/portal/DashboardFooter.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 912,
-      "lines": 29,
-      "sha256": "5a728a9995d1d2bb703805873147434e688c80a2fabe9d7afd5f19ea949cf9fa",
+      "bytes": 1004,
+      "lines": 30,
+      "sha256": "b057b215580144d866dea11f0fc2759c841b6e2488d9bd582431701a471e74fd",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 8,
+          "line": 9,
           "kind": "FunctionDeclaration",
           "localName": "DashboardFooter"
         }
@@ -58164,7 +58164,7 @@
       "declarations": [
         {
           "name": "DashboardFooter",
-          "line": 8,
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -63636,9 +63636,9 @@
       "path": "components/portal/WorkspaceShell.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 29648,
-      "lines": 717,
-      "sha256": "f0cca1eb8d7df2921669d3736138ad967e36854c4ea2bf434218e48c3044118e",
+      "bytes": 29785,
+      "lines": 718,
+      "sha256": "0fe36199dcd5e6747d1d1c662c179090f8d0828436b9c6b1da7f35b1f9e07fe1",
       "binary": false,
       "exports": [
         {
@@ -74710,9 +74710,9 @@
       "path": "css/portal-main-extracted.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 268043,
-      "lines": 9979,
-      "sha256": "ddb391647a22e62af845fa0b76e6231b0f1a92e02583c81e4d511ce76bd8f2e7",
+      "bytes": 268505,
+      "lines": 9990,
+      "sha256": "e87b096b2c86a0f4d4488adc9e8180a8c574d5f3198b4eff1cf41c8f1bc921b2",
       "binary": false
     },
     {
@@ -75142,9 +75142,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 26176,
+      "bytes": 26227,
       "lines": 381,
-      "sha256": "c7c046a78e2acd18b54f7be930f608189644860d43f04a38c39e6d255a82b197",
+      "sha256": "7f0a0ef856211806f8578d2a7a23506d32e16ad3abc7230e4d9c9686a162432c",
       "binary": false
     },
     {
@@ -152331,9 +152331,9 @@
       "path": "tests/components/workspace-sidebar.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 14113,
-      "lines": 270,
-      "sha256": "4bc42360478397080f8af23d0acac4c669c020bfa8fc43b8f8a18e3cff6a9ad0",
+      "bytes": 15048,
+      "lines": 284,
+      "sha256": "a2531264b9be40694ef71badb94a5590dc69d6e9cb39087f52705430512ecfde",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -153092,9 +153092,9 @@
       "path": "tests/e2e/workspace-shell-layout.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 9587,
-      "lines": 216,
-      "sha256": "75235e0d0a83d3157d388df7d0393fb114201681bfe12bb5573457369aa439f2",
+      "bytes": 11248,
+      "lines": 246,
+      "sha256": "6053995e5f404147cc5eff8c20497a8d3afd0d64a98fa6fc673e68cf82551b61",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -153120,7 +153120,7 @@
         },
         {
           "name": "readFooterClearance",
-          "line": 139,
+          "line": 143,
           "kind": "FunctionDeclaration"
         }
       ],

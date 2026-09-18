@@ -106,21 +106,23 @@ describe('workspace navigation', () => {
     const inner = container.querySelector('.workspace-shell-main-inner');
     const body = container.querySelector('.workspace-shell-main-body');
     const footer = container.querySelector('.dashboard-site-footer');
-    expect(inner).not.toBeNull();
-    expect(body).not.toBeNull();
-    expect(footer).not.toBeNull();
-    expect(inner?.contains(footer)).toBe(true);
-    expect(body?.contains(footer)).toBe(false);
-    expect(body?.nextElementSibling).toBe(footer);
-    expect(footer?.nextElementSibling).toBeNull();
-    const heading = inner?.querySelector('h1');
-    expect(heading).not.toBeNull();
-    expect(body?.contains(heading)).toBe(true);
-    expect(
-      heading && footer
-        ? heading.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING
-        : 0,
-    ).toBeTruthy();
+    expect(inner).toBeInstanceOf(HTMLElement);
+    expect(body).toBeInstanceOf(HTMLElement);
+    expect(footer).toBeInstanceOf(HTMLElement);
+    if (!(inner instanceof HTMLElement) || !(body instanceof HTMLElement) || !(footer instanceof HTMLElement)) {
+      throw new Error('missing workspace footer layout nodes');
+    }
+    expect(inner.contains(footer)).toBe(true);
+    expect(body.contains(footer)).toBe(false);
+    expect(body.nextElementSibling).toBe(footer);
+    expect(footer.nextElementSibling).toBeNull();
+    const heading = inner.querySelector('h1');
+    expect(heading).toBeInstanceOf(HTMLHeadingElement);
+    if (!(heading instanceof HTMLHeadingElement)) {
+      throw new Error('missing training heading');
+    }
+    expect(body.contains(heading)).toBe(true);
+    expect(heading.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it.each(['/dashboard/program', '/en/dashboard/program', '/dashboard/program/start'])('marks only the most specific destination at %s', (pathname) => {

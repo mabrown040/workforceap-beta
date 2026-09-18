@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "48b0cddcb6c8ae5aeecdbde93ecb8a5f0c15b56363bb549518c74fac59fe4d2f",
+  "inputTreeSha256": "2422147675106a8370fe0a5d2a747de6e52bcefdfd09cca03773baab9e12dd3c",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25,9 +25,9 @@
       "path": ".Jules/palette.md",
       "area": "agent-tooling",
       "domain": "agent-tooling",
-      "bytes": 8878,
-      "lines": 41,
-      "sha256": "7d07b9dbdcb09d4dd7236a4f12556e7cd129e8c69bb9d2720785d452eaeb9824",
+      "bytes": 9526,
+      "lines": 44,
+      "sha256": "c278a69bd2b3260159bd70ceaeed574475b6b5a0b5e739822412546e7e74b72a",
       "binary": false
     },
     {
@@ -61853,9 +61853,9 @@
       "path": "components/portal/ResourceCard.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4198,
-      "lines": 131,
-      "sha256": "5cf6d63438e52f4c2183e2dac896c0ca83c4b2e3120035c23e8c0f2d4c453221",
+      "bytes": 4255,
+      "lines": 134,
+      "sha256": "de434f9c9e7c7fe85631c9668cac39c93ed238a08efb8811c74b862015ad15bc",
       "binary": false,
       "exports": [
         {

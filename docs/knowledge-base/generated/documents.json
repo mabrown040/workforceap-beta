@@ -67,6 +67,11 @@
         "level": 2,
         "title": "2024-07-26 - Accessible Save Settings Button",
         "line": 39
+      },
+      {
+        "level": 2,
+        "title": "2024-06-25 - Redundant aria-label on aria-live state buttons",
+        "line": 42
       }
     ],
     "datedFilename": false,

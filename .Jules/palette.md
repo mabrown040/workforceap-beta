@@ -39,3 +39,6 @@
 ## 2024-07-26 - Accessible Save Settings Button
 **Learning:** Found a "Save changes" button in `components/portal/kit/pages/member/MemberProfileKit.tsx` that changed text to "Saving…" dynamically but was missing `aria-live` and `aria-busy`. Screen readers were not informed when the profile was saving.
 **Action:** When a settings or profile save button has an asynchronous state, apply `aria-busy={isSaving}` to the button element and wrap the dynamic button text in a `<span aria-live="polite">` tag.
+## 2024-06-25 - Redundant aria-label on aria-live state buttons
+**Learning:** Discovered an anti-pattern where a button displaying dynamic async state ("Downloading...") correctly had `aria-busy` and `aria-live` added, but was still using an explicitly changing `aria-label` attribute on the parent button itself. This `aria-label` can mask the inner live region, preventing screen readers from correctly announcing the state transition.
+**Action:** When a button text changes dynamically to indicate progress (e.g. "Downloading..."), omit `aria-label` entirely and place context describing the action in a visually hidden `.sr-only` span instead.

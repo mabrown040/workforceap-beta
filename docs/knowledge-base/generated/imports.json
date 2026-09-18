@@ -74264,6 +74264,46 @@
     "target": "lib/wioa/wioaAvailability.ts"
   },
   {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "react",
+    "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "@/lib/content/programs",
+    "line": 4,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "components/portal/LearningHubEnrolledCourses.test.tsx",
+    "specifier": "./LearningHubEnrolledCourses",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/LearningHubEnrolledCourses.tsx"
+  },
+  {
     "from": "components/portal/LearningHubEnrolledCourses.tsx",
     "specifier": "next/link",
     "line": 3,
@@ -74457,8 +74497,24 @@
   },
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
-    "specifier": "next/link",
+    "specifier": "react",
     "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/MemberDoThisNextCard.tsx",
+    "specifier": "next/link",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/MemberDoThisNextCard.tsx",
+    "specifier": "next/navigation",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -74466,7 +74522,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "next-intl",
-    "line": 4,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -74474,7 +74530,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "lucide-react",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -74482,7 +74538,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/member/nextBestActions",
-    "line": 7,
+    "line": 9,
     "kind": "type",
     "external": false,
     "target": "lib/member/nextBestActions.ts"
@@ -74490,7 +74546,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/member/memberProgramHref",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/member/memberProgramHref.ts"
@@ -74498,7 +74554,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/analytics/events",
-    "line": 9,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/events.ts"
@@ -74506,7 +74562,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/events/client",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/events/client.ts"
@@ -100921,19 +100977,19 @@
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",
-    "specifier": "@/lib/member/nextBestActions",
+    "specifier": "@/lib/member/memberProgramHref",
     "line": 11,
     "kind": "import",
     "external": false,
-    "target": "lib/member/nextBestActions.ts"
+    "target": "lib/member/memberProgramHref.ts"
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",
-    "specifier": "@/lib/member/memberProgramHref",
+    "specifier": "@/lib/member/nextBestActions",
     "line": 12,
     "kind": "import",
     "external": false,
-    "target": "lib/member/memberProgramHref.ts"
+    "target": "lib/member/nextBestActions.ts"
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",

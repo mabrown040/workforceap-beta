@@ -88,7 +88,7 @@
 | [tests/api/job-match.spec.ts](../../../tests/api/job-match.spec.ts) | 477 | tests |  |
 | [tests/api/lab-evidence.spec.ts](../../../tests/api/lab-evidence.spec.ts) | 173 | tests |  |
 | [tests/api/member-certifications.spec.ts](../../../tests/api/member-certifications.spec.ts) | 130 | tests |  |
-| [tests/api/member-course-complete.spec.ts](../../../tests/api/member-course-complete.spec.ts) | 192 | tests |  |
+| [tests/api/member-course-complete.spec.ts](../../../tests/api/member-course-complete.spec.ts) | 198 | tests |  |
 | [tests/api/member-coursera-enroll-in-course.spec.ts](../../../tests/api/member-coursera-enroll-in-course.spec.ts) | 231 | learning-coursera |  |
 | [tests/api/member-coursera-identity.spec.ts](../../../tests/api/member-coursera-identity.spec.ts) | 83 | learning-coursera |  |
 | [tests/api/member-delete-account.spec.ts](../../../tests/api/member-delete-account.spec.ts) | 213 | tests |  |
@@ -174,7 +174,7 @@
 | [tests/components/inbox-zero-reassignment-receipt.spec.tsx](../../../tests/components/inbox-zero-reassignment-receipt.spec.tsx) | 68 | tests |  |
 | [tests/components/lab-evidence-review.test.tsx](../../../tests/components/lab-evidence-review.test.tsx) | 113 | tests |  |
 | [tests/components/member-lab-workspace.test.tsx](../../../tests/components/member-lab-workspace.test.tsx) | 149 | tests |  |
-| [tests/components/member-program-module-links.test.tsx](../../../tests/components/member-program-module-links.test.tsx) | 110 | tests |  |
+| [tests/components/member-program-module-links.test.tsx](../../../tests/components/member-program-module-links.test.tsx) | 134 | tests |  |
 | [tests/components/member-signup-form.spec.tsx](../../../tests/components/member-signup-form.spec.tsx) | 147 | tests |  |
 | [tests/components/member-training-workspace.test.tsx](../../../tests/components/member-training-workspace.test.tsx) | 338 | tests |  |
 | [tests/components/mfa-status-banner.spec.tsx](../../../tests/components/mfa-status-banner.spec.tsx) | 31 | tests |  |
@@ -187,7 +187,7 @@
 | [tests/components/students-roster-identity.spec.tsx](../../../tests/components/students-roster-identity.spec.tsx) | 53 | tests |  |
 | [tests/components/students-roster-sort.spec.tsx](../../../tests/components/students-roster-sort.spec.tsx) | 92 | tests |  |
 | [tests/components/training-feedback-handoff.test.tsx](../../../tests/components/training-feedback-handoff.test.tsx) | 100 | tests |  |
-| [tests/components/workforce-ap-module-lessons.test.tsx](../../../tests/components/workforce-ap-module-lessons.test.tsx) | 47 | tests |  |
+| [tests/components/workforce-ap-module-lessons.test.tsx](../../../tests/components/workforce-ap-module-lessons.test.tsx) | 53 | tests |  |
 | [tests/components/workspace-sidebar.test.tsx](../../../tests/components/workspace-sidebar.test.tsx) | 300 | tests |  |
 | [tests/e2e/README.md](../../../tests/e2e/README.md) | 72 | tests |  |
 | [tests/e2e/SETUP.md](../../../tests/e2e/SETUP.md) | 44 | tests |  |
@@ -290,7 +290,7 @@
 | [tests/lib/milestone-draft-program-snapshot.spec.ts](../../../tests/lib/milestone-draft-program-snapshot.spec.ts) | 50 | member-counselor |  |
 | [tests/lib/milestone-email-provider.spec.ts](../../../tests/lib/milestone-email-provider.spec.ts) | 39 | member-counselor |  |
 | [tests/lib/mssc-curriculum-accuracy.spec.ts](../../../tests/lib/mssc-curriculum-accuracy.spec.ts) | 207 | tests |  |
-| [tests/lib/nextBestActions.test.ts](../../../tests/lib/nextBestActions.test.ts) | 247 | tests |  |
+| [tests/lib/nextBestActions.test.ts](../../../tests/lib/nextBestActions.test.ts) | 266 | tests |  |
 | [tests/lib/notification-triggers-course.spec.ts](../../../tests/lib/notification-triggers-course.spec.ts) | 411 | communications |  |
 | [tests/lib/notification-triggers-job.spec.ts](../../../tests/lib/notification-triggers-job.spec.ts) | 156 | communications |  |
 | [tests/lib/notification-triggers-survey.spec.ts](../../../tests/lib/notification-triggers-survey.spec.ts) | 142 | communications |  |

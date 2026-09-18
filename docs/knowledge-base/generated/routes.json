@@ -31277,6 +31277,31 @@
     "boundaryReferences": []
   },
   {
+    "file": "app/dev/member/skill-mapper/page.tsx",
+    "kind": "page",
+    "path": "/dev/member/skill-mapper",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "dynamic",
+        "line": 12,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 70,
+        "kind": "FunctionDeclaration",
+        "localName": "DevMemberSkillMapperPage"
+      }
+    ],
+    "methods": [],
+    "configuration": {
+      "dynamic": "force-dynamic"
+    },
+    "boundaryReferences": []
+  },
+  {
     "file": "app/dev/member/toolkit/page.tsx",
     "kind": "page",
     "path": "/dev/member/toolkit",

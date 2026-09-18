@@ -618,7 +618,9 @@
 | [components/portal/tools/ResumeStrengthForm.tsx](../../../components/portal/tools/ResumeStrengthForm.tsx) | 371 | components | default:125 |
 | [components/portal/tools/SalaryNegotiationForm.tsx](../../../components/portal/tools/SalaryNegotiationForm.tsx) | 289 | components | default:58 |
 | [components/portal/tools/SkillAssessmentForm.tsx](../../../components/portal/tools/SkillAssessmentForm.tsx) | 464 | components | default:66 |
+| [components/portal/tools/SkillMapperClient.test.tsx](../../../components/portal/tools/SkillMapperClient.test.tsx) | 162 | components |  |
 | [components/portal/tools/SkillMapperClient.tsx](../../../components/portal/tools/SkillMapperClient.tsx) | 1312 | components | SkillMapperPreviewSeed:36, default:410 |
+| [components/portal/tools/SkillMapperComparePanel.tsx](../../../components/portal/tools/SkillMapperComparePanel.tsx) | 242 | components | DualRadarChart:26, SkillMapperGapList:120, default:159 |
 | [components/portal/tools/SkillMapperRadar.tsx](../../../components/portal/tools/SkillMapperRadar.tsx) | 91 | components | default:5 |
 | [components/portal/tools/ToolFollowThrough.tsx](../../../components/portal/tools/ToolFollowThrough.tsx) | 70 | components | default:8 |
 | [components/portal/tools/VoiceInterviewScaffold.tsx](../../../components/portal/tools/VoiceInterviewScaffold.tsx) | 394 | components | default:70 |

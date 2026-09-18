@@ -144,6 +144,8 @@
 | [lib/ai/salaryNegotiationSalary.test.ts](../../../lib/ai/salaryNegotiationSalary.test.ts) | 12 | ai-voice |  |
 | [lib/ai/salaryNegotiationSalary.ts](../../../lib/ai/salaryNegotiationSalary.ts) | 7 | ai-voice | parsePrefillTargetSalary:1 |
 | [lib/ai/saveResult.ts](../../../lib/ai/saveResult.ts) | 71 | ai-voice | saveAIToolResult:16 |
+| [lib/ai/skillMapperCompare.test.ts](../../../lib/ai/skillMapperCompare.test.ts) | 66 | ai-voice |  |
+| [lib/ai/skillMapperCompare.ts](../../../lib/ai/skillMapperCompare.ts) | 46 | ai-voice | SkillRadarPoint:6, SkillGap:11, hasComparableSkills:18, computeSkillGaps:26 |
 | [lib/ai/skillMapperDemo.test.ts](../../../lib/ai/skillMapperDemo.test.ts) | 193 | ai-voice |  |
 | [lib/ai/skillMapperDemo.ts](../../../lib/ai/skillMapperDemo.ts) | 100 | ai-voice | SKILL_MAPPER_DEMO_OCCUPATIONS:11, SKILL_MAPPER_DEMO_SKILLS:26, SKILL_MAPPER_DEMO_SKILLS_SALES:44, getDemoRadarForCode:60, isDemoOccupationCode:85, searchDemoOccupations:89 |
 | [lib/ai/skillMissionEval.ts](../../../lib/ai/skillMissionEval.ts) | 266 | ai-voice | MissionResult:10, MissionEvalRequest:18, MissionEvalResponse:33, MissionEvalUnavailableError:49, evaluateSkillMission:205 |

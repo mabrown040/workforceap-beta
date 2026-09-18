@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "8b78e395e4996d0f5f17253784a733b427846878eac9de74fd1a53de150d3271",
+  "inputTreeSha256": "e248bd876a5dd15338a8187a246f5236a164435fa742c1063539ffe21624cebc",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,24 +8,24 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4530,
-    "sourceModules": 3206,
-    "importReferences": 15190,
-    "resolvedLocalReferences": 10144,
-    "unresolvedLocalReferences": 2,
-    "routeFiles": 1046,
-    "nextRouteFiles": 1013,
+    "files": 4535,
+    "sourceModules": 3211,
+    "importReferences": 15203,
+    "resolvedLocalReferences": 10152,
+    "unresolvedLocalReferences": 0,
+    "routeFiles": 1047,
+    "nextRouteFiles": 1014,
     "apiHandlers": 486,
-    "pageFiles": 309,
+    "pageFiles": 310,
     "astroPageFiles": 33,
     "configuredCrons": 30,
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 641,
-    "testCandidates": 634,
+    "testFiles": 643,
+    "testCandidates": 636,
     "testHelpers": 7,
-    "staticallySelectedTests": 631,
+    "staticallySelectedTests": 633,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 656
+      "files": 658
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 919
+      "files": 921
     },
     {
       "area": "localization",
@@ -90,7 +90,7 @@
     },
     {
       "area": "pages",
-      "files": 631
+      "files": 632
     },
     {
       "area": "root",
@@ -144,7 +144,7 @@
     },
     {
       "file": "components/portal/kit/index.ts",
-      "references": 199
+      "references": 200
     },
     {
       "file": "lib/audit/log.ts",

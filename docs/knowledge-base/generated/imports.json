@@ -63440,6 +63440,30 @@
     "target": "components/portal/kit/pages/member/SalaryNegotiationKit.tsx"
   },
   {
+    "from": "app/dev/member/skill-mapper/page.tsx",
+    "specifier": "next/navigation",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/dev/member/skill-mapper/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/dev/member/skill-mapper/page.tsx",
+    "specifier": "@/components/portal/tools/SkillMapperClient",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/tools/SkillMapperClient.tsx"
+  },
+  {
     "from": "app/dev/member/toolkit/page.tsx",
     "specifier": "next/navigation",
     "line": 1,
@@ -83544,6 +83568,30 @@
     "package": "react"
   },
   {
+    "from": "components/portal/tools/SkillMapperClient.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperClient.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperClient.test.tsx",
+    "specifier": "./SkillMapperClient",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/tools/SkillMapperClient.tsx"
+  },
+  {
     "from": "components/portal/tools/SkillMapperClient.tsx",
     "specifier": "react",
     "line": 3,
@@ -83621,7 +83669,7 @@
     "line": 27,
     "kind": "import",
     "external": false,
-    "target": null
+    "target": "lib/ai/skillMapperCompare.ts"
   },
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
@@ -83629,7 +83677,39 @@
     "line": 31,
     "kind": "import",
     "external": false,
-    "target": null
+    "target": "components/portal/tools/SkillMapperComparePanel.tsx"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperComparePanel.tsx",
+    "specifier": "next/link",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperComparePanel.tsx",
+    "specifier": "lucide-react",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "lucide-react"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperComparePanel.tsx",
+    "specifier": "@/components/portal/PortalInlineSpinner",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PortalInlineSpinner.tsx"
+  },
+  {
+    "from": "components/portal/tools/SkillMapperComparePanel.tsx",
+    "specifier": "@/lib/ai/skillMapperCompare",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/skillMapperCompare.ts"
   },
   {
     "from": "components/portal/tools/ToolFollowThrough.tsx",
@@ -89342,6 +89422,30 @@
     "kind": "type",
     "external": true,
     "package": "@prisma/client"
+  },
+  {
+    "from": "lib/ai/skillMapperCompare.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/ai/skillMapperCompare.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/ai/skillMapperCompare.test.ts",
+    "specifier": "./skillMapperCompare",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/skillMapperCompare.ts"
   },
   {
     "from": "lib/ai/skillMapperDemo.test.ts",

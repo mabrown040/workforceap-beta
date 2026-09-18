@@ -545,7 +545,7 @@
 | [app/dev/dashboard/page.tsx](../../../app/dev/dashboard/page.tsx) | 131 | member-counselor | dynamic:24, default:53 |
 | [app/dev/kit/layout.tsx](../../../app/dev/kit/layout.tsx) | 10 | pages | metadata:6, default:8 |
 | [app/dev/kit/page.tsx](../../../app/dev/kit/page.tsx) | 203 | pages | dynamic:30, default:189 |
-| [app/dev/member/DevMemberShell.tsx](../../../app/dev/member/DevMemberShell.tsx) | 89 | member-counselor | default:55 |
+| [app/dev/member/DevMemberShell.tsx](../../../app/dev/member/DevMemberShell.tsx) | 90 | member-counselor | default:56 |
 | [app/dev/member/assessment/page.tsx](../../../app/dev/member/assessment/page.tsx) | 123 | member-counselor | dynamic:17, default:19 |
 | [app/dev/member/benefits-cliff/page.tsx](../../../app/dev/member/benefits-cliff/page.tsx) | 21 | member-counselor | dynamic:8, default:10 |
 | [app/dev/member/career-business-coach/page.tsx](../../../app/dev/member/career-business-coach/page.tsx) | 14 | member-counselor | dynamic:8, default:10 |
@@ -573,6 +573,7 @@
 | [app/dev/member/resume-strength/page.tsx](../../../app/dev/member/resume-strength/page.tsx) | 104 | member-counselor | dynamic:11, default:86 |
 | [app/dev/member/resume-studio/page.tsx](../../../app/dev/member/resume-studio/page.tsx) | 129 | member-counselor | dynamic:15, default:103 |
 | [app/dev/member/salary-negotiation/page.tsx](../../../app/dev/member/salary-negotiation/page.tsx) | 43 | member-counselor | dynamic:10, default:26 |
+| [app/dev/member/skill-mapper/page.tsx](../../../app/dev/member/skill-mapper/page.tsx) | 100 | member-counselor | dynamic:12, default:70 |
 | [app/dev/member/toolkit/page.tsx](../../../app/dev/member/toolkit/page.tsx) | 39 | member-counselor | dynamic:13, default:19 |
 | [app/dev/staff/admin-command/page.tsx](../../../app/dev/staff/admin-command/page.tsx) | 170 | pages | dynamic:20, default:154 |
 | [app/dev/staff/counselor-atrisk/AtRiskShowcaseClient.tsx](../../../app/dev/staff/counselor-atrisk/AtRiskShowcaseClient.tsx) | 37 | pages | default:12 |

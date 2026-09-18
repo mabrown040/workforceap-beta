@@ -74249,8 +74249,24 @@
   },
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
-    "specifier": "next/link",
+    "specifier": "react",
     "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/MemberDoThisNextCard.tsx",
+    "specifier": "next/link",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/MemberDoThisNextCard.tsx",
+    "specifier": "next/navigation",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -74258,7 +74274,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "next-intl",
-    "line": 4,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -74266,7 +74282,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "lucide-react",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -74274,7 +74290,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/member/nextBestActions",
-    "line": 7,
+    "line": 9,
     "kind": "type",
     "external": false,
     "target": "lib/member/nextBestActions.ts"
@@ -74282,7 +74298,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/member/memberProgramHref",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/member/memberProgramHref.ts"
@@ -74290,7 +74306,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/analytics/events",
-    "line": 9,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/events.ts"
@@ -74298,7 +74314,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/events/client",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/events/client.ts"

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "99ef8ed4624f8f9ffedd3abac4a582652cc4b43cde6f223e9bc2a1be9013b28b",
+  "inputTreeSha256": "b8931ff776b3185b538827012da84087b7863e18e8647450cb9c99618775f403",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -59709,27 +59709,32 @@
       "path": "components/portal/MemberDoThisNextCard.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 7017,
-      "lines": 212,
-      "sha256": "0bf56781a33aa4f369bfeb03ce7062252343af27c265e5ce74e2ea2fff460e1c",
+      "bytes": 8307,
+      "lines": 244,
+      "sha256": "ba2ec97c2575fa0ef9d94142f8db8f22a881282377abf62f968c187d7695bfa9",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 28,
+          "line": 37,
           "kind": "FunctionDeclaration",
           "localName": "MemberDoThisNextCard"
         }
       ],
       "declarations": [
         {
+          "name": "UUID_RE",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
           "name": "MemberDoThisNextCardProps",
-          "line": 12,
+          "line": 17,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberDoThisNextCard",
-          "line": 28,
+          "line": 37,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -60252,15 +60257,20 @@
       "path": "components/portal/MemberTodayNextStep.test.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3390,
-      "lines": 106,
-      "sha256": "56ec247978959d5e591a989b4a30c517a8b7add2b07084b4a2ec0ba494ac2dab",
+      "bytes": 4777,
+      "lines": 141,
+      "sha256": "0b2775d51f5c6a7df11958c04195743192fd2695637f13e95f34491d95e202f1",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "sampleAction",
           "line": 48,
+          "kind": "Variable"
+        },
+        {
+          "name": "persistedAction",
+          "line": 59,
           "kind": "Variable"
         }
       ],

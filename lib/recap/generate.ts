@@ -212,10 +212,10 @@ const GOAL_TYPE_TO_PLAN_HREF: Record<string, { href: string; cta: string; icon: 
   build_resume: { href: '/dashboard/ai-tools/resume-studio?view=rewrite', cta: 'Work on resume', icon: 'description' },
   practice_interviews: { href: '/dashboard/ai-tools/interview-practice', cta: 'Practice now', icon: 'record_voice_over' },
   apply_to_jobs: { href: '/dashboard/job-applications', cta: 'Open tracker', icon: 'work' },
-  complete_certification: { href: '/dashboard/training', cta: 'Continue training', icon: 'school' },
+  complete_certification: { href: '/dashboard/program', cta: 'Continue training', icon: 'school' },
   finish_pathway: { href: '/dashboard/resources', cta: 'Open pathway', icon: 'menu_book' },
   linkedin_profile: { href: '/dashboard/profile', cta: 'Update profile', icon: 'badge' },
-  tech_readiness: { href: '/dashboard/training', cta: 'Open training', icon: 'school' },
+  tech_readiness: { href: '/dashboard/program', cta: 'Open training', icon: 'school' },
   career_pivot: { href: '/dashboard/career-brief', cta: 'Open career brief', icon: 'insights' },
 };
 

@@ -14,7 +14,7 @@ test('interview tools route into readiness follow-through', () => {
 
 test('skill assessment routes into training follow-through', () => {
   const result = getAIToolFollowThrough({ toolType: 'skill_assessment' });
-  assert.equal(result.href, '/dashboard/training');
+  assert.equal(result.href, '/dashboard/program');
 });
 
 test('career counselor elevator pitch routes into voice interview practice', () => {

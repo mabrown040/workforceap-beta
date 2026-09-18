@@ -1177,7 +1177,7 @@ export async function sendCourseCompletedEmail(params: {
     title: `Congratulations! You Completed ${params.courseName}`,
     bodyHtml: courseCompletedHtml({ firstName: first, courseName: params.courseName }),
     ctaText: 'View Progress',
-    ctaUrl: `${SITE_URL}/dashboard/training`,
+    ctaUrl: `${SITE_URL}/dashboard/program`,
   });
   try {
     await sendBrandedEmail(resend, {

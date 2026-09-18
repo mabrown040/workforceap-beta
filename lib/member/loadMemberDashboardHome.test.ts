@@ -197,9 +197,13 @@ test('loadMemberDashboardHome combines enrollment + progress into kit props', as
   assert.equal(view.pipeline[0].stage, 'Interviewing');
   assert.equal(view.pointsLedger[0].color, 'accent');
   assert.ok((view.pointsThisWeek ?? 0) >= 80);
-  assert.equal(view.resumeHref, '/dashboard/training');
+  assert.equal(view.resumeHref, '/dashboard/program');
+  assert.equal(view.resumeHref, view.programHref);
+  assert.notEqual(view.resumeHref, '/dashboard/training');
   assert.equal(view.programHref, '/dashboard/program');
   assert.equal(view.coursesHref, '/dashboard/learning');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
+  assert.notEqual(view.doThisNext?.href, '/dashboard/training');
   assert.equal(view.doThisNext?.variant, 'urgent');
   assert.equal(view.nextLesson, 'Finish Hardware module');
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');

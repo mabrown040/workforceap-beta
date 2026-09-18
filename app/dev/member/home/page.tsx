@@ -18,10 +18,8 @@ export default function DevMemberHomePage() {
       activeJobs={4}
       certs={2}
       points={1240}
-      programTitle="AWS Cloud Practitioner"
+      programTitle="AWS Certified Cloud Practitioner Certificate"
       programStatus="In progress"
-      nextLesson="Shared Responsibility Model"
-      nextLessonDue="Due Thursday"
       nextBadgePercent={60}
       nextBadgeName="Cloud Foundations"
       nextBadgeRemaining="2 modules"

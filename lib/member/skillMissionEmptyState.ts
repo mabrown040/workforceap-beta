@@ -21,7 +21,7 @@ export function skillMissionEmptyState(args: {
     return {
       title: `No missions for ${name} yet`,
       description: 'No catalog missions for this program yet.',
-      primaryAction: { href: '/dashboard/training', label: 'Continue training' },
+      primaryAction: { href: '/dashboard/program', label: 'Continue training' },
     };
   }
 

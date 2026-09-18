@@ -88,7 +88,7 @@ function getNotificationLink(n: NotificationItem): string {
   if (data.link && typeof data.link === 'string') return data.link;
   if (data.threadId && typeof data.threadId === 'string') return '/dashboard/messages';
   if (data.jobId && typeof data.jobId === 'string') return '/dashboard/jobs';
-  if (data.courseSlug && typeof data.courseSlug === 'string') return '/dashboard/training';
+  if (data.courseSlug && typeof data.courseSlug === 'string') return '/dashboard/program';
   if (data.surveyId && typeof data.surveyId === 'string') return '/survey/placement';
   return '#';
 }

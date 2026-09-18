@@ -9,6 +9,7 @@ import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation'
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { MEMBER_PROGRAM_HREF, resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 /**
@@ -302,8 +303,8 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     certModulesDone: 0,
     certModulesTotal: 0,
     pointsLedger: [],
-    programHref: '/dashboard/program',
-    resumeHref: '/dashboard/program',
+    programHref: MEMBER_PROGRAM_HREF,
+    resumeHref: MEMBER_PROGRAM_HREF,
     coursesHref: '/dashboard/learning',
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
@@ -365,14 +366,16 @@ function shapeHome(args: {
   const firstName = displayFirstName(args.row.fullName, args.fallbackDisplayName);
 
   const topAction = args.row.nextBestActions[0] ?? null;
-  const programHref = '/dashboard/program';
-  const resumeHref = assignedSlug && slug ? '/dashboard/training' : programHref;
+  const programHref = MEMBER_PROGRAM_HREF;
+  // /dashboard/training only redirects back to /dashboard, so enrolled members
+  // must resume on My Program — otherwise Continue/Resume is a do-loop.
+  const resumeHref = programHref;
   const doThisNext: NextBestAction | null = topAction
     ? {
         id: topAction.id,
         title: topAction.title,
         body: topAction.description,
-        href: topAction.ctaHref,
+        href: resolveMemberProgramHref(topAction.ctaHref),
         cta: topAction.ctaLabel,
         variant: 'urgent',
         weight: topAction.priority + 100,

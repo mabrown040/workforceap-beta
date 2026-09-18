@@ -63584,6 +63584,22 @@
     "target": "components/portal/kit/pages/member/MemberProgramKit.tsx"
   },
   {
+    "from": "app/dev/member/program/page.tsx",
+    "specifier": "@/components/portal/kit/pages/member/MemberTrainingWorkspace",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx"
+  },
+  {
+    "from": "app/dev/member/program/page.tsx",
+    "specifier": "@/lib/member/trainingWorkspace",
+    "line": 8,
+    "kind": "type",
+    "external": false,
+    "target": "lib/member/trainingWorkspace.ts"
+  },
+  {
     "from": "app/dev/member/progress/page.tsx",
     "specifier": "next/navigation",
     "line": 1,
@@ -74265,8 +74281,16 @@
   },
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
-    "specifier": "@/lib/analytics/events",
+    "specifier": "@/lib/member/memberProgramHref",
     "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/memberProgramHref.ts"
+  },
+  {
+    "from": "components/portal/MemberDoThisNextCard.tsx",
+    "specifier": "@/lib/analytics/events",
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/events.ts"
@@ -74274,7 +74298,7 @@
   {
     "from": "components/portal/MemberDoThisNextCard.tsx",
     "specifier": "@/lib/events/client",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/events/client.ts"
@@ -82056,6 +82080,14 @@
     "target": "lib/member/nextBestActions.ts"
   },
   {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.tsx",
+    "specifier": "@/lib/member/memberProgramHref",
+    "line": 34,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/memberProgramHref.ts"
+  },
+  {
     "from": "components/portal/kit/pages/member/MemberJobDetail.tsx",
     "specifier": "lucide-react",
     "line": 1,
@@ -82617,8 +82649,24 @@
   },
   {
     "from": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx",
-    "specifier": "@/lib/member/trainingCoursePractice",
+    "specifier": "@/app/(portal)/dashboard/_actions/analyticsActions",
     "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/dashboard/_actions/analyticsActions.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx",
+    "specifier": "@/lib/analytics/events",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/analytics/events.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx",
+    "specifier": "@/lib/member/trainingCoursePractice",
+    "line": 18,
     "kind": "type",
     "external": false,
     "target": "lib/member/trainingCoursePractice.ts"
@@ -82626,7 +82674,7 @@
   {
     "from": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx",
     "specifier": "@/lib/member/trainingWorkspace",
-    "line": 17,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingWorkspace.ts"
@@ -82634,7 +82682,7 @@
   {
     "from": "components/portal/kit/pages/member/MemberTrainingWorkspace.tsx",
     "specifier": "@/lib/content/itSupportLabs",
-    "line": 18,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/content/itSupportLabs.ts"
@@ -100569,8 +100617,16 @@
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",
-    "specifier": "@/lib/member/curriculumAssignment",
+    "specifier": "@/lib/member/memberProgramHref",
     "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/memberProgramHref.ts"
+  },
+  {
+    "from": "lib/member/loadMemberDashboardHome.ts",
+    "specifier": "@/lib/member/curriculumAssignment",
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -100742,6 +100798,54 @@
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/recap/generate.ts"
+  },
+  {
+    "from": "lib/member/memberProgramHref.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/member/memberProgramHref.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/member/memberProgramHref.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/member/memberProgramHref.test.ts",
+    "specifier": "node:url",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:url"
+  },
+  {
+    "from": "lib/member/memberProgramHref.test.ts",
+    "specifier": "node:path",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/member/memberProgramHref.test.ts",
+    "specifier": "./memberProgramHref",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/memberProgramHref.ts"
   },
   {
     "from": "lib/member/memberProgramTrainingView.ts",

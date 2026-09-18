@@ -96354,7 +96354,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/email/unsubscribeToken",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/email/unsubscribeToken.ts"
@@ -96362,7 +96362,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/placement-survey/deliveryPayload",
-    "line": 15,
+    "line": 16,
     "kind": "type",
     "external": false,
     "target": "lib/placement-survey/deliveryPayload.ts"
@@ -96370,7 +96370,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/email/template",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/email/template.ts"
@@ -96378,7 +96378,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/email/escapeHtml",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/email/escapeHtml.ts"
@@ -96386,7 +96386,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/tenant/organizationBranding",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organizationBranding.ts"
@@ -96394,7 +96394,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/apply/eligibilityScreeningFields",
-    "line": 19,
+    "line": 20,
     "kind": "type",
     "external": false,
     "target": "lib/apply/eligibilityScreeningFields.ts"
@@ -96402,7 +96402,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/emails",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "emails/index.ts"
@@ -96410,7 +96410,7 @@
   {
     "from": "lib/email.ts",
     "specifier": "@/lib/invitations/loginCode",
-    "line": 72,
+    "line": 73,
     "kind": "import",
     "external": false,
     "target": "lib/invitations/loginCode.ts"

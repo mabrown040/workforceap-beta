@@ -160,7 +160,7 @@
 | [components/apply/ApplyRefCapture.tsx](../../../components/apply/ApplyRefCapture.tsx) | 26 | applications-enrollment | default:15 |
 | [components/apply/HearAboutSelect.tsx](../../../components/apply/HearAboutSelect.tsx) | 62 | applications-enrollment | default:26 |
 | [components/apply/PaidApplyProofBlock.tsx](../../../components/apply/PaidApplyProofBlock.tsx) | 30 | applications-enrollment | default:4 |
-| [components/apply/ShareButtons.tsx](../../../components/apply/ShareButtons.tsx) | 85 | applications-enrollment | default:26 |
+| [components/apply/ShareButtons.tsx](../../../components/apply/ShareButtons.tsx) | 90 | applications-enrollment | default:26 |
 | [components/billing/BillingPacketList.tsx](../../../components/billing/BillingPacketList.tsx) | 126 | partners-funding | default:30 |
 | [components/counselor/StaffMemberResumePanel.tsx](../../../components/counselor/StaffMemberResumePanel.tsx) | 364 | member-counselor | default:24 |
 | [components/dashboard/DashboardSkeleton.tsx](../../../components/dashboard/DashboardSkeleton.tsx) | 130 | member-counselor | default:6 |

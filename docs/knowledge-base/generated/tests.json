@@ -19634,8 +19634,12 @@
     ],
     "localReferences": [
       {
-        "file": "next.config.ts",
+        "file": "marketing/src/data/blog.ts",
         "line": 5
+      },
+      {
+        "file": "next.config.ts",
+        "line": 6
       }
     ],
     "kind": "test-candidate",

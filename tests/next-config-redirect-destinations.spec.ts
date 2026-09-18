@@ -2,11 +2,15 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { getPublishedPosts } from '../marketing/src/data/blog';
 import nextConfig from '../next.config';
 
 type Redirect = { source: string; destination: string; permanent: boolean };
 
 const root = process.cwd();
+
+/** Published Astro blog slugs (dynamic route: marketing/src/pages/blog/[slug].astro). */
+const publishedBlogSlugs = new Set(getPublishedPosts().map((post) => post.slug));
 
 function marketingPageExists(urlPath: string): boolean {
   if (urlPath === '/blog' || urlPath === '/blog/') {
@@ -17,7 +21,10 @@ function marketingPageExists(urlPath: string): boolean {
   return existsSync(path.join(root, 'marketing/src/pages/blog', `${slug}.astro`))
     || existsSync(path.join(root, 'marketing/src/pages/blog', slug, 'index.astro'))
     || existsSync(path.join(root, 'marketing/dist/blog', slug, 'index.html'))
-    || existsSync(path.join(root, 'marketing/dist/blog', `${slug}.html`));
+    || existsSync(path.join(root, 'marketing/dist/blog', `${slug}.html`))
+    // Dynamic [slug].astro posts are live when the slug is in the published catalog.
+    || (existsSync(path.join(root, 'marketing/src/pages/blog/[slug].astro'))
+      && publishedBlogSlugs.has(slug));
 }
 
 describe('next.config redirects stay on live destinations', () => {

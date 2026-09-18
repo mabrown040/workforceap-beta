@@ -88,7 +88,7 @@
 | [tests/api/job-match.spec.ts](../../../tests/api/job-match.spec.ts) | 477 | tests |  |
 | [tests/api/lab-evidence.spec.ts](../../../tests/api/lab-evidence.spec.ts) | 173 | tests |  |
 | [tests/api/member-certifications.spec.ts](../../../tests/api/member-certifications.spec.ts) | 130 | tests |  |
-| [tests/api/member-course-complete.spec.ts](../../../tests/api/member-course-complete.spec.ts) | 129 | tests |  |
+| [tests/api/member-course-complete.spec.ts](../../../tests/api/member-course-complete.spec.ts) | 192 | tests |  |
 | [tests/api/member-coursera-enroll-in-course.spec.ts](../../../tests/api/member-coursera-enroll-in-course.spec.ts) | 231 | learning-coursera |  |
 | [tests/api/member-coursera-identity.spec.ts](../../../tests/api/member-coursera-identity.spec.ts) | 83 | learning-coursera |  |
 | [tests/api/member-delete-account.spec.ts](../../../tests/api/member-delete-account.spec.ts) | 213 | tests |  |
@@ -263,7 +263,7 @@
 | [tests/lib/coursera-stage-a-mapping-transaction.spec.ts](../../../tests/lib/coursera-stage-a-mapping-transaction.spec.ts) | 147 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-member-merge-guard.spec.ts](../../../tests/lib/coursera-stage-a-member-merge-guard.spec.ts) | 82 | learning-coursera |  |
 | [tests/lib/coursera-tenant-index-migration.spec.ts](../../../tests/lib/coursera-tenant-index-migration.spec.ts) | 71 | learning-coursera |  |
-| [tests/lib/coursera-unmatched-learners-learning-paths.spec.ts](../../../tests/lib/coursera-unmatched-learners-learning-paths.spec.ts) | 83 | learning-coursera |  |
+| [tests/lib/coursera-unmatched-learners-learning-paths.spec.ts](../../../tests/lib/coursera-unmatched-learners-learning-paths.spec.ts) | 157 | learning-coursera |  |
 | [tests/lib/cron-diagnostics-visibility.spec.ts](../../../tests/lib/cron-diagnostics-visibility.spec.ts) | 204 | tests |  |
 | [tests/lib/curriculum-versioned-read-surfaces.spec.ts](../../../tests/lib/curriculum-versioned-read-surfaces.spec.ts) | 129 | tests |  |
 | [tests/lib/diagnose-member-coursera-tenant.spec.ts](../../../tests/lib/diagnose-member-coursera-tenant.spec.ts) | 119 | learning-coursera |  |

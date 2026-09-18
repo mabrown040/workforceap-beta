@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "8b06f486fc32ea01a9f015bdaf96447da720308696f09329bab5c18a5e0e636f",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9541,9 +9541,9 @@
       "path": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 11530,
+      "bytes": 11531,
       "lines": 248,
-      "sha256": "eb3f6b222d694b6511a0f5ae5a3333d0184cdf5ad2a72067737b05a0c149beb2",
+      "sha256": "1566ecadce5c32148c2efa4847b15d757b6e2e07b0096bdd26cdb52f24329574",
       "binary": false,
       "exports": [
         {
@@ -35316,9 +35316,9 @@
       "path": "app/api/member/courses/complete/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 2931,
+      "bytes": 2933,
       "lines": 77,
-      "sha256": "eb5eb06943b50a00d96bae577e15007aeda676d3e8611f38846cda881838ba7a",
+      "sha256": "ce3b5af2e6e9433f6aa9d04841616b357a2a34bd2cbcf99dc9bf91c1d3d2d9c9",
       "binary": false,
       "exports": [
         {
@@ -77431,9 +77431,9 @@
       "path": "docs/knowledge-base/features.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10493,
+      "bytes": 10764,
       "lines": 36,
-      "sha256": "ed9e02b9e0bbc2ddf41ffd12e015b2eec1894ac8cf3cb1f01bd0142340adedb9",
+      "sha256": "2b8c85cf6b8f0f833b23c063c21e1f6b72e4131e7c49af323c4b281f989bbb9f",
       "binary": false
     },
     {
@@ -102096,9 +102096,9 @@
       "path": "lib/content/workforceApModule.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 2805,
-      "lines": 90,
-      "sha256": "2c4f27e022f3e80e8973aef21c4d8005e5f58c80c3b411ddede75f3a4c5572af",
+      "bytes": 3276,
+      "lines": 107,
+      "sha256": "1dfdbf7975bd12df6985421fd816e9a04f45aa075495b53b1fcd0074c9ac89b1",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -148114,20 +148114,20 @@
       "path": "shared/digitalLiteracyPathway.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 4713,
-      "lines": 98,
-      "sha256": "a210ded2260f2d9948084bb87836f2dc716ae728bf9764fcc845cf397e493048",
+      "bytes": 5251,
+      "lines": 108,
+      "sha256": "d2905ff8549638fe1bd7d82d01974f7ddf0619d8edf327558c2aebf5604e45f9",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "EXPECTED_MODULES",
-          "line": 13,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "allDestinations",
-          "line": 26,
+          "line": 28,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -148137,9 +148137,9 @@
       "path": "shared/digitalLiteracyPathway.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 11349,
-      "lines": 274,
-      "sha256": "73062eeb76c1ff87e8f3eb7aa55438de8d1992eaf61f83db73d35f92e288078e",
+      "bytes": 11716,
+      "lines": 283,
+      "sha256": "8f278205e18cba64f0256d886f8eae0ebd26c204517f33cc7517049b98c7383d",
       "binary": false,
       "exports": [
         {
@@ -148153,93 +148153,98 @@
           "kind": "Variable"
         },
         {
+          "name": "isUngatedDigitalLiteracyProgram",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "DIGITALLEARN_HOME_URL",
-          "line": 12,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_COURSES_URL",
-          "line": 13,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_PROVIDER_NAME",
-          "line": 14,
+          "line": 23,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_VERIFIED_ON",
-          "line": 15,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_TERMS_URL",
-          "line": 16,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_LICENSE_NAME",
-          "line": 17,
+          "line": 26,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_LICENSE_URL",
-          "line": 18,
+          "line": 27,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_PROVIDER",
-          "line": 20,
+          "line": 29,
           "kind": "Variable"
         },
         {
           "name": "DigitalLiteracyDestinationKind",
-          "line": 34,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DigitalLiteracyLesson",
-          "line": 39,
+          "line": 48,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DigitalLiteracyModule",
-          "line": 51,
+          "line": 60,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DIGITAL_LITERACY_MODULES",
-          "line": 76,
+          "line": 85,
           "kind": "Variable"
         },
         {
           "name": "digitalLiteracyModuleMinutes",
-          "line": 243,
+          "line": 252,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DIGITAL_LITERACY_TOTAL_MINUTES",
-          "line": 247,
+          "line": 256,
           "kind": "Variable"
         },
         {
           "name": "digitalLiteracyModuleHours",
-          "line": 253,
+          "line": 262,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DIGITAL_LITERACY_DURATION_LABEL",
-          "line": 257,
+          "line": 266,
           "kind": "Variable"
         },
         {
           "name": "DIGITAL_LITERACY_DESCRIPTION",
-          "line": 259,
+          "line": 268,
           "kind": "Variable"
         },
         {
           "name": "digitalLiteracyCatalogCourses",
-          "line": 263,
+          "line": 272,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -148255,113 +148260,118 @@
           "kind": "Variable"
         },
         {
+          "name": "isUngatedDigitalLiteracyProgram",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "DIGITALLEARN_HOME_URL",
-          "line": 12,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_COURSES_URL",
-          "line": 13,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_PROVIDER_NAME",
-          "line": 14,
+          "line": 23,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_VERIFIED_ON",
-          "line": 15,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_TERMS_URL",
-          "line": 16,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_LICENSE_NAME",
-          "line": 17,
+          "line": 26,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_LICENSE_URL",
-          "line": 18,
+          "line": 27,
           "kind": "Variable"
         },
         {
           "name": "DIGITALLEARN_PROVIDER",
-          "line": 20,
+          "line": 29,
           "kind": "Variable"
         },
         {
           "name": "DigitalLiteracyDestinationKind",
-          "line": 34,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DigitalLiteracyLesson",
-          "line": 39,
+          "line": 48,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DigitalLiteracyModule",
-          "line": 51,
+          "line": 60,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "course",
-          "line": 62,
-          "kind": "Variable"
-        },
-        {
-          "name": "verifiedCourse",
-          "line": 63,
-          "kind": "Variable"
-        },
-        {
-          "name": "FILE_MANAGEMENT_MATERIALS_URL",
           "line": 71,
           "kind": "Variable"
         },
         {
+          "name": "verifiedCourse",
+          "line": 72,
+          "kind": "Variable"
+        },
+        {
+          "name": "FILE_MANAGEMENT_MATERIALS_URL",
+          "line": 80,
+          "kind": "Variable"
+        },
+        {
           "name": "VIDEO_CONFERENCING_MATERIALS_URL",
-          "line": 73,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "DIGITAL_LITERACY_MODULES",
-          "line": 76,
+          "line": 85,
           "kind": "Variable"
         },
         {
           "name": "digitalLiteracyModuleMinutes",
-          "line": 243,
+          "line": 252,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DIGITAL_LITERACY_TOTAL_MINUTES",
-          "line": 247,
+          "line": 256,
           "kind": "Variable"
         },
         {
           "name": "digitalLiteracyModuleHours",
-          "line": 253,
+          "line": 262,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DIGITAL_LITERACY_DURATION_LABEL",
-          "line": 257,
+          "line": 266,
           "kind": "Variable"
         },
         {
           "name": "DIGITAL_LITERACY_DESCRIPTION",
-          "line": 259,
+          "line": 268,
           "kind": "Variable"
         },
         {
           "name": "digitalLiteracyCatalogCourses",
-          "line": 263,
+          "line": 272,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -150981,9 +150991,9 @@
       "path": "tests/api/member-course-complete.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4517,
-      "lines": 129,
-      "sha256": "8b3cd785b4c11bd85a01f7eb21f5caa2935f26f9b0e0d3f8fd8e18225b127af7",
+      "bytes": 6877,
+      "lines": 192,
+      "sha256": "daed51bf1647f4dcec82087c486b82f282c94e9cdaf68b9888801ec71c99ad61",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -150994,7 +151004,7 @@
         },
         {
           "name": "request",
-          "line": 30,
+          "line": 31,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -155128,9 +155138,9 @@
       "path": "tests/lib/coursera-unmatched-learners-learning-paths.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
-      "bytes": 2633,
-      "lines": 83,
-      "sha256": "ed40c89935b02f6dac34dbf63291ab01feea848cddee900058deb05ed275bfb2",
+      "bytes": 4813,
+      "lines": 157,
+      "sha256": "32d321180c8ad106e6a8cdbf57a9ff130e16b1e3bf2dd09915c45ee625119f12",
       "binary": false,
       "exports": [],
       "declarations": [

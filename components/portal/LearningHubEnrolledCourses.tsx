@@ -11,7 +11,6 @@ type LearningHubEnrolledCoursesProps = {
   courses: ProgramCourse[];
   completedSlugs: string[];
   assessmentCompleted: boolean;
-  variant?: 'mobile' | 'desktop';
   /** Server-truth Coursera enrollment eligibility for the signed-in member. */
   eligibilityApproved?: boolean;
   /** Per-language course support (audio/subtitles) for the enrolled program. */
@@ -39,24 +38,21 @@ function buildLanguageSupportLine(languagesSupported?: LanguageSupport): string 
   return parts.length > 0 ? parts.join(' · ') : null;
 }
 
+const ENROLLED_COURSES_WRAP_CLASS =
+  'learning-hub-enrolled-courses wa-mx-6 wa-mb-6 md:wa-mx-0 md:wa-mb-8';
+
 export default function LearningHubEnrolledCourses({
   programSlug,
   programTitle,
   courses,
   completedSlugs,
   assessmentCompleted,
-  variant = 'desktop',
   eligibilityApproved = false,
   languagesSupported,
 }: LearningHubEnrolledCoursesProps) {
-  const isMobile = variant === 'mobile';
-  const wrapStyle = isMobile
-    ? { margin: '0 1.5rem 1.5rem' }
-    : { marginBottom: 'var(--space-8)' };
-
   if (!programSlug || !programTitle || courses.length === 0) {
     return (
-      <section style={wrapStyle}>
+      <section className={ENROLLED_COURSES_WRAP_CLASS}>
         <PortalEmptyState
           title="No enrolled classes yet"
           description="When you enroll in a program, your course list appears here with progress. Choose a track to get started."
@@ -87,12 +83,12 @@ export default function LearningHubEnrolledCourses({
   const languageSupportLine = buildLanguageSupportLine(languagesSupported);
 
   return (
-    <section style={wrapStyle}>
+    <section className={ENROLLED_COURSES_WRAP_CLASS}>
       <div
+        className="wa-p-5 md:wa-p-6"
         style={{
           background: 'var(--surface-container-low)',
           borderRadius: 'var(--radius-xl)',
-          padding: isMobile ? '1.25rem' : 'var(--space-6)',
           border: '1px solid var(--outline-variant)',
         }}
       >
@@ -119,7 +115,7 @@ export default function LearningHubEnrolledCourses({
             >
               Enrolled classes
             </p>
-            <h3 style={{ fontSize: isMobile ? '1.125rem' : 'var(--font-size-h3)', fontWeight: 700, margin: 0 }}>
+            <h3 className="wa-text-lg md:wa-text-[length:var(--font-size-h3)]" style={{ fontWeight: 700, margin: 0 }}>
               {programTitle}
             </h3>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
@@ -134,8 +130,8 @@ export default function LearningHubEnrolledCourses({
               </p>
             ) : null}
           </div>
-          <Link href="/dashboard" className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
-            Open Training page
+          <Link href="/dashboard/program" className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
+            Open My Program
           </Link>
         </div>
 

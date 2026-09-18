@@ -20,6 +20,7 @@ function makeRow(overrides: Record<string, unknown> = {}) {
   return {
     fullName: 'Alex Rivera',
     enrolledProgram: null,
+    assessmentCompleted: false,
     organization: { courses: [] },
     courseEnrollments: [{ programSlug: 'it-support-professional-certificate-ibm' }],
     courseProgress: [],
@@ -302,11 +303,12 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   );
   assert.equal(view.firstName, 'Jamie');
   assert.equal(view.points, 0);
-  assert.equal(view.doThisNext, null);
+  assert.equal(view.doThisNext?.id, 'choose_program');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
   assert.equal(view.programHref, '/dashboard/program');
   assert.equal(view.coursesHref, '/dashboard/learning');
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
-  assert.equal(view.nextLesson, undefined);
+  assert.equal(view.nextLesson, 'Choose your program');
   assert.equal(view.programTitle, undefined);
   assert.equal(view.programStatus, undefined);
 });
@@ -317,12 +319,100 @@ test('loader module imports only pure Coursera reconciliation, never providers o
   assert.doesNotMatch(imports, /b4b|programCourseList|learnerProgress/i);
   assert.doesNotMatch(imports, /b4b/i);
   assert.doesNotMatch(imports, /getMemberState/);
+  assert.match(src, /buildNextBestActions/);
+  assert.match(src, /assessmentCompleted: true/);
   assert.doesNotMatch(imports, /maybeAutoSync/);
   assert.doesNotMatch(imports, /getCache/);
   assert.match(src, /from '@\/lib\/coursera\/progressReconciliation/);
   assert.doesNotMatch(src, /nextLesson: 'Continue your training'/);
   assert.doesNotMatch(src, /'Up next'/);
   assert.doesNotMatch(src, /\?\? 'there'/);
+});
+
+test('loadMemberDashboardHome falls back to buildNextBestActions when NBA rows are empty', async () => {
+  const { db, counts } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      courseEnrollments: [],
+      enrolledProgram: null,
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'fresh-member', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.equal(counts().findUniqueCalls, 1);
+  assert.equal(view.doThisNext?.id, 'choose_program');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
+  assert.equal(view.doThisNext?.cta, 'Choose program');
+  assert.equal(view.nextLesson, 'Choose your program');
+  assert.notEqual(view.nextLesson, undefined);
+});
+
+test('loadMemberDashboardHome surfaces preassessment when enrolled and NBA rows are empty', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'enrolled-unassessed', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.equal(view.doThisNext?.id, 'skills_assessment');
+  assert.equal(view.doThisNext?.href, '/dashboard/assessment');
+  assert.equal(view.nextLesson, 'Complete your Training Preassessment');
+});
+
+test('loadMemberDashboardHome keeps a persisted NBA ahead of the heuristic fallback', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      assessmentCompleted: false,
+      nextBestActions: [{
+        id: 'nba-persisted',
+        title: 'Finish Hardware module',
+        description: 'Resume where you left off',
+        ctaHref: '/dashboard/program',
+        ctaLabel: 'Continue',
+        priority: 5,
+      }],
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'persisted-nba', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.doThisNext?.id, 'nba-persisted');
+  assert.equal(view.nextLesson, 'Finish Hardware module');
+});
+
+test('loadMemberDashboardHome names the next incomplete course when NBA rows are empty', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      assessmentCompleted: true,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'in-training', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.ok(view.doThisNext);
+  assert.ok(
+    view.doThisNext.id === 'continue_training' || view.doThisNext.id === 'launch_first_course',
+    `expected a training next step, got ${view.doThisNext.id}`,
+  );
+  assert.notEqual(view.doThisNext.href, '/dashboard');
+  assert.ok(view.nextLesson && view.nextLesson.length > 0);
 });
 
 test('kit-default dashboard page calls the loader and has no prisma. on that branch', () => {

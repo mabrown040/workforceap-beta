@@ -74,9 +74,16 @@ describe('workspace navigation', () => {
   it('keeps the site footer in flow so it cannot cover the last page controls', () => {
     const css = readFileSync(join(process.cwd(), 'css/portal-main-extracted.css'), 'utf8');
     expect(css).toMatch(/\.workspace-shell-main-inner \{[\s\S]*?flex: 1 0 auto;[\s\S]*?min-height: 100%;/);
+    expect(css).toMatch(/\.workspace-shell-main-body \{[\s\S]*?flex: 1 0 auto;/);
     expect(css).toMatch(
       /\.workspace-shell-main-inner > :is\(\.dashboard-site-footer[\s\S]*?position: static;/,
     );
+    const innerFooterRule =
+      css.match(
+        /\.workspace-shell-main-inner > :is\(\.dashboard-site-footer, \.admin-footer, \.portal-minimal-footer\) \{[^}]+\}/,
+      )?.[0] ?? '';
+    expect(innerFooterRule).toMatch(/position: static/);
+    expect(innerFooterRule).not.toMatch(/margin-top:\s*auto/);
     const footerRule = css.match(/\.dashboard-site-footer \{[^}]+\}/)?.[0] ?? '';
     expect(footerRule).toMatch(/position: static/);
     expect(footerRule).toMatch(/background: var\(--wa-surface\)/);
@@ -97,13 +104,18 @@ describe('workspace navigation', () => {
       </NextIntlClientProvider>,
     );
     const inner = container.querySelector('.workspace-shell-main-inner');
+    const body = container.querySelector('.workspace-shell-main-body');
     const footer = container.querySelector('.dashboard-site-footer');
     expect(inner).not.toBeNull();
+    expect(body).not.toBeNull();
     expect(footer).not.toBeNull();
     expect(inner?.contains(footer)).toBe(true);
+    expect(body?.contains(footer)).toBe(false);
+    expect(body?.nextElementSibling).toBe(footer);
     expect(footer?.nextElementSibling).toBeNull();
     const heading = inner?.querySelector('h1');
     expect(heading).not.toBeNull();
+    expect(body?.contains(heading)).toBe(true);
     expect(
       heading && footer
         ? heading.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING

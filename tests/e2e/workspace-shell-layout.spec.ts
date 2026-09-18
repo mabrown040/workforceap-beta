@@ -130,20 +130,27 @@ type FooterClearance = {
   footerZIndex: string;
   innerMinHeight: string;
   innerFlexShrink: string;
+  bodyFlexShrink: string;
+  footerMarginTop: string;
   saveVisible: boolean;
   saveFullyAboveFooter: boolean;
   nextStepsFullyAboveFooter: boolean;
   lastInnerFullyAboveFooter: boolean;
+  saveOverlapsFooterAtCenter: boolean;
+  nextStepsOverlapsFooterAtCenter: boolean;
 };
 
 async function readFooterClearance(page: Page): Promise<FooterClearance> {
   return page.evaluate(() => {
     const main = document.querySelector('.workspace-shell-main');
     const inner = document.querySelector('.workspace-shell-main-inner');
+    const body = document.querySelector('.workspace-shell-main-body');
     const footer = document.querySelector('.dashboard-site-footer');
     if (!(main instanceof HTMLElement) || !(inner instanceof HTMLElement) || !(footer instanceof HTMLElement)) {
       throw new Error('Missing workspace main, inner, or site footer');
     }
+    const intersects = (a: DOMRect, b: DOMRect) =>
+      !(a.bottom <= b.top + 1 || a.top >= b.bottom - 1 || a.right <= b.left + 1 || a.left >= b.right - 1);
     const aboveFooter = (el: Element | null) => {
       if (!(el instanceof HTMLElement)) return false;
       const rect = el.getBoundingClientRect();
@@ -151,16 +158,31 @@ async function readFooterClearance(page: Page): Promise<FooterClearance> {
       return rect.height > 0 && rect.bottom <= footerRect.top + 1;
     };
 
+    const nextStepsHeading = [...inner.querySelectorAll('h2')].find((heading) => heading.textContent?.trim() === 'Next steps') ?? null;
+    const save = [...inner.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Save screening') ?? null;
+
+    // Mike B. screenshot state: Save screening and Next steps both in view while
+    // the legal bar sat on top of them. Center the CTA, then check intersection.
+    if (save instanceof HTMLElement) {
+      save.scrollIntoView({ block: 'center', inline: 'nearest' });
+    }
+    const footerAtCenter = footer.getBoundingClientRect();
+    const saveAtCenter = save instanceof HTMLElement ? save.getBoundingClientRect() : null;
+    const nextAtCenter = nextStepsHeading instanceof HTMLElement ? nextStepsHeading.getBoundingClientRect() : null;
+    const saveOverlapsFooterAtCenter = saveAtCenter != null && intersects(saveAtCenter, footerAtCenter);
+    const nextStepsOverlapsFooterAtCenter = nextAtCenter != null && intersects(nextAtCenter, footerAtCenter);
+
     main.scrollTop = main.scrollHeight;
     document.documentElement.scrollTop = document.documentElement.scrollHeight;
-    const lastContent = [...inner.children]
-      .reverse()
-      .find((el) => !el.classList.contains('dashboard-site-footer') && !el.classList.contains('admin-footer') && !el.classList.contains('portal-minimal-footer')) ?? null;
-    const nextStepsHeading = [...inner.querySelectorAll('h2')].find((heading) => heading.textContent?.trim() === 'Next steps') ?? null;
+    const lastContent =
+      (body instanceof HTMLElement ? body : null) ??
+      [...inner.children]
+        .reverse()
+        .find((el) => !el.classList.contains('dashboard-site-footer') && !el.classList.contains('admin-footer') && !el.classList.contains('portal-minimal-footer')) ??
+      null;
     const lastInnerFullyAboveFooter = aboveFooter(lastContent);
     const nextStepsFullyAboveFooter = aboveFooter(nextStepsHeading);
 
-    const save = [...inner.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Save screening') ?? null;
     if (save instanceof HTMLElement) {
       save.scrollIntoView({ block: 'end', inline: 'nearest' });
     }
@@ -178,10 +200,14 @@ async function readFooterClearance(page: Page): Promise<FooterClearance> {
       footerZIndex: getComputedStyle(footer).zIndex,
       innerMinHeight: getComputedStyle(inner).minHeight,
       innerFlexShrink: getComputedStyle(inner).flexShrink,
+      bodyFlexShrink: body instanceof HTMLElement ? getComputedStyle(body).flexShrink : 'missing',
+      footerMarginTop: getComputedStyle(footer).marginTop,
       saveVisible: saveFullyVisible,
       saveFullyAboveFooter: aboveFooter(save),
       nextStepsFullyAboveFooter,
       lastInnerFullyAboveFooter,
+      saveOverlapsFooterAtCenter,
+      nextStepsOverlapsFooterAtCenter,
     };
   });
 }
@@ -199,6 +225,10 @@ test.describe('site footer does not cover member content', () => {
 
       const clearance = await readFooterClearance(page);
       expect(clearance.footerPosition).toBe('static');
+      expect(clearance.bodyFlexShrink).toBe('0');
+      expect(clearance.footerMarginTop).toBe('0px');
+      expect(clearance.saveOverlapsFooterAtCenter).toBe(false);
+      expect(clearance.nextStepsOverlapsFooterAtCenter).toBe(false);
       expect(clearance.saveVisible).toBe(true);
       expect(clearance.saveFullyAboveFooter).toBe(true);
       expect(clearance.nextStepsFullyAboveFooter).toBe(true);

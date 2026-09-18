@@ -1875,6 +1875,8 @@ html.dark .workspace-sidebar-group-label {
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    height: auto;
+    overflow: visible;
     min-width: 0;
     box-sizing: border-box;
     width: 100%;
@@ -1884,12 +1886,21 @@ html.dark .workspace-sidebar-group-label {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
 }
-/* In-flow after page content. margin-top:auto only consumes extra space
-   inside this growing inner — it must not pin to the viewport. */
+/* Page column grows on short screens and must never shrink under the legal bar.
+   #2323 moved the footer in-flow, but `margin-top: auto` on a viewport-tall
+   inner still pinned Privacy / Terms / Contact over Save screening. */
+.workspace-shell-main-body {
+    flex: 1 0 auto;
+    min-width: 0;
+    min-height: min-content;
+}
+/* In-flow after page content. Do not use margin-top:auto here — that pins the
+   strip to the bottom of a min-height:100% inner while long forms overflow
+   underneath. Short pages still push the footer down because the body grows. */
 .workspace-shell-main-inner > :is(.dashboard-site-footer, .admin-footer, .portal-minimal-footer) {
     position: static;
     flex: 0 0 auto;
-    margin-top: auto;
+    margin-top: 0;
 }
 .dashboard-site-footer {
     position: static;

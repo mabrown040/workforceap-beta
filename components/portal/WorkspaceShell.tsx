@@ -703,7 +703,8 @@ export default function WorkspaceShell({
           {topBanner}
           <UnreviewedLocaleBanner />
           <div className="workspace-shell-main-inner">
-            {children}
+            {/* Body grows on short pages and cannot shrink under the legal footer. */}
+            <div className="workspace-shell-main-body">{children}</div>
             {footer}
           </div>
         </div>

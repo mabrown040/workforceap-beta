@@ -59194,7 +59194,7 @@
   {
     "from": "app/api/unsubscribe/route.ts",
     "specifier": "next/server",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -59202,7 +59202,7 @@
   {
     "from": "app/api/unsubscribe/route.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -59210,15 +59210,23 @@
   {
     "from": "app/api/unsubscribe/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
   },
   {
     "from": "app/api/unsubscribe/route.ts",
+    "specifier": "@/lib/db/exactEmailMatch",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/unsubscribe/route.ts",
     "specifier": "@/lib/email/unsubscribeToken",
-    "line": 14,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/email/unsubscribeToken.ts"
@@ -59226,7 +59234,7 @@
   {
     "from": "app/api/unsubscribe/route.ts",
     "specifier": "@/lib/observability/logger",
-    "line": 15,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/observability/logger.ts"
@@ -115406,6 +115414,38 @@
     "kind": "import",
     "external": false,
     "target": "lib/security/placementSurveyToken.ts"
+  },
+  {
+    "from": "tests/api/unsubscribe.spec.ts",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/unsubscribe.spec.ts",
+    "specifier": "next/server",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/unsubscribe.spec.ts",
+    "specifier": "@/app/api/unsubscribe/route",
+    "line": 27,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/unsubscribe/route.ts"
+  },
+  {
+    "from": "tests/api/unsubscribe.spec.ts",
+    "specifier": "@/lib/email/unsubscribeToken",
+    "line": 28,
+    "kind": "import",
+    "external": false,
+    "target": "lib/email/unsubscribeToken.ts"
   },
   {
     "from": "tests/api/voice-session-boundaries.spec.ts",

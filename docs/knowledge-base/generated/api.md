@@ -509,7 +509,7 @@
 | [app/api/subgroup/members/\[id\]/route.ts](../../../app/api/subgroup/members/%5Bid%5D/route.ts) | 130 | api | GET:12 |
 | [app/api/subgroup/members/route.ts](../../../app/api/subgroup/members/route.ts) | 112 | api | GET:11 |
 | [app/api/test/xapi-access-token/route.ts](../../../app/api/test/xapi-access-token/route.ts) | 37 | api | GET:12 |
-| [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | 57 | api | dynamic:17, POST:39, GET:48 |
+| [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | 72 | api | dynamic:19, POST:54, GET:63 |
 | [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) | 76 | api | POST:17, GET:48 |
 | [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | 392 | learning-coursera | POST:88 |
 | [app/api/webhooks/learning-completion/_webhook.ts](../../../app/api/webhooks/learning-completion/_webhook.ts) | 82 | api | webhookSchema:5, verifyWebhookSecret:11, buildDedupeKey:27, checkIdempotency:33 |

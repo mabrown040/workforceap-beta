@@ -5,12 +5,14 @@
  *        button (body `List-Unsubscribe=One-Click`). Must succeed without
  *        any interaction; the HMAC token in the query is the authorization.
  * GET  — humans clicking the footer link. Unsubscribes (idempotent — the
- *        token can only ever turn notifications off for its own user) and
- *        shows a small confirmation page.
+ *        token can only ever turn notifications off for its own exact
+ *        address, never an ILIKE neighbor) and shows a small confirmation
+ *        page.
  */
 import { NextResponse, type NextRequest } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { verifyUnsubscribeToken } from '@/lib/email/unsubscribeToken';
 import { logger } from '@/lib/observability/logger';
 
@@ -21,12 +23,25 @@ async function unsubscribe(req: NextRequest): Promise<{ ok: boolean }> {
   const email = verifyUnsubscribeToken(token);
   if (!email) return { ok: false };
   try {
-    await withSystemGuc(() =>
-      prisma.user.updateMany({
+    await withSystemGuc(async () => {
+      // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in the token email
+      // are wildcards. `real_person@x.org` therefore also matches
+      // `real.person@x.org`. This route is unauthenticated; the HMAC only
+      // proves the caller may mute the token's own address, never a
+      // same-shaped neighbor. Collect ILIKE candidates, then update only the
+      // exact row. See lib/db/exactEmailMatch.ts.
+      const candidates = await prisma.user.findMany({
         where: { email: { equals: email, mode: 'insensitive' } },
+        select: { id: true, email: true },
+        take: EXACT_EMAIL_CANDIDATE_LIMIT,
+      });
+      const match = pickExactEmailMatch(candidates, email);
+      if (!match) return;
+      await prisma.user.update({
+        where: { id: match.id },
         data: { notificationsUpdates: false, notificationsReminders: false },
-      }),
-    );
+      });
+    });
     // Zero matched rows is still success: there is nothing subscribed under
     // that address, which is exactly the state the requester asked for.
     return { ok: true };

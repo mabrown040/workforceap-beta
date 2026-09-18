@@ -895,7 +895,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/subgroup/members/\[id\] | route | GET | [app/api/subgroup/members/\[id\]/route.ts](../../../app/api/subgroup/members/%5Bid%5D/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:11 |
 | /api/subgroup/members | route | GET | [app/api/subgroup/members/route.ts](../../../app/api/subgroup/members/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:10 |
 | /api/test/xapi-access-token | route | GET | [app/api/test/xapi-access-token/route.ts](../../../app/api/test/xapi-access-token/route.ts) |  |
-| /api/unsubscribe | route | POST, GET | [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | @/lib/db/withRequestGuc:13 |
+| /api/unsubscribe | route | POST, GET | [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | @/lib/db/withRequestGuc:14 |
 | /api/waitlist | route | POST, GET | [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) |  |
 | /api/webhooks/coursera | route | POST | [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | @/lib/rate-limit:4, @/lib/coursera/webhookAuth:9, @/lib/db/withRequestGuc:19, @/lib/tenant/resolveOrgFromRequest:20 |
 | /api/webhooks/learning-completion | route | POST | [app/api/webhooks/learning-completion/route.ts](../../../app/api/webhooks/learning-completion/route.ts) | @/lib/rate-limit:2, @/lib/db/withRequestGuc:9 |

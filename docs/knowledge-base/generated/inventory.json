@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "76e111cbcb024d6a36cd8d04aa9704884cb2a9954793efd0605058fa21efdd55",
+  "inputTreeSha256": "334a0d80edad5f2039ab2d105258276e06d8f1ddfb4389849d83f2d383ca6a3d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -39926,46 +39926,46 @@
       "path": "app/api/unsubscribe/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 3081,
-      "lines": 57,
-      "sha256": "3bbc7122e1cc3d1beaddce9f7b9902f84ffc3ed31b1d986651628530a2177e1f",
+      "bytes": 3918,
+      "lines": 72,
+      "sha256": "744a1d7f25e7b208b6760d10384bc802f0daeb5ba04968e8a9eedddc0aae32b4",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 17,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 39,
+          "line": 54,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 48,
+          "line": 63,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "dynamic",
-          "line": 17,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "unsubscribe",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 39,
+          "line": 54,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 48,
+          "line": 63,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -150017,6 +150017,29 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/api/unsubscribe.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3306,
+      "lines": 99,
+      "sha256": "a817940fc1e6f776d8dcb67aaecd635a9af0a4a516f48887698b4d05e1722008",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {

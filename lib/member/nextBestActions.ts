@@ -84,7 +84,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     });
   }
 
-  if (ctx.state === 'B') {
+  if ((ctx.state === 'B' || ctx.state === 'C') && !ctx.assessmentCompleted) {
     if (ctx.starterProfileReviewRequired) {
       const missing = ctx.starterProfileMissingFields?.slice(0, 3) ?? [];
       const missingNote = missing.length > 0 ? ` Missing: ${missing.join(', ')}.` : '';

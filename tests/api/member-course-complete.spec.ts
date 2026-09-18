@@ -119,8 +119,14 @@ describe('Learning Hub completion identity contract', () => {
     expect(learningPage).toContain("activeEnrollment?.curriculumVersion ?? 'legacy-v1'");
   });
 
-  it('threads the exact program slug through both Hub layouts into completion POST', () => {
-    expect(learningPage.match(/programSlug=\{enrolledProgram\}/g)).toHaveLength(2);
+  it('mounts the enrolled course list once so #course- anchors stay unique', () => {
+    expect(learningPage.match(/<LearningHubEnrolledCourses/g)).toHaveLength(1);
+    expect(learningPage.match(/programSlug=\{enrolledProgram\}/g)).toHaveLength(1);
+    expect(enrolledCourses).toContain('programSlug={programSlug}');
+    expect(trainingCourseList).toContain('id={`course-${c.slug}`}');
+  });
+
+  it('threads the exact program slug through the Hub list into completion POST', () => {
     expect(enrolledCourses).toContain('programSlug={programSlug}');
     expect(trainingCourseList).toContain(
       'body: JSON.stringify({ courseSlug: slug, programSlug })',

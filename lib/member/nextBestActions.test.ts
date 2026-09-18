@@ -154,4 +154,21 @@ describe('buildNextBestActions', () => {
     expect(actions.some((a) => a.id === 'launch_first_course')).toBe(true);
     expect(actions.some((a) => a.id === 'see_training_plan')).toBe(true);
   });
+
+  test('shows skills_assessment for getMemberState letter C while preassessment is open', () => {
+    const actions = buildNextBestActions({
+      state: 'C',
+      noApplicationOnFile: false,
+      enrolledProgram: 'it-support',
+      assessmentCompleted: false,
+      starterProfileReviewRequired: false,
+      hasResume: false,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 40,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+    expect(actions[0]?.id).toBe('skills_assessment');
+  });
 });

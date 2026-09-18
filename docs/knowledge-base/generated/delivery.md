@@ -12,4 +12,4 @@
 | [.github/workflows/force-rls-shadow.yml](../../../.github/workflows/force-rls-shadow.yml) | 80 | delivery |  |
 | [.github/workflows/knowledge-base.yml](../../../.github/workflows/knowledge-base.yml) | 32 | delivery |  |
 | [.github/workflows/locked-product-stakes.yml](../../../.github/workflows/locked-product-stakes.yml) | 144 | delivery |  |
-| [.github/workflows/mirror-master-to-preview.yml](../../../.github/workflows/mirror-master-to-preview.yml) | 69 | delivery |  |
+| [.github/workflows/mirror-master-to-preview.yml](../../../.github/workflows/mirror-master-to-preview.yml) | 67 | delivery |  |

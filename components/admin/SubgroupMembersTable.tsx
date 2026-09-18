@@ -40,6 +40,12 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
     if (!removing) setRemoveTarget(null);
   };
   const closeAddModal = () => setShowAddModal(false);
+  // `useFocusTrap` already moves initial focus to the first focusable element
+  // in the dialog (the Cancel button / the search input) once it has recorded
+  // the trigger. Do NOT add `autoFocus` inside these dialogs: it fires during
+  // React's commit phase, before the trap's effect reads `document.activeElement`,
+  // so the trap would capture an in-dialog node as the restore target and focus
+  // would drop to <body> on close instead of returning to the trigger.
   const removeTrapRef = useFocusTrap(!!removeTarget, closeRemoveTarget);
   const addModalTrapRef = useFocusTrap(showAddModal, closeAddModal);
 
@@ -243,7 +249,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
               Remove <strong>{removeTarget.name}</strong> from this subgroup? They keep their WorkforceAP account.
             </p>
             <div className="admin-confirm-modal__actions">
-              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={closeRemoveTarget} autoFocus>
+              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={closeRemoveTarget}>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" disabled={!!removing} onClick={() => void runRemoveMember()}>
@@ -293,7 +299,6 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), doSearch())}
                 placeholder="Search by name or email"
                 style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
-                autoFocus
               />
               <button type="button" className="btn btn-primary" onClick={() => doSearch()} disabled={searching}>
                 {searching ? 'Searching…' : 'Search'}

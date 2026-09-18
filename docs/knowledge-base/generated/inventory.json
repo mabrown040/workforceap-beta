@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9f01df014e46663e9dea3e68a93e80cb6ab35feb2cb478ed6ebebdd5769c278f",
+  "inputTreeSha256": "1d11051fee671f8605556b28170937d42ffa44e2f92fc67c0f9e82addf74d9b1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -46946,9 +46946,9 @@
       "path": "components/Footer.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 11544,
+      "bytes": 11549,
       "lines": 121,
-      "sha256": "60729655ed1060c0056527a9cf00d35bbadbb1d259241677e331365e020d55d8",
+      "sha256": "957a24b83da6bdcbf9adb764a26de387103e5f4a1d3da415977c43ffbb89faa5",
       "binary": false,
       "exports": [
         {
@@ -47306,14 +47306,14 @@
       "path": "components/MainNav.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 23849,
-      "lines": 565,
-      "sha256": "161434d7f3e10d4c44f34b08b6a535e75c93de699a2e0dc841609ebd296cb98c",
+      "bytes": 24268,
+      "lines": 573,
+      "sha256": "1d2b81002ac5d7e2bde6e70e7beb62c8577ba76e929785422459adaa56b6cd09",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 92,
+          "line": 96,
           "kind": "FunctionDeclaration",
           "localName": "MainNav"
         }
@@ -47331,57 +47331,57 @@
         },
         {
           "name": "dropdownMenuId",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PREFETCH_HIGH_PRIORITY",
-          "line": 46,
+          "line": 50,
           "kind": "Variable"
         },
         {
           "name": "marketingNavPrefetch",
-          "line": 47,
+          "line": 51,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isOnApplyFunnel",
-          "line": 57,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GuestSignInCTAKey",
-          "line": 62,
+          "line": 66,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "GuestLoginSubmenuItem",
-          "line": 69,
+          "line": 73,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PortalLinkSubmenuItem",
-          "line": 75,
+          "line": 79,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "GUEST_LOGIN_SUBMENU",
-          "line": 78,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "PortalSubmenuItem",
-          "line": 86,
+          "line": 90,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PARTNER_EXCLUSIVE_LOGIN_SUBMENU",
-          "line": 89,
+          "line": 93,
           "kind": "Variable"
         },
         {
           "name": "MainNav",
-          "line": 92,
+          "line": 96,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -47421,14 +47421,14 @@
       "path": "components/MobileBottomNav.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 7267,
-      "lines": 181,
-      "sha256": "03b2d6c68869bd975218a8ccecb898693e3afbf678d7ad84433c39664aae0438",
+      "bytes": 7429,
+      "lines": 183,
+      "sha256": "8b3f730c5aad974c9bc7d7a1e75ca957481792ad7ee955c501476d5df5d45f76",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 64,
+          "line": 66,
           "kind": "FunctionDeclaration",
           "localName": "MobileBottomNav"
         }
@@ -47446,37 +47446,37 @@
         },
         {
           "name": "EMPLOYER_TABS",
-          "line": 24,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "COUNSELOR_TABS",
-          "line": 31,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "PARTNER_TABS",
-          "line": 38,
+          "line": 39,
           "kind": "Variable"
         },
         {
           "name": "ADMIN_TABS",
-          "line": 46,
+          "line": 48,
           "kind": "Variable"
         },
         {
           "name": "MobileBottomNavProps",
-          "line": 52,
+          "line": 54,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "prefetchForBottomTab",
-          "line": 57,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MobileBottomNav",
-          "line": 64,
+          "line": 66,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -47570,9 +47570,9 @@
       "path": "components/ProgramsDecisionJourneyNav.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8298,
-      "lines": 242,
-      "sha256": "29de28bec310c9c79d22b7d71597b4f411ca5f2ad7bbd8a6572bc098fe564b94",
+      "bytes": 8492,
+      "lines": 244,
+      "sha256": "d18b1d30a66094adb851cf3d8801b77cb7f77fbc8b4ecc8acd194441a1216152",
       "binary": false,
       "exports": [
         {
@@ -47582,7 +47582,7 @@
         },
         {
           "name": "default",
-          "line": 29,
+          "line": 31,
           "kind": "FunctionDeclaration",
           "localName": "ProgramsDecisionJourneyNav"
         }
@@ -47600,7 +47600,7 @@
         },
         {
           "name": "ProgramsDecisionJourneyNav",
-          "line": 29,
+          "line": 31,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -59844,9 +59844,9 @@
       "path": "components/portal/MemberPortalTopNav.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3953,
+      "bytes": 3939,
       "lines": 93,
-      "sha256": "1799a4625e2b620c0d1099977092ecb542d8c72da487da463fa15da4ee7f8cba",
+      "sha256": "c5a8a61f2aa06a6afa28ddaccdf3d3f670d86512f84c5f73884449d101bd7fef",
       "binary": false,
       "exports": [
         {
@@ -114485,9 +114485,9 @@
       "path": "lib/marketing-public-ui-regressions.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 2410,
-      "lines": 48,
-      "sha256": "758c15154ff7b6d360b7b73f471c1e20da6b640d042c291de8107a7299d35056",
+      "bytes": 4502,
+      "lines": 96,
+      "sha256": "2b2c24914361d4c1a6ecfa381034ffeebc368597567b1a628147485c58749703",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -136159,9 +136159,9 @@
       "path": "marketing/src/layouts/Layout.astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 14327,
-      "lines": 254,
-      "sha256": "70ece111aed4db5bd5fc154d680ca464ab35d8590e46a64deb81120c93a5b1d2",
+      "bytes": 14372,
+      "lines": 255,
+      "sha256": "aa6d13b2caae597b3e3010df652d18c5faac11779c22ac2e1e1621af40651025",
       "binary": false
     },
     {
@@ -136450,9 +136450,9 @@
       "path": "marketing/src/pages/programs.astro",
       "area": "astro-marketing",
       "domain": "astro-marketing",
-      "bytes": 34294,
+      "bytes": 34297,
       "lines": 618,
-      "sha256": "f1cc1d7e77adaade81092572f00346b23c31ff51bdd48df42b10df35e9c999ac",
+      "sha256": "91904f59149a2a3ce9be0dfc390024a136e5463659b0b1ef2227a69d052c7bf1",
       "binary": false
     },
     {
@@ -136531,27 +136531,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 187509,
-      "lines": 3066,
-      "sha256": "4f6fe71c5c8117bd46725c806e48d1abcd334c8ec215d31804bf65ab1ea82386",
+      "bytes": 187711,
+      "lines": 3071,
+      "sha256": "1677821eedd0b7f568ac3c5ba2a61e2a6b17f92720fa26807802a961ef3624bf",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 205857,
-      "lines": 3053,
-      "sha256": "3a195ddd8efd1fcfe67f27a0eb52dfd6573094bfbb5b6ebd61e42fadbd0462a3",
+      "bytes": 206094,
+      "lines": 3058,
+      "sha256": "4c04d25f9304960e8efafad1690f94ed344167dfe39d44c7ba54e8771f4814a9",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206785,
-      "lines": 3006,
-      "sha256": "25d7cd31127722ee3a05dee025118894d21bc6f889cad88eccbfffcb7d161d59",
+      "bytes": 207006,
+      "lines": 3011,
+      "sha256": "21e2fca9ddf26a8fbd3f74eac195bc768cce09a052507bc84778c12c807d256b",
       "binary": false
     },
     {
@@ -136567,9 +136567,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 198816,
-      "lines": 3006,
-      "sha256": "9e7959da7ed84677dc29fdad2fa10d76f7f56d20c4c01e3f6319b0d430a6b54f",
+      "bytes": 199046,
+      "lines": 3011,
+      "sha256": "5e6b2a298e62b86bf6c6805659eb9f3c8c0df7e9956843b58f3aa22d37d6dc0b",
       "binary": false
     },
     {

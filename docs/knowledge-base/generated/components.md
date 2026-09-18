@@ -23,13 +23,13 @@
 | [components/JsonLdFAQPage.tsx](../../../components/JsonLdFAQPage.tsx) | 39 | components | default:16 |
 | [components/LocalizedLink.tsx](../../../components/LocalizedLink.tsx) | 38 | components | default:28 |
 | [components/LocalizedLinkServer.tsx](../../../components/LocalizedLinkServer.tsx) | 42 | components | default:30 |
-| [components/MainNav.tsx](../../../components/MainNav.tsx) | 565 | components | default:92 |
+| [components/MainNav.tsx](../../../components/MainNav.tsx) | 573 | components | default:96 |
 | [components/MarkdownPreview.tsx](../../../components/MarkdownPreview.tsx) | 24 | components | default:9 |
-| [components/MobileBottomNav.tsx](../../../components/MobileBottomNav.tsx) | 181 | components | default:64 |
+| [components/MobileBottomNav.tsx](../../../components/MobileBottomNav.tsx) | 183 | components | default:66 |
 | [components/PageHero.tsx](../../../components/PageHero.tsx) | 22 | components | default:1 |
 | [components/PhotoHighlight.tsx](../../../components/PhotoHighlight.tsx) | 45 | components | default:13 |
 | [components/ProgramIcon.tsx](../../../components/ProgramIcon.tsx) | 20 | components | ProgramIcon:17 |
-| [components/ProgramsDecisionJourneyNav.tsx](../../../components/ProgramsDecisionJourneyNav.tsx) | 242 | components | ProgramsJourneyStep:7, default:29 |
+| [components/ProgramsDecisionJourneyNav.tsx](../../../components/ProgramsDecisionJourneyNav.tsx) | 244 | components | ProgramsJourneyStep:7, default:31 |
 | [components/SafeVercelMetrics.tsx](../../../components/SafeVercelMetrics.tsx) | 35 | components | default:28 |
 | [components/ScrollAnimations.tsx](../../../components/ScrollAnimations.tsx) | 185 | components | default:48 |
 | [components/ScrollAnimationsWrapper.tsx](../../../components/ScrollAnimationsWrapper.tsx) | 47 | components | default:9 |

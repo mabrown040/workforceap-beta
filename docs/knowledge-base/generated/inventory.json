@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "8ab8c22da30b73721ba5f94045cd3a6498af940be43059b58e3f8824e83da72a",
+  "inputTreeSha256": "bd82ccedba2cf462b5c5d9630142bcf09b0a04f64023ef442761aa3383c68043",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -20582,24 +20582,24 @@
       "path": "app/admin/training-progress/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 29927,
-      "lines": 746,
-      "sha256": "39eec2e4f5a0b7064f88412883cc43d9e48df07e11176ceb1f60ce026c3fcf51",
+      "bytes": 30991,
+      "lines": 755,
+      "sha256": "cf5f0f944b7486d4c7ed90a5469ef3460429a1d7a4b234efdb032b0c0e4cc550",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 31,
+          "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 40,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 45,
+          "line": 47,
           "kind": "FunctionDeclaration",
           "localName": "AdminTrainingProgressPage"
         }
@@ -20607,27 +20607,27 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 31,
+          "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 40,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "STALLED_IDLE_DAYS",
-          "line": 43,
+          "line": 45,
           "kind": "Variable"
         },
         {
           "name": "AdminTrainingProgressPage",
-          "line": 45,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "renderLegacy",
-          "line": 407,
+          "line": 416,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -25719,9 +25719,9 @@
       "path": "app/api/admin/members/[id]/upload-resume/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7221,
+      "bytes": 7215,
       "lines": 195,
-      "sha256": "224639c2da190435bd8536d494fcf9128c985e0c807bf54a86365aefbe5b20db",
+      "sha256": "88277ceae439f630fb8b84a7f77cab1746fb282af5f8473bcddc00f0779d10e8",
       "binary": false,
       "exports": [
         {
@@ -31187,9 +31187,9 @@
       "path": "app/api/counselor/sessions/upload-resume/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5811,
+      "bytes": 5805,
       "lines": 155,
-      "sha256": "6234eb6eda424993bb52a0802133febb94e800c058c3ccc93997e7231764bc01",
+      "sha256": "84f24263078f7f28de151de997d4f85638f641e6b547b681c126da5da5e6d590",
       "binary": false,
       "exports": [
         {
@@ -37424,9 +37424,9 @@
       "path": "app/api/member/resume/upload/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 4787,
+      "bytes": 4781,
       "lines": 115,
-      "sha256": "4f30675dddb305a87bf8a01e8a18c925c5c0f8c68f9e25a092196c9813ca1c3c",
+      "sha256": "9e6bc296389fd2655bed60cf21ee21f34ac85367d77350692a69661c11e656d9",
       "binary": false,
       "exports": [
         {
@@ -52570,6 +52570,61 @@
         {
           "name": "TrainingProgressClient",
           "line": 418,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
+    },
+    {
+      "path": "components/admin/TrainingProgressRoster.tsx",
+      "area": "components",
+      "domain": "administration",
+      "bytes": 7532,
+      "lines": 254,
+      "sha256": "b414039e61daf4fb1391298c45753f73324203baab893e446cf6a59bd3b1505f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "TrainingProgressRosterProps",
+          "line": 81,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "default",
+          "line": 93,
+          "kind": "FunctionDeclaration",
+          "localName": "TrainingProgressRoster"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SORT_LABELS",
+          "line": 45,
+          "kind": "Variable"
+        },
+        {
+          "name": "LINK_LABELS",
+          "line": 54,
+          "kind": "Variable"
+        },
+        {
+          "name": "PACE_LABELS",
+          "line": 61,
+          "kind": "Variable"
+        },
+        {
+          "name": "SELECT_STYLE",
+          "line": 69,
+          "kind": "Variable"
+        },
+        {
+          "name": "TrainingProgressRosterProps",
+          "line": 81,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "TrainingProgressRoster",
+          "line": 93,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -69339,56 +69394,56 @@
       "path": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8652,
-      "lines": 283,
-      "sha256": "08493ec3fcb56602ffa36ececf5044d520ea205f340678e06d8a9bfb64b6ac99",
+      "bytes": 9142,
+      "lines": 295,
+      "sha256": "70580bd2740f596ee7e38f02f1e11e561c86230661be69e86835e570365ca356",
       "binary": false,
       "exports": [
         {
           "name": "Pace",
-          "line": 26,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TrainingRow",
-          "line": 28,
+          "line": 29,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TrainingProgressKitProps",
-          "line": 50,
+          "line": 51,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TrainingProgressKit",
-          "line": 71,
+          "line": 78,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "Pace",
-          "line": 26,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TrainingRow",
-          "line": 28,
+          "line": 29,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TrainingProgressKitProps",
-          "line": 50,
+          "line": 51,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PACE_TOKEN_COLOR",
-          "line": 64,
+          "line": 71,
           "kind": "Variable"
         },
         {
           "name": "TrainingProgressKit",
-          "line": 71,
+          "line": 78,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75332,9 +75387,9 @@
       "path": "docs/STAGING_ENV.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 5104,
-      "lines": 96,
-      "sha256": "6354463e3cf376b7c431b4f57fccc769e9f5d4598b0a00783252907ae9f0b41d",
+      "bytes": 4939,
+      "lines": 94,
+      "sha256": "1484437e4895c3625711c4865e01ef3428b49e1e2ba7c0721fb0e353059f5301",
       "binary": false
     },
     {
@@ -77006,9 +77061,9 @@
       "path": "docs/knowledge-base/operations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 23163,
+      "bytes": 23115,
       "lines": 164,
-      "sha256": "f29d49f99faa815d83fae60e83ab358920c97130825184518779c1d64679ccb7",
+      "sha256": "c73add7098c24effc989f26d0eefe16bcec4c917b9cecc852449027e0a1fe44f",
       "binary": false
     },
     {
@@ -85347,6 +85402,294 @@
         {
           "name": "loadTrainingDashboardData",
           "line": 70,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/trainingProgressGrades.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 2153,
+      "lines": 56,
+      "sha256": "c0c5d1f8f354d4c82b9b26e25578d960ea563c8b9db984ab389adf8e838d2456",
+      "binary": false,
+      "exports": [
+        {
+          "name": "CourseGradeFact",
+          "line": 21,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "latestCompletedGradeByUser",
+          "line": 31,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CourseGradeFact",
+          "line": 21,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "latestCompletedGradeByUser",
+          "line": 31,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/trainingProgressRoster.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 8042,
+      "lines": 247,
+      "sha256": "2d26b0b5774ef521a2c2edf7c4d26fb68d0efd60b353e4beb6c4e9d658a74cc2",
+      "binary": false,
+      "exports": [
+        {
+          "name": "RosterRow",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PACE_FILTERS",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "PaceFilter",
+          "line": 30,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LINK_FILTERS",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "LinkFilter",
+          "line": 33,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SORT_KEYS",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "SortKey",
+          "line": 43,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SortDirection",
+          "line": 45,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "RosterFilters",
+          "line": 47,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_ROSTER_FILTERS",
+          "line": 56,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_SORT_KEY",
+          "line": 63,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_SORT_DIRECTION",
+          "line": 64,
+          "kind": "Variable"
+        },
+        {
+          "name": "filterTrainingRows",
+          "line": 101,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortTrainingRows",
+          "line": 153,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RosterSummary",
+          "line": 179,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "summarizeTrainingRows",
+          "line": 193,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "countMembersWithTraining",
+          "line": 222,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "rosterProgramOptions",
+          "line": 233,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isPaceFilter",
+          "line": 237,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isLinkFilter",
+          "line": 241,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isSortKey",
+          "line": 245,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "RosterRow",
+          "line": 14,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PACE_FILTERS",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "PaceFilter",
+          "line": 30,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LINK_FILTERS",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "LinkFilter",
+          "line": 33,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SORT_KEYS",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "SortKey",
+          "line": 43,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SortDirection",
+          "line": 45,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "RosterFilters",
+          "line": 47,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DEFAULT_ROSTER_FILTERS",
+          "line": 56,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_SORT_KEY",
+          "line": 63,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_SORT_DIRECTION",
+          "line": 64,
+          "kind": "Variable"
+        },
+        {
+          "name": "PACE_RANK",
+          "line": 71,
+          "kind": "Variable"
+        },
+        {
+          "name": "paceRank",
+          "line": 78,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "moduleRatio",
+          "line": 82,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "matchesLink",
+          "line": 86,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "filterTrainingRows",
+          "line": 101,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "compareOn",
+          "line": 123,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "gradeOf",
+          "line": 148,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sortTrainingRows",
+          "line": 153,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RosterSummary",
+          "line": 179,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "summarizeTrainingRows",
+          "line": 193,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "countMembersWithTraining",
+          "line": 222,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "rosterProgramOptions",
+          "line": 233,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isPaceFilter",
+          "line": 237,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isLinkFilter",
+          "line": 241,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isSortKey",
+          "line": 245,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -127711,9 +128054,9 @@
       "path": "lib/resume/atomicResumeObjectSwap.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 8553,
+      "bytes": 8552,
       "lines": 270,
-      "sha256": "a94c6e3d717dbc7d22903719b03b72a6d19debe188149bb9dd4c058382c96918",
+      "sha256": "2478c31b3a361524fa7943b0210ebeebc4e9d54460a83f64945d86889e4ddf3f",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -127734,9 +128077,9 @@
       "path": "lib/resume/atomicResumeObjectSwap.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7786,
-      "lines": 214,
-      "sha256": "b4a898c76a64b5fa64dbd5243d72d6ec197b16747dccf4df9a0f605b7dcaf4ee",
+      "bytes": 8508,
+      "lines": 227,
+      "sha256": "a12f7fc232c92a5b8e951ebc372b60d6813ece9d48859f31c1d1151e98e9e137",
       "binary": false,
       "exports": [
         {
@@ -127756,37 +128099,37 @@
         },
         {
           "name": "AtomicResumeObjectSwapOptions",
-          "line": 20,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "removeResumeObjectsWithRetry",
-          "line": 48,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapError",
-          "line": 69,
+          "line": 82,
           "kind": "ClassDeclaration"
         },
         {
           "name": "isResumeObjectPathOwnedByUser",
-          "line": 103,
+          "line": 116,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isLegacyResumeProfilePath",
-          "line": 111,
+          "line": 124,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isApplicationResumeSnapshotPath",
-          "line": 118,
+          "line": 131,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "replaceResumeObjectsAtomically",
-          "line": 140,
+          "line": 153,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -127808,57 +128151,57 @@
         },
         {
           "name": "StorageResult",
-          "line": 16,
+          "line": 29,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapOptions",
-          "line": 20,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "ResumeObjectCleanupOptions",
-          "line": 40,
+          "line": 53,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "removeResumeObjectsWithRetry",
-          "line": 48,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtomicResumeObjectSwapError",
-          "line": 69,
+          "line": 82,
           "kind": "ClassDeclaration"
         },
         {
           "name": "objectPrefix",
-          "line": 92,
+          "line": 105,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "safeVersionId",
-          "line": 96,
+          "line": 109,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isResumeObjectPathOwnedByUser",
-          "line": 103,
+          "line": 116,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isLegacyResumeProfilePath",
-          "line": 111,
+          "line": 124,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isApplicationResumeSnapshotPath",
-          "line": 118,
+          "line": 131,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "replaceResumeObjectsAtomically",
-          "line": 140,
+          "line": 153,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -128481,9 +128824,9 @@
       "path": "lib/resume/prepareResumeUpload.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 5164,
-      "lines": 145,
-      "sha256": "5c2ea7a19c81302882a566ba56cdd910f4b0719424eb74fcb6e2bade6b15ff29",
+      "bytes": 5871,
+      "lines": 157,
+      "sha256": "d9f987a0ad87b58ae7535e3eafc902fd6c02188057a25a953d6524dc6ca87246",
       "binary": false,
       "exports": [
         {
@@ -128528,7 +128871,7 @@
         },
         {
           "name": "prepareResumeUpload",
-          "line": 108,
+          "line": 117,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -128585,22 +128928,22 @@
         },
         {
           "name": "fail",
-          "line": 82,
+          "line": 91,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "extensionFromName",
-          "line": 86,
+          "line": 95,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hasCompatibleMimeType",
-          "line": 90,
+          "line": 99,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "prepareResumeUpload",
-          "line": 108,
+          "line": 117,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -128841,6 +129184,44 @@
           "name": "aiResumeUploadForms",
           "line": 71,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/resume/resumeUploadBodyFidelity.test.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 9349,
+      "lines": 245,
+      "sha256": "437dd383d9aa21f1ecfefc40986fb69dd6356dcd1167743b353548e140b4cd92",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "nodeRequire",
+          "line": 25,
+          "kind": "Variable"
+        },
+        {
+          "name": "fileLike",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "docxFixture",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RESUME_TEXT",
+          "line": 66,
+          "kind": "Variable"
+        },
+        {
+          "name": "resumeFixtures",
+          "line": 69,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -140686,65 +141067,55 @@
       "path": "scripts/check-supabase-env.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 2829,
-      "lines": 81,
-      "sha256": "0de99d11bbc028965756599002c26887f6e734a422ea1ae395878250f6d2de0d",
+      "bytes": 2745,
+      "lines": 78,
+      "sha256": "49040e4c213c382f19cf01d020a725f4d24b73d4ebaef5bca52fc443dcab3bca",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "DEMO_REF",
-          "line": 17,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "PROD_REF",
-          "line": 17,
-          "kind": "Variable"
-        },
-        {
-          "name": "formatSupabaseEnvGuardFailure",
-          "line": 17,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "inspectSupabaseEnvironment",
-          "line": 17,
-          "kind": "Variable"
-        },
-        {
-          "name": "projectForAnonKey",
-          "line": 17,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "projectForUrl",
-          "line": 17,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "env",
-          "line": 37,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "urls",
-          "line": 39,
+          "line": 36,
           "kind": "Variable"
         },
         {
           "name": "expected",
-          "line": 46,
+          "line": 43,
           "kind": "Variable"
         },
         {
           "name": "errors",
-          "line": 47,
+          "line": 44,
           "kind": "Variable"
         },
         {
           "name": "seen",
-          "line": 48,
+          "line": 45,
           "kind": "Variable"
         }
       ],
@@ -143864,49 +144235,39 @@
       "path": "scripts/lib/supabase-project-guard.cjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 9985,
-      "lines": 261,
-      "sha256": "2f8279102316471200f09f1279716440cbaf24f385e28d0403a65d1aec6282e9",
+      "bytes": 5963,
+      "lines": 164,
+      "sha256": "c168fc79b7d650151288a3e58a710fe8419ec7f918b363d5113350c0d103e2c0",
       "binary": false,
       "exports": [
         {
           "name": "DEMO_REF",
-          "line": 253,
+          "line": 158,
           "kind": "CommonJSExport"
         },
         {
           "name": "PROD_REF",
-          "line": 254,
+          "line": 159,
           "kind": "CommonJSExport"
         },
         {
           "name": "assertSupabaseEnvironment",
-          "line": 255,
+          "line": 160,
           "kind": "CommonJSExport"
         },
         {
           "name": "expectedProjectForVercelEnv",
-          "line": 256,
-          "kind": "CommonJSExport"
-        },
-        {
-          "name": "formatSupabaseEnvGuardFailure",
-          "line": 257,
+          "line": 161,
           "kind": "CommonJSExport"
         },
         {
           "name": "inspectSupabaseEnvironment",
-          "line": 258,
-          "kind": "CommonJSExport"
-        },
-        {
-          "name": "projectForAnonKey",
-          "line": 259,
+          "line": 162,
           "kind": "CommonJSExport"
         },
         {
           "name": "projectForUrl",
-          "line": 260,
+          "line": 163,
           "kind": "CommonJSExport"
         }
       ],
@@ -143937,38 +144298,18 @@
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "decodeJwtPayload",
+          "name": "expectedProjectForVercelEnv",
           "line": 63,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "projectForRef",
-          "line": 77,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "projectForAnonKey",
-          "line": 88,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "expectedProjectForVercelEnv",
-          "line": 105,
-          "kind": "FunctionDeclaration"
-        },
-        {
           "name": "inspectSupabaseEnvironment",
-          "line": 111,
+          "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertSupabaseEnvironment",
-          "line": 209,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "formatSupabaseEnvGuardFailure",
-          "line": 220,
+          "line": 146,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -150216,6 +150557,49 @@
       "directive": null
     },
     {
+      "path": "tests/components/admin-training-progress-roster.test.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 9799,
+      "lines": 237,
+      "sha256": "c07add67c967fb3d96c878f44719cb86265644b6accb2c5e79f54adf16957ba7",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "IT",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "AI",
+          "line": 27,
+          "kind": "Variable"
+        },
+        {
+          "name": "ROWS",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "studentsInTable",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "kpi",
+          "line": 80,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "renderRoster",
+          "line": 87,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/agent-inbox-retry.spec.tsx",
       "area": "tests",
       "domain": "tests",
@@ -153756,6 +154140,54 @@
       "directive": null
     },
     {
+      "path": "tests/lib/training-progress-roster.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 14999,
+      "lines": 399,
+      "sha256": "69ed3ef787242e348d94c2f7d18e91a5da0d2efafb5ee287274fae373486287d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "row",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "NOEL",
+          "line": 30,
+          "kind": "Variable"
+        },
+        {
+          "name": "JOSEPH",
+          "line": 41,
+          "kind": "Variable"
+        },
+        {
+          "name": "AVERY",
+          "line": 53,
+          "kind": "Variable"
+        },
+        {
+          "name": "UNMATCHED",
+          "line": 63,
+          "kind": "Variable"
+        },
+        {
+          "name": "ALL",
+          "line": 74,
+          "kind": "Variable"
+        },
+        {
+          "name": "ids",
+          "line": 75,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/training-workspace-schedule.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -154227,9 +154659,9 @@
       "path": "tests/scripts/preview-approved-curriculum-schema.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 20375,
-      "lines": 491,
-      "sha256": "8fa620e4a049d8d3a4c2eb6329eb9eaaac301f290525094830797fd3dac084b1",
+      "bytes": 14153,
+      "lines": 360,
+      "sha256": "770980517f00f12b5a03a9842e1526c557a0c79aa663b7ccb6c0d74a7712e5d3",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -154294,28 +154726,8 @@
           "kind": "Variable"
         },
         {
-          "name": "supabaseAnonJwt",
-          "line": 26,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "DEMO_ANON",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "PROD_ANON",
-          "line": 35,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEMO_PUBLISHABLE",
-          "line": 36,
-          "kind": "Variable"
-        },
-        {
           "name": "vercelEnv",
-          "line": 38,
+          "line": 26,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154325,9 +154737,9 @@
       "path": "tests/scripts/preview-member-lab-schema.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 11705,
-      "lines": 181,
-      "sha256": "c82c86c5972d61367dd04150025002972a224a1d0ab23567acfa0750f434b50e",
+      "bytes": 11629,
+      "lines": 180,
+      "sha256": "7615992905e7611f1cfed8ab604480494b48f78a30bd78ebd9a9833ea84b3f09",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -154358,27 +154770,27 @@
         },
         {
           "name": "target",
-          "line": 19,
+          "line": 18,
           "kind": "Variable"
         },
         {
           "name": "contract",
-          "line": 20,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "readyState",
-          "line": 21,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "absentState",
-          "line": 22,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "fakeClient",
-          "line": 24,
+          "line": 23,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154388,9 +154800,9 @@
       "path": "tests/scripts/preview-training-workspace-schema.test.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7830,
-      "lines": 117,
-      "sha256": "1dbb94b268a730c32609025d1d6296761b7a6c83a4373370d1ccdaf7a1b73ecf",
+      "bytes": 7754,
+      "lines": 116,
+      "sha256": "dbdccba8d246fcacbd637f91f0e3b0b1358ee85001a22824b37e7943c51dd05d",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -154421,12 +154833,12 @@
         },
         {
           "name": "readyState",
-          "line": 19,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fakeClient",
-          "line": 40,
+          "line": 39,
           "kind": "FunctionDeclaration"
         }
       ],

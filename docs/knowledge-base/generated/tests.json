@@ -7769,6 +7769,34 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "area": "libraries",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/resume/atomicResumeObjectSwap.ts",
+        "line": 7
+      },
+      {
+        "file": "lib/resume/prepareResumeUpload.ts",
+        "line": 11
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/resume/resumeUploadUiContract.test.ts",
     "area": "libraries",
     "domain": "member-counselor",
@@ -14888,6 +14916,35 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/admin-training-progress-roster.test.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/admin/TrainingProgressRoster.tsx",
+        "line": 21
+      },
+      {
+        "file": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+        "line": 22
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/agent-inbox-retry.spec.tsx",
     "area": "tests",
     "domain": "tests",
@@ -18764,6 +18821,34 @@
       "vitest"
     ],
     "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/training-progress-roster.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/trainingProgressRoster.ts",
+        "line": 2
+      },
+      {
+        "file": "lib/admin/trainingProgressGrades.ts",
+        "line": 16
+      }
+    ],
     "kind": "test-candidate",
     "declaredRunners": [
       {

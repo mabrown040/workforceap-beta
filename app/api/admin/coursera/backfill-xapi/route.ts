@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { parseXapiStatement, isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statementModel';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 
@@ -66,10 +67,17 @@ async function runBackfill(email: string, actorId: string) {
   const superAdmin = await isSuperAdmin(actorId);
   const orgId = superAdmin ? null : await getActorOrganizationId(actorId).catch(() => null);
 
-  const member = await prisma.$transaction((tx) => tx.user.findFirst({
+  // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in the requested
+  // address are wildcards: `m_johnson@x.org` also matches `mrjohnson@x.org`,
+  // and this route then writes course progress onto whoever matched. Collect
+  // the candidates, then keep only a genuine case-insensitive equality.
+  // See lib/db/exactEmailMatch.ts.
+  const memberCandidates = await prisma.$transaction((tx) => tx.user.findMany({
     where: { email: { mode: 'insensitive', equals: email }, ...(orgId ? { organizationId: orgId } : {}) },
     select: { id: true, email: true, fullName: true, enrolledProgram: true },
+    take: EXACT_EMAIL_CANDIDATE_LIMIT,
   }));
+  const member = pickExactEmailMatch(memberCandidates, email);
   if (!member) {
     return NextResponse.json({ ok: false, error: 'Member not found' }, { status: 404 });
   }

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "e6377dace707375780e09ed6803f6d7c3002801d0690499e04b21edf23c2c203",
+  "inputTreeSha256": "1feb35aef6ffbb9bb9177cedf8c5955f76ce200fd0840dcbd24495e0c20b411b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -21999,51 +21999,51 @@
       "path": "app/api/admin/coursera/backfill-xapi/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 6386,
-      "lines": 183,
-      "sha256": "abbebbd31b95b719a28ea5cc11ba3e53e5f73021260620a96d5e228b49e13431",
+      "bytes": 6929,
+      "lines": 191,
+      "sha256": "bed7712430ea6bf76015b8738a27b51df46e7b0a695136b4b2a59d4f56078bfb",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 38,
+          "line": 39,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 63,
+          "line": 64,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "requireAdminUser",
-          "line": 13,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 38,
+          "line": 39,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 38,
+          "line": 39,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 63,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "runBackfill",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -22816,36 +22816,36 @@
       "path": "app/api/admin/coursera/sync-user-from-b4b/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4322,
-      "lines": 123,
-      "sha256": "24e46a5282e8458f79189522ceab124f0f243e6072286793c54a230e054991f6",
+      "bytes": 4887,
+      "lines": 131,
+      "sha256": "fb07cc465af1519eb6126c7b079210cbb402fddf7bc3386fa21ac1e529f315b9",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 123,
+          "line": 131,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "bodySchema",
-          "line": 33,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "normEmail",
-          "line": 37,
+          "line": 38,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_POST",
-          "line": 41,
+          "line": 42,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 123,
+          "line": 131,
           "kind": "Variable"
         }
       ],
@@ -134336,216 +134336,216 @@
       "path": "lib/xapi/mappings.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 32633,
-      "lines": 989,
-      "sha256": "53796280941232f1b2b8fd302f44879869f79feff25193d396356ff7d69a5267",
+      "bytes": 33262,
+      "lines": 999,
+      "sha256": "0d00ff8a6ed1f4d2fac8aa82a5ff9dbc6e057ff185358664722dc9017ec9154d",
       "binary": false,
       "exports": [
         {
           "name": "XapiIdentity",
-          "line": 9,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedXapiUser",
-          "line": 15,
+          "line": 16,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ensureCourseraMappingTables",
-          "line": 80,
+          "line": 81,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveXapiUser",
-          "line": 350,
+          "line": 360,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "recordXapiEvent",
-          "line": 453,
+          "line": 463,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappings",
-          "line": 603,
+          "line": 613,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappingsForUser",
-          "line": 631,
+          "line": 641,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraSkillsetProgressSummary",
-          "line": 657,
+          "line": 667,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraSkillsetProgressSummary",
-          "line": 673,
+          "line": 683,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraUnmatchedActorAlertStats",
-          "line": 726,
+          "line": 736,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertStats",
-          "line": 736,
+          "line": 746,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listRecentUnmatchedXapiEvents",
-          "line": 779,
+          "line": 789,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "upsertCourseraIdentityMapping",
-          "line": 821,
+          "line": 831,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "XapiIdentity",
-          "line": 9,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ResolvedXapiUser",
-          "line": 15,
+          "line": 16,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MappingRow",
-          "line": 23,
+          "line": 24,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TenantScopeOptions",
-          "line": 39,
+          "line": 40,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraMappingDb",
-          "line": 44,
+          "line": 45,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DirectXapiEmailUser",
-          "line": 46,
+          "line": 47,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ensureTablesPromise",
-          "line": 53,
+          "line": 54,
           "kind": "Variable"
         },
         {
           "name": "normalizeEmail",
-          "line": 55,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeActorValue",
-          "line": 60,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeOrganizationId",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "orgScopeSql",
-          "line": 70,
+          "line": 71,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureCourseraMappingTables",
-          "line": 80,
+          "line": 81,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "notifyIfNewUnmatchedActorEmail",
-          "line": 193,
+          "line": 194,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByActor",
-          "line": 250,
+          "line": 251,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByActorInOrg",
-          "line": 254,
+          "line": 255,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByEmail",
-          "line": 291,
+          "line": 292,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMappingByEmailInOrg",
-          "line": 295,
+          "line": 296,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getDirectXapiEmailUser",
-          "line": 330,
+          "line": 331,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveXapiUser",
-          "line": 350,
+          "line": 360,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "recordXapiEvent",
-          "line": 453,
+          "line": 463,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappings",
-          "line": 603,
+          "line": 613,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listCourseraIdentityMappingsForUser",
-          "line": 631,
+          "line": 641,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraSkillsetProgressSummary",
-          "line": 657,
+          "line": 667,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraSkillsetProgressSummary",
-          "line": 673,
+          "line": 683,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraUnmatchedActorAlertStats",
-          "line": 726,
+          "line": 736,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertStats",
-          "line": 736,
+          "line": 746,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listRecentUnmatchedXapiEvents",
-          "line": 779,
+          "line": 789,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "upsertCourseraIdentityMapping",
-          "line": 821,
+          "line": 831,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -134683,61 +134683,61 @@
       "path": "lib/xapi/reprocess.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 13101,
-      "lines": 380,
-      "sha256": "c85e4e645f5341a03a62cc45c82845b0fb7b0e4c3dad9cb8c9ab13e7c89b3bc0",
+      "bytes": 14426,
+      "lines": 399,
+      "sha256": "ff0a3ca6910e49c686acee759e7d19d7ad3381d5d540bdf1d4d217a27ef10b77",
       "binary": false,
       "exports": [
         {
           "name": "ReprocessResult",
-          "line": 21,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "reprocessUnmatchedXapiEvents",
-          "line": 45,
+          "line": 46,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "autoHealUnmatchedXapiEvents",
-          "line": 105,
+          "line": 114,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reprocessIgnoredXapiEventsWithMappings",
-          "line": 272,
+          "line": 291,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "PersistedXapiEvent",
-          "line": 13,
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ReprocessResult",
-          "line": 21,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "reprocessUnmatchedXapiEvents",
-          "line": 45,
+          "line": 46,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "autoHealUnmatchedXapiEvents",
-          "line": 105,
+          "line": 114,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reprocessIgnoredXapiEventsWithMappings",
-          "line": 272,
+          "line": 291,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runReprocessPipeline",
-          "line": 299,
+          "line": 318,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -147549,6 +147549,39 @@
       "directive": null
     },
     {
+      "path": "tests/api/admin-coursera-exact-email-match.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 9106,
+      "lines": 268,
+      "sha256": "59e7e23a8d8957a7adb7cb2d3757b4643768a99e6e6b18e418896a27b9ba3fd1",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PATTERN_ADDRESS",
+          "line": 64,
+          "kind": "Variable"
+        },
+        {
+          "name": "backfillRequest",
+          "line": 66,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "syncRequest",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/admin-coursera-map-unmatched.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
@@ -153535,9 +153568,9 @@
       "path": "tests/lib/coursera-stage-a-direct-email-resolution.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
-      "bytes": 6763,
-      "lines": 216,
-      "sha256": "b0109aff6a7de28cc3072ecf0da22b04e4a1a290e7c6346f6833f0743455b036",
+      "bytes": 6804,
+      "lines": 220,
+      "sha256": "a02abeffbf4fc631a1be62a5d95048da47c7f3cda8a9b5d7cdf2fe4b19f18e2b",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -155143,6 +155176,39 @@
       "directive": null
     },
     {
+      "path": "tests/lib/xapi-exact-email-match.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 10344,
+      "lines": 318,
+      "sha256": "d00631dbf23958dc83720dc2618cb15238555204bbba1e360288706c0d2aef70",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PATTERN_ADDRESS",
+          "line": 60,
+          "kind": "Variable"
+        },
+        {
+          "name": "NEIGHBOUR",
+          "line": 61,
+          "kind": "Variable"
+        },
+        {
+          "name": "OWNER",
+          "line": 67,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/xapi-first-completion-side-effects.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -155187,9 +155253,9 @@
       "path": "tests/lib/xapi-reprocess-tenant-boundary.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3556,
-      "lines": 119,
-      "sha256": "10f55a9125f89e0a55cd8f3da1a5ef99ba0d8ca320dfddb91c677ac0c12e8c84",
+      "bytes": 3595,
+      "lines": 121,
+      "sha256": "6c2d3faacb5828c3c74c956b26292262ab0d7986182ff477e4a7e436680c4d8f",
       "binary": false,
       "exports": [],
       "declarations": [

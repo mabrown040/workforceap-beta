@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import { parseXapiStatement } from '@/lib/xapi/statements';
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
@@ -51,6 +52,14 @@ export async function reprocessUnmatchedXapiEvents(args: {
   const limit = Math.min(args.limit ?? 50, 200);
   const normalizedEmail = args.courseraEmail?.trim().toLowerCase() || null;
   const normalizedActor = args.actorIdentifier?.trim() || null;
+  // The mbox probe below is a deliberate substring match (the stored mbox is
+  // `mailto:<address>`), so it stays a LIKE. But `_`/`%` in the address are
+  // otherwise wildcards inside that pattern, which would let one member's
+  // address sweep in another's rows. Escape them so only the literal address
+  // matches; ordinary addresses are unaffected. The surrounding `userId`
+  // filter still bounds which rows can be credited.
+  const mboxLikePattern =
+    normalizedEmail === null ? null : `%${normalizedEmail.replace(/([!%_])/g, '!$1')}%`;
 
   // Find unmatched coursera_xapi_events that have raw_payload
   const unmatchedEvents = await prisma.$queryRaw<PersistedXapiEvent[]>`
@@ -69,7 +78,7 @@ export async function reprocessUnmatchedXapiEvents(args: {
         OR (
           ${normalizedEmail}::text IS NOT NULL
           AND actor_email IS NULL
-          AND raw_payload->'actor'->>'mbox' ILIKE '%' || ${normalizedEmail}::text || '%'
+          AND raw_payload->'actor'->>'mbox' ILIKE ${mboxLikePattern}::text ESCAPE '!'
         )
       )
     ORDER BY received_at DESC
@@ -163,14 +172,24 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
       // actor identifier with another mapped row.)
       const actorEmail = event.actor_email?.trim().toLowerCase();
       if (actorEmail) {
-        const directUser = await prisma.user.findFirst({
+        // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in the stored
+        // actor email are wildcards: `m_johnson@x.org` also matches
+        // `mrjohnson@x.org`. The address came off a caller-supplied xAPI
+        // statement, and this branch writes a permanent Coursera identity
+        // link with no `expectedUserId` review — the `coursera-auto-heal`
+        // cron calls it unattended. Collect the ILIKE candidates, then link
+        // only a genuine case-insensitive equality. See
+        // lib/db/exactEmailMatch.ts.
+        const directCandidates = await prisma.user.findMany({
           where: {
             organizationId,
             deletedAt: null,
             email: { equals: actorEmail, mode: 'insensitive' },
           },
-          select: { id: true, organizationId: true },
+          select: { id: true, email: true, organizationId: true },
+          take: EXACT_EMAIL_CANDIDATE_LIMIT,
         });
+        const directUser = pickExactEmailMatch(directCandidates, actorEmail);
         if (directUser) {
           await mapCourseraIdentityAndProgress({
             userId: directUser.id,

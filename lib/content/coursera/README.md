@@ -22,8 +22,9 @@ Curated collections: in the Coursera admin UI open the org program's **Curriculu
 
 - One course in Data Analytics LP (`Data Analysis with R Programming`) is `Disabled` at Coursera and not in the active catalog.
 - As of the 2026-09-17 Curriculum download every Coursera-delivered WAP program has a collection (16 in all, including separate Network+, Security+ and combined Net+/Sec+ collections). The board-approved `2026-approved-v2` curricula for UX, DBA and Management Analyst are a different course set and have **no** Coursera collection yet; the collections registered for those slugs are the live legacy learner paths (see `docs/plans/2026-08-30-approved-coursera-curriculum-v2.md`).
-- `courseraDiscoveredCatalog.ts` course lists drift from the download for six programs (AI and Software Developer, AWS, Network+, UX, and the two v2 programs' legacy lists); `it-support-and-entry-level-cyber-security-certificate` has no catalog entry at all, and the combined Net+/Sec+ entry lacks ids for its ten networking courses. Refreshing them changes member-visible course keys, so that is a separate, approved change.
-- Operators can inspect the same drift without a live API via `lib/content/coursera/catalogCoverage.ts` (also rendered on `/admin/coursera/health`).
+- Allowlisted discovered-catalog programs were synced from that Curriculum download via `pnpm coursera:sync-discovered-from-curated --write` (Net+/Sec+, AI/Software Developer, AWS, Network+, and a new IT Support + Entry-Level Cyber entry). Remaining drift (UX / DBA / Analytics bidirectional mismatches, unverified path ids, missing `tEMYo` learningPathId) still needs operator review — refreshing further course lists can change member-visible progress keys.
+- Operators can inspect drift without a live API via `lib/content/coursera/catalogCoverage.ts` (also rendered on `/admin/coursera/health`).
+- Enterprise ZIP unpack + CSV routing: `pnpm coursera:ingest-enterprise-zips -- --out <dir> --zip <file>…` (DB write with `--ingest --org-id`).
 
 ## Learning Paths (`learningPaths.ts`)
 

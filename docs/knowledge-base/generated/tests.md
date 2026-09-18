@@ -169,6 +169,7 @@
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
 | [tests/components/counselor-analytics.spec.tsx](../../../tests/components/counselor-analytics.spec.tsx) | 145 | tests |  |
 | [tests/components/counselor-note-saves.spec.tsx](../../../tests/components/counselor-note-saves.spec.tsx) | 82 | tests |  |
+| [tests/components/employer-signup-password-toggle.spec.tsx](../../../tests/components/employer-signup-password-toggle.spec.tsx) | 51 | tests |  |
 | [tests/components/inbox-zero-reassignment-receipt.spec.tsx](../../../tests/components/inbox-zero-reassignment-receipt.spec.tsx) | 68 | tests |  |
 | [tests/components/lab-evidence-review.test.tsx](../../../tests/components/lab-evidence-review.test.tsx) | 113 | tests |  |
 | [tests/components/member-lab-workspace.test.tsx](../../../tests/components/member-lab-workspace.test.tsx) | 149 | tests |  |

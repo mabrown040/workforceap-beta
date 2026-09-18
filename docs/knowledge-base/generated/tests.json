@@ -15635,6 +15635,32 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "@testing-library/user-event",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/employers/signup/page.tsx",
+        "line": 18
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/inbox-zero-reassignment-receipt.spec.tsx",
     "area": "tests",
     "domain": "tests",

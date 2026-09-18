@@ -118888,6 +118888,46 @@
     "target": "lib/fetchWithTimeout.ts"
   },
   {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "react",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "@/app/employers/signup/page",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "app/employers/signup/page.tsx"
+  },
+  {
     "from": "tests/components/inbox-zero-reassignment-receipt.spec.tsx",
     "specifier": "@testing-library/react",
     "line": 1,

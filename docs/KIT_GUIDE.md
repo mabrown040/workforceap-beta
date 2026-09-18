@@ -200,7 +200,7 @@ Foundation: `DesignSurface` / `useSurface`, `colorVar` + `KitColor`/`KitTone` ty
 | `StatTile`, `KpiStrip` | single stat / row of stats (never hand-roll stat blocks) |
 | `StatusTag` | semantic status pill (every table status column, risk tiers) |
 | `JobListingRow` | member open-role listing row (live `/dashboard/jobs` + board proof — not `.job-card` mosaics) |
-| `KitEmptyState` | titled empty placeholder for listing and table shells (optional `action` = real next step) |
+| `KitEmptyState` | titled empty placeholder for listing and table shells (optional `action` = real next step). Admin directory empties (`MentorsDirectoryKit`, `PartnersDirectoryKit`, `EmployersDirectoryKit`, `SubgroupsDirectoryKit`) use this + sentence-case CTA copy from `lib/member/mentorsEmptyState.ts` / `lib/admin/directoryEmptyState.ts` — not Astryx `EmptyState`. |
 | `SectionHeader` | titled section starts |
 | `PageOpener` | member page start (kicker + h1 + lede, optional quiet `.wa-page-action`) — not `PageHeader` breadcrumbs or an outlined title-bar chip |
 | `ProgressRing`, `ProgressBar` | completion / capacity |

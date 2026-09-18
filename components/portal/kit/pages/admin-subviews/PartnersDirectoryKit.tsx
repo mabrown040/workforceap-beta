@@ -5,15 +5,16 @@ import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
 import { Token, type TokenColor } from '@astryxdesign/core/Token';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
+  KitEmptyState,
   colorVar,
   type KpiItem,
   type KitColor,
 } from '@/components/portal/kit';
+import { PARTNERS_DIRECTORY_EMPTY } from '@/lib/admin/directoryEmptyState';
 
 /**
  * Partners directory — responsive card grid of partner orgs (workforce centers,
@@ -124,15 +125,20 @@ export function PartnersDirectoryKit({
       </div>
 
       {partners.length === 0 ? (
-        <EmptyState
-          title="No partner organizations yet"
-          description="Partner organizations refer candidates to WorkforceAP. Each partner gets their own portal login, referral tracking, and milestone notifications for their members."
-          actions={
-            <AstryxLink as={Link as never} href="/admin/partners/new" isStandalone>
-              <Button label="Add Partner" variant="primary" size="sm" icon={<Plus size={14} aria-hidden="true" />} />
-            </AstryxLink>
-          }
-        />
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title={PARTNERS_DIRECTORY_EMPTY.title}
+            description={PARTNERS_DIRECTORY_EMPTY.description}
+            action={
+              <Link
+                href={PARTNERS_DIRECTORY_EMPTY.primaryCta.href}
+                className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+              >
+                {PARTNERS_DIRECTORY_EMPTY.primaryCta.label}
+              </Link>
+            }
+          />
+        </div>
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
           {[...partners]

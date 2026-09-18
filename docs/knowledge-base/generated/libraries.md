@@ -600,9 +600,9 @@
 | [lib/member/first90Days.ts](../../../lib/member/first90Days.ts) | 87 | member-counselor | FIRST90_STAGES:20, First90Stage:21, FIRST90_RESPONSES:23, First90Response:24, FIRST90_CHECK_IN_EVENT:27, FIRST90_WINDOW_DAYS:30, daysSincePlacement:34, getFirst90Stage:43, isFirst90Stage:52, isFirst90Response:56, First90CheckInRecord:60, buildCheckInsByStage:70 |
 | [lib/member/firstValueActions.ts](../../../lib/member/firstValueActions.ts) | 146 | member-counselor | FirstValueAction:6, FirstValueActionsContext:15, buildFirstValueActions:30 |
 | [lib/member/getActiveProgramForDashboard.ts](../../../lib/member/getActiveProgramForDashboard.ts) | 138 | member-counselor | DashboardEnrollment:41, ActiveProgramForDashboard:43, getActiveProgramForDashboard:64 |
-| [lib/member/getMemberResumePlainText.ts](../../../lib/member/getMemberResumePlainText.ts) | 60 | member-counselor | getMemberResumePlainText:24 |
-| [lib/member/getMemberState.test.ts](../../../lib/member/getMemberState.test.ts) | 156 | member-counselor |  |
-| [lib/member/getMemberState.ts](../../../lib/member/getMemberState.ts) | 582 | member-counselor | MemberChecklist:16, MemberState:24, MemberStateFull:66, GetMemberStateOptions:240, getMemberState:423, invalidateMemberState:437, getMemberStateFull:441 |
+| [lib/member/getMemberResumePlainText.ts](../../../lib/member/getMemberResumePlainText.ts) | 90 | member-counselor | __resetAdminUnavailableWarningForTests:37, getMemberResumePlainText:52 |
+| [lib/member/getMemberState.test.ts](../../../lib/member/getMemberState.test.ts) | 180 | member-counselor |  |
+| [lib/member/getMemberState.ts](../../../lib/member/getMemberState.ts) | 589 | member-counselor | MemberChecklist:16, MemberState:24, MemberStateFull:66, GetMemberStateOptions:247, getMemberState:430, invalidateMemberState:444, getMemberStateFull:448 |
 | [lib/member/goalSteps.ts](../../../lib/member/goalSteps.ts) | 197 | member-counselor | GoalStep:10, GoalDescriptionPayload:16, parseGoalDescription:33, encodeGoalDescription:57, buildSteps:69, generateGoalSteps:89 |
 | [lib/member/interviewPrepBundle.ts](../../../lib/member/interviewPrepBundle.ts) | 106 | member-counselor | PrepBundleItem:4, InterviewPrepBundle:11, fetchInterviewPrepBundle:53 |
 | [lib/member/isNewMember.ts](../../../lib/member/isNewMember.ts) | 12 | member-counselor | isNewMember:4, secondsSinceAccountCreation:9 |

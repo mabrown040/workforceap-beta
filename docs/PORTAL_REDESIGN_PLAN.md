@@ -112,8 +112,9 @@ Merge to master ──► Vercel Production ──► Supabase PROD (jqddnyuszuf
   - auth cookie issued: `sb-esbdrgaonplpvzmtrdhw-auth-token`
   - runtime queries hit the demo Postgres (confirmed in demo DB logs)
 - Production keeps prod values. `vercel.json` `buildCommand`/`ignoreCommand` guard previews.
-  Preview builds are limited to `feature/portal-*`, `feature/astro-*`, `claude/*`, and
-  `codex/*` branches; production builds continue to run from the production branch.
+  Preview builds are limited to `preview` (the `master` mirror behind the authenticated
+  portal smoke), `feature/portal-*`, `feature/astro-*`, `claude/*`, and `codex/*` branches;
+  production builds continue to run from the production branch.
 - `scripts/check-supabase-env.mjs` fails the build if a preview points at the prod ref
   (DEMO_REF `esbdrgaonplpvzmtrdhw`, PROD_REF `jqddnyuszufndwwezdwp`).
 

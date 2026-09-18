@@ -107088,6 +107088,22 @@
     "package": "node:fs"
   },
   {
+    "from": "scripts/lib/portal-audit-health-gate.mjs",
+    "specifier": "./supabase-project-guard.cjs",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/supabase-project-guard.cjs"
+  },
+  {
+    "from": "scripts/lib/portal-audit-health-gate.mjs",
+    "specifier": "./portal-audit-target.mjs",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-target.mjs"
+  },
+  {
     "from": "scripts/lib/portal-audit-inventory.mjs",
     "specifier": "node:fs",
     "line": 1,
@@ -107198,6 +107214,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/gucContext.ts"
+  },
+  {
+    "from": "scripts/portal-audit-health-gate.mjs",
+    "specifier": "./lib/portal-audit-health-gate.mjs",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-health-gate.mjs"
   },
   {
     "from": "scripts/portal-screenshots.mjs",
@@ -120814,6 +120838,22 @@
     "kind": "import",
     "external": false,
     "target": "scripts/lib/portal-audit-target.mjs"
+  },
+  {
+    "from": "tests/portal-audit-health-gate.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/portal-audit-health-gate.test.ts",
+    "specifier": "../scripts/lib/portal-audit-health-gate.mjs",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-health-gate.mjs"
   },
   {
     "from": "tests/rls/member-message-assignment.mjs",

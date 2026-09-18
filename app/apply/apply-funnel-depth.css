@@ -85,10 +85,7 @@
   }
 }
 
-/* ============================================================
-   Apply confirmation — receipt clarity + mdx token consistency
-   (replaces inline --color-* bags on /apply/confirmation)
-   ============================================================ */
+/* Apply confirmation — --wa-* tokens (KIT_GUIDE) */
 
 .afd-confirm {
   padding-top: calc(var(--nav-height-default, 80px) + 1.5rem);
@@ -113,28 +110,28 @@
   width: 5.5rem;
   height: 5.5rem;
   border-radius: 9999px;
-  background: var(--mdx-grad, linear-gradient(135deg, var(--mdx-accent-dark, #8c0f37), var(--mdx-crimson, #ad2c4d)));
+  background: linear-gradient(135deg, var(--wa-accent-dark), var(--wa-accent));
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.25rem;
-  box-shadow: 0 20px 40px -12px color-mix(in srgb, var(--mdx-accent-dark, #8c0f37) 35%, transparent);
+  box-shadow: var(--wa-shadow-lg);
 }
 
 .afd-confirm__badge .material-symbols-outlined {
-  color: #fff;
+  color: var(--wa-on-accent);
   font-size: 2.75rem;
   font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
 .afd-confirm__title {
   margin-bottom: 0.5rem;
-  color: var(--mdx-text);
+  color: var(--wa-text);
 }
 
 .afd-confirm__lead {
-  color: var(--mdx-text);
-  font-size: 1.05rem;
+  color: var(--wa-text);
+  font-size: var(--wa-type-body);
   line-height: 1.65;
   max-width: 36rem;
   margin: 0 auto 0.75rem;
@@ -143,8 +140,8 @@
 
 .afd-confirm__body,
 .afd-confirm__note {
-  color: var(--mdx-muted);
-  font-size: 1rem;
+  color: var(--wa-muted);
+  font-size: var(--wa-type-body);
   line-height: 1.7;
   max-width: 34rem;
   margin: 0 auto 1rem;
@@ -162,9 +159,9 @@
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-radius: 9999px;
-  background: color-mix(in srgb, var(--mdx-crimson) 6%, var(--mdx-surface));
-  border: 1px solid color-mix(in srgb, var(--mdx-crimson) 14%, var(--mdx-border));
-  color: var(--mdx-text);
+  background: var(--wa-accent-soft);
+  border: 1px solid var(--wa-border);
+  color: var(--wa-text);
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -174,35 +171,31 @@
 }
 
 .afd-confirm__recommend {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--mdx-crimson) 8%, transparent),
-    color-mix(in srgb, var(--mdx-crimson) 2%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--mdx-crimson) 25%, transparent);
-  border-radius: 8px;
-  padding: 1.35rem;
+  background: var(--wa-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--wa-accent) 25%, var(--wa-border));
+  border-radius: var(--wa-radius-sm);
+  padding: var(--wa-pad-sm);
   margin-bottom: 1.5rem;
 }
 
 .afd-confirm__recommend-eyebrow {
   margin: 0 0 0.5rem;
-  font-size: 0.8rem;
+  font-size: var(--wa-type-meta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--mdx-crimson);
+  color: var(--wa-accent);
 }
 
 .afd-confirm__recommend h2 {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;
-  color: var(--mdx-text);
+  color: var(--wa-text);
 }
 
 .afd-confirm__recommend-body {
   margin: 0 0 1rem;
-  color: var(--mdx-text);
+  color: var(--wa-text);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -210,7 +203,7 @@
 .afd-confirm__recommend-email {
   margin: 0 0 1rem;
   font-size: 0.9rem;
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
 }
 
 .afd-confirm__recommend-actions {
@@ -223,7 +216,7 @@
 .afd-confirm__recommend-later {
   margin: 1rem 0 0;
   font-size: 0.88rem;
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
 }
 
 .afd-confirm__recommend-fallback {
@@ -234,8 +227,8 @@
 
 .afd-confirm__recommend-fallback-bar {
   height: 2.75rem;
-  border-radius: 0.625rem;
-  background: color-mix(in srgb, var(--mdx-border) 80%, var(--mdx-surface));
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-surface-2);
   opacity: 0.55;
 }
 
@@ -248,11 +241,11 @@
 }
 
 .afd-confirm__section-label {
-  font-size: 0.875rem;
+  font-size: var(--wa-type-meta);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--mdx-crimson);
+  color: var(--wa-accent);
   margin: 0 0 1.25rem;
 }
 
@@ -280,8 +273,8 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background: var(--mdx-crimson);
-  color: #fff;
+  background: var(--wa-accent);
+  color: var(--wa-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -290,29 +283,29 @@
 }
 
 .afd-confirm__step--done .afd-confirm__step-mark {
-  background: color-mix(in srgb, var(--mdx-crimson) 72%, #1a7f4a);
+  background: var(--wa-success);
 }
 
 .afd-confirm__step--current {
   padding: 0.85rem 0.9rem;
   margin: -0.85rem -0.9rem;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--mdx-crimson) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--mdx-crimson) 18%, transparent);
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--wa-accent) 18%, var(--wa-border));
 }
 
 .afd-confirm__step--current .afd-confirm__step-mark {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mdx-crimson) 18%, transparent);
+  box-shadow: 0 0 0 3px var(--wa-accent-soft);
 }
 
 .afd-confirm__step-title {
-  color: var(--mdx-text);
+  color: var(--wa-text);
   font-weight: 700;
   margin: 0;
 }
 
 .afd-confirm__step-desc {
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
   margin: 0.35rem 0 0;
   line-height: 1.6;
 }
@@ -320,15 +313,15 @@
 .afd-confirm__step-state {
   display: inline-block;
   margin: 0 0 0.35rem;
-  font-size: 0.75rem;
+  font-size: var(--wa-type-meta);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--mdx-crimson);
+  color: var(--wa-accent);
 }
 
 .afd-confirm__step--done .afd-confirm__step-state {
-  color: color-mix(in srgb, var(--mdx-crimson) 40%, #1a7f4a);
+  color: var(--wa-success);
 }
 
 .afd-confirm__trust-grid {
@@ -338,10 +331,10 @@
 }
 
 .afd-confirm__trust-card {
-  background: color-mix(in srgb, var(--mdx-crimson) 4%, var(--mdx-surface));
-  border-radius: 0.875rem;
+  background: var(--wa-surface-2);
+  border-radius: var(--wa-radius-sm);
   padding: 1rem;
-  border: 1px solid color-mix(in srgb, var(--mdx-border) 85%, var(--mdx-crimson));
+  border: 1px solid var(--wa-border);
 }
 
 .afd-confirm__trust-head {
@@ -352,19 +345,19 @@
 }
 
 .afd-confirm__trust-head .material-symbols-outlined {
-  color: var(--mdx-crimson);
+  color: var(--wa-accent);
   font-size: 1.125rem;
 }
 
 .afd-confirm__trust-head p {
   margin: 0;
-  color: var(--mdx-text);
+  color: var(--wa-text);
   font-weight: 700;
 }
 
 .afd-confirm__trust-card > p {
   margin: 0;
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
   line-height: 1.6;
   font-size: 0.9375rem;
 }
@@ -379,14 +372,14 @@
 .afd-confirm__info-grid h2 {
   margin: 0 0 0.75rem;
   font-size: 1rem;
-  color: var(--mdx-text);
+  color: var(--wa-text);
 }
 
 .afd-confirm__link-list {
   margin: 0;
   padding-left: 0;
   list-style: none;
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
   line-height: 1.7;
 }
 
@@ -395,7 +388,7 @@
 }
 
 .afd-confirm__link-list a {
-  color: var(--mdx-crimson);
+  color: var(--wa-accent);
   font-weight: 600;
 }
 
@@ -409,11 +402,11 @@
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.7;
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
 }
 
 .afd-confirm__help-body a {
-  color: var(--mdx-crimson);
+  color: var(--wa-accent);
   font-weight: 600;
 }
 
@@ -423,11 +416,11 @@
 }
 
 .afd-confirm__share-label {
-  font-size: 0.75rem;
+  font-size: var(--wa-type-meta);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--mdx-muted);
+  color: var(--wa-muted);
   margin: 0 0 1rem;
 }
 

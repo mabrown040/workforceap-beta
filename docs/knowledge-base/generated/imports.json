@@ -60193,8 +60193,16 @@
   },
   {
     "from": "app/apply/confirmation/page.tsx",
-    "specifier": "../apply-funnel-depth.css",
+    "specifier": "@/css/portal-tokens.css",
     "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "css/portal-tokens.css"
+  },
+  {
+    "from": "app/apply/confirmation/page.tsx",
+    "specifier": "../apply-funnel-depth.css",
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "app/apply/apply-funnel-depth.css"
@@ -110278,6 +110286,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/ai/groq.ts"
+  },
+  {
+    "from": "tests/api/apply-confirmation-clarity.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/apply-confirmation-clarity.spec.ts",
+    "specifier": "fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "fs"
+  },
+  {
+    "from": "tests/api/apply-confirmation-clarity.spec.ts",
+    "specifier": "path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "path"
   },
   {
     "from": "tests/api/apply-status-lookup.spec.ts",

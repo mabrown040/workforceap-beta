@@ -12,6 +12,7 @@ import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import { getUser } from '@/lib/auth/server';
 
 import { getTranslations } from 'next-intl/server';
+import '@/css/portal-tokens.css';
 import '../apply-funnel-depth.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -239,7 +240,6 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
               <ShareButtons />
             </section>
 
-            {/* Secondary escapes only — primary next step lives in the recommend card above */}
             <div className="afd-confirm__foot-actions">
               <LocalizedLink href="/apply/status" className="btn btn-outline mdx-btn mdx-btn--ghost">
                 {t('confirmationCtaStatus')}

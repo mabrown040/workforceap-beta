@@ -35,18 +35,19 @@ describe('apply confirmation clarity', () => {
     expect(pageSource).toContain('confirmationStepCurrentLabel');
   });
 
-  it('styles confirmation with mdx funnel tokens instead of inline --color bags', () => {
-    expect(cssSource).toContain('--mdx-crimson');
+  it('styles confirmation with --wa-* kit tokens instead of inline --color bags', () => {
+    expect(cssSource).toContain('--wa-accent');
+    expect(cssSource).toContain('--wa-text');
     expect(cssSource).toContain('.afd-confirm__recommend');
-    expect(pageSource).not.toContain("var(--color-accent)");
-    expect(ctaSource).not.toContain("var(--color-accent)");
+    expect(cssSource).not.toMatch(/#[0-9a-fA-F]{3,8}/);
+    expect(pageSource).not.toContain('var(--color-accent)');
+    expect(ctaSource).not.toContain('var(--color-accent)');
     expect(ctaSource).toContain('afd-confirm__recommend');
   });
 
   it('does not duplicate the primary destination in Also helpful for signed-in members', () => {
     expect(pageSource).toContain('confirmationAlsoHelpfulHeading');
     expect(pageSource).toContain('whatYouCanDoSignedIn');
-    // Signed-in primary is dashboard; Also helpful should not re-list it.
     expect(pageSource).not.toMatch(
       /whatYouCanDoSignedIn = \[[\s\S]*confirmationDoDashboardLabel/,
     );

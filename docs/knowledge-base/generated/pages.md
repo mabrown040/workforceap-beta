@@ -501,9 +501,9 @@
 | [app/apply/ApplyPageSkeleton.tsx](../../../app/apply/ApplyPageSkeleton.tsx) | 21 | applications-enrollment | default:1 |
 | [app/apply/OrganicApplyPage.tsx](../../../app/apply/OrganicApplyPage.tsx) | 656 | applications-enrollment | default:191 |
 | [app/apply/PaidApplyVariant.tsx](../../../app/apply/PaidApplyVariant.tsx) | 318 | applications-enrollment | default:31 |
-| [app/apply/apply-funnel-depth.css](../../../app/apply/apply-funnel-depth.css) | 446 | applications-enrollment |  |
+| [app/apply/apply-funnel-depth.css](../../../app/apply/apply-funnel-depth.css) | 439 | applications-enrollment |  |
 | [app/apply/confirmation/loading.tsx](../../../app/apply/confirmation/loading.tsx) | 5 | applications-enrollment | default:3 |
-| [app/apply/confirmation/page.tsx](../../../app/apply/confirmation/page.tsx) | 263 | applications-enrollment | generateMetadata:17, default:30 |
+| [app/apply/confirmation/page.tsx](../../../app/apply/confirmation/page.tsx) | 263 | applications-enrollment | generateMetadata:18, default:31 |
 | [app/apply/create-account/ApplyCreateAccountForm.tsx](../../../app/apply/create-account/ApplyCreateAccountForm.tsx) | 1140 | applications-enrollment | default:69 |
 | [app/apply/create-account/error.tsx](../../../app/apply/create-account/error.tsx) | 13 | applications-enrollment | default:5 |
 | [app/apply/create-account/loading.tsx](../../../app/apply/create-account/loading.tsx) | 5 | applications-enrollment | default:3 |

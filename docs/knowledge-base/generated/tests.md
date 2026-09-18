@@ -152,6 +152,7 @@
 | [tests/components/admin-command-center-workflows.spec.tsx](../../../tests/components/admin-command-center-workflows.spec.tsx) | 258 | tests |  |
 | [tests/components/admin-directory-navigation.spec.tsx](../../../tests/components/admin-directory-navigation.spec.tsx) | 182 | tests |  |
 | [tests/components/admin-directory-results.spec.tsx](../../../tests/components/admin-directory-results.spec.tsx) | 129 | tests |  |
+| [tests/components/admin-subgroup-members-table.test.tsx](../../../tests/components/admin-subgroup-members-table.test.tsx) | 86 | tests |  |
 | [tests/components/admin-training-progress-roster.test.tsx](../../../tests/components/admin-training-progress-roster.test.tsx) | 237 | tests |  |
 | [tests/components/agent-inbox-retry.spec.tsx](../../../tests/components/agent-inbox-retry.spec.tsx) | 79 | tests |  |
 | [tests/components/auth-training-return.spec.tsx](../../../tests/components/auth-training-return.spec.tsx) | 218 | tests |  |

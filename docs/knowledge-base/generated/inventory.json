@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "05a8f63a9897c4351a0d0abf2d5e25b287e74ba24cc56a8bd038627a22efaa08",
+  "inputTreeSha256": "9f01df014e46663e9dea3e68a93e80cb6ab35feb2cb478ed6ebebdd5769c278f",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25,9 +25,9 @@
       "path": ".Jules/palette.md",
       "area": "agent-tooling",
       "domain": "agent-tooling",
-      "bytes": 10293,
-      "lines": 47,
-      "sha256": "45e444ac198d380786d2f3e16f75120b36d79ca865f1a53c1d1cf692cc23e3a5",
+      "bytes": 11102,
+      "lines": 52,
+      "sha256": "260bc0c609f5686d0088d58bd77d55cdc5904b92bc42af5db4eef25ffee997ec",
       "binary": false
     },
     {
@@ -52389,9 +52389,9 @@
       "path": "components/admin/SubgroupMembersTable.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 12354,
-      "lines": 330,
-      "sha256": "e07f97f3aab695fbf7e39820ab6c4873fb1a28c35ec3398ab67b8bd6ce589266",
+      "bytes": 13369,
+      "lines": 351,
+      "sha256": "5ace093144e9520397a823f44ba25d6ecf39217b1a1502dbddb8d999174296a4",
       "binary": false,
       "exports": [
         {
@@ -150592,6 +150592,39 @@
           "name": "baseMembersProps",
           "line": 45,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/admin-subgroup-members-table.test.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3104,
+      "lines": 86,
+      "sha256": "7b272f7e46ab216c7bc0c3047649b70ce2789cc9078af1a913ab89cffbdc47f7",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "router",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "member",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "settleFocus",
+          "line": 23,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "renderTable",
+          "line": 29,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

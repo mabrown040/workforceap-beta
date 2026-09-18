@@ -137,7 +137,7 @@
 | [components/admin/SeedCanonicalMappingsFromB4BButton.tsx](../../../components/admin/SeedCanonicalMappingsFromB4BButton.tsx) | 165 | administration | default:40 |
 | [components/admin/SignaturePad.tsx](../../../components/admin/SignaturePad.tsx) | 209 | administration | SignatureValue:5, default:16 |
 | [components/admin/SubgroupForm.tsx](../../../components/admin/SubgroupForm.tsx) | 184 | administration | default:22 |
-| [components/admin/SubgroupMembersTable.tsx](../../../components/admin/SubgroupMembersTable.tsx) | 330 | administration | default:28 |
+| [components/admin/SubgroupMembersTable.tsx](../../../components/admin/SubgroupMembersTable.tsx) | 351 | administration | default:28 |
 | [components/admin/TestimonialsAdminClient.tsx](../../../components/admin/TestimonialsAdminClient.tsx) | 398 | administration | default:36 |
 | [components/admin/TrainingProgressClient.tsx](../../../components/admin/TrainingProgressClient.tsx) | 818 | administration | CanonicalCatalog:25, CurriculumRow:35, RawCourseraRow:64, default:418 |
 | [components/admin/TrainingProgressRoster.tsx](../../../components/admin/TrainingProgressRoster.tsx) | 254 | administration | TrainingProgressRosterProps:81, default:93 |

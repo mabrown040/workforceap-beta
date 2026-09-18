@@ -116856,6 +116856,30 @@
     "target": "components/admin/MembersTable.tsx"
   },
   {
+    "from": "tests/components/admin-subgroup-members-table.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/admin-subgroup-members-table.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/admin-subgroup-members-table.test.tsx",
+    "specifier": "@/components/admin/SubgroupMembersTable",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/SubgroupMembersTable.tsx"
+  },
+  {
     "from": "tests/components/admin-training-progress-roster.test.tsx",
     "specifier": "@testing-library/react",
     "line": 1,

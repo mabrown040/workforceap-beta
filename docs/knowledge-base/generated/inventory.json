@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "0c5082cfb0097b4516d5f151b025e5c6927699adc67de16241082b6c71d9e433",
+  "inputTreeSha256": "141259002ba8adcbad4607511c06fb04f7dafe3450b4b202ceb59fe51df84d1d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25,9 +25,9 @@
       "path": ".Jules/palette.md",
       "area": "agent-tooling",
       "domain": "agent-tooling",
-      "bytes": 7668,
-      "lines": 33,
-      "sha256": "48d3c39646cd65f559d4db04e38e63f2a249dac3046545a87625ba64c73abee4",
+      "bytes": 8372,
+      "lines": 37,
+      "sha256": "1884eb15cdb79372c1b6baacf73c42ed1b516dffcb932c2bdf7d89b82b0a46fd",
       "binary": false
     },
     {
@@ -14821,9 +14821,9 @@
       "path": "app/admin/career-mappings/CareerMappingsClient.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 38912,
-      "lines": 709,
-      "sha256": "111727b90242078c722875e9c1f61c9e51f01fe498ccd1513b1e77c54a242244",
+      "bytes": 39181,
+      "lines": 714,
+      "sha256": "0ce833d2d91d3eb69c8c69542d6761f4615654315c2225a429a7dc3804e0b912",
       "binary": false,
       "exports": [
         {
@@ -84519,21 +84519,21 @@
       "path": "lib/admin/logCronRun.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 994,
-      "lines": 28,
-      "sha256": "4e9302e36c5bdadccd9624eaabed2088bb13cb7f7aa58e41c33ac632f3fd1b50",
+      "bytes": 660,
+      "lines": 22,
+      "sha256": "dd9bb4b35765123bf8a1280e6ef71d7519f95482a57e00a4819d7d68ef5d309d",
       "binary": false,
       "exports": [
         {
           "name": "logCronRun",
-          "line": 6,
+          "line": 5,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "logCronRun",
-          "line": 6,
+          "line": 5,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107174,9 +107174,9 @@
       "path": "lib/cron/cronExecution.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 2876,
-      "lines": 92,
-      "sha256": "c7ec46b351d79c61d36e73e014327d1e424c03a0a06fc72a903252aa02769af1",
+      "bytes": 1691,
+      "lines": 59,
+      "sha256": "028e108cf8e02b62a3e9aa6dae58abf62dca91e55964aa71445c6d7465c03d53",
       "binary": false,
       "exports": [
         {
@@ -107186,42 +107186,27 @@
         },
         {
           "name": "startCronExecution",
-          "line": 20,
+          "line": 8,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setCronRecordsProcessed",
-          "line": 31,
+          "line": 19,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "completeCronExecution",
-          "line": 44,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCurrentCronExecutionId",
-          "line": 69,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getCronRecordsProcessed",
-          "line": 73,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "markCronDiagnosticLogged",
-          "line": 81,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "hasCronDiagnosticBeenLogged",
-          "line": 86,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runWithCronExecution",
-          "line": 90,
+          "line": 57,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107232,53 +107217,33 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "CronExecutionContext",
-          "line": 6,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
           "name": "cronExecutionStorage",
-          "line": 18,
+          "line": 6,
           "kind": "Variable"
         },
         {
           "name": "startCronExecution",
-          "line": 20,
+          "line": 8,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setCronRecordsProcessed",
-          "line": 31,
+          "line": 19,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "completeCronExecution",
-          "line": 44,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCurrentCronExecutionId",
-          "line": 69,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getCronRecordsProcessed",
-          "line": 73,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "markCronDiagnosticLogged",
-          "line": 81,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "hasCronDiagnosticBeenLogged",
-          "line": 86,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runWithCronExecution",
-          "line": 90,
+          "line": 57,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107549,21 +107514,21 @@
       "path": "lib/cron/withCronLogging.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 3654,
-      "lines": 89,
-      "sha256": "21502c780eed9e66972e6fd46d0c25c889f5f0c497516e1752f022aa75624629",
+      "bytes": 2415,
+      "lines": 63,
+      "sha256": "a9d944f9641c1ccc25e67ae9dac216ece24f832957e86bdc8aced01450f97f37",
       "binary": false,
       "exports": [
         {
           "name": "withCronLogging",
-          "line": 32,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "withCronLogging",
-          "line": 32,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -116303,14 +116268,19 @@
       "path": "lib/member/getMemberResumePlainText.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 2076,
-      "lines": 60,
-      "sha256": "da7a764fceb5b1396603cc3d56dcc5f3f70d613ce472c6cdc904dd0fb0a887cb",
+      "bytes": 3150,
+      "lines": 90,
+      "sha256": "5fe1a43c277f56eadd1b8aae7d80d205d679eb7c773f3f91947e30965d1a0590",
       "binary": false,
       "exports": [
         {
+          "name": "__resetAdminUnavailableWarningForTests",
+          "line": 37,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "getMemberResumePlainText",
-          "line": 24,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -116321,13 +116291,28 @@
           "kind": "Variable"
         },
         {
-          "name": "extFromPath",
+          "name": "warnedAdminUnavailable",
           "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "tryGetSupabaseAdmin",
+          "line": 21,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "__resetAdminUnavailableWarningForTests",
+          "line": 37,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "extFromPath",
+          "line": 41,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMemberResumePlainText",
-          "line": 24,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -116337,9 +116322,9 @@
       "path": "lib/member/getMemberState.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 5480,
-      "lines": 156,
-      "sha256": "de62b04b0f7884db6f27120a48a9ae2d11f6f568ef6cf23d261c98ed7a4597c4",
+      "bytes": 6513,
+      "lines": 180,
+      "sha256": "927af8872e271218758735ad0118d12ec145a5c38c3472ca45db1e11800e9bc7",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -116380,9 +116365,9 @@
       "path": "lib/member/getMemberState.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 20406,
-      "lines": 582,
-      "sha256": "2bc936eb69b2f5a52727b334df4f84b1330cd96b383f3262bea0999a04ae0a20",
+      "bytes": 20756,
+      "lines": 589,
+      "sha256": "e42ce42937cb084878cafb3edb371947ffc90aa769c59aee389450984afd770d",
       "binary": false,
       "exports": [
         {
@@ -116402,22 +116387,22 @@
         },
         {
           "name": "GetMemberStateOptions",
-          "line": 240,
+          "line": 247,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getMemberState",
-          "line": 423,
+          "line": 430,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "invalidateMemberState",
-          "line": 437,
+          "line": 444,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMemberStateFull",
-          "line": 441,
+          "line": 448,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -116454,62 +116439,62 @@
         },
         {
           "name": "loadHasCompletedInterviewPractice",
-          "line": 164,
+          "line": 171,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PlacementForActions",
-          "line": 175,
+          "line": 182,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadPlacementForActions",
-          "line": 191,
+          "line": 198,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isPlacementSeparated",
-          "line": 201,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "inferTargetRole",
           "line": 208,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "inferTargetRole",
+          "line": 215,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "deriveStateLetter",
-          "line": 226,
+          "line": 233,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GetMemberStateOptions",
-          "line": 240,
+          "line": 247,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "_getMemberStateUncached",
-          "line": 247,
+          "line": 254,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMemberState",
-          "line": 423,
+          "line": 430,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "invalidateMemberState",
-          "line": 437,
+          "line": 444,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getMemberStateFull",
-          "line": 441,
+          "line": 448,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberFullContext",
-          "line": 457,
+          "line": 464,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -147702,20 +147687,20 @@
       "path": "tests/api/cron-at-risk-alerts-auth.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5147,
-      "lines": 136,
-      "sha256": "06bbab47564d75a0b0668f947fbb479f749757367b058ce6358dc6ac0957494e",
+      "bytes": 5045,
+      "lines": 134,
+      "sha256": "9fc956bbf894401750f36457213d67e7aba44c4d2b57c94509e425cb46da1303",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "CRON_SECRET",
-          "line": 70,
+          "line": 68,
           "kind": "Variable"
         },
         {
           "name": "request",
-          "line": 72,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -147813,9 +147798,9 @@
       "path": "tests/api/cron-smoke-test.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7994,
-      "lines": 232,
-      "sha256": "e50ac2ba5271abd22e370ec6e89e68806282fc3147fae0d83a24552d74b9e28a",
+      "bytes": 7892,
+      "lines": 230,
+      "sha256": "ce0e215feb3fcb1094acb5618807cd2eeebbbf6439373eafba1c6885dcddf47f",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -152185,49 +152170,6 @@
       "directive": null
     },
     {
-      "path": "tests/lib/cron-diagnostics-visibility.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 7254,
-      "lines": 204,
-      "sha256": "3d76fe4e1142f492b1812b66cce09c50eb5cc5fba8d53f04a3dd2b78d354795b",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "DiagnosticRow",
-          "line": 20,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "diagnostics",
-          "line": 28,
-          "kind": "Variable"
-        },
-        {
-          "name": "executions",
-          "line": 29,
-          "kind": "Variable"
-        },
-        {
-          "name": "executionSeq",
-          "line": 30,
-          "kind": "Variable"
-        },
-        {
-          "name": "request",
-          "line": 76,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "rowsFor",
-          "line": 80,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -152529,6 +152471,39 @@
         {
           "name": "memberResourcesIndex",
           "line": 4,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/member-resume-plain-text-missing-admin-env.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3651,
+      "lines": 87,
+      "sha256": "b514d8e14e8f731842f4151bcc10eec9ec5189ea8b23feecb23f45bc67bb316b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "CONFIG_ERROR",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "USER",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "profileWithResume",
+          "line": 23,
           "kind": "Variable"
         }
       ],
@@ -153493,9 +153468,9 @@
       "path": "tests/lib/with-cron-logging.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2066,
-      "lines": 60,
-      "sha256": "ab94a16a8a0e15d49b2938f6fde58585a1eee30af5ce242d365c7129de229ba3",
+      "bytes": 1964,
+      "lines": 58,
+      "sha256": "c4fc7bbc75fff66b9d5ce6304c94af7688444fd2d1a3e8e45ea725395f749b06",
       "binary": false,
       "exports": [],
       "declarations": [],

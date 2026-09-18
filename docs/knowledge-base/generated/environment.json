@@ -208,7 +208,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 28
+          "line": 31
         }
       ]
     },
@@ -908,11 +908,11 @@
         },
         {
           "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
-          "line": 77
+          "line": 79
         },
         {
           "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
-          "line": 81
+          "line": 83
         },
         {
           "file": "tests/api/cron-at-risk-check.spec.ts",
@@ -955,7 +955,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 40
+          "line": 43
         },
         {
           "file": "scripts/ensure-prisma-env.cjs",
@@ -1773,7 +1773,18 @@
       "references": [
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 28
+          "line": 31
+        }
+      ]
+    },
+    {
+      "name": "GITHUB_SHA",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 47
         }
       ]
     },
@@ -2373,6 +2384,10 @@
           "line": 279
         },
         {
+          "file": "scripts/check-supabase-env.mjs",
+          "line": 61
+        },
+        {
           "file": "tests/api/employer-signup.spec.ts",
           "line": 269
         },
@@ -2402,6 +2417,10 @@
         {
           "file": "app/api/employer/signup/route.ts",
           "line": 93
+        },
+        {
+          "file": "app/api/health/route.ts",
+          "line": 44
         },
         {
           "file": "app/api/member/signup/route.ts",
@@ -2449,7 +2468,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 37
+          "line": 40
         },
         {
           "file": "scripts/create-employer-michael-brown.ts",
@@ -2466,6 +2485,22 @@
         {
           "file": "tests/api/employer-signup.spec.ts",
           "line": 268
+        },
+        {
+          "file": "tests/api/health-check.spec.ts",
+          "line": 119
+        },
+        {
+          "file": "tests/api/health-check.spec.ts",
+          "line": 129
+        },
+        {
+          "file": "tests/api/health-check.spec.ts",
+          "line": 133
+        },
+        {
+          "file": "tests/api/health-check.spec.ts",
+          "line": 137
         },
         {
           "file": "tests/api/partner-signup.spec.ts",
@@ -2711,7 +2746,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 34
+          "line": 37
         },
         {
           "file": "sentry.edge.config.ts",
@@ -2887,6 +2922,10 @@
           "line": 67
         },
         {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 37
+        },
+        {
           "file": "tests/e2e/cross-portal-routes.spec.ts",
           "line": 24
         }
@@ -3028,6 +3067,28 @@
       ]
     },
     {
+      "name": "PORTAL_AUDIT_HEALTH_INTERVAL_MS",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 61
+        }
+      ]
+    },
+    {
+      "name": "PORTAL_AUDIT_HEALTH_TIMEOUT_MS",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 57
+        }
+      ]
+    },
+    {
       "name": "PORTAL_AUDIT_INVENTORY_ONLY",
       "publicPrefix": false,
       "declaredInRootExample": false,
@@ -3046,6 +3107,10 @@
         {
           "file": "scripts/audit-portal-routes.mjs",
           "line": 69
+        },
+        {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 34
         },
         {
           "file": "tests/e2e/cross-portal-routes.spec.ts",
@@ -3118,6 +3183,17 @@
       ]
     },
     {
+      "name": "PORTAL_AUDIT_TARGET_ORIGIN",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 37
+        }
+      ]
+    },
+    {
       "name": "PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN",
       "publicPrefix": false,
       "declaredInRootExample": false,
@@ -3127,8 +3203,23 @@
           "line": 1273
         },
         {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 38
+        },
+        {
           "file": "tests/e2e/cross-portal-routes.spec.ts",
           "line": 121
+        }
+      ]
+    },
+    {
+      "name": "PORTAL_AUDIT_TRUSTED_SHA",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "scripts/portal-audit-health-gate.mjs",
+          "line": 47
         }
       ]
     },
@@ -3155,7 +3246,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 38
+          "line": 41
         },
         {
           "file": "scripts/cronq.ts",
@@ -3210,7 +3301,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 39
+          "line": 42
         },
         {
           "file": "scripts/cronq.ts",
@@ -3888,11 +3979,11 @@
       "references": [
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 27
+          "line": 30
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 58
+          "line": 63
         }
       ]
     },
@@ -4162,7 +4253,7 @@
         },
         {
           "file": "scripts/check-supabase-env.mjs",
-          "line": 34
+          "line": 37
         },
         {
           "file": "scripts/vercel-build.cjs",
@@ -4197,7 +4288,7 @@
         },
         {
           "file": "app/api/health/route.ts",
-          "line": 27
+          "line": 31
         },
         {
           "file": "next.config.ts",

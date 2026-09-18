@@ -11,6 +11,7 @@ const DEMO_DIRECT = 'postgresql://postgres:fixture-secret@db.esbdrgaonplpvzmtrdh
 const env = {
   VERCEL: '1', VERCEL_ENV: 'preview',
   NEXT_PUBLIC_SUPABASE_URL: 'https://esbdrgaonplpvzmtrdhw.supabase.co',
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: 'sb_publishable_demo_test_key_not_secret',
   POSTGRES_PRISMA_URL: 'postgresql://postgres.esbdrgaonplpvzmtrdhw:fixture-secret@aws-0-us-east-1.pooler.supabase.com:6543/postgres',
   POSTGRES_URL_NON_POOLING: DEMO_DIRECT,
 };

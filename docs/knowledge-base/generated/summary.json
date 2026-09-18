@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "0435cd15b8cb6e4c612ce2e71eb4a1b17cf57bebdad8ef560940ccfa889df483",
+  "inputTreeSha256": "305a8f35e3218f4707fadd833501c2e3c13ee04f837a710085e5fa0d739627d5",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4519,
-    "sourceModules": 3196,
-    "importReferences": 15140,
-    "resolvedLocalReferences": 10106,
+    "files": 4530,
+    "sourceModules": 3206,
+    "importReferences": 15176,
+    "resolvedLocalReferences": 10127,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,14 +22,14 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 637,
-    "testCandidates": 630,
+    "testFiles": 642,
+    "testCandidates": 635,
     "testHelpers": 7,
-    "staticallySelectedTests": 627,
+    "staticallySelectedTests": 632,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
-    "environmentNames": 194
+    "environmentNames": 199
   },
   "areas": [
     {
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 654
+      "files": 655
     },
     {
       "area": "content",
@@ -70,7 +70,7 @@
     },
     {
       "area": "delivery",
-      "files": 8
+      "files": 9
     },
     {
       "area": "documentation",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 913
+      "files": 916
     },
     {
       "area": "localization",
@@ -86,7 +86,7 @@
     },
     {
       "area": "operations",
-      "files": 116
+      "files": 118
     },
     {
       "area": "pages",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 314
+      "files": 318
     }
   ],
   "mostReferenced": [
@@ -144,7 +144,7 @@
     },
     {
       "file": "components/portal/kit/index.ts",
-      "references": 199
+      "references": 200
     },
     {
       "file": "lib/audit/log.ts",
@@ -232,14 +232,14 @@
     },
     {
       "file": "lib/admin/logCronRun.ts",
-      "references": 36
-    },
-    {
-      "file": "lib/auth/ensureUser.ts",
-      "references": 35
+      "references": 37
     },
     {
       "file": "lib/cron/cronExecution.ts",
+      "references": 37
+    },
+    {
+      "file": "lib/auth/ensureUser.ts",
       "references": 35
     },
     {

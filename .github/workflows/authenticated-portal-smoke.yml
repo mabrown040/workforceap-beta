@@ -63,19 +63,20 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Verify deployed target matches trusted SHA
+      # Prove the target before any credentialed step: it must serve the exact
+      # commit checked out above and be wired to the Supabase project this policy
+      # allows (the DEMO project for isolated_preview, the real one for
+      # production_canary). A preview that is still building is retried for up
+      # to ten minutes; the wrong database fails at once. The origin is never
+      # written to the log.
+      - name: Verify deployed target matches trusted SHA and Supabase scope
+        id: verify
         shell: bash
         env:
-          PREVIEW_SITE_URL: ${{ inputs.audit_target == 'isolated_preview' && secrets.PREVIEW_SITE_URL || '' }}
-        run: |
-          if [ "$PORTAL_AUDIT_MODE" = "production_canary" ]; then
-            base_url="https://www.workforceap.org"
-          else
-            base_url="$PREVIEW_SITE_URL"
-          fi
-          case "$base_url" in https://*) ;; *) echo "Audit target must use HTTPS" >&2; exit 1 ;; esac
-          curl --fail --location --silent --show-error "$base_url/api/health" > health.json
-          node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("health.json","utf8")); const sha=process.env.GITHUB_SHA; if(typeof h.version!=="string" || !sha.startsWith(h.version)){console.error("Target version does not match trusted checkout"); process.exit(1)}'
+          PORTAL_AUDIT_TARGET_ORIGIN: ${{ inputs.audit_target == 'production_canary' && 'https://www.workforceap.org' || secrets.PREVIEW_SITE_URL }}
+          PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN: ${{ inputs.audit_target == 'isolated_preview' && secrets.PREVIEW_SITE_URL || '' }}
+          PORTAL_AUDIT_TRUSTED_SHA: ${{ github.sha }}
+        run: node scripts/portal-audit-health-gate.mjs
 
       - name: Run full five-role isolated preview audit
         if: inputs.audit_target == 'isolated_preview'
@@ -108,8 +109,11 @@ jobs:
           E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
           PORTAL_AUDIT_READ_ONLY_TOKEN: ${{ secrets.PORTAL_AUDIT_READ_ONLY_TOKEN }}
 
+      # Only after the gate passed: a gate failure produces no result file, and
+      # `if-no-files-found: error` below must keep meaning "the audit ran but
+      # wrote nothing", not "the target was never reached".
       - name: Upload current audit artifact
-        if: always()
+        if: always() && steps.verify.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: portal-audit-results-${{ inputs.audit_target }}-${{ github.run_id }}

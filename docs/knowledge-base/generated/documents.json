@@ -15630,27 +15630,27 @@
       {
         "level": 3,
         "title": "Phase E — attended proof gates",
-        "line": 78
+        "line": 80
       },
       {
         "level": 2,
         "title": "4. Commands reference",
-        "line": 84
+        "line": 86
       },
       {
         "level": 2,
         "title": "5. Subagent playbook (for future Cursor runs)",
-        "line": 95
+        "line": 97
       },
       {
         "level": 2,
         "title": "6. Deliverables checklist",
-        "line": 105
+        "line": 107
       },
       {
         "level": 2,
         "title": "7. Changelog",
-        "line": 116
+        "line": 118
       }
     ],
     "datedFilename": false,
@@ -16606,107 +16606,107 @@
       {
         "level": 2,
         "title": "Database",
-        "line": 98
+        "line": 99
       },
       {
         "level": 2,
         "title": "Email",
-        "line": 112
+        "line": 113
       },
       {
         "level": 2,
         "title": "AI & LLM Providers",
-        "line": 130
+        "line": 131
       },
       {
         "level": 2,
         "title": "ElevenLabs Voice & Conversational AI",
-        "line": 148
+        "line": 149
       },
       {
         "level": 2,
         "title": "Coursera / Learning Integration",
-        "line": 174
+        "line": 175
       },
       {
         "level": 2,
         "title": "Stripe / Payments",
-        "line": 208
+        "line": 209
       },
       {
         "level": 2,
         "title": "Analytics & Monitoring",
-        "line": 222
+        "line": 223
       },
       {
         "level": 2,
         "title": "WIOA",
-        "line": 240
+        "line": 241
       },
       {
         "level": 2,
         "title": "Partner & Org",
-        "line": 249
+        "line": 250
       },
       {
         "level": 2,
         "title": "Admin & Cron",
-        "line": 258
+        "line": 259
       },
       {
         "level": 2,
         "title": "Testing & QA",
-        "line": 268
+        "line": 269
       },
       {
         "level": 2,
         "title": "Build & Internal",
-        "line": 296
+        "line": 308
       },
       {
         "level": 2,
         "title": "Deprecated / Legacy",
-        "line": 310
+        "line": 322
       },
       {
         "level": 2,
         "title": "Security Notes",
-        "line": 326
+        "line": 338
       },
       {
         "level": 3,
         "title": "🔒 Server-Only Variables",
-        "line": 328
-      },
-      {
-        "level": 3,
-        "title": "👁️ Client-Safe Variables",
         "line": 340
       },
       {
         "level": 3,
+        "title": "👁️ Client-Safe Variables",
+        "line": 354
+      },
+      {
+        "level": 3,
         "title": ".gitignore",
-        "line": 355
+        "line": 369
       },
       {
         "level": 2,
         "title": "Drift Report",
-        "line": 361
+        "line": 375
       },
       {
         "level": 3,
         "title": "Variables in CODE but NOT in `.env.example` (Missing from template)",
-        "line": 363
+        "line": 377
       },
       {
         "level": 3,
         "title": "Variables in `.env.example` but NOT in CODE (Potentially stale)",
-        "line": 449
+        "line": 464
       },
       {
         "level": 2,
         "title": "Changelog",
-        "line": 458
+        "line": 473
       }
     ],
     "datedFilename": false,
@@ -17106,28 +17106,33 @@
       },
       {
         "level": 2,
-        "title": "What to alert on",
+        "title": "Liveness payload",
         "line": 13
       },
       {
         "level": 2,
+        "title": "What to alert on",
+        "line": 17
+      },
+      {
+        "level": 2,
         "title": "Example",
-        "line": 24
+        "line": 28
       },
       {
         "level": 1,
         "title": "Liveness — cheap",
-        "line": 27
+        "line": 31
       },
       {
         "level": 1,
         "title": "Readiness — page this for dependency / 500-adjacent alerts",
-        "line": 29
+        "line": 33
       },
       {
         "level": 1,
         "title": "Journey smoke — must use the production cron secret; never paste it into logs/docs",
-        "line": 31
+        "line": 35
       }
     ],
     "datedFilename": false,
@@ -19464,27 +19469,27 @@
       {
         "level": 3,
         "title": "Env vars (Preview scope) — demo project values",
-        "line": 120
+        "line": 121
       },
       {
         "level": 3,
         "title": "Test account (demo)",
-        "line": 129
+        "line": 130
       },
       {
         "level": 2,
         "title": "6. Infra findings & fixes (2026-06-21/22 session)",
-        "line": 135
+        "line": 136
       },
       {
         "level": 2,
         "title": "7. Open gate items (TODO before this is a clean, mergeable preview gate)",
-        "line": 166
+        "line": 167
       },
       {
         "level": 2,
         "title": "8. Quick links",
-        "line": 181
+        "line": 182
       }
     ],
     "datedFilename": false,
@@ -21065,12 +21070,12 @@
       {
         "level": 2,
         "title": "Migration routing",
-        "line": 59
+        "line": 61
       },
       {
         "level": 2,
         "title": "Verify preview is actually hitting demo",
-        "line": 83
+        "line": 85
       }
     ],
     "datedFilename": false,

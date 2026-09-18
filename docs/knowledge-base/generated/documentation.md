@@ -24,7 +24,7 @@
 | [docs/COURSERA-INTEGRATION-TEST.md](../../../docs/COURSERA-INTEGRATION-TEST.md) | 213 | learning-coursera |  |
 | [docs/COURSERA-INVITE-ON-JOIN.md](../../../docs/COURSERA-INVITE-ON-JOIN.md) | 153 | learning-coursera |  |
 | [docs/COURSERA-LANGUAGE-AVAILABILITY.md](../../../docs/COURSERA-LANGUAGE-AVAILABILITY.md) | 247 | learning-coursera |  |
-| [docs/CROSS-PORTAL-AUDIT-PLAN.md](../../../docs/CROSS-PORTAL-AUDIT-PLAN.md) | 121 | documentation |  |
+| [docs/CROSS-PORTAL-AUDIT-PLAN.md](../../../docs/CROSS-PORTAL-AUDIT-PLAN.md) | 123 | documentation |  |
 | [docs/CROSS-PORTAL-PAGES-AUDIT.md](../../../docs/CROSS-PORTAL-PAGES-AUDIT.md) | 54 | documentation |  |
 | [docs/DAILY-OPERATING-PLAN.md](../../../docs/DAILY-OPERATING-PLAN.md) | 250 | documentation |  |
 | [docs/DATABASE-PERFORMANCE-AUDIT.md](../../../docs/DATABASE-PERFORMANCE-AUDIT.md) | 671 | documentation |  |
@@ -36,14 +36,14 @@
 | [docs/DIGITAL-LITERACY-COURSE.md](../../../docs/DIGITAL-LITERACY-COURSE.md) | 78 | documentation |  |
 | [docs/EMAIL-PDF-VOICE-AUDIT.md](../../../docs/EMAIL-PDF-VOICE-AUDIT.md) | 136 | communications |  |
 | [docs/EMAIL_SETUP.md](../../../docs/EMAIL_SETUP.md) | 67 | communications |  |
-| [docs/ENVIRONMENT-VARIABLES.md](../../../docs/ENVIRONMENT-VARIABLES.md) | 464 | documentation |  |
+| [docs/ENVIRONMENT-VARIABLES.md](../../../docs/ENVIRONMENT-VARIABLES.md) | 480 | documentation |  |
 | [docs/FLAGS_ASSESSMENT_REVIEW.md](../../../docs/FLAGS_ASSESSMENT_REVIEW.md) | 15 | documentation |  |
 | [docs/FUNDING-COPY-MIGRATION.md](../../../docs/FUNDING-COPY-MIGRATION.md) | 133 | documentation |  |
 | [docs/GAMEPLAN.md](../../../docs/GAMEPLAN.md) | 45 | documentation |  |
 | [docs/GO-LIVE-AND-SCALE-LIST.md](../../../docs/GO-LIVE-AND-SCALE-LIST.md) | 252 | documentation |  |
 | [docs/GUC-MIDDLEWARE.md](../../../docs/GUC-MIDDLEWARE.md) | 92 | documentation |  |
 | [docs/HANDOFF.md](../../../docs/HANDOFF.md) | 104 | documentation |  |
-| [docs/HEALTH-PROBES.md](../../../docs/HEALTH-PROBES.md) | 37 | documentation |  |
+| [docs/HEALTH-PROBES.md](../../../docs/HEALTH-PROBES.md) | 41 | documentation |  |
 | [docs/I18N-LOCALE-ROUTING.md](../../../docs/I18N-LOCALE-ROUTING.md) | 520 | documentation |  |
 | [docs/INCIDENT-RESPONSE-PLAN.md](../../../docs/INCIDENT-RESPONSE-PLAN.md) | 340 | documentation |  |
 | [docs/JOB-CREATE-FIX.md](../../../docs/JOB-CREATE-FIX.md) | 33 | documentation |  |
@@ -67,7 +67,7 @@
 | [docs/PORTALS.md](../../../docs/PORTALS.md) | 367 | documentation |  |
 | [docs/PORTAL_DESIGN_KIT.md](../../../docs/PORTAL_DESIGN_KIT.md) | 139 | documentation |  |
 | [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 72 | documentation |  |
-| [docs/PORTAL_REDESIGN_PLAN.md](../../../docs/PORTAL_REDESIGN_PLAN.md) | 188 | documentation |  |
+| [docs/PORTAL_REDESIGN_PLAN.md](../../../docs/PORTAL_REDESIGN_PLAN.md) | 189 | documentation |  |
 | [docs/PORTAL_UI_DECISION_MOCKUP.md](../../../docs/PORTAL_UI_DECISION_MOCKUP.md) | 120 | documentation |  |
 | [docs/PORTING_GUIDE.md](../../../docs/PORTING_GUIDE.md) | 108 | documentation |  |
 | [docs/POSTMORTEM-2026-06-18-PORTAL-OUTAGE.md](../../../docs/POSTMORTEM-2026-06-18-PORTAL-OUTAGE.md) | 93 | documentation |  |
@@ -84,7 +84,7 @@
 | [docs/SECURITY-HARDENING.md](../../../docs/SECURITY-HARDENING.md) | 811 | documentation |  |
 | [docs/SESSION-2026-05-07.md](../../../docs/SESSION-2026-05-07.md) | 83 | documentation |  |
 | [docs/SLO-AND-STATUS.md](../../../docs/SLO-AND-STATUS.md) | 249 | documentation |  |
-| [docs/STAGING_ENV.md](../../../docs/STAGING_ENV.md) | 86 | documentation |  |
+| [docs/STAGING_ENV.md](../../../docs/STAGING_ENV.md) | 96 | documentation |  |
 | [docs/SUPABASE-STORAGE-SETUP.md](../../../docs/SUPABASE-STORAGE-SETUP.md) | 35 | documentation |  |
 | [docs/SaaS-ONBOARDING.md](../../../docs/SaaS-ONBOARDING.md) | 50 | documentation |  |
 | [docs/TENANT-ISOLATION.md](../../../docs/TENANT-ISOLATION.md) | 344 | documentation |  |

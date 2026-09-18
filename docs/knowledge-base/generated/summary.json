@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "5c05d13da38f6a61f005b613baba0eb90d5f0f7ddc16fe823bdb4893e8724128",
+  "inputTreeSha256": "f1fa2c34ad965a9743397691c6c281d0a6b74f2363c6a3943e098c7f0f095616",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4506,
-    "sourceModules": 3183,
-    "importReferences": 15091,
-    "resolvedLocalReferences": 10071,
+    "files": 4519,
+    "sourceModules": 3196,
+    "importReferences": 15140,
+    "resolvedLocalReferences": 10106,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 630,
-    "testCandidates": 623,
+    "testFiles": 637,
+    "testCandidates": 630,
     "testHelpers": 7,
-    "staticallySelectedTests": 620,
+    "staticallySelectedTests": 627,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 904
+      "files": 913
     },
     {
       "area": "localization",
@@ -86,7 +86,7 @@
     },
     {
       "area": "operations",
-      "files": 115
+      "files": 116
     },
     {
       "area": "pages",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 311
+      "files": 314
     }
   ],
   "mostReferenced": [
@@ -128,7 +128,7 @@
     },
     {
       "file": "lib/content/programs.ts",
-      "references": 257
+      "references": 258
     },
     {
       "file": "lib/tenant/organization.ts",
@@ -187,12 +187,12 @@
       "references": 63
     },
     {
-      "file": "lib/audit/readOnlyPortalAudit.ts",
-      "references": 59
+      "file": "lib/content/programSlug.ts",
+      "references": 60
     },
     {
-      "file": "lib/content/programSlug.ts",
-      "references": 58
+      "file": "lib/audit/readOnlyPortalAudit.ts",
+      "references": 59
     },
     {
       "file": "components/portal/ui/DataTable.tsx",
@@ -211,12 +211,12 @@
       "references": 50
     },
     {
-      "file": "lib/member/curriculumAssignment.ts",
+      "file": "lib/content/programCurriculumManifest.ts",
       "references": 49
     },
     {
-      "file": "lib/content/programCurriculumManifest.ts",
-      "references": 43
+      "file": "lib/member/curriculumAssignment.ts",
+      "references": 49
     },
     {
       "file": "components/LocalizedLink.tsx",
@@ -385,12 +385,12 @@
       "lines": 1091
     },
     {
-      "file": "components/portal/counselor/AtRiskDashboard.tsx",
-      "lines": 1045
+      "file": "lib/coursera/progressQueries.ts",
+      "lines": 1050
     },
     {
-      "file": "lib/coursera/progressQueries.ts",
-      "lines": 1034
+      "file": "components/portal/counselor/AtRiskDashboard.tsx",
+      "lines": 1045
     }
   ]
 }

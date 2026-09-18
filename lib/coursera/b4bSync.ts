@@ -36,6 +36,12 @@ import {
   hasValidatedTrainingStarted,
 } from '@/lib/coursera/milestones';
 import type { CurriculumAssignment } from '@/lib/member/curriculumAssignment';
+import {
+  matchLearningPathReport,
+  rawProgressProgramSlug,
+  resolveReportCollection,
+  withLearnedCollections,
+} from '@/lib/coursera/learningPathAttribution';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -75,10 +81,35 @@ export type B4BSyncResult = {
   upserted: number;
   upsertedKnown: number;
   upsertedUnknown: number;
+  /**
+   * Every (email, course) skipped for course_progress because the Coursera
+   * course has no canonical mapping yet. The raw progress row IS written —
+   * this list exists so an admin can see exactly which courses need a
+   * mapping instead of discovering the gap as a deflated % on the roster.
+   * Surfaced via logCronRun('cron_coursera_b4b_sync', result) metadata.
+   */
+  unknownCourseDetails: Array<{
+    email: string;
+    courseraCourseSlug: string;
+    courseName: string;
+    /** Learning Path the learner took the course under, when B4B says. */
+    collectionName?: string | null;
+    /** WAP program of that path, when the path is registered and resolved. */
+    collectionProgramSlug?: string | null;
+  }>;
   upsertedUnmatched: number;
+  /**
+   * Enrollment rows that are a Learning Path itself (Coursera's program-level
+   * progress), not a course. Written to raw progress under the path's WAP
+   * program and never counted as unknown courses.
+   */
+  learningPathRows: number;
   skippedNoEmail: number;
   errors: number;
-  byUser: Record<string, { courses: number; unknownCourses: number; error?: string }>;
+  byUser: Record<
+    string,
+    { courses: number; unknownCourses: number; learningPaths?: number; error?: string }
+  >;
   /**
    * Coursera enrollmentReports `start` offset for the next cron run.
    * Persisted via `logCronRun('cron_coursera_b4b_sync', result)` metadata.
@@ -581,7 +612,9 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     upserted: 0,
     upsertedKnown: 0,
     upsertedUnknown: 0,
+    unknownCourseDetails: [],
     upsertedUnmatched: 0,
+    learningPathRows: 0,
     skippedNoEmail: 0,
     errors: 0,
     byUser: {},
@@ -659,21 +692,32 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   // rate-limits aggressively), and the per-user path already covers the
   // dashboard ring case the gradebook signal was added for. See
   // `mergeB4BProgressSignals` for the merge logic.
+  // A path's own row carries the collection id its course rows will cite, so
+  // one pass over the batch teaches every collection before attribution.
+  const learningPathIndex = withLearnedCollections(deduped.values());
+
   for (const report of deduped.values()) {
     const email = report.email.trim().toLowerCase();
     const userId = userByEmail.get(email) ?? null;
 
     const assignments = userId ? assignmentsByUserId.get(userId) ?? [] : [];
-    const mappingResolution = userId
-      ? await resolveProviderCourseMappings({
-          courseraCourseId: report.contentId,
-          courseraCourseSlug: report.contentSlug,
-          assignments,
-          curriculumIndex: curriculumMappings,
-          canonicalIndex: canonicalMappings,
-          allowLegacyDiscovery: true,
-        })
-      : { targets: [], status: 'unmapped' };
+    // Is this row the Learning Path itself? Then it is program-level progress
+    // with no course target. Otherwise, which path was the course taken under?
+    const learningPath = matchLearningPathReport(report, learningPathIndex);
+    const collection = learningPath ? null : resolveReportCollection(report, learningPathIndex);
+    const collectionProgramSlug = collection?.programSlug ?? null;
+    const mappingResolution =
+      userId && !learningPath
+        ? await resolveProviderCourseMappings({
+            courseraCourseId: report.contentId,
+            courseraCourseSlug: report.contentSlug,
+            assignments,
+            curriculumIndex: curriculumMappings,
+            canonicalIndex: canonicalMappings,
+            allowLegacyDiscovery: true,
+            collectionProgramSlug,
+          })
+        : { targets: [], status: 'unmapped' };
     const progressTargets = userId ? mappingResolution.targets : [];
 
     try {
@@ -693,11 +737,14 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
         courseName: report.contentName,
         collectionName: report.collectionName,
         collectionId: report.collectionId,
-        programSlug:
-          progressTargets[0]?.programSlug ??
-          canonicalizeProgramSlug(
+        programSlug: rawProgressProgramSlug({
+          learningPath,
+          collectionProgramSlug,
+          targetProgramSlug: progressTargets[0]?.programSlug,
+          fallbackProgramSlug: canonicalizeProgramSlug(
             report.programSlug || report.programId || 'coursera-unmapped',
           ),
+        }),
         programName: report.programName,
         enrollmentAt: report.enrolledAt,
         lastActivityAt: report.lastActivityAt,
@@ -711,6 +758,14 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
       result.upserted += 1;
       const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
+      if (learningPath) {
+        // Program-level row: recorded, never promoted, never an "unknown course".
+        userEntry.learningPaths = (userEntry.learningPaths ?? 0) + 1;
+        result.byUser[email] = userEntry;
+        result.learningPathRows += 1;
+        if (!userId) result.upsertedUnmatched += 1;
+        continue;
+      }
       userEntry.courses += 1;
       if (progressTargets.length === 0) userEntry.unknownCourses += 1;
       result.byUser[email] = userEntry;
@@ -721,6 +776,13 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       }
       if (progressTargets.length === 0) {
         result.upsertedUnknown += 1;
+        result.unknownCourseDetails.push({
+          email,
+          courseraCourseSlug: report.contentSlug,
+          courseName: report.contentName,
+          collectionName: report.collectionName ?? null,
+          collectionProgramSlug,
+        });
         continue;
       }
 

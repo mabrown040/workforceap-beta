@@ -250,7 +250,7 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 209
+          "line": 212
         },
         {
           "file": "lib/coursera/config.test.ts",
@@ -341,7 +341,7 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 207
+          "line": 210
         }
       ]
     },
@@ -364,11 +364,11 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 192
+          "line": 195
         },
         {
           "file": "lib/coursera/b4bSync.ts",
-          "line": 150
+          "line": 181
         },
         {
           "file": "lib/coursera/learnerProgress.test.ts",
@@ -407,11 +407,11 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 193
+          "line": 196
         },
         {
           "file": "lib/coursera/b4bSync.ts",
-          "line": 151
+          "line": 182
         },
         {
           "file": "lib/coursera/learnerProgress.test.ts",
@@ -454,7 +454,7 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 242
+          "line": 245
         }
       ]
     },
@@ -571,7 +571,7 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 215
+          "line": 218
         },
         {
           "file": "lib/coursera/configCore.ts",
@@ -606,11 +606,11 @@
         },
         {
           "file": "lib/coursera/b4bClient.ts",
-          "line": 219
+          "line": 222
         },
         {
           "file": "lib/coursera/b4bSync.ts",
-          "line": 539
+          "line": 570
         },
         {
           "file": "lib/coursera/learnerProgress.test.ts",

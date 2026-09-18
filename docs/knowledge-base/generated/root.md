@@ -43,7 +43,7 @@
 | [instrumentation.ts](../../../instrumentation.ts) | 15 | root | register:3, onRequestError:12 |
 | [middleware.ts](../../../middleware.ts) | 443 | identity-tenancy | middleware:148, config:439 |
 | [next.config.ts](../../../next.config.ts) | 351 | root | default:349 |
-| [package.json](../../../package.json) | 139 | root |  |
+| [package.json](../../../package.json) | 140 | root |  |
 | [playwright.config.ts](../../../playwright.config.ts) | 80 | root | default:56 |
 | [pnpm-lock.yaml](../../../pnpm-lock.yaml) | 12727 | root |  |
 | [pnpm-workspace.yaml](../../../pnpm-workspace.yaml) | 10 | root |  |

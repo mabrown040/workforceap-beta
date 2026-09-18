@@ -7585,8 +7585,16 @@
   },
   {
     "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/shared/digitalLiteracyPathway",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -7594,7 +7602,7 @@
   {
     "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
     "specifier": "@/components/portal/WorkforceApModuleCompleteButton",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
@@ -24986,7 +24994,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 370,
+    "line": 407,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -51457,8 +51465,16 @@
   },
   {
     "from": "app/api/member/courses/complete/route.ts",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "app/api/member/courses/complete/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -51466,7 +51482,7 @@
   {
     "from": "app/api/member/courses/complete/route.ts",
     "specifier": "@/lib/audit",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -51474,7 +51490,7 @@
   {
     "from": "app/api/member/courses/complete/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -91440,6 +91456,166 @@
     "target": "lib/content/programs.ts"
   },
   {
+    "from": "lib/content/coursera/curatedCollections.generated.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 5,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "./curatedCollections",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.test.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.ts",
+    "specifier": "./curatedCollections.generated",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.generated.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollections.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 13,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollectionsCsv.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollectionsCsv.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/content/coursera/curatedCollectionsCsv.test.ts",
+    "specifier": "./curatedCollectionsCsv",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "@/lib/content/courseraDiscoveredCatalog",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/courseraDiscoveredCatalog.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "@/lib/content/programs",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "./curatedCollections",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.test.ts",
+    "specifier": "./learningPaths",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "lib/content/coursera/learningPaths.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
     "from": "lib/content/digitalLiteracyUiTruth.test.ts",
     "specifier": "node:assert/strict",
     "line": 1,
@@ -92969,8 +93145,16 @@
   },
   {
     "from": "lib/coursera/b4bSync.ts",
+    "specifier": "@/lib/coursera/learningPathAttribution",
+    "line": 39,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/learningPathAttribution.ts"
+  },
+  {
+    "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 816,
+    "line": 878,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -92978,7 +93162,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/milestones",
-    "line": 819,
+    "line": 881,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/milestones.ts"
@@ -92986,7 +93170,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/milestoneCascade/detectCompletionMilestone",
-    "line": 822,
+    "line": 884,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/milestoneCascade/detectCompletionMilestone.ts"
@@ -92994,7 +93178,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 941,
+    "line": 1003,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
@@ -93014,6 +93198,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/scanCaps.ts"
+  },
+  {
+    "from": "lib/coursera/canonicalMapping.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
   },
   {
     "from": "lib/coursera/catalogBackfill.test.ts",
@@ -93696,6 +93888,62 @@
     "target": "lib/cache.ts"
   },
   {
+    "from": "lib/coursera/learningPathAttribution.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.test.ts",
+    "specifier": "@/lib/content/coursera/learningPaths",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.test.ts",
+    "specifier": "./learningPathAttribution",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/learningPathAttribution.ts"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.ts",
+    "specifier": "@/lib/content/coursera/learningPaths",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.ts",
+    "specifier": "@/lib/content/coursera/curatedCollections",
+    "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollections.ts"
+  },
+  {
+    "from": "lib/coursera/learningPathAttribution.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
     "from": "lib/coursera/legacyRawProgressAdoption.server.ts",
     "specifier": "@prisma/client",
     "line": 8,
@@ -94097,8 +94345,16 @@
   },
   {
     "from": "lib/coursera/progressQueries.ts",
+    "specifier": "@/lib/content/coursera/learningPaths",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
+    "from": "lib/coursera/progressQueries.ts",
     "specifier": "@/lib/coursera/testAccountHeuristic",
-    "line": 10,
+    "line": 11,
     "kind": "re-export",
     "external": false,
     "target": "lib/coursera/testAccountHeuristic.ts"
@@ -94298,10 +94554,18 @@
   {
     "from": "lib/coursera/seedCanonicalMappingsFromB4B.test.ts",
     "specifier": "@/lib/content/programs",
-    "line": 5,
+    "line": 7,
     "kind": "type",
     "external": false,
     "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/coursera/seedCanonicalMappingsFromB4B.test.ts",
+    "specifier": "./seedCanonicalMappingsFromB4B",
+    "line": 70,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/seedCanonicalMappingsFromB4B.ts"
   },
   {
     "from": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
@@ -94313,11 +94577,35 @@
   },
   {
     "from": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
-    "specifier": "@/lib/content/programs",
+    "specifier": "@/lib/content/coursera/learningPaths",
     "line": 23,
     "kind": "import",
     "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
+    "from": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
+    "specifier": "@/lib/content/programs",
+    "line": 24,
+    "kind": "import",
+    "external": false,
     "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "lib/coursera/seedCanonicalMappingsFromB4B.ts",
+    "specifier": "@/lib/coursera/canonicalMapping",
+    "line": 26,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/canonicalMapping.ts"
   },
   {
     "from": "lib/coursera/seedCanonicalMappingsFromCatalog.ts",
@@ -94417,8 +94705,16 @@
   },
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
+    "specifier": "@/lib/content/programCurriculumManifest",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@prisma/client",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
@@ -94426,7 +94722,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "./b4bClient",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/b4bClient.ts"
@@ -94434,7 +94730,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "./b4bSync",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/b4bSync.ts"
@@ -94442,7 +94738,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/coursera/upsertMergedCourseProgress",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/upsertMergedCourseProgress.ts"
@@ -94450,7 +94746,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/content/courseraDiscoveredCatalog",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/content/courseraDiscoveredCatalog.ts"
@@ -94458,7 +94754,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -94466,7 +94762,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/db/scanCaps",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/db/scanCaps.ts"
@@ -94474,7 +94770,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/coursera/canonicalMapping",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/canonicalMapping.ts"
@@ -94482,7 +94778,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/coursera/curriculumMapping",
-    "line": 25,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/curriculumMapping.ts"
@@ -94490,7 +94786,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 30,
+    "line": 31,
     "kind": "type",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -94498,7 +94794,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 31,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -94506,7 +94802,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/diagnostics",
-    "line": 32,
+    "line": 33,
     "kind": "import",
     "external": false,
     "target": "lib/diagnostics.ts"
@@ -94514,7 +94810,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/audit",
-    "line": 33,
+    "line": 34,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -94522,7 +94818,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "./replayPendingXapi",
-    "line": 34,
+    "line": 35,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/replayPendingXapi.ts"
@@ -94530,7 +94826,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/tenant/withTenantScope",
-    "line": 35,
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -94538,7 +94834,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 36,
+    "line": 37,
     "kind": "import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
@@ -94546,7 +94842,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/coursera/learnerProgress",
-    "line": 37,
+    "line": 38,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/learnerProgress.ts"
@@ -94554,7 +94850,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/analytics/track",
-    "line": 38,
+    "line": 39,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/track.ts"
@@ -94562,7 +94858,7 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/coursera/courseGradeDisplay",
-    "line": 39,
+    "line": 40,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/courseGradeDisplay.ts"
@@ -94570,10 +94866,18 @@
   {
     "from": "lib/coursera/syncUserFromB4B.ts",
     "specifier": "@/lib/content/programSlug",
-    "line": 40,
+    "line": 41,
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "lib/coursera/syncUserFromB4B.ts",
+    "specifier": "@/lib/coursera/learningPathAttribution",
+    "line": 42,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/learningPathAttribution.ts"
   },
   {
     "from": "lib/coursera/upsertCourseraCourseProgress.ts",
@@ -106270,6 +106574,38 @@
     "kind": "type",
     "external": true,
     "package": "node:crypto"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "node:crypto",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:crypto"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "node:path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "scripts/coursera/generate-curated-collections.ts",
+    "specifier": "@/lib/content/coursera/curatedCollectionsCsv",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/curatedCollectionsCsv.ts"
   },
   {
     "from": "scripts/create-chs-partner.ts",
@@ -118232,6 +118568,22 @@
     "target": "lib/coursera/upsertMergedCourseProgress.ts"
   },
   {
+    "from": "tests/lib/coursera-canonical-mapping-normalization.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/coursera-canonical-mapping-normalization.spec.ts",
+    "specifier": "@/lib/coursera/canonicalMapping",
+    "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/canonicalMapping.ts"
+  },
+  {
     "from": "tests/lib/coursera-course-progress-tenant.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -118560,6 +118912,30 @@
     "package": "vitest"
   },
   {
+    "from": "tests/lib/coursera-unmatched-learners-learning-paths.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/coursera-unmatched-learners-learning-paths.spec.ts",
+    "specifier": "@/lib/content/coursera/learningPaths",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/coursera/learningPaths.ts"
+  },
+  {
+    "from": "tests/lib/coursera-unmatched-learners-learning-paths.spec.ts",
+    "specifier": "@/lib/coursera/progressQueries",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/progressQueries.ts"
+  },
+  {
     "from": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
     "specifier": "node:fs",
     "line": 1,
@@ -118878,6 +119254,22 @@
     "kind": "import",
     "external": true,
     "package": "vitest"
+  },
+  {
+    "from": "tests/lib/member-resume-plain-text-missing-admin-env.spec.ts",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/member-resume-plain-text-missing-admin-env.spec.ts",
+    "specifier": "@/lib/member/getMemberResumePlainText",
+    "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/getMemberResumePlainText.ts"
   },
   {
     "from": "tests/lib/member-voice-data-use-disclosures.spec.ts",

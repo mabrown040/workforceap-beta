@@ -4,7 +4,7 @@ flowchart LR
   assets["assets: 76 files"]
   astro_marketing["astro-marketing: 105 files"]
   audit_graph["audit-graph: 81 files"]
-  communications["communications: 69 files"]
+  communications["communications: 71 files"]
   components["components: 655 files"]
   content["content: 14 files"]
   database["database: 200 files"]
@@ -30,6 +30,7 @@ flowchart LR
   components -->|"14 static references"| pages
   components -->|"1 static references"| root
   components -->|"3 static references"| supporting_files
+  database -->|"1 static references"| communications
   database -->|"5 static references"| libraries
   libraries -->|"1 static references"| astro_marketing
   libraries -->|"2 static references"| communications

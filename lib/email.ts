@@ -1714,11 +1714,12 @@ export async function sendMatchActionEmail(
   return sendAIMatchSuggestionEmail(params);
 }
 
-/** Send application confirmation to applicant after form submit */
+/** Send application confirmation / first membership welcome after form submit */
 export async function sendApplicationConfirmationEmail(params: {
   to: string;
   fullName: string;
   eligibility?: EligibilityScreeningFields | null;
+  applicationId?: string | null;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1727,19 +1728,22 @@ export async function sendApplicationConfirmationEmail(params: {
   }
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
   const html = brandedEmailLayout({
-    title: 'Application Received — WorkforceAP',
+    title: 'Welcome to Workforce Advancement Project — Your Next Steps',
     bodyHtml: applicationConfirmationHtml({
       firstName: first,
       eligibility: params.eligibility,
+      applicationId: params.applicationId,
     }),
-    ctaText: 'Bookmark Your Portal',
+    ctaText: 'Open your member portal',
     ctaUrl: `${SITE_URL}/login`,
   });
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
-      subject: sanitizeEmailSubjectLine('Application Received — Workforce Advancement Project'),
+      subject: sanitizeEmailSubjectLine(
+        'Welcome to Workforce Advancement Project — Your Next Steps',
+      ),
       html,
     });
     return { ok: true };

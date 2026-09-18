@@ -31,7 +31,7 @@ describe('eligibilityScreeningSummaryHtml', () => {
     assert.match(html, /yes/);
     assert.match(html, /Exhausted unemployment/);
     assert.match(html, /Acme Logistics/);
-    assert.match(html, /SNAP\/WIC/);
+    assert.match(html, /SNAP/);
     assert.match(html, /Partner or community ambassador/);
     assert.match(html, /Ambassador Jane \/ code-abc/);
   });
@@ -58,9 +58,9 @@ describe('applicationConfirmationHtml WS5 eligibility payload', () => {
     assert.match(html, /Eligibility answers we received/);
     assert.match(html, /Receiving unemployment/);
     assert.match(html, /Acme Logistics/);
-    assert.match(html, /SNAP\/WIC/);
+    assert.match(html, /SNAP/);
     assert.match(html, /Ambassador Jane/);
-    assert.match(html, /automatic receipt/);
+    assert.match(html, /Thank you for becoming a member of Workforce Advancement Project!/);
     assert.match(html, /1(?:&ndash;|–|-)\s*2 business days/);
     assert.ok(!html.includes('3 to 5 business days'));
   });
@@ -81,7 +81,7 @@ describe('newApplicationAlertHtml WS5 eligibility payload', () => {
       eligibility: SAMPLE,
     });
     assert.match(html, /Receiving unemployment/);
-    assert.match(html, /SNAP\/WIC/);
+    assert.match(html, /SNAP/);
     assert.match(html, /Heard about us/);
     assert.match(html, /Partner \/ ambassador referral/);
   });

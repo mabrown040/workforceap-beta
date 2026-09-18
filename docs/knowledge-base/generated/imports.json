@@ -84418,15 +84418,23 @@
   {
     "from": "emails/application-accepted.ts",
     "specifier": "@/lib/email/escapeHtml",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/email/escapeHtml.ts"
   },
   {
     "from": "emails/application-accepted.ts",
+    "specifier": "./member-welcome-letter",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "emails/member-welcome-letter.ts"
+  },
+  {
+    "from": "emails/application-accepted.ts",
     "specifier": "@/lib/tenant/organizationBranding",
-    "line": 9,
+    "line": 11,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/organizationBranding.ts"
@@ -84434,7 +84442,7 @@
   {
     "from": "emails/application-confirmation.ts",
     "specifier": "@/lib/email/escapeHtml",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/email/escapeHtml.ts"
@@ -84442,15 +84450,23 @@
   {
     "from": "emails/application-confirmation.ts",
     "specifier": "./eligibility-screening-summary",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "emails/eligibility-screening-summary.ts"
   },
   {
     "from": "emails/application-confirmation.ts",
+    "specifier": "./member-welcome-letter",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "emails/member-welcome-letter.ts"
+  },
+  {
+    "from": "emails/application-confirmation.ts",
     "specifier": "@/lib/apply/eligibilityScreeningFields",
-    "line": 7,
+    "line": 10,
     "kind": "type",
     "external": false,
     "target": "lib/apply/eligibilityScreeningFields.ts"
@@ -84546,7 +84562,7 @@
   {
     "from": "emails/branding-parameterization.test.ts",
     "specifier": "@/lib/email/template",
-    "line": 116,
+    "line": 117,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/email/template.ts"
@@ -84554,7 +84570,7 @@
   {
     "from": "emails/branding-parameterization.test.ts",
     "specifier": "@/lib/email/template",
-    "line": 130,
+    "line": 131,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/email/template.ts"
@@ -84993,8 +85009,16 @@
   },
   {
     "from": "emails/index.ts",
-    "specifier": "./eligibility-screening-summary",
+    "specifier": "./member-welcome-letter",
     "line": 25,
+    "kind": "re-export",
+    "external": false,
+    "target": "emails/member-welcome-letter.ts"
+  },
+  {
+    "from": "emails/index.ts",
+    "specifier": "./eligibility-screening-summary",
+    "line": 29,
     "kind": "re-export",
     "external": false,
     "target": "emails/eligibility-screening-summary.ts"
@@ -85002,7 +85026,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./eligibility-screening-confirmation",
-    "line": 26,
+    "line": 30,
     "kind": "re-export",
     "external": false,
     "target": "emails/eligibility-screening-confirmation.ts"
@@ -85010,7 +85034,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./eligibility-screening-admin-alert",
-    "line": 27,
+    "line": 31,
     "kind": "re-export",
     "external": false,
     "target": "emails/eligibility-screening-admin-alert.ts"
@@ -85018,7 +85042,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./applicant-followup",
-    "line": 28,
+    "line": 32,
     "kind": "re-export",
     "external": false,
     "target": "emails/applicant-followup.ts"
@@ -85026,7 +85050,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./admin-pending-applicants",
-    "line": 29,
+    "line": 33,
     "kind": "re-export",
     "external": false,
     "target": "emails/admin-pending-applicants.ts"
@@ -85034,7 +85058,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./admin-weekly-recap",
-    "line": 30,
+    "line": 34,
     "kind": "re-export",
     "external": false,
     "target": "emails/admin-weekly-recap.ts"
@@ -85042,7 +85066,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./partner-weekly-digest",
-    "line": 31,
+    "line": 35,
     "kind": "re-export",
     "external": false,
     "target": "emails/partner-weekly-digest.ts"
@@ -85050,7 +85074,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./at-risk-digest",
-    "line": 32,
+    "line": 36,
     "kind": "re-export",
     "external": false,
     "target": "emails/at-risk-digest.ts"
@@ -85058,7 +85082,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./onboarding-stalls-digest",
-    "line": 33,
+    "line": 37,
     "kind": "re-export",
     "external": false,
     "target": "emails/onboarding-stalls-digest.ts"
@@ -85066,7 +85090,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./counselor-at-risk-alert",
-    "line": 34,
+    "line": 38,
     "kind": "re-export",
     "external": false,
     "target": "emails/counselor-at-risk-alert.ts"
@@ -85074,7 +85098,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./placement-survey",
-    "line": 35,
+    "line": 39,
     "kind": "re-export",
     "external": false,
     "target": "emails/placement-survey.ts"
@@ -85082,7 +85106,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./counselor-assigned",
-    "line": 36,
+    "line": 40,
     "kind": "re-export",
     "external": false,
     "target": "emails/counselor-assigned.ts"
@@ -85090,7 +85114,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./partner-referral-invite",
-    "line": 37,
+    "line": 41,
     "kind": "re-export",
     "external": false,
     "target": "emails/partner-referral-invite.ts"
@@ -85098,7 +85122,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./employer-welcome",
-    "line": 38,
+    "line": 42,
     "kind": "re-export",
     "external": false,
     "target": "emails/employer-welcome.ts"
@@ -85106,7 +85130,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./employer-verify-email",
-    "line": 39,
+    "line": 43,
     "kind": "re-export",
     "external": false,
     "target": "emails/employer-verify-email.ts"
@@ -85114,7 +85138,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./employer-signup-admin-alert",
-    "line": 40,
+    "line": 44,
     "kind": "re-export",
     "external": false,
     "target": "emails/employer-signup-admin-alert.ts"
@@ -85122,7 +85146,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./employer-approved",
-    "line": 41,
+    "line": 45,
     "kind": "re-export",
     "external": false,
     "target": "emails/employer-approved.ts"
@@ -85130,7 +85154,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./employer-rejected",
-    "line": 42,
+    "line": 46,
     "kind": "re-export",
     "external": false,
     "target": "emails/employer-rejected.ts"
@@ -85138,7 +85162,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./wioa-report",
-    "line": 43,
+    "line": 47,
     "kind": "re-export",
     "external": false,
     "target": "emails/wioa-report.ts"
@@ -85146,7 +85170,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./member-check-in",
-    "line": 44,
+    "line": 48,
     "kind": "re-export",
     "external": false,
     "target": "emails/member-check-in.ts"
@@ -85154,7 +85178,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./member-come-back",
-    "line": 45,
+    "line": 49,
     "kind": "re-export",
     "external": false,
     "target": "emails/member-come-back.ts"
@@ -85162,7 +85186,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./member-stuck",
-    "line": 46,
+    "line": 50,
     "kind": "re-export",
     "external": false,
     "target": "emails/member-stuck.ts"
@@ -85170,7 +85194,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./job-alert-digest",
-    "line": 47,
+    "line": 51,
     "kind": "re-export",
     "external": false,
     "target": "emails/job-alert-digest.ts"
@@ -85178,7 +85202,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./employer-pending-applicants",
-    "line": 48,
+    "line": 52,
     "kind": "re-export",
     "external": false,
     "target": "emails/employer-pending-applicants.ts"
@@ -85186,7 +85210,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./admin-stale-applicants-digest",
-    "line": 49,
+    "line": 53,
     "kind": "re-export",
     "external": false,
     "target": "emails/admin-stale-applicants-digest.ts"
@@ -85194,7 +85218,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./job-expiry",
-    "line": 50,
+    "line": 54,
     "kind": "re-export",
     "external": false,
     "target": "emails/job-expiry.ts"
@@ -85202,7 +85226,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./school-enrollment-parent-ack",
-    "line": 51,
+    "line": 55,
     "kind": "re-export",
     "external": false,
     "target": "emails/school-enrollment-parent-ack.ts"
@@ -85210,7 +85234,7 @@
   {
     "from": "emails/index.ts",
     "specifier": "./school-enrollment-partner-ack",
-    "line": 52,
+    "line": 56,
     "kind": "re-export",
     "external": false,
     "target": "emails/school-enrollment-partner-ack.ts"
@@ -85318,6 +85342,46 @@
     "kind": "import",
     "external": false,
     "target": "lib/email/escapeHtml.ts"
+  },
+  {
+    "from": "emails/member-welcome-letter.test.ts",
+    "specifier": "node:test",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "emails/member-welcome-letter.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "emails/member-welcome-letter.test.ts",
+    "specifier": "./application-accepted",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "emails/application-accepted.ts"
+  },
+  {
+    "from": "emails/member-welcome-letter.test.ts",
+    "specifier": "./application-confirmation",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "emails/application-confirmation.ts"
+  },
+  {
+    "from": "emails/member-welcome-letter.test.ts",
+    "specifier": "./member-welcome-letter",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "emails/member-welcome-letter.ts"
   },
   {
     "from": "emails/new-application-alert.ts",
@@ -105886,6 +105950,14 @@
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
+  },
+  {
+    "from": "prisma/seed-email-templates.ts",
+    "specifier": "../emails/member-welcome-letter",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "emails/member-welcome-letter.ts"
   },
   {
     "from": "prisma/seed-onet-career.ts",

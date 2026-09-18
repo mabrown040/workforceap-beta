@@ -72,6 +72,7 @@ async function _POST(request: NextRequest) {
     const result = await sendApplicationConfirmationEmail({
       to: parsed.data.email,
       fullName: parsed.data.fullName,
+      applicationId: recentApplication.id,
     });
     if (!result.ok) {
       return NextResponse.json({ error: result.error ?? 'Send failed' }, { status: 502 });

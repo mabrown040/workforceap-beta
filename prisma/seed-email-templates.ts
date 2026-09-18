@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { memberWelcomeLetterHtml } from '../emails/member-welcome-letter';
 
 const prisma = new PrismaClient();
 
@@ -15,20 +16,20 @@ const DEFAULT_TEMPLATES = [
   },
   {
     key: 'application-confirmation',
-    name: 'Application Received',
-    subject: 'Application Received — Workforce Advancement Project',
+    name: 'Welcome — Membership Next Steps',
+    subject: 'Welcome to Workforce Advancement Project — Your Next Steps',
     body: `<p>Hi {firstName},</p>
-<p>We received your application. A member of our team will review it within 2–3 business days.</p>
-<p>You can check your status anytime by logging into your portal.</p>`,
+${memberWelcomeLetterHtml()}
+<p>Your application is on file. A WorkforceAP staff member usually looks at your goals and program interest within about 1&ndash;2 business days.</p>`,
     variables: ['firstName'],
   },
   {
     key: 'application-accepted',
     name: 'Application Accepted',
-    subject: 'Welcome to WorkforceAP — Your Application Was Accepted',
+    subject: 'Welcome to Workforce Advancement Project — Your Next Steps',
     body: `<p>Hi {firstName},</p>
-<p>Congratulations! Your application to WorkforceAP has been accepted.</p>
-<p>Log into your portal to complete onboarding and select your training program.</p>`,
+${memberWelcomeLetterHtml()}
+<p>If you have any questions, reach out to your counselor or contact us at info@workforceap.org.</p>`,
     variables: ['firstName'],
   },
   {

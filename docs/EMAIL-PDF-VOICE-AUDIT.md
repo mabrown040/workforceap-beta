@@ -31,8 +31,8 @@
 
 | Content source | Send helper (`lib/email.ts`) | Typical trigger |
 |----------------|------------------------------|-----------------|
-| `application-confirmation.ts` | `sendApplicationConfirmationEmail` | `app/api/apply/signup/route.ts`, `app/api/apply/confirmation-email/route.ts` |
-| `application-accepted.ts` | `sendApplicationAcceptedEmail` | Admin member status → accepted (`app/api/admin/members/[id]/status/route.ts`) |
+| `application-confirmation.ts` (`emails/member-welcome-letter.ts`) | `sendApplicationConfirmationEmail` | `app/api/apply/signup/route.ts`, `app/api/apply/confirmation-email/route.ts` — first membership email after apply; body is the ops welcome letter |
+| `application-accepted.ts` (`emails/member-welcome-letter.ts`) | `sendApplicationAcceptedEmail` | Same welcome letter when an application is accepted (`sendApplicationAcceptedEmail`; enrollment approval still uses `enrollment-confirmation.ts`) |
 | `application-rejected.ts` | `sendApplicationRejectedEmail` | Admin member status → rejected |
 | `enrollment-confirmation.ts` | `sendEnrollmentConfirmationEmail` | Admin enrollment / status flows |
 | `course-enrolled.ts` | `sendCourseEnrolledEmail` | `app/api/member/enroll/route.ts` |

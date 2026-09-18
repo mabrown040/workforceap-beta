@@ -232,7 +232,7 @@
 | [app/api/ai/resume-strength/route.ts](../../../app/api/ai/resume-strength/route.ts) | 128 | ai-voice | POST:15 |
 | [app/api/ai/salary-negotiation/route.ts](../../../app/api/ai/salary-negotiation/route.ts) | 112 | ai-voice | POST:16 |
 | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | 206 | ai-voice | GET:23 |
-| [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 85 | applications-enrollment | POST:85 |
+| [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 86 | applications-enrollment | POST:86 |
 | [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1304 | applications-enrollment |  |
 | [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1030 | applications-enrollment | POST:180 |
 | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | 55 | applications-enrollment | POST:28 |

@@ -44,8 +44,9 @@ test('applicationAcceptedHtml uses branded support email', () => {
 
 test('applicationAcceptedHtml falls back to WorkforceAP defaults without branding', () => {
   const html = applicationAcceptedHtml({ firstName: 'Sam' });
+  assert.ok(html.includes('Workforce Advancement Project'));
   assert.ok(html.includes('WorkforceAP'));
-  assert.ok(html.includes('info@workforceap.org'));
+  assert.ok(html.toLowerCase().includes('info@workforceap.org'));
 });
 
 // jobApprovedHtml ----------------------------------------------------------

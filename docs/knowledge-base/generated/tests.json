@@ -1350,11 +1350,11 @@
       },
       {
         "file": "lib/email/template.ts",
-        "line": 116
+        "line": 117
       },
       {
         "file": "lib/email/template.ts",
-        "line": 130
+        "line": 131
       }
     ],
     "kind": "test-candidate",
@@ -1419,6 +1419,38 @@
       {
         "file": "emails/enrollment-confirmation.ts",
         "line": 7
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "emails/member-welcome-letter.test.ts",
+    "area": "communications",
+    "domain": "communications",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "emails/application-accepted.ts",
+        "line": 7
+      },
+      {
+        "file": "emails/application-confirmation.ts",
+        "line": 8
+      },
+      {
+        "file": "emails/member-welcome-letter.ts",
+        "line": 9
       }
     ],
     "kind": "test-candidate",

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9d53ab42cb68c37c343932e2ec0108debe93adff11769859b73900a485707edd",
+  "inputTreeSha256": "c4891c1a5797d9b89493298ea6e054e439db691a030466968945527e039ad7eb",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1499,9 +1499,9 @@
       "path": ".github/workflows/mirror-master-to-preview.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 2792,
-      "lines": 69,
-      "sha256": "aee438766de6d43004f238978dff1bbea375d9a95d5e5e2af492c6cb0c4c9f34",
+      "bytes": 2761,
+      "lines": 67,
+      "sha256": "5e4ccda1f9e9eaf1a5d1b334e7bd49cabd3c804270010536a74761cc3d595f87",
       "binary": false
     },
     {

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "15e984e7a540207f849dcf37cf0ed15ef814ab355737b15108fbf540976d469b",
+  "inputTreeSha256": "4be022449328ba53e232c7e1949bf4256b779a5fc6d23e7edf67b1b1ba2ea33b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -68508,51 +68508,51 @@
       "path": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4710,
-      "lines": 122,
-      "sha256": "a24b6b80752e9f058e1c9ec42d309d36df30139991749ff7d1b5a5ca747aea99",
+      "bytes": 4987,
+      "lines": 132,
+      "sha256": "36f0c7472ead543d1de9b941916fcfb670db3fcdeac59369117d5a12e5a3228f",
       "binary": false,
       "exports": [
         {
           "name": "MentorCard",
-          "line": 23,
+          "line": 24,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MentorsDirectoryKitProps",
-          "line": 40,
+          "line": 41,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MentorsDirectoryKit",
-          "line": 60,
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "MentorCard",
-          "line": 23,
+          "line": 24,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MentorsDirectoryKitProps",
-          "line": 40,
+          "line": 41,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_MENTORS",
-          "line": 48,
+          "line": 49,
           "kind": "Variable"
         },
         {
           "name": "mentorTone",
-          "line": 54,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MentorsDirectoryKit",
-          "line": 60,
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -70826,46 +70826,51 @@
       "path": "components/portal/kit/pages/member/MemberMentorsKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 4670,
-      "lines": 117,
-      "sha256": "aac042afdb529af8f2e9e86d9099a6035b810918b34a56805382be4077444a94",
+      "bytes": 5181,
+      "lines": 142,
+      "sha256": "304ca8b0d28107ffa987797b0be2389f97a42f2cdf19aa6bf00abfc207d6fe32",
       "binary": false,
       "exports": [
         {
           "name": "MentorSummary",
-          "line": 19,
+          "line": 26,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberMentorsKitProps",
-          "line": 27,
+          "line": 34,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberMentorsKit",
-          "line": 38,
+          "line": 68,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "MentorSummary",
-          "line": 19,
+          "line": 26,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberMentorsKitProps",
-          "line": 27,
+          "line": 34,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "initialsOf",
-          "line": 31,
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "MentorsCta",
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MemberMentorsKit",
-          "line": 38,
+          "line": 68,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -118648,6 +118653,58 @@
           "name": "isTrainingStaleForCounselorEscalation",
           "line": 205,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/member/mentorsEmptyState.test.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 2047,
+      "lines": 48,
+      "sha256": "fadf4db3ba054b96e7098fedd8ee5d8fc547ef687a046b79fe73f6b828e73a07",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ROOT",
+          "line": 9,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/member/mentorsEmptyState.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 1156,
+      "lines": 24,
+      "sha256": "afd7f1dd534ae9caee3d1ffde0ac2f29eaa1de00281be46f83bd1405a54f5e07",
+      "binary": false,
+      "exports": [
+        {
+          "name": "MENTORS_MEMBER_EMPTY",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "MENTORS_ADMIN_EMPTY",
+          "line": 19,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "MENTORS_MEMBER_EMPTY",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "MENTORS_ADMIN_EMPTY",
+          "line": 19,
+          "kind": "Variable"
         }
       ],
       "directive": null

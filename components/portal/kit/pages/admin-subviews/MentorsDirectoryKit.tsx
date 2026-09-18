@@ -1,14 +1,15 @@
-import { GraduationCap } from 'lucide-react';
+import Link from 'next/link';
 import { Card } from '@astryxdesign/core/Card';
 import { Token, type TokenColor } from '@astryxdesign/core/Token';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   Avatar,
+  KitEmptyState,
   type KpiItem,
 } from '@/components/portal/kit';
+import { MENTORS_ADMIN_EMPTY } from '@/lib/member/mentorsEmptyState';
 
 /**
  * Mentors directory — industry volunteers paired with members, as a responsive
@@ -87,11 +88,20 @@ export function MentorsDirectoryKit({
       </div>
 
       {mentors.length === 0 ? (
-        <EmptyState
-          icon={<GraduationCap size={32} aria-hidden />}
-          title="No mentors yet"
-          description="Approved industry volunteers will appear here once they apply."
-        />
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title={MENTORS_ADMIN_EMPTY.title}
+            description={MENTORS_ADMIN_EMPTY.description}
+            action={
+              <Link
+                href={MENTORS_ADMIN_EMPTY.primaryCta.href}
+                className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+              >
+                {MENTORS_ADMIN_EMPTY.primaryCta.label}
+              </Link>
+            }
+          />
+        </div>
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
           {mentors.map((m) => {

@@ -79769,11 +79769,11 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next/link",
     "line": 1,
     "kind": "import",
     "external": true,
-    "package": "lucide-react"
+    "package": "next"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
@@ -79793,19 +79793,19 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/EmptyState",
-    "line": 4,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 5,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
+    "specifier": "@/lib/member/mentorsEmptyState",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/mentorsEmptyState.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/MessagesKit.tsx",
@@ -81513,15 +81513,15 @@
   },
   {
     "from": "components/portal/kit/pages/member/MemberMentorsKit.tsx",
-    "specifier": "@astryxdesign/core/Card",
+    "specifier": "react",
     "line": 3,
-    "kind": "import",
+    "kind": "type",
     "external": true,
-    "package": "@astryxdesign/core"
+    "package": "react"
   },
   {
     "from": "components/portal/kit/pages/member/MemberMentorsKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
+    "specifier": "@astryxdesign/core/Card",
     "line": 4,
     "kind": "import",
     "external": true,
@@ -81529,7 +81529,7 @@
   },
   {
     "from": "components/portal/kit/pages/member/MemberMentorsKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
+    "specifier": "@astryxdesign/core/Button",
     "line": 5,
     "kind": "import",
     "external": true,
@@ -81537,7 +81537,7 @@
   },
   {
     "from": "components/portal/kit/pages/member/MemberMentorsKit.tsx",
-    "specifier": "@astryxdesign/core/EmptyState",
+    "specifier": "@astryxdesign/core/Token",
     "line": 6,
     "kind": "import",
     "external": true,
@@ -81558,6 +81558,14 @@
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberMentorsKit.tsx",
+    "specifier": "@/lib/member/mentorsEmptyState",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/mentorsEmptyState.ts"
   },
   {
     "from": "components/portal/kit/pages/member/MemberMessagesEmpty.tsx",
@@ -99918,6 +99926,54 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingProgress.ts"
+  },
+  {
+    "from": "lib/member/mentorsEmptyState.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/member/mentorsEmptyState.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/member/mentorsEmptyState.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/member/mentorsEmptyState.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/member/mentorsEmptyState.test.ts",
+    "specifier": "node:url",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:url"
+  },
+  {
+    "from": "lib/member/mentorsEmptyState.test.ts",
+    "specifier": "./mentorsEmptyState",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/mentorsEmptyState.ts"
   },
   {
     "from": "lib/member/missionCourseUnlock.test.ts",

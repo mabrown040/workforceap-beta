@@ -1,11 +1,18 @@
 import { Users2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { Button } from '@astryxdesign/core/Button';
 import { Token } from '@astryxdesign/core/Token';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Link as AstryxLink } from '@astryxdesign/core/Link';
-import { DesignSurface, Avatar } from '@/components/portal/kit';
+import {
+  DesignSurface,
+  Avatar,
+  KitEmptyState,
+  PageOpener,
+  StatusTag,
+} from '@/components/portal/kit';
+import { MENTORS_MEMBER_EMPTY } from '@/lib/member/mentorsEmptyState';
 
 /**
  * Member Portal — MENTOR BROWSE view.
@@ -35,46 +42,64 @@ function initialsOf(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
+function MentorsCta({
+  href,
+  children,
+  variant = 'primary',
+}: {
+  href: string;
+  children: ReactNode;
+  variant?: 'primary' | 'secondary';
+}) {
+  return (
+    <Link
+      href={href}
+      className={
+        variant === 'secondary'
+          ? 'wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90'
+          : 'wa-kit-cta wa-kit-focus hover:wa-opacity-90'
+      }
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function MemberMentorsKit({ mentors }: MemberMentorsKitProps) {
+  const empty = mentors.length === 0;
+
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
-        {/* Page opener */}
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: 'var(--wa-type-meta)',
-              fontWeight: 700,
-              color: 'var(--wa-accent)',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
-            <Users2 size={13} aria-hidden="true" />
-            <span>Mentor network</span>
-          </div>
-          <h1
-            className="h-font"
-            style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}
-          >
-            Find a mentor
-          </h1>
-          <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', marginTop: 4 }}>
-            Browse WorkforceAP mentors and request a session with someone in your field.
-          </p>
-        </div>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Mentor network"
+          title="Find a mentor"
+          lede={empty ? MENTORS_MEMBER_EMPTY.lede : 'Browse WorkforceAP mentors and request a session with someone in your field.'}
+          icon={<Users2 size={13} aria-hidden="true" />}
+          action={
+            empty ? (
+              <StatusTag tone={MENTORS_MEMBER_EMPTY.statusTone}>{MENTORS_MEMBER_EMPTY.statusLabel}</StatusTag>
+            ) : undefined
+          }
+        />
 
-        {mentors.length === 0 ? (
-          <Card>
-            <EmptyState
-              icon={<Users2 size={18} aria-hidden="true" />}
-              title="No mentors available yet"
-              description="Check back soon — we're adding mentors to the network."
+        {empty ? (
+          <div className="wa-kit-card">
+            <KitEmptyState
+              title={MENTORS_MEMBER_EMPTY.title}
+              description={MENTORS_MEMBER_EMPTY.description}
+              action={
+                <div className="wa-flex wa-flex-wrap wa-gap-2">
+                  <MentorsCta href={MENTORS_MEMBER_EMPTY.primaryCta.href}>
+                    {MENTORS_MEMBER_EMPTY.primaryCta.label}
+                  </MentorsCta>
+                  <MentorsCta href={MENTORS_MEMBER_EMPTY.secondaryCta.href} variant="secondary">
+                    {MENTORS_MEMBER_EMPTY.secondaryCta.label}
+                  </MentorsCta>
+                </div>
+              }
             />
-          </Card>
+          </div>
         ) : (
           <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
             {mentors.map((mentor) => (

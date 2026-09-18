@@ -533,7 +533,7 @@
 | [components/portal/kit/pages/admin-subviews/GrowthKit.tsx](../../../components/portal/kit/pages/admin-subviews/GrowthKit.tsx) | 213 | components | GrowthUtmRow:34, GrowthApplyEventRow:43, GrowthConversionValueRow:48, GrowthKitProps:53, GrowthKit:121 |
 | [components/portal/kit/pages/admin-subviews/InvitesKit.tsx](../../../components/portal/kit/pages/admin-subviews/InvitesKit.tsx) | 198 | components | InviteRow:22, InvitesKitProps:33, InvitesKit:61 |
 | [components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx](../../../components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx) | 237 | components | JobDisplayStatus:29, JobRow:37, JobsBoardKitProps:49, JobsBoardKit:96 |
-| [components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx](../../../components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx) | 122 | components | MentorCard:23, MentorsDirectoryKitProps:40, MentorsDirectoryKit:60 |
+| [components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx](../../../components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx) | 132 | components | MentorCard:24, MentorsDirectoryKitProps:41, MentorsDirectoryKit:61 |
 | [components/portal/kit/pages/admin-subviews/MessagesKit.tsx](../../../components/portal/kit/pages/admin-subviews/MessagesKit.tsx) | 200 | components | MessageChannel:24, MessageThread:26, MessagesKitProps:40, MessagesKit:93 |
 | [components/portal/kit/pages/admin-subviews/MetricsKit.tsx](../../../components/portal/kit/pages/admin-subviews/MetricsKit.tsx) | 85 | components | MetricsKitProps:25, MetricsKit:55 |
 | [components/portal/kit/pages/admin-subviews/PartnersDirectoryKit.tsx](../../../components/portal/kit/pages/admin-subviews/PartnersDirectoryKit.tsx) | 214 | components | PartnerCard:29, PartnersDirectoryKitProps:46, PartnersDirectoryKit:90 |
@@ -575,7 +575,7 @@
 | [components/portal/kit/pages/member/MemberJobsBoard.tsx](../../../components/portal/kit/pages/member/MemberJobsBoard.tsx) | 131 | member-counselor | BoardJob:18, MemberJobsBoardProps:29, MemberJobsBoard:47 |
 | [components/portal/kit/pages/member/MemberJobsKit.tsx](../../../components/portal/kit/pages/member/MemberJobsKit.tsx) | 194 | member-counselor | MemberJobsKitProps:38, MemberJobsKit:72 |
 | [components/portal/kit/pages/member/MemberMentorProfileKit.tsx](../../../components/portal/kit/pages/member/MemberMentorProfileKit.tsx) | 102 | member-counselor | MentorProfile:16, MemberMentorProfileKitProps:26, MemberMentorProfileKit:39 |
-| [components/portal/kit/pages/member/MemberMentorsKit.tsx](../../../components/portal/kit/pages/member/MemberMentorsKit.tsx) | 117 | member-counselor | MentorSummary:19, MemberMentorsKitProps:27, MemberMentorsKit:38 |
+| [components/portal/kit/pages/member/MemberMentorsKit.tsx](../../../components/portal/kit/pages/member/MemberMentorsKit.tsx) | 142 | member-counselor | MentorSummary:26, MemberMentorsKitProps:34, MemberMentorsKit:68 |
 | [components/portal/kit/pages/member/MemberMessagesEmpty.tsx](../../../components/portal/kit/pages/member/MemberMessagesEmpty.tsx) | 44 | member-counselor | MemberMessagesEmpty:10 |
 | [components/portal/kit/pages/member/MemberMessagesKit.tsx](../../../components/portal/kit/pages/member/MemberMessagesKit.tsx) | 373 | member-counselor | MemberMessagesKitProps:32, MemberMessagesKit:70 |
 | [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 410 | member-counselor | MemberProfileAccountPassthrough:52, MemberProfileKitProps:65, MemberProfileKit:95 |

@@ -177,7 +177,7 @@
 | [app/(portal)/dashboard/help/loading.tsx](../../../app/%28portal%29/dashboard/help/loading.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/dashboard/help/page.tsx](../../../app/%28portal%29/dashboard/help/page.tsx) | 170 | member-counselor | generateMetadata:12, default:43 |
 | [app/(portal)/dashboard/job-applications/loading.tsx](../../../app/%28portal%29/dashboard/job-applications/loading.tsx) | 6 | member-counselor | default:3 |
-| [app/(portal)/dashboard/job-applications/page.tsx](../../../app/%28portal%29/dashboard/job-applications/page.tsx) | 60 | member-counselor | generateMetadata:30, default:39 |
+| [app/(portal)/dashboard/job-applications/page.tsx](../../../app/%28portal%29/dashboard/job-applications/page.tsx) | 67 | member-counselor | generateMetadata:29, default:38 |
 | [app/(portal)/dashboard/jobs/JobsBoardSkeleton.tsx](../../../app/%28portal%29/dashboard/jobs/JobsBoardSkeleton.tsx) | 12 | jobs-employers | default:4 |
 | [app/(portal)/dashboard/jobs/JobsListingClient.tsx](../../../app/%28portal%29/dashboard/jobs/JobsListingClient.tsx) | 710 | jobs-employers | default:257 |
 | [app/(portal)/dashboard/jobs/\[id\]/MobileApplyFunnel.module.css](../../../app/%28portal%29/dashboard/jobs/%5Bid%5D/MobileApplyFunnel.module.css) | 367 | jobs-employers |  |

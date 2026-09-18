@@ -5,20 +5,19 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
 
 const JobApplicationsTracker = dynamic(() => import('@/components/portal/JobApplicationsTracker'), {
   loading: () => (
     <div
       role="status"
       aria-live="polite"
-      className="portal-card portal-card--flat"
+      className="wa-kit-card"
       style={{
         minHeight: 240,
-        padding: '2.5rem 1.25rem',
-        borderRadius: 12,
-        textAlign: 'center',
-        color: 'var(--color-on-surface-variant)',
-        fontSize: '0.9rem',
+        padding: 'var(--wa-pad)',
+        color: 'var(--wa-muted)',
+        fontSize: 'var(--wa-type-body)',
         fontWeight: 600,
       }}
     >
@@ -38,23 +37,31 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function JobApplicationsPage() {
   const user = await getUser();
-  
+  const t = await getTranslations('dashboard');
+
   if (!user?.id) {
     redirect('/login?redirectTo=/dashboard/job-applications');
   }
 
   return (
-    <>
-    <div style={{ maxWidth: 'var(--max-width, 64rem)', margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-      <PageHeader
-        title="Application tracker"
-        subtitle="Track every job you've applied to and where you stand in the process. This lives under Jobs so saved roles, outreach, and application status stay in one workflow."
-        breadcrumbs={[
-          { label: 'Member Portal', href: '/dashboard' },
-          { label: 'Application tracker' },
-        ]}
-      />
-      <JobApplicationsTracker userId={user.id} />
-    </div>    </>
+    <DesignSurface surface="warm">
+      <div
+        style={{
+          maxWidth: 'var(--max-width, 64rem)',
+          margin: '0 auto',
+          padding: 'var(--wa-pad-sm) var(--wa-pad-sm) var(--wa-pad)',
+        }}
+      >
+        <PageHeader
+          title={t('jobApplicationsMetaTitle')}
+          subtitle={t('jobApplicationsSubtitle')}
+          breadcrumbs={[
+            { label: t('memberPortal'), href: '/dashboard' },
+            { label: t('jobApplicationsMetaTitle') },
+          ]}
+        />
+        <JobApplicationsTracker userId={user.id} />
+      </div>
+    </DesignSurface>
   );
 }

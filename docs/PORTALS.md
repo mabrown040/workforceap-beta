@@ -99,7 +99,7 @@ The member dashboard is the primary experience for enrolled members. It adapts b
 - `points` — Gamification points
 - `program` — Current program details
 - `program/change` — Change program
-- `program/start` — Start new program
+- `program/start` — Path to certification (enrollment guide; uses the same CourseEnrollment resolver as My Program)
 - `program/employer-screening` — Employer screening
 - `eligibility` — Eligibility verification
 - `help` — Help center

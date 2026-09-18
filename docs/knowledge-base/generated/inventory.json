@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "197872e39d01f5d0b21a9de79fc39a44bafa7a86ed8ddf101949641ab4f95d77",
+  "inputTreeSha256": "48d08a9ca500c63bc2911bb70b317fff4f9209a973805bbaae07c4d868329702",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -11033,14 +11033,14 @@
       "path": "app/(portal)/dashboard/training/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 1108,
-      "lines": 36,
-      "sha256": "cb53b65aca5c26bbfb511288e04632a0ed96df8ac7e3156a8b4059270a418d57",
+      "bytes": 1752,
+      "lines": 45,
+      "sha256": "e310c8e651c9b6aae81c2826624a47e83bdeece1c79d9a684626508d3c370164",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 11,
+          "line": 20,
           "kind": "FunctionDeclaration",
           "localName": "TrainingPage"
         }
@@ -11048,7 +11048,7 @@
       "declarations": [
         {
           "name": "TrainingPage",
-          "line": 11,
+          "line": 20,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -151610,6 +151610,29 @@
         {
           "name": "read",
           "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/dashboard-training-redirect.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2970,
+      "lines": 69,
+      "sha256": "d68683a4b48e7ffce996e6607f0708e8271bdcb4e8a0f2242dd6d81fd08fbe7d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "getUserMock",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "redirectTargetOf",
+          "line": 19,
           "kind": "FunctionDeclaration"
         }
       ],

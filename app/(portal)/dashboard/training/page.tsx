@@ -2,11 +2,20 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 
 /**
- * Training home consolidated into /dashboard.
- * All training progress, next-course links, and counselor contact
- * now live on the unified Dashboard. This redirect preserves
- * query params (e.g., ?program=google-it-support) so multi-program
- * tab switches and external bookmarks continue to work.
+ * Training home consolidated into /dashboard/program ("My Program").
+ *
+ * This route is a redirect stub with no UI of its own. It used to forward to
+ * /dashboard, but the dashboard's own "Resume module" / "Continue training"
+ * CTAs point here, so that made the primary CTA a do-loop: the member landed
+ * back on the page they had just clicked from. Forwarding to /dashboard/program
+ * puts them on the surface that actually lists their modules and lessons, and
+ * rescues every other inbound caller at once (notification deep links,
+ * recap/course-completion emails, the member assistant's portal handoffs, and
+ * the Coursera launch error redirects in lib/coursera/launchRouteCore.ts).
+ *
+ * Query params are preserved (e.g. ?program=google-it-support for multi-program
+ * tab switches and external bookmarks, and ?error=... from a failed Coursera
+ * launch) so nothing that appends state to this URL loses it in transit.
  */
 export default async function TrainingPage({
   searchParams,
@@ -29,8 +38,8 @@ export default async function TrainingPage({
     : '';
 
   if (!user) {
-    redirect('/login?redirectTo=/dashboard' + search.replace(/^\?/, '&'));
+    redirect('/login?redirectTo=/dashboard/program' + search.replace(/^\?/, '&'));
   }
 
-  redirect('/dashboard' + search);
+  redirect('/dashboard/program' + search);
 }

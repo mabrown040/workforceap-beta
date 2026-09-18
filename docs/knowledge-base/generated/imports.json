@@ -117608,6 +117608,30 @@
     "package": "vitest"
   },
   {
+    "from": "tests/app/dashboard-training-redirect.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/dashboard-training-redirect.spec.ts",
+    "specifier": "@/app/(portal)/dashboard/training/page",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/dashboard/training/page.tsx"
+  },
+  {
+    "from": "tests/app/dashboard-training-redirect.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
     "from": "tests/app/diagnostics-read-reliability.spec.tsx",
     "specifier": "vitest",
     "line": 1,

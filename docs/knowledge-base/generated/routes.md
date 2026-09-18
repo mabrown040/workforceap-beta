@@ -993,6 +993,8 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /dev/staff/pipeline-funnel | page |  | [app/dev/staff/pipeline-funnel/page.tsx](../../../app/dev/staff/pipeline-funnel/page.tsx) |  |
 | /dev/staff/placements | layout |  | [app/dev/staff/placements/layout.tsx](../../../app/dev/staff/placements/layout.tsx) |  |
 | /dev/staff/placements | page |  | [app/dev/staff/placements/page.tsx](../../../app/dev/staff/placements/page.tsx) |  |
+| /dev/staff/students-roster | page |  | [app/dev/staff/students-roster/page.tsx](../../../app/dev/staff/students-roster/page.tsx) |  |
+| /dev/staff/training-progress | page |  | [app/dev/staff/training-progress/page.tsx](../../../app/dev/staff/training-progress/page.tsx) |  |
 | /dev/voice-studio | layout |  | [app/dev/voice-studio/layout.tsx](../../../app/dev/voice-studio/layout.tsx) |  |
 | /dev/voice-studio | page |  | [app/dev/voice-studio/page.tsx](../../../app/dev/voice-studio/page.tsx) |  |
 | /employer/loi | page |  | [app/employer/loi/page.tsx](../../../app/employer/loi/page.tsx) |  |

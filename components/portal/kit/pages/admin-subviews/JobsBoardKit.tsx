@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
 import { Plus } from 'lucide-react';
@@ -14,6 +15,13 @@ import {
   type Column,
   type KitTone,
 } from '@/components/portal/kit';
+import { ariaSortForColumn, useKitTableSort } from '@/components/portal/kit/kitTableSort';
+import {
+  DEFAULT_JOB_SORT_DIRECTION,
+  DEFAULT_JOB_SORT_KEY,
+  sortJobRows,
+  type JobSortKey,
+} from '@/lib/admin/jobsBoardSort';
 
 /**
  * Jobs board — the admin job-posting queue rendered as a dense roster table.
@@ -99,6 +107,15 @@ export function JobsBoardKit({
   employers = 48,
 }: JobsBoardKitProps) {
   const router = useRouter();
+  const { sortKey, sortDirection, sortHeader } = useKitTableSort<JobSortKey>(
+    DEFAULT_JOB_SORT_KEY,
+    DEFAULT_JOB_SORT_DIRECTION,
+    ['role', 'employer', 'location'],
+  );
+  const sortedJobs = useMemo(
+    () => sortJobRows(jobs, sortKey, sortDirection),
+    [jobs, sortKey, sortDirection],
+  );
   const subtitle = `${openRoles.toLocaleString()} open ${
     openRoles === 1 ? 'role' : 'roles'
   } across ${employers.toLocaleString()} ${employers === 1 ? 'employer' : 'employers'}`;
@@ -106,30 +123,44 @@ export function JobsBoardKit({
   const columns: Column<JobRow>[] = [
     {
       key: 'role',
-      header: 'Role',
+      header: sortHeader('role', 'Role'),
+      stickyLeft: true,
+      minWidth: 180,
+      ariaSort: ariaSortForColumn('role', sortKey, sortDirection),
       render: (row) => <span style={{ fontWeight: 700 }}>{row.role}</span>,
     },
     {
       key: 'employer',
-      header: 'Employer',
+      header: sortHeader('employer', 'Employer'),
+      minWidth: 140,
+      ariaSort: ariaSortForColumn('employer', sortKey, sortDirection),
       render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.employer}</span>,
     },
     {
       key: 'location',
-      header: 'Location',
+      header: sortHeader('location', 'Location'),
+      minWidth: 120,
+      ariaSort: ariaSortForColumn('location', sortKey, sortDirection),
       render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.location}</span>,
     },
     {
       key: 'wage',
-      header: 'Wage',
+      header: sortHeader('wage', 'Wage'),
+      align: 'right',
+      minWidth: 88,
+      ariaSort: ariaSortForColumn('wage', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{row.wage}</span>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, whiteSpace: 'nowrap' }}>
+          {row.wage}
+        </span>
       ),
     },
     {
       key: 'applicants',
-      header: 'Applicants',
+      header: sortHeader('applicants', 'Applicants'),
       align: 'right',
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('applicants', sortKey, sortDirection),
       render: (row) => (
         <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
           {row.applicants}
@@ -138,7 +169,9 @@ export function JobsBoardKit({
     },
     {
       key: 'status',
-      header: 'Status',
+      header: sortHeader('status', 'Status'),
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('status', sortKey, sortDirection),
       render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
     },
   ];
@@ -163,10 +196,10 @@ export function JobsBoardKit({
 
       <DataTable<JobRow>
         columns={columns}
-        rows={jobs}
+        rows={sortedJobs}
         rowKey={(row) => row.id}
         onRowClick={(row) => router.push(`/admin/jobs/${row.id}`)}
-        minWidth={760}
+        minWidth={820}
         mobile="cards"
         cardRender={(row) => (
           <Card padding={3}>

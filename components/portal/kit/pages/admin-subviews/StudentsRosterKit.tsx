@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@astryxdesign/core/Card';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -15,6 +15,13 @@ import {
   type Column,
   type KitColor,
 } from '@/components/portal/kit';
+import { ariaSortForColumn, useKitTableSort } from '@/components/portal/kit/kitTableSort';
+import {
+  DEFAULT_STUDENT_SORT_DIRECTION,
+  DEFAULT_STUDENT_SORT_KEY,
+  sortStudentRows,
+  type StudentSortKey,
+} from '@/lib/admin/studentsRosterSort';
 
 /**
  * Students roster — the consolidated members workspace with saved-view filter
@@ -44,6 +51,8 @@ export interface StudentRow {
   status: StudentStatus;
   /** Last-active caption, e.g. "2h ago". */
   lastActive: string;
+  /** Sortable last-activity instant (epoch ms). Caption alone is not ordered. */
+  lastActiveAt?: number | null;
   /** Latest Coursera course grade 0–100; null when unknown. */
   courseraGrade?: number | null;
   /** False when the row is a Coursera identity with no WAP member. */
@@ -159,6 +168,11 @@ export function StudentsRosterKit({
 }: StudentsRosterKitProps) {
   const router = useRouter();
   const [active, setActive] = useState<StudentFilter>('All');
+  const { sortKey, sortDirection, sortHeader } = useKitTableSort<StudentSortKey>(
+    DEFAULT_STUDENT_SORT_KEY,
+    DEFAULT_STUDENT_SORT_DIRECTION,
+    ['name', 'program', 'counselor'],
+  );
 
   const counts: Record<StudentFilter, number> = {
     All: total,
@@ -168,28 +182,40 @@ export function StudentsRosterKit({
     Unmatched: students.filter((s) => s.inWap === false).length,
   };
 
-  const visible = students.filter((s) => matchesFilter(s, active));
+  const visible = useMemo(
+    () =>
+      sortStudentRows(
+        students.filter((s) => matchesFilter(s, active)),
+        sortKey,
+        sortDirection,
+      ),
+    [students, active, sortKey, sortDirection],
+  );
 
   const StudentCell = ({ row }: { row: StudentRow }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
       <Avatar initials={row.initials ?? row.name.slice(0, 2).toUpperCase()} size={32} />
-      <div style={{ minWidth: 0 }}>
+      <div style={{ minWidth: 0, flex: 1 }}>
         <div
           style={{
             fontWeight: 700,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
           }}
+          title={row.name}
         >
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.name}</span>
-          {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
-          {row.inWap !== false && row.noProgram ? <Token label="No program" size="sm" color="yellow" /> : null}
+          {row.name}
         </div>
-        <p style={{ margin: 0, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', overflowWrap: 'anywhere', whiteSpace: 'normal' }}>
+        {row.inWap === false || row.noProgram ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+            {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
+            {row.inWap !== false && row.noProgram ? (
+              <Token label="No program" size="sm" color="yellow" />
+            ) : null}
+          </div>
+        ) : null}
+        <p style={{ margin: '4px 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', overflowWrap: 'anywhere', whiteSpace: 'normal' }}>
           {row.email}
         </p>
         <div
@@ -224,49 +250,91 @@ export function StudentsRosterKit({
   );
 
   const columns: Column<StudentRow>[] = [
-    { key: 'name', header: 'Student', render: (row) => <StudentCell row={row} /> },
-    { key: 'program', header: 'Program', render: (row) => (
-        <span style={{ color: 'var(--wa-muted)' }}>{row.program}</span>
-      ) },
-    { key: 'progress', header: 'Progress', render: (row) => <ProgressCell row={row} /> },
+    {
+      key: 'name',
+      header: sortHeader('name', 'Student'),
+      stickyLeft: true,
+      minWidth: 220,
+      ariaSort: ariaSortForColumn('name', sortKey, sortDirection),
+      render: (row) => <StudentCell row={row} />,
+    },
+    {
+      key: 'program',
+      header: sortHeader('program', 'Program'),
+      minWidth: 160,
+      ariaSort: ariaSortForColumn('program', sortKey, sortDirection),
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.program}</span>,
+    },
+    {
+      key: 'progress',
+      header: sortHeader('progress', 'Progress'),
+      minWidth: 120,
+      ariaSort: ariaSortForColumn('progress', sortKey, sortDirection),
+      render: (row) => <ProgressCell row={row} />,
+    },
     {
       key: 'courseraGrade',
-      header: 'Coursera grade',
+      header: sortHeader('courseraGrade', 'Coursera grade'),
+      align: 'right',
+      minWidth: 112,
+      ariaSort: ariaSortForColumn('courseraGrade', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, whiteSpace: 'nowrap' }}>
           {formatRosterGrade(row.courseraGrade)}
         </span>
       ),
     },
     {
       key: 'readiness',
-      header: 'Readiness',
+      header: sortHeader('readiness', 'Readiness'),
+      align: 'right',
+      minWidth: 88,
+      ariaSort: ariaSortForColumn('readiness', sortKey, sortDirection),
       render: (row) => (
         <span
           style={{
             fontVariantNumeric: 'tabular-nums',
             fontWeight: 800,
             color: readinessVar(row.readiness),
+            whiteSpace: 'nowrap',
           }}
         >
           {row.readiness}
         </span>
       ),
     },
-    { key: 'counselor', header: 'Counselor', render: (row) => (
-        <span style={{ color: 'var(--wa-muted)' }}>{row.counselor}</span>
-      ) },
+    {
+      key: 'counselor',
+      header: sortHeader('counselor', 'Counselor'),
+      minWidth: 120,
+      ariaSort: ariaSortForColumn('counselor', sortKey, sortDirection),
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.counselor}</span>,
+    },
     {
       key: 'status',
-      header: 'Status',
-      render: (row) => <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />,
+      header: sortHeader('status', 'Status'),
+      minWidth: 108,
+      ariaSort: ariaSortForColumn('status', sortKey, sortDirection),
+      render: (row) => (
+        <span style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+          <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />
+        </span>
+      ),
     },
     {
       key: 'lastActive',
-      header: 'Last active',
+      header: sortHeader('lastActive', 'Last active'),
       align: 'right',
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('lastActive', sortKey, sortDirection),
       render: (row) => (
-        <span style={{ color: row.status === 'At Risk' ? 'var(--wa-accent)' : 'var(--wa-muted)', fontWeight: row.status === 'At Risk' ? 700 : 400 }}>
+        <span
+          style={{
+            color: row.status === 'At Risk' ? 'var(--wa-accent)' : 'var(--wa-muted)',
+            fontWeight: row.status === 'At Risk' ? 700 : 400,
+            whiteSpace: 'nowrap',
+          }}
+        >
           {row.lastActive}
         </span>
       ),
@@ -297,7 +365,7 @@ export function StudentsRosterKit({
         rows={visible}
         rowKey={(row) => row.id}
         onRowClick={(row) => router.push(row.href ?? `/admin/members/${row.id}`)}
-        minWidth={760}
+        minWidth={1040}
         mobile="cards"
         cardRender={(row) => (
           <Card padding={3}>

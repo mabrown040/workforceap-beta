@@ -31904,6 +31904,56 @@
     "boundaryReferences": []
   },
   {
+    "file": "app/dev/staff/students-roster/page.tsx",
+    "kind": "page",
+    "path": "/dev/staff/students-roster",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "dynamic",
+        "line": 12,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 66,
+        "kind": "FunctionDeclaration",
+        "localName": "DevStaffStudentsRosterPage"
+      }
+    ],
+    "methods": [],
+    "configuration": {
+      "dynamic": "force-dynamic"
+    },
+    "boundaryReferences": []
+  },
+  {
+    "file": "app/dev/staff/training-progress/page.tsx",
+    "kind": "page",
+    "path": "/dev/staff/training-progress",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "dynamic",
+        "line": 9,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 51,
+        "kind": "FunctionDeclaration",
+        "localName": "DevStaffTrainingProgressPage"
+      }
+    ],
+    "methods": [],
+    "configuration": {
+      "dynamic": "force-dynamic"
+    },
+    "boundaryReferences": []
+  },
+  {
     "file": "app/dev/voice-studio/layout.tsx",
     "kind": "layout",
     "path": "/dev/voice-studio",

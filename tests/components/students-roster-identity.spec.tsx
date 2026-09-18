@@ -25,7 +25,9 @@ afterEach(cleanup);
 describe('student account identity', () => {
   it('shows different full emails in desktop rows for students with the same name', () => {
     render(<StudentsRosterKit students={students} total={students.length} />);
-    const rows = within(screen.getByRole('table')).getAllByRole('button');
+    const tbody = screen.getByRole('table').querySelector('tbody');
+    expect(tbody).toBeTruthy();
+    const rows = within(tbody as HTMLElement).getAllByRole('button');
     expect(rows).toHaveLength(2);
     for (const [index, row] of rows.entries()) {
       expect(within(row).getByText('Michael Brown')).toBeInTheDocument();

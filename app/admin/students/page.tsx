@@ -288,6 +288,9 @@ export default async function AdminStudentsPage({
     const state = m.profile?.state?.trim();
     const location = city && state ? `${city}, ${state}` : city || state || '—';
 
+    const lastActivity =
+      trainingActivityByUserId.get(m.id) ?? m.lastLoginAt ?? m.updatedAt ?? null;
+
     return {
       id: m.id,
       name: m.fullName,
@@ -301,9 +304,8 @@ export default async function AdminStudentsPage({
       // counselor's linked User); no active assignment → "Unassigned".
       counselor: counselorNameMap.get(m.id) ?? 'Unassigned',
       status,
-      lastActive: relativeTime(
-        trainingActivityByUserId.get(m.id) ?? m.lastLoginAt ?? m.updatedAt ?? null,
-      ),
+      lastActive: relativeTime(lastActivity),
+      lastActiveAt: lastActivity?.getTime() ?? null,
       inWap: true,
       noProgram: !storedProgramSlug && Boolean(inferredProgramSlug),
       courseraGrade: gradeByUserId.get(m.id) ?? null,
@@ -312,6 +314,12 @@ export default async function AdminStudentsPage({
   });
 
   for (const learner of unmatchedLearners) {
+    const lastActivity =
+      learner.lastActivityTime instanceof Date
+        ? learner.lastActivityTime
+        : learner.lastActivityTime
+          ? new Date(learner.lastActivityTime)
+          : null;
     students.push({
       id: `coursera:${learner.externalEmail}`,
       name: learner.externalName?.trim() || learner.externalEmail,
@@ -323,13 +331,8 @@ export default async function AdminStudentsPage({
       readiness: 0,
       counselor: 'Unassigned',
       status: 'In Training',
-      lastActive: relativeTime(
-        learner.lastActivityTime instanceof Date
-          ? learner.lastActivityTime
-          : learner.lastActivityTime
-            ? new Date(learner.lastActivityTime)
-            : null,
-      ),
+      lastActive: relativeTime(lastActivity),
+      lastActiveAt: lastActivity?.getTime() ?? null,
       inWap: false,
       courseraGrade: learner.latestGradePercent,
       href: `/admin/coursera/learners/unmatched/${encodeURIComponent(learner.externalEmail)}`,

@@ -31,6 +31,11 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+
+## 2024-05-30 - Expandable Action Button and Async Submit States in Career Mappings
+**Learning:** The "Add Manual Mapping" button lacked `aria-expanded` and `aria-controls`, failing to communicate its relationship to the revealed form. Additionally, the "Save Mapping" button changed its text to "Saving..." during loading without `aria-busy` or an `aria-live` region, keeping screen readers unaware of the submission status.
+**Action:** Always provide `aria-expanded` and `aria-controls` for buttons that reveal adjacent panels or forms. For asynchronous form submission buttons, always wrap dynamic loading text in a `<span aria-live="polite">` and append `aria-busy={loading}` to the button element.
+
 ## 2024-07-26 - Accessible Save Settings Button
 **Learning:** Found a "Save changes" button in `components/portal/kit/pages/member/MemberProfileKit.tsx` that changed text to "Saving…" dynamically but was missing `aria-live` and `aria-busy`. Screen readers were not informed when the profile was saving.
 **Action:** When a settings or profile save button has an asynchronous state, apply `aria-busy={isSaving}` to the button element and wrap the dynamic button text in a `<span aria-live="polite">` tag.

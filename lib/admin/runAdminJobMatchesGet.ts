@@ -19,7 +19,7 @@ export type AdminJobMatchRow = {
 };
 
 export type RunAdminJobMatchesDeps = {
-  findJobForMatch: (jobId: string) => Promise<(JobMatchInput & { id: string }) | null>;
+  findAuthorizedJob: (jobId: string) => Promise<(JobMatchInput & { id: string }) | null>;
   findCachedRows: (jobId: string) => Promise<AdminJobMatchRow[]>;
   computeMatches: (jobId: string, job: JobMatchInput) => Promise<StudentMatch[]>;
   persistMatches: (jobId: string, matches: StudentMatch[]) => Promise<unknown>;
@@ -51,11 +51,9 @@ export function serializeAdminJobMatchRow(m: AdminJobMatchRow) {
  */
 export async function runAdminJobMatchesGet(
   jobId: string,
+  job: JobMatchInput & { id: string },
   deps: RunAdminJobMatchesDeps
-): Promise<{ notFound: true } | { status: 200; body: unknown }> {
-  const job = await deps.findJobForMatch(jobId);
-  if (!job) return { notFound: true };
-
+): Promise<{ status: 200; body: unknown }> {
   const cached = await deps.findCachedRows(jobId);
   if (cached.length > 0) {
     try {

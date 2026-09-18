@@ -9,6 +9,9 @@ import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs
 import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
 import { createNotification } from '@/lib/notifications/create';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 /**
  * Day-5 reserved-seat funding update, using the existing scheduled endpoint.
  * Only primary assignments without a recorded funding source and without
@@ -18,10 +21,12 @@ import { createNotification } from '@/lib/notifications/create';
  * Prior sends and the shared seven-day outreach cooldown remain in force.
  */
 async function handle(_request: Request) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const fiveDaysAgo = new Date();
   fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
 
   // Keep the existing 5–7 day send window; funding waits are not evidence
   // that a member failed to start training.
@@ -83,11 +88,11 @@ async function handle(_request: Request) {
       const program = getProgramBySlug(enrollment.programSlug);
       const programName = program ? getProgramDisplayTitle(program) : enrollment.programSlug;
 
-      const result = await sendCourseAccountabilityEmail({
+      const result = await emailPacer.run(() => sendCourseAccountabilityEmail({
         to: enrollment.user.email,
         fullName: enrollment.user.fullName ?? enrollment.user.email,
         programName,
-      });
+      }));
 
       if (result.ok) {
         sent++;
@@ -143,6 +148,7 @@ async function handle(_request: Request) {
     sent,
     scanned: enrollments.length,
     counselorFollowups,
+    emailPacing: emailPacer.summary(),
   };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_course_accountability', runResult);

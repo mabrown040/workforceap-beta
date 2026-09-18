@@ -1,5 +1,16 @@
 # AGENTS.md
 
+## Repository knowledge and navigation
+
+Start with [the Workforce AP knowledge base](docs/knowledge-base/README.md) and its
+[compact agent context](docs/knowledge-base/agent-context.md). It connects every
+tracked area to routes, models, dependencies, tests, architecture diagrams and
+evidence-backed technical debt. Use `npm run kb:query -- "symbol or feature"` for
+focused lookup. Update the relevant guide and run `npm run kb:generate` after
+staging source changes; `npm run kb:test` and `npm run kb:check` validate the tools,
+index freshness and links. The existing domain, deployment and database rules
+below remain authoritative; static indexes do not prove live behavior.
+
 ## Cursor Cloud specific instructions
 
 This is the production **WorkforceAP Next.js 15 (App Router)** application at [workforceap.org](https://workforceap.org). It includes the public website plus authenticated member, counselor, employer, partner, and admin portals; the former Squarespace site is historical reference material, not the deployment target.
@@ -51,6 +62,16 @@ npm run build         # Full production build (Prisma generate + next build)
 ```
 
 Note: `npm run build` runs ESLint at build time (gate flipped 2026-05-20 — `eslint.ignoreDuringBuilds: false`). Use `npm run typecheck` and `npm run lint` separately for faster feedback during development.
+
+#### OpenClaw Pilot production-build lane
+
+On the 16 GiB OpenClaw Pilot host, run at most one heavy application job at a time. The validated local production-build command is:
+
+```bash
+NODE_OPTIONS=--max-old-space-size=6144 npm run build
+```
+
+This is a scoped local heap allowance for the Next.js build, not a change to CI, generic preflight commands, other workers, or global memory settings.
 
 Register library suites importing Vitest in `scripts/vitest-library-specs.mjs`.
 Both runners share that registry; `tests/test-runner-coverage.test.ts` guards

@@ -1,6 +1,6 @@
 import type { TrainingBillingPacket } from '@prisma/client';
 import { getResend } from '@/lib/email';
-import { sendBrandedEmail } from '@/lib/email/send';
+import { sendBrandedEmailOrThrowOnSkip as sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';

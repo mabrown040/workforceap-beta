@@ -1,5 +1,5 @@
 #!/usr/bin/env node
- 
+
 /**
  * Wrapper around `node --test` for the project's unit tests.
  *
@@ -7,10 +7,8 @@
  * Both runners share scripts/vitest-library-specs.mjs, and the Vitest
  * collection guard proves those suites are not excluded from that lane.
  *
- *  - Tests whose target module imports `'server-only'` at module
- *    load — that package throws unconditionally when not run inside
- *    a Next.js server bundle. Until we add an `--import` shim for
- *    `server-only`, those tests can't load.
+ * `server-only` is stubbed via tests/server-only-stub.cjs so Node can load
+ * server modules the same way Vitest aliases them to tests/empty-module.cjs.
  *
  * Filtering happens here rather than via a glob pattern so the skip
  * list stays declarative + documented. Print the skipped files at
@@ -35,7 +33,6 @@ const ROOT = path.resolve(__dirname, '..');
 
 const SKIP_REASONS = {
   vitest: "owned by npm run test:vitest (shared manifest; collection guarded)",
-  serverOnly: "imports 'server-only' (no test-env shim yet)",
   realDb: "requires a live postgres connection (no Prisma mock layer in this spec)",
 };
 
@@ -47,11 +44,26 @@ const SKIP_REASONS = {
 const KNOWN_VITEST_SPECS = new Set(VITEST_LIBRARY_SPECS);
 
 async function listTestFiles() {
-  const out = [];
+  const out = new Set();
   for await (const entry of glob('lib/**/*.test.ts', { cwd: ROOT })) {
-    out.push(entry);
+    out.add(entry);
   }
-  return out;
+  for await (const entry of glob('app/**/*.test.ts', { cwd: ROOT })) {
+    out.add(entry);
+  }
+  for await (const entry of glob('emails/**/*.test.ts', { cwd: ROOT })) {
+    out.add(entry);
+  }
+  for await (const entry of glob('shared/**/*.test.ts', { cwd: ROOT })) {
+    out.add(entry);
+  }
+  for await (const entry of glob('scripts/**/*.test.ts', { cwd: ROOT })) {
+    out.add(entry);
+  }
+  for await (const entry of glob('scripts/**/*.test.cjs', { cwd: ROOT })) {
+    out.add(entry);
+  }
+  return [...out];
 }
 
 /**
@@ -69,15 +81,10 @@ function classify(relPath) {
     if (KNOWN_VITEST_SPECS.has(normalized)) {
       return { skip: 'vitest' };
     }
+    if (/app\/api\/apply\/signup\/route\.test\.ts/.test(normalized)) {
+      return { skip: 'vitest' };
+    }
     return { unknownVitest: true };
-  }
-  // Check if any direct (non-test) dependency starts with `import 'server-only'`.
-  // Most of these tests fail because the module under test does the import.
-  // Heuristic: if the test file references `webhooks/retry`, `coursera/webhookAuth`,
-  // we know those targets pull in server-only. Until we add a runtime shim,
-  // skip the known-broken pair.
-  if (/lib\/webhooks\/retry\.test\.ts|lib\/coursera\/webhookAuth\.test\.ts/.test(normalized)) {
-    return { skip: 'serverOnly' };
   }
   if (/lib\/auth\/roles\.test\.ts/.test(normalized)) {
     // Hits the real Prisma client via getProfileRole — needs a postgres
@@ -143,7 +150,14 @@ async function main() {
 
   const child = spawn(
     'node',
-    ['--import', 'tsx', '--test', ...runnable],
+    [
+      '--require',
+      path.join(ROOT, 'tests/server-only-stub.cjs'),
+      '--import',
+      'tsx',
+      '--test',
+      ...runnable,
+    ],
     { stdio: 'inherit', cwd: ROOT, env },
   );
   child.on('exit', (code) => {

@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+
 /**
  * Fire-and-forget Discord webhook bridge for operator visibility.
  *
@@ -100,7 +102,7 @@ export async function notifyDiscord(input: DiscordNotificationInput): Promise<vo
   }
 
   try {
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -110,7 +112,19 @@ export async function notifyDiscord(input: DiscordNotificationInput): Promise<vo
       // Don't let a hung webhook stall a request handler.
       signal: AbortSignal.timeout(2500),
     });
+    if (!response.ok) {
+      throw new Error(`Discord webhook returned HTTP ${response.status}`);
+    }
   } catch (error) {
-    console.error('[discord-notify] post failed:', error);
+    const failureReason = error instanceof Error ? error.message : String(error);
+    console.error('[discord-notify] post failed:', failureReason);
+    await recordWorkflowDiagnostic({
+      workflow: 'discord_notification',
+      status: 'error',
+      provider: 'discord',
+      summary: `Discord notification failed: "${truncate(input.title, MAX_TITLE)}"`,
+      failureReason,
+      metadata: { category: input.category ?? null },
+    });
   }
 }

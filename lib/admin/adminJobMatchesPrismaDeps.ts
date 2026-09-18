@@ -29,9 +29,13 @@ const aiJobMatchStudentInclude = {
   },
 };
 
-function findAiJobMatchRowsForAdmin(jobId: string) {
+function findAiJobMatchRowsForAdmin(jobId: string, organizationId: string) {
   return prisma.aIJobMatch.findMany({
-    where: { jobId },
+    where: {
+      jobId,
+      job: { organizationId },
+      student: { organizationId, deletedAt: null },
+    },
     include: aiJobMatchStudentInclude,
     orderBy: { matchScore: 'desc' },
     take: 10,
@@ -43,24 +47,39 @@ function findAiJobMatchRowsForAdmin(jobId: string) {
  * Supply {@link RunAdminJobMatchesDeps.logDiagnostic} per call site (admin UI vs employer auto-match).
  */
 export function createAdminJobMatchesPrismaDeps(
+  organizationId: string,
   logDiagnostic: RunAdminJobMatchesDeps['logDiagnostic']
 ): RunAdminJobMatchesDeps {
   return {
-    findJobForMatch: (jid) =>
-      prisma.job.findUnique({
-        where: { id: jid },
+    findAuthorizedJob: (jid) =>
+      prisma.job.findFirst({
+        where: { id: jid, organizationId },
         select: jobSelectForMatch,
       }),
-    findCachedRows: findAiJobMatchRowsForAdmin,
-    computeMatches: (jid, job) => getOrComputeAiJobMatches(jid, job),
+    findCachedRows: (jid) => findAiJobMatchRowsForAdmin(jid, organizationId),
+    computeMatches: (jid, job) => getOrComputeAiJobMatches(jid, organizationId, job),
     persistMatches: async (jid, matches) => {
       if (matches.length === 0) return;
       const existing = await prisma.aIJobMatch.findMany({
-        where: { jobId: jid },
+        where: {
+          jobId: jid,
+          job: { organizationId },
+          student: { organizationId, deletedAt: null },
+        },
         select: { studentId: true },
       });
       const existingIds = new Set(existing.map((e) => e.studentId));
-      const newMatches = matches.filter((m) => !existingIds.has(m.studentId));
+      const candidateIds = [...new Set(matches.map((match) => match.studentId))];
+      const authorizedCandidates = candidateIds.length > 0
+        ? await prisma.user.findMany({
+            where: { id: { in: candidateIds }, organizationId, deletedAt: null },
+            select: { id: true },
+          })
+        : [];
+      const authorizedIds = new Set(authorizedCandidates.map((candidate) => candidate.id));
+      const newMatches = matches.filter(
+        (match) => authorizedIds.has(match.studentId) && !existingIds.has(match.studentId),
+      );
 
       if (newMatches.length > 0) {
         await prisma.aIJobMatch.createMany({
@@ -70,15 +89,23 @@ export function createAdminJobMatchesPrismaDeps(
             matchScore: m.matchScore,
             matchReasons: m.matchReasons,
           })),
+          skipDuplicates: true,
         });
 
-        const job = await prisma.job.findUnique({
-          where: { id: jid },
+        const job = await prisma.job.findFirst({
+          where: { id: jid, organizationId },
           select: { title: true },
         });
 
         for (const m of newMatches) {
-          void createNotification({
+          // A candidate can be retired or moved after scoring/persistence.
+          // Revalidate immediately before the external notification effect.
+          const activeCandidate = await prisma.user.findFirst({
+            where: { id: m.studentId, organizationId, deletedAt: null },
+            select: { id: true },
+          });
+          if (!activeCandidate) continue;
+          await createNotification({
             userId: m.studentId,
             type: 'job_match',
             title: 'New job match',
@@ -89,13 +116,13 @@ export function createAdminJobMatchesPrismaDeps(
       }
     },
     markMatchesComputedAt: (jid) =>
-      prisma.job.update({
-        where: { id: jid },
+      prisma.job.updateMany({
+        where: { id: jid, organizationId },
         data: { aiMatchesComputedAt: new Date() },
       }),
-    reloadRows: findAiJobMatchRowsForAdmin,
-    markEmptyCooldown: markAiJobMatchEmptyCooldown,
-    clearEmptyCooldown: clearAiJobMatchEmptyCooldown,
+    reloadRows: (jid) => findAiJobMatchRowsForAdmin(jid, organizationId),
+    markEmptyCooldown: (jid) => markAiJobMatchEmptyCooldown(jid, organizationId),
+    clearEmptyCooldown: (jid) => clearAiJobMatchEmptyCooldown(jid, organizationId),
     logDiagnostic,
   };
 }

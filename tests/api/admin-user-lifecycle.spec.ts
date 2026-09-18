@@ -44,6 +44,21 @@ function deletedRow() {
 }
 const req = () => new Request('http://localhost/api/admin/users/fixture', { method: 'POST' });
 const ctx = (id = ID) => ({ params: Promise.resolve({ id }) });
+type PrivilegedTargetCase = {
+  name: string;
+  profile: { role: string } | null;
+  userRoles: readonly { role: { name: string } }[];
+  self?: boolean;
+};
+
+const privilegedTargets = [
+  { name: 'profile only', profile: { role: 'super_admin' }, userRoles: [] },
+  { name: 'UserRole grant only', profile: null, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'both stores privileged', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'stale privileged profile with ordinary grant', profile: { role: 'super_admin' }, userRoles: [{ role: { name: 'member' } }] },
+  { name: 'stale ordinary profile with privileged grant', profile: { role: 'member' }, userRoles: [{ role: { name: 'super_admin' } }] },
+  { name: 'privileged self', profile: { role: 'super_admin' }, userRoles: [], self: true },
+] satisfies readonly PrivilegedTargetCase[];
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -78,6 +93,42 @@ describe('administrator account restore', () => {
     expect(mocks.restoreAuth).not.toHaveBeenCalled();
   });
 
+  it.each(privilegedTargets)('denies ordinary admin restore for privileged target: $name', async ({ self, ...roles }) => {
+    const targetId = self ? ACTOR : ID;
+    mocks.target.mockResolvedValue({ ...deletedRow(), id: targetId, ...roles });
+
+    const response = await restore(req(), ctx(targetId));
+
+    expect(response.status).toBe(403);
+    expect(mocks.target).toHaveBeenCalledWith({
+      where: { id: targetId },
+      select: expect.objectContaining({
+        profile: { select: { role: true } },
+        userRoles: { select: { role: { select: { name: true } } } },
+      }),
+    });
+    expect(mocks.restoreAuth).not.toHaveBeenCalled();
+    expect(mocks.collision).not.toHaveBeenCalled();
+    expect(mocks.updateMany).not.toHaveBeenCalled();
+    expect(mocks.audit).not.toHaveBeenCalled();
+    expect(mocks.event).not.toHaveBeenCalled();
+  });
+
+  it('preserves explicit super-admin authority to restore a privileged account', async () => {
+    mocks.isSuperAdmin.mockResolvedValue(true);
+    mocks.target.mockResolvedValue({
+      ...deletedRow(),
+      profile: { role: 'super_admin' },
+      userRoles: [],
+    });
+
+    const response = await restore(req(), ctx());
+
+    expect(response.status).toBe(200);
+    expect(mocks.restoreAuth).toHaveBeenCalledOnce();
+    expect(mocks.updateMany).toHaveBeenCalledOnce();
+  });
+
   it('restores the exact normalized identity before publishing an active app row', async () => {
     const response = await restore(req(), ctx());
     expect(response.status).toBe(200);
@@ -105,13 +156,20 @@ describe('administrator account restore', () => {
     expect(mocks.updateMany).toHaveBeenCalledTimes(1);
   });
 
-  it('checks global email collisions case-insensitively before restoring Auth', async () => {
-    mocks.collision.mockResolvedValue({ id: 'other-identity' });
+  it('checks global email collisions before Auth without exposing the foreign identity or address', async () => {
+    const foreignId = 'foreign-user-private-identifier';
+    mocks.collision.mockResolvedValue({ id: foreignId });
+
     const response = await restore(req(), ctx());
+
     expect(response.status).toBe(409);
     expect(mocks.collision).toHaveBeenCalledWith({
       where: { email: { equals: 'member@example.com', mode: 'insensitive' }, NOT: { id: ID } }, select: { id: true },
     });
+    const body = await response.json();
+    expect(body).toEqual({ error: 'Account cannot be restored because its sign-in email is unavailable.' });
+    expect(JSON.stringify(body)).not.toContain(foreignId.slice(0, 8));
+    expect(JSON.stringify(body)).not.toContain('member@example.com');
     expect(mocks.restoreAuth).not.toHaveBeenCalled();
     expect(mocks.updateMany).not.toHaveBeenCalled();
   });

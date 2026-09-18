@@ -16,6 +16,9 @@ describe('admin post-commit notification contracts', () => {
       expect(route).toContain('cacheInvalidated');
       expect(route).toContain('warning: warnings.length > 0');
     }
+    expect(source('app/api/admin/jobs/[id]/approve/route.ts')).toContain(
+      'runAiMatchForLiveJob(id, orgId)',
+    );
   });
 
   it('shows server warnings instead of inviting a duplicate job action', () => {

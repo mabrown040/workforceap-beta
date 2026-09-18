@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -54,6 +55,12 @@ async function _POST(request: Request, { params }: Props) {
     targetId: memberId,
     metadata: { points, note: note || null },
   });
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'created',
+    object: { type: 'PointsAward', id: memberId },
+    result: { success: true, extensions: { points } },
+  }).catch(() => {});
   return NextResponse.json({ ok: true, ...result });
 
   } catch (error) {

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -123,7 +123,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return msg;
   });
 
-  void notifyDiscord({
+  after(() => notifyDiscord({
     title: `Employer → member message`,
     body: parsed.data.body.trim().slice(0, 500),
     category: 'application_message',
@@ -132,7 +132,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
       { name: 'authorId', value: user.id },
       { name: 'employerId', value: employerCtx.employerId },
     ],
-  });
+  }));
 
   auditLog({
     actorUserId: user.id,

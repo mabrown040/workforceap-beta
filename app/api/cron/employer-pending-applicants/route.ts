@@ -7,7 +7,11 @@ import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 const JOB_NAME = 'cron_employer_pending_applicants';
+
 
 /** Employers with this many or more stale applicants get called out in the admin digest. */
 const ADMIN_DIGEST_THRESHOLD = 10;
@@ -28,6 +32,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
  * in a single admin digest email.
  */
 async function handle(_request: Request) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const now = new Date();
   const staleCutoff = new Date(now.getTime() - STALE_DAYS * MS_PER_DAY);
 
@@ -121,13 +126,14 @@ async function handle(_request: Request) {
         data: { link: '/employer/applications' },
       });
 
-      if (agg.contactEmail) {
-        await sendEmployerPendingApplicantsEmail({
-          to: agg.contactEmail,
+      const contactEmail = agg.contactEmail;
+      if (contactEmail) {
+        await emailPacer.run(() => sendEmployerPendingApplicantsEmail({
+          to: contactEmail,
           candidateCount: agg.candidateCount,
           jobsAffected,
           oldestWaitingDays,
-        }).catch(() => { /* non-fatal — notification already sent */ });
+        }).catch(() => { /* non-fatal — notification already sent */ }));
       }
 
       employersNotified++;
@@ -143,7 +149,7 @@ async function handle(_request: Request) {
   let adminDigestSent = false;
   if (staleForAdminDigest.length > 0) {
     try {
-      const result = await sendAdminStaleApplicantsDigestEmail({ employers: staleForAdminDigest });
+      const result = await emailPacer.run(() => sendAdminStaleApplicantsDigestEmail({ employers: staleForAdminDigest }));
       adminDigestSent = result.ok;
     } catch (err) {
       captureApiError(err, { route: 'cron/employer-pending-applicants/admin-digest' });
@@ -155,6 +161,7 @@ async function handle(_request: Request) {
     employersNotified,
     adminDigestSent,
     employersOverThreshold: staleForAdminDigest.length,
+    emailPacing: emailPacer.summary(),
   };
   await setCronRecordsProcessed(employersNotified);
   await logCronRun(JOB_NAME, finalResult);

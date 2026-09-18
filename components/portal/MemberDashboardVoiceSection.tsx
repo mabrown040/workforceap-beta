@@ -46,7 +46,7 @@ export default function MemberDashboardVoiceSection() {
             {...readinessVoiceSurface}
             icon={<Target size={22} aria-hidden="true" />}
             title="Readiness Coach"
-            description="Interviews, certifications, and next steps — talked through out loud."
+            description="Stuck on what to do next? Talk through resume, training, applications, or interviews and leave with one clear next step."
             href="/dashboard/ai-tools/studio?tab=session&agent=readiness"
             ctaLabel="Start voice session"
           />

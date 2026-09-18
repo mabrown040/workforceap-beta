@@ -137,6 +137,12 @@ type SyncResult = {
     seededEnrollments: number;
     updatedEnrollments: number;
     droppedNoMapping: Array<{ courseraContentId: string; reason: string }>;
+    learningPaths: Array<{
+      courseraContentId: string;
+      name: string;
+      programSlug: string | null;
+      overallProgress: number | null;
+    }>;
     xapiReplayed: number;
     xapiCredited: number;
   };
@@ -239,6 +245,12 @@ export default function CourseraInspectByEmailCard() {
           seededEnrollments: number;
           updatedEnrollments: number;
           droppedNoMapping: Array<{ courseraContentId: string; reason: string }>;
+          learningPaths?: Array<{
+            courseraContentId: string;
+            name: string;
+            programSlug: string | null;
+            overallProgress: number | null;
+          }>;
         };
         xapi?: {
           statementsReplayed: number;
@@ -259,6 +271,7 @@ export default function CourseraInspectByEmailCard() {
           seededEnrollments: json.mapped?.seededEnrollments ?? 0,
           updatedEnrollments: json.mapped?.updatedEnrollments ?? 0,
           droppedNoMapping: json.mapped?.droppedNoMapping ?? [],
+          learningPaths: json.mapped?.learningPaths ?? [],
           xapiReplayed: json.xapi?.statementsReplayed ?? 0,
           xapiCredited: json.xapi?.nowCredited ?? 0,
         },
@@ -639,6 +652,27 @@ export default function CourseraInspectByEmailCard() {
                         {syncResult.detail.droppedNoMapping.length > 4
                           ? ` +${syncResult.detail.droppedNoMapping.length - 4} more`
                           : ''}
+                      </span>
+                    )}
+                    {syncResult.ok && syncResult.detail && syncResult.detail.learningPaths.length > 0 && (
+                      <span
+                        data-testid="coursera-sync-learning-paths"
+                        style={{
+                          display: 'block',
+                          marginTop: '0.2rem',
+                          color: 'var(--color-on-surface-variant)',
+                          fontSize: '0.78rem',
+                        }}
+                      >
+                        Learning Paths (program-level progress):{' '}
+                        {syncResult.detail.learningPaths
+                          .map(
+                            (path) =>
+                              `${path.name} → ${path.programSlug ?? 'no WAP program yet'}${
+                                path.overallProgress == null ? '' : ` (${Math.round(path.overallProgress)}%)`
+                              }`,
+                          )
+                          .join('; ')}
                       </span>
                     )}
                   </span>

@@ -11,12 +11,17 @@ import {
   CRON_PARTNER_DIGEST_PARTNER_CAP,
   partnerDigestReferralTake,
 } from '@/lib/cron/cronCaps';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
+
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
  * Protected with CRON_SECRET. Vercel schedule: Monday 8am CT (see vercel.json).
  */
 async function handle(_request: Request) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const now = new Date();
   const weekStart = new Date(now);
   weekStart.setDate(weekStart.getDate() - 7);
@@ -86,7 +91,7 @@ async function handle(_request: Request) {
     referralsByPartner.set(r.partnerId, list);
   }
 
-  const results: Array<{ partnerId: string; name: string; emailSent: boolean; error?: string }> = [];
+  const results: Array<{ partnerId: string; name: string; emailSent: boolean; error?: string; skipped?: boolean }> = [];
 
   for (const p of partners) {
     if (!p.contactEmail?.trim()) {
@@ -150,19 +155,21 @@ async function handle(_request: Request) {
     }
 
     try {
-      const sendResult = await sendPartnerWeeklyDigestEmail({
-        to: p.contactEmail.trim(),
+      const contactEmail = p.contactEmail.trim();
+      const sendResult = await emailPacer.run(() => sendPartnerWeeklyDigestEmail({
+        to: contactEmail,
         partnerName: p.name,
         weekLabel,
         stageLines,
         successLines,
-      });
+      }));
 
       results.push({
         partnerId: p.id,
         name: p.name,
         emailSent: sendResult.ok,
         error: sendResult.ok ? undefined : sendResult.error,
+        skipped: !sendResult.ok && 'skipped' in sendResult && sendResult.skipped,
       });
     } catch (error) {
       captureApiError(error, { route: 'cron/partner-outcome-digest', extra: { partnerId: p.id } });
@@ -176,9 +183,9 @@ async function handle(_request: Request) {
   }
 
   const sent = results.filter(r => r.emailSent).length;
-  const skipped = results.filter(r => r.error === 'no_contact_email' || r.error === 'no_referrals').length;
-  const failed = results.filter(r => r.error && r.error !== 'no_contact_email' && r.error !== 'no_referrals').length;
-  const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length };
+  const skipped = results.filter(r => r.skipped || r.error === 'no_contact_email' || r.error === 'no_referrals').length;
+  const failed = results.filter(r => r.error && !r.skipped && r.error !== 'no_contact_email' && r.error !== 'no_referrals').length;
+  const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length, emailPacing: emailPacer.summary() };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');
   return NextResponse.json({ ok: failed === 0, checkedAt: now.toISOString(), results });

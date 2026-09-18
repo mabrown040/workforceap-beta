@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const pricingState = vi.hoisted(() => ({ enforced: true }));
+
 // ─── Mocks ───
 vi.mock('next/server', () => {
   class MockNextRequest extends Request {
@@ -36,6 +38,8 @@ vi.mock('@/lib/auth/roles', () => ({
 vi.mock('@/lib/db/prisma', () => {
   const employer = {
     findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findUniqueOrThrow: vi.fn(),
     update: vi.fn(),
     updateMany: vi.fn(),
     count: vi.fn(),
@@ -44,6 +48,9 @@ vi.mock('@/lib/db/prisma', () => {
 });
 
 vi.mock('@/lib/stripe/client', () => ({
+  get EMPLOYER_PRICING_ENFORCED() {
+    return pricingState.enforced;
+  },
   getStripe: vi.fn(),
   getStripeWebhookSecret: vi.fn(() => 'whsec_test_secret'),
   EMPLOYER_TIERS: {
@@ -52,6 +59,21 @@ vi.mock('@/lib/stripe/client', () => ({
     enterprise: { priceId: 'price_enterprise', name: 'Enterprise', amount: 99900, jobLimit: Infinity, features: [] },
   },
   isValidTier: vi.fn((tier: string) => ['basic', 'growth', 'enterprise'].includes(tier)),
+}));
+
+vi.mock('@/lib/stripe/subscriptionPersistence', () => ({
+  reconcileEmployerSubscription: vi.fn(async () => 'applied'),
+}));
+vi.mock('@/lib/stripe/stripeSubscriptionSnapshot', () => ({
+  stripeObjectId: vi.fn((value: any) => typeof value === 'string' ? value : value?.id ?? null),
+  canonicalSubscriptionSnapshot: vi.fn((value: any) => ({
+    id: value.id,
+    customerId: typeof value.customer === 'string' ? value.customer : value.customer?.id ?? 'cus_123',
+    status: value.status ?? 'active',
+    employerId: value.metadata?.employerId,
+    userId: value.metadata?.userId,
+    tier: value.metadata?.tier,
+  })),
 }));
 
 vi.mock('@/lib/tenant/withTenantScope', () => ({
@@ -69,6 +91,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe, isValidTier } from '@/lib/stripe/client';
 import { NextRequest } from 'next/server';
+import { reconcileEmployerSubscription } from '@/lib/stripe/subscriptionPersistence';
 
 describe('POST /api/employer/checkout', () => {
   const makeRequest = (body: Record<string, unknown>) =>
@@ -80,6 +103,20 @@ describe('POST /api/employer/checkout', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    pricingState.enforced = true;
+  });
+
+  it('fails closed without calling Stripe when employer pricing is disabled', async () => {
+    pricingState.enforced = false;
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: 'emp-1' } as any);
+
+    const res = await checkoutPOST(makeRequest({ tier: 'basic' }));
+
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: 'Employer pricing is not available' });
+    expect(getStripe).not.toHaveBeenCalled();
+    expect(prisma.employer.findUnique).not.toHaveBeenCalled();
   });
 
   it('returns 401 when user is not authenticated', async () => {
@@ -172,7 +209,13 @@ describe('POST /api/employer/checkout', () => {
         customer: 'cus_existing',
         line_items: [{ price: 'price_growth', quantity: 1 }],
         mode: 'subscription',
-        metadata: { employerId: 'emp-1', tier: 'growth', userId: 'user-1' },
+        metadata: {
+          employerId: 'emp-1',
+          tier: 'growth',
+          userId: 'user-1',
+          organizationId: 'org-1',
+          replacesSubscriptionId: '',
+        },
       })
     );
   });
@@ -198,7 +241,7 @@ describe('POST /api/employer/checkout', () => {
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.update).mockResolvedValue({ id: 'emp-1' } as any);
+    vi.mocked(prisma.employer.update).mockResolvedValue({ id: 'emp-1', userId: 'user-1', stripeCustomerId: 'cus_123' } as any);
 
     const res = await checkoutPOST(makeRequest({ tier: 'enterprise' }));
     expect(res.status).toBe(200);
@@ -284,6 +327,7 @@ describe('POST /api/employer/webhook', () => {
 
   it('returns 400 when signature verification fails', async () => {
     const stripeMock = {
+      subscriptions: { retrieve: vi.fn(async (id: string) => ({ id, customer: 'cus_123', status: 'active', metadata: { employerId: 'emp-1', userId: 'user-1' } })) },
       webhooks: {
         constructEvent: vi.fn(() => {
           throw new Error('invalid signature');
@@ -300,7 +344,9 @@ describe('POST /api/employer/webhook', () => {
 
   it('updates employer tier on checkout.session.completed', async () => {
     const event = {
+      id: 'evt_checkout_employer',
       type: 'checkout.session.completed',
+      created: 1_750_000_100,
       data: {
         object: {
           metadata: { employerId: 'emp-1', tier: 'growth' },
@@ -309,28 +355,32 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     const stripeMock = {
+      subscriptions: { retrieve: vi.fn(async (id: string) => ({ id, customer: 'cus_123', status: 'active', metadata: { employerId: 'emp-1', userId: 'user-1' } })) },
       webhooks: {
         constructEvent: vi.fn().mockReturnValue(event),
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.update).mockResolvedValue({ id: 'emp-1' } as any);
-
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({
+      id: 'emp-1', userId: 'user-1', stripeCustomerId: 'cus_123',
+    });
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ received: true });
 
-    expect(prisma.employer.update).toHaveBeenCalledWith({
-      where: { id: 'emp-1' },
-      data: {
+    expect(reconcileEmployerSubscription).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({ employerId: 'emp-1' }),
+      expect.objectContaining({
+        subscriptionId: 'sub_123',
+        kind: 'checkout',
         tier: 'growth',
-        stripeSubscriptionId: 'sub_123',
-        stripeSubscriptionStatus: 'active',
-      },
-    });
+      }),
+      expect.any(Function),
+    );
   });
 
-  it('ignores checkout.session.completed when metadata is missing', async () => {
+  it('returns retryable failure when checkout ownership metadata is missing', async () => {
     const event = {
       type: 'checkout.session.completed',
       data: {
@@ -341,6 +391,7 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     const stripeMock = {
+      subscriptions: { retrieve: vi.fn(async (id: string) => ({ id, customer: 'cus_123', status: 'active', metadata: { employerId: 'emp-1', userId: 'user-1' } })) },
       webhooks: {
         constructEvent: vi.fn().mockReturnValue(event),
       },
@@ -348,12 +399,13 @@ describe('POST /api/employer/webhook', () => {
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
 
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
-    expect(res.status).toBe(200);
-    expect(prisma.employer.update).not.toHaveBeenCalled();
+    expect(res.status).toBe(500);
+    expect(reconcileEmployerSubscription).not.toHaveBeenCalled();
   });
 
   it('updates status to past_due on invoice.payment_failed', async () => {
     const event = {
+      id: 'evt_payment_failed',
       type: 'invoice.payment_failed',
       created: 1_750_000_000,
       data: {
@@ -363,12 +415,13 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     const stripeMock = {
+      subscriptions: { retrieve: vi.fn(async (id: string) => ({ id, customer: 'cus_123', status: 'active', metadata: { employerId: 'emp-1', userId: 'user-1' } })) },
       webhooks: {
         constructEvent: vi.fn().mockReturnValue(event),
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.updateMany).mockResolvedValue({ count: 1 } as any);
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({ id: 'emp-1', userId: 'user-1', stripeCustomerId: 'cus_123' });
 
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
     expect(res.status).toBe(200);
@@ -376,21 +429,88 @@ describe('POST /api/employer/webhook', () => {
 
     // The webhook now carries an event-ordering guard: stale (older-created)
     // events must not clobber newer subscription state.
-    expect(prisma.employer.updateMany).toHaveBeenCalledWith({
-      where: {
-        stripeSubscriptionId: 'sub_123',
-        OR: [
-          { stripeSubscriptionEventAt: null },
-          { stripeSubscriptionEventAt: { lte: 1_750_000_000 } },
-        ],
-      },
-      data: { stripeSubscriptionStatus: 'past_due', stripeSubscriptionEventAt: 1_750_000_000 },
+    expect(reconcileEmployerSubscription).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({ employerId: 'emp-1' }),
+      expect.objectContaining({
+        subscriptionId: 'sub_123',
+        kind: 'invoice_failed',
+      }),
+      expect.any(Function),
+    );
+  });
+
+  it('routes alternate employer webhook writes through the shared lifecycle policy', async () => {
+    const event = {
+      id: 'evt_employer_failed',
+      type: 'invoice.payment_failed',
+      created: 1_750_000_000,
+      data: { object: { subscription: 'sub_123' } },
+    };
+    vi.mocked(getStripe).mockReturnValue({
+      webhooks: { constructEvent: vi.fn().mockReturnValue(event) },
+      subscriptions: { retrieve: vi.fn(async (id: string) => ({
+        id, customer: 'cus_123', status: 'past_due', metadata: { employerId: 'emp-1', userId: 'user-1' },
+      })) },
+    } as any);
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({ id: 'emp-1', userId: 'user-1', stripeCustomerId: 'cus_123' });
+
+    const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
+
+    expect(res.status).toBe(200);
+    expect(reconcileEmployerSubscription).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({ employerId: 'emp-1' }),
+      expect.objectContaining({
+        subscriptionId: 'sub_123',
+        kind: 'invoice_failed',
+      }),
+      expect.any(Function),
+    );
+  });
+
+  it.each([
+    ['delete-then-stale-checkout', ['customer.subscription.deleted', 'checkout.session.completed']],
+    ['stale-checkout-then-delete', ['checkout.session.completed', 'customer.subscription.deleted']],
+  ])('routes %s through one shared terminal reconciliation contract', async (_label, order) => {
+    vi.mocked((prisma.employer as any).findFirst).mockResolvedValue({
+      id: 'emp-1', userId: 'user-1', stripeCustomerId: 'cus_123',
     });
+    const events: Record<string, any> = {
+      'customer.subscription.deleted': {
+        id: 'evt-delete', type: 'customer.subscription.deleted', created: 200,
+        data: { object: { id: 'sub_123', metadata: { employerId: 'emp-1', userId: 'user-1' } } },
+      },
+      'checkout.session.completed': {
+        id: 'evt-checkout', type: 'checkout.session.completed', created: 100,
+        data: { object: { subscription: 'sub_123', metadata: { employerId: 'emp-1', userId: 'user-1', tier: 'growth', replacesSubscriptionId: 'sub_123' } } },
+      },
+    };
+    for (const type of order) {
+      const event = events[type];
+      vi.mocked(getStripe).mockReturnValue({
+        webhooks: { constructEvent: vi.fn(() => event) },
+        subscriptions: { retrieve: vi.fn(async () => ({
+          id: 'sub_123', customer: 'cus_123', status: 'canceled',
+          metadata: { employerId: 'emp-1', userId: 'user-1', tier: 'growth' },
+        })) },
+      } as any);
+      const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
+      expect(res.status).toBe(200);
+    }
+    const calls = vi.mocked(reconcileEmployerSubscription).mock.calls;
+    expect(calls).toHaveLength(2);
+    expect(calls[0][2]).toEqual(expect.objectContaining({ subscriptionId: 'sub_123' }));
+    expect(calls[1][2]).toEqual(expect.objectContaining({ subscriptionId: 'sub_123' }));
+    const secondCanonical = await (calls[1][3] as () => Promise<any>)();
+    expect(secondCanonical).toEqual(expect.objectContaining({ id: 'sub_123', status: 'canceled', tier: 'growth' }));
   });
 
   it('returns 500 on unexpected webhook processing error', async () => {
     const event = {
+      id: 'evt_checkout_error',
       type: 'checkout.session.completed',
+      created: 1_750_000_200,
       data: {
         object: {
           metadata: { employerId: 'emp-1', tier: 'growth' },
@@ -399,12 +519,13 @@ describe('POST /api/employer/webhook', () => {
       },
     };
     const stripeMock = {
+      subscriptions: { retrieve: vi.fn(async (id: string) => ({ id, customer: 'cus_123', status: 'active', metadata: { employerId: 'emp-1', userId: 'user-1' } })) },
       webhooks: {
         constructEvent: vi.fn().mockReturnValue(event),
       },
     };
     vi.mocked(getStripe).mockReturnValue(stripeMock as any);
-    vi.mocked(prisma.employer.update).mockRejectedValue(new Error('DB down'));
+    vi.mocked(reconcileEmployerSubscription).mockRejectedValueOnce(new Error('DB down'));
 
     const res = await webhookPOST(makeWebhookRequest(JSON.stringify(event), 'sig_good'));
     expect(res.status).toBe(500);

@@ -37,6 +37,8 @@
  *     pnpm tsx scripts/p1/test-force-rls.ts
  */
 
+import '../../tests/migrations/placement-survey-sent-state.mjs';
+
 import { execSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
 import {

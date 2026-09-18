@@ -7,7 +7,7 @@
  * Per-user timezones would need a profile field or client-only formatting.
  */
 const PORTAL_LOCALE = 'en-US';
-const PORTAL_TIMEZONE = 'America/Chicago';
+export const PORTAL_TIMEZONE = 'America/Chicago';
 
 const dateOpts: Intl.DateTimeFormatOptions = {
   timeZone: PORTAL_TIMEZONE,

@@ -8,6 +8,9 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { awardPoints } from '@/lib/member/points';
 import { TESTIMONIALS } from '@/content/testimonials';
 
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
+
+export const maxDuration = 300;
 /**
  * GET /api/cron/milestone-celebration
  *
@@ -33,9 +36,11 @@ import { TESTIMONIALS } from '@/content/testimonials';
  * Vercel cron: 0 11 * * * (daily 11AM UTC). Secured by CRON_SECRET.
  */
 async function handle(_req: NextRequest) {
+  const emailPacer = createBulkEmailCronPacer({ maxDurationSeconds: maxDuration });
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   yesterday.setHours(0, 0, 0, 0);
+
 
   const completions = await prisma.courseProgress.findMany({
     where: {
@@ -93,7 +98,7 @@ async function handle(_req: NextRequest) {
       const testimonial =
         programMatch ?? (launchSafeTestimonials[Math.floor(Math.random() * launchSafeTestimonials.length)] ?? null);
 
-      await sendCertCelebrationEmail({
+      const delivery = await emailPacer.run(() => sendCertCelebrationEmail({
         to: completion.user.email,
         fullName: completion.user.fullName ?? completion.user.email,
         certName: programName,
@@ -102,7 +107,8 @@ async function handle(_req: NextRequest) {
         testimonial: testimonial
           ? { quote: testimonial.quote, name: testimonial.name, role: testimonial.role }
           : null,
-      });
+      }));
+      if (!delivery.ok) continue;
       sent++;
 
       await prisma.memberEvent
@@ -121,7 +127,7 @@ async function handle(_req: NextRequest) {
     }
   }
 
-  const runResult = { sent, total: completions.length, pointsAwardedCount };
+  const runResult = { sent, total: completions.length, pointsAwardedCount, emailPacing: emailPacer.summary() };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_milestone_celebration', runResult);
   return NextResponse.json(runResult);

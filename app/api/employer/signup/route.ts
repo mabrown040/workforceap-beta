@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Operator visibility bridge — new employer signup is high-signal
-    void notifyDiscord({
+    after(() => notifyDiscord({
       title: `New employer signup: ${data.companyName}`,
       body: `Contact: ${data.contactName} (${data.email})`,
       category: 'employer_signup',
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
         { name: 'industry', value: data.industry || '—' },
         { name: 'size', value: data.companySize || '—' },
       ],
-    });
+    }));
 
     return NextResponse.json({
       success: true,

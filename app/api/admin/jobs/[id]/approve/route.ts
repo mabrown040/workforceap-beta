@@ -72,7 +72,7 @@ async function _POST(
       console.error('[admin/jobs/approve] approval committed but email failed', emailError);
     }
 
-    after(() => runAiMatchForLiveJob(id));
+    after(() => runAiMatchForLiveJob(id, orgId));
 
     let cacheInvalidated = true;
     try {

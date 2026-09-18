@@ -6,4 +6,5 @@ import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
 test('weekly recap cron marks partial send failures as error', () => {
   assert.equal(getWeeklyRecapCronStatus(0), 'ok');
   assert.equal(getWeeklyRecapCronStatus(1), 'error');
+  assert.equal(getWeeklyRecapCronStatus(0, 1), 'error');
 });

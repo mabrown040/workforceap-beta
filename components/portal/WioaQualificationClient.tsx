@@ -333,6 +333,7 @@ export default function WioaQualificationClient({
                 sessionPayload={voicePayload}
                 title="WIOA conversation practice"
                 description="Practice talking through your work goals and barriers before completing the assessment form."
+                fallbackAgentNotice="The WIOA guide is unavailable right now, so you are practicing with Lilley, the WorkforceAP career coach. Lilley can still talk through your goals and barriers; use the form to save your answers."
                 accent="#2b7bb9"
                 accentDark="#1f5a87"
                 speakingLabel="Guide is speaking…"
@@ -432,63 +433,77 @@ export default function WioaQualificationClient({
               </select>
             </div>
 
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
-                <span><strong>I am currently unemployed or was laid off</strong> — this is a standalone WIOA qualifier</span>
-              </label>
-            </div>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
-                <span>My household income is limited or near self-sufficiency (additional documentation for WIOA)</span>
-              </label>
-            </div>
-
-            <fieldset className="portal-field" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-              <legend className="portal-field__label" style={{ padding: 0 }}>
-                Are you receiving TANF, WIC, and/or Food stamps (SNAP)?
-              </legend>
-              <div role="radiogroup" aria-label="Receiving TANF, WIC, or Food stamps" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-                {([
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'No' },
-                ] as const).map((option) => (
-                  <label
-                    key={option.label}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', minHeight: '44px', cursor: 'pointer' }}
-                  >
-                    <input
-                      type="radio"
-                      name="wioa-public-assistance"
-                      value={option.label.toLowerCase()}
-                      checked={publicAssistanceSelfReport === option.value}
-                      onChange={() => setPublicAssistanceSelfReport(option.value)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
-                <span>I want training that leads to an in-demand job</span>
-              </label>
-            </div>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
+            <fieldset className="portal-choice-group">
+              <legend className="portal-field__label">Your work situation</legend>
+              <label className="portal-choice">
                 <input
                   type="checkbox"
+                  className="portal-choice__input"
+                  checked={dislocatedWorker}
+                  onChange={(e) => setDislocatedWorker(e.target.checked)}
+                />
+                <span className="portal-choice__text portal-choice__text--strong">
+                  I am currently unemployed or was laid off
+                  <span className="portal-choice__meta">On its own, this qualifies you for WIOA services.</span>
+                </span>
+              </label>
+              <label className="portal-choice">
+                <input
+                  type="checkbox"
+                  className="portal-choice__input"
+                  checked={lowIncomeSelfReport}
+                  onChange={(e) => setLowIncomeSelfReport(e.target.checked)}
+                />
+                <span className="portal-choice__text">
+                  My household income is limited or near self-sufficiency
+                  <span className="portal-choice__meta">WIOA asks for additional documentation for this.</span>
+                </span>
+              </label>
+            </fieldset>
+
+            <fieldset className="portal-choice-group portal-choice-group--inline">
+              <legend className="portal-field__label">
+                Are you receiving TANF, WIC, and/or Food stamps (SNAP)?
+              </legend>
+              {([
+                { value: true, label: 'Yes' },
+                { value: false, label: 'No' },
+              ] as const).map((option) => (
+                <label key={option.label} className="portal-choice portal-choice--inline">
+                  <input
+                    type="radio"
+                    className="portal-choice__input"
+                    name="wioa-public-assistance"
+                    value={option.label.toLowerCase()}
+                    checked={publicAssistanceSelfReport === option.value}
+                    onChange={() => setPublicAssistanceSelfReport(option.value)}
+                  />
+                  <span className="portal-choice__text">{option.label}</span>
+                </label>
+              ))}
+            </fieldset>
+
+            <fieldset className="portal-choice-group">
+              <legend className="portal-field__label">Training and next steps</legend>
+              <label className="portal-choice">
+                <input
+                  type="checkbox"
+                  className="portal-choice__input"
+                  checked={trainingInterest}
+                  onChange={(e) => setTrainingInterest(e.target.checked)}
+                />
+                <span className="portal-choice__text">I want training that leads to an in-demand job</span>
+              </label>
+              <label className="portal-choice">
+                <input
+                  type="checkbox"
+                  className="portal-choice__input"
                   checked={completedIntakeSelfReport}
                   onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
                 />
-                <span>I have already completed WorkforceAP intake or orientation</span>
+                <span className="portal-choice__text">I have already completed WorkforceAP intake or orientation</span>
               </label>
-            </div>
+            </fieldset>
 
             {error ? (
               <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.9rem' }}>

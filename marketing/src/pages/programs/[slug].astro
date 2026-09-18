@@ -72,6 +72,7 @@ const courseAlignment = new Map<string, string[]>(
 
 const coursePreview = program.courses.slice(0, 4);
 const extraCourses = program.courses.length - 4;
+const linkedContentProvider = program.courses.find((course) => course.provider?.license)?.provider;
 
 const rawRef = Astro.url.searchParams.get('ref') ?? '';
 const partnerRef = /^[a-z0-9-]{1,64}$/i.test(rawRef.trim()) ? rawRef.trim().toLowerCase() : '';
@@ -259,6 +260,26 @@ const metaDescription = `Explore ${display}: ${program.duration}, course content
           </div>
         )}
       </div>
+
+      {linkedContentProvider?.license && (
+        <div class="card card--low">
+          <p class="eyebrow">Course provider and license</p>
+          <h2 class="card-h">Linked DigitalLearn materials</h2>
+          <p>
+            {linkedContentProvider.attribution}{' '}
+            DigitalLearn identifies its course content as{' '}
+            <a href={linkedContentProvider.license.url} target="_blank" rel="noopener noreferrer">
+              {linkedContentProvider.license.name}
+            </a>
+            {linkedContentProvider.license.termsUrl && (
+              <> in its <a href={linkedContentProvider.license.termsUrl} target="_blank" rel="noopener noreferrer">provider terms</a></>
+            )}.
+          </p>
+          <p class="muted">
+            WorkforceAP links to original provider pages; it does not iframe, copy, host, adapt, or imply endorsement of provider videos. Provider-side progress and certificates are not synced or promised.
+          </p>
+        </div>
+      )}
 
       <!-- Skills -->
       {skills.length > 0 && (

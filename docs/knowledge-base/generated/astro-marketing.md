@@ -61,6 +61,7 @@
 | [marketing/src/components/Icon.astro](../../../marketing/src/components/Icon.astro) | 73 | astro-marketing |  |
 | [marketing/src/components/InterestProfilerQuiz.tsx](../../../marketing/src/components/InterestProfilerQuiz.tsx) | 343 | astro-marketing | default:46 |
 | [marketing/src/data/blog.ts](../../../marketing/src/data/blog.ts) | 455 | astro-marketing | BlogPost:6, BLOG_POSTS:18, getDefaultImage:410, resolveHeroImage:417, formatPublishedDate:425, getPublishedPosts:435, getCategories:442, getRelatedPosts:451 |
+| [marketing/src/data/languageSupport.ts](../../../marketing/src/data/languageSupport.ts) | 65 | astro-marketing | ActiveLanguageSupport:31, activeLanguageSupports:39, languageSupportLine:59 |
 | [marketing/src/data/leadership.ts](../../../marketing/src/data/leadership.ts) | 523 | astro-marketing | LeaderBioBlock:9, LeaderStat:14, LeaderSpotlightCard:20, LeaderPartnerTile:27, LeaderAchievementTile:28, LeaderWriting:30, LeaderSection:36, Leader:38, LEADERS:65, getLeaderBySlug:521 |
 | [marketing/src/data/programComparison.ts](../../../marketing/src/data/programComparison.ts) | 251 | astro-marketing | ComparisonTrack:21, PROGRAM_COMPARISON_TRACKS:38, STARTER_SLUGS:247 |
 | [marketing/src/data/programs.ts](../../../marketing/src/data/programs.ts) | 657 | astro-marketing | LanguageSupportLevel:30, LanguageSupport:31, ProgramCourse:37, ProgramExtra:66, Program:73, partnerBadge:109, salaryRangeDisplay:118, PROGRAMS:651, getProgramBySlug:653, WORKFORCEAP_PROGRAM_CATALOG_SIZE:657 |
@@ -99,8 +100,8 @@
 | [marketing/src/pages/partners.astro](../../../marketing/src/pages/partners.astro) | 642 | astro-marketing |  |
 | [marketing/src/pages/partners/thank-you.astro](../../../marketing/src/pages/partners/thank-you.astro) | 214 | partners-funding |  |
 | [marketing/src/pages/privacy.astro](../../../marketing/src/pages/privacy.astro) | 621 | astro-marketing |  |
-| [marketing/src/pages/program-comparison.astro](../../../marketing/src/pages/program-comparison.astro) | 436 | astro-marketing |  |
-| [marketing/src/pages/programs.astro](../../../marketing/src/pages/programs.astro) | 618 | astro-marketing |  |
+| [marketing/src/pages/program-comparison.astro](../../../marketing/src/pages/program-comparison.astro) | 440 | astro-marketing |  |
+| [marketing/src/pages/programs.astro](../../../marketing/src/pages/programs.astro) | 623 | astro-marketing |  |
 | [marketing/src/pages/programs/\[slug\].astro](../../../marketing/src/pages/programs/%5Bslug%5D.astro) | 577 | public-experience |  |
 | [marketing/src/pages/programs/google-it-support.astro](../../../marketing/src/pages/programs/google-it-support.astro) | 327 | public-experience |  |
 | [marketing/src/pages/programs/price-list.astro](../../../marketing/src/pages/programs/price-list.astro) | 160 | public-experience |  |

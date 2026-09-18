@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "0808b4d13cc04c9622499e5894f071f2bbe5f91e4322b6ef3df745139b7e898c",
+  "inputTreeSha256": "45673a34d1f919f31d141813b61ed17c429ce16a78a1e95544508274485e8fa2",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4535,
-    "sourceModules": 3211,
-    "importReferences": 15197,
-    "resolvedLocalReferences": 10139,
+    "files": 4540,
+    "sourceModules": 3216,
+    "importReferences": 15217,
+    "resolvedLocalReferences": 10151,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,14 +22,14 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 646,
-    "testCandidates": 639,
+    "testFiles": 647,
+    "testCandidates": 640,
     "testHelpers": 7,
-    "staticallySelectedTests": 636,
+    "staticallySelectedTests": 637,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
-    "environmentNames": 199
+    "environmentNames": 200
   },
   "areas": [
     {
@@ -46,7 +46,7 @@
     },
     {
       "area": "astro-marketing",
-      "files": 105
+      "files": 106
     },
     {
       "area": "audit-graph",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 916
+      "files": 918
     },
     {
       "area": "localization",
@@ -86,7 +86,7 @@
     },
     {
       "area": "operations",
-      "files": 118
+      "files": 120
     },
     {
       "area": "pages",
@@ -188,7 +188,7 @@
     },
     {
       "file": "lib/content/programSlug.ts",
-      "references": 60
+      "references": 61
     },
     {
       "file": "lib/audit/readOnlyPortalAudit.ts",
@@ -207,12 +207,12 @@
       "references": 50
     },
     {
-      "file": "lib/events/track.ts",
+      "file": "lib/content/programCurriculumManifest.ts",
       "references": 50
     },
     {
-      "file": "lib/content/programCurriculumManifest.ts",
-      "references": 49
+      "file": "lib/events/track.ts",
+      "references": 50
     },
     {
       "file": "lib/member/curriculumAssignment.ts",
@@ -301,6 +301,10 @@
       "lines": 1552
     },
     {
+      "file": "app/admin/coursera/health/page.tsx",
+      "lines": 1496
+    },
+    {
       "file": "app/(portal)/counselor/students/[memberId]/page.tsx",
       "lines": 1426
     },
@@ -311,10 +315,6 @@
     {
       "file": "app/(portal)/partner/page.tsx",
       "lines": 1387
-    },
-    {
-      "file": "app/admin/coursera/health/page.tsx",
-      "lines": 1385
     },
     {
       "file": "components/portal/sessions/SessionRunClient.tsx",

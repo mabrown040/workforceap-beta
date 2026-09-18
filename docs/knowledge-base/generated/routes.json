@@ -8121,17 +8121,17 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 18,
+        "line": 22,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "dynamic",
-        "line": 27,
+        "line": 31,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 632,
+        "line": 653,
         "kind": "FunctionDeclaration",
         "localName": "AdminCourseraHealthPage"
       }

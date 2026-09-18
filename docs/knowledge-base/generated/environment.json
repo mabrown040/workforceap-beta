@@ -432,6 +432,17 @@
       ]
     },
     {
+      "name": "COURSERA_B4B_PROGRAM_ID",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "scripts/coursera/generate-curated-collections.ts",
+          "line": 49
+        }
+      ]
+    },
+    {
       "name": "COURSERA_B4B_TIMEOUT_MS",
       "publicPrefix": false,
       "declaredInRootExample": false,

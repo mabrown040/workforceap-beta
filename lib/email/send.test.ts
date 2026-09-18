@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { sendBrandedEmail, sendBrandedEmailOrThrowOnSkip } from '@/lib/email/send';
+import { isEmailProviderRateLimitError, sendBrandedEmail, sendBrandedEmailOrThrowOnSkip } from '@/lib/email/send';
 import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 describe('sendBrandedEmail', () => {
@@ -399,5 +399,20 @@ describe('sendBrandedEmail', () => {
 
     assert.equal(captured?.['X-Campaign'], 'weekly-recapX-Injected: evil');
     assert.ok(!/[\r\n\0]/.test(captured?.['X-Campaign'] ?? ''));
+  });
+});
+
+describe('isEmailProviderRateLimitError', () => {
+  it('detects Resend rate_limit_exceeded objects and Too many requests messages', () => {
+    assert.equal(isEmailProviderRateLimitError({ name: 'rate_limit_exceeded', message: 'Too many requests' }), true);
+    assert.equal(isEmailProviderRateLimitError({ statusCode: 429 }), true);
+    assert.equal(
+      isEmailProviderRateLimitError(
+        new Error('Too many requests. You can only make 10 requests per second.'),
+      ),
+      true,
+    );
+    assert.equal(isEmailProviderRateLimitError(new Error('SMTP timeout')), false);
+    assert.equal(isEmailProviderRateLimitError(null), false);
   });
 });

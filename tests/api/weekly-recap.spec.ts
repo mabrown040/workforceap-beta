@@ -376,6 +376,35 @@ describe('GET /api/cron/weekly-recap', () => {
       expect(captureApiError).not.toHaveBeenCalled();
     });
 
+    it('aborts remaining recipients on provider rate limit without Sentry noise', async () => {
+      const members = mockMembers();
+      vi.mocked(prisma.user.findMany).mockResolvedValue(members);
+      vi.mocked(generateWeeklyRecaps).mockResolvedValue(mockRecaps());
+      vi.mocked(sendWeeklyRecapEmail)
+        .mockResolvedValueOnce({ ok: true })
+        .mockResolvedValueOnce({
+          ok: false,
+          rateLimited: true,
+          error: 'Too many requests. You can only make 10 requests per second.',
+        });
+      vi.mocked(prisma.weeklyRecap.update).mockResolvedValue({} as any);
+
+      const body = await (await runWeeklyRecap(
+        makeRequest({ authorization: 'Bearer super-secret-cron-key' }),
+      )).json();
+
+      expect(body).toEqual({
+        sent: 1,
+        failed: 0,
+        skipped: 1,
+        skipReason: 'provider_rate_limited',
+        total: 2,
+      });
+      expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(2);
+      expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(1);
+      expect(captureApiError).not.toHaveBeenCalled();
+    });
+
     it('retries a persisted recap after an actual failed delivery on the next run', async () => {
       const members = mockMembers([
         { id: 'user-1', email: 'alice@example.com', fullName: 'Alice Smith', enrolledProgram: 'cdl' },
@@ -449,15 +478,15 @@ describe('GET /api/cron/weekly-recap', () => {
         const body = await (await pendingResult).json();
 
         expect(body).toEqual({
-          sent: 80,
+          sent: 67,
           failed: 0,
-          skipped: 420,
+          skipped: 433,
           total: 500,
           skipReason: 'request_deadline_exhausted',
         });
         expect(generateWeeklyRecaps).toHaveBeenCalledWith(members, expect.any(Date));
-        expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(80);
-        expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(80);
+        expect(sendWeeklyRecapEmail).toHaveBeenCalledTimes(67);
+        expect(prisma.weeklyRecap.update).toHaveBeenCalledTimes(67);
         const deadlines = vi.mocked(sendWeeklyRecapEmail).mock.calls.map(([params]) => params.deadlineAtMs);
         expect(new Set(deadlines)).toEqual(new Set([new Date('2026-09-11T00:00:00.000Z').getTime() + 270_000]));
         expect(body.sent + body.failed + body.skipped).toBe(body.total);

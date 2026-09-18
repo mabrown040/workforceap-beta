@@ -78,7 +78,12 @@ export function createBoundedPacer(options: BoundedPacerOptions): () => Promise<
 }
 
 
-export const BULK_EMAIL_CRON_INTERVAL_MS = 125;
+/**
+ * Resend account limit is 10 requests/second. 150ms (~6.7 rps) leaves headroom
+ * for provider retries and overlapping bulk crons that share the same key.
+ * 125ms (~8 rps) previously still surfaced Sentry JAVASCRIPT-NEXTJS-1J.
+ */
+export const BULK_EMAIL_CRON_INTERVAL_MS = 150;
 export const BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS = 30_000;
 
 export interface BulkEmailCronPacerOptions {

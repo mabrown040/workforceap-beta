@@ -61,7 +61,12 @@ async function handle(_request: Request) {
   let sent = 0;
   let failed = 0;
   let skipped = 0;
-  let skipReason: 'pacing_budget_exhausted' | 'request_deadline_exhausted' | 'fixture_recipient' | undefined;
+  let skipReason:
+    | 'pacing_budget_exhausted'
+    | 'request_deadline_exhausted'
+    | 'fixture_recipient'
+    | 'provider_rate_limited'
+    | undefined;
 
   // Generated rows remain retryable until a provider-accepted send sets emailedAt.
   const recaps = await generateWeeklyRecaps(members, weekStart);
@@ -99,6 +104,14 @@ async function handle(_request: Request) {
           skipped++;
           skipReason = 'fixture_recipient';
           continue;
+        }
+        // Resend 10 rps (and overlapping bulk crons) can still trip after
+        // retries. Abort the remainder as skipped so recipients stay eligible
+        // next run and we do not spam Sentry (JAVASCRIPT-NEXTJS-1J).
+        if (result.rateLimited) {
+          skipped += members.length - index;
+          skipReason = 'provider_rate_limited';
+          break;
         }
         captureApiError(new Error(result.error ?? 'sendWeeklyRecapEmail failed'), {
           route: 'cron/weekly-recap',

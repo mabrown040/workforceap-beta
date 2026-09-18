@@ -206,17 +206,28 @@ export function isFixtureEmailRecipient(address: string): boolean {
   return fixtureDomains().some((fixture) => domain === fixture || domain.endsWith(`.${fixture}`));
 }
 
+/** True when a Resend/provider failure is an HTTP 429 / rate_limit_exceeded. */
+export function isEmailProviderRateLimitError(error: unknown): boolean {
+  if (error == null) return false;
+  const record = asRecord(error);
+  if (record) {
+    const status = Number(record.status ?? record.statusCode ?? record.status_code);
+    const name = String(record.name ?? record.code ?? '').toLowerCase();
+    if (status === 429 || name === 'rate_limit_exceeded' || name === 'rate_limited') return true;
+  }
+  const message = error instanceof Error ? error.message : String(error);
+  return /too many requests|rate[_ ]?limit/i.test(message);
+}
+
 function resendRetryDelayMs(
   error: unknown,
   attempt: number,
   nowMs: number,
   random: () => number,
 ): number | null {
+  if (!isEmailProviderRateLimitError(error)) return null;
   const record = asRecord(error);
   if (!record) return null;
-  const status = Number(record.status ?? record.statusCode ?? record.status_code);
-  const name = String(record.name ?? record.code ?? '').toLowerCase();
-  if (status !== 429 && name !== 'rate_limit_exceeded' && name !== 'rate_limited') return null;
 
   const rateLimit = asRecord(record.rateLimit ?? record.rate_limit);
   const retryAfterMs = Number(record.retryAfterMs ?? record.retry_after_ms);

@@ -7,3 +7,5 @@ Earlier docs (e.g. `docs/MISSING.md` before this date) claimed these crons were 
 **Member email** includes week-in-review stats, goal progress, new live job postings (org-scoped, program-aligned, same visibility filters as the public job board), upcoming mentor sessions, readiness score when available, and AI-tool suggestions. **Admin email** is unchanged (counts digest).
 
 **Fix applied:** The member cron no longer sets `weekly_recap.opened_at` when the email sends; that column is reserved for when the member actually opens the recap in the portal.
+
+**Rate-limit hardening (2026-09-18):** Bulk email pacing defaults to 150ms (~6.7 rps) under Resend’s documented 10 rps account limit. When a provider 429 still wins after retries, `/api/cron/weekly-recap` aborts the remainder as `skipReason: provider_rate_limited` (recipients stay eligible next run) instead of per-recipient Sentry errors (`JAVASCRIPT-NEXTJS-1J`).

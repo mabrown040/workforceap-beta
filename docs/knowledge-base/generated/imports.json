@@ -9577,8 +9577,16 @@
   },
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
-    "specifier": "@/lib/content/courseraDiscoveredCatalog",
+    "specifier": "@/lib/content/courseDelivery",
     "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/courseDelivery.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/program/page.tsx",
+    "specifier": "@/lib/content/courseraDiscoveredCatalog",
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/content/courseraDiscoveredCatalog.ts"
@@ -9586,7 +9594,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/coursera/learnerProgress",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/learnerProgress.ts"
@@ -9594,7 +9602,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/memberProgramTrainingView",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/member/memberProgramTrainingView.ts"
@@ -9602,7 +9610,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/getActiveProgramForDashboard",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/member/getActiveProgramForDashboard.ts"
@@ -9610,7 +9618,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/platform/programCatalog",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/platform/programCatalog.ts"
@@ -9618,7 +9626,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/ProgramPicker",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "components/portal/ProgramPicker.tsx"
@@ -9626,7 +9634,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/ProgramIcon",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "components/ProgramIcon.tsx"
@@ -9634,7 +9642,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/MobileBottomNav",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "components/MobileBottomNav.tsx"
@@ -9642,7 +9650,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -9650,7 +9658,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/ui/PortalCard",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/PortalCard.tsx"
@@ -9658,7 +9666,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/ProgramChangeRequestModal",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/portal/ProgramChangeRequestModal.tsx"
@@ -9666,7 +9674,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/auth/roles",
-    "line": 22,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -9674,7 +9682,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/StaffViewBanner",
-    "line": 23,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "components/portal/StaffViewBanner.tsx"
@@ -9682,7 +9690,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/i18n/date",
-    "line": 24,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/i18n/date.ts"
@@ -9690,7 +9698,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 25,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -9698,7 +9706,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/kit/pages/member/MemberProgramKit",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/member/MemberProgramKit.tsx"
@@ -9706,7 +9714,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 27,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -9714,7 +9722,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 28,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -9722,7 +9730,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/loadTrainingWorkspace",
-    "line": 29,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/member/loadTrainingWorkspace.ts"
@@ -9730,7 +9738,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/trainingWorkspace",
-    "line": 30,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingWorkspace.ts"
@@ -9738,7 +9746,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/trainingCoursePractice",
-    "line": 31,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingCoursePractice.ts"
@@ -118670,6 +118678,38 @@
     "kind": "type",
     "external": false,
     "target": "lib/member/labWorkspaceTypes.ts"
+  },
+  {
+    "from": "tests/components/member-program-module-links.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/member-program-module-links.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/member-program-module-links.test.tsx",
+    "specifier": "@/components/portal/kit/pages/member/MemberProgramKit",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/member/MemberProgramKit.tsx"
+  },
+  {
+    "from": "tests/components/member-program-module-links.test.tsx",
+    "specifier": "@/lib/content/courseDelivery",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/courseDelivery.ts"
   },
   {
     "from": "tests/components/member-signup-form.spec.tsx",

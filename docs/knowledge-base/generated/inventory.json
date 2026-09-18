@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "57dacc986d1e8f485112d944c7d0c4b065ffa0cadc3bcdbd01ac6498192629de",
+  "inputTreeSha256": "97f0d012e2304812c1a49d49ef506d487733023c638a4f662ca4f5c863d2ac6d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -44914,24 +44914,24 @@
       "path": "app/enroll/[school]/page.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 1356,
-      "lines": 35,
-      "sha256": "ab710b4a229653ec4ef0608e962588eca5d7d2201cda999841601b798de81cd2",
+      "bytes": 1580,
+      "lines": 42,
+      "sha256": "a0a0e05be6f8edce0b4c85518b7aae42ce638aa81ad38d49a4814865d821b595",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 7,
+          "line": 11,
           "kind": "Variable"
         },
         {
           "name": "generateMetadata",
-          "line": 11,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 24,
+          "line": 28,
           "kind": "FunctionDeclaration",
           "localName": "PartnerEnrollmentPage"
         }
@@ -44939,22 +44939,22 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 7,
+          "line": 11,
           "kind": "Variable"
         },
         {
           "name": "PageProps",
-          "line": 9,
+          "line": 13,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "generateMetadata",
-          "line": 11,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerEnrollmentPage",
-          "line": 24,
+          "line": 28,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54874,6 +54874,36 @@
         {
           "name": "MarketingRouteLoading",
           "line": 8,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "components/marketing/PartnerSchoolEnrollMissing.tsx",
+      "area": "components",
+      "domain": "public-experience",
+      "bytes": 3525,
+      "lines": 90,
+      "sha256": "3e76e4ba6816abfd75679c667d71871569ee6875a9e892bcb714728751265dc3",
+      "binary": false,
+      "exports": [
+        {
+          "name": "default",
+          "line": 10,
+          "kind": "FunctionDeclaration",
+          "localName": "PartnerSchoolEnrollMissing"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "Props",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PartnerSchoolEnrollMissing",
+          "line": 10,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -74541,9 +74571,9 @@
       "path": "css/enroll-school.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 13920,
-      "lines": 165,
-      "sha256": "c02ab461c0f4e9dd127cc0cf4588103fb25d73e71e76375b989c0f4f24e57b1d",
+      "bytes": 15313,
+      "lines": 192,
+      "sha256": "078766d8d4a31e1fa9d3791634685563efb81ddc3efc259d5792df69b1180b60",
       "binary": false
     },
     {
@@ -112215,12 +112245,24 @@
       "directive": null
     },
     {
+      "path": "lib/enroll/listPublicEnrollmentPartners.test.ts",
+      "area": "libraries",
+      "domain": "applications-enrollment",
+      "bytes": 1480,
+      "lines": 53,
+      "sha256": "31a2fc2811efac923f886022df8cd5d712c7644949fd0b1f28f85d2c90c0153c",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
       "path": "lib/enroll/resolveEnrollmentPartner.test.ts",
       "area": "libraries",
       "domain": "applications-enrollment",
-      "bytes": 1257,
-      "lines": 31,
-      "sha256": "0ae454891f198b9dff705c7113ad56a9f4b2a7730ff70024edc07ad904232f87",
+      "bytes": 1697,
+      "lines": 45,
+      "sha256": "08cce1419a05f27baa1f08b15eb8584a3681800b5b61a1d2ecc88fb12b87e376",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -112230,9 +112272,9 @@
       "path": "lib/enroll/resolveEnrollmentPartner.ts",
       "area": "libraries",
       "domain": "applications-enrollment",
-      "bytes": 3831,
-      "lines": 122,
-      "sha256": "ef523e0f9d1c62b3cc93489a4befa926e4325e10680055a76a072e3c94ca4492",
+      "bytes": 5345,
+      "lines": 172,
+      "sha256": "2e5c490c03ad273d9ab68106cbdab38bcb3ed04dd72a15de9f472cc1cba6af0c",
       "binary": false,
       "exports": [
         {
@@ -112256,13 +112298,28 @@
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "EnrollmentPartnerLink",
+          "line": 37,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "resolveEnrollmentPartner",
-          "line": 57,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "enrollPageCopyIsStakeSafe",
-          "line": 120,
+          "line": 128,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "humanizeEnrollmentSchoolKey",
+          "line": 133,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "listPublicEnrollmentPartners",
+          "line": 143,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -112278,28 +112335,43 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "candidateKeys",
-          "line": 36,
-          "kind": "FunctionDeclaration"
+          "name": "EnrollmentPartnerLink",
+          "line": 37,
+          "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "salaryRangeDisplay",
+          "name": "candidateKeys",
           "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "salaryRangeDisplay",
+          "line": 52,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "buildCostSentence",
-          "line": 50,
+          "line": 58,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveEnrollmentPartner",
-          "line": 57,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "enrollPageCopyIsStakeSafe",
-          "line": 120,
+          "line": 128,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "humanizeEnrollmentSchoolKey",
+          "line": 133,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "listPublicEnrollmentPartners",
+          "line": 143,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -146400,9 +146472,9 @@
       "path": "scripts/vitest-library-specs.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 1086,
-      "lines": 28,
-      "sha256": "74506835ad97deae2c462aec1c17523e5e14a459b53f368cc3629e651397d27d",
+      "bytes": 1139,
+      "lines": 29,
+      "sha256": "e39c7953c2b7f4b150cada5ca22b8d4e51f7f5424bc3dd226ffe00fce8e2a38f",
       "binary": false,
       "exports": [
         {
@@ -148495,9 +148567,9 @@
       "path": "tests/api/concordia-enroll-page.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3070,
-      "lines": 69,
-      "sha256": "1beed8cd6e41ec17a7a95a12b84311a9bc6e6da41c2c6ba964c05348045492b6",
+      "bytes": 3542,
+      "lines": 81,
+      "sha256": "ec624288b2fbc6c9649e40ca3dbf7530cc614cb197262bd28d1c5ac467639b57",
       "binary": false,
       "exports": [],
       "declarations": [],

@@ -5,12 +5,12 @@ flowchart LR
   astro_marketing["astro-marketing: 106 files"]
   audit_graph["audit-graph: 81 files"]
   communications["communications: 71 files"]
-  components["components: 655 files"]
+  components["components: 656 files"]
   content["content: 14 files"]
   database["database: 200 files"]
   delivery["delivery: 9 files"]
   documentation["documentation: 355 files"]
-  libraries["libraries: 918 files"]
+  libraries["libraries: 919 files"]
   localization["localization: 6 files"]
   operations["operations: 120 files"]
   pages["pages: 631 files"]
@@ -26,7 +26,7 @@ flowchart LR
   audit_graph -->|"1 static references"| root
   communications -->|"63 static references"| libraries
   components -->|"1 static references"| content
-  components -->|"381 static references"| libraries
+  components -->|"383 static references"| libraries
   components -->|"14 static references"| pages
   components -->|"1 static references"| root
   components -->|"3 static references"| supporting_files
@@ -43,7 +43,7 @@ flowchart LR
   operations -->|"47 static references"| libraries
   operations -->|"1 static references"| tests
   pages -->|"2 static references"| api
-  pages -->|"1065 static references"| components
+  pages -->|"1066 static references"| components
   pages -->|"1226 static references"| libraries
   pages -->|"36 static references"| styles
   root -->|"22 static references"| libraries

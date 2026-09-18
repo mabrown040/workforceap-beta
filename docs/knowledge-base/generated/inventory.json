@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "2e8a07e728931027536ee28209548ddb21a2cabb539a8b02758fca789ab3b9c9",
+  "inputTreeSha256": "a794096387df42590b335b39eb8715033f50da04fb16263deb5cc16195aaefcc",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -4365,9 +4365,9 @@
       "path": "app/(portal)/account/privacy/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 9922,
-      "lines": 259,
-      "sha256": "97ef1323fa5dc4b39947b70074b25a53d32fe878b88c4370f82de61b773dbf4e",
+      "bytes": 10418,
+      "lines": 267,
+      "sha256": "3e5d47c144f87c3817bb6041cbcde33b448e6b56eca6af3f7cf797f7e22fb300",
       "binary": false,
       "exports": [
         {
@@ -45117,9 +45117,9 @@
       "path": "app/employers/signup/signup-depth.css",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 4225,
-      "lines": 161,
-      "sha256": "6384375d66c4fdec8916c93f8a1935ae99a96128c067d8abfdbd9d7adca88fef",
+      "bytes": 4535,
+      "lines": 167,
+      "sha256": "d64d6468e2eee3c124644796ac286242d214153321e39519a4eaa417835927ee",
       "binary": false
     },
     {
@@ -75080,9 +75080,9 @@
       "path": "css/auth-depth.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 7135,
-      "lines": 206,
-      "sha256": "1c757622064e354815b204ec8f00a3148b36209df67c6421af25004d8969dce9",
+      "bytes": 7610,
+      "lines": 215,
+      "sha256": "942828842a7760989b3444c7fdd47a9540502def09d1817189a5cec95c2ac6fd",
       "binary": false
     },
     {
@@ -138857,27 +138857,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192389,
-      "lines": 3141,
-      "sha256": "0f34f0dfe2f5df717c2eeaa8418494d02de88ebbe59d4d06d1c5d6f74070f903",
+      "bytes": 192532,
+      "lines": 3143,
+      "sha256": "78b78607bc3cfc7f75e9f2a95a9abe45a4a9dd02887cb66bdf2c264f2d132611",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211079,
-      "lines": 3128,
-      "sha256": "2a286f5c1dbba18107666ab96d548b9c6a9b4a8412362138d115d301576d5e9f",
+      "bytes": 211251,
+      "lines": 3130,
+      "sha256": "cbc3bfd92548e770542814f62e3660603ad428700d049946808a5d807291e3e8",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212328,
-      "lines": 3081,
-      "sha256": "18e740cfe1459d0353cfcec202587f33554bf71b456e000768963a2ae8c45e01",
+      "bytes": 212499,
+      "lines": 3083,
+      "sha256": "65ba8447865de483dd01dd3d67c7b55c8d2a974ef1c44aa8768e429c56b6d94b",
       "binary": false
     },
     {
@@ -138893,9 +138893,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204152,
-      "lines": 3081,
-      "sha256": "b8d65dcac69cb43de454e31011c7d22ab16401dac076d91c90f5877e29e81e2b",
+      "bytes": 204323,
+      "lines": 3083,
+      "sha256": "3d48315f2863ce8acead83c4a074d4890ac8f43dd1b104d0765d37c618370ebe",
       "binary": false
     },
     {
@@ -152777,6 +152777,29 @@
           "name": "progressedStatement",
           "line": 102,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/account-privacy-consent.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3521,
+      "lines": 89,
+      "sha256": "98d3b1bb8927ca0b9ae98ee85bf5b48c15f00681301efe6d7bfffe8ecd97cf87",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "consentCheckbox",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "renderLoaded",
+          "line": 15,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

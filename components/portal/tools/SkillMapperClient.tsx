@@ -10,7 +10,6 @@ import {
   ChevronDown,
   TriangleAlert,
   Download,
-  ArrowLeftRight,
   FileText,
   Award,
   CheckCircle2,
@@ -25,6 +24,25 @@ import { trackFunnelEvent } from '@/lib/analytics/events';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
 import { FormField } from '@/components/portal/kit';
+import {
+  computeSkillGaps,
+  type SkillRadarPoint,
+} from '@/lib/ai/skillMapperCompare';
+import SkillMapperComparePanel, {
+  DualRadarChart,
+  SkillMapperGapList,
+} from './SkillMapperComparePanel';
+
+export type SkillMapperPreviewSeed = {
+  memberProfile: SkillRadarPoint[];
+  occupations: { code: string; title: string; description: string }[];
+  detailsByCode: Record<string, {
+    radar: SkillRadarPoint[];
+    skills: { name: string; score: number; importance: string }[];
+  }>;
+  initialQuery?: string;
+  autoCompare?: boolean;
+};
 
 const DEMO_RADAR = [
   { axis: 'Analytics', value: 0.72 },
@@ -192,50 +210,6 @@ function RadarChart({ data }: { data: { axis: string; value: number }[] }) {
   );
 }
 
-function DualRadarChart({ memberData, targetData }: { memberData: { axis: string; value: number }[]; targetData: { axis: string; value: number }[] }) {
-  const size = 260;
-  const cx = size / 2, cy = size / 2, r = 90;
-  // Derive axes from whichever dataset has more entries (prefer target occupation axes)
-  const axes = targetData.length >= memberData.length
-    ? targetData.map(d => d.axis)
-    : memberData.map(d => d.axis);
-  const n = axes.length;
-  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
-  const pt = (i: number, v: number) => ({
-    x: cx + r * v * Math.cos(angle(i)),
-    y: cy + r * v * Math.sin(angle(i))});
-  const gridLevels = [0.25, 0.5, 0.75, 1];
-
-  const getValue = (data: { axis: string; value: number }[], axis: string) =>
-    data.find(d => d.axis === axis)?.value ?? 0;
-
-  return (
-    <svg className="skill-mapper-radar-chart" width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Skill radar chart" style={{ overflow: 'visible', display: 'block', margin: '0 auto' }}>
-      {gridLevels.map(level => (
-        <polygon key={level}
-          points={axes.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ')}
-          fill="none" stroke="var(--surface-container-highest)" strokeWidth="1" />
-      ))}
-      {axes.map((_, i) => {
-        const p = pt(i, 1);
-        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="var(--surface-container-highest)" strokeWidth="1" />;
-      })}
-      {/* Target occupation - accent/red */}
-      <polygon
-        points={axes.map((axis, i) => { const p = pt(i, getValue(targetData, axis)); return `${p.x},${p.y}`; }).join(' ')}
-        fill="var(--color-accent)" fillOpacity="0.15" stroke="var(--color-accent)" strokeWidth="2" />
-      {/* Member profile - blue */}
-      <polygon
-        points={axes.map((axis, i) => { const p = pt(i, getValue(memberData, axis)); return `${p.x},${p.y}`; }).join(' ')}
-        fill="rgba(43,123,185,0.2)" stroke="var(--color-blue, #2b7bb9)" strokeWidth="2" strokeDasharray="4 2" />
-      {axes.map((axis, i) => {
-        const p = pt(i, 1.25);
-        return <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
-          fontSize="11" fill="var(--color-on-surface-variant)">{axis}</text>;
-      })}
-    </svg>
-  );
-}
 
 /**
  * CoursePathForGaps - Shows specific courses that close skill gaps
@@ -433,14 +407,15 @@ function CoursePathForGaps({ gaps }: { gaps: Array<{ axis: string; member: numbe
   );
 }
 
-export default function SkillMapperClient() {
+export default function SkillMapperClient({ preview }: { preview?: SkillMapperPreviewSeed } = {}) {
   const [activeTab, setActiveTab] = useState<'search' | 'profile'>('search');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(preview?.initialQuery ?? '');
   const [occupations, setOccupations] = useState<{ code: string; title: string; description: string }[]>([]);
   const [selectedTitle, setSelectedTitle] = useState('');
   const [selectedCode, setSelectedCode] = useState('');
-  const [radarData, setRadarData] = useState<{ axis: string; value: number }[]>([]);
+  const [radarData, setRadarData] = useState<SkillRadarPoint[]>([]);
   const [skills, setSkills] = useState<{ name: string; score: number; importance: string }[]>([]);
+  const selectGenerationRef = useRef(0);
   const [loading, setLoading] = useState(false);
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
@@ -592,6 +567,12 @@ export default function SkillMapperClient() {
   };
 
   const loadProfile = () => {
+    if (preview) {
+      setMemberProfile(preview.memberProfile);
+      setProfileLoaded(true);
+      setLoadingProfile(false);
+      return;
+    }
     setLoadingProfile(true);
     fetch('/api/member/skill-profile')
       .then(r => r.json())
@@ -618,8 +599,10 @@ export default function SkillMapperClient() {
   };
 
   useEffect(() => {
-    if (activeTab === 'profile' && !profileLoaded) loadProfile();
-  }, [activeTab, profileLoaded]);  
+    if (!profileLoaded) loadProfile();
+    // loadProfile is recreated each render; run only when the profile flag flips.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileLoaded]);  
 
   const handleAiExtract = async () => {
     setExtractingResume(true);
@@ -633,70 +616,108 @@ export default function SkillMapperClient() {
     finally { setExtractingResume(false); }
   };
 
+  const applyDemoOccupation = (titleHint: string, reason: string) => {
+    const useSales = isSalesQuery(titleHint);
+    setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+    setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+    setUsingDemo(true);
+    setDemoFallbackReason(reason);
+    setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
+    setSelectedCode('');
+  };
+
+  const handleSelect = async (code: string, title: string) => {
+    const requestId = ++selectGenerationRef.current;
+    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false); setMatchedPrograms([]); setDemoFallbackReason('');
+
+    const applyIfCurrent = (fn: () => void) => {
+      if (selectGenerationRef.current === requestId) fn();
+    };
+
+    if (preview) {
+      const detail = preview.detailsByCode[code];
+      applyIfCurrent(() => {
+        if (detail) {
+          setRadarData(detail.radar);
+          setSkills(detail.skills);
+        } else {
+          applyDemoOccupation(title, 'Preview is missing occupation details. Showing sample data.');
+        }
+        setLoadingSkills(false);
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/ai/skill-mapper?code=${encodeURIComponent(code)}&title=${encodeURIComponent(title)}`);
+      const data = await res.json();
+      applyIfCurrent(() => {
+        if (data.radarAxes) {
+          setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
+          setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
+          setUsingDemo(Boolean(data.demo));
+          if (data.demo) {
+            setDemoFallbackReason('O*NET occupation details are currently unavailable. Showing sample skill data for demonstration.');
+          }
+        } else {
+          applyDemoOccupation(title, 'Unable to load occupation details. Showing sample data for demonstration.');
+        }
+        if (data.matchedPrograms?.length) setMatchedPrograms(data.matchedPrograms);
+        setLoadingSkills(false);
+      });
+    } catch {
+      applyIfCurrent(() => {
+        applyDemoOccupation(title, 'Unable to load occupation details. Showing sample data for demonstration.');
+        setLoadingSkills(false);
+      });
+    }
+  };
+
   const handleSearch = async () => {
     if (!query.trim()) return;
-    setLoading(true); setError(''); setOccupations([]); setRadarData([]); setSkills([]); setDemoFallbackReason('');
+    setLoading(true); setError(''); setOccupations([]); setRadarData([]); setSkills([]); setMatchedPrograms([]); setDemoFallbackReason('');
     try {
+      if (preview) {
+        const needle = query.trim().toLowerCase();
+        const matches = preview.occupations.filter((occupation) =>
+          occupation.title.toLowerCase().includes(needle)
+          || occupation.code.toLowerCase().includes(needle)
+          || occupation.description.toLowerCase().includes(needle)
+        );
+        const list = matches.length > 0 ? matches : preview.occupations;
+        setOccupations(list);
+        setLoading(false);
+        if (list[0]) await handleSelect(list[0].code, list[0].title);
+        return;
+      }
+
       const res = await fetch(`/api/ai/skill-mapper?occupation=${encodeURIComponent(query)}`);
       const data = await res.json();
       if (data.occupations?.length) {
         setOccupations(data.occupations);
-      } else {
-        const useSales = isSalesQuery(query);
-        setError('');
-        setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
-        setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
-        setUsingDemo(true);
-        setDemoFallbackReason(data.demo === true
-          ? 'O*NET occupational search is unavailable. Showing sample data for demonstration.'
-          : 'No occupations found for this search. Showing sample data for demonstration.'
-        );
-        setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
+        setLoading(false);
+        await handleSelect(data.occupations[0].code, data.occupations[0].title);
+        return;
       }
-    } catch (err) {
-      const useSales = isSalesQuery(query);
-      setError('');
-      setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
-      setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
-      setUsingDemo(true);
-      setDemoFallbackReason('Unable to connect to occupation database. Showing sample data for demonstration.');
-      setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
+      applyDemoOccupation(
+        query,
+        data.demo === true
+          ? 'O*NET occupational search is unavailable. Showing sample data for demonstration.'
+          : 'No occupations found for this search. Showing sample data for demonstration.',
+      );
+    } catch {
+      applyDemoOccupation(query, 'Unable to connect to occupation database. Showing sample data for demonstration.');
     }
     setLoading(false);
   };
 
-  const handleSelect = async (code: string, title: string) => {
-    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false); setMatchedPrograms([]); setDemoFallbackReason('');
-    try {
-      const res = await fetch(`/api/ai/skill-mapper?code=${encodeURIComponent(code)}&title=${encodeURIComponent(title)}`);
-      const data = await res.json();
-      if (data.radarAxes) {
-        setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
-        setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
-        setUsingDemo(Boolean(data.demo));
-        if (data.demo) {
-          setDemoFallbackReason(data.demo === true
-            ? 'O*NET occupation details are currently unavailable. Showing sample skill data for demonstration.'
-            : ''
-          );
-        }
-      } else {
-        const useSales = isSalesQuery(title);
-        setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
-        setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
-        setUsingDemo(true);
-        setDemoFallbackReason('Unable to load occupation details. Showing sample data for demonstration.');
-      }
-      if (data.matchedPrograms?.length) setMatchedPrograms(data.matchedPrograms);
-    } catch (err) {
-      const useSales = isSalesQuery(title);
-      setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
-      setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
-      setUsingDemo(true);
-      setDemoFallbackReason('Unable to load occupation details. Showing sample data for demonstration.');
-    }
-    setLoadingSkills(false);
-  };
+  useEffect(() => {
+    if (!preview?.autoCompare || preview.occupations.length === 0) return;
+    setOccupations(preview.occupations);
+    void handleSelect(preview.occupations[0].code, preview.occupations[0].title);
+    // Credential-free proofs hydrate the first result once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const programRecs: ProgramRecommendation[] = memberProfile.length > 0
     ? recommendProgramsForGaps(
@@ -706,14 +727,8 @@ export default function SkillMapperClient() {
       )
     : [];
 
-  const gaps = memberProfile.length > 0 && radarData.length > 0
-    ? radarData.map(target => {
-        const memberAxis = memberProfile.find(m => m.axis === target.axis);
-        const memberVal = (memberAxis?.value ?? 0) * 100;
-        const targetVal = target.value * 100;
-        return { axis: target.axis, member: memberVal, target: targetVal, gap: targetVal - memberVal };
-      }).filter(g => g.gap > 0).sort((a, b) => b.gap - a.gap)
-    : [];
+  const gaps = computeSkillGaps(memberProfile, radarData);
+  const showComparePanel = occupations.length > 0 || radarData.length > 0 || loadingSkills;
 
   // Tab styles
   const tabStyle = (active: boolean) => ({
@@ -766,23 +781,33 @@ export default function SkillMapperClient() {
             </div>
           )}
 
-          {occupations.length > 0 && !radarData.length && (
+          <div className={showComparePanel ? 'skill-mapper-results' : undefined}>
+          <div className="skill-mapper-results-main">
+          {occupations.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <h3 className="ai-tool-section-title">Select an occupation</h3>
-              {occupations.map((occ) => (
-                <button type="button" key={occ.code} onClick={() => handleSelect(occ.code, occ.title)}
-                  className="wa-kit-focus"
-                  style={{
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    padding: '0.75rem 1rem',
-                    borderRadius: 'var(--wa-radius-sm)',
-                    border: '1px solid var(--wa-border)',
-                    background: 'var(--wa-surface)'}}>
-                  <strong style={{ color: 'var(--wa-text)' }}>{occ.title}</strong>
-                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--wa-muted)', marginTop: 2 }}>{occ.code} — {occ.description?.slice(0, 120)}</span>
-                </button>
-              ))}
+              <h3 className="ai-tool-section-title">Matching occupations</h3>
+              {occupations.map((occ) => {
+                const selected = selectedCode === occ.code;
+                return (
+                  <button
+                    type="button"
+                    key={occ.code}
+                    onClick={() => void handleSelect(occ.code, occ.title)}
+                    className="wa-kit-focus skill-mapper-occupation"
+                    aria-pressed={selected}
+                    style={{
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      padding: '0.75rem 1rem',
+                      borderRadius: 'var(--wa-radius-sm)',
+                      border: selected ? '1px solid var(--wa-accent)' : '1px solid var(--wa-border)',
+                      background: selected ? 'var(--wa-accent-soft)' : 'var(--wa-surface)'}}
+                  >
+                    <strong style={{ color: 'var(--wa-text)' }}>{occ.title}</strong>
+                    <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--wa-muted)', marginTop: 2 }}>{occ.code} — {occ.description?.slice(0, 120)}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -839,7 +864,6 @@ export default function SkillMapperClient() {
               <AxisLegend axes={radarData.map(d => d.axis)} />
               <ToolFollowThrough toolType="skill_mapper" />
 
-              {/* Export + profile compare prompt */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                 <button
                   type="button"
@@ -854,13 +878,6 @@ export default function SkillMapperClient() {
                     {exportingPdf ? 'Saving…' : 'Export Skill Map PDF'}
                   </span>
                 </button>
-                {memberProfile.length > 0 && (
-                  <button type="button" onClick={() => setActiveTab('profile')} className="wa-kit-focus"
-                    style={{ ...outlinePillStyleSm, background: 'var(--wa-accent-soft)', cursor: 'pointer' }}>
-                    <ArrowLeftRight size={14} aria-hidden="true" />
-                    Compare with my profile
-                  </button>
-                )}
               </div>
 
               {/* Programs that lead to this occupation (from DB career mappings) */}
@@ -947,6 +964,18 @@ export default function SkillMapperClient() {
               )}
             </>
           )}
+          </div>
+          {showComparePanel && (
+            <SkillMapperComparePanel
+              selectedTitle={selectedTitle}
+              memberProfile={memberProfile}
+              targetRadar={radarData}
+              loadingProfile={loadingProfile}
+              loadingTarget={loadingSkills}
+              onOpenFullComparison={() => setActiveTab('profile')}
+            />
+          )}
+          </div>
         </div>
       )}
 
@@ -982,11 +1011,11 @@ export default function SkillMapperClient() {
                   </div>
                   <div className="skill-mapper-legend" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                      <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--color-blue, #2b7bb9)' }} />
+                      <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--wa-info)' }} />
                       Your skills
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                      <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--color-accent)' }} />
+                      <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--wa-accent)' }} />
                       Target occupation
                     </span>
                   </div>
@@ -1073,20 +1102,7 @@ export default function SkillMapperClient() {
               {gaps.length > 0 && (
                 <div style={{ marginBottom: '1.5rem' }}>
                   <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem' }}>Skill Gaps to Close</h4>
-                  {gaps.map(g => (
-                    <div key={g.axis} className="skill-mapper-gap-row" style={{ marginBottom: '0.75rem' }}>
-                      <div className="skill-mapper-gap-row__meta" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', marginBottom: '0.25rem' }}>
-                        <span>{g.axis}</span>
-                        <span style={{ color: g.gap > 30 ? 'var(--color-error, #d32f2f)' : 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>
-                          {Math.round(g.member)}% → {Math.round(g.target)}% ({g.gap > 0 ? `+${Math.round(g.gap)}` : Math.round(g.gap)} needed)
-                        </span>
-                      </div>
-                      <div style={{ height: 8, borderRadius: 4, background: 'var(--surface-container-highest)', overflow: 'hidden', position: 'relative' }}>
-                        <div style={{ height: '100%', width: `${g.target}%`, borderRadius: 4, background: 'rgba(43,123,185,0.2)', position: 'absolute' }} />
-                        <div style={{ height: '100%', width: `${g.member}%`, borderRadius: 4, background: 'var(--color-blue, #2b7bb9)', position: 'absolute' }} />
-                      </div>
-                    </div>
-                  ))}
+                  <SkillMapperGapList gaps={gaps} />
                 </div>
               )}
 

@@ -1247,16 +1247,65 @@ html.dark [data-surface] .astryx-card,
   min-width: 0;
 }
 
-/* Skill Mapper — radar + skill list */
+/* Skill Mapper — occupation results + auto-compare side panel */
 .skill-mapper-results {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--wa-pad-sm);
   grid-template-columns: 1fr;
   align-items: start;
 }
+.skill-mapper-results-main {
+  min-width: 0;
+}
+.skill-mapper-compare-panel {
+  min-width: 0;
+  padding: var(--wa-pad-sm);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  background: var(--wa-surface-2);
+}
+.skill-mapper-compare-panel__title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--wa-text);
+  text-wrap: balance;
+}
+.skill-mapper-compare-panel__lede,
+.skill-mapper-compare-panel__status,
+.skill-mapper-compare-panel__empty p {
+  margin: 0 0 0.75rem;
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+  line-height: 1.45;
+}
+.skill-mapper-compare-panel__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.skill-mapper-compare-panel__gaps-title {
+  margin: 0 0 0.5rem;
+  font-size: var(--wa-type-meta);
+  font-weight: 700;
+  color: var(--wa-text);
+}
+.skill-mapper-compare-panel__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--wa-type-meta);
+  font-weight: 700;
+  color: var(--wa-accent);
+  text-decoration: none;
+}
 @media (min-width: 768px) {
   .skill-mapper-results {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  }
+  .skill-mapper-compare-panel {
+    position: sticky;
+    top: 1rem;
   }
 }
 

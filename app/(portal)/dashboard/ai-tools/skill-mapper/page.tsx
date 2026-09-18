@@ -42,7 +42,7 @@ export default async function SkillMapperPage() {
 
   return (
     <DesignSurface surface="warm">
-      <div className="skill-mapper-page-shell" style={{ maxWidth: 900, margin: '0 auto', padding: '1.25rem 1rem 3rem' }}>
+      <div className="skill-mapper-page-shell" style={{ maxWidth: 1120, margin: '0 auto', padding: '1.25rem 1rem 3rem' }}>
         <div className="wa-space-y-5" style={{ marginBottom: 20 }}>
           <PortalBreadcrumb
             items={[
@@ -53,7 +53,7 @@ export default async function SkillMapperPage() {
           <SectionHeader
             kicker="AI Career Toolkit"
             title="Skill Mapper"
-            goal="Search any occupation to see its top skills and competency radar chart."
+            goal="Search an occupation to see its skills and how they compare to yours."
           />
         </div>
         <div className="wa-kit-card skill-mapper-card">

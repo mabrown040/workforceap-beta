@@ -176,7 +176,7 @@ This section **merges** the structural backlog above with a **pixel-level** pass
 |---|-----|---------------------------|--------|
 | A1 | **Single `PageHeader` / one `h1` per route** for every split mobile/desktop page still listed in the evidence tables | Removes duplicate heroes and SR noise; matches Stripe-grade portals | Employer: `applications`, `matches`, `messages`, `pipeline`, `jobs/new`; partner: `messages`, `milestones`, `referred-members`, `resources`; counselor: `messages`, `resources`, `students`; member: `training`, `messages`, AI tools |
 | A2 | **Sidebar F-05** — spaced labels in workspace nav (`Workflows` vs `Work queue`…) | Reads as broken in SR and in some audits | `components/portal/PortalShell.tsx` (or nav data source) |
-| A3 | **Dynamic routes** spot-check — job, candidate, student detail | Duplicate title pattern on detail pages undermines A1 | `employer/jobs/[id]`, `employer/candidates/[studentId]`, `counselor/students/[memberId]`, etc. |
+| A3 | **Dynamic routes** spot-check — job, candidate, student detail | Duplicate title pattern on detail pages undermines A1 | `employer/jobs/[id]`, `employer/candidates/[studentId]`; **`counselor/students/[memberId]` shipped** (single shared `PageHeader`) |
 
 ### Tier B — Contrast & color system (WCAG + brand cohesion)
 

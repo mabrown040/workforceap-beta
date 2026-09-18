@@ -1226,6 +1226,7 @@
     "members": "Miembros",
     "memberDetails": "Detalles del miembro",
     "startInOfficeSession": "Iniciar sesión presencial →",
+    "startSession": "Iniciar sesión",
     "placementTrackingTitle": "Placement tracking",
     "placementTrackingSubtitle": "Record and track member job placements.",
     "recordPlacement": "Record placement",

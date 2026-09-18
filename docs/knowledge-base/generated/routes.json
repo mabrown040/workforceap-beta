@@ -4642,12 +4642,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 14,
+        "line": 21,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 74,
+        "line": 37,
         "kind": "FunctionDeclaration",
         "localName": "DashboardReadinessPage"
       }
@@ -26808,6 +26808,41 @@
     ]
   },
   {
+    "file": "app/api/member/readiness/summary/route.ts",
+    "kind": "route",
+    "path": "/api/member/readiness/summary",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "POST",
+        "line": 24,
+        "kind": "Variable"
+      }
+    ],
+    "methods": [
+      "POST"
+    ],
+    "configuration": {},
+    "boundaryReferences": [
+      {
+        "specifier": "@/lib/auth/server",
+        "line": 2,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/rate-limit",
+        "line": 3,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/db/withRequestGuc",
+        "line": 5,
+        "kind": "import"
+      }
+    ]
+  },
+  {
     "file": "app/api/member/readiness/voice-session/route.ts",
     "kind": "route",
     "path": "/api/member/readiness/voice-session",
@@ -31226,12 +31261,12 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 11,
+        "line": 16,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 13,
+        "line": 18,
         "kind": "FunctionDeclaration",
         "localName": "DevMemberProgressPage"
       }

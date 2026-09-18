@@ -99,6 +99,7 @@
 | [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 501 | tests |  |
 | [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 523 | tests |  |
 | [tests/api/member-profile.spec.ts](../../../tests/api/member-profile.spec.ts) | 469 | tests |  |
+| [tests/api/member-readiness-summary.spec.ts](../../../tests/api/member-readiness-summary.spec.ts) | 123 | tests |  |
 | [tests/api/member-referral-privacy.spec.ts](../../../tests/api/member-referral-privacy.spec.ts) | 29 | tests |  |
 | [tests/api/member-resume.spec.ts](../../../tests/api/member-resume.spec.ts) | 276 | tests |  |
 | [tests/api/member-settings.spec.ts](../../../tests/api/member-settings.spec.ts) | 154 | tests |  |

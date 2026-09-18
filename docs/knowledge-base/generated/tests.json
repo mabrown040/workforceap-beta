@@ -7779,6 +7779,82 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/readiness/progressSummary.test.ts",
+    "area": "libraries",
+    "domain": "libraries",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/readiness/progressView.fixtures.ts",
+        "line": 2
+      },
+      {
+        "file": "lib/readiness/progressView.ts",
+        "line": 3
+      },
+      {
+        "file": "lib/readiness/progressSummary.ts",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "delegated",
+        "reason": "owned by npm run test:vitest (shared manifest; collection guarded)"
+      },
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/readiness/progressView.test.ts",
+    "area": "libraries",
+    "domain": "libraries",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/readiness/progressView.fixtures.ts",
+        "line": 2
+      },
+      {
+        "file": "lib/readiness/progressView.ts",
+        "line": 3
+      },
+      {
+        "file": "lib/readiness/score.ts",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "delegated",
+        "reason": "owned by npm run test:vitest (shared manifest; collection guarded)"
+      },
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/reporting/programCompletion.test.ts",
     "area": "libraries",
     "domain": "libraries",
@@ -12820,6 +12896,54 @@
       {
         "file": "lib/db/prisma.ts",
         "line": 67
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/member-readiness-summary.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/member/readiness/summary/route.ts",
+        "line": 39
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 40
+      },
+      {
+        "file": "lib/rate-limit.ts",
+        "line": 41
+      },
+      {
+        "file": "lib/ai/groq.ts",
+        "line": 42
+      },
+      {
+        "file": "lib/readiness/score.ts",
+        "line": 43
+      },
+      {
+        "file": "lib/readiness/progressView.fixtures.ts",
+        "line": 44
+      },
+      {
+        "file": "lib/readiness/progressSummary.ts",
+        "line": 45
       }
     ],
     "kind": "test-candidate",

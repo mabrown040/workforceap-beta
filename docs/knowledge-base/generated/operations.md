@@ -123,6 +123,6 @@
 | [scripts/verify-rippling-job-sanitizer.ts](../../../scripts/verify-rippling-job-sanitizer.ts) | 75 | operations |  |
 | [scripts/verify-rls-staging.mjs](../../../scripts/verify-rls-staging.mjs) | 205 | operations |  |
 | [scripts/visual-audit.mjs](../../../scripts/visual-audit.mjs) | 114 | operations |  |
-| [scripts/vitest-library-specs.mjs](../../../scripts/vitest-library-specs.mjs) | 29 | operations | VITEST_LIBRARY_SPECS:2 |
+| [scripts/vitest-library-specs.mjs](../../../scripts/vitest-library-specs.mjs) | 31 | operations | VITEST_LIBRARY_SPECS:2 |
 | [scripts/wrap-api-routes-with-guc-ts.ts](../../../scripts/wrap-api-routes-with-guc-ts.ts) | 216 | operations |  |
 | [scripts/wrap-api-routes-with-guc.ts](../../../scripts/wrap-api-routes-with-guc.ts) | 250 | operations |  |

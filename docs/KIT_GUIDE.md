@@ -265,6 +265,8 @@ replace it with `MemberToolkitKit`. Page chrome is `PageOpener` on the shared
 `--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`, not raw
 hex) — that is session chrome, not a second app header.
 
+`MemberProgressKit` (`/dashboard/readiness`, proof `/dev/member/progress`) shows the weighted readiness score, four area percents, milestones, and a kit-token progress summary. Numbers come from `getScoreBreakdown` via `buildReadinessProgressView` — never invented weekly counters. The summary starts as a factual recap of those same points and may be replaced by an AI rewrite that is rejected if it cites unknown percents. Score-load failure is an explicit empty/error, not a 0% ring. Do not mix Astryx primitives inside this kit page.
+
 `UsersKit` is the staff/admin directory at `/admin/users`. Its loader searches
 and counts before pagination; `useDirectoryNavigation` keeps URL search, role,
 and page state together while earlier responses cannot overwrite a newer query.

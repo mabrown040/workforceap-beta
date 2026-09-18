@@ -426,6 +426,7 @@
 | [app/api/member/program-change-request/route.ts](../../../app/api/member/program-change-request/route.ts) | 86 | member-counselor | GET:42, POST:86 |
 | [app/api/member/program-comparison/route.ts](../../../app/api/member/program-comparison/route.ts) | 38 | member-counselor | GET:38 |
 | [app/api/member/readiness/route.ts](../../../app/api/member/readiness/route.ts) | 27 | member-counselor | GET:27 |
+| [app/api/member/readiness/summary/route.ts](../../../app/api/member/readiness/summary/route.ts) | 71 | member-counselor | POST:24 |
 | [app/api/member/readiness/voice-session/route.ts](../../../app/api/member/readiness/voice-session/route.ts) | 61 | member-counselor | POST:10 |
 | [app/api/member/referral/route.ts](../../../app/api/member/referral/route.ts) | 29 | applications-enrollment | GET:9 |
 | [app/api/member/request-help/route.ts](../../../app/api/member/request-help/route.ts) | 93 | member-counselor | POST:14 |

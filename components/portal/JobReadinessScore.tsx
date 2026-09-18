@@ -3,24 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { ScoreBreakdown } from '@/lib/readiness/score';
+import { SCORE_ITEM_LABELS } from '@/lib/readiness/progressView';
 
 type JobReadinessScoreProps = {
   score: number;
   nextAction?: { label: string; href: string };
   breakdown?: ScoreBreakdown;
-};
-
-const BREAKDOWN_LABELS: Record<keyof ScoreBreakdown, string> = {
-  completeProfile: 'Complete profile',
-  setGoals: 'Set goals',
-  buildResume: 'Build resume',
-  complete2Resources: 'Complete 2 resources',
-  practiceInterview: 'Practice interview',
-  startPathway: 'Start pathway',
-  completePathwaySteps: 'Complete pathway steps',
-  addApplications: 'Add applications',
-  trackCertifications: 'Track certificates',
-  weeklyConsistency: 'Recent activity',
 };
 
 export default function JobReadinessScore({ score, nextAction, breakdown }: JobReadinessScoreProps) {
@@ -61,7 +49,7 @@ export default function JobReadinessScore({ score, nextAction, breakdown }: JobR
             <ul id="readiness-breakdown-list" className="job-readiness-breakdown">
               {(Object.entries(breakdown) as [keyof ScoreBreakdown, { earned: number; max: number; done: boolean }][]).map(([key, b]) => (
                 <li key={key} className={b.done ? 'done' : ''}>
-                  {b.done ? '✓' : '○'} {BREAKDOWN_LABELS[key]}: {b.earned}/{b.max}
+                  {b.done ? '✓' : '○'} {SCORE_ITEM_LABELS[key]}: {b.earned}/{b.max}
                 </li>
               ))}
             </ul>

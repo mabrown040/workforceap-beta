@@ -287,7 +287,7 @@
 | [app/(portal)/employer/work-queue/page.tsx](../../../app/%28portal%29/employer/work-queue/page.tsx) | 91 | jobs-employers | generateMetadata:15, default:24 |
 | [app/(portal)/error.tsx](../../../app/%28portal%29/error.tsx) | 13 | pages | default:5 |
 | [app/(portal)/help/page.tsx](../../../app/%28portal%29/help/page.tsx) | 14 | pages | default:12 |
-| [app/(portal)/layout.tsx](../../../app/%28portal%29/layout.tsx) | 42 | pages | metadata:14, maxDuration:27, default:29 |
+| [app/(portal)/layout.tsx](../../../app/%28portal%29/layout.tsx) | 45 | pages | metadata:15, maxDuration:28, default:30 |
 | [app/(portal)/leader/dashboard/page.tsx](../../../app/%28portal%29/leader/dashboard/page.tsx) | 371 | member-counselor | default:85 |
 | [app/(portal)/loading.tsx](../../../app/%28portal%29/loading.tsx) | 5 | pages | default:3 |
 | [app/(portal)/not-found.tsx](../../../app/%28portal%29/not-found.tsx) | 20 | pages | default:3 |
@@ -403,7 +403,7 @@
 | [app/admin/jobs/\[id\]/page.tsx](../../../app/admin/jobs/%5Bid%5D/page.tsx) | 73 | jobs-employers | generateMetadata:13, default:35 |
 | [app/admin/jobs/loading.tsx](../../../app/admin/jobs/loading.tsx) | 6 | jobs-employers | default:3 |
 | [app/admin/jobs/page.tsx](../../../app/admin/jobs/page.tsx) | 416 | jobs-employers | generateMetadata:27, default:103 |
-| [app/admin/layout.tsx](../../../app/admin/layout.tsx) | 112 | administration | dynamic:21, metadata:23, default:30 |
+| [app/admin/layout.tsx](../../../app/admin/layout.tsx) | 117 | administration | dynamic:22, metadata:24, default:31 |
 | [app/admin/loading.tsx](../../../app/admin/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/members/\[id\]/AdminMemberAiMatches.tsx](../../../app/admin/members/%5Bid%5D/AdminMemberAiMatches.tsx) | 57 | administration | default:6 |
 | [app/admin/members/\[id\]/CreateSuccessToast.tsx](../../../app/admin/members/%5Bid%5D/CreateSuccessToast.tsx) | 45 | administration | default:7 |

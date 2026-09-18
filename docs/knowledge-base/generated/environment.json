@@ -2059,7 +2059,7 @@
       "references": [
         {
           "file": "instrumentation-client.ts",
-          "line": 142
+          "line": 178
         }
       ]
     },
@@ -2070,7 +2070,7 @@
       "references": [
         {
           "file": "instrumentation-client.ts",
-          "line": 86
+          "line": 117
         }
       ]
     },
@@ -2585,7 +2585,7 @@
       "references": [
         {
           "file": "instrumentation-client.ts",
-          "line": 142
+          "line": 178
         }
       ]
     },
@@ -2713,7 +2713,7 @@
         },
         {
           "file": "instrumentation-client.ts",
-          "line": 142
+          "line": 178
         },
         {
           "file": "lib/apply/applyReferralCapture.ts",

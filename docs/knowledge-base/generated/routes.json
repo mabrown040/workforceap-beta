@@ -6303,17 +6303,17 @@
     "exports": [
       {
         "name": "metadata",
-        "line": 14,
+        "line": 15,
         "kind": "Variable"
       },
       {
         "name": "maxDuration",
-        "line": 27,
+        "line": 28,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 29,
+        "line": 30,
         "kind": "FunctionDeclaration",
         "localName": "PortalLayout"
       }
@@ -9188,17 +9188,17 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 21,
+        "line": 22,
         "kind": "Variable"
       },
       {
         "name": "metadata",
-        "line": 23,
+        "line": 24,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 30,
+        "line": 31,
         "kind": "FunctionDeclaration",
         "localName": "AdminLayout"
       }
@@ -9210,17 +9210,17 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/auth/server",
-        "line": 4,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/tenant/adminPageScope",
         "line": 5,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/auth/portalRoleSwitcher",
+        "specifier": "@/lib/tenant/adminPageScope",
         "line": 6,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/auth/portalRoleSwitcher",
+        "line": 7,
         "kind": "import"
       }
     ]

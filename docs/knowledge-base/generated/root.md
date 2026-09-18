@@ -39,7 +39,7 @@
 | [css-vars-material-symbols.d.ts](../../../css-vars-material-symbols.d.ts) | 14 | root |  |
 | [deploy-to-homelab.sh](../../../deploy-to-homelab.sh) | 74 | root |  |
 | [eslint.config.mjs](../../../eslint.config.mjs) | 166 | root | default:166 |
-| [instrumentation-client.ts](../../../instrumentation-client.ts) | 189 | root | onRouterTransitionStart:158, setSentryUser:177 |
+| [instrumentation-client.ts](../../../instrumentation-client.ts) | 225 | root | onRouterTransitionStart:194, setSentryUser:213 |
 | [instrumentation.ts](../../../instrumentation.ts) | 15 | root | register:3, onRequestError:12 |
 | [middleware.ts](../../../middleware.ts) | 443 | identity-tenancy | middleware:148, config:439 |
 | [next.config.ts](../../../next.config.ts) | 392 | root | default:390 |

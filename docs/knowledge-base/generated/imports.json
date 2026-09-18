@@ -13201,8 +13201,16 @@
   },
   {
     "from": "app/(portal)/layout.tsx",
-    "specifier": "@/components/portal/LegacyViewNotice",
+    "specifier": "react",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "app/(portal)/layout.tsx",
+    "specifier": "@/components/portal/LegacyViewNotice",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/LegacyViewNotice.tsx"
@@ -13210,7 +13218,7 @@
   {
     "from": "app/(portal)/layout.tsx",
     "specifier": "@/lib/i18n/pickRootClientMessages",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/i18n/pickRootClientMessages.ts"
@@ -13218,7 +13226,7 @@
   {
     "from": "app/(portal)/layout.tsx",
     "specifier": "@/css/portal.css",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "css/portal.css"
@@ -13226,7 +13234,7 @@
   {
     "from": "app/(portal)/layout.tsx",
     "specifier": "@/css/portal-a11y.css",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "css/portal-a11y.css"
@@ -13234,7 +13242,7 @@
   {
     "from": "app/(portal)/layout.tsx",
     "specifier": "@/css/counselor.css",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "css/counselor.css"
@@ -13242,7 +13250,7 @@
   {
     "from": "app/(portal)/layout.tsx",
     "specifier": "@/css/language-toggle.css",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "css/language-toggle.css"
@@ -13250,7 +13258,7 @@
   {
     "from": "app/(portal)/layout.tsx",
     "specifier": "@/css/mobile-dashboard-fixes.css",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "css/mobile-dashboard-fixes.css"
@@ -19641,15 +19649,15 @@
   },
   {
     "from": "app/admin/layout.tsx",
-    "specifier": "next/navigation",
+    "specifier": "react",
     "line": 2,
     "kind": "import",
     "external": true,
-    "package": "next"
+    "package": "react"
   },
   {
     "from": "app/admin/layout.tsx",
-    "specifier": "next/dist/client/components/redirect-error",
+    "specifier": "next/navigation",
     "line": 3,
     "kind": "import",
     "external": true,
@@ -19657,8 +19665,16 @@
   },
   {
     "from": "app/admin/layout.tsx",
-    "specifier": "@/lib/auth/server",
+    "specifier": "next/dist/client/components/redirect-error",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/admin/layout.tsx",
+    "specifier": "@/lib/auth/server",
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -19666,7 +19682,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -19674,7 +19690,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/lib/auth/portalRoleSwitcher",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/auth/portalRoleSwitcher.ts"
@@ -19682,7 +19698,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/components/portal/AdminPortalShell",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/AdminPortalShell.tsx"
@@ -19690,7 +19706,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/components/portal/LegacyViewNotice",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/LegacyViewNotice.tsx"
@@ -19698,7 +19714,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/components/platform/OrgBrandingBar",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/platform/OrgBrandingBar.tsx"
@@ -19706,7 +19722,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/lib/platform/defaultOrgTheme",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/platform/defaultOrgTheme.ts"
@@ -19714,7 +19730,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "next/link",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -19722,14 +19738,6 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "next-intl",
-    "line": 12,
-    "kind": "import",
-    "external": true,
-    "package": "next-intl"
-  },
-  {
-    "from": "app/admin/layout.tsx",
-    "specifier": "next-intl/server",
     "line": 13,
     "kind": "import",
     "external": true,
@@ -19737,8 +19745,16 @@
   },
   {
     "from": "app/admin/layout.tsx",
-    "specifier": "next/headers",
+    "specifier": "next-intl/server",
     "line": 14,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/admin/layout.tsx",
+    "specifier": "next/headers",
+    "line": 15,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -19746,7 +19762,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/lib/i18n/pickRootClientMessages",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/i18n/pickRootClientMessages.ts"
@@ -19754,7 +19770,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/css/portal.css",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "css/portal.css"
@@ -19762,7 +19778,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/css/counselor.css",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "css/counselor.css"
@@ -19770,7 +19786,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/css/language-toggle.css",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "css/language-toggle.css"
@@ -19778,7 +19794,7 @@
   {
     "from": "app/admin/layout.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -85882,7 +85898,7 @@
   {
     "from": "instrumentation-client.ts",
     "specifier": "@sentry/nextjs",
-    "line": 81,
+    "line": 112,
     "kind": "dynamic-import",
     "external": true,
     "package": "@sentry/nextjs"
@@ -85890,7 +85906,7 @@
   {
     "from": "instrumentation-client.ts",
     "specifier": "@sentry/nextjs",
-    "line": 187,
+    "line": 223,
     "kind": "dynamic-import",
     "external": true,
     "package": "@sentry/nextjs"
@@ -117176,6 +117192,30 @@
     "target": "components/admin/MembersTable.tsx"
   },
   {
+    "from": "tests/components/admin-hydration-hardening.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/admin-hydration-hardening.test.ts",
+    "specifier": "fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "fs"
+  },
+  {
+    "from": "tests/components/admin-hydration-hardening.test.ts",
+    "specifier": "path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "path"
+  },
+  {
     "from": "tests/components/admin-subgroup-members-table.test.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -118550,6 +118590,30 @@
     "kind": "type",
     "external": false,
     "target": "lib/admin/boardOutcomes.ts"
+  },
+  {
+    "from": "tests/instrumentation-client-hydration-filter.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/instrumentation-client-hydration-filter.test.ts",
+    "specifier": "fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "fs"
+  },
+  {
+    "from": "tests/instrumentation-client-hydration-filter.test.ts",
+    "specifier": "path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "path"
   },
   {
     "from": "tests/lib/admin-job-match-prisma-scope.spec.ts",

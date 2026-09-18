@@ -291,7 +291,7 @@
 | [components/portal/CourseraProgressCard.test.tsx](../../../components/portal/CourseraProgressCard.test.tsx) | 54 | learning-coursera |  |
 | [components/portal/CourseraProgressCard.tsx](../../../components/portal/CourseraProgressCard.tsx) | 231 | learning-coursera | default:61 |
 | [components/portal/CourseraProgressCardView.tsx](../../../components/portal/CourseraProgressCardView.tsx) | 346 | learning-coursera | CourseraProgressRow:6, CourseraProgressCardViewProps:33, default:110 |
-| [components/portal/DashboardFooter.tsx](../../../components/portal/DashboardFooter.tsx) | 40 | components | default:7 |
+| [components/portal/DashboardFooter.tsx](../../../components/portal/DashboardFooter.tsx) | 29 | components | default:8 |
 | [components/portal/DashboardHomeClient.tsx](../../../components/portal/DashboardHomeClient.tsx) | 803 | components | DashboardApplicationStatusProps:25, default:81 |
 | [components/portal/DashboardPageErrorBoundary.tsx](../../../components/portal/DashboardPageErrorBoundary.tsx) | 54 | components | default:15 |
 | [components/portal/DashboardProfileForm.test.tsx](../../../components/portal/DashboardProfileForm.test.tsx) | 137 | components |  |

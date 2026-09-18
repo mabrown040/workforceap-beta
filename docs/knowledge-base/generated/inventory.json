@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "b1fac87deeb895154833fc1b76886c83e83cd2df0ab6f0a99ba3235ab7a46b56",
+  "inputTreeSha256": "1d67b23bbb06996e4b3d9d65da916983bf1373b896405ab8de5f64f03850e6e9",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -42435,14 +42435,14 @@
       "path": "app/dev/member/DevMemberShell.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 3250,
-      "lines": 87,
-      "sha256": "dd37da76d8d47e68928538919301666e4c4b015f29f528febe1c9fd48feca0f5",
+      "bytes": 3352,
+      "lines": 89,
+      "sha256": "25fd8fafa035b9cd798702980b1a5ecdaa4de2d1d7d1508a4bb8503ea81bf08d",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 54,
+          "line": 55,
           "kind": "FunctionDeclaration",
           "localName": "DevMemberShell"
         }
@@ -42450,17 +42450,17 @@
       "declarations": [
         {
           "name": "DEV_HREF",
-          "line": 19,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "DEV_ALIASES",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "DevMemberShell",
-          "line": 54,
+          "line": 55,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -43636,6 +43636,41 @@
         {
           "name": "DevMemberToolkitPage",
           "line": 19,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "app/dev/member/wioa-qualification/page.tsx",
+      "area": "pages",
+      "domain": "partners-funding",
+      "bytes": 549,
+      "lines": 14,
+      "sha256": "31556cb8f8fe77b566fae67dfe7cafa2a917fb9b2a1643fec011b6e660611257",
+      "binary": false,
+      "exports": [
+        {
+          "name": "dynamic",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 11,
+          "kind": "FunctionDeclaration",
+          "localName": "DevMemberWioaQualificationPage"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "dynamic",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "DevMemberWioaQualificationPage",
+          "line": 11,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -58109,14 +58144,14 @@
       "path": "components/portal/DashboardFooter.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 1716,
-      "lines": 40,
-      "sha256": "6b4d398066d632f45827f476aa007ff64779a8c35303fca90d8475e23003d749",
+      "bytes": 912,
+      "lines": 29,
+      "sha256": "5a728a9995d1d2bb703805873147434e688c80a2fabe9d7afd5f19ea949cf9fa",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 7,
+          "line": 8,
           "kind": "FunctionDeclaration",
           "localName": "DashboardFooter"
         }
@@ -58124,7 +58159,7 @@
       "declarations": [
         {
           "name": "DashboardFooter",
-          "line": 7,
+          "line": 8,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -63596,9 +63631,9 @@
       "path": "components/portal/WorkspaceShell.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 29622,
-      "lines": 715,
-      "sha256": "5fae7203f56a9a89d8e5895c03f75c04c66c8521bc8ba669264e84f4bec939d1",
+      "bytes": 29648,
+      "lines": 717,
+      "sha256": "f0cca1eb8d7df2921669d3736138ad967e36854c4ea2bf434218e48c3044118e",
       "binary": false,
       "exports": [
         {
@@ -74670,9 +74705,9 @@
       "path": "css/portal-main-extracted.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 266322,
-      "lines": 9923,
-      "sha256": "1502a2eed4418d0d647e49c881d77152e08bedf531c760881c2ebb46adffa9b8",
+      "bytes": 268043,
+      "lines": 9979,
+      "sha256": "ddb391647a22e62af845fa0b76e6231b0f1a92e02583c81e4d511ce76bd8f2e7",
       "binary": false
     },
     {
@@ -75102,9 +75137,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 25576,
-      "lines": 376,
-      "sha256": "16a67cf69e7702edd3a8285042b68d0d3814bcd2774361859a6b08108de07c46",
+      "bytes": 25914,
+      "lines": 381,
+      "sha256": "ffeeea99fa38859fa2d69061004e29675396acf9e364b07d6d2c598027f3e1c1",
       "binary": false
     },
     {
@@ -152065,20 +152100,20 @@
       "path": "tests/components/workspace-sidebar.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 12370,
-      "lines": 229,
-      "sha256": "a6b84275990b794dfeb4c587b43030963d91c47bba6fc5f7c8812a851098fb18",
+      "bytes": 14113,
+      "lines": 270,
+      "sha256": "4bc42360478397080f8af23d0acac4c669c020bfa8fc43b8f8a18e3cff6a9ad0",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "location",
-          "line": 14,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "show",
-          "line": 50,
+          "line": 51,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152826,9 +152861,9 @@
       "path": "tests/e2e/workspace-shell-layout.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5548,
-      "lines": 126,
-      "sha256": "c1736bf200d991020846eb9b3fda04445eb83adf70d364b490fd270d0e47abc6",
+      "bytes": 9587,
+      "lines": 216,
+      "sha256": "75235e0d0a83d3157d388df7d0393fb114201681bfe12bb5573457369aa439f2",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152845,6 +152880,16 @@
         {
           "name": "readShellMetrics",
           "line": 16,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "FooterClearance",
+          "line": 128,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "readFooterClearance",
+          "line": 139,
           "kind": "FunctionDeclaration"
         }
       ],

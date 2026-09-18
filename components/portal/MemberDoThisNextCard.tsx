@@ -13,17 +13,16 @@ type MemberDoThisNextCardProps = {
   /** Horizontal padding for section wrapper (default matches desktop dashboard gutter). Ignored by `variant="kit"`, which is placed inside an already-padded container. */
   paddingX?: string;
   /**
-   * 'legacy' (default) renders the original `--color-*` CSS-var styling used
-   * by the `?ui=legacy` dashboard (DashboardHomeClient / mobile). 'kit'
-   * renders with the portal design kit's `--wa-*` tokens and `wa-kit-*`
-   * classes so the card sits natively inside MemberHomeKit instead of
-   * looking pasted from the legacy dashboard.
+   * 'legacy' (default) renders the original dashboard styling used by
+   * `?ui=legacy` (DashboardHomeClient / mobile). 'kit' renders with portal
+   * `--wa-*` tokens and `wa-kit-*` classes for MemberHomeKit.
    */
   variant?: 'legacy' | 'kit';
 };
 
 /**
- * Single dominant dashboard CTA — mirrors the top `MemberNextStepsStrip` item with stronger hierarchy.
+ * Single dominant dashboard CTA — one "Today" action above secondary next-step strips.
+ * Visual hierarchy only; does not change completion / progress semantics.
  */
 export default function MemberDoThisNextCard({ action, paddingX = '2rem', variant = 'legacy' }: MemberDoThisNextCardProps) {
   const t = useTranslations('dashboard');
@@ -51,7 +50,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
 
   if (variant === 'kit') {
     return (
-      <section aria-label={t('doThisNext')}>
+      <section aria-label={t('todayFocus')}>
         <div
           className="wa-kit-card wa-kit-card--gradient-crimson"
           style={{ display: 'flex', flexDirection: 'column', gap: 10, boxShadow: 'var(--wa-shadow-lg)' }}
@@ -61,7 +60,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
             style={{ color: 'color-mix(in srgb, var(--wa-on-accent) 85%, transparent)' }}
           >
             <span className="wa-kit-meta" style={{ letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, color: 'inherit' }}>
-              {t('doThisNext')}
+              {t('todayFocus')}
             </span>
           </div>
           <h2
@@ -129,32 +128,57 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
   }
 
   return (
-    <section style={{ padding: `0 ${paddingX}`, marginBottom: '1.5rem' }} aria-label={t('doThisNext')}>
+    <section style={{ padding: `0 ${paddingX}`, marginBottom: '1.5rem' }} aria-label={t('todayFocus')}>
       <div
         style={{
-          borderRadius: '1rem',
+          borderRadius: 'var(--wa-radius)',
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-          boxShadow: '0 10px 32px color-mix(in srgb, var(--color-accent) 26%, transparent)',
+          background: 'linear-gradient(135deg, var(--wa-accent-dark), var(--wa-accent))',
+          boxShadow: 'var(--wa-shadow-lg)',
         }}
       >
         <div style={{ padding: '1.35rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
           <p
             style={{
-              fontSize: '0.65rem',
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '0.16em',
-              color: 'rgba(255,255,255,0.82)',
+              color: 'color-mix(in srgb, var(--wa-on-accent) 82%, transparent)',
               margin: 0,
             }}
           >
-            {t('doThisNext')}
+            {t('todayFocus')}
           </p>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--wa-on-accent)', margin: 0, lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+          <h2
+            style={{
+              fontSize: '1.25rem',
+              fontWeight: 800,
+              color: 'var(--wa-on-accent)',
+              margin: 0,
+              lineHeight: 1.25,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
             {action.title}
           </h2>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', margin: 0, lineHeight: 1.55, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: 'color-mix(in srgb, var(--wa-on-accent) 90%, transparent)',
+              margin: 0,
+              lineHeight: 1.55,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
             {action.body}
           </p>
           <Link
@@ -165,7 +189,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
               marginTop: '0.25rem',
               alignSelf: 'flex-start',
               background: 'var(--wa-on-accent)',
-              color: 'var(--color-accent)',
+              color: 'var(--wa-accent)',
               fontWeight: 700,
               border: 'none',
               textDecoration: 'none',

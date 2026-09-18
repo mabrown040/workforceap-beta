@@ -74216,6 +74216,46 @@
     "package": "next-intl"
   },
   {
+    "from": "components/portal/MemberTodayNextStep.test.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/MemberTodayNextStep.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/MemberTodayNextStep.test.tsx",
+    "specifier": "@/components/portal/MemberDoThisNextCard",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/MemberDoThisNextCard.tsx"
+  },
+  {
+    "from": "components/portal/MemberTodayNextStep.test.tsx",
+    "specifier": "@/components/portal/MemberNextStepsStrip",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/MemberNextStepsStrip.tsx"
+  },
+  {
+    "from": "components/portal/MemberTodayNextStep.test.tsx",
+    "specifier": "@/lib/member/nextBestActions",
+    "line": 8,
+    "kind": "type",
+    "external": false,
+    "target": "lib/member/nextBestActions.ts"
+  },
+  {
     "from": "components/portal/MemberWorkspaceShell.tsx",
     "specifier": "react",
     "line": 3,

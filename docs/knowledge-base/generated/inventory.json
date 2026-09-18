@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "4ba3fec5570e1246329150c5a8e2ece19a0e874bc7301c249f7705eda33f24d6",
+  "inputTreeSha256": "95af2724362bb176b726099eb36d171049a8eb48a63c7e3fe1484cd6f78b2fc1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -6344,14 +6344,14 @@
       "path": "app/(portal)/dashboard/_components/MobilePriorityActionCard.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 2547,
-      "lines": 42,
-      "sha256": "c6bfe1ae36e69506717cf83023948532ce5bafa13ad0022304ce8f7100f02c9d",
+      "bytes": 2976,
+      "lines": 83,
+      "sha256": "b90a449237a10993058855799dc1ceb148b6166fa8ba57fcc4b495ae7c0b778b",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 7,
+          "line": 5,
           "kind": "FunctionDeclaration",
           "localName": "MobilePriorityActionCard"
         }
@@ -6359,7 +6359,7 @@
       "declarations": [
         {
           "name": "MobilePriorityActionCard",
-          "line": 7,
+          "line": 5,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -58134,9 +58134,9 @@
       "path": "components/portal/DashboardHomeClient.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 41164,
-      "lines": 800,
-      "sha256": "f076970bb962faf1c4295755b3bb52c227cdc3d51bc98392a769611b5546cdd3",
+      "bytes": 41550,
+      "lines": 803,
+      "sha256": "8c0ebb97759178f16bac457ec80135ab05a76b2fdb5a57362f87f187df9dd817",
       "binary": false,
       "exports": [
         {
@@ -59506,14 +59506,14 @@
       "path": "components/portal/MemberDoThisNextCard.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 6585,
-      "lines": 185,
-      "sha256": "097c76e911b0347c05969db4465f788deac0ac2fad82018d764a2e53e2e4351f",
+      "bytes": 6885,
+      "lines": 209,
+      "sha256": "4cc8c0512e3f492cff36a8c44beb2b69781ee2c6f9412503d7a48c2f78819403",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 28,
+          "line": 27,
           "kind": "FunctionDeclaration",
           "localName": "MemberDoThisNextCard"
         }
@@ -59526,7 +59526,7 @@
         },
         {
           "name": "MemberDoThisNextCard",
-          "line": 28,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -59839,9 +59839,9 @@
       "path": "components/portal/MemberNextStepsStrip.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8674,
-      "lines": 252,
-      "sha256": "c4d97f5c871d878c21bc18290c26f0a05199c2dff24824394a284bc737ffadbb",
+      "bytes": 9423,
+      "lines": 266,
+      "sha256": "d32880bb5917d33fb9a497d95556ed256e77b2f526ad26c1ce44d2a0f7cc1330",
       "binary": false,
       "exports": [
         {
@@ -60041,6 +60041,24 @@
           "name": "MemberStuckCounselorStrip",
           "line": 12,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "components/portal/MemberTodayNextStep.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 2991,
+      "lines": 92,
+      "sha256": "8c72a948af42f39090b0c3a9350f0afb115e40780cfd43e71b81866193d0ccbd",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "sampleAction",
+          "line": 48,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -77064,9 +77082,9 @@
       "path": "docs/knowledge-base/features.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 9534,
+      "bytes": 9654,
       "lines": 36,
-      "sha256": "ced03567da9783bc5266973aebc2d56baaa6f9fb22171a7ce903a6bbc794228d",
+      "sha256": "748db581aae5dbe30932823766560a0d0d1902ecba38062d3d57eefa594dfada",
       "binary": false
     },
     {
@@ -137056,27 +137074,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 187988,
-      "lines": 3077,
-      "sha256": "86d72bdffff724ba499423e6826c91c94d086f129fb28cbe067818fedba833c8",
+      "bytes": 188433,
+      "lines": 3087,
+      "sha256": "0ac50a9d512f2e4c916c332c33a842ba36ba8fc2e020976934152bc5f8f8b516",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206357,
-      "lines": 3064,
-      "sha256": "3c6954a3ea433f93dc58b9a52af22691dc34b7ab24444c8b1cf0b5a818370c48",
+      "bytes": 206844,
+      "lines": 3074,
+      "sha256": "e050b1455742761d874527dd07da70532002db083084badd64da63dc83adafa8",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 207291,
-      "lines": 3017,
-      "sha256": "8b3491ed487c2c786dde8971f5e9e129f756c4779407b892dae1b3da61528435",
+      "bytes": 207795,
+      "lines": 3027,
+      "sha256": "bf28cf9cfda2114e1125c1a82dfb05a3a3201a7d0947b79c55195cd3d185659a",
       "binary": false
     },
     {
@@ -137092,9 +137110,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 199338,
-      "lines": 3017,
-      "sha256": "6680183f835903e631000c29acb79d816e3ec6e1dd595ea23a8d2f2e07df491d",
+      "bytes": 199830,
+      "lines": 3027,
+      "sha256": "7d44a3e0100011b7eafb8ae15dc94e170cddf8ba9bb5c5975ba76e46cfda1ff1",
       "binary": false
     },
     {

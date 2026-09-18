@@ -910,6 +910,39 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "components/portal/MemberTodayNextStep.test.tsx",
+    "area": "components",
+    "domain": "components",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/portal/MemberDoThisNextCard.tsx",
+        "line": 6
+      },
+      {
+        "file": "components/portal/MemberNextStepsStrip.tsx",
+        "line": 7
+      },
+      {
+        "file": "lib/member/nextBestActions.ts",
+        "line": 8
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "components/portal/PointsWidget.test.tsx",
     "area": "components",
     "domain": "components",

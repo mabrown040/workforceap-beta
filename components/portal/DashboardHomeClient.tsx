@@ -316,11 +316,11 @@ export default function DashboardHomeClient({
             </span>
           ) : null}
           <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', fontWeight: 700 }}>
-            {state === 'A' ? 'Getting started' : state === 'B' ? 'Ready for preassessment' : state === 'C' ? t('myTrainingMetricLabel') : 'Training complete'}
+            {state === 'A' ? t('stateGettingStarted') : state === 'B' ? t('stateReadyForPreassessment') : state === 'C' ? t('myTrainingMetricLabel') : t('trainingComplete')}
           </span>
           {(state === 'C' || state === 'D') && (
             <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
-              {completedCount}/{totalCourses} courses done
+              {t('coursesDoneCount', { completed: completedCount, total: totalCourses })}
             </span>
           )}
         </div>
@@ -475,10 +475,13 @@ export default function DashboardHomeClient({
         </div>
       )}
 
-      {/* ── 4. MORE NEXT STEPS — remaining actions after dominant card ── */}
+      {/* ── 4. MORE NEXT STEPS — demoted under Today card (capability kept) ── */}
       {nextStripActions.length > 0 && (
         <div className="portal-dash-inset" style={{ marginBottom: '1.5rem' }}>
-          <MemberNextStepsStrip actions={nextStripActions.slice(0, 2)} />
+          <MemberNextStepsStrip
+            actions={nextStripActions.slice(0, 2)}
+            prominence={dominantNextAction ? 'secondary' : 'primary'}
+          />
         </div>
       )}
 
@@ -565,7 +568,7 @@ export default function DashboardHomeClient({
               </div>
               <Link
                 href="/dashboard"
-                className="btn btn-primary"
+                className={dominantNextAction ? 'btn btn-muted' : 'btn btn-primary'}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
                 onClick={() => handleDashboardAction('open_training_hub_clicked')}
               >
@@ -609,25 +612,25 @@ export default function DashboardHomeClient({
           </section>
         )}
 
-        {/* ── Keep moving ── */}
+        {/* ── Keep moving (secondary when Today card already owns the primary CTA) ── */}
         <section style={{ gridColumn: 'span 12' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>
-              {state === 'D' ? 'Career next steps' : 'Keep moving'}
+              {state === 'D' ? t('careerNextSteps') : t('keepMoving')}
             </h3>
             <Link
               href={state === 'A' ? '/dashboard/program' : '/dashboard'}
               className="portal-dash-section-header__action"
               onClick={() => handleDashboardAction('view_all_tracks_clicked')}
             >
-              {state === 'A' ? 'View program options' : 'View all tracks'}
+              {state === 'A' ? t('viewProgramOptions') : t('viewAllTracks')}
             </Link>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
             <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem' }}>
-              <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
-                {state === 'A' ? 'Get started' : state === 'B' ? 'Next step' : state === 'C' ? 'In progress' : 'Complete'}
+              <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: dominantNextAction ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>
+                {state === 'A' ? t('stateGettingStarted') : state === 'B' ? t('yourNextStep') : state === 'C' ? t('firstCertTrainingStage') : t('trainingComplete')}
               </p>
               <h4 style={{ fontWeight: 700, fontSize: '1rem', margin: '0.45rem 0 0.35rem', color: 'var(--color-on-surface)' }}>
                 {state === 'A'
@@ -660,7 +663,7 @@ export default function DashboardHomeClient({
                       : state === 'C'
                         ? '/dashboard'
                         : '/dashboard/readiness'}
-                  className="btn btn-primary"
+                  className={dominantNextAction ? 'btn btn-muted' : 'btn btn-primary'}
                   onClick={() => handleDashboardAction(
                     state === 'A'
                       ? (noApplicationOnFile ? 'start_application_clicked' : 'choose_program_clicked')

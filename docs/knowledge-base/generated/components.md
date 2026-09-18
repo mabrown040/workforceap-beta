@@ -292,7 +292,7 @@
 | [components/portal/CourseraProgressCard.tsx](../../../components/portal/CourseraProgressCard.tsx) | 231 | learning-coursera | default:61 |
 | [components/portal/CourseraProgressCardView.tsx](../../../components/portal/CourseraProgressCardView.tsx) | 346 | learning-coursera | CourseraProgressRow:6, CourseraProgressCardViewProps:33, default:110 |
 | [components/portal/DashboardFooter.tsx](../../../components/portal/DashboardFooter.tsx) | 40 | components | default:7 |
-| [components/portal/DashboardHomeClient.tsx](../../../components/portal/DashboardHomeClient.tsx) | 800 | components | DashboardApplicationStatusProps:25, default:81 |
+| [components/portal/DashboardHomeClient.tsx](../../../components/portal/DashboardHomeClient.tsx) | 803 | components | DashboardApplicationStatusProps:25, default:81 |
 | [components/portal/DashboardPageErrorBoundary.tsx](../../../components/portal/DashboardPageErrorBoundary.tsx) | 54 | components | default:15 |
 | [components/portal/DashboardProfileForm.test.tsx](../../../components/portal/DashboardProfileForm.test.tsx) | 137 | components |  |
 | [components/portal/DashboardProfileForm.tsx](../../../components/portal/DashboardProfileForm.tsx) | 360 | components | default:47 |
@@ -331,7 +331,7 @@
 | [components/portal/MemberCounselorChatClient.tsx](../../../components/portal/MemberCounselorChatClient.tsx) | 241 | components | default:41 |
 | [components/portal/MemberDashboardVoiceSection.tsx](../../../components/portal/MemberDashboardVoiceSection.tsx) | 75 | components | default:17 |
 | [components/portal/MemberDashboardVoiceSectionLazy.tsx](../../../components/portal/MemberDashboardVoiceSectionLazy.tsx) | 21 | components | default:15 |
-| [components/portal/MemberDoThisNextCard.tsx](../../../components/portal/MemberDoThisNextCard.tsx) | 185 | components | default:28 |
+| [components/portal/MemberDoThisNextCard.tsx](../../../components/portal/MemberDoThisNextCard.tsx) | 209 | components | default:27 |
 | [components/portal/MemberFeedbackButton.tsx](../../../components/portal/MemberFeedbackButton.tsx) | 44 | components | default:6 |
 | [components/portal/MemberFeedbackModal.tsx](../../../components/portal/MemberFeedbackModal.tsx) | 258 | components | default:22 |
 | [components/portal/MemberFirstCertProgressBar.tsx](../../../components/portal/MemberFirstCertProgressBar.tsx) | 133 | components | FirstCertProgress:5, default:24 |
@@ -341,12 +341,13 @@
 | [components/portal/MemberLabWorkspace.module.css](../../../components/portal/MemberLabWorkspace.module.css) | 84 | components |  |
 | [components/portal/MemberLabWorkspace.tsx](../../../components/portal/MemberLabWorkspace.tsx) | 181 | components | MemberLabWorkspace:56 |
 | [components/portal/MemberMessagesMobileClient.tsx](../../../components/portal/MemberMessagesMobileClient.tsx) | 404 | components | default:57 |
-| [components/portal/MemberNextStepsStrip.tsx](../../../components/portal/MemberNextStepsStrip.tsx) | 252 | components | default:13 |
+| [components/portal/MemberNextStepsStrip.tsx](../../../components/portal/MemberNextStepsStrip.tsx) | 266 | components | default:13 |
 | [components/portal/MemberPortalTopNav.tsx](../../../components/portal/MemberPortalTopNav.tsx) | 91 | components | default:10, _topNavStyleRef:91 |
 | [components/portal/MemberPreScreeningForm.tsx](../../../components/portal/MemberPreScreeningForm.tsx) | 337 | components | default:24 |
 | [components/portal/MemberProgressStrip.tsx](../../../components/portal/MemberProgressStrip.tsx) | 187 | components | default:21 |
 | [components/portal/MemberSessionCard.tsx](../../../components/portal/MemberSessionCard.tsx) | 99 | components | MemberSessionCardProps:15, default:21 |
 | [components/portal/MemberStuckCounselorStrip.tsx](../../../components/portal/MemberStuckCounselorStrip.tsx) | 54 | components | default:12 |
+| [components/portal/MemberTodayNextStep.test.tsx](../../../components/portal/MemberTodayNextStep.test.tsx) | 92 | components |  |
 | [components/portal/MemberWorkspaceShell.tsx](../../../components/portal/MemberWorkspaceShell.tsx) | 62 | components | default:13 |
 | [components/portal/MentorSessionForm.tsx](../../../components/portal/MentorSessionForm.tsx) | 60 | components | default:5 |
 | [components/portal/MilestoneBadge.tsx](../../../components/portal/MilestoneBadge.tsx) | 151 | member-counselor | Milestone:21, default:88, MILESTONE_DISPLAY_ORDER:146 |

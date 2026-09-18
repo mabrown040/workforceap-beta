@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 /**
  * Minimal legal / contact links for portal dashboards.
- * In-flow at the end of `.workspace-shell-main--stack` — never sticky/fixed.
+ * In-flow at the end of `.workspace-shell-main-inner` — never sticky/fixed.
  * Replaces the marketing site footer inside dashboard routes.
  */
 export default function DashboardFooter() {

@@ -62,10 +62,11 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   stack their icons above labels to fit the rail, with radio-keyboard behavior
   intact. Navigation labels stay readable at 16px with 44px targets; desktop brand
   and public-site link share one header row.
-  The portal site footer (`.dashboard-site-footer`) stays in normal flow at
-  the end of `.workspace-shell-main--stack`. Do not `position: sticky` or
-  `fixed` it. `.workspace-shell-main-inner` must not shrink below its content
-  (`flex: 1 0 auto`) or the footer paints over the last controls.
+  The portal site footer (`.dashboard-site-footer`) is in-flow at the end of
+  `.workspace-shell-main-inner`, not a sticky/fixed sibling of the stack.
+  Do not pin it with `position: sticky` / `fixed` or `margin-top: auto` on
+  `.workspace-shell-main--stack` — that paints the legal strip over Save
+  screening and other last controls.
 - **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
   `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.

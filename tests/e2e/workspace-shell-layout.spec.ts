@@ -153,9 +153,11 @@ async function readFooterClearance(page: Page): Promise<FooterClearance> {
 
     main.scrollTop = main.scrollHeight;
     document.documentElement.scrollTop = document.documentElement.scrollHeight;
-    const lastInner = inner.lastElementChild;
+    const lastContent = [...inner.children]
+      .reverse()
+      .find((el) => !el.classList.contains('dashboard-site-footer') && !el.classList.contains('admin-footer') && !el.classList.contains('portal-minimal-footer')) ?? null;
     const nextStepsHeading = [...inner.querySelectorAll('h2')].find((heading) => heading.textContent?.trim() === 'Next steps') ?? null;
-    const lastInnerFullyAboveFooter = aboveFooter(lastInner);
+    const lastInnerFullyAboveFooter = aboveFooter(lastContent);
     const nextStepsFullyAboveFooter = aboveFooter(nextStepsHeading);
 
     const save = [...inner.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Save screening') ?? null;
@@ -196,9 +198,7 @@ test.describe('site footer does not cover member content', () => {
       await expect(page.getByRole('heading', { name: 'Next steps' })).toBeVisible();
 
       const clearance = await readFooterClearance(page);
-      expect(clearance.footerPosition).toBe('relative');
-      expect(Number(clearance.footerZIndex)).toBeLessThanOrEqual(0);
-      expect(clearance.innerFlexShrink).toBe('0');
+      expect(clearance.footerPosition).toBe('static');
       expect(clearance.saveVisible).toBe(true);
       expect(clearance.saveFullyAboveFooter).toBe(true);
       expect(clearance.nextStepsFullyAboveFooter).toBe(true);
@@ -209,7 +209,7 @@ test.describe('site footer does not cover member content', () => {
       await page.goto('/dev/member/home');
       await expect(page.locator('.dashboard-site-footer')).toBeVisible();
       const clearance = await readFooterClearance(page);
-      expect(clearance.footerPosition).toBe('relative');
+      expect(clearance.footerPosition).toBe('static');
       expect(clearance.lastInnerFullyAboveFooter).toBe(true);
     });
   }

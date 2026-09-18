@@ -446,7 +446,7 @@
 | [components/portal/WioaQualificationClient.tsx](../../../components/portal/WioaQualificationClient.tsx) | 546 | partners-funding | default:50 |
 | [components/portal/WorkforceApModuleCompleteButton.test.tsx](../../../components/portal/WorkforceApModuleCompleteButton.test.tsx) | 57 | components |  |
 | [components/portal/WorkforceApModuleCompleteButton.tsx](../../../components/portal/WorkforceApModuleCompleteButton.tsx) | 63 | components | default:6 |
-| [components/portal/WorkspaceShell.tsx](../../../components/portal/WorkspaceShell.tsx) | 715 | components | default:48 |
+| [components/portal/WorkspaceShell.tsx](../../../components/portal/WorkspaceShell.tsx) | 717 | components | default:48 |
 | [components/portal/YouthDashboardNotice.tsx](../../../components/portal/YouthDashboardNotice.tsx) | 123 | components | default:4 |
 | [components/portal/counselor/AtRiskDashboard.tsx](../../../components/portal/counselor/AtRiskDashboard.tsx) | 1045 | member-counselor | AtRiskFactor:49, AtRiskMember:55, AtRiskDashboardViewProps:180, AtRiskDashboardView:195, default:721 |
 | [components/portal/counselor/AtRiskDetailModal.tsx](../../../components/portal/counselor/AtRiskDetailModal.tsx) | 547 | member-counselor | default:70 |

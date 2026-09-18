@@ -1866,14 +1866,15 @@ html.dark .workspace-sidebar-group-label {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    /* Keep focused fields / hash targets clear of the in-flow site footer. */
-    scroll-padding-bottom: calc(var(--wa-pad-sm) + 2.75rem);
 }
 .workspace-shell-main-inner {
-    /* Grow on short pages, never shrink below content — otherwise the site
-       footer (later in the flex stack) paints over the last controls. */
+    /* Fill the scrollport on short pages; grow with content on long ones.
+       The site footer lives inside this box (document flow), never as a
+       sticky/fixed sibling of a shrinking column. */
     flex: 1 0 auto;
-    min-height: min-content;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
     min-width: 0;
     box-sizing: border-box;
     width: 100%;
@@ -1882,17 +1883,16 @@ html.dark .workspace-sidebar-group-label {
     margin-right: auto;
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
-    position: relative;
-    z-index: var(--z-sticky);
 }
-/* Site footer is in-flow at the end of the scrolling column, not sticky/fixed. */
-.workspace-shell-main--stack > :is(.dashboard-site-footer, .admin-footer, .portal-minimal-footer) {
-    position: relative;
-    z-index: 0;
+/* In-flow after page content. margin-top:auto only consumes extra space
+   inside this growing inner — it must not pin to the viewport. */
+.workspace-shell-main-inner > :is(.dashboard-site-footer, .admin-footer, .portal-minimal-footer) {
+    position: static;
     flex: 0 0 auto;
     margin-top: auto;
 }
 .dashboard-site-footer {
+    position: static;
     background: var(--wa-surface);
     color: var(--wa-muted);
     border-top: 1px solid var(--wa-border);

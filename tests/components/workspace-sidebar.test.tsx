@@ -73,11 +73,12 @@ describe('workspace navigation', () => {
 
   it('keeps the site footer in flow so it cannot cover the last page controls', () => {
     const css = readFileSync(join(process.cwd(), 'css/portal-main-extracted.css'), 'utf8');
-    expect(css).toMatch(/\.workspace-shell-main-inner \{[\s\S]*?flex: 1 0 auto;[\s\S]*?min-height: min-content;/);
+    expect(css).toMatch(/\.workspace-shell-main-inner \{[\s\S]*?flex: 1 0 auto;[\s\S]*?min-height: 100%;/);
     expect(css).toMatch(
-      /\.workspace-shell-main--stack > :is\(\.dashboard-site-footer[\s\S]*?position: relative;[\s\S]*?z-index: 0;/,
+      /\.workspace-shell-main-inner > :is\(\.dashboard-site-footer[\s\S]*?position: static;/,
     );
     const footerRule = css.match(/\.dashboard-site-footer \{[^}]+\}/)?.[0] ?? '';
+    expect(footerRule).toMatch(/position: static/);
     expect(footerRule).toMatch(/background: var\(--wa-surface\)/);
     expect(footerRule).not.toMatch(/position:\s*(sticky|fixed)/);
 
@@ -95,12 +96,19 @@ describe('workspace navigation', () => {
         </WorkspaceShell>
       </NextIntlClientProvider>,
     );
-    const stack = container.querySelector('.workspace-shell-main--stack');
+    const inner = container.querySelector('.workspace-shell-main-inner');
     const footer = container.querySelector('.dashboard-site-footer');
-    expect(stack).not.toBeNull();
+    expect(inner).not.toBeNull();
     expect(footer).not.toBeNull();
-    expect(stack?.contains(footer)).toBe(true);
+    expect(inner?.contains(footer)).toBe(true);
     expect(footer?.nextElementSibling).toBeNull();
+    const heading = inner?.querySelector('h1');
+    expect(heading).not.toBeNull();
+    expect(
+      heading && footer
+        ? heading.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING
+        : 0,
+    ).toBeTruthy();
   });
 
   it.each(['/dashboard/program', '/en/dashboard/program', '/dashboard/program/start'])('marks only the most specific destination at %s', (pathname) => {

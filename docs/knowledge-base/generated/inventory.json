@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "46aea08bb2c0ce38c0b0b52284137416ab0d745cb078931d95fb5ae08b5b61f3",
+  "inputTreeSha256": "3a74f3829428762cb37f927eeb544604a5cd693e80e95a9b835a5592281a4072",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -40454,9 +40454,9 @@
       "path": "app/apply/OrganicApplyPage.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 26362,
+      "bytes": 26348,
       "lines": 656,
-      "sha256": "a4dc20582c13d1d1242856c32f73313c70b81c76585015ed3e8c60769daf9dc6",
+      "sha256": "1585fd1f712b0356c9f7aaa88f945c7bd665ff452d2852def4d8a9ab2036cbd4",
       "binary": false,
       "exports": [
         {
@@ -40499,9 +40499,9 @@
       "path": "app/apply/PaidApplyVariant.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 10139,
+      "bytes": 10125,
       "lines": 318,
-      "sha256": "f7eee1d904e9a32526e4649902e602f3dfe08a170437153f9db37122d01e5db3",
+      "sha256": "7873f0b8c3d8fd2d0ad7ead4475876f1f31902b45b4fd8c9db71d1df7ba012f4",
       "binary": false,
       "exports": [
         {

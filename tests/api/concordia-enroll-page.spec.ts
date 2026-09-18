@@ -66,4 +66,16 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
   it('is excluded from search indexing', () => {
     expect(pageSource).toContain('index: false');
   });
+
+  it('soft-recovers unknown schools with a partner picker instead of a hard not-found', () => {
+    expect(pageSource).toContain('PartnerSchoolEnrollMissing');
+    expect(pageSource).toContain('listPublicEnrollmentPartners');
+    expect(pageSource).not.toMatch(/notFound\s*\(/);
+    expect(
+      readFileSync(
+        path.resolve(__dirname, '../../components/marketing/PartnerSchoolEnrollMissing.tsx'),
+        'utf-8',
+      ),
+    ).toContain('school-picker');
+  });
 });

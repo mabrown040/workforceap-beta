@@ -5,7 +5,7 @@
 | File | Lines | Domain | Exported symbols |
 | --- | ---: | --- | --- |
 | [.github/pull_request_template.md](../../../.github/pull_request_template.md) | 27 | delivery |  |
-| [.github/workflows/authenticated-portal-smoke.yml](../../../.github/workflows/authenticated-portal-smoke.yml) | 122 | delivery |  |
+| [.github/workflows/authenticated-portal-smoke.yml](../../../.github/workflows/authenticated-portal-smoke.yml) | 147 | delivery |  |
 | [.github/workflows/ci-gate.yml](../../../.github/workflows/ci-gate.yml) | 133 | delivery |  |
 | [.github/workflows/coursera-catalog-placeholders.yml](../../../.github/workflows/coursera-catalog-placeholders.yml) | 34 | learning-coursera |  |
 | [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) | 25 | delivery |  |

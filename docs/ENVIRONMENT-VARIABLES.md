@@ -300,8 +300,8 @@ Lilley's member prompt contains no browser-supplied text placeholders. The sessi
 **GitHub Actions secrets behind the trusted portal audit** (`.github/workflows/authenticated-portal-smoke.yml`; stored in the repository's Actions secrets, not in Vercel):
 
 - `PREVIEW_SITE_URL` — the exact origin of the isolated preview. It must be the branch alias of the `preview` mirror branch that `.github/workflows/mirror-master-to-preview.yml` keeps at master's head, so the deployment serves master's commit from the **Preview** environment (DEMO Supabase project, `docs/STAGING_ENV.md`). The workflow feeds it to both `PLAYWRIGHT_BASE_URL` and `PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN`; the health gate tolerates a pasted trailing newline or slash. Never a production alias.
-- `E2E_<ROLE>_EMAIL` / `E2E_<ROLE>_PASSWORD` for member, admin, employer, partner and counselor — five distinct accounts that must exist in the DEMO project (`production_canary` injects only member, employer and partner).
-- `PORTAL_AUDIT_READ_ONLY_TOKEN` — the same value the Preview deployment holds in Vercel.
+- `E2E_<ROLE>_EMAIL` / `E2E_<ROLE>_PASSWORD` for member, admin, employer, partner and counselor — five distinct accounts that must exist in the DEMO project (`production_canary` injects only member, employer and partner; `hub_smoke` injects member, counselor, and employer only and does not require `PORTAL_AUDIT_READ_ONLY_TOKEN`).
+- `PORTAL_AUDIT_READ_ONLY_TOKEN` — the same value the Preview deployment holds in Vercel (required for `isolated_preview` / `production_canary`, not for `hub_smoke`).
 
 ---
 
@@ -474,6 +474,7 @@ These are referenced in the application but absent from `.env.example`. New deve
 
 | Date | Change |
 |------|--------|
+| 2026-09-18 | Documented `hub_smoke` on Authenticated Portal Smoke (member/counselor/employer Playwright lane; no read-only audit token). |
 | 2026-09-17 | WAP-66: documented `UNSUBSCRIBE_TOKEN_SECRET` and its rotation caveat, `PORTAL_AUDIT_READ_ONLY_TOKEN`, the pre-audit health gate variables, and the GitHub Actions secrets behind the isolated preview audit. |
 | 2026-08-31 | Documented the fail-closed member-agent gateway, Upstash dependency, reviewed-agent registry, and secure ElevenLabs activation commands. |
 | 2026-05-13 | Comprehensive audit. Documented 81 vars. Identified 6 deprecated. Updated `.env.example`. |

@@ -33310,49 +33310,59 @@
         "line": 5
       },
       {
+        "level": 3,
+        "title": "Authenticated portal hub smoke (optional)",
+        "line": 16
+      },
+      {
+        "level": 1,
+        "title": "Against the trusted isolated preview (DEMO Supabase; same origin as PREVIEW_SITE_URL)",
+        "line": 24
+      },
+      {
         "level": 2,
         "title": "Requirements",
-        "line": 16
+        "line": 36
       },
       {
         "level": 2,
         "title": "Run",
-        "line": 21
+        "line": 41
       },
       {
         "level": 1,
         "title": "Run all e2e tests (Playwright will start dev server automatically if local)",
-        "line": 24
+        "line": 44
       },
       {
         "level": 1,
         "title": "Run only smoke tests",
-        "line": 27
+        "line": 47
       },
       {
         "level": 1,
         "title": "Run with UI mode for debugging",
-        "line": 30
+        "line": 50
       },
       {
         "level": 1,
         "title": "Run against staging/prod",
-        "line": 33
+        "line": 53
       },
       {
         "level": 2,
         "title": "Viewports",
-        "line": 37
+        "line": 57
       },
       {
         "level": 2,
         "title": "CI",
-        "line": 42
+        "line": 62
       },
       {
         "level": 2,
         "title": "Troubleshooting",
-        "line": 46
+        "line": 66
       }
     ],
     "datedFilename": false,

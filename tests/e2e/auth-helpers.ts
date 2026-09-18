@@ -1,5 +1,11 @@
 import { expect, type BrowserContext, type Page } from "@playwright/test";
-import { resolveMemberPortalCredentials } from "../../scripts/lib/portal-audit-auth.mjs";
+import {
+  resolveMemberPortalCredentials,
+  resolvePortalRoleCredentials,
+} from "../../scripts/lib/portal-audit-auth.mjs";
+import { SECTION_LOGIN_REDIRECT } from "../../scripts/lib/portal-audit-paths.mjs";
+
+export type PortalSmokeRole = "member" | "counselor" | "employer" | "admin" | "partner";
 
 /**
  * Cookie-based session hint for local/staging E2E. Requires a valid Supabase session
@@ -92,13 +98,30 @@ export async function loginMemberPortal(page: Page): Promise<void> {
  * Requires E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD.
  */
 export async function loginAdminPortal(page: Page): Promise<void> {
-  const email = process.env.E2E_ADMIN_EMAIL?.trim();
-  const password = process.env.E2E_ADMIN_PASSWORD?.replace(/\r$/, "")?.trim();
+  await loginPortalRole(page, "admin");
+}
+
+/** Dedicated E2E_* pair present for a portal role (member accepts legacy PLAYWRIGHT_*). */
+export function hasPortalRoleCredentials(role: PortalSmokeRole): boolean {
+  const { email, password } = resolvePortalRoleCredentials(role, process.env);
+  return Boolean(email && password);
+}
+
+/**
+ * UI login for a dedicated portal role identity.
+ * Requires E2E_<ROLE>_EMAIL / E2E_<ROLE>_PASSWORD (member also accepts legacy aliases).
+ */
+export async function loginPortalRole(page: Page, role: PortalSmokeRole): Promise<void> {
+  const { email, password } = resolvePortalRoleCredentials(role, process.env);
   if (!email || !password) {
-    throw new Error("Set E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD");
+    const prefix = `E2E_${role.toUpperCase()}`;
+    throw new Error(`Set ${prefix}_EMAIL and ${prefix}_PASSWORD`);
   }
+  const hub = SECTION_LOGIN_REDIRECT[role];
   await bootstrapVercelShareCookie(page);
-  await page.goto("/login?redirectTo=/admin", { waitUntil: "domcontentloaded" });
+  await page.goto(`/login?redirectTo=${encodeURIComponent(hub)}`, {
+    waitUntil: "domcontentloaded",
+  });
   await dismissCookieBanner(page);
   await page.locator("#email").click();
   await page.locator("#email").fill(email);
@@ -107,8 +130,8 @@ export async function loginAdminPortal(page: Page): Promise<void> {
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).not.toHaveURL(/\/login([?#]|$)/, { timeout: 60_000 });
   const path = new URL(page.url()).pathname;
-  if (!path.startsWith("/admin")) {
-    await page.goto("/admin", { waitUntil: "domcontentloaded" });
+  if (!(path === hub || path.startsWith(`${hub}/`))) {
+    await page.goto(hub, { waitUntil: "domcontentloaded" });
   }
   await expect(page).not.toHaveURL(/\/login(\?|$)/, { timeout: 20_000 });
 }

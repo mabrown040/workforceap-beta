@@ -15903,6 +15903,10 @@
       {
         "file": "scripts/lib/portal-audit-auth.mjs",
         "line": 2
+      },
+      {
+        "file": "scripts/lib/portal-audit-paths.mjs",
+        "line": 6
       }
     ],
     "kind": "test-helper",
@@ -16248,6 +16252,40 @@
       "@playwright/test"
     ],
     "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "excluded",
+        "reason": "Excluded by tests/e2e/**"
+      },
+      {
+        "runner": "playwright",
+        "source": "playwright.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/e2e/portal-hub-smoke.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@playwright/test"
+    ],
+    "localReferences": [
+      {
+        "file": "scripts/lib/portal-hub-smoke-paths.mjs",
+        "line": 18
+      },
+      {
+        "file": "tests/e2e/auth-helpers.ts",
+        "line": 23
+      }
+    ],
     "kind": "test-candidate",
     "declaredRunners": [
       {
@@ -19500,6 +19538,34 @@
       {
         "file": "scripts/lib/portal-audit-health-gate.mjs",
         "line": 2
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/portal-hub-smoke-paths.test.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "scripts/lib/portal-hub-smoke-paths.mjs",
+        "line": 2
+      },
+      {
+        "file": "scripts/lib/portal-audit-paths.mjs",
+        "line": 7
       }
     ],
     "kind": "test-candidate",

@@ -35,6 +35,7 @@
     "test": "npm run test:unit",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:portal-hubs": "playwright test tests/e2e/portal-hub-smoke.spec.ts",
     "repo:sync-master": "powershell -ExecutionPolicy Bypass -File scripts/auto-sync-master.ps1",
     "test:unit": "node scripts/test-unit.mjs",
     "test:vitest": "vitest run --reporter=default",

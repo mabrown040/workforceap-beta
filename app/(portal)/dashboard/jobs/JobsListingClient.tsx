@@ -214,7 +214,6 @@ function JobsEmptyState({ onClearFilters, t }: { onClearFilters: () => void; t: 
   );
 }
 
-/** Honest inventory empty — not a hollow “no results” when the public board is empty. */
 function JobsNoResultsState({ isAuthenticated, t }: { isAuthenticated: boolean; t: (k: string) => string }) {
   if (isAuthenticated) {
     return (

@@ -64281,8 +64281,16 @@
   },
   {
     "from": "app/enroll/[school]/page.tsx",
-    "specifier": "@/components/marketing/PartnerSchoolEnrollMissing",
+    "specifier": "next-intl/server",
     "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/enroll/[school]/page.tsx",
+    "specifier": "@/components/marketing/PartnerSchoolEnrollMissing",
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "components/marketing/PartnerSchoolEnrollMissing.tsx"
@@ -64290,7 +64298,7 @@
   {
     "from": "app/enroll/[school]/page.tsx",
     "specifier": "@/components/marketing/PartnerSchoolEnrollPage",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "components/marketing/PartnerSchoolEnrollPage.tsx"
@@ -64298,7 +64306,7 @@
   {
     "from": "app/enroll/[school]/page.tsx",
     "specifier": "@/lib/enroll/resolveEnrollmentPartner",
-    "line": 4,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/enroll/resolveEnrollmentPartner.ts"
@@ -64306,7 +64314,7 @@
   {
     "from": "app/enroll/[school]/page.tsx",
     "specifier": "@/css/enroll-school.css",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "css/enroll-school.css"
@@ -70377,8 +70385,16 @@
   },
   {
     "from": "components/marketing/PartnerSchoolEnrollMissing.tsx",
-    "specifier": "@/lib/enroll/resolveEnrollmentPartner",
+    "specifier": "next-intl/server",
     "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/marketing/PartnerSchoolEnrollMissing.tsx",
+    "specifier": "@/lib/enroll/resolveEnrollmentPartner",
+    "line": 3,
     "kind": "type",
     "external": false,
     "target": "lib/enroll/resolveEnrollmentPartner.ts"
@@ -70386,7 +70402,7 @@
   {
     "from": "components/marketing/PartnerSchoolEnrollMissing.tsx",
     "specifier": "@/lib/enroll/resolveEnrollmentPartner",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/enroll/resolveEnrollmentPartner.ts"

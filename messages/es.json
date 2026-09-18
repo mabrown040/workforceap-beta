@@ -973,6 +973,24 @@
     "shareButtonEmailBody": "Conoce WorkforceAP:",
     "shareButtonSmsBody": "Conoce la capacitación profesional de WorkforceAP, sin costo para los miembros:"
   },
+  "enroll": {
+    "missingPill": "Inscripción escolar",
+    "missingTitle": "No encontramos una página de inscripción para <glow>{school}</glow>",
+    "missingLeadWithSchools": "Ese enlace puede estar mal escrito, desactualizado o aún no publicado. Elige tu escuela abajo para continuar.",
+    "missingLeadEmpty": "Ese enlace puede estar mal escrito, desactualizado o aún no publicado. Aún puedes postularte por la vía pública.",
+    "missingPrimaryChooseSchool": "Elige tu escuela",
+    "missingPrimaryApply": "Postularse sin enlace escolar",
+    "missingSecondaryPrograms": "Ver programas",
+    "missingSchoolsEyebrow": "Escuelas asociadas",
+    "missingSchoolsTitle": "Elige tu escuela para continuar",
+    "missingSchoolsBody": "Cada página escolar lista los programas de certificación patrocinados para sus estudiantes.",
+    "missingEmptyTitle": "No hay páginas escolares activas ahora",
+    "missingEmptyBody": "Aún puedes iniciar una solicitud a WorkforceAP, o contáctanos si esperabas un enlace de tu escuela.",
+    "missingOpenEnrollment": "Abrir inscripción",
+    "missingContact": "Contactar a WorkforceAP",
+    "missingHome": "Volver al inicio",
+    "missingMetaTitle": "Página de inscripción escolar no encontrada"
+  },
   "training": {
     "myTraining": "Mi Entrenamiento",
     "course": "Curso",

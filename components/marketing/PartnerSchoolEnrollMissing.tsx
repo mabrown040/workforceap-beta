@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import type { EnrollmentPartnerLink } from '@/lib/enroll/resolveEnrollmentPartner';
 import { humanizeEnrollmentSchoolKey } from '@/lib/enroll/resolveEnrollmentPartner';
 
@@ -7,8 +8,14 @@ type Props = {
   partners: EnrollmentPartnerLink[];
 };
 
-export default function PartnerSchoolEnrollMissing({ school, partners }: Props) {
+/**
+ * Soft recovery for unknown `/enroll/[school]` slugs.
+ * One primary next step: school picker when partners exist; public apply when empty.
+ */
+export default async function PartnerSchoolEnrollMissing({ school, partners }: Props) {
+  const t = await getTranslations('enroll');
   const label = humanizeEnrollmentSchoolKey(school);
+  const hasSchools = partners.length > 0;
 
   return (
     <div className="enroll-school enroll-school--missing">
@@ -17,70 +24,84 @@ export default function PartnerSchoolEnrollMissing({ school, partners }: Props) 
         <div className="aura aura--2" aria-hidden="true" />
         <div className="wrap">
           <div className="lede lede--missing">
-            <span className="pill">School enrollment</span>
+            <span className="pill">{t('missingPill')}</span>
             <h1 id="enroll-missing-title">
-              We could not find an enrollment page for <span className="shimmer">{label}</span>
+              {t.rich('missingTitle', {
+                school: label,
+                glow: (chunks) => <span className="shimmer">{chunks}</span>,
+              })}
             </h1>
             <p className="sub">
-              That link may be mistyped, outdated, or not yet published. Choose your school below, or
-              apply through the public path if your school is not listed.
+              {hasSchools ? t('missingLeadWithSchools') : t('missingLeadEmpty')}
             </p>
             <div className="acts">
-              <Link className="dbtn dbtn--solid" href="/apply">
-                Apply without a school link <span>→</span>
-              </Link>
+              {hasSchools ? (
+                <a className="dbtn dbtn--solid" href="#partner-schools">
+                  {t('missingPrimaryChooseSchool')} <span aria-hidden="true">→</span>
+                </a>
+              ) : (
+                <Link className="dbtn dbtn--solid" href="/apply">
+                  {t('missingPrimaryApply')} <span aria-hidden="true">→</span>
+                </Link>
+              )}
               <Link className="dbtn dbtn--glass" href="/programs">
-                Browse programs
+                {t('missingSecondaryPrograms')}
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="band band--surface" aria-labelledby="enroll-school-list-title">
+      <section
+        id="partner-schools"
+        className="band band--surface"
+        aria-labelledby="enroll-school-list-title"
+      >
         <div className="wrap">
-          <div className="sec-head">
-            <span className="eyebrow">Partner schools</span>
-            <h2 id="enroll-school-list-title">
-              {partners.length > 0 ? (
-                <>
-                  Pick your school to <span className="grad-text">continue</span>
-                </>
-              ) : (
-                <>
-                  No school pages are live <span className="grad-text">right now</span>
-                </>
-              )}
-            </h2>
-            <p>
-              {partners.length > 0
-                ? 'Each school page lists the certificate programs sponsored for its students.'
-                : 'You can still start a WorkforceAP application, or contact us if you expected a school-specific link.'}
-            </p>
-          </div>
+          {hasSchools ? (
+            <>
+              <div className="sec-head">
+                <span className="eyebrow">{t('missingSchoolsEyebrow')}</span>
+                <h2 id="enroll-school-list-title">{t('missingSchoolsTitle')}</h2>
+                <p>{t('missingSchoolsBody')}</p>
+              </div>
 
-          {partners.length > 0 ? (
-            <ul className="school-picker">
-              {partners.map((partner) => (
-                <li key={partner.slug}>
-                  <Link className="school-picker__card" href={partner.enrollmentPath}>
-                    <span className="school-picker__name">{partner.name}</span>
-                    {partner.schoolDistrict ? (
-                      <span className="school-picker__meta">{partner.schoolDistrict}</span>
-                    ) : null}
-                    <span className="school-picker__cta">Open enrollment →</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+              <ul className="school-picker">
+                {partners.map((partner) => (
+                  <li key={partner.slug}>
+                    <Link className="school-picker__card" href={partner.enrollmentPath}>
+                      <span className="school-picker__name">{partner.name}</span>
+                      {partner.schoolDistrict ? (
+                        <span className="school-picker__meta">{partner.schoolDistrict}</span>
+                      ) : null}
+                      <span className="school-picker__cta">
+                        {t('missingOpenEnrollment')} <span aria-hidden="true">→</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <div className="enroll-empty" role="status">
+              <h2 id="enroll-school-list-title" className="enroll-empty__title">
+                {t('missingEmptyTitle')}
+              </h2>
+              <p className="enroll-empty__body">{t('missingEmptyBody')}</p>
+              <div className="enroll-empty__action">
+                <Link className="btn btn--primary" href="/apply">
+                  {t('missingPrimaryApply')}
+                </Link>
+              </div>
+            </div>
+          )}
 
           <div className="acts acts--center missing-foot">
-            <Link className="btn btn--primary" href="/contact">
-              Contact WorkforceAP
+            <Link className="btn btn--ghost" href="/contact">
+              {t('missingContact')}
             </Link>
             <Link className="btn btn--ghost" href="/">
-              Back to home
+              {t('missingHome')}
             </Link>
           </div>
         </div>

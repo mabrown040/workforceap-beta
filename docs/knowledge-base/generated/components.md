@@ -201,7 +201,7 @@
 | [components/marketing/EnrollRefCookie.tsx](../../../components/marketing/EnrollRefCookie.tsx) | 12 | public-experience | default:7 |
 | [components/marketing/HomePageBelowFold.tsx](../../../components/marketing/HomePageBelowFold.tsx) | 704 | public-experience | HomeProgramShowcaseCard:14, default:35 |
 | [components/marketing/MarketingRouteLoading.tsx](../../../components/marketing/MarketingRouteLoading.tsx) | 124 | public-experience | default:8 |
-| [components/marketing/PartnerSchoolEnrollMissing.tsx](../../../components/marketing/PartnerSchoolEnrollMissing.tsx) | 90 | public-experience | default:10 |
+| [components/marketing/PartnerSchoolEnrollMissing.tsx](../../../components/marketing/PartnerSchoolEnrollMissing.tsx) | 111 | public-experience | default:15 |
 | [components/marketing/PartnerSchoolEnrollPage.tsx](../../../components/marketing/PartnerSchoolEnrollPage.tsx) | 238 | public-experience | default:45 |
 | [components/marketing/ProgramsMobileBrowseNav.tsx](../../../components/marketing/ProgramsMobileBrowseNav.tsx) | 32 | public-experience | default:9 |
 | [components/marketing/TestimonialCard.tsx](../../../components/marketing/TestimonialCard.tsx) | 180 | public-experience | TestimonialCardProps:3, default:28 |

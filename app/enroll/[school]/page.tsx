@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import PartnerSchoolEnrollMissing from '@/components/marketing/PartnerSchoolEnrollMissing';
 import PartnerSchoolEnrollPage from '@/components/marketing/PartnerSchoolEnrollPage';
 import {
@@ -16,7 +17,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { school } = await params;
   const model = await resolveEnrollmentPartner(school);
   if (!model) {
-    return { title: 'School enrollment page not found', robots: { index: false, follow: false } };
+    const t = await getTranslations('enroll');
+    return { title: t('missingMetaTitle'), robots: { index: false, follow: false } };
   }
   return {
     title: `${model.name} Partnership — Career Certifications for Students | WorkforceAP`,

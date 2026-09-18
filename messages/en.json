@@ -986,6 +986,24 @@
     "shareButtonEmailBody": "Check out WorkforceAP:",
     "shareButtonSmsBody": "Check out WorkforceAP career training at no cost to members:"
   },
+  "enroll": {
+    "missingPill": "School enrollment",
+    "missingTitle": "We could not find an enrollment page for <glow>{school}</glow>",
+    "missingLeadWithSchools": "That link may be mistyped, outdated, or not yet published. Choose your school below to continue.",
+    "missingLeadEmpty": "That link may be mistyped, outdated, or not yet published. You can still apply through the public path.",
+    "missingPrimaryChooseSchool": "Choose your school",
+    "missingPrimaryApply": "Apply without a school link",
+    "missingSecondaryPrograms": "Browse programs",
+    "missingSchoolsEyebrow": "Partner schools",
+    "missingSchoolsTitle": "Pick your school to continue",
+    "missingSchoolsBody": "Each school page lists the certificate programs sponsored for its students.",
+    "missingEmptyTitle": "No school pages are live right now",
+    "missingEmptyBody": "You can still start a WorkforceAP application, or contact us if you expected a school-specific link.",
+    "missingOpenEnrollment": "Open enrollment",
+    "missingContact": "Contact WorkforceAP",
+    "missingHome": "Back to home",
+    "missingMetaTitle": "School enrollment page not found"
+  },
   "training": {
     "myTraining": "My Training",
     "course": "Course",

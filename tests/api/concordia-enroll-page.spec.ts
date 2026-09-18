@@ -71,11 +71,16 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
     expect(pageSource).toContain('PartnerSchoolEnrollMissing');
     expect(pageSource).toContain('listPublicEnrollmentPartners');
     expect(pageSource).not.toMatch(/notFound\s*\(/);
-    expect(
-      readFileSync(
-        path.resolve(__dirname, '../../components/marketing/PartnerSchoolEnrollMissing.tsx'),
-        'utf-8',
-      ),
-    ).toContain('school-picker');
+    const missingSource = readFileSync(
+      path.resolve(__dirname, '../../components/marketing/PartnerSchoolEnrollMissing.tsx'),
+      'utf-8',
+    );
+    expect(missingSource).toContain('school-picker');
+    expect(missingSource).toContain('#partner-schools');
+    expect(missingSource).toContain("getTranslations('enroll')");
+    // School picker is the primary CTA when partners exist; Apply is not the solid hero CTA.
+    expect(missingSource).toContain("missingPrimaryChooseSchool");
+    expect(missingSource).toMatch(/hasSchools[\s\S]*dbtn--solid[\s\S]*missingPrimaryChooseSchool/);
+    expect(missingSource).toContain('enroll-empty');
   });
 });

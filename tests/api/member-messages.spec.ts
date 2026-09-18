@@ -58,6 +58,13 @@ vi.mock('@/lib/db/prisma', () => {
     },
     user: {
       findUnique: vi.fn(),
+      findMany: vi.fn(),
+    },
+    profile: {
+      findMany: vi.fn(),
+    },
+    userRole: {
+      findMany: vi.fn(),
     },
     counselorAssignment: {
       findFirst: vi.fn(),
@@ -268,6 +275,62 @@ describe('POST /api/member/messages', () => {
         body: 'I need help with my resume',
         data: expect.objectContaining({ threadId: 'thread-1', memberId: 'user-123' }),
       })
+    );
+  });
+
+  it('notifies org admins when the member has no assigned counselor', async () => {
+    vi.mocked(getUser).mockResolvedValue({
+      id: 'user-123',
+      fullName: 'Jane Doe',
+      email: 'jane@example.com',
+    } as any);
+
+    const thread = {
+      id: 'thread-1',
+      memberId: 'user-123',
+      counselorUserId: null,
+    };
+
+    const createdMsg = {
+      id: 'msg-new',
+      threadId: 'thread-1',
+      authorId: 'user-123',
+      body: 'I am stuck and nobody is assigned',
+      createdAt: new Date('2026-05-10T12:00:00Z'),
+    };
+
+    vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
+    vi.mocked(assertMemberCanAccessThread).mockResolvedValue(true as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ fullName: 'Jane Doe' } as any);
+    vi.mocked(prisma.profile.findMany).mockResolvedValue([{ userId: 'admin-1' }] as any);
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([{ userId: 'admin-2' }] as any);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([{ id: 'admin-1' }, { id: 'admin-2' }] as any);
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
+      return fn({
+        message: { create: vi.fn().mockResolvedValue(createdMsg) },
+        messageThread: { update: vi.fn().mockResolvedValue({}) },
+      });
+    });
+
+    const res = await POST(makeRequest({ body: 'I am stuck and nobody is assigned' }) as any);
+
+    expect(res.status).toBe(200);
+    expect(createNotification).toHaveBeenCalledTimes(2);
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'admin-1',
+        type: 'message',
+        title: 'Unassigned member message from Jane Doe',
+        data: expect.objectContaining({
+          threadId: 'thread-1',
+          memberId: 'user-123',
+          link: '/admin/messages',
+          unassigned: true,
+        }),
+      })
+    );
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'admin-2', type: 'message' })
     );
   });
 

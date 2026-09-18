@@ -97,19 +97,61 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     return m;
   });
 
+  // Prefer the member's display name over their email in staff notifications;
+  // fall back gracefully when the profile row is missing.
+  const sender = await prisma.user
+    .findUnique({ where: { id: user.id }, select: { fullName: true } })
+    .catch(() => null);
+  const senderLabel = sender?.fullName || user.email || 'member';
+  const messagePreview = normalized.body.slice(0, 200);
+
   if (thread.counselorUserId) {
-    // Prefer the member's display name over their email in the counselor's
-    // notification; fall back gracefully when the profile row is missing.
-    const sender = await prisma.user
-      .findUnique({ where: { id: user.id }, select: { fullName: true } })
-      .catch(() => null);
     await createNotification({
       userId: thread.counselorUserId,
       type: 'message',
-      title: `New message from ${sender?.fullName || user.email || 'member'}`,
-      body: normalized.body.slice(0, 200),
+      title: `New message from ${senderLabel}`,
+      body: messagePreview,
       data: { threadId: thread.id, memberId: user.id },
     });
+  } else {
+    // Self-serve members have no assigned counselor, so the message would
+    // otherwise land in a silent thread. Notify org admins the same way the
+    // onboarding-stalls cron does (profile role + UserRole admin).
+    const [profileAdmins, userRoleAdmins] = await Promise.all([
+      prisma.profile.findMany({
+        where: { role: { in: ['admin', 'super_admin'] } },
+        select: { userId: true },
+      }),
+      prisma.userRole.findMany({
+        where: { role: { name: 'admin' } },
+        select: { userId: true },
+      }),
+    ]);
+    const adminUserIds = Array.from(
+      new Set([...profileAdmins.map((p) => p.userId), ...userRoleAdmins.map((r) => r.userId)])
+    );
+    if (adminUserIds.length) {
+      const adminUsers = await prisma.user.findMany({
+        where: { id: { in: adminUserIds }, deletedAt: null },
+        select: { id: true },
+      });
+      await Promise.all(
+        adminUsers.map((admin) =>
+          createNotification({
+            userId: admin.id,
+            type: 'message',
+            title: `Unassigned member message from ${senderLabel}`,
+            body: messagePreview,
+            data: {
+              threadId: thread.id,
+              memberId: user.id,
+              link: '/admin/messages',
+              unassigned: true,
+            },
+          })
+        )
+      );
+    }
   }
 
   auditLog({ actorUserId: user.id, action: 'member.message.send', targetType: 'Message', targetId: msg.id }).catch(() => {});

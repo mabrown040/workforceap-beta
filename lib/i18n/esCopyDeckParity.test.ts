@@ -74,3 +74,23 @@ test('messages/es.json: school confirmation keys are translated, not English fal
     assert.notEqual(value.trim(), '', key);
   }
 });
+
+test('messages/es.json: counselor, about, and employer UI copy is not leftover English', () => {
+  const es = loadJson('messages/es.json');
+  const en = loadJson('messages/en.json');
+  const keys = [
+    'counselor.placementTrackingTitle',
+    'counselor.triageQueueTitle',
+    'counselor.walkInSessionTitle',
+    'counselor.notificationCenter',
+    'marketing.about.title',
+    'marketing.about.heading',
+    'marketing.about.subheading',
+    'marketing.about.description',
+    'employer.employerMessagesSubtitleMobile',
+    'employer.employerMessagesSubtitleDesktop',
+  ];
+  for (const key of keys) {
+    assert.notEqual(at(es, key), at(en, key), key);
+  }
+});

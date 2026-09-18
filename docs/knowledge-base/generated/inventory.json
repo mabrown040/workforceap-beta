@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "98a80678a4abaca2777d86dfec0b6d8a9da990a895acd22c14428b4e85db3644",
+  "inputTreeSha256": "61b89eeb3e1df7eb905ecd5592ace5407f0ddccf983f1d7db7700e32c30e054e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -115061,9 +115061,9 @@
       "path": "lib/i18n/esCopyDeckParity.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 3024,
-      "lines": 76,
-      "sha256": "489f0ecf256b57ca5376da36d6ede7dc0bb7c5ad30ef168b5dc256be66530444",
+      "bytes": 3688,
+      "lines": 96,
+      "sha256": "ff4b37d42b500224b4087574cc48b4584d5aecc6cfc308cf5d23e75b4aaa8115",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -138232,9 +138232,9 @@
       "path": "marketing/src/i18n/es.json",
       "area": "astro-marketing",
       "domain": "public-experience",
-      "bytes": 188907,
+      "bytes": 188938,
       "lines": 2803,
-      "sha256": "224ea12c55e55eaa5c66484ef9b86e7fb6a6ab34a4e5418210ac4d817c78ac2f",
+      "sha256": "0dc521c01a3a5bfa0aaf5f922ebcd98c1a5d3057dbd20a64fd27d0e61167f843",
       "binary": false
     },
     {
@@ -138724,9 +138724,9 @@
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212434,
+      "bytes": 212662,
       "lines": 3141,
-      "sha256": "861f7850220cbe958eb53f7ad39841fc871130b8e41fe1ca1d4244c6263b843d",
+      "sha256": "3af100108c04d56d12355c3a96964d1af781dd34601ead7b78fe65cf06991fb6",
       "binary": false
     },
     {

@@ -14,6 +14,10 @@ import {
   type RosterRow,
 } from '@/lib/admin/trainingProgressRoster';
 import { latestCompletedGradeByUser } from '@/lib/admin/trainingProgressGrades';
+import {
+  deriveTrainingPace,
+  programSlugsForLearner,
+} from '@/lib/admin/trainingProgressPrograms';
 
 function row(over: Partial<RosterRow> & { id: string }): RosterRow {
   return {
@@ -395,5 +399,142 @@ describe('latestCompletedGradeByUser', () => {
     ]);
     expect(grades.get('a')).toBe(91);
     expect(grades.get('b')).toBe(55);
+  });
+});
+
+const CATALOG: Record<string, string> = {
+  'google-it-support': 'google-it-support',
+  'IT Support Professional Certificate (IBM)': 'google-it-support',
+  'ai-practitioner-professional-certificate-aws': 'ai-practitioner-professional-certificate-aws',
+  'software-developer-professional-certificate-ibm':
+    'software-developer-professional-certificate-ibm',
+};
+
+function resolveCatalogSlug(slug: string): string | undefined {
+  return CATALOG[slug];
+}
+
+describe('programSlugsForLearner', () => {
+  const learner = { id: 'u1', enrolledProgram: null as string | null };
+
+  it('emits the stored primary program when there is no progress yet', () => {
+    expect(
+      programSlugsForLearner({
+        learner,
+        primaryEnrollment: { programSlug: 'google-it-support' },
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual(['google-it-support']);
+  });
+
+  it('falls back to User.enrolledProgram when no CourseEnrollment row exists', () => {
+    expect(
+      programSlugsForLearner({
+        learner: { id: 'u1', enrolledProgram: 'IT Support Professional Certificate (IBM)' },
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual(['google-it-support']);
+  });
+
+  it('adds every progress program instead of collapsing to the stored primary', () => {
+    // Joseph Ring's software-dev work plus an AI practitioner course used to
+    // collapse to whichever program held the most recent activity.
+    expect(
+      programSlugsForLearner({
+        learner,
+        primaryEnrollment: { programSlug: 'software-developer-professional-certificate-ibm' },
+        progressProgramSlugs: [
+          'software-developer-professional-certificate-ibm',
+          'ai-practitioner-professional-certificate-aws',
+        ],
+        inferredProgramSlug: 'ai-practitioner-professional-certificate-aws',
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual([
+      'software-developer-professional-certificate-ibm',
+      'ai-practitioner-professional-certificate-aws',
+    ]);
+  });
+
+  it('does not use inferred activity when a stored program already exists', () => {
+    expect(
+      programSlugsForLearner({
+        learner,
+        primaryEnrollment: { programSlug: 'google-it-support' },
+        inferredProgramSlug: 'ai-practitioner-professional-certificate-aws',
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual(['google-it-support']);
+  });
+
+  it('does not use inferred activity when any progress program already exists', () => {
+    expect(
+      programSlugsForLearner({
+        learner,
+        progressProgramSlugs: ['google-it-support'],
+        inferredProgramSlug: 'ai-practitioner-professional-certificate-aws',
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual(['google-it-support']);
+  });
+
+  it('falls back to the inferred program only when nothing else is known', () => {
+    expect(
+      programSlugsForLearner({
+        learner,
+        inferredProgramSlug: 'google-it-support',
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual(['google-it-support']);
+  });
+
+  it('drops slugs that are not in the catalog', () => {
+    expect(
+      programSlugsForLearner({
+        learner: { id: 'u1', enrolledProgram: 'not-a-real-program' },
+        inferredProgramSlug: 'also-missing',
+        resolveCanonicalSlug: resolveCatalogSlug,
+      }),
+    ).toEqual([]);
+  });
+});
+
+describe('deriveTrainingPace', () => {
+  const idleCutoff = new Date('2026-09-01T00:00:00Z');
+  const recent = new Date('2026-09-10T00:00:00Z');
+  const idle = new Date('2026-08-01T00:00:00Z');
+
+  it('marks ≥85% Ahead even when the learner has gone idle', () => {
+    expect(
+      deriveTrainingPace({ percentComplete: 90, lastActivity: idle, idleCutoff }),
+    ).toBe('Ahead');
+  });
+
+  it('marks a finished course Ahead rather than Stalled', () => {
+    expect(
+      deriveTrainingPace({ percentComplete: 100, lastActivity: idle, idleCutoff }),
+    ).toBe('Ahead');
+  });
+
+  it('marks incomplete idle work Stalled', () => {
+    expect(
+      deriveTrainingPace({ percentComplete: 50, lastActivity: idle, idleCutoff }),
+    ).toBe('Stalled');
+  });
+
+  it('marks never-active incomplete work Stalled', () => {
+    expect(deriveTrainingPace({ percentComplete: 10, idleCutoff })).toBe('Stalled');
+  });
+
+  it('marks recently active work under 40% Behind', () => {
+    expect(
+      deriveTrainingPace({ percentComplete: 39, lastActivity: recent, idleCutoff }),
+    ).toBe('Behind');
+  });
+
+  it('marks recently active work at 40% On track', () => {
+    expect(
+      deriveTrainingPace({ percentComplete: 40, lastActivity: recent, idleCutoff }),
+    ).toBe('On track');
   });
 });

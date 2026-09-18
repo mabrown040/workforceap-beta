@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { CourseProgressStatus } from '@prisma/client';
 
 import {
+  accountB4BProgressRow,
   computeCourseProgressUpdate,
   nextEnrollmentReportStart,
   normalizeB4BEnrollmentReport,
@@ -276,3 +277,98 @@ test('nextEnrollmentReportStart: stops at total and on empty pages', () => {
   assert.equal(nextEnrollmentReportStart({ start: 400, batchLength: 500, limit: 1000, total: 900 }), null);
   assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 0, limit: 1000, total: undefined }), null);
 });
+
+const UNKNOWN_COURSE = {
+  email: 'learner@example.com',
+  contentSlug: 'unmapped-course',
+  contentName: 'Unmapped Course',
+  collectionName: 'IBM Software Developer',
+  collectionProgramSlug: 'software-developer-professional-certificate-ibm',
+} as const;
+
+test('linked unmapped course is recorded as an unknown-course detail for admins', () => {
+  const accounting = accountB4BProgressRow({
+    email: UNKNOWN_COURSE.email,
+    userId: 'user-1',
+    isLearningPath: false,
+    progressTargetCount: 0,
+    contentSlug: UNKNOWN_COURSE.contentSlug,
+    contentName: UNKNOWN_COURSE.contentName,
+    collectionName: UNKNOWN_COURSE.collectionName,
+    collectionProgramSlug: UNKNOWN_COURSE.collectionProgramSlug,
+  });
+  assert.equal(accounting.incrementUnknown, true);
+  assert.equal(accounting.incrementUnknownCourses, true);
+  assert.equal(accounting.writeCanonicalProgress, false);
+  assert.deepEqual(accounting.unknownCourseDetail, {
+    email: UNKNOWN_COURSE.email,
+    courseraCourseSlug: UNKNOWN_COURSE.contentSlug,
+    courseName: UNKNOWN_COURSE.contentName,
+    collectionName: UNKNOWN_COURSE.collectionName,
+    collectionProgramSlug: UNKNOWN_COURSE.collectionProgramSlug,
+  });
+});
+
+test('unmatched unmapped course is not listed as an unknown course', () => {
+  // No WAP member to attach a mapping to. The raw row still writes; the
+  // admin-facing unknown list would otherwise mix identity work with mapping work.
+  const accounting = accountB4BProgressRow({
+    email: UNKNOWN_COURSE.email,
+    userId: null,
+    isLearningPath: false,
+    progressTargetCount: 0,
+    contentSlug: UNKNOWN_COURSE.contentSlug,
+    contentName: UNKNOWN_COURSE.contentName,
+    collectionName: UNKNOWN_COURSE.collectionName,
+    collectionProgramSlug: UNKNOWN_COURSE.collectionProgramSlug,
+  });
+  assert.equal(accounting.incrementUnmatched, true);
+  assert.equal(accounting.incrementUnknownCourses, true);
+  assert.equal(accounting.incrementUnknown, false);
+  assert.equal(accounting.unknownCourseDetail, null);
+  assert.equal(accounting.writeCanonicalProgress, false);
+});
+
+test('Learning Path rows are never unknown courses, even without a mapping', () => {
+  const linked = accountB4BProgressRow({
+    email: UNKNOWN_COURSE.email,
+    userId: 'user-1',
+    isLearningPath: true,
+    progressTargetCount: 0,
+    contentSlug: 'ibm-software-dev-path',
+    contentName: 'IBM Software Developer Professional Certificate',
+  });
+  assert.equal(linked.incrementLearningPaths, true);
+  assert.equal(linked.incrementCourses, false);
+  assert.equal(linked.incrementUnknown, false);
+  assert.equal(linked.unknownCourseDetail, null);
+  assert.equal(linked.writeCanonicalProgress, false);
+
+  const unmatched = accountB4BProgressRow({
+    email: UNKNOWN_COURSE.email,
+    userId: null,
+    isLearningPath: true,
+    progressTargetCount: 0,
+    contentSlug: 'ibm-software-dev-path',
+    contentName: 'IBM Software Developer Professional Certificate',
+  });
+  assert.equal(unmatched.incrementLearningPaths, true);
+  assert.equal(unmatched.incrementUnmatched, true);
+  assert.equal(unmatched.unknownCourseDetail, null);
+});
+
+test('linked mapped course writes canonical progress and is not unknown', () => {
+  const accounting = accountB4BProgressRow({
+    email: UNKNOWN_COURSE.email,
+    userId: 'user-1',
+    isLearningPath: false,
+    progressTargetCount: 2,
+    contentSlug: 'hardware-basics',
+    contentName: 'Hardware Basics',
+  });
+  assert.equal(accounting.writeCanonicalProgress, true);
+  assert.equal(accounting.incrementUnknown, false);
+  assert.equal(accounting.unknownCourseDetail, null);
+  assert.equal(accounting.incrementCourses, true);
+});
+

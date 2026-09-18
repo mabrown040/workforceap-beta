@@ -76,6 +76,101 @@ export type RawB4BEnrollmentReport = Partial<B4BEnrollmentReport> & {
   lastActivity?: number | null;
 };
 
+export type B4BUnknownCourseDetail = {
+  email: string;
+  courseraCourseSlug: string;
+  courseName: string;
+  /** Learning Path the learner took the course under, when B4B says. */
+  collectionName?: string | null;
+  /** WAP program of that path, when the path is registered and resolved. */
+  collectionProgramSlug?: string | null;
+};
+
+export type B4BProgressRowAccounting = {
+  incrementCourses: boolean;
+  incrementUnknownCourses: boolean;
+  incrementLearningPaths: boolean;
+  incrementUnmatched: boolean;
+  /** Linked user, unmapped course: counted on `upsertedUnknown`. */
+  incrementUnknown: boolean;
+  unknownCourseDetail: B4BUnknownCourseDetail | null;
+  writeCanonicalProgress: boolean;
+};
+
+/**
+ * Decide how one B4B enrollmentReports row updates sync counters.
+ *
+ * Raw progress is written for every identified row before this runs. These
+ * flags only describe course_progress promotion and the admin-facing
+ * unknown-course list:
+ *   - A Learning Path row is program-level — never an unknown course.
+ *   - Unmatched emails (no WAP user) increment unmatched, never the
+ *     unknown-course details list (there is no member to map onto).
+ *   - Only a linked user with zero course-progress targets produces a
+ *     `unknownCourseDetail` the admin roster can act on.
+ */
+export function accountB4BProgressRow(args: {
+  email: string;
+  userId: string | null;
+  isLearningPath: boolean;
+  progressTargetCount: number;
+  contentSlug: string;
+  contentName: string;
+  collectionName?: string | null;
+  collectionProgramSlug?: string | null;
+}): B4BProgressRowAccounting {
+  if (args.isLearningPath) {
+    return {
+      incrementCourses: false,
+      incrementUnknownCourses: false,
+      incrementLearningPaths: true,
+      incrementUnmatched: args.userId == null,
+      incrementUnknown: false,
+      unknownCourseDetail: null,
+      writeCanonicalProgress: false,
+    };
+  }
+
+  const unmapped = args.progressTargetCount === 0;
+  if (args.userId == null) {
+    return {
+      incrementCourses: true,
+      incrementUnknownCourses: unmapped,
+      incrementLearningPaths: false,
+      incrementUnmatched: true,
+      incrementUnknown: false,
+      unknownCourseDetail: null,
+      writeCanonicalProgress: false,
+    };
+  }
+  if (unmapped) {
+    return {
+      incrementCourses: true,
+      incrementUnknownCourses: true,
+      incrementLearningPaths: false,
+      incrementUnmatched: false,
+      incrementUnknown: true,
+      unknownCourseDetail: {
+        email: args.email,
+        courseraCourseSlug: args.contentSlug,
+        courseName: args.contentName,
+        collectionName: args.collectionName ?? null,
+        collectionProgramSlug: args.collectionProgramSlug ?? null,
+      },
+      writeCanonicalProgress: false,
+    };
+  }
+  return {
+    incrementCourses: true,
+    incrementUnknownCourses: false,
+    incrementLearningPaths: false,
+    incrementUnmatched: false,
+    incrementUnknown: false,
+    unknownCourseDetail: null,
+    writeCanonicalProgress: true,
+  };
+}
+
 export type B4BSyncResult = {
   scanned: number;
   upserted: number;
@@ -88,15 +183,7 @@ export type B4BSyncResult = {
    * mapping instead of discovering the gap as a deflated % on the roster.
    * Surfaced via logCronRun('cron_coursera_b4b_sync', result) metadata.
    */
-  unknownCourseDetails: Array<{
-    email: string;
-    courseraCourseSlug: string;
-    courseName: string;
-    /** Learning Path the learner took the course under, when B4B says. */
-    collectionName?: string | null;
-    /** WAP program of that path, when the path is registered and resolved. */
-    collectionProgramSlug?: string | null;
-  }>;
+  unknownCourseDetails: B4BUnknownCourseDetail[];
   upsertedUnmatched: number;
   /**
    * Enrollment rows that are a Learning Path itself (Coursera's program-level
@@ -758,31 +845,29 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
       result.upserted += 1;
       const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
-      if (learningPath) {
-        // Program-level row: recorded, never promoted, never an "unknown course".
+      const accounting = accountB4BProgressRow({
+        email,
+        userId,
+        isLearningPath: Boolean(learningPath),
+        progressTargetCount: progressTargets.length,
+        contentSlug: report.contentSlug,
+        contentName: report.contentName,
+        collectionName: report.collectionName,
+        collectionProgramSlug,
+      });
+      if (accounting.incrementLearningPaths) {
         userEntry.learningPaths = (userEntry.learningPaths ?? 0) + 1;
-        result.byUser[email] = userEntry;
         result.learningPathRows += 1;
-        if (!userId) result.upsertedUnmatched += 1;
-        continue;
       }
-      userEntry.courses += 1;
-      if (progressTargets.length === 0) userEntry.unknownCourses += 1;
+      if (accounting.incrementCourses) userEntry.courses += 1;
+      if (accounting.incrementUnknownCourses) userEntry.unknownCourses += 1;
       result.byUser[email] = userEntry;
-
-      if (!userId) {
-        result.upsertedUnmatched += 1;
-        continue;
+      if (accounting.incrementUnmatched) result.upsertedUnmatched += 1;
+      if (accounting.incrementUnknown) result.upsertedUnknown += 1;
+      if (accounting.unknownCourseDetail) {
+        result.unknownCourseDetails.push(accounting.unknownCourseDetail);
       }
-      if (progressTargets.length === 0) {
-        result.upsertedUnknown += 1;
-        result.unknownCourseDetails.push({
-          email,
-          courseraCourseSlug: report.contentSlug,
-          courseName: report.contentName,
-          collectionName: report.collectionName ?? null,
-          collectionProgramSlug,
-        });
+      if (!accounting.writeCanonicalProgress || !userId) {
         continue;
       }
 

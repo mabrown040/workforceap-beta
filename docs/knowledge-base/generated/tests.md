@@ -305,7 +305,7 @@
 | [tests/lib/training-course-practice.spec.ts](../../../tests/lib/training-course-practice.spec.ts) | 47 | tests |  |
 | [tests/lib/training-dashboard-curriculum-cache.spec.ts](../../../tests/lib/training-dashboard-curriculum-cache.spec.ts) | 90 | tests |  |
 | [tests/lib/training-progress-curriculum-version.spec.ts](../../../tests/lib/training-progress-curriculum-version.spec.ts) | 77 | tests |  |
-| [tests/lib/training-progress-roster.spec.ts](../../../tests/lib/training-progress-roster.spec.ts) | 399 | tests |  |
+| [tests/lib/training-progress-roster.spec.ts](../../../tests/lib/training-progress-roster.spec.ts) | 540 | tests |  |
 | [tests/lib/training-workspace-schedule.spec.ts](../../../tests/lib/training-workspace-schedule.spec.ts) | 47 | tests |  |
 | [tests/lib/twc-syllabus-accuracy.spec.ts](../../../tests/lib/twc-syllabus-accuracy.spec.ts) | 283 | tests |  |
 | [tests/lib/voice-studio-card-contrast.spec.ts](../../../tests/lib/voice-studio-card-contrast.spec.ts) | 52 | tests |  |

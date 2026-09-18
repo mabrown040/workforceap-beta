@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "d801aa2b414dd98e0099f69826b934a8f9e30269d36277fc7e9de018f91ec6a3",
+  "inputTreeSha256": "db86ba32c5a8422c6c360f867b5ffc5012a3ce4143baeeb4b818222fa9eefb23",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4545,
-    "sourceModules": 3221,
-    "importReferences": 15234,
-    "resolvedLocalReferences": 10157,
+    "files": 4546,
+    "sourceModules": 3222,
+    "importReferences": 15236,
+    "resolvedLocalReferences": 10159,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 919
+      "files": 920
     },
     {
       "area": "localization",
@@ -381,16 +381,16 @@
       "lines": 1126
     },
     {
+      "file": "lib/coursera/b4bSync.ts",
+      "lines": 1121
+    },
+    {
       "file": "components/admin/CourseraMappingsAdmin.tsx",
       "lines": 1091
     },
     {
       "file": "lib/coursera/progressQueries.ts",
       "lines": 1050
-    },
-    {
-      "file": "components/portal/counselor/AtRiskDashboard.tsx",
-      "lines": 1045
     }
   ]
 }

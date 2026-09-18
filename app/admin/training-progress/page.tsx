@@ -17,6 +17,11 @@ import { countUnmatchedLearners, loadUnmatchedLearners } from '@/lib/coursera/pr
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { latestCompletedGradeByUser } from '@/lib/admin/trainingProgressGrades';
+import {
+  STALLED_IDLE_DAYS,
+  deriveTrainingPace,
+  programSlugsForLearner,
+} from '@/lib/admin/trainingProgressPrograms';
 import { countMembersWithTraining } from '@/lib/admin/trainingProgressRoster';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -25,10 +30,7 @@ import TrainingProgressClient, {
   type RawCourseraRow,
 } from '@/components/admin/TrainingProgressClient';
 import TrainingProgressRoster from '@/components/admin/TrainingProgressRoster';
-import type {
-  TrainingRow,
-  Pace,
-} from '@/components/portal/kit/pages/admin-subviews/TrainingProgressKit';
+import type { TrainingRow } from '@/components/portal/kit/pages/admin-subviews/TrainingProgressKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -40,9 +42,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const dynamic = 'force-dynamic';
-
-/** Members idle this long (with incomplete work) count as Stalled. */
-const STALLED_IDLE_DAYS = 21;
 
 export default async function AdminTrainingProgressPage({
   searchParams,
@@ -218,27 +217,15 @@ export default async function AdminTrainingProgressPage({
   // program first, then every program holding their course progress. Falls
   // back to the inferred (most-recent-activity) program only when the learner
   // has no stored program and no progress rows at all.
-  function programSlugsForLearner(learner: {
-    id: string;
-    enrolledProgram: string | null;
-  }): string[] {
-    const slugs = new Set<string>();
-    const enrollment = primaryByUser.get(learner.id);
-    const storedProgramSlug = enrollment?.programSlug ?? learner.enrolledProgram;
-    const storedCanonical = storedProgramSlug
-      ? getProgramBySlug(storedProgramSlug)?.slug
-      : undefined;
-    if (storedCanonical) slugs.add(storedCanonical);
-    for (const slug of programSlugsByUser.get(learner.id) ?? []) {
-      slugs.add(slug);
-    }
-    if (slugs.size === 0) {
-      const inferred = inferredProgramByUser.get(learner.id)?.programSlug;
-      const inferredCanonical = inferred ? getProgramBySlug(inferred)?.slug : undefined;
-      if (inferredCanonical) slugs.add(inferredCanonical);
-    }
-    return [...slugs];
-  }
+  const catalogSlug = (slug: string) => getProgramBySlug(slug)?.slug;
+  const slugsFor = (learner: { id: string; enrolledProgram: string | null }) =>
+    programSlugsForLearner({
+      learner,
+      primaryEnrollment: primaryByUser.get(learner.id),
+      progressProgramSlugs: programSlugsByUser.get(learner.id),
+      inferredProgramSlug: inferredProgramByUser.get(learner.id)?.programSlug,
+      resolveCanonicalSlug: catalogSlug,
+    });
 
   const curriculumAssignments = new Map<
     string,
@@ -246,7 +233,7 @@ export default async function AdminTrainingProgressPage({
   >();
   for (const learner of learners) {
     const enrollment = primaryByUser.get(learner.id);
-    for (const programSlug of programSlugsForLearner(learner)) {
+    for (const programSlug of slugsFor(learner)) {
       const program = getProgramBySlug(programSlug);
       if (!program) continue;
       const curriculumVersion =
@@ -274,23 +261,12 @@ export default async function AdminTrainingProgressPage({
     ),
   );
 
+  /**
+   * Pace heuristic lives in `deriveTrainingPace`. Ahead is checked first, so
+   * a nearly-done idle learner stays Ahead rather than flipping to Stalled.
+   */
   const idleCutoff = new Date();
   idleCutoff.setDate(idleCutoff.getDate() - STALLED_IDLE_DAYS);
-
-  /**
-   * Pace heuristic (lean — derived from % complete + recency):
-   *   Ahead    → ≥ 85% complete (and not yet fully done counts as ahead too)
-   *   Stalled  → incomplete AND no activity in the idle window (or never active)
-   *   Behind   → < 40% complete but recently active
-   *   On track → everything else
-   */
-  function derivePace(percent: number, lastActivity: Date | undefined): Pace {
-    const complete = percent >= 100;
-    if (percent >= 85) return 'Ahead';
-    if (!complete && (!lastActivity || lastActivity < idleCutoff)) return 'Stalled';
-    if (percent < 40) return 'Behind';
-    return 'On track';
-  }
 
   const rows: TrainingRow[] = [];
   for (const learner of learners) {
@@ -300,7 +276,7 @@ export default async function AdminTrainingProgressPage({
     // courses span several programs (e.g. Joseph Ring's software-dev work
     // plus an AI practitioner course) previously collapsed to whichever
     // program held their single most-recently-active course.
-    for (const programSlug of programSlugsForLearner(learner)) {
+    for (const programSlug of slugsFor(learner)) {
       const program = getProgramBySlug(programSlug);
       if (!program) continue;
       const curriculumVersion =
@@ -328,7 +304,7 @@ export default async function AdminTrainingProgressPage({
         modulesDone: reconciliation.completedCount,
         modulesTotal: reconciliation.totalCourses,
         percentComplete,
-        pace: derivePace(percentComplete, lastActivity),
+        pace: deriveTrainingPace({ percentComplete, lastActivity, idleCutoff }),
         inWap: true,
         noProgram: !storedProgramSlug,
         courseraGrade: gradeByUserId.get(learner.id) ?? null,
@@ -371,7 +347,7 @@ export default async function AdminTrainingProgressPage({
       modulesDone: learner.completedCourseCount,
       modulesTotal: learner.courseCount || 0,
       percentComplete,
-      pace: derivePace(percentComplete, lastActivity),
+      pace: deriveTrainingPace({ percentComplete, lastActivity, idleCutoff }),
       inWap: false,
       courseraGrade: learner.latestGradePercent,
     });

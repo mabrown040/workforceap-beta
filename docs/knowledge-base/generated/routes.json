@@ -31201,12 +31201,12 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 15,
+        "line": 18,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 21,
+        "line": 57,
         "kind": "FunctionDeclaration",
         "localName": "DevMemberProgramPage"
       }

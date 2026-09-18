@@ -4,6 +4,8 @@ import { PROGRAMS } from '@/lib/content/programs';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
+import { MemberTrainingWorkspace } from '@/components/portal/kit/pages/member/MemberTrainingWorkspace';
+import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 
 /**
  * Storybook-lite showcase — MemberProgramKit (module progress + live session
@@ -11,12 +13,46 @@ import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberPro
  * the pattern.
  *   /dev/member/program            — enrolled path
  *   /dev/member/program?state=empty — choose-your-program picker (preview)
+ *   /dev/member/program?state=workspace — training overview + Continue this course
  */
 export const dynamic = 'force-dynamic';
 
 const PREVIEW_PROGRAMS = ['it-cyber', 'ai-software', 'healthcare']
   .map((category) => PROGRAMS.find((p) => p.category === category))
   .filter((p): p is (typeof PROGRAMS)[number] => Boolean(p));
+
+const PREVIEW_WORKSPACE: TrainingWorkspace = {
+  programSlug: 'aws-cloud-practitioner',
+  programTitle: 'AWS Certified Cloud Practitioner Certificate',
+  curriculumVersion: 'preview-v1',
+  weeklyHours: 10,
+  planStartDate: '2026-09-01',
+  planUpdatedAt: '2026-09-01T12:00:00.000Z',
+  totalEstimatedHours: 12,
+  publishedSyllabusHours: 12,
+  courses: [
+    {
+      slug: 'cloud-concepts',
+      name: 'Cloud Concepts',
+      estimatedHours: 4,
+      description: 'Start with the shared-responsibility model and core AWS services.',
+      kind: 'coursera',
+      notes: '',
+      artifactUrl: null,
+      updatedAt: null,
+    },
+    {
+      slug: 'shared-responsibility',
+      name: 'Shared Responsibility Model',
+      estimatedHours: 8,
+      description: 'Apply the model to a sample workload.',
+      kind: 'workforceap',
+      notes: '',
+      artifactUrl: null,
+      updatedAt: null,
+    },
+  ],
+};
 
 export default async function DevMemberProgramPage({
   searchParams,
@@ -38,6 +74,23 @@ export default async function DevMemberProgramPage({
           <ProgramPicker programs={PREVIEW_PROGRAMS} preview />
         </div>
       </DesignSurface>
+    );
+  }
+
+  if (state === 'workspace') {
+    return (
+      <MemberTrainingWorkspace
+        workspace={PREVIEW_WORKSPACE}
+        programTitle={PREVIEW_WORKSPACE.programTitle}
+        completedSlugs={[]}
+        destinations={[
+          { slug: 'cloud-concepts', moduleHref: '/dev/member/program' },
+          { slug: 'shared-responsibility', moduleHref: '/dev/member/program' },
+        ]}
+        initialCourseSlug="cloud-concepts"
+        syllabusHours={12}
+        syllabusBreakdown="12 assigned hours across two courses."
+      />
     );
   }
 

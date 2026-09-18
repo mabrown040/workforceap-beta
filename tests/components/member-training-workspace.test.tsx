@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemberTrainingWorkspace } from '@/components/portal/kit/pages/member/MemberTrainingWorkspace';
+import { MemberTrainingWorkspace, nextCourseContinueTarget } from '@/components/portal/kit/pages/member/MemberTrainingWorkspace';
 import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 import { PROGRAM_SYLLABI } from '@/shared/programSyllabi';
 import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
@@ -88,7 +88,17 @@ afterEach(async () => {
 });
 
 describe('member training workspace', () => {
-  it('shows the full supplied 160-hour curriculum and ten assigned courses', () => {
+  it('resolves Continue this course to Coursera launch or the in-platform module', () => {
+    expect(nextCourseContinueTarget(courseSlug(0), [{ slug: courseSlug(0), launchHref }])).toEqual({
+      href: launchHref,
+      kind: 'coursera',
+    });
+    expect(nextCourseContinueTarget(courseSlug(9), [{ slug: courseSlug(9), moduleHref }])).toEqual({
+      href: moduleHref,
+      kind: 'module',
+    });
+    expect(nextCourseContinueTarget(courseSlug(0), [])).toBeNull();
+  });  it('shows the full supplied 160-hour curriculum and ten assigned courses', () => {
     mount();
     expect(screen.getByText('160 hours of assigned training')).toBeInTheDocument();
     expect(screen.getByText(syllabus.totalHoursLabel)).toBeInTheDocument();
@@ -222,6 +232,18 @@ describe('member training workspace', () => {
     await chooseCourse(9);
     expect(within(editor()).getByRole('link', { name: 'Open lessons and lab' })).toHaveAttribute('href', moduleHref);
     expect(within(editor()).queryByRole('link', { name: /Open course in Coursera/ })).not.toBeInTheDocument();
+  });
+
+  it('makes Continue this course a real Coursera or module link, not a same-page no-op', async () => {
+    const { unmount } = mount();
+    const courseraContinue = screen.getByRole('link', { name: 'Continue this course' });
+    expect(courseraContinue).toHaveAttribute('href', launchHref);
+    expect(courseraContinue).toHaveAttribute('target', '_blank');
+    unmount();
+
+    mount(fixture(), [courseSlug(0), courseSlug(1), courseSlug(2), courseSlug(3), courseSlug(4), courseSlug(5), courseSlug(6), courseSlug(7), courseSlug(8)]);
+    expect(screen.getByRole('link', { name: 'Continue this course' })).toHaveAttribute('href', moduleHref);
+    expect(screen.getByRole('link', { name: 'Continue this course' })).not.toHaveAttribute('target', '_blank');
   });
 
   it('carries only assigned identifiers into a reviewable feedback request', async () => {

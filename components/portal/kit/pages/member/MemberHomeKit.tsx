@@ -31,6 +31,7 @@ import {
 } from '@/components/portal/kit';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { MEMBER_PROGRAM_HREF, resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 
 /**
  * Member Portal — HOME view ("Command Center" redesign).
@@ -555,8 +556,8 @@ export function MemberHomeKit({
   nextBadgeName,
   nextBadgeRemaining,
   pipeline = [],
-  programHref = '/dashboard/program',
-  resumeHref = '/dashboard/program',
+  programHref = MEMBER_PROGRAM_HREF,
+  resumeHref = MEMBER_PROGRAM_HREF,
   toolkitHref = '/dashboard/ai-tools',
   jobsHref = '/dashboard/jobs',
   coursesHref = '/dashboard/learning',
@@ -646,14 +647,14 @@ export function MemberHomeKit({
 
         {/* 4. Mixed row — certification ring, weekly activity, points ledger. */}
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-12 wa-gap-4">
-          <div className="lg:wa-col-span-4">
-          <div className="wa-kit-card">
+          <div className="lg:wa-col-span-4 wa-min-w-0">
+          <div className="wa-kit-card wa-kit-cert-path">
             <KitCardHead title="Certification path" linkLabel="Open plan" linkHref={programHref} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+            <div className="wa-kit-cert-path-body">
               <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
-              <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="wa-kit-cert-path-copy">
                 {programStatus ? <StatusTag tone="info">{programStatus}</StatusTag> : null}
-                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: programStatus ? 8 : 0, textWrap: 'balance' }}>
+                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: programStatus ? 8 : 0 }}>
                   {programTitle ?? 'No program enrolled'}
                 </h3>
                 {nextLesson ? (
@@ -681,7 +682,7 @@ export function MemberHomeKit({
                 ) : null}
                 <div style={{ marginTop: 12 }}>
                   <Link
-                    href={resumeHref ?? '/dashboard/program'}
+                    href={resolveMemberProgramHref(resumeHref)}
                     className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                   >
                     {programTitle ? (

@@ -13,11 +13,66 @@ import { HStack } from '@astryxdesign/core/HStack';
 import { DesignSurface, PageOpener, useAnnounce } from '@/components/portal/kit';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import SkillMissionChallenge from '@/components/portal/SkillMissionChallenge';
+import { logCourseraLaunchFromPortal } from '@/app/(portal)/dashboard/_actions/analyticsActions';
+import { trackLearningMilestone } from '@/lib/analytics/events';
 import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
 import { buildTrainingSchedule, isValidPlanDate, type TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 import { IT_SUPPORT_LAB_SCOPE, listPracticeLabsForAssignment } from '@/lib/content/itSupportLabs';
 
 export type TrainingCourseDestination = { slug: string; launchHref?: string; moduleHref?: string };
+
+/** Prefer the Coursera launch or in-platform module over a same-page no-op. */
+export function nextCourseContinueTarget(
+  slug: string | undefined,
+  destinations: TrainingCourseDestination[],
+): { href: string; kind: 'coursera' | 'module' } | null {
+  if (!slug) return null;
+  const destination = destinations.find((row) => row.slug === slug);
+  if (!destination) return null;
+  if (destination.launchHref) return { href: destination.launchHref, kind: 'coursera' };
+  if (destination.moduleHref) return { href: destination.moduleHref, kind: 'module' };
+  return null;
+}
+
+function ContinueThisCourseButton({
+  courseSlug,
+  destinations,
+  onSelectCourse,
+}: {
+  courseSlug: string;
+  destinations: TrainingCourseDestination[];
+  onSelectCourse: (slug: string) => void;
+}) {
+  const target = nextCourseContinueTarget(courseSlug, destinations);
+  if (!target) {
+    return (
+      <Button
+        label="Continue this course"
+        variant="primary"
+        size="lg"
+        onClick={() => onSelectCourse(courseSlug)}
+      />
+    );
+  }
+  return (
+    <Button
+      label="Continue this course"
+      variant="primary"
+      size="lg"
+      href={target.href}
+      target={target.kind === 'coursera' ? '_blank' : undefined}
+      rel={target.kind === 'coursera' ? 'noopener noreferrer' : undefined}
+      onClick={
+        target.kind === 'coursera'
+          ? () => {
+              void logCourseraLaunchFromPortal(courseSlug);
+              trackLearningMilestone('course_launched', courseSlug);
+            }
+          : undefined
+      }
+    />
+  );
+}
 export interface MemberTrainingWorkspaceProps {
   workspace: TrainingWorkspace;
   programTitle: string;
@@ -115,7 +170,7 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
     window.history.replaceState(null, '', url);
     requestAnimationFrame(() => {
       editorRef.current?.focus({ preventScroll: true });
-      if (window.matchMedia('(max-width: 900px)').matches) editorRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      editorRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -165,7 +220,7 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
             <p className="wa-kit-training-eyebrow">{nextCourse ? 'Your next step' : 'Training milestone reached'}</p>
             <h3>{nextCourse?.name ?? 'Bring your work to your next opportunity'}</h3>
             <p>{nextCourse ? `${nextCourse.estimatedHours} planned hours · Pick up here whenever you are ready.` : 'Review your portfolio and plan your next move with your counselor.'}</p>
-            {nextCourse ? <Button label="Continue this course" variant="primary" size="lg" onClick={() => selectCourse(nextCourse.slug)} /> : <Link href="/dashboard/messages" className="wa-kit-cta wa-kit-focus">Plan with your counselor <ArrowRight size={16} aria-hidden="true" /></Link>}
+            {nextCourse ? <ContinueThisCourseButton courseSlug={nextCourse.slug} destinations={destinations} onSelectCourse={selectCourse} /> : <Link href="/dashboard/messages" className="wa-kit-cta wa-kit-focus">Plan with your counselor <ArrowRight size={16} aria-hidden="true" /></Link>}
           </aside>
         </section>
         {syllabusHours && syllabusHours !== totalHours ? <p className="wa-kit-training-notice">The current published syllabus is {syllabusHours} hours. Your existing assignment contains {totalHours} estimated hours; your counselor can explain the difference.</p> : null}

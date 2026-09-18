@@ -22,6 +22,35 @@
     padding var(--wa-dur-slow) var(--wa-ease);
 }
 
+/* Certification path is a 4/12 home column: keep badge, title, and CTA inside. */
+.wa-kit-cert-path {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.wa-kit-cert-path-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wa-pad-sm);
+  min-width: 0;
+  max-width: 100%;
+}
+.wa-kit-cert-path-copy {
+  min-width: 0;
+  max-width: 100%;
+}
+.wa-kit-cert-path-copy h3,
+.wa-kit-cert-path-copy p {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.wa-kit-cert-path-copy .wa-kit-tag,
+.wa-kit-cert-path-copy .wa-kit-cta {
+  max-width: 100%;
+  white-space: normal;
+}
+
 /* Member titles belong to the shared canvas. Never recut them as title bars. */
 .wa-page-opener {
   background: transparent;
@@ -774,7 +803,8 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-training-overview { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: var(--wa-pad); margin-block: var(--wa-pad); padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); }
 .wa-kit-training-eyebrow { font-size: var(--wa-type-meta); font-weight: 750; color: var(--wa-accent); }
 .wa-kit-training-muted { color: var(--wa-muted); font-size: var(--wa-type-meta); line-height: 1.6; overflow-wrap: anywhere; }
-.wa-kit-training-next { display: flex; flex-direction: column; align-items: flex-start; gap: var(--wa-pad-sm); padding: var(--wa-pad-sm); background: var(--wa-accent-soft); border-radius: var(--wa-radius-sm); }
+.wa-kit-training-next { display: flex; flex-direction: column; align-items: flex-start; gap: var(--wa-pad-sm); padding: var(--wa-pad-sm); background: var(--wa-accent-soft); border-radius: var(--wa-radius-sm); min-width: 0; overflow: hidden; }
+.wa-kit-training-next h3 { overflow-wrap: anywhere; max-width: 100%; }
 .wa-kit-training-next p:not(.wa-kit-training-eyebrow) { font-size: var(--wa-type-meta); }
 .wa-kit-training-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--wa-pad-sm); border-bottom: 1px solid var(--wa-border); margin-bottom: var(--wa-pad); }
 .wa-kit-training-tabs button { display: inline-flex; align-items: center; gap: .5rem; min-height: 3rem; padding: .75rem .25rem; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--wa-muted); font: inherit; font-weight: 650; cursor: pointer; }

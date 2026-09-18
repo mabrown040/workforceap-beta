@@ -66,6 +66,20 @@ describe('MemberDoThisNextCard', () => {
     expect(screen.getByText('Today')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Open course' })).toHaveAttribute('href', '/dashboard/learning');
   });
+
+  it('rewrites a stored /dashboard/training CTA onto My Program', () => {
+    render(
+      <MemberDoThisNextCard
+        action={{ ...sampleAction, href: '/dashboard/training', cta: 'Resume module' }}
+        variant="kit"
+        paddingX="0"
+      />,
+    );
+    expect(screen.getByRole('link', { name: /Resume module/ })).toHaveAttribute(
+      'href',
+      '/dashboard/program',
+    );
+  });
 });
 
 describe('MemberNextStepsStrip', () => {

@@ -331,7 +331,7 @@
 | [components/portal/MemberCounselorChatClient.tsx](../../../components/portal/MemberCounselorChatClient.tsx) | 241 | components | default:41 |
 | [components/portal/MemberDashboardVoiceSection.tsx](../../../components/portal/MemberDashboardVoiceSection.tsx) | 75 | components | default:17 |
 | [components/portal/MemberDashboardVoiceSectionLazy.tsx](../../../components/portal/MemberDashboardVoiceSectionLazy.tsx) | 21 | components | default:15 |
-| [components/portal/MemberDoThisNextCard.tsx](../../../components/portal/MemberDoThisNextCard.tsx) | 209 | components | default:27 |
+| [components/portal/MemberDoThisNextCard.tsx](../../../components/portal/MemberDoThisNextCard.tsx) | 212 | components | default:28 |
 | [components/portal/MemberFeedbackButton.tsx](../../../components/portal/MemberFeedbackButton.tsx) | 44 | components | default:6 |
 | [components/portal/MemberFeedbackModal.tsx](../../../components/portal/MemberFeedbackModal.tsx) | 258 | components | default:22 |
 | [components/portal/MemberFirstCertProgressBar.tsx](../../../components/portal/MemberFirstCertProgressBar.tsx) | 133 | components | FirstCertProgress:5, default:24 |
@@ -347,7 +347,7 @@
 | [components/portal/MemberProgressStrip.tsx](../../../components/portal/MemberProgressStrip.tsx) | 187 | components | default:21 |
 | [components/portal/MemberSessionCard.tsx](../../../components/portal/MemberSessionCard.tsx) | 99 | components | MemberSessionCardProps:15, default:21 |
 | [components/portal/MemberStuckCounselorStrip.tsx](../../../components/portal/MemberStuckCounselorStrip.tsx) | 54 | components | default:12 |
-| [components/portal/MemberTodayNextStep.test.tsx](../../../components/portal/MemberTodayNextStep.test.tsx) | 92 | components |  |
+| [components/portal/MemberTodayNextStep.test.tsx](../../../components/portal/MemberTodayNextStep.test.tsx) | 106 | components |  |
 | [components/portal/MemberWorkspaceShell.tsx](../../../components/portal/MemberWorkspaceShell.tsx) | 62 | components | default:13 |
 | [components/portal/MentorSessionForm.tsx](../../../components/portal/MentorSessionForm.tsx) | 60 | components | default:5 |
 | [components/portal/MilestoneBadge.tsx](../../../components/portal/MilestoneBadge.tsx) | 151 | member-counselor | Milestone:21, default:88, MILESTONE_DISPLAY_ORDER:146 |
@@ -574,7 +574,7 @@
 | [components/portal/kit/pages/member/MemberCertificatesKit.tsx](../../../components/portal/kit/pages/member/MemberCertificatesKit.tsx) | 177 | member-counselor | MemberCertificatesKitProps:39, MemberCertificatesKit:68 |
 | [components/portal/kit/pages/member/MemberCounselorKit.tsx](../../../components/portal/kit/pages/member/MemberCounselorKit.tsx) | 95 | member-counselor | CounselorSessionSummary:16, MemberCounselorKitProps:22, MemberCounselorKit:31 |
 | [components/portal/kit/pages/member/MemberCounselorSessionKit.tsx](../../../components/portal/kit/pages/member/MemberCounselorSessionKit.tsx) | 57 | member-counselor | MemberCounselorSessionKitProps:13, MemberCounselorSessionKit:20 |
-| [components/portal/kit/pages/member/MemberHomeKit.tsx](../../../components/portal/kit/pages/member/MemberHomeKit.tsx) | 885 | member-counselor | StatSpark:84, WeeklyActivityPoint:94, PointsLedgerEntry:100, MemberHomeKitProps:106, MemberHomeKit:542 |
+| [components/portal/kit/pages/member/MemberHomeKit.tsx](../../../components/portal/kit/pages/member/MemberHomeKit.tsx) | 886 | member-counselor | StatSpark:85, WeeklyActivityPoint:95, PointsLedgerEntry:101, MemberHomeKitProps:107, MemberHomeKit:543 |
 | [components/portal/kit/pages/member/MemberJobDetail.tsx](../../../components/portal/kit/pages/member/MemberJobDetail.tsx) | 193 | member-counselor | JobDetailScreeningQuestion:15, MemberJobDetailProps:21, MemberJobDetail:52 |
 | [components/portal/kit/pages/member/MemberJobsBoard.tsx](../../../components/portal/kit/pages/member/MemberJobsBoard.tsx) | 154 | member-counselor | BoardJob:19, MemberJobsBoardProps:30, MemberJobsBoard:59 |
 | [components/portal/kit/pages/member/MemberJobsKit.tsx](../../../components/portal/kit/pages/member/MemberJobsKit.tsx) | 194 | member-counselor | MemberJobsKitProps:38, MemberJobsKit:72 |
@@ -586,7 +586,7 @@
 | [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 362 | member-counselor | MemberProgramKitProps:37, MemberProgramKit:98 |
 | [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |
-| [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 280 | member-counselor | TrainingCourseDestination:20, MemberTrainingWorkspaceProps:21, MemberTrainingWorkspace:46 |
+| [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 335 | member-counselor | TrainingCourseDestination:22, nextCourseContinueTarget:25, MemberTrainingWorkspaceProps:76, MemberTrainingWorkspace:101 |
 | [components/portal/kit/pages/member/ResumeRewriterKit.tsx](../../../components/portal/kit/pages/member/ResumeRewriterKit.tsx) | 55 | member-counselor | ResumeRewriterKit:15 |
 | [components/portal/kit/pages/member/ResumeStrengthKit.tsx](../../../components/portal/kit/pages/member/ResumeStrengthKit.tsx) | 50 | member-counselor | ResumeStrengthKit:16 |
 | [components/portal/kit/pages/member/ResumeStudioKit.tsx](../../../components/portal/kit/pages/member/ResumeStudioKit.tsx) | 63 | member-counselor | ResumeStudioKit:16 |

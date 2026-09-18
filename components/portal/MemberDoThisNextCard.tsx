@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
 
@@ -28,11 +29,13 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
   const t = useTranslations('dashboard');
   if (!action) return null;
 
+  const actionHref = resolveMemberProgramHref(action.href);
+
   const handleCtaClick = () => {
     trackFunnelEvent('member_dashboard', 'dashboard_primary_cta_clicked', {
       action_id: action.id,
       action_label: action.cta,
-      href: action.href,
+      href: actionHref,
       route: typeof window !== 'undefined' ? window.location.pathname : undefined,
     });
     void postMemberEvent({
@@ -43,7 +46,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
         action: 'dashboard_primary_cta_clicked',
         action_id: action.id,
         action_label: action.cta,
-        href: action.href,
+        href: actionHref,
       },
     });
   };
@@ -96,7 +99,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
             {action.body}
           </p>
           <Link
-            href={action.href}
+            href={actionHref}
             onClick={handleCtaClick}
             className="wa-kit-focus"
             style={{
@@ -182,7 +185,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
             {action.body}
           </p>
           <Link
-            href={action.href}
+            href={actionHref}
             className="btn"
             onClick={handleCtaClick}
             style={{

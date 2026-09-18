@@ -61,7 +61,7 @@ const PORTAL_PATHS = [
   '/partner',
   '/employer',
   '/counselor',
-  // '/jobs' is intentionally public — page handles auth state inline
+  // '/jobs' is not a portal prefix: next.config redirects it to /dashboard/jobs
 ];
 const ADMIN_PATHS = ['/admin'];
 const ADMIN_API_PATHS = ['/api/admin'];

@@ -3513,7 +3513,7 @@
       "references": [
         {
           "file": "next.config.ts",
-          "line": 331
+          "line": 372
         }
       ]
     },
@@ -3554,7 +3554,7 @@
       "references": [
         {
           "file": "next.config.ts",
-          "line": 329
+          "line": 370
         }
       ]
     },
@@ -3565,7 +3565,7 @@
       "references": [
         {
           "file": "next.config.ts",
-          "line": 330
+          "line": 371
         }
       ]
     },
@@ -3576,7 +3576,7 @@
       "references": [
         {
           "file": "next.config.ts",
-          "line": 336
+          "line": 377
         }
       ]
     },
@@ -4292,7 +4292,7 @@
         },
         {
           "file": "next.config.ts",
-          "line": 337
+          "line": 378
         },
         {
           "file": "tests/api/health-check.spec.ts",
@@ -4842,7 +4842,7 @@
       "references": [
         {
           "file": "next.config.ts",
-          "line": 338
+          "line": 379
         }
       ]
     }

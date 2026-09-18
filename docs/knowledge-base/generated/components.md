@@ -400,7 +400,7 @@
 | [components/portal/ReadinessProgress.tsx](../../../components/portal/ReadinessProgress.tsx) | 43 | components | default:9 |
 | [components/portal/RefreshCourseraProgressButton.tsx](../../../components/portal/RefreshCourseraProgressButton.tsx) | 74 | learning-coursera | default:13 |
 | [components/portal/RequestHelpButton.tsx](../../../components/portal/RequestHelpButton.tsx) | 56 | components | default:5 |
-| [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 131 | components | default:13 |
+| [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 134 | components | default:13 |
 | [components/portal/ResourceDownloadButton.tsx](../../../components/portal/ResourceDownloadButton.tsx) | 64 | components | default:11 |
 | [components/portal/ResourceFilters.tsx](../../../components/portal/ResourceFilters.tsx) | 84 | components | default:14 |
 | [components/portal/ResourceProgressActions.tsx](../../../components/portal/ResourceProgressActions.tsx) | 76 | components | default:11 |
@@ -577,7 +577,7 @@
 | [components/portal/kit/pages/member/MemberMentorsKit.tsx](../../../components/portal/kit/pages/member/MemberMentorsKit.tsx) | 117 | member-counselor | MentorSummary:19, MemberMentorsKitProps:27, MemberMentorsKit:38 |
 | [components/portal/kit/pages/member/MemberMessagesEmpty.tsx](../../../components/portal/kit/pages/member/MemberMessagesEmpty.tsx) | 44 | member-counselor | MemberMessagesEmpty:10 |
 | [components/portal/kit/pages/member/MemberMessagesKit.tsx](../../../components/portal/kit/pages/member/MemberMessagesKit.tsx) | 373 | member-counselor | MemberMessagesKitProps:32, MemberMessagesKit:70 |
-| [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 409 | member-counselor | MemberProfileAccountPassthrough:52, MemberProfileKitProps:65, MemberProfileKit:95 |
+| [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 410 | member-counselor | MemberProfileAccountPassthrough:52, MemberProfileKitProps:65, MemberProfileKit:95 |
 | [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 352 | member-counselor | MemberProgramKitProps:29, MemberProgramKit:90 |
 | [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "f72926b358c9c1e98f2ff5696d5f904487ed102303d6f677e48e956b1cdf2d2e",
+  "inputTreeSha256": "2422147675106a8370fe0a5d2a747de6e52bcefdfd09cca03773baab9e12dd3c",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25,9 +25,9 @@
       "path": ".Jules/palette.md",
       "area": "agent-tooling",
       "domain": "agent-tooling",
-      "bytes": 9140,
-      "lines": 41,
-      "sha256": "cfdd41de5d7042903e9a4533aad561d2e07a6c68e28c433fc1250ea1574f93b5",
+      "bytes": 9526,
+      "lines": 44,
+      "sha256": "c278a69bd2b3260159bd70ceaeed574475b6b5a0b5e739822412546e7e74b72a",
       "binary": false
     },
     {
@@ -1508,9 +1508,9 @@
       "path": ".gitignore",
       "area": "root",
       "domain": "root",
-      "bytes": 1960,
-      "lines": 117,
-      "sha256": "69093d6e712d0d99579eaa9862cbdc7dc0591128e140ae0923c5c6b416209697",
+      "bytes": 2021,
+      "lines": 121,
+      "sha256": "500cf5cbf4b9a6e34367466d9d49a5540002d16677ecce7321bd79a7e5fdd14a",
       "binary": false
     },
     {
@@ -49398,9 +49398,9 @@
       "path": "components/admin/AssessmentsTable.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 18784,
+      "bytes": 18686,
       "lines": 416,
-      "sha256": "66f0ae7b8fccc522f3648ef43fdc3c91c97d35a49af4107f460540ccde8091b7",
+      "sha256": "997f133d6a8e2facda8e54e0ae20dc02f5fbcbdaf52f971f1e3e50c96ce1974b",
       "binary": false,
       "exports": [
         {
@@ -54321,9 +54321,9 @@
       "path": "components/employer/MobileApplicationsClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 13532,
+      "bytes": 13447,
       "lines": 298,
-      "sha256": "fb783f04fd2bf1b7da6d45a2632703e447f4e86a949515968bb49bd71b8e25eb",
+      "sha256": "3dc4245e4da532eed60238e7808aba93707ee074cfe4cf1daae67cc49341b7fe",
       "binary": false,
       "exports": [
         {
@@ -61853,9 +61853,9 @@
       "path": "components/portal/ResourceCard.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4198,
-      "lines": 131,
-      "sha256": "5cf6d63438e52f4c2183e2dac896c0ca83c4b2e3120035c23e8c0f2d4c453221",
+      "bytes": 4255,
+      "lines": 134,
+      "sha256": "de434f9c9e7c7fe85631c9668cac39c93ed238a08efb8811c74b862015ad15bc",
       "binary": false,
       "exports": [
         {
@@ -70923,9 +70923,9 @@
       "path": "components/portal/kit/pages/member/MemberProfileKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 16244,
-      "lines": 409,
-      "sha256": "07a03a6f1cbc25b9f13018ca57be1f274fd210536cf8872ff11638be14f6e8bd",
+      "bytes": 16316,
+      "lines": 410,
+      "sha256": "202df214fb5b0c441b40f1836d9ff6f7806d17ce22cbfa183d9acf72cc70c9be",
       "binary": false,
       "exports": [
         {

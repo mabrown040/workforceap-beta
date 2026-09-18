@@ -36,6 +36,12 @@
 **Learning:** The "Add Manual Mapping" button lacked `aria-expanded` and `aria-controls`, failing to communicate its relationship to the revealed form. Additionally, the "Save Mapping" button changed its text to "Saving..." during loading without `aria-busy` or an `aria-live` region, keeping screen readers unaware of the submission status.
 **Action:** Always provide `aria-expanded` and `aria-controls` for buttons that reveal adjacent panels or forms. For asynchronous form submission buttons, always wrap dynamic loading text in a `<span aria-live="polite">` and append `aria-busy={loading}` to the button element.
 
+## 2024-07-26 - Accessible Save Settings Button
+**Learning:** Found a "Save changes" button in `components/portal/kit/pages/member/MemberProfileKit.tsx` that changed text to "Saving…" dynamically but was missing `aria-live` and `aria-busy`. Screen readers were not informed when the profile was saving.
+**Action:** When a settings or profile save button has an asynchronous state, apply `aria-busy={isSaving}` to the button element and wrap the dynamic button text in a `<span aria-live="polite">` tag.
+## 2024-06-25 - Redundant aria-label on aria-live state buttons
+**Learning:** Discovered an anti-pattern where a button displaying dynamic async state ("Downloading...") correctly had `aria-busy` and `aria-live` added, but was still using an explicitly changing `aria-label` attribute on the parent button itself. This `aria-label` can mask the inner live region, preventing screen readers from correctly announcing the state transition.
+**Action:** When a button text changes dynamically to indicate progress (e.g. "Downloading..."), omit `aria-label` entirely and place context describing the action in a visually hidden `.sr-only` span instead.
 ## 2026-06-25 - Expandable Panels Missing aria-controls in Lists
 **Learning:** Found multiple instances where expandable list items (e.g., AssessmentsTable, MobileApplicationsClient) used `aria-expanded` but lacked the matching `aria-controls` attribute linking the toggle button to the expanding content panel's `id`. Without this, screen reader users aren't programmatically aware of which container is being expanded or collapsed. Also noticed missing `aria-hidden="true"` on material icon ligatures.
 **Action:** When implementing expandable content blocks, always ensure the toggle button has both `aria-expanded` and an `aria-controls` attribute that matches the `id` of the collapsible panel. Additionally, always hide icon ligatures with `aria-hidden="true"`.

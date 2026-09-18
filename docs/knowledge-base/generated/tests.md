@@ -40,7 +40,7 @@
 | [tests/api/admin-user-reset-password.spec.ts](../../../tests/api/admin-user-reset-password.spec.ts) | 117 | tests |  |
 | [tests/api/agent-gateway-route.spec.ts](../../../tests/api/agent-gateway-route.spec.ts) | 116 | tests |  |
 | [tests/api/ai-interview.spec.ts](../../../tests/api/ai-interview.spec.ts) | 456 | tests |  |
-| [tests/api/apply-confirmation-clarity.spec.ts](../../../tests/api/apply-confirmation-clarity.spec.ts) | 55 | tests |  |
+| [tests/api/apply-confirmation-clarity.spec.ts](../../../tests/api/apply-confirmation-clarity.spec.ts) | 64 | tests |  |
 | [tests/api/apply-status-lookup.spec.ts](../../../tests/api/apply-status-lookup.spec.ts) | 164 | tests |  |
 | [tests/api/assessment.spec.ts](../../../tests/api/assessment.spec.ts) | 583 | tests |  |
 | [tests/api/at-risk-alert.spec.ts](../../../tests/api/at-risk-alert.spec.ts) | 641 | tests |  |

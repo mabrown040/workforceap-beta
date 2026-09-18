@@ -15,6 +15,10 @@ describe('apply confirmation clarity', () => {
     path.resolve(__dirname, '../../components/apply/ApplyConfirmationCta.tsx'),
     'utf-8',
   );
+  const shareSource = readFileSync(
+    path.resolve(__dirname, '../../components/apply/ShareButtons.tsx'),
+    'utf-8',
+  );
 
   it('keeps a single primary next-step CTA zone (footer stays secondary)', () => {
     expect(pageSource).toContain('afd-confirm__recommend');
@@ -39,10 +43,15 @@ describe('apply confirmation clarity', () => {
     expect(cssSource).toContain('--wa-accent');
     expect(cssSource).toContain('--wa-text');
     expect(cssSource).toContain('.afd-confirm__recommend');
+    expect(cssSource).toContain('.afd-confirm__share-btn');
     expect(cssSource).not.toMatch(/#[0-9a-fA-F]{3,8}/);
     expect(pageSource).not.toContain('var(--color-accent)');
     expect(ctaSource).not.toContain('var(--color-accent)');
     expect(ctaSource).toContain('afd-confirm__recommend');
+    expect(shareSource).toContain('afd-confirm__share-grid');
+    expect(shareSource).not.toContain('var(--color-');
+    expect(shareSource).not.toContain('var(--surface-container');
+    expect(shareSource).not.toContain('var(--outline-variant)');
   });
 
   it('does not duplicate the primary destination in Also helpful for signed-in members', () => {

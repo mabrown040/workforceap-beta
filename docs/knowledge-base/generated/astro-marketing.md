@@ -72,7 +72,7 @@
 | [marketing/src/i18n/fr.json](../../../marketing/src/i18n/fr.json) | 2804 | public-experience |  |
 | [marketing/src/i18n/pt.json](../../../marketing/src/i18n/pt.json) | 2804 | public-experience |  |
 | [marketing/src/i18n/t.ts](../../../marketing/src/i18n/t.ts) | 32 | public-experience | LOCALES:8, Locale:9, LOCALE_LABELS:10, NON_DEFAULT_LOCALES:13, useT:20, isLocale:30 |
-| [marketing/src/layouts/Layout.astro](../../../marketing/src/layouts/Layout.astro) | 254 | astro-marketing |  |
+| [marketing/src/layouts/Layout.astro](../../../marketing/src/layouts/Layout.astro) | 255 | astro-marketing |  |
 | [marketing/src/lib/marketingDataLayer.ts](../../../marketing/src/lib/marketingDataLayer.ts) | 26 | astro-marketing | pushMarketingEvent:9, trackQuizFunnel:20 |
 | [marketing/src/lib/messages.en.json](../../../marketing/src/lib/messages.en.json) | 2805 | astro-marketing |  |
 | [marketing/src/pages/\[lang\]/index.astro](../../../marketing/src/pages/%5Blang%5D/index.astro) | 15 | astro-marketing |  |

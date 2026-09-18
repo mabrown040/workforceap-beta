@@ -55,7 +55,7 @@
       "ariaLabel": "Navigation mobile principale",
       "marketing": {
         "home": "Accueil",
-        "quiz": "Quiz",
+        "path": "Parcours",
         "programs": "Programmes",
         "apply": "Postuler"
       },
@@ -67,6 +67,7 @@
       },
       "counselor": {
         "overview": "Aperçu",
+        "inbox": "Boîte",
         "members": "Membres",
         "messages": "Messages",
         "resources": "Ressources"
@@ -80,10 +81,14 @@
       },
       "admin": {
         "today": "Aujourd'hui",
-        "queue": "File d'attente",
-        "members": "Membres"
+        "students": "Étudiants",
+        "messages": "Messages"
       }
-    }
+    },
+    "freeCareerQuiz": "Quiz de carrière gratuit",
+    "comparePrograms": "Comparer les programmes",
+    "salaryGuide": "Guide salarial",
+    "membership": "Adhésion"
   },
   "cta": {
     "applyNow": "Postuler maintenant",
@@ -138,7 +143,8 @@
     "employerPartners": "Partenaires employeurs",
     "copyright": "© {year} Workforce Advancement Project. Formation professionnelle et soutien à la préparation à l'emploi sans frais pour les membres éligibles.",
     "onetAttribution": "Ce site intègre des informations des services Web O*NET du U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® est une marque déposée de USDOL/ETA.",
-    "careers": "Careers"
+    "careers": "Careers",
+    "freeCareerQuiz": "Quiz de carrière gratuit"
   },
   "form": {
     "fullName": "Nom complet",

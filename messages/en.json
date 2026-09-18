@@ -56,7 +56,7 @@
       "ariaLabel": "Primary mobile navigation",
       "marketing": {
         "home": "Home",
-        "quiz": "Quiz",
+        "path": "Path",
         "programs": "Programs",
         "apply": "Apply"
       },
@@ -68,6 +68,7 @@
       },
       "counselor": {
         "overview": "Overview",
+        "inbox": "Inbox",
         "members": "Members",
         "messages": "Messages",
         "resources": "Resources"
@@ -81,10 +82,14 @@
       },
       "admin": {
         "today": "Today",
-        "queue": "Queue",
-        "members": "Members"
+        "students": "Students",
+        "messages": "Messages"
       }
-    }
+    },
+    "freeCareerQuiz": "Free Career Quiz",
+    "comparePrograms": "Compare Programs",
+    "salaryGuide": "Salary Guide",
+    "membership": "Membership"
   },
   "cta": {
     "applyNow": "Apply Now",
@@ -139,7 +144,8 @@
     "workforceBoards": "Workforce boards",
     "employerPartners": "Employer partners",
     "copyright": "© {year} Workforce Advancement Project. Career training and job-readiness support no cost for members who qualify through scholarship/grant funded membership.",
-    "onetAttribution": "This site incorporates information from O*NET Web Services by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® is a trademark of USDOL/ETA."
+    "onetAttribution": "This site incorporates information from O*NET Web Services by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® is a trademark of USDOL/ETA.",
+    "freeCareerQuiz": "Free Career Quiz"
   },
   "form": {
     "fullName": "Full name",

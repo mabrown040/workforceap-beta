@@ -13,7 +13,9 @@ function pathToStep(pathname: string | null): ProgramsJourneyStep {
   // prefixed) never match any case and fall through to the 'programs' default
   // — making "Browse Programs" appear active on every page.
   const path = pathname.replace(/^\/(en|es|fr|pt)(?=\/|$)/, '');
-  if (path === '/career-quiz') return 'quiz';
+  // Canonical pathfinder is /find-your-path (Next decision-journey). Keep
+  // /career-quiz as an alias highlight so secondary quiz deep-links still mark Path.
+  if (path === '/find-your-path' || path === '/career-quiz') return 'quiz';
   if (path === '/programs') return 'programs';
   if (path.startsWith('/programs/')) return 'detail';
   if (path === '/program-comparison') return 'compare';
@@ -50,7 +52,7 @@ export default function ProgramsDecisionJourneyNav({
   }, []);
 
   const steps: { id: ProgramsJourneyStep; label: string; mobileLabel: string; icon: string; href: string }[] = [
-    { id: 'quiz', label: 'Find Your Path', mobileLabel: 'Path', icon: 'explore', href: '/career-quiz' },
+    { id: 'quiz', label: 'Find Your Path', mobileLabel: 'Path', icon: 'explore', href: '/find-your-path' },
     { id: 'programs', label: 'Browse Programs', mobileLabel: 'Programs', icon: 'school', href: '/programs' },
     { id: 'compare', label: 'Compare Tracks', mobileLabel: 'Compare', icon: 'compare_arrows', href: '/program-comparison' },
     { id: 'salary', label: 'Salary Context', mobileLabel: 'Salary', icon: 'payments', href: '/salary-guide' },

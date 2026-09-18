@@ -38,6 +38,74 @@ test('closed mobile navigation backdrop is hidden from assistive technology', ()
   assert.match(backdrop, /tabIndex=\{mobileOpen \? 0 : -1\}/);
 });
 
+test('MainNav Programs lists Compare and Salary beside the pathfinder', () => {
+  const mainNav = source('components/MainNav.tsx');
+  const programsBlock = mainNav.slice(
+    mainNav.indexOf("label: 'Programs'"),
+    mainNav.indexOf("{ href: '/partners'"),
+  );
+
+  assert.match(programsBlock, /href: '\/find-your-path'/);
+  assert.match(programsBlock, /href: '\/career-quiz'/);
+  assert.match(programsBlock, /href: '\/program-comparison'/);
+  assert.match(programsBlock, /href: '\/salary-guide'/);
+  assert.match(mainNav, /href: '\/apply',\s*label: 'Membership'/);
+});
+
+test('decision journey and marketing mobile chrome use the canonical pathfinder', () => {
+  const decisionNav = source('components/ProgramsDecisionJourneyNav.tsx');
+  const mobileNav = source('components/MobileBottomNav.tsx');
+  const programsPage = source('marketing/src/pages/programs.astro');
+
+  assert.match(decisionNav, /href: '\/find-your-path'/);
+  assert.doesNotMatch(
+    decisionNav.slice(decisionNav.indexOf('const steps'), decisionNav.indexOf('return (')),
+    /href: '\/career-quiz'/,
+  );
+  assert.match(mobileNav, /href: '\/find-your-path',\s*labelKey: 'marketing\.path'/);
+  assert.match(programsPage, /href="\/find-your-path">Find Your Path/);
+});
+
+test('admin mobile bottom tabs match Command Center / Students / Messages', () => {
+  const mobileNav = source('components/MobileBottomNav.tsx');
+  const adminBlock = mobileNav.slice(
+    mobileNav.indexOf('const ADMIN_TABS'),
+    mobileNav.indexOf('interface MobileBottomNavProps'),
+  );
+
+  assert.match(adminBlock, /href: '\/admin'/);
+  assert.match(adminBlock, /href: '\/admin\/students'/);
+  assert.match(adminBlock, /href: '\/admin\/messages'/);
+  assert.doesNotMatch(adminBlock, /command-center/);
+  assert.doesNotMatch(adminBlock, /\/admin\/members'/);
+});
+
+test('counselor mobile bottom tabs surface Inbox with members and messages', () => {
+  const mobileNav = source('components/MobileBottomNav.tsx');
+  const counselorBlock = mobileNav.slice(
+    mobileNav.indexOf('const COUNSELOR_TABS'),
+    mobileNav.indexOf('const PARTNER_TABS'),
+  );
+
+  assert.match(counselorBlock, /href: '\/counselor'/);
+  assert.match(counselorBlock, /href: '\/counselor\/inbox'/);
+  assert.match(counselorBlock, /href: '\/counselor\/students'/);
+  assert.match(counselorBlock, /href: '\/counselor\/messages'/);
+  assert.doesNotMatch(counselorBlock, /\/counselor\/resources'/);
+});
+
+test('MainNav desktop dropdowns sync open state on hover', () => {
+  const mainNav = source('components/MainNav.tsx');
+  assert.match(mainNav, /onMouseEnter=\{\(\) => \{ if \(window\.innerWidth > 900\) setActiveDropdown\(item\.label\); \}\}/);
+  assert.match(mainNav, /onMouseEnter=\{\(\) => \{\s*if \(window\.innerWidth > 900 && loginSubmenuItems\.length > 0\) setActiveDropdown\('__login__'\);/);
+});
+
+test('member mobile top nav prefers Profile over a duplicate AI Advisor tab', () => {
+  const topNav = source('components/portal/MemberPortalTopNav.tsx');
+  assert.match(topNav, /canonical: '\/dashboard\/profile'/);
+  assert.doesNotMatch(topNav, /canonical: '\/dashboard\/counselor'/);
+});
+
 test('localized signup opens root legal documents without Next prefetch requests', () => {
   const signup = source('app/(auth)/signup/SignupForm.tsx');
   const consentBlock = signup.slice(signup.indexOf('{/* Consent checkboxes */}'), signup.indexOf('{/* Error banner */}'));

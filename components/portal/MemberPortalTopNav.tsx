@@ -43,16 +43,14 @@ export default function MemberPortalTopNav({
     return pathname.startsWith(`${href}/`) || pathname.startsWith(`${canonical}/`) || pathname === canonical;
   };
 
-  // Proofs pass hrefMap to stay on /dev/member. Omit tabs whose canonical
-  // isn't remapped so they don't drop members onto live /dashboard/* routes
-  // (AI Advisor → /dashboard/counselor would duplicate Career Tools anyway).
+  // Proofs pass hrefMap to stay on /dev/member; omit unmapped tabs.
   const tabs = [
     { canonical: '/dashboard', label: t('dashboard'), icon: 'home' },
     { canonical: '/dashboard/program', label: t('myProgram'), icon: 'school' },
     { canonical: '/dashboard/ai-tools', label: t('careerToolkit'), icon: 'auto_awesome' },
     { canonical: '/dashboard/messages', label: t('counselorChat'), icon: 'chat', badgeKey: 'counselor_messages_unread' as NavBadgeKey },
     { canonical: '/dashboard/jobs', label: t('jobBoard'), icon: 'work' },
-    { canonical: '/dashboard/counselor', label: t('aiCounselor'), icon: 'support_agent' },
+    { canonical: '/dashboard/profile', label: t('profile'), icon: 'person' },
   ].filter((tab) => !hrefMap || tab.canonical in hrefMap);
 
   return (

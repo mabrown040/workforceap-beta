@@ -19,6 +19,7 @@ const navItems = [
     children: [
       { href: '/what-we-do', label: 'What We Do' },
       { href: '/how-it-works', label: 'How It Works' },
+      { href: '/apply', label: 'Membership' },
       { href: '/leadership', label: 'Leadership' },
       { href: '/faq', label: 'FAQ' },
       { href: '/donate', label: 'Donate' },
@@ -30,6 +31,8 @@ const navItems = [
       { href: '/programs', label: 'Programs' },
       { href: '/find-your-path', label: 'Find Your Path' },
       { href: '/career-quiz', label: 'Free Career Quiz' },
+      { href: '/program-comparison', label: 'Compare Programs' },
+      { href: '/salary-guide', label: 'Salary Guide' },
     ],
   },
   { href: '/partners', label: 'Partners' },
@@ -130,6 +133,10 @@ export default function MainNav() {
       'Programs': tNav('programs'),
       'Check Eligibility': tNav('checkEligibility'),
       'Find Your Path': tNav('findYourPath'),
+      'Free Career Quiz': tNav('freeCareerQuiz'),
+      'Compare Programs': tNav('comparePrograms'),
+      'Salary Guide': tNav('salaryGuide'),
+      'Membership': tNav('membership'),
       'Partners': tNav('partners'),
       'Employers': tNav('employers'),
       'Blog': tNav('blog'),
@@ -383,6 +390,7 @@ export default function MainNav() {
                 <li
                   key={item.label}
                   className={`dropdown${isOpen ? ' active' : ''}`}
+                  onMouseEnter={() => { if (window.innerWidth > 900) setActiveDropdown(item.label); }}
                   onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === item.label ? null : cur)); }}
                 >
                   <button
@@ -452,6 +460,9 @@ export default function MainNav() {
           <li
             key="nav-login-portal"
             className={`dropdown nav-login-dropdown${isLoginMenuOpen ? ' active' : ''}`}
+            onMouseEnter={() => {
+              if (window.innerWidth > 900 && loginSubmenuItems.length > 0) setActiveDropdown('__login__');
+            }}
             onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === '__login__' ? null : cur)); }}
           >
             <div className="nav-login-split">

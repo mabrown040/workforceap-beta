@@ -16,7 +16,7 @@ const MOBILE_NAV_BREAKPOINT = 768;
 // the active locale instead of hardcoded English.
 const MARKETING_TABS = [
   { href: '/', labelKey: 'marketing.home', icon: 'home' },
-  { href: '/career-quiz', labelKey: 'marketing.quiz', icon: 'explore' },
+  { href: '/find-your-path', labelKey: 'marketing.path', icon: 'explore' },
   { href: '/programs', labelKey: 'marketing.programs', icon: 'school' },
   { href: '/apply', labelKey: 'marketing.apply', icon: 'assignment_turned_in' },
 ];
@@ -30,9 +30,9 @@ const EMPLOYER_TABS = [
 
 const COUNSELOR_TABS = [
   { href: '/counselor', labelKey: 'counselor.overview', icon: 'dashboard' },
+  { href: '/counselor/inbox', labelKey: 'counselor.inbox', icon: 'inbox' },
   { href: '/counselor/students', labelKey: 'counselor.members', icon: 'groups' },
   { href: '/counselor/messages', labelKey: 'counselor.messages', icon: 'chat' },
-  { href: '/counselor/resources', labelKey: 'counselor.resources', icon: 'menu_book' },
 ];
 
 const PARTNER_TABS = [
@@ -45,8 +45,8 @@ const PARTNER_TABS = [
 
 const ADMIN_TABS = [
   { href: '/admin', labelKey: 'admin.today', icon: 'home' },
-  { href: '/admin/command-center', labelKey: 'admin.queue', icon: 'assignment_ind' },
-  { href: '/admin/members', labelKey: 'admin.members', icon: 'groups' },
+  { href: '/admin/students', labelKey: 'admin.students', icon: 'groups' },
+  { href: '/admin/messages', labelKey: 'admin.messages', icon: 'chat' },
 ];
 
 interface MobileBottomNavProps {
@@ -56,7 +56,7 @@ interface MobileBottomNavProps {
 
 function prefetchForBottomTab(variant: MobileBottomNavProps['variant'], href: string): boolean {
   if (variant === 'marketing') {
-    return href === '/apply' || href === '/programs' || href === '/career-quiz';
+    return href === '/apply' || href === '/programs' || href === '/find-your-path';
   }
   return false;
 }

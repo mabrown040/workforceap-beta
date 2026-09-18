@@ -1,72 +1,97 @@
-# Portal Nav Spec — Member Top-Nav + Per-Persona Rules
+# Portal Nav Spec — Live IA + Reachability
 
-**For:** the next portal PR (fold in here). **Status:** ✅ IMPLEMENTED (2026-06-22, #2069) — the
-member nav is now a flat single-level top-nav (all routes in one scrollable row, primary first;
-contextual left sidebar hidden for members at desktop). See `WorkspaceShell.tsx` (memberFlatNav) +
-`css/portal-main-extracted.css` (member flat-nav + sidebar hide). Reachability (§2) is satisfied
-structurally: every route lives in the flat nav, so nothing is orphaned.
-**Design source of truth:** `docs/mockups/wa-v2-member.html` (member) + `docs/mockups/workforceap-admin-full.html` (staff).
-**Rule of thumb:** **members = flat top-nav · staff = dense left sidebar.**
+**Status (2026-09-18):** Document the **live** member + staff navigation. Do not “restore”
+a flat-only member shell from older #2069 notes — that claim drifted from production.
+
+**Design references:** `docs/mockups/wa-v2-member.html` (aspirational flat top-nav),
+`docs/mockups/workforceap-admin-full.html` (staff). **Live code** wins over mockups when
+they disagree: `WorkspaceShell.tsx`, `MemberPortalTopNav.tsx`, `lib/nav/portalNav.ts`,
+`docs/KIT_GUIDE.md`.
+
+**Rule of thumb:** **members = warm left rail (desktop) + sticky top tabs (mobile) ·
+staff = dense left sidebar (+ role mobile bottom tabs).**
 
 ---
 
-## 1. Member nav — flat top-nav (the change)
+## 1. Member nav — what ships today
 
-**Today (live):** members get a two-level nav — top tab-bar (4 tabs) **+** a contextual left sidebar showing the active tab's sub-items. That left rail is the redundancy to remove.
+### Desktop (≥769px)
 
-**Target (from `wa-v2-member.html`):** a single **flat top-nav, 6 items, no left sidebar**:
+`WorkspaceShell` with `portalRole="member"` renders the full `MEMBER_PORTAL_NAV_ITEMS`
+command rail (primary destinations visible; Tools / Progress / Account in disclosed
+groups). Kit tokens: warm surface, ~232px rail (208 laptop / 72 collapsed), sentence-case
+labels, 16px / 44px targets, `aria-current` on the most specific destination only.
 
-| Label | href | (current source) |
-|---|---|---|
-| Dashboard | `/dashboard` | journey/Home |
-| Training | `/dashboard/program` | My Program |
-| AI Tools | `/dashboard/ai-tools` | Career Toolkit |
-| Career Brief | `/dashboard/career-brief` | My Career Plan |
-| Certificates | `/dashboard/certifications` | My Certificates |
-| Messages | `/dashboard/messages` | Messages |
+### Mobile (≤768px)
 
-- Desktop: horizontal top nav (centered, ~max-width 1100). Mobile: bottom tab bar (kit `AppShellMember` already does both).
-- **Remove the member desktop left sidebar entirely.** Staff portals keep theirs (see §3).
+`MemberPortalTopNav` sticky horizontal tabs (daily destinations). The sidebar becomes the
+hamburger drawer for the full IA. `MobileBottomNav variant="portal"` is a **no-op**.
 
-## 2. ⚠️ Reachability requirement (do NOT orphan)
+| Tab label (i18n) | href |
+|---|---|
+| Dashboard | `/dashboard` |
+| My program | `/dashboard/program` |
+| Career toolkit | `/dashboard/ai-tools` |
+| Counselor chat | `/dashboard/messages` |
+| Job board | `/dashboard/jobs` |
+| Profile | `/dashboard/profile` |
 
-The flat nav **drops ~12 pages from the bar**. Each MUST stay reachable or it's orphaned (a CSS "hide the sidebar" alone breaks these — already tried + reverted). Required homes:
+Profile replaced a duplicate Lilley/AI Advisor tab (AI Advisor stays under AI Career Tools
+in the rail/drawer).
 
-| Dropped page | href | Must be reachable from |
-|---|---|---|
-| Job Board | `/dashboard/jobs` | Dashboard "Active Job Pipeline" card + Resume/AI Tools |
-| Job Applications | `/dashboard/job-applications` | Jobs page (sub-nav/tab) |
-| Resume | `/dashboard/resume` | Dashboard resume banner + Jobs page |
-| My Progress | `/dashboard/readiness` | Dashboard + Training page |
-| Weekly Recap | `/dashboard/weekly-recap` | Dashboard "Weekly Recap" insight card |
-| Skill Missions | `/dashboard/missions` | Training page (in-content) |
-| Path to certification | `/dashboard/program/start` | Training page |
-| WIOA Qualification | `/dashboard/learning/wioa-qualification` | Training / Career Brief |
-| Learning Hub | `/dashboard/learning` | AI Tools page (in-content) |
-| Find your career | `/dashboard/learning/find-your-career` | AI Tools / Learning Hub |
-| Training Preassessment | `/dashboard/skills-assessment` | Training page |
-| Resources | `/dashboard/resources` | AI Tools page |
-| Help & Support | `/dashboard/help` | top-bar account menu / footer |
-| Member Guide | `/dashboard/guide` | top-bar account menu / footer |
-| Profile & Settings | `/dashboard/profile` | top-bar account menu (exists) |
-| Lilley (AI Career Coach) | `/dashboard/counselor` | AI Tools page (in-content) |
-| Voice + Career Studio | `/dashboard/ai-tools/studio` | AI Tools page (in-content) |
+### Historical flat-nav target (not live)
 
-**Acceptance:** after the change, every href above resolves from a visible link (not the removed sidebar). QA checklist = click each from a signed-in member session.
+An earlier plan (#2069 / `wa-v2-member.html`) aimed at a single flat top-nav with **no**
+member left rail. That is **not** the current shell. Treat the table in older revisions as
+an aspirational mockup only. Do not hide the member rail with CSS alone — that previously
+orphaned destinations and was reverted.
 
-## 3. Staff nav — keep the dense sidebar (no change)
+---
 
-Employer / Partner / Counselor / Admin correctly use the dense **left sidebar** (`WorkspaceShell` / `*PortalShell`). This matches the locked direction (sidebar for staff) and the `admin-full` mockup. **Do not flatten staff portals.** Verified rendering: admin Today/Command-Center/Students/Board-Outcomes, employer overview, counselor, partner.
+## 2. Reachability requirement (do NOT orphan)
+
+Secondary member routes must stay reachable from the rail/drawer or an in-page home.
+Examples: certificates, career brief, job applications, resume, readiness, weekly recap,
+missions, learning hub, help, guide, Lilley (`/dashboard/counselor`), Career Studio.
+
+**Acceptance:** every `MEMBER_PORTAL_NAV_ITEMS` href is either a top tab or one click from
+the rail/drawer (or a documented in-page link). QA = signed-in member session.
+
+---
+
+## 3. Staff nav — dense sidebar (unchanged)
+
+Employer / Partner / Counselor / Admin keep the dense left rail. **Do not flatten staff
+portals.**
+
+### Staff mobile bottom tabs (subset of the rail)
+
+| Role | Tabs |
+|---|---|
+| Employer | Overview · Jobs · Pipeline · Messages |
+| Counselor | Overview · Inbox · Members · Messages |
+| Partner | Overview · Members · Messages · Milestones · Outcomes |
+| Admin | Command Center (`/admin`) · Students · Messages |
+
+Admin and counselor mobile destinations must stay aligned with rail hrefs when labels
+rename (e.g. Command Center, Students, Inbox zero).
+
+---
 
 ## 4. Implementation notes
 
-- Prefer the kit `components/portal/kit/AppShellMember.tsx` (flat top-nav + mobile bottom-tabs) for the member shell, **or** add a member-scoped flat mode to `WorkspaceShell`.
-- If swapping the member shell, **preserve existing `WorkspaceShell` features**: resume-upload hint, portal role-switcher, super-admin/impersonation banner, footer, theme toggle, account menu.
-- The `html[data-portal-role="member"]` hook (set in `WorkspaceShell`) is available for member-scoped CSS.
-- Dark mode already works for the kit (`--wa-*` tokens flip on `html.dark`); keep new nav token-driven.
-- Member nav data lives in `lib/nav/portalNav.ts` (`MEMBER_PORTAL_NAV_ITEMS`).
+- Compose new chrome from kit shells (`AppShellMember` / `AppShellSidebar`) when swapping
+  shells; until then preserve `WorkspaceShell` features (resume hint, role switcher,
+  impersonation banner, footer, theme, account menu).
+- `html[data-portal-role="member"]` is set in `WorkspaceShell` for member-scoped CSS.
+- Dark mode: `--wa-*` tokens via `light-dark()`; no new token families.
+- Nav data: `lib/nav/portalNav.ts` (+ i18n twin). Public marketing chrome is separate
+  (`MainNav`, `MobileBottomNav` marketing variant, Astro `Layout.astro`).
 
-## 5. Out of scope / done
+---
 
-- Dark mode tokens (done), per-page reskin content (done on branch behind kit), `?ui=kit` lean paths (done).
-- This spec is **only** the member nav IA flatten + the reachability guarantee.
+## 5. Out of scope here
+
+- Full Career Studio consolidation / rail rewrite
+- New public `/membership` page (Membership noun currently → `/apply` in About)
+- Merging Astro vs Next dual public renderers

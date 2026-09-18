@@ -39,7 +39,7 @@ Build gates green every push: `tsc` + Material-Symbols glyph check + `next build
 ## My judgment
 
 - **Solid / done:** the reskin is consistent and brand-accurate across all five portals; the command rail matches the mockup; voice is on-palette; in-office sessions flow is the rich operator experience; **the member nav is now the flat single-level top-nav (#2069)**; the **demo account is seeded** (readiness 75, 2 certs, course progress, applications) so member pages render populated like the mockups.
-- **Member nav (#2069) — done:** flat horizontally-scrollable top-nav, primary destinations first (Home · Program · Jobs · Certificates · Toolkit · Progress · Messages · Profile), then the rest in the same row; contextual left sidebar hidden for members at desktop. No page orphaned — every member route is in the flat nav (the failure mode that got the earlier CSS-only hide reverted).
+- **Member nav (live):** warm left command rail on desktop (`MEMBER_PORTAL_NAV_ITEMS` via `WorkspaceShell`) and sticky horizontal top tabs on mobile (`MemberPortalTopNav`: Dashboard · Program · Toolkit · Messages · Jobs · Profile). Full IA stays in the rail/drawer — do not CSS-hide the member sidebar alone. Staff portals keep the dense left rail; see `docs/PORTAL_NAV_SPEC.md`.
 - **Minor polish (non-blocking):** Lilley's AI career-coach surface uses a couple emoji (🎙️/🔊) in the active state where the design rubric prefers SVG; the rail footer has no user-identity block (needs a user-name prop threaded into the shell).
 - **Note (not mine):** a 20h-old git stash `loose-non-kit-changes` (coursera B4B client + a 1-line nav tweak) sits on the branch — left untouched; looks like another session's in-progress coursera work. Reconcile or drop before merge.
 

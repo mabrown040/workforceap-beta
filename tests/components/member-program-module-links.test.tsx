@@ -107,4 +107,28 @@ describe('member program module CTAs', () => {
     expect(screen.getByRole('link', { name: /continue/i }))
       .toHaveAttribute('href', `${RESUME_HREF}#course-unmapped`);
   });
+
+  it('keeps locked modules labeled Locked instead of a live Continue', () => {
+    const activeHref = workforceApCourseHref('computer-basics', DIGITAL_LITERACY);
+    const lockedHref = workforceApCourseHref('basic-search', DIGITAL_LITERACY);
+    render(
+      <MemberProgramKit
+        resumeHref={RESUME_HREF}
+        modules={[
+          { title: 'Computer Basics', state: 'active', slug: 'computer-basics', moduleHref: activeHref },
+          { title: 'Basic Search', state: 'locked', slug: 'basic-search', moduleHref: lockedHref },
+        ]}
+      />,
+    );
+
+    const continues = screen.getAllByRole('link', { name: /continue/i });
+    expect(continues).toHaveLength(1);
+    expect(continues[0]).toHaveAttribute('href', activeHref);
+    expect(screen.getByText('Locked')).toBeTruthy();
+    expect(
+      screen.getAllByRole('link').map((el) => el.getAttribute('href')),
+    ).not.toContain(lockedHref);
+    expect(screen.queryByRole('link', { name: /basic search/i })).toBeNull();
+  });
 });
+

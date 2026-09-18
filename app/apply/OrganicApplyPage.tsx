@@ -288,7 +288,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
                 {isSchool ? null : <li>{t('nextStep5')}</li>}
               </ol>
               <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
-                {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
+                {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-marketing-gold-on-light)', fontWeight: 700 }}>(512) 777-1808</a>
               </p>
             </div>
           </details>
@@ -415,7 +415,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
         }
 
         .apply-hero-help-compact__link {
-          color: var(--color-gold);
+          color: var(--color-marketing-gold-on-light);
           font-weight: 700;
           text-decoration: underline;
           text-underline-offset: 2px;
@@ -512,8 +512,8 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
             margin: 0 auto;
             display: flex;
             min-height: 48px;
-            background: var(--color-gold);
-            color: var(--color-on-surface);
+            background: var(--color-accent);
+            color: var(--color-on-accent, #fff);
             font-weight: 700;
           }
 

@@ -2,11 +2,14 @@ import type { ProgramCourse } from '@/lib/content/programs';
 
 export type WorkforceApLesson = NonNullable<ProgramCourse['lessons']>[number];
 
-const LESSON_CTA_CLASS =
+const PRIMARY_LESSON_CTA_CLASS =
   'wa-kit-cta wa-kit-cta--xl wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
 
-export function lessonCtaLabel(lesson: WorkforceApLesson, index: number): string {
-  return index === 0 ? 'Start this lesson' : `Open ${lesson.title}`;
+const SECONDARY_LESSON_CTA_CLASS =
+  'wa-kit-cta wa-kit-cta--ghost wa-kit-cta--xl wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none';
+
+export function lessonCtaLabel(index: number): string {
+  return index === 0 ? 'Start this lesson' : 'Open this lesson';
 }
 
 export default function WorkforceApModuleLessons({
@@ -17,7 +20,8 @@ export default function WorkforceApModuleLessons({
   return (
     <ol className="wa-kit-lesson-list">
       {lessons.map((lesson, index) => {
-        const label = lessonCtaLabel(lesson, index);
+        const isFirst = index === 0;
+        const label = lessonCtaLabel(index);
         return (
           <li key={`${lesson.title}-${lesson.url}`}>
             <p className="wa-kit-lesson-list__copy">
@@ -31,7 +35,7 @@ export default function WorkforceApModuleLessons({
               href={lesson.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={LESSON_CTA_CLASS}
+              className={isFirst ? PRIMARY_LESSON_CTA_CLASS : SECONDARY_LESSON_CTA_CLASS}
               aria-label={`${label}: ${lesson.title}`}
             >
               {label}

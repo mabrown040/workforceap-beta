@@ -33,13 +33,19 @@ describe('WorkforceAP module lesson CTAs', () => {
     expect(title.closest('a')).toBeNull();
   });
 
-  it('stacks remaining lessons as filled crimson buttons with title as supporting copy', () => {
+  it('keeps later lessons outline so Start is the only filled CTA', () => {
     render(<WorkforceApModuleLessons lessons={LESSONS} />);
 
-    const open = screen.getByRole('link', { name: /open basic search/i });
+    const start = screen.getByRole('link', { name: /start this lesson/i });
+    expect(start).not.toHaveClass('wa-kit-cta--ghost');
+
+    const open = screen.getByRole('link', { name: /open this lesson/i });
     expect(open).toHaveClass('wa-kit-cta');
+    expect(open).toHaveClass('wa-kit-cta--ghost');
     expect(open).toHaveAttribute('href', LESSONS[1].url);
     expect(open).toHaveAttribute('target', '_blank');
+    expect(open).toHaveTextContent('Open this lesson');
+    expect(open).not.toHaveTextContent(LESSONS[1].title);
 
     const title = screen.getByText(LESSONS[1].title);
     expect(title.closest('a')).toBeNull();

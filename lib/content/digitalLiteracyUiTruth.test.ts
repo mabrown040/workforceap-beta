@@ -25,6 +25,8 @@ describe('Digital Literacy provider and completion truth', () => {
     assert.match(source, /WorkforceApModuleLessons/);
     assert.doesNotMatch(source, /style=\{\{ fontWeight: 700 \}\}/);
     assert.match(lessons, /Start this lesson/);
+    assert.match(lessons, /Open this lesson/);
+    assert.match(lessons, /wa-kit-cta--ghost/);
     assert.match(lessons, /wa-kit-cta/);
     assert.match(lessons, /target="_blank"/);
     assert.match(complete, /wa-kit-cta--ghost/);

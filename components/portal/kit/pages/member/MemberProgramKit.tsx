@@ -277,12 +277,19 @@ export function MemberProgramKit({
                       >
                         Continue in Coursera <ArrowRight size={14} aria-hidden="true" />
                       </TrackedCourseraLaunchLink>
-                    ) : isActive || (m.moduleHref && !m.launchHref) ? (
+                    ) : isActive ? (
                       <a
                         href={moduleHref}
                         className="wa-kit-cta wa-kit-cta--xl wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                       >
-                        {m.state === 'done' ? 'Open' : 'Continue'} <ArrowRight size={14} aria-hidden="true" />
+                        Continue <ArrowRight size={14} aria-hidden="true" />
+                      </a>
+                    ) : m.state === 'done' && m.moduleHref && !m.launchHref ? (
+                      <a
+                        href={moduleHref}
+                        className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                      >
+                        Open <ArrowRight size={14} aria-hidden="true" />
                       </a>
                     ) : (
                       <span className="wa-kit-meta" style={{ fontWeight: 700, color: meta.color }}>

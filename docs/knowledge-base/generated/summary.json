@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "20599f050de38a26c39d6be6af72611f24848ddebfe4aa52287bdf25a579f0c1",
+  "inputTreeSha256": "fd51d49ce659d744beaabd80f0431f81fd779275549864c73d47d07c19e617c9",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -258,7 +258,7 @@
     },
     {
       "file": "lib/email.ts",
-      "lines": 2876
+      "lines": 2882
     },
     {
       "file": "lib/content/courseSkillMap.ts",

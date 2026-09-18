@@ -103,7 +103,7 @@
 | [docs/VERIFICATION-PUBLIC-TRUST-REVENUE-10-STAR.md](../../../docs/VERIFICATION-PUBLIC-TRUST-REVENUE-10-STAR.md) | 78 | documentation |  |
 | [docs/VERIFICATION-SALARY-GUIDE-10-STAR.md](../../../docs/VERIFICATION-SALARY-GUIDE-10-STAR.md) | 64 | documentation |  |
 | [docs/VERIFICATION-STUDENT-DASHBOARD-10-STAR.md](../../../docs/VERIFICATION-STUDENT-DASHBOARD-10-STAR.md) | 40 | documentation |  |
-| [docs/WEEKLY-RECAP-CRON.md](../../../docs/WEEKLY-RECAP-CRON.md) | 9 | documentation |  |
+| [docs/WEEKLY-RECAP-CRON.md](../../../docs/WEEKLY-RECAP-CRON.md) | 11 | documentation |  |
 | [docs/WHITE-LABEL-AUDIT-2026-05-08.md](../../../docs/WHITE-LABEL-AUDIT-2026-05-08.md) | 307 | documentation |  |
 | [docs/WHITE-LABEL.md](../../../docs/WHITE-LABEL.md) | 134 | documentation |  |
 | [docs/WORKING.md](../../../docs/WORKING.md) | 63 | documentation |  |

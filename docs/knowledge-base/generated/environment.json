@@ -110,7 +110,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 112
+          "line": 113
         }
       ]
     },
@@ -121,7 +121,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 548
+          "line": 549
         }
       ]
     },
@@ -223,7 +223,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 2735
+          "line": 2741
         }
       ]
     },
@@ -799,7 +799,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 563
+          "line": 564
         }
       ]
     },
@@ -943,11 +943,11 @@
         },
         {
           "file": "tests/api/weekly-recap.spec.ts",
-          "line": 500
+          "line": 529
         },
         {
           "file": "tests/api/weekly-recap.spec.ts",
-          "line": 504
+          "line": 533
         }
       ]
     },
@@ -1548,7 +1548,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 133
+          "line": 134
         },
         {
           "file": "lib/notifications/partner-notify.ts",
@@ -1579,7 +1579,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 95
+          "line": 96
         },
         {
           "file": "lib/email/adminRecipients.test.ts",
@@ -2269,7 +2269,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 74
+          "line": 75
         },
         {
           "file": "lib/email/send.test.ts",
@@ -3425,7 +3425,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 124
+          "line": 125
         },
         {
           "file": "lib/notifications/partner-notify.ts",
@@ -4398,7 +4398,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 152
+          "line": 153
         }
       ]
     },
@@ -4413,7 +4413,7 @@
         },
         {
           "file": "lib/email.ts",
-          "line": 153
+          "line": 154
         }
       ]
     },
@@ -4702,7 +4702,7 @@
       "references": [
         {
           "file": "lib/email.ts",
-          "line": 143
+          "line": 144
         }
       ]
     },

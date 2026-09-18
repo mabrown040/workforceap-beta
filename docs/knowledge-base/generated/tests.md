@@ -131,7 +131,7 @@
 | [tests/api/unsubscribe.spec.ts](../../../tests/api/unsubscribe.spec.ts) | 99 | tests |  |
 | [tests/api/voice-session-boundaries.spec.ts](../../../tests/api/voice-session-boundaries.spec.ts) | 313 | tests |  |
 | [tests/api/webhooks-learning-completion.spec.ts](../../../tests/api/webhooks-learning-completion.spec.ts) | 162 | tests |  |
-| [tests/api/weekly-recap.spec.ts](../../../tests/api/weekly-recap.spec.ts) | 536 | tests |  |
+| [tests/api/weekly-recap.spec.ts](../../../tests/api/weekly-recap.spec.ts) | 565 | tests |  |
 | [tests/api/wioa-report.spec.ts](../../../tests/api/wioa-report.spec.ts) | 487 | partners-funding |  |
 | [tests/api/xapi-inbound-program.spec.ts](../../../tests/api/xapi-inbound-program.spec.ts) | 457 | tests |  |
 | [tests/api/xapi-persistence.spec.ts](../../../tests/api/xapi-persistence.spec.ts) | 403 | tests |  |

@@ -102,10 +102,11 @@ describe('createBulkEmailCronPacer', () => {
 
 
 describe('bulk email cron default cadence', () => {
-  it('paces at about eight provider calls per second', async () => {
+  it('paces under Resend 10 rps account limit (~6.7 calls/sec)', async () => {
     let nowMs = 0;
     const sleeps: number[] = [];
-    const { createBulkEmailCronPacer } = await import('./pacing');
+    const { createBulkEmailCronPacer, BULK_EMAIL_CRON_INTERVAL_MS } = await import('./pacing');
+    assert.equal(BULK_EMAIL_CRON_INTERVAL_MS, 150);
     const pacer = createBulkEmailCronPacer({
       maxDurationSeconds: 300,
       startedAtMs: nowMs,
@@ -115,7 +116,7 @@ describe('bulk email cron default cadence', () => {
     await pacer.run(async () => true);
     await pacer.run(async () => true);
     await pacer.run(async () => true);
-    assert.deepEqual(sleeps, [125, 125]);
+    assert.deepEqual(sleeps, [150, 150]);
   });
 });
 

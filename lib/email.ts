@@ -8,6 +8,7 @@ import {
   FixtureRecipientSkippedError,
   buildDeliverabilityHeaders,
   htmlToPlainText,
+  isEmailProviderRateLimitError,
   sanitizeHeaders,
   sendBrandedEmailOrThrowOnSkip as sendBrandedEmail,
 } from '@/lib/email/send';
@@ -1258,7 +1259,7 @@ export async function sendWeeklyRecapEmail(params: {
   idempotencyKey?: string;
   /** Shared cron deadline; provider retry waits must remain inside it. */
   deadlineAtMs?: number;
-}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+}): Promise<{ ok: boolean; skipped?: boolean; rateLimited?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendWeeklyRecapEmail: RESEND_API_KEY not set');
@@ -1287,7 +1288,12 @@ export async function sendWeeklyRecapEmail(params: {
       return { ok: false, skipped: true, error: err.reason };
     }
     console.error('sendWeeklyRecapEmail failed:', err);
-    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+    const message = err instanceof Error ? err.message : 'Send failed';
+    return {
+      ok: false,
+      error: message,
+      ...(isEmailProviderRateLimitError(err) ? { rateLimited: true } : {}),
+    };
   }
 }
 

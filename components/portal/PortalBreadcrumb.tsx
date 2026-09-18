@@ -63,7 +63,7 @@ export default function PortalBreadcrumb({
 
   return (
     <span className={`portal-breadcrumb ${className}`.trim()}>
-      <Breadcrumbs variant="supporting">
+      <Breadcrumbs variant="supporting" separator="›">
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           const isLink = Boolean(item.href) && !(isLast && currentAsText);

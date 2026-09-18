@@ -354,7 +354,7 @@
 | [components/portal/MobileProfileSkillsResume.tsx](../../../components/portal/MobileProfileSkillsResume.tsx) | 343 | components | default:48 |
 | [components/portal/NotificationBell.tsx](../../../components/portal/NotificationBell.tsx) | 408 | communications | default:107 |
 | [components/portal/OtherProgramsList.tsx](../../../components/portal/OtherProgramsList.tsx) | 143 | components | OtherProgram:21, default:28 |
-| [components/portal/PageHeader.tsx](../../../components/portal/PageHeader.tsx) | 31 | components | default:4 |
+| [components/portal/PageHeader.tsx](../../../components/portal/PageHeader.tsx) | 33 | components | default:4 |
 | [components/portal/PartnerExclusiveServerGate.tsx](../../../components/portal/PartnerExclusiveServerGate.tsx) | 56 | components | default:28 |
 | [components/portal/PartnerInviteMemberButton.tsx](../../../components/portal/PartnerInviteMemberButton.tsx) | 223 | components | default:10 |
 | [components/portal/PartnerMembersList.tsx](../../../components/portal/PartnerMembersList.tsx) | 178 | components | default:40 |

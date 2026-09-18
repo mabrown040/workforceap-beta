@@ -324,19 +324,44 @@ html.dark [data-surface] .astryx-card,
   letter-spacing: 0.05em;
 }
 
-/* Portal breadcrumb (used above PageHeader) */
+/* Portal breadcrumb (PageHeader wayfinding — Astryx Breadcrumbs inside) */
 .portal-breadcrumb {
-  font-size: 0.8rem;
-  color: var(--color-on-surface-variant);
-  margin-bottom: 0.5rem;
+  display: block;
+  width: 100%;
+  font-size: var(--wa-type-meta, 0.8125rem);
+  line-height: 1.35;
+  color: var(--wa-muted);
+}
+.portal-breadcrumb .astryx-breadcrumbs ol {
+  row-gap: 0.25rem;
 }
 .portal-breadcrumb a {
-  color: var(--color-accent);
+  color: var(--wa-accent);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
+  border-radius: var(--wa-radius-sm, 6px);
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 0.125rem;
 }
 .portal-breadcrumb a:hover {
   text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.portal-breadcrumb a:focus-visible {
+  outline: 2px solid var(--wa-accent);
+  outline-offset: 2px;
+}
+.portal-breadcrumb [aria-current='page'] {
+  color: var(--wa-text);
+  font-weight: 600;
+}
+.portal-breadcrumb .astryx-breadcrumb-item > span[aria-hidden='true'] {
+  color: var(--wa-muted);
+  opacity: 0.72;
+  padding-inline: 0.125rem;
+  user-select: none;
 }
 
 /* Empty state — CSS fallback for inline styles in PortalEmptyState component */

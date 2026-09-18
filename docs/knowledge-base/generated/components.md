@@ -315,7 +315,7 @@
 | [components/portal/JobApplicationCard.tsx](../../../components/portal/JobApplicationCard.tsx) | 262 | components | default:38 |
 | [components/portal/JobApplicationForm.tsx](../../../components/portal/JobApplicationForm.tsx) | 238 | components | default:12 |
 | [components/portal/JobApplicationKanban.tsx](../../../components/portal/JobApplicationKanban.tsx) | 283 | components | default:189 |
-| [components/portal/JobApplicationsTracker.tsx](../../../components/portal/JobApplicationsTracker.tsx) | 195 | components | default:16 |
+| [components/portal/JobApplicationsTracker.tsx](../../../components/portal/JobApplicationsTracker.tsx) | 209 | components | default:19 |
 | [components/portal/JobReadinessScore.tsx](../../../components/portal/JobReadinessScore.tsx) | 79 | components | default:26 |
 | [components/portal/JobTailorPanel.tsx](../../../components/portal/JobTailorPanel.tsx) | 345 | components | JOB_TAILOR_PREVIEW_RESULT:50, default:103 |
 | [components/portal/JourneyStageGuide.tsx](../../../components/portal/JourneyStageGuide.tsx) | 190 | components | default:19 |

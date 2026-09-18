@@ -616,6 +616,8 @@
 | [lib/member/isNewMember.ts](../../../lib/member/isNewMember.ts) | 12 | member-counselor | isNewMember:4, secondsSinceAccountCreation:9 |
 | [lib/member/jobApplicationKanban.test.ts](../../../lib/member/jobApplicationKanban.test.ts) | 27 | member-counselor |  |
 | [lib/member/jobApplicationKanban.ts](../../../lib/member/jobApplicationKanban.ts) | 73 | member-counselor | JOB_APPLICATION_STAGES:1, JobApplicationStage:2, JOB_APPLICATION_SOURCES:4, JobApplicationSource:5, JobApplicationDbStatus:7, JobApplicationKanbanItem:16, getJobApplicationStage:22, getDbStatusForStage:39, buildJobApplicationKanban:53, JOB_APPLICATION_SOURCE_LABELS:68 |
+| [lib/member/jobApplicationsEmptyState.test.ts](../../../lib/member/jobApplicationsEmptyState.test.ts) | 40 | member-counselor |  |
+| [lib/member/jobApplicationsEmptyState.ts](../../../lib/member/jobApplicationsEmptyState.ts) | 12 | member-counselor | JOB_APPLICATIONS_EMPTY:6 |
 | [lib/member/jobPipelineDisplay.test.ts](../../../lib/member/jobPipelineDisplay.test.ts) | 32 | member-counselor |  |
 | [lib/member/jobPipelineDisplay.ts](../../../lib/member/jobPipelineDisplay.ts) | 31 | member-counselor | JOBS_EMPTY_RECOMMENDATIONS:5, JOBS_BOARD_EMPTY:17, displayJobLocation:27 |
 | [lib/member/labApi.ts](../../../lib/member/labApi.ts) | 38 | member-counselor | LAB_PRIVATE_HEADERS:5, labJson:17, labFailure:18, requireLabMutationOrigin:23, readLabJson:31 |

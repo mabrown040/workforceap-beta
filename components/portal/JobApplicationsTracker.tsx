@@ -1,19 +1,24 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { JobApplication } from '@/types/job-application';
 import JobApplicationForm from './JobApplicationForm';
 import JobApplicationKanban from './JobApplicationKanban';
-import PortalEmptyState from './PortalEmptyState';
 import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
 import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
+import { KitEmptyState } from '@/components/portal/kit';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
+import { JOB_APPLICATIONS_EMPTY } from '@/lib/member/jobApplicationsEmptyState';
 
 interface JobApplicationsTrackerProps {
   userId: string;
 }
 
 export default function JobApplicationsTracker({ userId }: JobApplicationsTrackerProps) {
+  void userId;
+  const t = useTranslations('dashboard');
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,7 +28,6 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
     recentTools: RecentToolOption[];
   } | null>(null);
 
-  // Fetch applications
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -39,14 +43,14 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         setApplications(data);
         setError(null);
       } catch {
-        setError("We couldn't load your applications. Please check your connection and try again.");
+        setError(t('jobApplicationsLoadError'));
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchApplications();
-  }, []);
+    void fetchApplications();
+  }, [t]);
 
   const handleAddApplication = async (formData: Partial<JobApplication>) => {
     try {
@@ -62,7 +66,7 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         setError(msg);
         return;
       }
-      
+
       const payload = await res.json();
       const newApp = (payload.application ?? payload) as JobApplication;
       setApplications([newApp, ...applications]);
@@ -77,7 +81,7 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         setFeedbackPrompt(null);
       }
     } catch {
-      setError("We couldn't add this application. Please check your connection and try again.");
+      setError(t('jobApplicationsAddError'));
     }
   };
 
@@ -95,19 +99,19 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         setError(msg);
         return;
       }
-      
+
       const updated = await res.json();
       const nextApplication = updated.application ?? updated;
-      setApplications(applications.map(app => app.id === id ? nextApplication : app));
+      setApplications(applications.map((app) => (app.id === id ? nextApplication : app)));
       setError(null);
     } catch {
-      setError("We couldn't update this application. Please check your connection and try again.");
+      setError(t('jobApplicationsUpdateError'));
     }
   };
 
   if (isLoading) {
     return (
-      <div role="status" aria-live="polite" aria-label="Loading your applications">
+      <div role="status" aria-live="polite" aria-label={t('jobApplicationsLoading')}>
         <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center">
           <div className="skeleton skeleton-text wa-h-6 wa-w-40" />
           <div className="skeleton skeleton-rounded wa-h-9 wa-w-36" />
@@ -121,27 +125,28 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
             </div>
           ))}
         </div>
-        <span className="wa-sr-only">Loading applications…</span>
+        <span className="wa-sr-only">{t('jobApplicationsLoading')}</span>
       </div>
     );
   }
 
   return (
     <div>
-      {/* Error Alert */}
-      {error && (
+      {error ? (
         <div
           role="alert"
-          className="wa-mb-6 wa-p-4 wa-rounded-lg"
+          className="wa-mb-6 wa-p-4"
           style={{
-            background: "color-mix(in srgb, var(--wa-danger, #dc2626) 10%, transparent)",
-            border: "1px solid color-mix(in srgb, var(--wa-danger, #dc2626) 30%, transparent)",
-            color: "var(--wa-danger, #dc2626)",
+            borderRadius: 'var(--wa-radius-sm)',
+            background: 'color-mix(in srgb, var(--wa-danger) 10%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--wa-danger) 30%, transparent)',
+            color: 'var(--wa-danger)',
+            fontSize: 'var(--wa-type-body)',
           }}
         >
           {error}
         </div>
-      )}
+      ) : null}
 
       {feedbackPrompt ? (
         <ApplicationAiFeedbackPrompt
@@ -152,43 +157,52 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         />
       ) : null}
 
-      {/* Header with Button */}
-      <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center">
-        <div>
-          <h2 className="wa-text-xl wa-font-semibold" style={{ color: "var(--color-on-surface)" }}>
-            {applications.length} Application{applications.length !== 1 ? 's' : ''}
-          </h2>
-        </div>
-        <button type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="wa-px-4 wa-py-2 wa-text-white wa-rounded-lg hover:wa-opacity-90 wa-transition-opacity wa-font-medium focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
-          style={{ background: "var(--color-accent-dark, #6b0c29)" }}
+      <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center wa-gap-3" style={{ flexWrap: 'wrap' }}>
+        <h2
+          className="wa-font-semibold"
+          style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)', margin: 0 }}
         >
-          + Add Application
+          {t('jobApplicationsCount', { count: applications.length })}
+        </h2>
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+        >
+          {t('addApplication')}
         </button>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <JobApplicationForm
-          onSubmit={handleAddApplication}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
+      {isModalOpen ? (
+        <JobApplicationForm onSubmit={handleAddApplication} onClose={() => setIsModalOpen(false)} />
+      ) : null}
 
-      {/* Kanban */}
       {applications.length === 0 ? (
-        <PortalEmptyState
-          title="No applications yet"
-          description="Track roles you apply to—add one manually or apply from the job board."
-          primaryAction={{ label: 'Add application', onClick: () => setIsModalOpen(true) }}
-          secondaryAction={{ label: 'Browse jobs', href: '/dashboard/jobs' }}
-        />
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title={t('jobApplicationsEmptyTitle')}
+            description={t('jobApplicationsEmptyDesc')}
+            action={
+              <div className="wa-flex wa-flex-wrap wa-gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+                >
+                  {t('addApplication')}
+                </button>
+                <Link
+                  href={JOB_APPLICATIONS_EMPTY.secondaryCta.href}
+                  className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90"
+                >
+                  {t('browseJobs')}
+                </Link>
+              </div>
+            }
+          />
+        </div>
       ) : (
-        <JobApplicationKanban
-          applications={applications}
-          onStatusChange={handleUpdateApplication}
-        />
+        <JobApplicationKanban applications={applications} onStatusChange={handleUpdateApplication} />
       )}
     </div>
   );

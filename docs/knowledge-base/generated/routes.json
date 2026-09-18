@@ -3689,12 +3689,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 30,
+        "line": 29,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 39,
+        "line": 38,
         "kind": "FunctionDeclaration",
         "localName": "JobApplicationsPage"
       }

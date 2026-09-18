@@ -6857,8 +6857,16 @@
   },
   {
     "from": "app/(portal)/dashboard/job-applications/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/job-applications/page.tsx",
     "specifier": "@/components/portal/JobApplicationsTracker",
-    "line": 9,
+    "line": 10,
     "kind": "dynamic-import",
     "external": false,
     "target": "components/portal/JobApplicationsTracker.tsx"
@@ -73529,16 +73537,32 @@
   },
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
-    "specifier": "react",
+    "specifier": "next/link",
     "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/JobApplicationsTracker.tsx",
+    "specifier": "react",
+    "line": 4,
     "kind": "import",
     "external": true,
     "package": "react"
   },
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
+    "specifier": "next-intl",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/JobApplicationsTracker.tsx",
     "specifier": "@/types/job-application",
-    "line": 4,
+    "line": 6,
     "kind": "type",
     "external": false,
     "target": "types/job-application.ts"
@@ -73546,7 +73570,7 @@
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
     "specifier": "./JobApplicationForm",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/JobApplicationForm.tsx"
@@ -73554,23 +73578,15 @@
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
     "specifier": "./JobApplicationKanban",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/JobApplicationKanban.tsx"
   },
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
-    "specifier": "./PortalEmptyState",
-    "line": 7,
-    "kind": "import",
-    "external": false,
-    "target": "components/portal/PortalEmptyState.tsx"
-  },
-  {
-    "from": "components/portal/JobApplicationsTracker.tsx",
     "specifier": "@/components/portal/ApplicationAiFeedbackPrompt",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/ApplicationAiFeedbackPrompt.tsx"
@@ -73578,18 +73594,34 @@
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
     "specifier": "@/components/portal/ApplicationAiFeedbackPrompt",
-    "line": 9,
+    "line": 10,
     "kind": "type",
     "external": false,
     "target": "components/portal/ApplicationAiFeedbackPrompt.tsx"
   },
   {
     "from": "components/portal/JobApplicationsTracker.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/JobApplicationsTracker.tsx",
     "specifier": "@/lib/fetchWithTimeout",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/fetchWithTimeout.ts"
+  },
+  {
+    "from": "components/portal/JobApplicationsTracker.tsx",
+    "specifier": "@/lib/member/jobApplicationsEmptyState",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/jobApplicationsEmptyState.ts"
   },
   {
     "from": "components/portal/JobReadinessScore.tsx",
@@ -99814,6 +99846,54 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/jobApplicationKanban.ts"
+  },
+  {
+    "from": "lib/member/jobApplicationsEmptyState.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/member/jobApplicationsEmptyState.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/member/jobApplicationsEmptyState.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/member/jobApplicationsEmptyState.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/member/jobApplicationsEmptyState.test.ts",
+    "specifier": "node:url",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:url"
+  },
+  {
+    "from": "lib/member/jobApplicationsEmptyState.test.ts",
+    "specifier": "./jobApplicationsEmptyState",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/jobApplicationsEmptyState.ts"
   },
   {
     "from": "lib/member/jobPipelineDisplay.test.ts",

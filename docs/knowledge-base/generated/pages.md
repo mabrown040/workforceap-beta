@@ -179,7 +179,7 @@
 | [app/(portal)/dashboard/job-applications/loading.tsx](../../../app/%28portal%29/dashboard/job-applications/loading.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/dashboard/job-applications/page.tsx](../../../app/%28portal%29/dashboard/job-applications/page.tsx) | 60 | member-counselor | generateMetadata:30, default:39 |
 | [app/(portal)/dashboard/jobs/JobsBoardSkeleton.tsx](../../../app/%28portal%29/dashboard/jobs/JobsBoardSkeleton.tsx) | 12 | jobs-employers | default:4 |
-| [app/(portal)/dashboard/jobs/JobsListingClient.tsx](../../../app/%28portal%29/dashboard/jobs/JobsListingClient.tsx) | 714 | jobs-employers | default:261 |
+| [app/(portal)/dashboard/jobs/JobsListingClient.tsx](../../../app/%28portal%29/dashboard/jobs/JobsListingClient.tsx) | 711 | jobs-employers | default:258 |
 | [app/(portal)/dashboard/jobs/\[id\]/MobileApplyFunnel.module.css](../../../app/%28portal%29/dashboard/jobs/%5Bid%5D/MobileApplyFunnel.module.css) | 367 | jobs-employers |  |
 | [app/(portal)/dashboard/jobs/\[id\]/MobileApplyFunnel.tsx](../../../app/%28portal%29/dashboard/jobs/%5Bid%5D/MobileApplyFunnel.tsx) | 565 | jobs-employers | default:26 |
 | [app/(portal)/dashboard/jobs/\[id\]/ReferralCopyButton.tsx](../../../app/%28portal%29/dashboard/jobs/%5Bid%5D/ReferralCopyButton.tsx) | 43 | applications-enrollment | default:10 |
@@ -560,7 +560,7 @@
 | [app/dev/member/interview-prep/page.tsx](../../../app/dev/member/interview-prep/page.tsx) | 52 | ai-voice | dynamic:10, default:36 |
 | [app/dev/member/job-match/page.tsx](../../../app/dev/member/job-match/page.tsx) | 63 | member-counselor | dynamic:11, default:43 |
 | [app/dev/member/jobs-empty/page.tsx](../../../app/dev/member/jobs-empty/page.tsx) | 30 | member-counselor | dynamic:8, default:10 |
-| [app/dev/member/jobs/page.tsx](../../../app/dev/member/jobs/page.tsx) | 192 | jobs-employers | dynamic:20, default:65 |
+| [app/dev/member/jobs/page.tsx](../../../app/dev/member/jobs/page.tsx) | 219 | jobs-employers | dynamic:22, default:67 |
 | [app/dev/member/layout.tsx](../../../app/dev/member/layout.tsx) | 25 | member-counselor | metadata:16, default:18 |
 | [app/dev/member/linkedin-about/page.tsx](../../../app/dev/member/linkedin-about/page.tsx) | 41 | member-counselor | dynamic:9, default:23 |
 | [app/dev/member/linkedin-headline/page.tsx](../../../app/dev/member/linkedin-headline/page.tsx) | 40 | member-counselor | dynamic:9, default:23 |

@@ -72,6 +72,11 @@
         "level": 2,
         "title": "2024-06-25 - Redundant aria-label on aria-live state buttons",
         "line": 42
+      },
+      {
+        "level": 2,
+        "title": "2026-06-25 - Expandable Panels Missing aria-controls in Lists",
+        "line": 45
       }
     ],
     "datedFilename": false,

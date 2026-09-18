@@ -7624,6 +7624,14 @@
     "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
   },
   {
+    "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
+    "specifier": "@/components/portal/WorkforceApModuleLessons",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApModuleLessons.tsx"
+  },
+  {
     "from": "app/(portal)/dashboard/learning/page.tsx",
     "specifier": "next",
     "line": 1,
@@ -7822,6 +7830,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/resolveActiveDashboardProgram.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/learning/page.tsx",
+    "specifier": "@/lib/content/courseDelivery",
+    "line": 26,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/courseDelivery.ts"
   },
   {
     "from": "app/(portal)/dashboard/learning/wioa-qualification/loading.tsx",
@@ -63697,8 +63713,32 @@
   },
   {
     "from": "app/dev/member/program/page.tsx",
-    "specifier": "@/lib/member/trainingWorkspace",
+    "specifier": "@/components/portal/WorkforceApModuleLessons",
     "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApModuleLessons.tsx"
+  },
+  {
+    "from": "app/dev/member/program/page.tsx",
+    "specifier": "@/components/portal/WorkforceApModuleCompleteButton",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
+  },
+  {
+    "from": "app/dev/member/program/page.tsx",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "app/dev/member/program/page.tsx",
+    "specifier": "@/lib/member/trainingWorkspace",
+    "line": 11,
     "kind": "type",
     "external": false,
     "target": "lib/member/trainingWorkspace.ts"
@@ -75929,8 +75969,32 @@
   },
   {
     "from": "components/portal/ProgramPicker.test.tsx",
-    "specifier": "@/lib/content/programs",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "components/portal/ProgramPicker.test.tsx",
+    "specifier": "node:url",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:url"
+  },
+  {
+    "from": "components/portal/ProgramPicker.test.tsx",
+    "specifier": "node:path",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "components/portal/ProgramPicker.test.tsx",
+    "specifier": "@/lib/content/programs",
+    "line": 7,
     "kind": "type",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -75938,7 +76002,7 @@
   {
     "from": "components/portal/ProgramPicker.test.tsx",
     "specifier": "./ProgramPicker",
-    "line": 5,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/ProgramPicker.tsx"
@@ -77310,6 +77374,14 @@
     "kind": "import",
     "external": true,
     "package": "next"
+  },
+  {
+    "from": "components/portal/WorkforceApModuleLessons.tsx",
+    "specifier": "@/lib/content/programs",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/content/programs.ts"
   },
   {
     "from": "components/portal/WorkspaceShell.tsx",
@@ -92768,6 +92840,14 @@
     "target": "lib/content/courseDelivery.ts"
   },
   {
+    "from": "lib/content/courseDelivery.ts",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
     "from": "lib/content/courseSkillMap.ts",
     "specifier": "./programs",
     "line": 11,
@@ -100843,7 +100923,7 @@
     "from": "lib/member/loadMemberDashboardHome.ts",
     "specifier": "@/lib/member/nextBestActions",
     "line": 11,
-    "kind": "type",
+    "kind": "import",
     "external": false,
     "target": "lib/member/nextBestActions.ts"
   },
@@ -100862,6 +100942,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
+  },
+  {
+    "from": "lib/member/loadMemberDashboardHome.ts",
+    "specifier": "@/lib/content/courseDelivery",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/courseDelivery.ts"
   },
   {
     "from": "lib/member/loadProgramCourses.ts",
@@ -119982,6 +120070,30 @@
     "kind": "type",
     "external": false,
     "target": "lib/member/trainingWorkspace.ts"
+  },
+  {
+    "from": "tests/components/workforce-ap-module-lessons.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/workforce-ap-module-lessons.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/workforce-ap-module-lessons.test.tsx",
+    "specifier": "@/components/portal/WorkforceApModuleLessons",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApModuleLessons.tsx"
   },
   {
     "from": "tests/components/workspace-sidebar.test.tsx",

@@ -313,6 +313,25 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   assert.equal(view.programStatus, undefined);
 });
 
+test('loadMemberDashboardHome falls back to buildNextBestActions when no persisted rows exist', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      enrolledProgram: null,
+      courseEnrollments: [],
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'fresh-1', fallbackDisplayName: 'fresh@example.com' },
+    db,
+  );
+  assert.equal(view.doThisNext?.id, 'choose_program');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
+  assert.equal(view.doThisNext?.cta, 'Choose program');
+  assert.match(view.ungatedDigitalBasicsHref, /digital-literacy-empowerment-class-course-1/);
+});
+
 test('loader module imports only pure Coursera reconciliation, never providers or member-state fanout', () => {
   const src = readFileSync(path.join(ROOT, 'lib/member/loadMemberDashboardHome.ts'), 'utf8');
   const imports = src.split('\n').filter((line) => line.startsWith('import')).join('\n');

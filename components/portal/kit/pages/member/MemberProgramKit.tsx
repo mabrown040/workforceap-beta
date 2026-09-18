@@ -241,7 +241,7 @@ export function MemberProgramKit({
                 return (
                   <div
                     key={m.title}
-                    className="wa-flex wa-items-center wa-gap-3"
+                    className="wa-flex wa-items-center wa-gap-3 wa-flex-wrap"
                     style={{
                       padding: 12,
                       borderRadius: 'var(--wa-radius-sm)',
@@ -268,25 +268,22 @@ export function MemberProgramKit({
                     <span style={{ fontWeight: 600, fontSize: 'var(--wa-type-body)', flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
                       {m.title}
                     </span>
-                    {isActive ? (
-                      m.launchHref ? (
-                        <TrackedCourseraLaunchLink
-                          href={moduleHref}
-                          courseSlug={m.slug}
-                          className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                          style={{ whiteSpace: 'nowrap' }}
-                        >
-                          Continue in Coursera <ArrowRight size={14} aria-hidden="true" />
-                        </TrackedCourseraLaunchLink>
-                      ) : (
-                        <a
-                          href={moduleHref}
-                          className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                          style={{ whiteSpace: 'nowrap' }}
-                        >
-                          Continue <ArrowRight size={14} aria-hidden="true" />
-                        </a>
-                      )
+                    {isActive && m.launchHref ? (
+                      <TrackedCourseraLaunchLink
+                        href={moduleHref}
+                        courseSlug={m.slug}
+                        className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        Continue in Coursera <ArrowRight size={14} aria-hidden="true" />
+                      </TrackedCourseraLaunchLink>
+                    ) : isActive || (m.moduleHref && !m.launchHref) ? (
+                      <a
+                        href={moduleHref}
+                        className="wa-kit-cta wa-kit-cta--xl wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                      >
+                        {m.state === 'done' ? 'Open' : 'Continue'} <ArrowRight size={14} aria-hidden="true" />
+                      </a>
                     ) : (
                       <span className="wa-kit-meta" style={{ fontWeight: 700, color: meta.color }}>
                         {meta.label}

@@ -23,6 +23,7 @@ import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgres
 import { readinessVoiceSurface } from '@/lib/portal/voice';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
+import { digitalLiteracyFirstModuleHref } from '@/lib/content/courseDelivery';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -140,8 +141,9 @@ export default async function LearningPage() {
               </span>
             }
             title="No active learning pathway"
-            description="Enroll in a program to see your courses, milestones, and progress here."
-            primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+            description="Start digital basics now — no application needed — or choose a funded program."
+            primaryAction={{ href: digitalLiteracyFirstModuleHref(), label: 'Start digital basics, no application needed' }}
+            secondaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
           />
         </div>
       )}
@@ -210,8 +212,9 @@ export default async function LearningPage() {
               </span>
             }
             title="No active learning pathway"
-            description="Enroll in a program to see your courses, milestones, and progress here."
-            primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+            description="Start digital basics now — no application needed — or choose a funded program."
+            primaryAction={{ href: digitalLiteracyFirstModuleHref(), label: 'Start digital basics, no application needed' }}
+            secondaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
           />
         </div>
       )}

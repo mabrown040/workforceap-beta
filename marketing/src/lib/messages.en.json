@@ -551,7 +551,7 @@
       "writeIn": "Please specify"
     },
     "heroLabel": "Member Application",
-    "heroHeading": "Start Your Application",
+    "heroHeading": "Career training at no cost to members who qualify.",
     "heroDesc": "Share how we can reach you and answer three quick eligibility questions — work situation, household income, and work authorization. Then you'll pick programs and create your account. A member advisor follows up within 1–2 business days.",
     "heroDescHighlight": "Programs are offered no cost for members who qualify through scholarship/grant funded membership.",
     "heroDescSuffix": "No prior experience required. We'll help you confirm fit and eligibility for next steps.",
@@ -573,7 +573,7 @@
     "programIntroReadOverview": "Read the full program overview",
     "programIntroOr": "or",
     "programIntroCompareAll": "compare all programs",
-    "applySocialProof": "Join members building their careers",
+    "applySocialProof": "Funded by grants and partners. Industry-recognised certificates and placement support.",
     "eligibilityPhoneHint": "10-digit US number — your advisor uses this for follow-ups and application updates.",
     "phoneValidationError": "Please enter a 10-digit phone number.",
     "applyConsentLine": "By continuing you agree to our",

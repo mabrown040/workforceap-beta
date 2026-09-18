@@ -361,7 +361,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
         {/* Abstract background shapes */}
         <div style={s.brandShapes}>
           <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'rgba(173,44,77,0.15)', top: '-15%', left: '-10%' }} />
-          <div style={{ position: 'absolute', width: 350, height: 350, borderRadius: '50%', background: 'rgba(255,187,0,0.08)', bottom: '-5%', right: '-5%' }} />
+          <div style={{ position: 'absolute', width: 350, height: 350, borderRadius: '50%', background: 'rgba(164,127,56,0.12)', bottom: '-5%', right: '-5%' }} />
           <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', background: 'rgba(75,155,255,0.06)', top: '40%', right: '20%' }} />
         </div>
 

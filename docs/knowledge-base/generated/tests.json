@@ -1032,11 +1032,11 @@
     "localReferences": [
       {
         "file": "lib/content/programs.ts",
-        "line": 4
+        "line": 7
       },
       {
         "file": "components/portal/ProgramPicker.tsx",
-        "line": 5
+        "line": 8
       }
     ],
     "kind": "test-candidate",
@@ -16298,6 +16298,31 @@
       {
         "file": "lib/member/trainingWorkspace.ts",
         "line": 7
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/workforce-ap-module-lessons.test.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/portal/WorkforceApModuleLessons.tsx",
+        "line": 3
       }
     ],
     "kind": "test-candidate",

@@ -1,5 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 import type { Program } from '@/lib/content/programs';
 import ProgramPicker from './ProgramPicker';
@@ -90,5 +93,10 @@ describe('ProgramPicker fresh assignment gates', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ programSlug: 'available-program' }),
     });
+  });
+
+  it('does not promise a few-business-days SLA on pending WIOA review', () => {
+    const src = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'ProgramPicker.tsx'), 'utf8');
+    expect(src).not.toMatch(/few business days/i);
   });
 });

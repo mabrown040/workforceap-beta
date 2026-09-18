@@ -11,6 +11,7 @@ import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/poin
 import { MEMBER_PROGRAM_HREF, resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 import { buildNextBestActions, type NextBestAction } from '@/lib/member/nextBestActions';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { digitalLiteracyFirstModuleHref } from '@/lib/content/courseDelivery';
 
 /**
  * Kit-default `/dashboard` home loader (SCALE Phase 2).
@@ -89,6 +90,8 @@ export type MemberDashboardHomeView = {
   toolkitHref: string;
   jobsHref: string;
   doThisNext: NextBestAction | null;
+  /** Always the Digital Literacy lesson-1 URL; the kit shows it when no program is enrolled. */
+  ungatedDigitalBasicsHref: string;
   /** Prisma client operations issued by this call (happy path ≤ budget). */
   prismaOpCount: number;
 };
@@ -389,6 +392,7 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext,
+    ungatedDigitalBasicsHref: digitalLiteracyFirstModuleHref(),
     prismaOpCount: 1,
   };
 }
@@ -505,6 +509,7 @@ function shapeHome(args: {
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext,
+    ungatedDigitalBasicsHref: digitalLiteracyFirstModuleHref(),
     prismaOpCount: args.prismaOpCount,
   };
 }

@@ -141,6 +141,47 @@
 .wa-kit-cta--block {
   width: 100%;
 }
+/* Lesson-start and other "must look like a button" member actions. */
+.wa-kit-cta--xl {
+  min-height: 52px;
+  padding: 14px 22px;
+  font-weight: 800;
+}
+@media (max-width: 640px) {
+  .wa-kit-cta--xl {
+    width: 100%;
+  }
+}
+
+.wa-kit-lesson-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+.wa-kit-lesson-list > li {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+.wa-kit-lesson-list__copy {
+  margin: 0;
+  font-weight: 700;
+  color: var(--wa-text);
+  line-height: 1.4;
+}
+.wa-kit-lesson-list__meta {
+  font-weight: 500;
+  color: var(--wa-muted);
+}
+.wa-kit-lesson-list__note {
+  margin: 0;
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+  line-height: 1.45;
+}
 
 /* Section tabs on member pages are states on the wash, not another title bar. */
 .wa-page-tabs .astryx-segmented-control {
@@ -1087,7 +1128,10 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-training-labs a strong { color: var(--wa-accent); text-decoration: underline; text-underline-offset: .2em; }
 .wa-kit-training-labs a:hover strong { text-decoration-thickness: 2px; }
 .wa-kit-training-labs a svg { flex-shrink: 0; }
-.wa-kit-training-editor .wa-kit-cta { justify-content: center; width: fit-content; min-height: 2.75rem; }
+.wa-kit-training-editor .wa-kit-cta { justify-content: center; width: fit-content; min-height: 3.25rem; padding: 14px 22px; font-weight: 800; }
+@media (max-width: 640px) {
+  .wa-kit-training-editor .wa-kit-cta { width: 100%; }
+}
 .wa-kit-training-field { display: flex; flex-direction: column; gap: .5rem; font-size: var(--wa-type-meta); font-weight: 650; }
 .wa-kit-training-field input, .wa-kit-training-field select { min-height: 2.75rem; min-width: 0; max-width: 100%; padding: .65rem .75rem; border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); color: var(--wa-text); background: var(--wa-surface); font: inherit; font-size: 1rem; color-scheme: inherit; }
 .wa-kit-training-field input:focus-visible, .wa-kit-training-field select:focus-visible { outline: 2px solid var(--wa-accent); outline-offset: 2px; }

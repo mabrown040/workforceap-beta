@@ -239,7 +239,7 @@
 | [app/(portal)/dashboard/toolkit/loading.tsx](../../../app/%28portal%29/dashboard/toolkit/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/toolkit/page.tsx](../../../app/%28portal%29/dashboard/toolkit/page.tsx) | 6 | member-counselor | default:4 |
 | [app/(portal)/dashboard/training/loading.tsx](../../../app/%28portal%29/dashboard/training/loading.tsx) | 5 | learning-coursera | default:3 |
-| [app/(portal)/dashboard/training/page.tsx](../../../app/%28portal%29/dashboard/training/page.tsx) | 36 | learning-coursera | default:11 |
+| [app/(portal)/dashboard/training/page.tsx](../../../app/%28portal%29/dashboard/training/page.tsx) | 45 | learning-coursera | default:20 |
 | [app/(portal)/dashboard/weekly-recap/MotivatingRecapClient.tsx](../../../app/%28portal%29/dashboard/weekly-recap/MotivatingRecapClient.tsx) | 340 | member-counselor | MotivatingRecapData:33, default:90 |
 | [app/(portal)/dashboard/weekly-recap/loading.tsx](../../../app/%28portal%29/dashboard/weekly-recap/loading.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/dashboard/weekly-recap/page.tsx](../../../app/%28portal%29/dashboard/weekly-recap/page.tsx) | 103 | member-counselor | generateMetadata:13, default:32 |

@@ -4982,7 +4982,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 11,
+        "line": 20,
         "kind": "FunctionDeclaration",
         "localName": "TrainingPage"
       }

@@ -5,7 +5,7 @@
 | File | Lines | Domain | Exported symbols |
 | --- | ---: | --- | --- |
 | [.Jules/memory.txt](../../../.Jules/memory.txt) | 1 | agent-tooling |  |
-| [.Jules/palette.md](../../../.Jules/palette.md) | 33 | agent-tooling |  |
+| [.Jules/palette.md](../../../.Jules/palette.md) | 37 | agent-tooling |  |
 | [.agents/skills/blast-radius-audit/SKILL.md](../../../.agents/skills/blast-radius-audit/SKILL.md) | 106 | agent-tooling |  |
 | [.agents/skills/crabbox/SKILL.md](../../../.agents/skills/crabbox/SKILL.md) | 13 | agent-tooling |  |
 | [.agents/skills/design-review/SKILL.md](../../../.agents/skills/design-review/SKILL.md) | 176 | agent-tooling |  |

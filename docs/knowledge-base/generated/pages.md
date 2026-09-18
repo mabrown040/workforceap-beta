@@ -350,7 +350,7 @@
 | [app/admin/board/loading.tsx](../../../app/admin/board/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/board/page.tsx](../../../app/admin/board/page.tsx) | 197 | administration | generateMetadata:21, default:33 |
 | [app/admin/board/print/page.tsx](../../../app/admin/board/print/page.tsx) | 96 | administration | generateMetadata:13, default:31 |
-| [app/admin/career-mappings/CareerMappingsClient.tsx](../../../app/admin/career-mappings/CareerMappingsClient.tsx) | 709 | administration | AuditEntry:32, default:97 |
+| [app/admin/career-mappings/CareerMappingsClient.tsx](../../../app/admin/career-mappings/CareerMappingsClient.tsx) | 714 | administration | AuditEntry:32, default:97 |
 | [app/admin/career-mappings/loading.tsx](../../../app/admin/career-mappings/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/career-mappings/page.tsx](../../../app/admin/career-mappings/page.tsx) | 171 | administration | generateMetadata:15, default:31 |
 | [app/admin/certifications/loading.tsx](../../../app/admin/certifications/loading.tsx) | 6 | administration | default:3 |

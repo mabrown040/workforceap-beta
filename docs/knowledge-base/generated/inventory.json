@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "49e81849fada5b52ff3cd9019a7e8183faa1f3ba7bd9b91c7e006824e79d7ac4",
+  "inputTreeSha256": "1ef689728ad9b3ab956a3120831434a28f6a5ecaf2c82f580d174c6fd5f02b9d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -25,9 +25,9 @@
       "path": ".Jules/palette.md",
       "area": "agent-tooling",
       "domain": "agent-tooling",
-      "bytes": 7668,
-      "lines": 33,
-      "sha256": "48d3c39646cd65f559d4db04e38e63f2a249dac3046545a87625ba64c73abee4",
+      "bytes": 8372,
+      "lines": 37,
+      "sha256": "1884eb15cdb79372c1b6baacf73c42ed1b516dffcb932c2bdf7d89b82b0a46fd",
       "binary": false
     },
     {
@@ -14821,9 +14821,9 @@
       "path": "app/admin/career-mappings/CareerMappingsClient.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 38912,
-      "lines": 709,
-      "sha256": "111727b90242078c722875e9c1f61c9e51f01fe498ccd1513b1e77c54a242244",
+      "bytes": 39181,
+      "lines": 714,
+      "sha256": "0ce833d2d91d3eb69c8c69542d6761f4615654315c2225a429a7dc3804e0b912",
       "binary": false,
       "exports": [
         {

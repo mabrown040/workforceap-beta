@@ -180,7 +180,7 @@
 | [tests/components/skill-mission-close-guard.test.tsx](../../../tests/components/skill-mission-close-guard.test.tsx) | 98 | tests |  |
 | [tests/components/students-roster-identity.spec.tsx](../../../tests/components/students-roster-identity.spec.tsx) | 51 | tests |  |
 | [tests/components/training-feedback-handoff.test.tsx](../../../tests/components/training-feedback-handoff.test.tsx) | 100 | tests |  |
-| [tests/components/workspace-sidebar.test.tsx](../../../tests/components/workspace-sidebar.test.tsx) | 229 | tests |  |
+| [tests/components/workspace-sidebar.test.tsx](../../../tests/components/workspace-sidebar.test.tsx) | 270 | tests |  |
 | [tests/e2e/README.md](../../../tests/e2e/README.md) | 72 | tests |  |
 | [tests/e2e/SETUP.md](../../../tests/e2e/SETUP.md) | 44 | tests |  |
 | [tests/e2e/admin-login-search.spec.ts](../../../tests/e2e/admin-login-search.spec.ts) | 55 | tests |  |
@@ -211,7 +211,7 @@
 | [tests/e2e/smoke/programs.spec.ts](../../../tests/e2e/smoke/programs.spec.ts) | 24 | tests |  |
 | [tests/e2e/sprint-p2-xapi-coursera-smoke.spec.ts](../../../tests/e2e/sprint-p2-xapi-coursera-smoke.spec.ts) | 81 | learning-coursera |  |
 | [tests/e2e/visual-regression-smoke.spec.ts](../../../tests/e2e/visual-regression-smoke.spec.ts) | 144 | tests |  |
-| [tests/e2e/workspace-shell-layout.spec.ts](../../../tests/e2e/workspace-shell-layout.spec.ts) | 126 | tests |  |
+| [tests/e2e/workspace-shell-layout.spec.ts](../../../tests/e2e/workspace-shell-layout.spec.ts) | 216 | tests |  |
 | [tests/empty-module.cjs](../../../tests/empty-module.cjs) | 1 | tests |  |
 | [tests/find-your-path-recommendations.test.ts](../../../tests/find-your-path-recommendations.test.ts) | 27 | tests |  |
 | [tests/fixtures/boardSnapshot.ts](../../../tests/fixtures/boardSnapshot.ts) | 28 | tests | boardSnapshotFixture:4 |

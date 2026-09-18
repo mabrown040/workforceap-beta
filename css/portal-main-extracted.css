@@ -1868,8 +1868,13 @@ html.dark .workspace-sidebar-group-label {
     min-height: 0;
 }
 .workspace-shell-main-inner {
-    flex: 1;
-    min-height: 0;
+    /* Fill the scrollport on short pages; grow with content on long ones.
+       The site footer lives inside this box (document flow), never as a
+       sticky/fixed sibling of a shrinking column. */
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
     min-width: 0;
     box-sizing: border-box;
     width: 100%;
@@ -1878,6 +1883,57 @@ html.dark .workspace-sidebar-group-label {
     margin-right: auto;
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
+}
+/* In-flow after page content. margin-top:auto only consumes extra space
+   inside this growing inner — it must not pin to the viewport. */
+.workspace-shell-main-inner > :is(.dashboard-site-footer, .admin-footer, .portal-minimal-footer) {
+    position: static;
+    flex: 0 0 auto;
+    margin-top: auto;
+}
+.dashboard-site-footer {
+    position: static;
+    background: var(--wa-surface);
+    color: var(--wa-muted);
+    border-top: 1px solid var(--wa-border);
+}
+.dashboard-site-footer__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--wa-pad-sm) var(--wa-pad);
+    padding-block: var(--wa-pad-sm);
+    padding-inline: max(var(--wa-pad-sm), env(safe-area-inset-left, 0px))
+        max(var(--wa-pad-sm), env(safe-area-inset-right, 0px));
+    font-size: var(--wa-type-meta);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: min(80rem, 100%);
+    margin-inline: auto;
+}
+.dashboard-site-footer__inner p {
+    margin: 0;
+}
+.dashboard-site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+.dashboard-site-footer a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0.25rem 0.75rem;
+    color: inherit;
+    text-decoration: none;
+}
+.dashboard-site-footer a:hover,
+.dashboard-site-footer a:focus-visible {
+    color: var(--wa-text);
+    text-decoration: underline;
 }
 .portal-page-frame {
     box-sizing: border-box;

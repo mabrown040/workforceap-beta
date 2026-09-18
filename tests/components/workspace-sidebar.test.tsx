@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceShell from '@/components/portal/WorkspaceShell';
+import DashboardFooter from '@/components/portal/DashboardFooter';
 import { MEMBER_PORTAL_NAV_ITEMS, EMPLOYER_PORTAL_NAV_ITEMS, ADMIN_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { getBestActiveHref } from '@/lib/nav/activeRoute';
 import { pickAdminClientMessages } from '@/lib/i18n/pickRootClientMessages';
@@ -68,6 +69,46 @@ describe('workspace navigation', () => {
     expect(css).toMatch(/\.workspace-sidebar \{[\s\S]*?align-self: stretch;[\s\S]*?height: 100%;[\s\S]*?overflow-y: hidden;/);
     expect(css).toMatch(/\.workspace-sidebar-nav \{[\s\S]*?min-height: 0;[\s\S]*?overflow-y: auto;/);
     expect(css).toMatch(/@media \(max-height: 40rem\)[\s\S]*?\.workspace-shell-root\[data-workspace-role\] \.workspace-sidebar \{[\s\S]*?overflow-y: auto;/);
+  });
+
+  it('keeps the site footer in flow so it cannot cover the last page controls', () => {
+    const css = readFileSync(join(process.cwd(), 'css/portal-main-extracted.css'), 'utf8');
+    expect(css).toMatch(/\.workspace-shell-main-inner \{[\s\S]*?flex: 1 0 auto;[\s\S]*?min-height: 100%;/);
+    expect(css).toMatch(
+      /\.workspace-shell-main-inner > :is\(\.dashboard-site-footer[\s\S]*?position: static;/,
+    );
+    const footerRule = css.match(/\.dashboard-site-footer \{[^}]+\}/)?.[0] ?? '';
+    expect(footerRule).toMatch(/position: static/);
+    expect(footerRule).toMatch(/background: var\(--wa-surface\)/);
+    expect(footerRule).not.toMatch(/position:\s*(sticky|fixed)/);
+
+    const { container } = render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <WorkspaceShell
+          portalRole="member"
+          navItems={MEMBER_PORTAL_NAV_ITEMS}
+          workspaceLabel="Member portal"
+          contextLabel="Account"
+          readOnlyAudit
+          footer={<DashboardFooter />}
+        >
+          <h1>Training</h1>
+        </WorkspaceShell>
+      </NextIntlClientProvider>,
+    );
+    const inner = container.querySelector('.workspace-shell-main-inner');
+    const footer = container.querySelector('.dashboard-site-footer');
+    expect(inner).not.toBeNull();
+    expect(footer).not.toBeNull();
+    expect(inner?.contains(footer)).toBe(true);
+    expect(footer?.nextElementSibling).toBeNull();
+    const heading = inner?.querySelector('h1');
+    expect(heading).not.toBeNull();
+    expect(
+      heading && footer
+        ? heading.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING
+        : 0,
+    ).toBeTruthy();
   });
 
   it.each(['/dashboard/program', '/en/dashboard/program', '/dashboard/program/start'])('marks only the most specific destination at %s', (pathname) => {

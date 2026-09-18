@@ -62657,8 +62657,16 @@
   },
   {
     "from": "app/dev/member/DevMemberShell.tsx",
-    "specifier": "@/lib/nav/portalNav",
+    "specifier": "@/components/portal/DashboardFooter",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/DashboardFooter.tsx"
+  },
+  {
+    "from": "app/dev/member/DevMemberShell.tsx",
+    "specifier": "@/lib/nav/portalNav",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/nav/portalNav.ts"
@@ -62666,7 +62674,7 @@
   {
     "from": "app/dev/member/DevMemberShell.tsx",
     "specifier": "@/lib/nav/workspaceCopy",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/nav/workspaceCopy.ts"
@@ -63390,6 +63398,22 @@
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/VoiceStudioKit.tsx"
+  },
+  {
+    "from": "app/dev/member/wioa-qualification/page.tsx",
+    "specifier": "next/navigation",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/dev/member/wioa-qualification/page.tsx",
+    "specifier": "@/components/portal/WioaQualificationClient",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WioaQualificationClient.tsx"
   },
   {
     "from": "app/dev/staff/admin-command/page.tsx",
@@ -118385,8 +118409,16 @@
   },
   {
     "from": "tests/components/workspace-sidebar.test.tsx",
-    "specifier": "@/lib/nav/portalNav",
+    "specifier": "@/components/portal/DashboardFooter",
     "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/DashboardFooter.tsx"
+  },
+  {
+    "from": "tests/components/workspace-sidebar.test.tsx",
+    "specifier": "@/lib/nav/portalNav",
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/nav/portalNav.ts"
@@ -118394,7 +118426,7 @@
   {
     "from": "tests/components/workspace-sidebar.test.tsx",
     "specifier": "@/lib/nav/activeRoute",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/nav/activeRoute.ts"
@@ -118402,7 +118434,7 @@
   {
     "from": "tests/components/workspace-sidebar.test.tsx",
     "specifier": "@/lib/i18n/pickRootClientMessages",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/i18n/pickRootClientMessages.ts"
@@ -118410,7 +118442,7 @@
   {
     "from": "tests/components/workspace-sidebar.test.tsx",
     "specifier": "@/messages/en.json",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "messages/en.json"
@@ -118418,7 +118450,7 @@
   {
     "from": "tests/components/workspace-sidebar.test.tsx",
     "specifier": "@/messages/es.json",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "messages/es.json"

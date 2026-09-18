@@ -15875,24 +15875,28 @@
         "line": 7
       },
       {
-        "file": "lib/nav/portalNav.ts",
+        "file": "components/portal/DashboardFooter.tsx",
         "line": 8
       },
       {
-        "file": "lib/nav/activeRoute.ts",
+        "file": "lib/nav/portalNav.ts",
         "line": 9
       },
       {
-        "file": "lib/i18n/pickRootClientMessages.ts",
+        "file": "lib/nav/activeRoute.ts",
         "line": 10
       },
       {
-        "file": "messages/en.json",
+        "file": "lib/i18n/pickRootClientMessages.ts",
         "line": 11
       },
       {
-        "file": "messages/es.json",
+        "file": "messages/en.json",
         "line": 12
+      },
+      {
+        "file": "messages/es.json",
+        "line": 13
       }
     ],
     "kind": "test-candidate",

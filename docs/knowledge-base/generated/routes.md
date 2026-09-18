@@ -969,6 +969,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /dev/member/resume-studio | page |  | [app/dev/member/resume-studio/page.tsx](../../../app/dev/member/resume-studio/page.tsx) |  |
 | /dev/member/salary-negotiation | page |  | [app/dev/member/salary-negotiation/page.tsx](../../../app/dev/member/salary-negotiation/page.tsx) |  |
 | /dev/member/toolkit | page |  | [app/dev/member/toolkit/page.tsx](../../../app/dev/member/toolkit/page.tsx) |  |
+| /dev/member/wioa-qualification | page |  | [app/dev/member/wioa-qualification/page.tsx](../../../app/dev/member/wioa-qualification/page.tsx) |  |
 | /dev/staff/admin-command | page |  | [app/dev/staff/admin-command/page.tsx](../../../app/dev/staff/admin-command/page.tsx) |  |
 | /dev/staff/counselor-atrisk | page |  | [app/dev/staff/counselor-atrisk/page.tsx](../../../app/dev/staff/counselor-atrisk/page.tsx) |  |
 | /dev/staff/counselor-command | page |  | [app/dev/staff/counselor-command/page.tsx](../../../app/dev/staff/counselor-command/page.tsx) |  |

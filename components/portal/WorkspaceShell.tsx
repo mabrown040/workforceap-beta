@@ -702,8 +702,10 @@ export default function WorkspaceShell({
           {portalRole === 'member' ? resumeUploadHint : null}
           {topBanner}
           <UnreviewedLocaleBanner />
-          <div className="workspace-shell-main-inner">{children}</div>
-          {footer}
+          <div className="workspace-shell-main-inner">
+            {children}
+            {footer}
+          </div>
         </div>
       </div>
       {/* Mobile bottom nav for non-member roles. Members use MemberPortalTopNav. */}

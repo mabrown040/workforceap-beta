@@ -44,8 +44,8 @@ The following templates map to existing email functions in `lib/email.ts`. The l
 | Template Key             | Legacy Function                          | Audience    |
 |--------------------------|------------------------------------------|-------------|
 | `welcome-member`         | `sendEnrollmentConfirmationEmail`        | Member      |
-| `application-confirmation`| `sendApplicationConfirmationEmail`      | Applicant   |
-| `application-accepted`   | `sendApplicationAcceptedEmail`           | Applicant   |
+| `application-confirmation`| `sendApplicationConfirmationEmail`      | Applicant / new member — ops welcome letter (“Thank you for becoming a member of Workforce Advancement Project!”) |
+| `application-accepted`   | `sendApplicationAcceptedEmail`           | Applicant / new member — same welcome letter when an application is accepted |
 | `application-rejected`   | `sendApplicationRejectedEmail`           | Applicant   |
 | `enrollment-confirmed`   | `sendEnrollmentConfirmationEmail`        | Member      |
 | `course-enrolled`        | `sendCourseEnrolledEmail`                | Member      |

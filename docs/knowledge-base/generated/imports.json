@@ -116736,6 +116736,30 @@
     "target": "app/admin/diagnostics/page.tsx"
   },
   {
+    "from": "tests/app/employer-applications-pageheader.spec.ts",
+    "specifier": "node:fs",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/app/employer-applications-pageheader.spec.ts",
+    "specifier": "node:path",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/app/employer-applications-pageheader.spec.ts",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
     "from": "tests/app/employer-billing-page.spec.tsx",
     "specifier": "react-dom/server",
     "line": 1,

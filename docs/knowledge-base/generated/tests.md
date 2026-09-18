@@ -180,12 +180,12 @@
 | [tests/components/students-roster-identity.spec.tsx](../../../tests/components/students-roster-identity.spec.tsx) | 51 | tests |  |
 | [tests/components/training-feedback-handoff.test.tsx](../../../tests/components/training-feedback-handoff.test.tsx) | 100 | tests |  |
 | [tests/components/workspace-sidebar.test.tsx](../../../tests/components/workspace-sidebar.test.tsx) | 229 | tests |  |
-| [tests/e2e/README.md](../../../tests/e2e/README.md) | 52 | tests |  |
+| [tests/e2e/README.md](../../../tests/e2e/README.md) | 72 | tests |  |
 | [tests/e2e/SETUP.md](../../../tests/e2e/SETUP.md) | 44 | tests |  |
 | [tests/e2e/admin-login-search.spec.ts](../../../tests/e2e/admin-login-search.spec.ts) | 55 | tests |  |
 | [tests/e2e/ai-tool-resume-analysis.spec.ts](../../../tests/e2e/ai-tool-resume-analysis.spec.ts) | 74 | tests |  |
 | [tests/e2e/ai-tool-resume.spec.ts](../../../tests/e2e/ai-tool-resume.spec.ts) | 74 | tests |  |
-| [tests/e2e/auth-helpers.ts](../../../tests/e2e/auth-helpers.ts) | 114 | tests | addAuthCookie:8, hasProdE2ECredentials:49, hasMemberPortalCredentials:54, hasAdminE2ECredentials:57, loginMemberPortal:67, loginAdminPortal:94 |
+| [tests/e2e/auth-helpers.ts](../../../tests/e2e/auth-helpers.ts) | 137 | tests | PortalSmokeRole:8, addAuthCookie:14, hasProdE2ECredentials:55, hasMemberPortalCredentials:60, hasAdminE2ECredentials:63, loginMemberPortal:73, loginAdminPortal:100, hasPortalRoleCredentials:105, loginPortalRole:114 |
 | [tests/e2e/auth.spec.ts](../../../tests/e2e/auth.spec.ts) | 67 | identity-tenancy |  |
 | [tests/e2e/concordia-referral.spec.ts](../../../tests/e2e/concordia-referral.spec.ts) | 59 | tests |  |
 | [tests/e2e/coursera-launch.spec.ts](../../../tests/e2e/coursera-launch.spec.ts) | 100 | learning-coursera |  |
@@ -198,6 +198,7 @@
 | [tests/e2e/member-portal-mvp.spec.ts](../../../tests/e2e/member-portal-mvp.spec.ts) | 72 | tests |  |
 | [tests/e2e/member-portal-nav.spec.ts](../../../tests/e2e/member-portal-nav.spec.ts) | 22 | tests |  |
 | [tests/e2e/member-signup.spec.ts](../../../tests/e2e/member-signup.spec.ts) | 273 | tests |  |
+| [tests/e2e/portal-hub-smoke.spec.ts](../../../tests/e2e/portal-hub-smoke.spec.ts) | 62 | tests |  |
 | [tests/e2e/portal-revenue-flows.spec.ts](../../../tests/e2e/portal-revenue-flows.spec.ts) | 59 | tests |  |
 | [tests/e2e/portal-sprint-mobile.spec.ts](../../../tests/e2e/portal-sprint-mobile.spec.ts) | 66 | tests |  |
 | [tests/e2e/portal-ui-smoke-unauth.spec.ts](../../../tests/e2e/portal-ui-smoke-unauth.spec.ts) | 38 | tests |  |
@@ -325,6 +326,7 @@
 | [tests/portal-audit-classify.test.ts](../../../tests/portal-audit-classify.test.ts) | 119 | tests |  |
 | [tests/portal-audit-five-role.test.ts](../../../tests/portal-audit-five-role.test.ts) | 1282 | tests |  |
 | [tests/portal-audit-health-gate.test.ts](../../../tests/portal-audit-health-gate.test.ts) | 397 | tests |  |
+| [tests/portal-hub-smoke-paths.test.ts](../../../tests/portal-hub-smoke-paths.test.ts) | 40 | tests |  |
 | [tests/rls/member-message-assignment.mjs](../../../tests/rls/member-message-assignment.mjs) | 175 | tests |  |
 | [tests/scripts/preview-approved-curriculum-schema.test.ts](../../../tests/scripts/preview-approved-curriculum-schema.test.ts) | 491 | tests |  |
 | [tests/scripts/preview-member-lab-schema.test.ts](../../../tests/scripts/preview-member-lab-schema.test.ts) | 181 | tests |  |

@@ -1038,11 +1038,7 @@
       "references": [
         {
           "file": "tests/e2e/auth-helpers.ts",
-          "line": 58
-        },
-        {
-          "file": "tests/e2e/auth-helpers.ts",
-          "line": 95
+          "line": 64
         }
       ]
     },
@@ -1053,11 +1049,7 @@
       "references": [
         {
           "file": "tests/e2e/auth-helpers.ts",
-          "line": 59
-        },
-        {
-          "file": "tests/e2e/auth-helpers.ts",
-          "line": 96
+          "line": 65
         }
       ]
     },
@@ -3058,11 +3050,11 @@
       "references": [
         {
           "file": "tests/e2e/auth-helpers.ts",
-          "line": 27
+          "line": 33
         },
         {
           "file": "tests/e2e/auth-helpers.ts",
-          "line": 38
+          "line": 44
         }
       ]
     },

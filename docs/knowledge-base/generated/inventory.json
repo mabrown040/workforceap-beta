@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "1edc17c10847418d4c7d8f5040142a2d0d00de9ed54174df6b419d11b8abb27d",
+  "inputTreeSha256": "4ba3fec5570e1246329150c5a8e2ece19a0e874bc7301c249f7705eda33f24d6",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1436,9 +1436,9 @@
       "path": ".github/workflows/authenticated-portal-smoke.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 5099,
-      "lines": 122,
-      "sha256": "4c80d8135eabea8c8d2f6a731df6ff3183782070d2a65d8841f954026a87e110",
+      "bytes": 6332,
+      "lines": 147,
+      "sha256": "500864a1ebc28a4893d7538a5debe119227aa42413b43026e1c0e5566b566ecb",
       "binary": false
     },
     {
@@ -74877,9 +74877,9 @@
       "path": "docs/CROSS-PORTAL-AUDIT-PLAN.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10449,
+      "bytes": 10554,
       "lines": 123,
-      "sha256": "dc4116874f3a7403bf9ac4183aee83174798413ce42f8d91a257bf25351e5651",
+      "sha256": "2eb47e3a527c735a2f9380695166a16a118419c39c2438c81bec9714b5007012",
       "binary": false
     },
     {
@@ -74985,9 +74985,9 @@
       "path": "docs/ENVIRONMENT-VARIABLES.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 31375,
-      "lines": 480,
-      "sha256": "09933098546ae607348aab1174d885bd684bba2389bc08b98f3c4d1217a81275",
+      "bytes": 31703,
+      "lines": 481,
+      "sha256": "a2eb472c998c441713235f9963f05968b51a06172f70d16fdd38d5ed7a1b04cc",
       "binary": false
     },
     {
@@ -137274,9 +137274,9 @@
       "path": "package.json",
       "area": "root",
       "domain": "root",
-      "bytes": 7389,
-      "lines": 142,
-      "sha256": "2f5b6a1d695a5db2178f8e4644996960fedb722cffdb13faab55c3a5a36cca81",
+      "bytes": 7471,
+      "lines": 143,
+      "sha256": "8151db874d881b391c1b8300f615276d15b8f8550ef4dec913ab943caa4d43a1",
       "binary": false
     },
     {
@@ -144829,6 +144829,50 @@
       "directive": null
     },
     {
+      "path": "scripts/lib/portal-hub-smoke-paths.mjs",
+      "area": "operations",
+      "domain": "operations",
+      "bytes": 1427,
+      "lines": 45,
+      "sha256": "62ccbcdf80eda6f4592bf88431ca9187badf3be58219f77710443ee948af787b",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PORTAL_HUB_SMOKE_ROLES",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "PORTAL_HUB_SMOKE_PATHS",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "isPortalHubSmokePath",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PORTAL_HUB_SMOKE_ROLES",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "PORTAL_HUB_SMOKE_PATHS",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "isPortalHubSmokePath",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "scripts/lib/prisma-resolve-benign.cjs",
       "area": "operations",
       "domain": "operations",
@@ -152003,9 +152047,9 @@
       "path": "tests/e2e/README.md",
       "area": "tests",
       "domain": "tests",
-      "bytes": 1664,
-      "lines": 52,
-      "sha256": "cb535393c9ae3a8570beba16e8258546b2fb3c6e90c077ded78f50d5ab8e8e52",
+      "bytes": 2600,
+      "lines": 72,
+      "sha256": "a5033ad1eb546a578fdac43c33f39f483926de858c9a459182b705f9a443a0cd",
       "binary": false
     },
     {
@@ -152080,86 +152124,116 @@
       "path": "tests/e2e/auth-helpers.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4259,
-      "lines": 114,
-      "sha256": "be059cff0b9dcf31a158ebc2fbdb8b9178105bf84c43ea2967ac7ccc6fd4327d",
+      "bytes": 5113,
+      "lines": 137,
+      "sha256": "eeef4004b3760d7840a2bb48e6258ed8e5fab2b2cc0bc9dc066bef0773b99759",
       "binary": false,
       "exports": [
         {
-          "name": "addAuthCookie",
+          "name": "PortalSmokeRole",
           "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "addAuthCookie",
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hasProdE2ECredentials",
-          "line": 49,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hasMemberPortalCredentials",
-          "line": 54,
+          "line": 60,
           "kind": "Variable"
         },
         {
           "name": "hasAdminE2ECredentials",
-          "line": 57,
+          "line": 63,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loginMemberPortal",
-          "line": 67,
+          "line": 73,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loginAdminPortal",
-          "line": 94,
+          "line": 100,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hasPortalRoleCredentials",
+          "line": 105,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loginPortalRole",
+          "line": 114,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
-          "name": "addAuthCookie",
+          "name": "PortalSmokeRole",
           "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "addAuthCookie",
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getVercelShareToken",
-          "line": 26,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "bootstrapVercelShareCookie",
-          "line": 37,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dismissCookieBanner",
-          "line": 44,
+          "line": 50,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hasProdE2ECredentials",
-          "line": 49,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hasMemberPortalCredentials",
-          "line": 54,
+          "line": 60,
           "kind": "Variable"
         },
         {
           "name": "hasAdminE2ECredentials",
-          "line": 57,
+          "line": 63,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loginMemberPortal",
-          "line": 67,
+          "line": 73,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loginAdminPortal",
-          "line": 94,
+          "line": 100,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hasPortalRoleCredentials",
+          "line": 105,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loginPortalRole",
+          "line": 114,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152473,6 +152547,29 @@
           "name": "MOBILE_VIEWPORT",
           "line": 4,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/e2e/portal-hub-smoke.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2539,
+      "lines": 62,
+      "sha256": "1106a2581eb12e2e8d4838a029939f0304aa400558afbeea8845a97485293640",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "HubSmokeRole",
+          "line": 25,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "assertInsideRole",
+          "line": 27,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -155463,6 +155560,29 @@
           "name": "fakeClock",
           "line": 63,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/portal-hub-smoke-paths.test.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1580,
+      "lines": 40,
+      "sha256": "c557d71ffe150d3ff9b198b4595a64bf0be2a6ebb6cef60f91d5555cb4112f17",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "PortalHubSmokeRole",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "HUB_SMOKE_ROLES",
+          "line": 10,
+          "kind": "Variable"
         }
       ],
       "directive": null

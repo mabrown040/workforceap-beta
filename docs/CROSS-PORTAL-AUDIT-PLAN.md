@@ -66,7 +66,7 @@ Use [`PORTAL-PRE-PR-AUDIT.md`](./PORTAL-PRE-PR-AUDIT.md) for shell-specific chec
 
 ### Phase D — trusted manual workflow
 
-- `.github/workflows/authenticated-portal-smoke.yml` exposes only the `isolated_preview` and `production_canary` choices; it has no arbitrary URL input.
+- `.github/workflows/authenticated-portal-smoke.yml` exposes `isolated_preview`, `production_canary`, and a lighter `hub_smoke` choice (member/counselor/employer login→hub→one deep link via `npm run test:e2e:portal-hubs`); it has no arbitrary URL input.
 - The job runs only from the canonical repository's `master` ref and checks out trusted `master` before any credentialed browser step.
 - `PREVIEW_SITE_URL` is the exact isolated-preview origin. Never replace this with a broad `*.vercel.app` allow rule.
 - The isolated preview is produced by `.github/workflows/mirror-master-to-preview.yml`: every push to `master` points the machine-owned `preview` branch at the same commit, `vercel.json` lets Vercel build that branch in its **Preview** environment (DEMO Supabase project — see [`STAGING_ENV.md`](./STAGING_ENV.md)), and the stable branch alias of that deployment is the value `PREVIEW_SITE_URL` must hold. A production alias is never an acceptable value: it serves real member data, so the five-role sign-in would not be isolated at all.

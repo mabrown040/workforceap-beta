@@ -71,6 +71,8 @@
 | [lib/admin/studentStatus.ts](../../../lib/admin/studentStatus.ts) | 122 | administration | StudentStatus:4, STUDENT_STATUS_LABELS:6, StudentStatusContext:14, getStudentStatus:35, buildStatusWhere:55 |
 | [lib/admin/studentsRosterEnrichment.ts](../../../lib/admin/studentsRosterEnrichment.ts) | 233 | administration | StudentRosterEnrichmentRow:16, loadStudentRosterEnrichment:78 |
 | [lib/admin/trainingDashboard.ts](../../../lib/admin/trainingDashboard.ts) | 315 | administration | TrainingDashboardMetrics:20, TrainingDashboardRow:29, TrainingDashboardData:56, loadTrainingDashboardData:70 |
+| [lib/admin/trainingProgressGrades.ts](../../../lib/admin/trainingProgressGrades.ts) | 56 | administration | CourseGradeFact:21, latestCompletedGradeByUser:31 |
+| [lib/admin/trainingProgressRoster.ts](../../../lib/admin/trainingProgressRoster.ts) | 247 | administration | RosterRow:14, PACE_FILTERS:29, PaceFilter:30, LINK_FILTERS:32, LinkFilter:33, SORT_KEYS:35, SortKey:43, SortDirection:45, RosterFilters:47, DEFAULT_ROSTER_FILTERS:56, DEFAULT_SORT_KEY:63, DEFAULT_SORT_DIRECTION:64, filterTrainingRows:101, sortTrainingRows:153, RosterSummary:179, summarizeTrainingRows:193, countMembersWithTraining:222, rosterProgramOptions:233, isPaceFilter:237, isLinkFilter:241, isSortKey:245 |
 | [lib/admin/triageDigest.ts](../../../lib/admin/triageDigest.ts) | 323 | administration | TriageMember:26, TriageBucketKey:41, TriageBucket:43, TriageDigest:61, getTriageDigest:79 |
 | [lib/admin/userDeleteResponse.test.ts](../../../lib/admin/userDeleteResponse.test.ts) | 16 | administration |  |
 | [lib/admin/userDeleteResponse.ts](../../../lib/admin/userDeleteResponse.ts) | 13 | administration | userAuthDeleteFailedResponse:3 |

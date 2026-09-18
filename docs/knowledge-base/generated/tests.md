@@ -295,6 +295,7 @@
 | [tests/lib/program-catalog.spec.ts](../../../tests/lib/program-catalog.spec.ts) | 57 | tests |  |
 | [tests/lib/program-course-match-approved-id.spec.ts](../../../tests/lib/program-course-match-approved-id.spec.ts) | 56 | tests |  |
 | [tests/lib/program-slug-compatibility.spec.ts](../../../tests/lib/program-slug-compatibility.spec.ts) | 22 | tests |  |
+| [tests/lib/public-job-filters.spec.ts](../../../tests/lib/public-job-filters.spec.ts) | 81 | tests |  |
 | [tests/lib/recommendPrograms.test.ts](../../../tests/lib/recommendPrograms.test.ts) | 38 | tests |  |
 | [tests/lib/referral-rewards.spec.ts](../../../tests/lib/referral-rewards.spec.ts) | 141 | applications-enrollment |  |
 | [tests/lib/retention-window-evidence.spec.ts](../../../tests/lib/retention-window-evidence.spec.ts) | 40 | tests |  |

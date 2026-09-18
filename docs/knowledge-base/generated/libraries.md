@@ -553,7 +553,7 @@
 | [lib/jobApplications/constants.ts](../../../lib/jobApplications/constants.ts) | 37 | libraries | JOB_APPLICATION_STATUS:3, JobApplicationStatus:13, JobApplicationStatusMembers:15, JOB_APPLICATION_SOURCE:21, JobApplicationSource:28, JobApplicationSourceMembers:30, JOB_APPLICATION_PIPELINE_COLUMNS:37 |
 | [lib/jobs/formatSalary.ts](../../../lib/jobs/formatSalary.ts) | 7 | jobs-employers | formatJobSalaryRange:2 |
 | [lib/jobs/listingCache.ts](../../../lib/jobs/listingCache.ts) | 6 | jobs-employers | invalidateJobListings:4 |
-| [lib/jobs/publicJobFilters.ts](../../../lib/jobs/publicJobFilters.ts) | 25 | jobs-employers | isExcludedPublicEmployerName:4, isExcludedPublicJobTitle:21 |
+| [lib/jobs/publicJobFilters.ts](../../../lib/jobs/publicJobFilters.ts) | 36 | jobs-employers | isExcludedPublicEmployerName:8, isExcludedPublicJobTitle:27 |
 | [lib/jobs/syncCuratedJobToTracker.ts](../../../lib/jobs/syncCuratedJobToTracker.ts) | 60 | jobs-employers | syncCuratedJobToTracker:13 |
 | [lib/lilley-student-coach-structure.test.ts](../../../lib/lilley-student-coach-structure.test.ts) | 309 | libraries |  |
 | [lib/locked-stakes/checkI18nSafeDiff.test.ts](../../../lib/locked-stakes/checkI18nSafeDiff.test.ts) | 26 | libraries |  |

@@ -120792,6 +120792,22 @@
     "target": "lib/content/programs.ts"
   },
   {
+    "from": "tests/lib/public-job-filters.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/public-job-filters.spec.ts",
+    "specifier": "@/lib/jobs/publicJobFilters",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/jobs/publicJobFilters.ts"
+  },
+  {
     "from": "tests/lib/recommendPrograms.test.ts",
     "specifier": "vitest",
     "line": 1,

@@ -565,7 +565,7 @@
 | [lib/jobs/syncCuratedJobToTracker.ts](../../../lib/jobs/syncCuratedJobToTracker.ts) | 60 | jobs-employers | syncCuratedJobToTracker:13 |
 | [lib/lilley-student-coach-structure.test.ts](../../../lib/lilley-student-coach-structure.test.ts) | 309 | libraries |  |
 | [lib/locked-stakes/checkI18nSafeDiff.test.ts](../../../lib/locked-stakes/checkI18nSafeDiff.test.ts) | 26 | libraries |  |
-| [lib/marketing-public-ui-regressions.test.ts](../../../lib/marketing-public-ui-regressions.test.ts) | 129 | libraries |  |
+| [lib/marketing-public-ui-regressions.test.ts](../../../lib/marketing-public-ui-regressions.test.ts) | 144 | libraries |  |
 | [lib/marketing/buttonClasses.ts](../../../lib/marketing/buttonClasses.ts) | 18 | public-experience | MARKETING_BUTTON_VARIANT_CLASS:6, MARKETING_BUTTON_RADIUS_CLASS:7, marketingButton:8, marketingButtonClasses:9, marketingPrimaryButtonClasses:10, marketingSecondaryButtonClasses:11, marketingGhostButtonClasses:12, marketingNumPillClasses:13, marketingButtonPresets:14, MarketingButtonVariant:15, MarketingButtonRadius:16, MarketingButtonOptions:17 |
 | [lib/marketing/employerLanding.ts](../../../lib/marketing/employerLanding.ts) | 153 | public-experience | getEmployerHiringPartnerCtaHref:15, isEmployerHiringPartnerCtaExternal:20, EmployerTrustLogo:24, EmployerLandingTrustMetrics:29, formatEmployerTrustStat:49, getEmployerTrustPlaceholders:60, getEmployerLandingTrustMetrics:64, loadEmployerLandingTrustMetrics:136 |
 | [lib/marketing/googleItSupportLanding.test.ts](../../../lib/marketing/googleItSupportLanding.test.ts) | 71 | public-experience |  |

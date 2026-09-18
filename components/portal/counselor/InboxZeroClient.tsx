@@ -8,11 +8,9 @@ import {
   FileWarning,
   Clock,
   MailWarning,
-  CheckCheck,
   CheckCircle2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 import type { InboxZeroFlagType, InboxZeroQueue, InboxZeroRow } from '@/lib/counselor/inboxZero';
 import {
@@ -20,8 +18,9 @@ import {
   templateMatchesFlags,
   type FollowUpTemplateId,
 } from '@/lib/counselor/templates';
+import { COUNSELOR_INBOX_ZERO_EMPTY } from '@/lib/counselor/inboxEmptyState';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { SectionHeader, QueueRow, StatusTag, FormField, type QueueTone } from '@/components/portal/kit';
+import { SectionHeader, QueueRow, StatusTag, FormField, KitEmptyState, type QueueTone } from '@/components/portal/kit';
 
 type Props = { initialQueue: InboxZeroQueue };
 type CounselorOption = { userId: string; fullName: string };
@@ -241,13 +240,28 @@ export default function InboxZeroClient({ initialQueue }: Props) {
     return (
       <>
       {feedback}
-      <PortalEmptyState
-        title={t('inboxZeroClearTitle')}
-        description={t('inboxZeroClearDesc')}
-        icon={<CheckCheck size={28} aria-hidden style={{ color: 'var(--wa-success)' }} />}
-        primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
-        secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
-      />
+      <div className="wa-kit-card">
+        <KitEmptyState
+          title={t('inboxZeroClearTitle')}
+          description={t('inboxZeroClearDesc')}
+          action={
+            <div className="wa-flex wa-flex-wrap wa-items-center" style={{ gap: 8 }}>
+              <Link
+                href={COUNSELOR_INBOX_ZERO_EMPTY.primaryHref}
+                className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+              >
+                {t('openMessages')}
+              </Link>
+              <Link
+                href={COUNSELOR_INBOX_ZERO_EMPTY.secondaryHref}
+                className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90"
+              >
+                {t('backToDashboard')}
+              </Link>
+            </div>
+          }
+        />
+      </div>
       </>
     );
   }

@@ -1,13 +1,17 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
+import {
+  COUNSELOR_MESSAGES_NO_MEMBERS_EMPTY,
+} from '@/lib/counselor/inboxEmptyState';
+import { KitEmptyState } from '@/components/portal/kit';
 import styles from './CounselorMessagesInboxClient.module.css';
 import {
-  InboxEmpty,
   InboxHeader,
   InboxList,
   InboxPane,
@@ -45,6 +49,39 @@ type Props = {
 };
 
 type InboxFilter = 'all' | 'needs_reply' | 'unread';
+
+function KitCta({
+  href,
+  onClick,
+  children,
+  ghost = false,
+}: {
+  href?: string;
+  onClick?: () => void;
+  children: ReactNode;
+  ghost?: boolean;
+}) {
+  const className = [
+    'wa-kit-cta',
+    'wa-kit-focus',
+    'hover:wa-opacity-90',
+    ghost ? 'wa-kit-cta--ghost' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className={className}>
+      {children}
+    </button>
+  );
+}
 
 function pickInitialSelection(rs: CounselorInboxRow[], initialMemberId?: string | null): string | null {
   if (rs.length === 0) return null;
@@ -112,6 +149,7 @@ function MemberContextAside({ row }: { row: CounselorInboxRow }) {
 }
 
 export default function CounselorMessagesInboxClient({ staffUserId, rows, initialMemberId }: Props) {
+  const t = useTranslations('counselor');
   const hasInitialSelection = Boolean(
     initialMemberId && rows.some((row) => row.memberId === initialMemberId),
   );
@@ -127,6 +165,11 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
   // Never show or mount a composer for a previous selection, even before the
   // effect runs or when requests resolve out of order.
   const chat = hasAuthorizedSelection && loadedChat?.member.id === selectedId ? loadedChat : null;
+
+  const clearListFilters = () => {
+    setSearch('');
+    setInboxFilter('all');
+  };
 
   useEffect(() => {
     setSelectedId((prev) => {
@@ -209,6 +252,37 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
     if (isMobile) setMobileList(false);
   };
 
+  const noMembersEmpty = (
+    <div className={styles.emptyPad}>
+      <KitEmptyState
+        title={t('noMembersAssignedYet')}
+        description={t('membersAppearOnceAssigned')}
+        action={
+          <div className="wa-flex wa-flex-wrap wa-items-center" style={{ gap: 8 }}>
+            <KitCta href={COUNSELOR_MESSAGES_NO_MEMBERS_EMPTY.primaryHref}>
+              {t('browseAllMembers')}
+            </KitCta>
+            <KitCta href={COUNSELOR_MESSAGES_NO_MEMBERS_EMPTY.secondaryHref} ghost>
+              {t('backToDashboard')}
+            </KitCta>
+          </div>
+        }
+      />
+    </div>
+  );
+
+  const filterEmpty = (
+    <div className={styles.emptyPad}>
+      <KitEmptyState
+        title={t('noConversationsMatch')}
+        description={t('tryAnotherFilterOrSearch')}
+        action={
+          <KitCta onClick={clearListFilters}>{t('clearConversationFilters')}</KitCta>
+        }
+      />
+    </div>
+  );
+
   const listPane = (opts: { mobile: boolean }) => (
     <InboxPane variant="list" className={styles.listPane}>
       <InboxHeader
@@ -228,11 +302,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
       ) : null}
       <InboxList>
         {filtered.length === 0 ? (
-          search.trim() || inboxFilter !== 'all' ? (
-            <InboxEmpty title="No conversations match" description="Try another filter or search term." />
-          ) : (
-            <InboxEmpty title="No members assigned yet" description="Members will appear here once an admin assigns them to you." />
-          )
+          search.trim() || inboxFilter !== 'all' ? filterEmpty : noMembersEmpty
         ) : (
           filtered.map((r) => (
             <InboxRowButton
@@ -297,7 +367,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
 
   const chatBody =
     rows.length === 0 ? (
-      <div className={styles.messageState}>No assigned members yet.</div>
+      noMembersEmpty
     ) : loadError?.memberId === selectedId && !loading ? (
       <div className={styles.messageState}>
         <p role="alert">{loadError.message}</p>

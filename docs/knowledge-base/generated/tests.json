@@ -792,11 +792,11 @@
     "localReferences": [
       {
         "file": "components/portal/CounselorMessagesInboxClient.tsx",
-        "line": 15
+        "line": 29
       },
       {
         "file": "lib/messages/counselorInbox.ts",
-        "line": 16
+        "line": 30
       }
     ],
     "kind": "test-candidate",
@@ -4018,6 +4018,30 @@
     "localReferences": [
       {
         "file": "lib/counselor/ambassadorReferral.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/counselor/inboxEmptyState.test.ts",
+    "area": "libraries",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/counselor/inboxEmptyState.ts",
         "line": 3
       }
     ],

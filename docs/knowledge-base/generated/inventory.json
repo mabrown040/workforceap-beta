@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "33c9002a306d1e1c28638562bc669b7e2b62d1092858e047bbb7fa413cd0dfb1",
+  "inputTreeSha256": "6a196bb4ba0315c7d57a610bee4e0c9f1ceac7858d4a3ad37ea4e539a0a77973",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -57849,34 +57849,34 @@
       "path": "components/portal/CounselorMessagesInboxClient.module.css",
       "area": "components",
       "domain": "components",
-      "bytes": 8652,
-      "lines": 111,
-      "sha256": "76b257b681a16b3e05a5d31678c28c933de1934b07258be50f42f796f9b556dd",
+      "bytes": 8693,
+      "lines": 112,
+      "sha256": "2e725a9eb2ec185d40b4d6905f97ab9771242761c33a0a56a82e1645fe7981b4",
       "binary": false
     },
     {
       "path": "components/portal/CounselorMessagesInboxClient.test.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 7902,
-      "lines": 179,
-      "sha256": "d62f1b69440df8f66a4d2bf02042e0c327c602fe42ce0a629ca7910b7225430b",
+      "bytes": 10007,
+      "lines": 220,
+      "sha256": "bb9dc66eb339f9885fee62b32bb4eb49daa595d55ef94749a50d1de18755c564",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "rows",
-          "line": 18,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "chatResponse",
-          "line": 107,
+          "line": 121,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pendingResponse",
-          "line": 117,
+          "line": 131,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -57886,14 +57886,14 @@
       "path": "components/portal/CounselorMessagesInboxClient.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 12512,
-      "lines": 359,
-      "sha256": "cc250c6cb0c94970e25f25d6ae7c7d0419b83ba88fc2a6dee0dc9e80f48c2d1a",
+      "bytes": 14031,
+      "lines": 429,
+      "sha256": "9ea3338be806efdd4006d0cbab16aa8d965d2305ed4abddfc13e475805b69755",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 114,
+          "line": 151,
           "kind": "FunctionDeclaration",
           "localName": "CounselorMessagesInboxClient"
         }
@@ -57901,37 +57901,42 @@
       "declarations": [
         {
           "name": "ChatPayload",
-          "line": 21,
+          "line": 25,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Props",
-          "line": 40,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "InboxFilter",
-          "line": 47,
+          "line": 51,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "KitCta",
+          "line": 53,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "pickInitialSelection",
-          "line": 49,
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InboxFilters",
-          "line": 59,
+          "line": 96,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MemberContextAside",
-          "line": 98,
+          "line": 135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorMessagesInboxClient",
-          "line": 114,
+          "line": 151,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -64359,14 +64364,14 @@
       "path": "components/portal/counselor/InboxZeroClient.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 19993,
-      "lines": 525,
-      "sha256": "d9b465bb10b299464c385b93e81c5d2263d66e9ec759b3bf233dfc8c2111cb70",
+      "bytes": 20421,
+      "lines": 539,
+      "sha256": "344f4c974967574ca0b4a0bfa62b3aa1d53af932cde0b7fd3ad14328063973ee",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 57,
+          "line": 56,
           "kind": "FunctionDeclaration",
           "localName": "InboxZeroClient"
         }
@@ -64374,62 +64379,62 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 26,
+          "line": 25,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CounselorOption",
-          "line": 27,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "BulkAction",
-          "line": 28,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "INBOX_FLAG_LABELS",
-          "line": 30,
+          "line": 29,
           "kind": "Variable"
         },
         {
           "name": "RANK_TONE",
-          "line": 38,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "RANK_FLAG",
-          "line": 39,
+          "line": 38,
           "kind": "Variable"
         },
         {
           "name": "FLAG_ICON",
-          "line": 41,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "inputStyle",
-          "line": 48,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "InboxZeroClient",
-          "line": 57,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DismissModal",
-          "line": 382,
+          "line": 396,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InboxZeroRowCard",
-          "line": 443,
+          "line": 457,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatRowMetadata",
-          "line": 518,
+          "line": 532,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -101824,6 +101829,62 @@
       "directive": null
     },
     {
+      "path": "lib/counselor/inboxEmptyState.test.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 1556,
+      "lines": 30,
+      "sha256": "d6607a2b03adf8c505245e61a9f42cdf3ae598da68c12899aa06661fa35f2830",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/counselor/inboxEmptyState.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 1064,
+      "lines": 29,
+      "sha256": "f1a661831c9d8ab0fe6dc49ed5b602266fe115c3c6f082be06526cef07a8caf5",
+      "binary": false,
+      "exports": [
+        {
+          "name": "COUNSELOR_INBOX_ZERO_EMPTY",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "COUNSELOR_MESSAGES_NO_MEMBERS_EMPTY",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "COUNSELOR_MESSAGES_FILTER_EMPTY",
+          "line": 25,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "COUNSELOR_INBOX_ZERO_EMPTY",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "COUNSELOR_MESSAGES_NO_MEMBERS_EMPTY",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "COUNSELOR_MESSAGES_FILTER_EMPTY",
+          "line": 25,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/counselor/inboxZero.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
@@ -137119,27 +137180,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 191334,
-      "lines": 3128,
-      "sha256": "4f611b9e0d54e70ede82a0a730303d6958918577341952184357b1e4593f9f41",
+      "bytes": 191502,
+      "lines": 3131,
+      "sha256": "ad3ac2469e05458b4ec95bacca9d716e60d0443c64ba4f2dc22a197d5562d850",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 209924,
-      "lines": 3115,
-      "sha256": "235b77c775ba023ab6de362e06321b4c70c696b0a13bd3fe6ee6eaa31464247a",
+      "bytes": 210107,
+      "lines": 3118,
+      "sha256": "578e82038547223517f5185af9cf2c10afa9c3cc80a55a4f8be30966879ffed5",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 210912,
-      "lines": 3068,
-      "sha256": "ebea83723d5e0d88eeb5f3ba0091e1b1118f20dce5092c9a4e94441d1a00b10f",
+      "bytes": 211119,
+      "lines": 3071,
+      "sha256": "b14bbd439ba79a48074633e72b7a81da870b2647a7913a59e171751fffeb1e00",
       "binary": false
     },
     {
@@ -137155,9 +137216,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 202864,
-      "lines": 3068,
-      "sha256": "94d21477cc6a008f53f90fe253ce9c8c86eba62afe0d21258e4b056b1ff4cee8",
+      "bytes": 203042,
+      "lines": 3071,
+      "sha256": "ce1b76688f8065038521565a7218ecc3193a8b187630751fd53cc7f269a43ebd",
       "binary": false
     },
     {

@@ -500,8 +500,9 @@
 | [lib/employer/triggerEmployerJobAiMatch.ts](../../../lib/employer/triggerEmployerJobAiMatch.ts) | 38 | jobs-employers | runAiMatchForLiveJob:10 |
 | [lib/employer/workQueue.ts](../../../lib/employer/workQueue.ts) | 78 | jobs-employers | getEmployerWorkQueueSlices:11, countEmployerQueueBadges:69 |
 | [lib/enroll/enrollmentPath.ts](../../../lib/enroll/enrollmentPath.ts) | 10 | applications-enrollment | enrollmentPathSegment:4, enrollmentPathForSlug:8 |
-| [lib/enroll/resolveEnrollmentPartner.test.ts](../../../lib/enroll/resolveEnrollmentPartner.test.ts) | 31 | applications-enrollment |  |
-| [lib/enroll/resolveEnrollmentPartner.ts](../../../lib/enroll/resolveEnrollmentPartner.ts) | 122 | applications-enrollment | enrollmentPathForSlug:6, enrollmentPathSegment:6, EnrollmentProgramCard:8, EnrollmentPageModel:22, resolveEnrollmentPartner:57, enrollPageCopyIsStakeSafe:120 |
+| [lib/enroll/listPublicEnrollmentPartners.test.ts](../../../lib/enroll/listPublicEnrollmentPartners.test.ts) | 53 | applications-enrollment |  |
+| [lib/enroll/resolveEnrollmentPartner.test.ts](../../../lib/enroll/resolveEnrollmentPartner.test.ts) | 45 | applications-enrollment |  |
+| [lib/enroll/resolveEnrollmentPartner.ts](../../../lib/enroll/resolveEnrollmentPartner.ts) | 172 | applications-enrollment | enrollmentPathForSlug:6, enrollmentPathSegment:6, EnrollmentProgramCard:8, EnrollmentPageModel:22, EnrollmentPartnerLink:37, resolveEnrollmentPartner:65, enrollPageCopyIsStakeSafe:128, humanizeEnrollmentSchoolKey:133, listPublicEnrollmentPartners:143 |
 | [lib/events/catalog.ts](../../../lib/events/catalog.ts) | 79 | libraries | FunnelDefinition:1, FUNNEL_DEFINITIONS:10 |
 | [lib/events/client.ts](../../../lib/events/client.ts) | 23 | libraries | MemberEventRequest:3, postMemberEvent:12 |
 | [lib/events/emailVerified.ts](../../../lib/events/emailVerified.ts) | 55 | communications | EmailVerifiedPayload:7, emailDomainFromAddress:15, emitEmailVerifiedFromCallback:26 |

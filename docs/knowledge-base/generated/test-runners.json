@@ -7,7 +7,7 @@
     },
     {
       "file": "scripts/vitest-library-specs.mjs",
-      "sha256": "74506835ad97deae2c462aec1c17523e5e14a459b53f368cc3629e651397d27d"
+      "sha256": "e39c7953c2b7f4b150cada5ca22b8d4e51f7f5424bc3dd226ffe00fce8e2a38f"
     },
     {
       "file": "vitest.config.ts",
@@ -66,6 +66,7 @@
       "lib/counselor/templates.test.ts",
       "lib/coursera/learnerProgress.test.ts",
       "lib/cron/wioa-report.test.ts",
+      "lib/enroll/listPublicEnrollmentPartners.test.ts",
       "lib/marketing/trustStripMetrics.test.ts",
       "lib/marketing/googleItSupportLanding.test.ts",
       "lib/messages/counselorInbox.test.ts",
@@ -110,6 +111,7 @@
       "lib/counselor/templates.test.ts",
       "lib/coursera/learnerProgress.test.ts",
       "lib/cron/wioa-report.test.ts",
+      "lib/enroll/listPublicEnrollmentPartners.test.ts",
       "lib/marketing/trustStripMetrics.test.ts",
       "lib/marketing/googleItSupportLanding.test.ts",
       "lib/messages/counselorInbox.test.ts",

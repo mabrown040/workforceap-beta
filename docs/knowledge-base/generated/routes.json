@@ -31990,17 +31990,17 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 7,
+        "line": 11,
         "kind": "Variable"
       },
       {
         "name": "generateMetadata",
-        "line": 11,
+        "line": 15,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 24,
+        "line": 28,
         "kind": "FunctionDeclaration",
         "localName": "PartnerEnrollmentPage"
       }

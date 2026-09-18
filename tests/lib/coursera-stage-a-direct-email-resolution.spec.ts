@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({
   executeRawUnsafe: vi.fn(),
   queryRaw: vi.fn(),
   executeRaw: vi.fn(),
-  findFirst: vi.fn(),
+  findMany: vi.fn(),
   mapIdentityAndProgress: vi.fn(),
 }));
 
@@ -14,7 +14,7 @@ vi.mock('@/lib/db/prisma', () => ({
     $executeRawUnsafe: mocks.executeRawUnsafe,
     $queryRaw: mocks.queryRaw,
     $executeRaw: mocks.executeRaw,
-    user: { findFirst: mocks.findFirst },
+    user: { findMany: mocks.findMany },
   },
 }));
 vi.mock('@/lib/email', () => ({
@@ -33,12 +33,14 @@ describe('Stage A direct-email xAPI resolution', () => {
     mocks.queryRaw
       .mockResolvedValueOnce([]) // no actor mapping
       .mockResolvedValueOnce([]); // no email mapping
-    mocks.findFirst.mockResolvedValue({
-      id: 'user-1',
-      email: 'learner@example.com',
-      fullName: 'Learner',
-      organizationId: 'org-1',
-    });
+    mocks.findMany.mockResolvedValue([
+      {
+        id: 'user-1',
+        email: 'learner@example.com',
+        fullName: 'Learner',
+        organizationId: 'org-1',
+      },
+    ]);
   });
 
   it('does not credit a direct-email match when guarded mapping and raw adoption fail', async () => {
@@ -74,12 +76,13 @@ describe('Stage A direct-email xAPI resolution', () => {
       expect(tenantScope.sql).toContain("NULLIF(u.organization_id, '')");
       expect(tenantScope.values).toContain('org-1');
     }
-    expect(mocks.findFirst).toHaveBeenCalledWith(
+    expect(mocks.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           organizationId: 'org-1',
           deletedAt: null,
         }),
+        take: 25,
       }),
     );
   });
@@ -104,12 +107,14 @@ describe('Stage A direct-email xAPI resolution', () => {
         },
       ])
       .mockResolvedValueOnce([]);
-    mocks.findFirst.mockResolvedValue({
-      id: 'direct-user',
-      email: 'learner@example.com',
-      fullName: 'Direct User',
-      organizationId: 'org-1',
-    });
+    mocks.findMany.mockResolvedValue([
+      {
+        id: 'direct-user',
+        email: 'learner@example.com',
+        fullName: 'Direct User',
+        organizationId: 'org-1',
+      },
+    ]);
 
     await expect(
       resolveXapiUser(
@@ -157,7 +162,7 @@ describe('Stage A direct-email xAPI resolution', () => {
       ),
     ).resolves.toBeNull();
 
-    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.findMany).not.toHaveBeenCalled();
     expect(mocks.executeRaw).not.toHaveBeenCalled();
   });
 
@@ -173,7 +178,7 @@ describe('Stage A direct-email xAPI resolution', () => {
       ),
     ).resolves.toBeNull();
 
-    expect(mocks.findFirst).toHaveBeenCalled();
+    expect(mocks.findMany).toHaveBeenCalled();
     expect(mocks.mapIdentityAndProgress).not.toHaveBeenCalled();
     expect(mocks.executeRaw).not.toHaveBeenCalled();
   });
@@ -209,8 +214,70 @@ describe('Stage A direct-email xAPI resolution', () => {
       ),
     ).resolves.toBeNull();
 
-    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.findMany).not.toHaveBeenCalled();
     expect(mocks.executeRaw).not.toHaveBeenCalled();
     expect(mocks.mapIdentityAndProgress).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-map an ILIKE neighbor when the Coursera address itself is absent', async () => {
+    mocks.findMany.mockResolvedValue([
+      {
+        id: 'neighbor',
+        email: 'jane.doe@example.com',
+        fullName: 'Jane Doe',
+        organizationId: 'org-1',
+      },
+    ]);
+
+    await expect(
+      resolveXapiUser(
+        {
+          email: 'jane_doe@example.com',
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+        },
+        { organizationId: 'org-1' },
+      ),
+    ).resolves.toBeNull();
+
+    expect(mocks.mapIdentityAndProgress).not.toHaveBeenCalled();
+    expect(mocks.executeRaw).not.toHaveBeenCalled();
+  });
+
+  it('still auto-maps a legitimate underscore address when that exact row is the only hit', async () => {
+    mocks.findMany.mockResolvedValue([
+      {
+        id: 'owner',
+        email: 'jane_doe@example.com',
+        fullName: 'Jane Underscore',
+        organizationId: 'org-1',
+      },
+    ]);
+    mocks.mapIdentityAndProgress.mockResolvedValue({});
+
+    await expect(
+      resolveXapiUser(
+        {
+          email: 'Jane_Doe@example.com',
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+        },
+        { organizationId: 'org-1' },
+      ),
+    ).resolves.toEqual({
+      userId: 'owner',
+      email: 'jane_doe@example.com',
+      fullName: 'Jane Underscore',
+      mappingMethod: 'direct_email',
+    });
+
+    expect(mocks.mapIdentityAndProgress).toHaveBeenCalledWith({
+      userId: 'owner',
+      organizationId: 'org-1',
+      courseraEmail: 'jane_doe@example.com',
+      actorIdentifier: 'actor-1',
+      actorHomePage: 'https://coursera.example',
+      source: 'auto-direct-email',
+    });
   });
 });

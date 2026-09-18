@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { sendCourseraUnmatchedActorAlertEmail } from '@/lib/email';
 import { runBulkEmailOperation } from '@/lib/email/pacing';
 import { isLikelyTestAccount } from '@/lib/coursera/testAccountHeuristic';
@@ -334,7 +335,12 @@ async function getDirectXapiEmailUser(
   const email = normalizeEmail(identity.email);
   if (!email) return null;
 
-  return prisma.user.findFirst({
+  // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in the Coursera
+  // actor address are wildcards. `jane_doe@x.org` therefore also matches
+  // `jane.doe@x.org`. Collect candidates, then keep only a genuine
+  // case-insensitive equality — otherwise auto-map permanently binds this
+  // learner's progress onto a neighbor. See lib/db/exactEmailMatch.ts.
+  const candidates = await prisma.user.findMany({
     where: {
       ...(organizationId ? { organizationId } : {}),
       deletedAt: null,
@@ -344,7 +350,9 @@ async function getDirectXapiEmailUser(
       },
     },
     select: { id: true, email: true, fullName: true, organizationId: true },
+    take: EXACT_EMAIL_CANDIDATE_LIMIT,
   });
+  return pickExactEmailMatch(candidates, email);
 }
 
 export async function resolveXapiUser(

@@ -8,6 +8,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
@@ -69,9 +70,11 @@ async function _POST(request: NextRequest) {
     const email = normEmail(parsed.data.email);
   
     // Find the WAP user (tenant-scoped) — same gate as before; we never
-    // auto-provision a WAP account here.
-    const wapUser = await withTenantScope(orgId, (db) =>
-      db.user.findFirst({
+    // auto-provision a WAP account here. `mode: 'insensitive'` is ILIKE, so
+    // keep only a genuine case-insensitive equality or we would write
+    // Coursera enrollments onto an underscore/period neighbor.
+    const candidates = await withTenantScope(orgId, (db) =>
+      db.user.findMany({
         where: {
           deletedAt: null,
           email: { equals: email, mode: 'insensitive' },
@@ -82,8 +85,10 @@ async function _POST(request: NextRequest) {
           organizationId: true,
           enrolledProgram: true,
         },
+        take: EXACT_EMAIL_CANDIDATE_LIMIT,
       }),
     );
+    const wapUser = pickExactEmailMatch(candidates, email);
   
     if (!wapUser) {
       return NextResponse.json(

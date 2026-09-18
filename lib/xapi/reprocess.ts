@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import { parseXapiStatement } from '@/lib/xapi/statements';
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
@@ -163,14 +164,19 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
       // actor identifier with another mapped row.)
       const actorEmail = event.actor_email?.trim().toLowerCase();
       if (actorEmail) {
-        const directUser = await prisma.user.findFirst({
+        // ILIKE `_`/`%` wildcards: a stored actor like `jane_doe@x.org`
+        // must not auto-heal onto `jane.doe@x.org`. Same guard as live
+        // ingest (`getDirectXapiEmailUser`) and unsubscribe.
+        const candidates = await prisma.user.findMany({
           where: {
             organizationId,
             deletedAt: null,
             email: { equals: actorEmail, mode: 'insensitive' },
           },
-          select: { id: true, organizationId: true },
+          select: { id: true, email: true, organizationId: true },
+          take: EXACT_EMAIL_CANDIDATE_LIMIT,
         });
+        const directUser = pickExactEmailMatch(candidates, actorEmail);
         if (directUser) {
           await mapCourseraIdentityAndProgress({
             userId: directUser.id,

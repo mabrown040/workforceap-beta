@@ -7,8 +7,9 @@
  * that is not the requested address at all — `m_johnson@x.org` matches
  * `mrjohnson@x.org`, and `%@x.org` matches every address on the domain.
  *
- * Wherever the address comes from an untrusted caller, matching is not proof
- * of identity. Select the candidates, then keep only a genuine
+ * Wherever the address comes from an untrusted caller — or from Coursera /
+ * xAPI, which we then persist as a permanent identity link — matching is not
+ * proof of identity. Select the candidates, then keep only a genuine
  * case-insensitive equality. Selecting the exact row rather than rejecting the
  * whole batch also preserves correct behaviour for legitimate addresses that
  * contain `_`, which would otherwise collide with a same-shaped address.

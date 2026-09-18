@@ -61,22 +61,27 @@
       {
         "level": 2,
         "title": "2024-05-30 - Expandable Action Button and Async Submit States in Career Mappings",
-        "line": 35
+        "line": 34
       },
       {
         "level": 2,
         "title": "2024-07-26 - Accessible Save Settings Button",
-        "line": 39
+        "line": 38
       },
       {
         "level": 2,
         "title": "2024-06-25 - Redundant aria-label on aria-live state buttons",
-        "line": 42
+        "line": 41
       },
       {
         "level": 2,
         "title": "2026-06-25 - Expandable Panels Missing aria-controls in Lists",
-        "line": 45
+        "line": 44
+      },
+      {
+        "level": 2,
+        "title": "2024-06-25 - Custom Modal Accessibility in Admin SubgroupMembersTable",
+        "line": 50
       }
     ],
     "datedFilename": false,

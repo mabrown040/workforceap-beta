@@ -40,6 +40,12 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
     if (!removing) setRemoveTarget(null);
   };
   const closeAddModal = () => setShowAddModal(false);
+  // `useFocusTrap` already moves initial focus to the first focusable element
+  // in the dialog (the Cancel button / the search input) once it has recorded
+  // the trigger. Do NOT add `autoFocus` inside these dialogs: it fires during
+  // React's commit phase, before the trap's effect reads `document.activeElement`,
+  // so the trap would capture an in-dialog node as the restore target and focus
+  // would drop to <body> on close instead of returning to the trigger.
   const removeTrapRef = useFocusTrap(!!removeTarget, closeRemoveTarget);
   const addModalTrapRef = useFocusTrap(showAddModal, closeAddModal);
 
@@ -120,7 +126,14 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
         </div>
       )}
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-        <button type="button" className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setShowAddModal(true)}
+          aria-haspopup="dialog"
+          aria-expanded={showAddModal}
+          aria-controls="add-member-modal"
+        >
           Add member
         </button>
       </div>
@@ -169,6 +182,9 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                     style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
                     onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
                     disabled={!!removing}
+                    aria-haspopup="dialog"
+                    aria-expanded={removeTarget?.id === m.id}
+                    aria-controls="remove-member-modal"
                   >
                     {removing === m.id ? '…' : 'Remove'}
                   </button>
@@ -204,6 +220,9 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                   className="btn btn-outline btn-sm"
                   onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
                   disabled={!!removing}
+                  aria-haspopup="dialog"
+                  aria-expanded={removeTarget?.id === m.id}
+                  aria-controls="remove-member-modal"
                 >
                   {removing === m.id ? '…' : 'Remove'}
                 </button>
@@ -217,6 +236,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       {removeTarget && (
         <div className="admin-confirm-modal-overlay" role="presentation" onClick={closeRemoveTarget} tabIndex={-1}>
           <div
+            id="remove-member-modal"
             ref={removeTrapRef as React.RefObject<HTMLDivElement>}
             className="admin-confirm-modal"
             role="dialog"
@@ -254,6 +274,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
           onClick={closeAddModal}
         >
           <div
+            id="add-member-modal"
             ref={addModalTrapRef as React.RefObject<HTMLDivElement>}
             role="dialog"
             aria-modal="true"

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "45673a34d1f919f31d141813b61ed17c429ce16a78a1e95544508274485e8fa2",
+  "inputTreeSha256": "f755b56772120b1a96999f03c1e0d2b480aa6fb703b879970db76dbef0ffd606",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -302,7 +302,7 @@
     },
     {
       "file": "app/admin/coursera/health/page.tsx",
-      "lines": 1496
+      "lines": 1486
     },
     {
       "file": "app/(portal)/counselor/students/[memberId]/page.tsx",

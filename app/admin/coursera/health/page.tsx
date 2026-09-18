@@ -591,23 +591,6 @@ const sectionStyle: CSSProperties = {
   marginBottom: '1rem',
 };
 
-const coverageThStyle: CSSProperties = {
-  textAlign: 'left',
-  padding: '0.45rem 0.55rem',
-  borderBottom: '1px solid var(--outline-variant)',
-  fontSize: '0.75rem',
-  textTransform: 'uppercase',
-  letterSpacing: '0.03em',
-  color: 'var(--color-on-surface-variant)',
-  whiteSpace: 'nowrap',
-};
-
-const coverageTdStyle: CSSProperties = {
-  verticalAlign: 'top',
-  padding: '0.55rem',
-  borderBottom: '1px solid var(--outline-variant)',
-};
-
 function pickStatusColor(status: string): string {
   const s = status.toLowerCase();
   if (s === 'success') return 'rgb(22, 163, 74)';
@@ -979,58 +962,65 @@ export default async function AdminCourseraHealthPage() {
         {catalogCoverage.summary.pathsWithIssues === 0 ? (
           <span style={cardSecondaryStyle}>All registered paths match curated membership and the discovered catalog.</span>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-              <thead>
-                <tr>
-                  <th style={coverageThStyle}>Collection</th>
-                  <th style={coverageThStyle}>WAP program</th>
-                  <th style={coverageThStyle}>Curated</th>
-                  <th style={coverageThStyle}>Discovered</th>
-                  <th style={coverageThStyle}>Issues</th>
-                </tr>
-              </thead>
-              <tbody>
-                {catalogCoverage.rows
-                  .filter((row) => row.issues.length > 0)
-                  .map((row) => (
-                    <tr key={row.collectionId}>
-                      <td style={coverageTdStyle}>
-                        <code>{row.collectionId}</code>
-                        <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
-                          {row.name}
-                        </div>
-                        {!row.learningPathId ? (
-                          <div style={{ color: 'var(--color-warn, #b45309)', marginTop: '0.15rem' }}>
-                            learningPathId: null
-                          </div>
-                        ) : null}
-                      </td>
-                      <td style={coverageTdStyle}>
-                        {row.programSlug ? <code>{row.programSlug}</code> : '—'}
-                      </td>
-                      <td style={coverageTdStyle}>{row.curatedCourseCount}</td>
-                      <td style={coverageTdStyle}>
-                        {row.discoveredCourseCount === null ? '—' : row.discoveredCourseCount}
-                        {row.curatedOnlyCourseIds.length > 0 ? (
-                          <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
-                            +{row.curatedOnlyCourseIds.length} curated-only
-                          </div>
-                        ) : null}
-                        {row.discoveredOnlyCourseIds.length > 0 ? (
-                          <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
-                            +{row.discoveredOnlyCourseIds.length} discovered-only
-                          </div>
-                        ) : null}
-                      </td>
-                      <td style={coverageTdStyle}>
-                        {row.issues.map((issue) => catalogCoverageIssueLabel(issue)).join(' · ')}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            density="compact"
+            rows={catalogCoverage.rows.filter((row) => row.issues.length > 0)}
+            rowKey={(row) => row.collectionId}
+            columns={[
+              {
+                key: 'collection',
+                header: 'Collection',
+                cell: (row) => (
+                  <>
+                    <code>{row.collectionId}</code>
+                    <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                      {row.name}
+                    </div>
+                    {!row.learningPathId ? (
+                      <div style={{ color: 'var(--color-warn, #b45309)', marginTop: '0.15rem' }}>
+                        learningPathId: null
+                      </div>
+                    ) : null}
+                  </>
+                ),
+              },
+              {
+                key: 'program',
+                header: 'WAP program',
+                cell: (row) => (row.programSlug ? <code>{row.programSlug}</code> : '—'),
+              },
+              {
+                key: 'curated',
+                header: 'Curated',
+                cell: (row) => row.curatedCourseCount,
+              },
+              {
+                key: 'discovered',
+                header: 'Discovered',
+                cell: (row) => (
+                  <>
+                    {row.discoveredCourseCount === null ? '—' : row.discoveredCourseCount}
+                    {row.curatedOnlyCourseIds.length > 0 ? (
+                      <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                        +{row.curatedOnlyCourseIds.length} curated-only
+                      </div>
+                    ) : null}
+                    {row.discoveredOnlyCourseIds.length > 0 ? (
+                      <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                        +{row.discoveredOnlyCourseIds.length} discovered-only
+                      </div>
+                    ) : null}
+                  </>
+                ),
+              },
+              {
+                key: 'issues',
+                header: 'Issues',
+                cell: (row) =>
+                  row.issues.map((issue) => catalogCoverageIssueLabel(issue)).join(' · '),
+              },
+            ]}
+          />
         )}
       </section>
 

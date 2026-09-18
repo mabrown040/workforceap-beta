@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d172107f3226323357562847a2ebe81e00993ceb2998c08a51435810d61993ae",
+  "inputTreeSha256": "20599f050de38a26c39d6be6af72611f24848ddebfe4aa52287bdf25a579f0c1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -40462,9 +40462,9 @@
       "path": "app/apply/apply-funnel-depth.css",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 2241,
-      "lines": 86,
-      "sha256": "421dcef030480970b8a8008a65d16e9de8351ab8b4825e62453ba9c9c38d0cd0",
+      "bytes": 8833,
+      "lines": 439,
+      "sha256": "908266773ac6b8118541ec6e6a45563f9fcbc95ff6be310c5eb53989df2ff95c",
       "binary": false
     },
     {
@@ -40496,9 +40496,9 @@
       "path": "app/apply/confirmation/page.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 15579,
-      "lines": 306,
-      "sha256": "acbf14100b0b28dae11b080e9f9f80a135484183d9e124f299fa24eb21f29719",
+      "bytes": 11709,
+      "lines": 263,
+      "sha256": "731d64127d815918cd2e131bafcb3b966999848ea874029fad6a98100e4bf7af",
       "binary": false,
       "exports": [
         {
@@ -52978,9 +52978,9 @@
       "path": "components/apply/ApplyConfirmationCta.tsx",
       "area": "components",
       "domain": "applications-enrollment",
-      "bytes": 2292,
-      "lines": 54,
-      "sha256": "1a0c7af53f508ccf2dbb6d5cd1287184c5e1f18f6c1bf7ac9cb745423145e3fe",
+      "bytes": 1571,
+      "lines": 39,
+      "sha256": "e0e1018ede40227d46dd939cb0b6531e70c33d808f73ceb26e7e0491b37602d3",
       "binary": false,
       "exports": [
         {
@@ -136895,27 +136895,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 187737,
-      "lines": 3072,
-      "sha256": "b6e44ef5297fdd4e5d0d039f8b8b3087c77519ec60fa60096edad1203a663b1d",
+      "bytes": 187896,
+      "lines": 3075,
+      "sha256": "3a1421ffd673175bb193567a33a9785fab7c86627ced6ae72a4c629fb9c67d05",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206114,
-      "lines": 3059,
-      "sha256": "7eb06ff989f02dc4c12d32f54b547f185d52461fc9d311f3657faa4a97c5c65e",
+      "bytes": 206265,
+      "lines": 3062,
+      "sha256": "805444a610105c325b7860221df6c9aef1e2cf6c001c80992b2123e1677dcab9",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 207037,
-      "lines": 3012,
-      "sha256": "6b94a5262548650cad3a48407b0af0a7d6baf64be5f5150eaa8b50eda81d649b",
+      "bytes": 207193,
+      "lines": 3015,
+      "sha256": "d9e72d5ea5ecede9b61ab480eeef28daf7af2792de309ed2ef8122be946fe3b2",
       "binary": false
     },
     {
@@ -136931,9 +136931,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 199066,
-      "lines": 3012,
-      "sha256": "317262b138b7aa5f71377948e7a89e201bad35f7814c547a68fefd9c98a75024",
+      "bytes": 199239,
+      "lines": 3015,
+      "sha256": "9cd8bfbf840375d62684e6b3d60f39d620094a942559cd1e3d382fe046c364b5",
       "binary": false
     },
     {
@@ -148307,6 +148307,18 @@
           "kind": "FunctionDeclaration"
         }
       ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/apply-confirmation-clarity.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2224,
+      "lines": 55,
+      "sha256": "e7f8227c2d10575204732e6f0ceafea4e62e80364f69da6aa55eab7df6c730f1",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
       "directive": null
     },
     {

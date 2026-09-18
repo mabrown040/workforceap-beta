@@ -1,0 +1,55 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'fs';
+import path from 'path';
+
+describe('apply confirmation clarity', () => {
+  const pageSource = readFileSync(
+    path.resolve(__dirname, '../../app/apply/confirmation/page.tsx'),
+    'utf-8',
+  );
+  const cssSource = readFileSync(
+    path.resolve(__dirname, '../../app/apply/apply-funnel-depth.css'),
+    'utf-8',
+  );
+  const ctaSource = readFileSync(
+    path.resolve(__dirname, '../../components/apply/ApplyConfirmationCta.tsx'),
+    'utf-8',
+  );
+
+  it('keeps a single primary next-step CTA zone (footer stays secondary)', () => {
+    expect(pageSource).toContain('afd-confirm__recommend');
+    expect(pageSource).toContain('afd-confirm__foot-actions');
+    expect(pageSource).toMatch(
+      /afd-confirm__foot-actions[\s\S]*mdx-btn--ghost[\s\S]*confirmationCtaStatus/,
+    );
+    expect(pageSource).not.toMatch(
+      /afd-confirm__foot-actions[\s\S]*mdx-btn--primary/,
+    );
+  });
+
+  it('marks timeline progress with done + current steps', () => {
+    expect(pageSource).toContain('afd-confirm__step--done');
+    expect(pageSource).toContain('afd-confirm__step--current');
+    expect(pageSource).toContain("aria-current={state === 'current' ? 'step' : undefined}");
+    expect(pageSource).toContain('confirmationStepDoneLabel');
+    expect(pageSource).toContain('confirmationStepCurrentLabel');
+  });
+
+  it('styles confirmation with --wa-* kit tokens instead of inline --color bags', () => {
+    expect(cssSource).toContain('--wa-accent');
+    expect(cssSource).toContain('--wa-text');
+    expect(cssSource).toContain('.afd-confirm__recommend');
+    expect(cssSource).not.toMatch(/#[0-9a-fA-F]{3,8}/);
+    expect(pageSource).not.toContain('var(--color-accent)');
+    expect(ctaSource).not.toContain('var(--color-accent)');
+    expect(ctaSource).toContain('afd-confirm__recommend');
+  });
+
+  it('does not duplicate the primary destination in Also helpful for signed-in members', () => {
+    expect(pageSource).toContain('confirmationAlsoHelpfulHeading');
+    expect(pageSource).toContain('whatYouCanDoSignedIn');
+    expect(pageSource).not.toMatch(
+      /whatYouCanDoSignedIn = \[[\s\S]*confirmationDoDashboardLabel/,
+    );
+  });
+});

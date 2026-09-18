@@ -905,7 +905,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/xapi | route | POST | [app/api/xapi/route.ts](../../../app/api/xapi/route.ts) |  |
 | /api/xapi/statements | route | POST, GET | [app/api/xapi/statements/route.ts](../../../app/api/xapi/statements/route.ts) | @/lib/rate-limit:15, @/lib/db/withRequestGuc:26, @/lib/tenant/resolveOrgFromRequest:27 |
 | /apply/confirmation | loading |  | [app/apply/confirmation/loading.tsx](../../../app/apply/confirmation/loading.tsx) |  |
-| /apply/confirmation | page |  | [app/apply/confirmation/page.tsx](../../../app/apply/confirmation/page.tsx) | @/lib/auth/server:13 |
+| /apply/confirmation | page |  | [app/apply/confirmation/page.tsx](../../../app/apply/confirmation/page.tsx) | @/lib/auth/server:12 |
 | /apply/create-account | error |  | [app/apply/create-account/error.tsx](../../../app/apply/create-account/error.tsx) |  |
 | /apply/create-account | loading |  | [app/apply/create-account/loading.tsx](../../../app/apply/create-account/loading.tsx) |  |
 | /apply/create-account | page |  | [app/apply/create-account/page.tsx](../../../app/apply/create-account/page.tsx) |  |

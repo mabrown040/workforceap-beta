@@ -60089,16 +60089,8 @@
   },
   {
     "from": "app/apply/confirmation/page.tsx",
-    "specifier": "react",
-    "line": 1,
-    "kind": "type",
-    "external": true,
-    "package": "react"
-  },
-  {
-    "from": "app/apply/confirmation/page.tsx",
     "specifier": "next",
-    "line": 2,
+    "line": 1,
     "kind": "type",
     "external": true,
     "package": "next"
@@ -60106,7 +60098,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/LocalizedLink",
-    "line": 3,
+    "line": 2,
     "kind": "import",
     "external": false,
     "target": "components/LocalizedLink.tsx"
@@ -60114,7 +60106,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "react",
-    "line": 4,
+    "line": 3,
     "kind": "import",
     "external": true,
     "package": "react"
@@ -60122,7 +60114,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/app/seo",
-    "line": 5,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "app/seo.ts"
@@ -60130,7 +60122,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/Footer",
-    "line": 6,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "components/Footer.tsx"
@@ -60138,7 +60130,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/MobileBottomNav",
-    "line": 7,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/MobileBottomNav.tsx"
@@ -60146,7 +60138,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/apply/ApplyConfirmationCta",
-    "line": 8,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/apply/ApplyConfirmationCta.tsx"
@@ -60154,7 +60146,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/apply/ApplyConfirmationReceiptRetry",
-    "line": 9,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/apply/ApplyConfirmationReceiptRetry.tsx"
@@ -60162,7 +60154,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/marketing/ThankYouViewTracker",
-    "line": 10,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/marketing/ThankYouViewTracker.tsx"
@@ -60170,7 +60162,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/apply/ShareButtons",
-    "line": 11,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/apply/ShareButtons.tsx"
@@ -60178,7 +60170,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/components/portal/ProgramCommitmentPanel",
-    "line": 12,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/ProgramCommitmentPanel.tsx"
@@ -60186,7 +60178,7 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "@/lib/auth/server",
-    "line": 13,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -60194,10 +60186,18 @@
   {
     "from": "app/apply/confirmation/page.tsx",
     "specifier": "next-intl/server",
-    "line": 15,
+    "line": 14,
     "kind": "import",
     "external": true,
     "package": "next-intl"
+  },
+  {
+    "from": "app/apply/confirmation/page.tsx",
+    "specifier": "@/css/portal-tokens.css",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "css/portal-tokens.css"
   },
   {
     "from": "app/apply/confirmation/page.tsx",
@@ -110286,6 +110286,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/ai/groq.ts"
+  },
+  {
+    "from": "tests/api/apply-confirmation-clarity.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/apply-confirmation-clarity.spec.ts",
+    "specifier": "fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "fs"
+  },
+  {
+    "from": "tests/api/apply-confirmation-clarity.spec.ts",
+    "specifier": "path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "path"
   },
   {
     "from": "tests/api/apply-status-lookup.spec.ts",

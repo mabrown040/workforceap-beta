@@ -30,7 +30,7 @@
 | [app/api/admin/coursera/b4b-bindings-suggestions/route.ts](../../../app/api/admin/coursera/b4b-bindings-suggestions/route.ts) | 70 | learning-coursera | GET:70 |
 | [app/api/admin/coursera/b4b-programs/route.ts](../../../app/api/admin/coursera/b4b-programs/route.ts) | 91 | learning-coursera | GET:91 |
 | [app/api/admin/coursera/backfill-orphans/route.ts](../../../app/api/admin/coursera/backfill-orphans/route.ts) | 55 | learning-coursera | runtime:11, maxDuration:12, POST:31 |
-| [app/api/admin/coursera/backfill-xapi/route.ts](../../../app/api/admin/coursera/backfill-xapi/route.ts) | 183 | learning-coursera | GET:38, POST:63 |
+| [app/api/admin/coursera/backfill-xapi/route.ts](../../../app/api/admin/coursera/backfill-xapi/route.ts) | 191 | learning-coursera | GET:39, POST:64 |
 | [app/api/admin/coursera/canonical-course-mappings/route.ts](../../../app/api/admin/coursera/canonical-course-mappings/route.ts) | 146 | learning-coursera | POST:121, DELETE:145 |
 | [app/api/admin/coursera/csv-import/route.ts](../../../app/api/admin/coursera/csv-import/route.ts) | 160 | learning-coursera | runtime:18, POST:160 |
 | [app/api/admin/coursera/enroll-member/route.ts](../../../app/api/admin/coursera/enroll-member/route.ts) | 275 | learning-coursera | POST:275 |
@@ -48,7 +48,7 @@
 | [app/api/admin/coursera/self-test/route.ts](../../../app/api/admin/coursera/self-test/route.ts) | 556 | learning-coursera | GET:556 |
 | [app/api/admin/coursera/sync-b4b/route.ts](../../../app/api/admin/coursera/sync-b4b/route.ts) | 52 | learning-coursera | POST:52 |
 | [app/api/admin/coursera/sync-progress/route.ts](../../../app/api/admin/coursera/sync-progress/route.ts) | 68 | learning-coursera | runtime:13, maxDuration:14, POST:20 |
-| [app/api/admin/coursera/sync-user-from-b4b/route.ts](../../../app/api/admin/coursera/sync-user-from-b4b/route.ts) | 123 | learning-coursera | POST:123 |
+| [app/api/admin/coursera/sync-user-from-b4b/route.ts](../../../app/api/admin/coursera/sync-user-from-b4b/route.ts) | 131 | learning-coursera | POST:131 |
 | [app/api/admin/crons/_cronsQuery.ts](../../../app/api/admin/crons/_cronsQuery.ts) | 53 | administration | CronsQueryParams:3, buildCronsWhere:12, fetchCrons:32 |
 | [app/api/admin/crons/export/route.ts](../../../app/api/admin/crons/export/route.ts) | 54 | administration | GET:54 |
 | [app/api/admin/crons/route.test.ts](../../../app/api/admin/crons/route.test.ts) | 52 | administration |  |

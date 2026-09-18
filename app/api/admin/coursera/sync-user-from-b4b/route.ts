@@ -7,6 +7,7 @@ import { syncUserFromB4B } from '@/lib/coursera/syncUserFromB4B';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -70,8 +71,13 @@ async function _POST(request: NextRequest) {
   
     // Find the WAP user (tenant-scoped) — same gate as before; we never
     // auto-provision a WAP account here.
-    const wapUser = await withTenantScope(orgId, (db) =>
-      db.user.findFirst({
+    // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in the requested
+    // address are wildcards: `m_johnson@x.org` also matches
+    // `mrjohnson@x.org`, and syncUserFromB4B would then link that member's
+    // Coursera identity. Collect the candidates, then keep only a genuine
+    // case-insensitive equality. See lib/db/exactEmailMatch.ts.
+    const wapUserCandidates = await withTenantScope(orgId, (db) =>
+      db.user.findMany({
         where: {
           deletedAt: null,
           email: { equals: email, mode: 'insensitive' },
@@ -82,8 +88,10 @@ async function _POST(request: NextRequest) {
           organizationId: true,
           enrolledProgram: true,
         },
+        take: EXACT_EMAIL_CANDIDATE_LIMIT,
       }),
     );
+    const wapUser = pickExactEmailMatch(wapUserCandidates, email);
   
     if (!wapUser) {
       return NextResponse.json(

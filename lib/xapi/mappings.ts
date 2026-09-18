@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { sendCourseraUnmatchedActorAlertEmail } from '@/lib/email';
 import { runBulkEmailOperation } from '@/lib/email/pacing';
 import { isLikelyTestAccount } from '@/lib/coursera/testAccountHeuristic';
@@ -334,7 +335,13 @@ async function getDirectXapiEmailUser(
   const email = normalizeEmail(identity.email);
   if (!email) return null;
 
-  return prisma.user.findFirst({
+  // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in the actor mbox are
+  // wildcards: `m_johnson@x.org` also matches `mrjohnson@x.org`. The mbox
+  // arrives on a caller-supplied xAPI statement and the resolved user gets a
+  // permanent Coursera identity link, so an ILIKE hit is not proof of
+  // identity. Collect the candidates, then keep only a genuine
+  // case-insensitive equality. See lib/db/exactEmailMatch.ts.
+  const candidates = await prisma.user.findMany({
     where: {
       ...(organizationId ? { organizationId } : {}),
       deletedAt: null,
@@ -344,7 +351,10 @@ async function getDirectXapiEmailUser(
       },
     },
     select: { id: true, email: true, fullName: true, organizationId: true },
+    take: EXACT_EMAIL_CANDIDATE_LIMIT,
   });
+
+  return pickExactEmailMatch(candidates, email);
 }
 
 export async function resolveXapiUser(

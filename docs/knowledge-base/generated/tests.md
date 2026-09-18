@@ -248,7 +248,7 @@
 | [tests/lib/coursera-raw-progress-keys.spec.ts](../../../tests/lib/coursera-raw-progress-keys.spec.ts) | 40 | learning-coursera |  |
 | [tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts](../../../tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts) | 76 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-attachment.spec.ts](../../../tests/lib/coursera-stage-a-attachment.spec.ts) | 103 | learning-coursera |  |
-| [tests/lib/coursera-stage-a-direct-email-resolution.spec.ts](../../../tests/lib/coursera-stage-a-direct-email-resolution.spec.ts) | 216 | learning-coursera |  |
+| [tests/lib/coursera-stage-a-direct-email-resolution.spec.ts](../../../tests/lib/coursera-stage-a-direct-email-resolution.spec.ts) | 220 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-legacy-writer.spec.ts](../../../tests/lib/coursera-stage-a-legacy-writer.spec.ts) | 206 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-mapping-ownership.spec.ts](../../../tests/lib/coursera-stage-a-mapping-ownership.spec.ts) | 102 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-mapping-transaction.spec.ts](../../../tests/lib/coursera-stage-a-mapping-transaction.spec.ts) | 147 | learning-coursera |  |
@@ -314,7 +314,7 @@
 | [tests/lib/with-cron-logging.spec.ts](../../../tests/lib/with-cron-logging.spec.ts) | 60 | tests |  |
 | [tests/lib/xapi-first-completion-side-effects.spec.ts](../../../tests/lib/xapi-first-completion-side-effects.spec.ts) | 263 | tests |  |
 | [tests/lib/xapi-replay-tenant-boundary.spec.ts](../../../tests/lib/xapi-replay-tenant-boundary.spec.ts) | 121 | tests |  |
-| [tests/lib/xapi-reprocess-tenant-boundary.spec.ts](../../../tests/lib/xapi-reprocess-tenant-boundary.spec.ts) | 119 | tests |  |
+| [tests/lib/xapi-reprocess-tenant-boundary.spec.ts](../../../tests/lib/xapi-reprocess-tenant-boundary.spec.ts) | 121 | tests |  |
 | [tests/migrations/placement-survey-sent-state.mjs](../../../tests/migrations/placement-survey-sent-state.mjs) | 150 | tests |  |
 | [tests/next-config-redirect-destinations.spec.ts](../../../tests/next-config-redirect-destinations.spec.ts) | 57 | tests |  |
 | [tests/pdf-deployment.test.ts](../../../tests/pdf-deployment.test.ts) | 53 | tests |  |

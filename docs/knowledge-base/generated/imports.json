@@ -24993,8 +24993,16 @@
   },
   {
     "from": "app/admin/training-progress/page.tsx",
-    "specifier": "@/lib/admin/trainingProgressRoster",
+    "specifier": "@/lib/admin/trainingProgressPrograms",
     "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressPrograms.ts"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressRoster.ts"
@@ -25002,7 +25010,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 21,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -25010,7 +25018,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 22,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -25018,7 +25026,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/admin/TrainingProgressClient",
-    "line": 23,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "components/admin/TrainingProgressClient.tsx"
@@ -25026,7 +25034,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/admin/TrainingProgressRoster",
-    "line": 27,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "components/admin/TrainingProgressRoster.tsx"
@@ -25034,7 +25042,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
-    "line": 28,
+    "line": 33,
     "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
@@ -25042,7 +25050,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 416,
+    "line": 392,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -93426,7 +93434,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 878,
+    "line": 963,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -93434,7 +93442,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/milestones",
-    "line": 881,
+    "line": 966,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/milestones.ts"
@@ -93442,7 +93450,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/milestoneCascade/detectCompletionMilestone",
-    "line": 884,
+    "line": 969,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/milestoneCascade/detectCompletionMilestone.ts"
@@ -93450,7 +93458,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 1003,
+    "line": 1088,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
@@ -121070,6 +121078,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressGrades.ts"
+  },
+  {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "@/lib/admin/trainingProgressPrograms",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressPrograms.ts"
   },
   {
     "from": "tests/lib/training-workspace-schedule.spec.ts",

@@ -19047,6 +19047,10 @@
       {
         "file": "lib/admin/trainingProgressGrades.ts",
         "line": 16
+      },
+      {
+        "file": "lib/admin/trainingProgressPrograms.ts",
+        "line": 17
       }
     ],
     "kind": "test-candidate",

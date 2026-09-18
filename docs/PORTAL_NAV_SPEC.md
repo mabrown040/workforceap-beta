@@ -19,9 +19,9 @@ staff = dense left sidebar (+ role mobile bottom tabs).**
 
 `WorkspaceShell` with `portalRole="member"` renders the full `MEMBER_PORTAL_NAV_ITEMS`
 command rail. ICP daily destinations stay visible without opening a group: **Home**,
-**My program**, **Job board**, **My progress**, **Messages**, and **Skill missions**.
-Job applications, resume, AI tools, and remaining training/account links stay in
-disclosed Tools / Training / Account groups. Kit tokens: warm surface, ~232px rail
+**My program**, **Job board**, **My progress**, **AI Career Tools**, **Messages**,
+and **Skill missions**. Job applications, resume, AI Advisor, and remaining
+training/account links stay in disclosed Tools / Training / Account groups. Kit tokens: warm surface, ~232px rail
 (208 laptop / 72 collapsed), sentence-case labels, 16px / 44px targets, `aria-current`
 on the most specific destination only.
 

@@ -140,17 +140,19 @@ describe('workspace navigation', () => {
     expect(container.querySelectorAll('.workspace-sidebar [aria-current="page"]')).toHaveLength(1);
   });
 
-  it('keeps Jobs and Training progress visible without opening a group', () => {
+  it('keeps Jobs, Training progress, and AI Career Tools visible without opening a group', () => {
     const { container } = show();
     const primary = container.querySelector('.workspace-sidebar-list--root > .workspace-sidebar-group');
     expect(primary).not.toBeNull();
     expect(primary?.querySelector('details')).toBeNull();
     expect(within(primary as HTMLElement).getByRole('link', { name: 'Job board' })).toHaveAttribute('href', '/dashboard/jobs');
     expect(within(primary as HTMLElement).getByRole('link', { name: 'My progress' })).toHaveAttribute('href', '/dashboard/readiness');
+    expect(within(primary as HTMLElement).getByRole('link', { name: 'AI Career Tools' })).toHaveAttribute('href', '/dashboard/ai-tools');
     expect(within(primary as HTMLElement).getByRole('link', { name: 'Messages' })).toHaveAttribute('href', '/dashboard/messages');
     const groupedHrefs = [...container.querySelectorAll('.workspace-sidebar details a')].map((link) => link.getAttribute('href'));
     expect(groupedHrefs).not.toContain('/dashboard/jobs');
     expect(groupedHrefs).not.toContain('/dashboard/readiness');
+    expect(groupedHrefs).not.toContain('/dashboard/ai-tools');
     expect(groupedHrefs).not.toContain('/dashboard/messages');
   });
 

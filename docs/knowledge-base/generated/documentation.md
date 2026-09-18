@@ -47,7 +47,7 @@
 | [docs/I18N-LOCALE-ROUTING.md](../../../docs/I18N-LOCALE-ROUTING.md) | 520 | documentation |  |
 | [docs/INCIDENT-RESPONSE-PLAN.md](../../../docs/INCIDENT-RESPONSE-PLAN.md) | 340 | documentation |  |
 | [docs/JOB-CREATE-FIX.md](../../../docs/JOB-CREATE-FIX.md) | 33 | documentation |  |
-| [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 381 | documentation |  |
+| [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 383 | documentation |  |
 | [docs/LAUNCH-PREP-AUDIT.md](../../../docs/LAUNCH-PREP-AUDIT.md) | 146 | documentation |  |
 | [docs/LIVE-PORTAL-AUDIT-2026-04-26.md](../../../docs/LIVE-PORTAL-AUDIT-2026-04-26.md) | 707 | documentation |  |
 | [docs/MEMBER-PAGES-AUDIT.md](../../../docs/MEMBER-PAGES-AUDIT.md) | 148 | documentation |  |
@@ -66,7 +66,7 @@
 | [docs/PORTAL-UI-UX-ENHANCEMENTS.md](../../../docs/PORTAL-UI-UX-ENHANCEMENTS.md) | 166 | documentation |  |
 | [docs/PORTALS.md](../../../docs/PORTALS.md) | 367 | documentation |  |
 | [docs/PORTAL_DESIGN_KIT.md](../../../docs/PORTAL_DESIGN_KIT.md) | 139 | documentation |  |
-| [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 97 | documentation |  |
+| [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 101 | documentation |  |
 | [docs/PORTAL_REDESIGN_PLAN.md](../../../docs/PORTAL_REDESIGN_PLAN.md) | 189 | documentation |  |
 | [docs/PORTAL_UI_DECISION_MOCKUP.md](../../../docs/PORTAL_UI_DECISION_MOCKUP.md) | 120 | documentation |  |
 | [docs/PORTING_GUIDE.md](../../../docs/PORTING_GUIDE.md) | 108 | documentation |  |

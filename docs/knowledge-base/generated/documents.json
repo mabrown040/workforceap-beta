@@ -17619,52 +17619,52 @@
       {
         "level": 2,
         "title": "2. Surface modes: `warm` vs `dense`",
-        "line": 96
+        "line": 98
       },
       {
         "level": 2,
         "title": "3. Dark mode",
-        "line": 123
+        "line": 125
       },
       {
         "level": 2,
         "title": "4. Status colors — two systems, one mapping (read this twice)",
-        "line": 145
+        "line": 147
       },
       {
         "level": 2,
         "title": "5. The `KitBaseProps` contract",
-        "line": 177
+        "line": 179
       },
       {
         "level": 2,
         "title": "6. Component index (`components/portal/kit/index.ts`)",
-        "line": 193
+        "line": 195
       },
       {
         "level": 2,
         "title": "7. Icons, styling, and motion",
-        "line": 280
+        "line": 282
       },
       {
         "level": 2,
         "title": "8. Common mistakes (all observed in this repo — don't repeat them)",
-        "line": 302
+        "line": 304
       },
       {
         "level": 2,
         "title": "9. Astryx coexistence (`@astryxdesign/core`)",
-        "line": 327
+        "line": 329
       },
       {
         "level": 3,
         "title": "Stakeholder workflow contracts (2026-09-09)",
-        "line": 364
+        "line": 366
       },
       {
         "level": 3,
         "title": "Portal polish contracts (2026-09-09)",
-        "line": 374
+        "line": 376
       }
     ],
     "datedFilename": false,
@@ -19421,37 +19421,37 @@
       {
         "level": 3,
         "title": "Mobile (≤768px)",
-        "line": 25
+        "line": 28
       },
       {
         "level": 3,
         "title": "Historical flat-nav target (not live)",
-        "line": 42
+        "line": 46
       },
       {
         "level": 2,
         "title": "2. Reachability requirement (do NOT orphan)",
-        "line": 51
+        "line": 55
       },
       {
         "level": 2,
         "title": "3. Staff nav — dense sidebar (unchanged)",
-        "line": 62
+        "line": 66
       },
       {
         "level": 3,
         "title": "Staff mobile bottom tabs (subset of the rail)",
-        "line": 67
+        "line": 71
       },
       {
         "level": 2,
         "title": "4. Implementation notes",
-        "line": 81
+        "line": 85
       },
       {
         "level": 2,
         "title": "5. Out of scope here",
-        "line": 93
+        "line": 97
       }
     ],
     "datedFilename": false,

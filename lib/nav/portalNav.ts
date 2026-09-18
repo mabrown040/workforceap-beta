@@ -158,6 +158,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-jobs',
   },
   { href: '/dashboard/readiness', label: 'My progress', group: 'primary', tab: 'jobs', Icon: CheckCircle },
+  { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'primary', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/missions', label: 'Skill missions', group: 'primary', tab: 'program', Icon: Target },
   {
     href: '/dashboard/program/start',
@@ -191,8 +192,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'applications_new',
   },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
-  // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
+  // ── Tools tab (AI Career Tools sits in primary; advisor/hub stay grouped) ──
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
   {
     href: '/dashboard/learning',

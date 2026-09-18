@@ -79818,14 +79818,6 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
     "specifier": "@astryxdesign/core/Link",
-    "line": 12,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
     "line": 13,
     "kind": "import",
     "external": true,
@@ -79833,7 +79825,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
+    "specifier": "@astryxdesign/core/Button",
     "line": 14,
     "kind": "import",
     "external": true,
@@ -79841,7 +79833,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/ClickableCard",
+    "specifier": "@astryxdesign/core/Token",
     "line": 15,
     "kind": "import",
     "external": true,
@@ -79849,11 +79841,19 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/EmptyState",
+    "specifier": "@astryxdesign/core/ClickableCard",
     "line": 16,
     "kind": "import",
     "external": true,
     "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
+    "specifier": "@/lib/admin/directoryEmptyState",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/directoryEmptyState.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/ExportsKit.tsx",
@@ -80233,19 +80233,19 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PartnersDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/EmptyState",
-    "line": 8,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/PartnersDirectoryKit.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 9,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/PartnersDirectoryKit.tsx",
+    "specifier": "@/lib/admin/directoryEmptyState",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/directoryEmptyState.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PipelineFunnelKit.tsx",
@@ -80625,7 +80625,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/EmptyState",
+    "specifier": "@astryxdesign/core/Link",
     "line": 8,
     "kind": "import",
     "external": true,
@@ -80633,19 +80633,19 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
-    "line": 9,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 10,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx",
+    "specifier": "@/lib/admin/directoryEmptyState",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/directoryEmptyState.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/SystemHealthKit.tsx",
@@ -87206,6 +87206,54 @@
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressReconciliation.ts"
+  },
+  {
+    "from": "lib/admin/directoryEmptyState.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/admin/directoryEmptyState.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/admin/directoryEmptyState.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/admin/directoryEmptyState.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/admin/directoryEmptyState.test.ts",
+    "specifier": "node:url",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:url"
+  },
+  {
+    "from": "lib/admin/directoryEmptyState.test.ts",
+    "specifier": "./directoryEmptyState",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/directoryEmptyState.ts"
   },
   {
     "from": "lib/admin/directorySearch.ts",

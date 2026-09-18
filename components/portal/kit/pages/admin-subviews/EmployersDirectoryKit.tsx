@@ -6,6 +6,7 @@ import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
+  KitEmptyState,
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
@@ -13,7 +14,7 @@ import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import { Button } from '@astryxdesign/core/Button';
 import { Token, type TokenColor } from '@astryxdesign/core/Token';
 import { ClickableCard } from '@astryxdesign/core/ClickableCard';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { EMPLOYERS_DIRECTORY_EMPTY } from '@/lib/admin/directoryEmptyState';
 
 /**
  * Employers directory — partner card grid (dense).
@@ -212,11 +213,20 @@ export function EmployersDirectoryKit({
           ))}
         </div>
       ) : (
-        <EmptyState
-          icon={<Building2 className="h-6 w-6" aria-hidden />}
-          title="No employers yet"
-          description="Add your first hiring partner to start tracking open roles and hires."
-        />
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title={EMPLOYERS_DIRECTORY_EMPTY.title}
+            description={EMPLOYERS_DIRECTORY_EMPTY.description}
+            action={
+              <Link
+                href={EMPLOYERS_DIRECTORY_EMPTY.primaryCta.href}
+                className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+              >
+                {EMPLOYERS_DIRECTORY_EMPTY.primaryCta.label}
+              </Link>
+            }
+          />
+        </div>
       )}
     </DesignSurface>
   );

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "6a196bb4ba0315c7d57a610bee4e0c9f1ceac7858d4a3ad37ea4e539a0a77973",
+  "inputTreeSha256": "b0661a79c5ea1ec79a3d86ba6e07f1ac3f7c652aa991b3901495b28ed9c42b71",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -68088,76 +68088,76 @@
       "path": "components/portal/kit/pages/admin-subviews/EmployersDirectoryKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8487,
-      "lines": 223,
-      "sha256": "6aad4ce3323c05fbf1e312e6f5704869cbb9627e034b92c91f01cc0fab6b276c",
+      "bytes": 8796,
+      "lines": 233,
+      "sha256": "09b6f5aa8d503c3f0fa01e22c56d2d04470abf39a7458f527351ae981abbcbc6",
       "binary": false,
       "exports": [
         {
           "name": "EmployerCard",
-          "line": 32,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "EmployersDirectoryKitProps",
-          "line": 70,
+          "line": 71,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "EmployersDirectoryKit",
-          "line": 170,
+          "line": 171,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "EmployerCard",
-          "line": 32,
+          "line": 33,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "daysSinceLogin",
-          "line": 48,
+          "line": 49,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "lastActiveBadge",
-          "line": 54,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "TONE_TOKEN_COLOR",
-          "line": 63,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "EmployersDirectoryKitProps",
-          "line": 70,
+          "line": 71,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_EMPLOYERS",
-          "line": 82,
+          "line": 83,
           "kind": "Variable"
         },
         {
           "name": "TILE_TINTS",
-          "line": 89,
+          "line": 90,
           "kind": "Variable"
         },
         {
           "name": "STATUS_TAG",
-          "line": 95,
+          "line": 96,
           "kind": "Variable"
         },
         {
           "name": "EmployerTile",
-          "line": 101,
+          "line": 102,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployersDirectoryKit",
-          "line": 170,
+          "line": 171,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -68738,66 +68738,66 @@
       "path": "components/portal/kit/pages/admin-subviews/PartnersDirectoryKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 9251,
-      "lines": 214,
-      "sha256": "6f3de25fc76b254e506e1bfb5048f5d661ead6fd2cd454f2ff10e66cd6f14fb8",
+      "bytes": 9253,
+      "lines": 220,
+      "sha256": "f584942271308096922ddc0e9ee62056b73311bd6ab6bb8c445060e1891b01d4",
       "binary": false,
       "exports": [
         {
           "name": "PartnerCard",
-          "line": 29,
+          "line": 30,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PartnersDirectoryKitProps",
-          "line": 46,
+          "line": 47,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PartnersDirectoryKit",
-          "line": 90,
+          "line": 91,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "PartnerCard",
-          "line": 29,
+          "line": 30,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "PartnersDirectoryKitProps",
-          "line": 46,
+          "line": 47,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_PARTNERS",
-          "line": 57,
+          "line": 58,
           "kind": "Variable"
         },
         {
           "name": "placementPct",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "statusToken",
-          "line": 70,
+          "line": 71,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "TILE_PALETTE",
-          "line": 81,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "TILE_ICONS",
-          "line": 88,
+          "line": 89,
           "kind": "Variable"
         },
         {
           "name": "PartnersDirectoryKit",
-          "line": 90,
+          "line": 91,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -69319,71 +69319,71 @@
       "path": "components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 6499,
-      "lines": 180,
-      "sha256": "5fd01d1df28586480607db88ad1f1e2e5fc2e04abc98d2c6617b3936e1e4ea9f",
+      "bytes": 6800,
+      "lines": 190,
+      "sha256": "d72779bc3afd19ce7e04128c684dc48cd2972f511609d7534dadfea8d3518cd0",
       "binary": false,
       "exports": [
         {
           "name": "SubgroupKind",
-          "line": 37,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubgroupCard",
-          "line": 39,
+          "line": 40,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "SubgroupsDirectoryKitProps",
-          "line": 50,
+          "line": 51,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "SubgroupsDirectoryKit",
-          "line": 126,
+          "line": 127,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "SubgroupKind",
-          "line": 37,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SubgroupCard",
-          "line": 39,
+          "line": 40,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "SubgroupsDirectoryKitProps",
-          "line": 50,
+          "line": 51,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_SUBGROUPS",
-          "line": 58,
+          "line": 59,
           "kind": "Variable"
         },
         {
           "name": "TILE_TINTS",
-          "line": 65,
+          "line": 66,
           "kind": "Variable"
         },
         {
           "name": "KIND_TAG",
-          "line": 72,
+          "line": 73,
           "kind": "Variable"
         },
         {
           "name": "SubgroupTile",
-          "line": 78,
+          "line": 79,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SubgroupsDirectoryKit",
-          "line": 126,
+          "line": 127,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75142,9 +75142,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 25914,
+      "bytes": 26176,
       "lines": 381,
-      "sha256": "ffeeea99fa38859fa2d69061004e29675396acf9e364b07d6d2c598027f3e1c1",
+      "sha256": "c7c046a78e2acd18b54f7be930f608189644860d43f04a38c39e6d255a82b197",
       "binary": false
     },
     {
@@ -77122,9 +77122,9 @@
       "path": "docs/knowledge-base/features.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 9953,
+      "bytes": 10493,
       "lines": 36,
-      "sha256": "562e66a888ce11927138c8b683c77d85b849c95fdce180917695683a0d07ee5b",
+      "sha256": "ed9e02b9e0bbc2ddf41ffd12e015b2eec1894ac8cf3cb1f01bd0142340adedb9",
       "binary": false
     },
     {
@@ -84146,6 +84146,73 @@
         }
       ],
       "directive": "use server"
+    },
+    {
+      "path": "lib/admin/directoryEmptyState.test.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 2885,
+      "lines": 71,
+      "sha256": "674ef0d19ed7a6cd7a13a3c1f3a6ccdcaa442f07c7f14bc9e404d00ddc7dc7e6",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ROOT",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "assertSentenceCaseLabel",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/directoryEmptyState.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 969,
+      "lines": 25,
+      "sha256": "d592df5596db23adb6cb4c2efe7cf4fdc9219de4c17f14850c143c283bc99df9",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PARTNERS_DIRECTORY_EMPTY",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "EMPLOYERS_DIRECTORY_EMPTY",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "SUBGROUPS_DIRECTORY_EMPTY",
+          "line": 20,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PARTNERS_DIRECTORY_EMPTY",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "EMPLOYERS_DIRECTORY_EMPTY",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "SUBGROUPS_DIRECTORY_EMPTY",
+          "line": 20,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
     },
     {
       "path": "lib/admin/directorySearch.ts",

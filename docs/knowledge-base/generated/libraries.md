@@ -39,6 +39,8 @@
 | [lib/admin/cronPreviewTypes.ts](../../../lib/admin/cronPreviewTypes.ts) | 10 | administration | CronPreviewRecipient:1, CronPreviewResponse:3 |
 | [lib/admin/cronRegistry.ts](../../../lib/admin/cronRegistry.ts) | 404 | administration | CronDef:8, CRON_REGISTRY:22, CRON_CATEGORY_COLOR:399 |
 | [lib/admin/diagnoseMemberCoursera.ts](../../../lib/admin/diagnoseMemberCoursera.ts) | 395 | learning-coursera | CourseraDiagnoseReport:17, diagnoseMemberCoursera:91 |
+| [lib/admin/directoryEmptyState.test.ts](../../../lib/admin/directoryEmptyState.test.ts) | 71 | administration |  |
+| [lib/admin/directoryEmptyState.ts](../../../lib/admin/directoryEmptyState.ts) | 25 | administration | PARTNERS_DIRECTORY_EMPTY:6, EMPLOYERS_DIRECTORY_EMPTY:13, SUBGROUPS_DIRECTORY_EMPTY:20 |
 | [lib/admin/directorySearch.ts](../../../lib/admin/directorySearch.ts) | 43 | administration | normalizeDirectorySearch:4, buildDirectorySearchWhere:8, STAFF_DIRECTORY_ROLES:21, USER_DIRECTORY_ROLES:22, buildUserDirectoryWhere:24 |
 | [lib/admin/eligibilityDatasheet.test.ts](../../../lib/admin/eligibilityDatasheet.test.ts) | 135 | administration |  |
 | [lib/admin/eligibilityDatasheet.ts](../../../lib/admin/eligibilityDatasheet.ts) | 83 | administration | ELIGIBILITY_SOFT_DEADLINE_LABEL:17, ELIGIBILITY_EXPORT_BASE_COLUMNS:19, EligibilityExportRow:29, buildEligibilityExportCsvRows:39, buildEligibilityCampaignWhere:56, eligibilityCampaignSelect:74, EligibilityCampaignMember:81 |

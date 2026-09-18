@@ -5,15 +5,16 @@ import { Users, Plus } from 'lucide-react';
 import { ClickableCard } from '@astryxdesign/core/ClickableCard';
 import { Button } from '@astryxdesign/core/Button';
 import { Token, type TokenColor } from '@astryxdesign/core/Token';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
+  KitEmptyState,
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
+import { SUBGROUPS_DIRECTORY_EMPTY } from '@/lib/admin/directoryEmptyState';
 
 /**
  * Subgroups directory — cohort / chapter / special-program card grid (dense).
@@ -30,8 +31,8 @@ import {
  * grid is hydration-safe alongside the kit primitives.
  *
  * Uses shared primitives from @astryxdesign/core (ClickableCard, Button,
- * Token, EmptyState, Link) for the card-as-link grid, the header CTA, the
- * type chip, and the empty state, per docs/KIT_GUIDE.md §9.
+ * Token, Link) for the card-as-link grid, header CTA, and type chip.
+ * Directory empty uses kit KitEmptyState (same contract as MentorsDirectoryKit).
  */
 
 export type SubgroupKind = 'partner' | 'manager' | 'church';
@@ -169,11 +170,20 @@ export function SubgroupsDirectoryKit({
           ))}
         </div>
       ) : (
-        <EmptyState
-          icon={<Users className="h-6 w-6" aria-hidden />}
-          title="No subgroups yet"
-          description="Create subgroups to give partners, managers, or churches visibility into their assigned members."
-        />
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title={SUBGROUPS_DIRECTORY_EMPTY.title}
+            description={SUBGROUPS_DIRECTORY_EMPTY.description}
+            action={
+              <Link
+                href={SUBGROUPS_DIRECTORY_EMPTY.primaryCta.href}
+                className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
+              >
+                {SUBGROUPS_DIRECTORY_EMPTY.primaryCta.label}
+              </Link>
+            }
+          />
+        </div>
       )}
     </DesignSurface>
   );

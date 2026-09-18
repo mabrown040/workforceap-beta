@@ -287,7 +287,7 @@
 | [tests/lib/milestone-draft-program-snapshot.spec.ts](../../../tests/lib/milestone-draft-program-snapshot.spec.ts) | 50 | member-counselor |  |
 | [tests/lib/milestone-email-provider.spec.ts](../../../tests/lib/milestone-email-provider.spec.ts) | 39 | member-counselor |  |
 | [tests/lib/mssc-curriculum-accuracy.spec.ts](../../../tests/lib/mssc-curriculum-accuracy.spec.ts) | 207 | tests |  |
-| [tests/lib/nextBestActions.test.ts](../../../tests/lib/nextBestActions.test.ts) | 246 | tests |  |
+| [tests/lib/nextBestActions.test.ts](../../../tests/lib/nextBestActions.test.ts) | 247 | tests |  |
 | [tests/lib/notification-triggers-course.spec.ts](../../../tests/lib/notification-triggers-course.spec.ts) | 411 | communications |  |
 | [tests/lib/notification-triggers-job.spec.ts](../../../tests/lib/notification-triggers-job.spec.ts) | 156 | communications |  |
 | [tests/lib/notification-triggers-survey.spec.ts](../../../tests/lib/notification-triggers-survey.spec.ts) | 142 | communications |  |

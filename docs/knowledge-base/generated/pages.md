@@ -554,7 +554,7 @@
 | [app/dev/member/cover-letter/page.tsx](../../../app/dev/member/cover-letter/page.tsx) | 46 | member-counselor | dynamic:10, default:29 |
 | [app/dev/member/elevator-pitch/page.tsx](../../../app/dev/member/elevator-pitch/page.tsx) | 42 | member-counselor | dynamic:11, default:24 |
 | [app/dev/member/gap-analyzer/page.tsx](../../../app/dev/member/gap-analyzer/page.tsx) | 41 | member-counselor | dynamic:10, default:24 |
-| [app/dev/member/home/page.tsx](../../../app/dev/member/home/page.tsx) | 110 | member-counselor | dynamic:9, default:11 |
+| [app/dev/member/home/page.tsx](../../../app/dev/member/home/page.tsx) | 108 | member-counselor | dynamic:9, default:11 |
 | [app/dev/member/interview-coach/page.tsx](../../../app/dev/member/interview-coach/page.tsx) | 37 | member-counselor | dynamic:11, default:18 |
 | [app/dev/member/interview-practice/page.tsx](../../../app/dev/member/interview-practice/page.tsx) | 58 | member-counselor | dynamic:10, default:40 |
 | [app/dev/member/interview-prep/page.tsx](../../../app/dev/member/interview-prep/page.tsx) | 52 | ai-voice | dynamic:10, default:36 |
@@ -567,7 +567,7 @@
 | [app/dev/member/messages/page.tsx](../../../app/dev/member/messages/page.tsx) | 60 | communications | dynamic:13, default:15 |
 | [app/dev/member/missions/page.tsx](../../../app/dev/member/missions/page.tsx) | 192 | member-counselor | dynamic:20, default:135 |
 | [app/dev/member/profile/page.tsx](../../../app/dev/member/profile/page.tsx) | 45 | member-counselor | dynamic:10, default:12 |
-| [app/dev/member/program/page.tsx](../../../app/dev/member/program/page.tsx) | 67 | member-counselor | dynamic:15, default:21 |
+| [app/dev/member/program/page.tsx](../../../app/dev/member/program/page.tsx) | 120 | member-counselor | dynamic:18, default:57 |
 | [app/dev/member/progress/page.tsx](../../../app/dev/member/progress/page.tsx) | 50 | member-counselor | dynamic:11, default:13 |
 | [app/dev/member/resume-rewriter/page.tsx](../../../app/dev/member/resume-rewriter/page.tsx) | 51 | member-counselor | dynamic:10, default:34 |
 | [app/dev/member/resume-strength/page.tsx](../../../app/dev/member/resume-strength/page.tsx) | 104 | member-counselor | dynamic:11, default:86 |

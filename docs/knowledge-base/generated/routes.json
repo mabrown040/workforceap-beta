@@ -32012,6 +32012,29 @@
     "boundaryReferences": []
   },
   {
+    "file": "app/enroll/not-found.tsx",
+    "kind": "not-found",
+    "path": "/enroll",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "metadata",
+        "line": 6,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 15,
+        "kind": "FunctionDeclaration",
+        "localName": "EnrollSchoolNotFound"
+      }
+    ],
+    "methods": [],
+    "configuration": {},
+    "boundaryReferences": []
+  },
+  {
     "file": "app/error.tsx",
     "kind": "error",
     "path": "/",

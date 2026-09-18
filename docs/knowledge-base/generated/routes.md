@@ -998,6 +998,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /employers/signup | layout |  | [app/employers/signup/layout.tsx](../../../app/employers/signup/layout.tsx) |  |
 | /employers/signup | page |  | [app/employers/signup/page.tsx](../../../app/employers/signup/page.tsx) |  |
 | /enroll/\[school\] | page |  | [app/enroll/\[school\]/page.tsx](../../../app/enroll/%5Bschool%5D/page.tsx) |  |
+| /enroll | not-found |  | [app/enroll/not-found.tsx](../../../app/enroll/not-found.tsx) |  |
 | / | error |  | [app/error.tsx](../../../app/error.tsx) |  |
 | / | global-error |  | [app/global-error.tsx](../../../app/global-error.tsx) |  |
 | /invite | layout |  | [app/invite/layout.tsx](../../../app/invite/layout.tsx) |  |

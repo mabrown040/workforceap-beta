@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9f01df014e46663e9dea3e68a93e80cb6ab35feb2cb478ed6ebebdd5769c278f",
+  "inputTreeSha256": "fecc16a28653d26ce2783be4da02ccb649be533e9b558b126060a34d7c4229c0",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -44914,9 +44914,9 @@
       "path": "app/enroll/[school]/page.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 1356,
-      "lines": 35,
-      "sha256": "ab710b4a229653ec4ef0608e962588eca5d7d2201cda999841601b798de81cd2",
+      "bytes": 1444,
+      "lines": 37,
+      "sha256": "9ee30ac899d695b0d3db2da91ba61f99a725c22f1ec01b29855ac360a7c4049f",
       "binary": false,
       "exports": [
         {
@@ -44955,6 +44955,41 @@
         {
           "name": "PartnerEnrollmentPage",
           "line": 24,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "app/enroll/not-found.tsx",
+      "area": "pages",
+      "domain": "applications-enrollment",
+      "bytes": 1810,
+      "lines": 51,
+      "sha256": "df7c28eded0ae46d0ad97ba4cfd19f29a66130afc8dbe7b95374eac961e93e96",
+      "binary": false,
+      "exports": [
+        {
+          "name": "metadata",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 15,
+          "kind": "FunctionDeclaration",
+          "localName": "EnrollSchoolNotFound"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "metadata",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "EnrollSchoolNotFound",
+          "line": 15,
           "kind": "FunctionDeclaration"
         }
       ],

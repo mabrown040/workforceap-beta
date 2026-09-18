@@ -64216,6 +64216,38 @@
     "target": "css/enroll-school.css"
   },
   {
+    "from": "app/enroll/not-found.tsx",
+    "specifier": "next",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/enroll/not-found.tsx",
+    "specifier": "next/link",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/enroll/not-found.tsx",
+    "specifier": "next/image",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/enroll/not-found.tsx",
+    "specifier": "@/components/Footer",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "components/Footer.tsx"
+  },
+  {
     "from": "app/error.tsx",
     "specifier": "@/components/LocalizedLink",
     "line": 3,

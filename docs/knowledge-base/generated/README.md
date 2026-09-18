@@ -22,7 +22,7 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | libraries | 916 | [Open](libraries.md) |
 | localization | 6 | [Open](localization.md) |
 | operations | 118 | [Open](operations.md) |
-| pages | 631 | [Open](pages.md) |
+| pages | 632 | [Open](pages.md) |
 | root | 54 | [Open](root.md) |
 | styles | 16 | [Open](styles.md) |
 | supporting-files | 72 | [Open](supporting-files.md) |

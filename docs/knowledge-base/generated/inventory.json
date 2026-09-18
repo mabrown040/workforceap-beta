@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "ee3a1de2bc2ba7d38f3e40f642f35980afec40a892f9cf30210d88d4bbf46749",
+  "inputTreeSha256": "7a4bb7672d1fb32c910d0f5454e9b7eb749646827ff29f0b8b736a3bd3038b45",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -12168,19 +12168,19 @@
       "path": "app/(portal)/employer/matches/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 3176,
-      "lines": 84,
-      "sha256": "05eeea4debee0b695d2fa3a2c3984a066e22e0847bea05aca14f53cc9a4a8153",
+      "bytes": 3421,
+      "lines": 93,
+      "sha256": "636f5ff92cca4a4f37c0c1ffbe37c5e7a47549a665a27d74ed48eca3eac848b5",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 13,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration",
           "localName": "EmployerMatchesPage"
         }
@@ -12188,12 +12188,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 13,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerMatchesPage",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -12228,19 +12228,19 @@
       "path": "app/(portal)/employer/messages/page.tsx",
       "area": "pages",
       "domain": "communications",
-      "bytes": 4204,
-      "lines": 106,
-      "sha256": "06fc604ad34b0d2f201cd042a65cbdb9f8ab6e8f16c39563e2e39918b22a326c",
+      "bytes": 4749,
+      "lines": 131,
+      "sha256": "33403f1aef46b4f552a61b68e1ec9301a93c4b09442b58b52e3eb7da0a220958",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 26,
+          "line": 55,
           "kind": "FunctionDeclaration",
           "localName": "EmployerMessagesPage"
         }
@@ -12248,12 +12248,17 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 17,
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "EmployerMessagesHeader",
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerMessagesPage",
-          "line": 26,
+          "line": 55,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -12468,9 +12473,9 @@
       "path": "app/(portal)/employer/work-queue/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 3269,
-      "lines": 91,
-      "sha256": "f82a514fcd0c844e0d6de3b42330f22c162d2be0bac2604bf6819e5146a985af",
+      "bytes": 3177,
+      "lines": 93,
+      "sha256": "32f5b1df083854597b1e8be19f1c1309afd8b4540cd160e6c674dd254c584267",
       "binary": false,
       "exports": [
         {
@@ -75263,9 +75268,9 @@
       "path": "docs/PORTAL-UI-ONE-SHOT-TASK.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 17854,
+      "bytes": 18105,
       "lines": 233,
-      "sha256": "6d0ba7abce7b8fe37df93de32840f4a536d9f33409e23e0c5badbf33345a4f80",
+      "sha256": "3fdea8d00d17a7ed81b3c037ec03249ebcdfe45cebf8b048cca01af4701377a2",
       "binary": false
     },
     {
@@ -75281,9 +75286,9 @@
       "path": "docs/PORTAL-UI-UX-ENHANCEMENTS.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 11965,
+      "bytes": 11999,
       "lines": 166,
-      "sha256": "3fbfec65f1126a76858f46a0822cd7c3e9cc5564967932aa21c1aa8e750f9235",
+      "sha256": "73a1723fde2a331bf00dc88eadf2e0c4ba915a805a6fcb5a0af2a023ef3f8a40",
       "binary": false
     },
     {
@@ -151225,6 +151230,29 @@
           "name": "pricingState",
           "line": 4,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/employer-remaining-pageheader.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1834,
+      "lines": 42,
+      "sha256": "8f451dee31c10063c3a3b05bd3b1ca70c574494e629f2042c3db50b9444bbdd3",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "read",
+          "line": 7,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

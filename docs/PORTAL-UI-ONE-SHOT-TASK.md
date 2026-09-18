@@ -51,16 +51,16 @@ Visited on desktop viewport (~1280×800). Duplicate `h1` counts are from **brows
 
 | Path | Duplicate `h1` (before → after) | Screenshot | Notes |
 |------|-----------------------------------|------------|--------|
-| `/employer/applications` | **2×** “Applicants (1)” | Yes — [`subpages-desktop/employer-applications.png`](./portal-screenshots/subpages-desktop/employer-applications.png) | Dual `PageHeader`; mobile job-line polish shipped. Still needs **single-header** refactor. |
+| `/employer/applications` | **2×** → **1×** | Yes — [`subpages-desktop/employer-applications.png`](./portal-screenshots/subpages-desktop/employer-applications.png) | **Fixed** (#2306): single shared `PageHeader` (jobs pattern). |
 | `/employer/guide` | **0** | Yes — [`subpages-desktop/employer-guide.png`](./portal-screenshots/subpages-desktop/employer-guide.png) | Marketing-style guide; OK. |
 | `/employer/jobs` | **3×** → **1×** (expected) | Pending re-capture | **Fixed:** unified `PageHeader` — confirm in snapshot + new PNG post-deploy. |
 | `/employer/jobs/import` | **0** | No | Single hero “Add roles from your site”. |
-| `/employer/jobs/new` | **2×** “Post New Job” | No | Mobile hero + desktop form header — still outstanding. |
-| `/employer/matches` | **3×** “Match History” | No | Same dual-`PageHeader` family as pre-fix jobs. |
-| `/employer/messages` | **3×** “Messages” | No | Plus duplicate “Inbox” **h2** in some trees. |
-| `/employer/pipeline` | **3×** “Candidate Pipeline” | No | Pipeline cards duplicated in tree. |
+| `/employer/jobs/new` | **2×** → **1×** | No | **Fixed:** single shared `PageHeader` + form body. |
+| `/employer/matches` | **3×** → **1×** | No | **Fixed:** restored `PortalPageFrame` + one `PageHeader` (jobs pattern). |
+| `/employer/messages` | **3×** → **1×** | No | **Fixed:** one shared `PageHeader` on every branch; single inbox client. |
+| `/employer/pipeline` | **3×** → **1×** | No | **Fixed:** single shared `PageHeader`; bodies still split mobile/desktop. |
 | `/employer/settings` | **0** | No | Single “Company settings”. |
-| `/employer/work-queue` | **0** | No | Single “Work queue”. |
+| `/employer/work-queue` | **0** → **1×** `h1` | No | **Fixed:** `PageHeader` + breadcrumbs (was `SectionHeader` h2-only). |
 
 **Hub** `/employer` was improved earlier (see enhancements doc); sub-pages above are **mixed** — jobs is done; others remain.
 
@@ -124,7 +124,7 @@ Visited on desktop viewport (~1280×800). Duplicate `h1` counts are from **brows
 1. **Extract a single title region** per route: **one** `h1` and optional subtitle **outside** breakpoint wrappers; inside wrappers use **non-heading** styled text or remove repeated titles. — **Partially done for `/employer/jobs`.**
 2. **OR** **`aria-hidden="true"`** on the inactive breakpoint’s root when not active (client hook or verified CSS technique). — Not started at scale.
 3. **OR** collapse to **one responsive column** per route — largest refactor, best long-term.
-4. **Employer list/detail family:** apply the **same pattern as jobs** to `applications`, `matches`, `messages`, `pipeline`, `jobs/new`. — **Jobs done**; rest queued.
+4. **Employer list/detail family:** apply the **same pattern as jobs** to `applications`, `matches`, `messages`, `pipeline`, `jobs/new`. — **Jobs + applications (#2306) + matches/messages/work-queue (remaining slice) + pipeline/jobs/new done.**
 5. **Partner/Counselor messages & resources:** one `PageHeader` per route. — Queued.
 
 **Do not** add more `wa-sr-only` `h1`s to mask duplicates; **remove** them when merging headers (as on jobs).
@@ -146,7 +146,7 @@ Visited on desktop viewport (~1280×800). Duplicate `h1` counts are from **brows
 
 1. ~~**Employer `jobs`**~~ — **Done** (unified header + remove sr-only duplicate).
 2. **Shared primitive:** document the **`/employer/jobs` pattern** (shared header block + responsive subtitle/actions + single `PortalPageFrame` for desktop-only body) for copy-paste to other routes.
-3. **Employer:** `applications`, `matches`, `messages`, `pipeline`, `jobs/new` (highest traffic after jobs).
+3. **Employer:** `applications`, `matches`, `messages`, `pipeline`, `jobs/new` (highest traffic after jobs). — **Done** for this family (work-queue included in remaining slice).
 4. **Partner:** `messages`, `milestones`, `referred-members`, `resources`.
 5. **Counselor:** `messages`, `resources`, `students`.
 6. **Member:** `/dashboard/training`, `/dashboard/messages`, then AI tools batch grep.
@@ -174,7 +174,7 @@ This section **merges** the structural backlog above with a **pixel-level** pass
 
 | # | Fix | Why it reads as quality | Where |
 |---|-----|---------------------------|--------|
-| A1 | **Single `PageHeader` / one `h1` per route** for every split mobile/desktop page still listed in the evidence tables | Removes duplicate heroes and SR noise; matches Stripe-grade portals | Employer: `applications`, `matches`, `messages`, `pipeline`, `jobs/new`; partner: `messages`, `milestones`, `referred-members`, `resources`; counselor: `messages`, `resources`, `students`; member: `training`, `messages`, AI tools |
+| A1 | **Single `PageHeader` / one `h1` per route** for every split mobile/desktop page still listed in the evidence tables | Removes duplicate heroes and SR noise; matches Stripe-grade portals | Employer family done (`applications`, `matches`, `messages`, `pipeline`, `jobs/new`, `work-queue`); partner: `messages`, `milestones`, `referred-members`, `resources`; counselor: `messages`, `resources`, `students`; member: `training`, `messages`, AI tools |
 | A2 | **Sidebar F-05** — spaced labels in workspace nav (`Workflows` vs `Work queue`…) | Reads as broken in SR and in some audits | `components/portal/PortalShell.tsx` (or nav data source) |
 | A3 | **Dynamic routes** spot-check — job, candidate, student detail | Duplicate title pattern on detail pages undermines A1 | `employer/jobs/[id]`, `employer/candidates/[studentId]`; **`counselor/students/[memberId]` shipped** (single shared `PageHeader`) |
 

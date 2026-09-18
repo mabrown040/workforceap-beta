@@ -76,18 +76,18 @@ Screenshots in this doc cover **hubs only** (`/employer`, `/partner`, `/counselo
 | Path | Screenshot | Notes |
 |------|------------|--------|
 | `/employer` | Yes (mobile/desktop) | Hub: voice block + KPI + pipeline; heading fixes shipped. |
-| `/employer/applications` | Yes — [`subpages-desktop/employer-applications.png`](./portal-screenshots/subpages-desktop/employer-applications.png) | Two `PageHeader` blocks (mobile vs desktop) — **still** duplicate-`h1` risk; mobile job-line polish shipped. |
+| `/employer/applications` | Yes — [`subpages-desktop/employer-applications.png`](./portal-screenshots/subpages-desktop/employer-applications.png) | **Shipped** (#2306): single shared `PageHeader` (jobs pattern). |
 | `/employer/guide` | Yes — [`subpages-desktop/employer-guide.png`](./portal-screenshots/subpages-desktop/employer-guide.png) | Marketing-style hero `h1`; OK. |
 | `/employer/jobs` | Re-capture after deploy | **Shipped:** single shared `PageHeader` (see one-shot plan); replace PNG when refreshed. |
-| `/employer/jobs/new` | No | Mobile strip `h1` + desktop `PageHeader` — same family as AI tools. |
+| `/employer/jobs/new` | No | **Shipped:** single shared `PageHeader` + form body. |
 | `/employer/jobs/import` | No | Renders via `ImportJobClient` (no `page.tsx` `PageHeader`); verify title/`h1` in client component. |
-| `/employer/jobs/[id]` | Dynamic | `PageHeader` + job `h1`; validate single logical title. |
-| `/employer/matches` | No | `wa-sr-only` `h1` + `PageHeader`. |
-| `/employer/messages` | No | Split inbox: `wa-sr-only` `h1` + `PageHeader`; check footer vs bottom nav when scrolled. |
-| `/employer/pipeline` | No | `wa-sr-only` `h1` + `PageHeader`. |
+| `/employer/jobs/[id]` | Dynamic | `PageHeader` + job title as `h2`; validate single logical title. |
+| `/employer/matches` | No | **Shipped:** single shared `PageHeader` (jobs pattern). |
+| `/employer/messages` | No | **Shipped:** single shared `PageHeader` on every branch; single inbox client. |
+| `/employer/pipeline` | No | **Shipped:** single shared `PageHeader`; bodies still split mobile/desktop. |
 | `/employer/settings` | No | Typically single `PageHeader` — lower risk. |
-| `/employer/work-queue` | No | `PageHeader` — lower risk. |
-| `/employer/candidates/[studentId]` | Dynamic | Mobile `h1` (name) + desktop `PageHeader` — spot-check. |
+| `/employer/work-queue` | No | **Shipped:** single shared `PageHeader` + breadcrumbs. |
+| `/employer/candidates/[studentId]` | Dynamic | Single `PageHeader`; mobile identity card uses `h2` — spot-check. |
 
 ### Partner (12 static + 2 dynamic)
 

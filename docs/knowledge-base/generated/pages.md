@@ -274,9 +274,9 @@
 | [app/(portal)/employer/layout.tsx](../../../app/%28portal%29/employer/layout.tsx) | 48 | jobs-employers | metadata:11, default:15 |
 | [app/(portal)/employer/loading.tsx](../../../app/%28portal%29/employer/loading.tsx) | 5 | jobs-employers | default:3 |
 | [app/(portal)/employer/matches/loading.tsx](../../../app/%28portal%29/employer/matches/loading.tsx) | 6 | jobs-employers | default:3 |
-| [app/(portal)/employer/matches/page.tsx](../../../app/%28portal%29/employer/matches/page.tsx) | 84 | jobs-employers | generateMetadata:13, default:22 |
+| [app/(portal)/employer/matches/page.tsx](../../../app/%28portal%29/employer/matches/page.tsx) | 93 | jobs-employers | generateMetadata:14, default:23 |
 | [app/(portal)/employer/messages/loading.tsx](../../../app/%28portal%29/employer/messages/loading.tsx) | 6 | communications | default:3 |
-| [app/(portal)/employer/messages/page.tsx](../../../app/%28portal%29/employer/messages/page.tsx) | 106 | communications | generateMetadata:17, default:26 |
+| [app/(portal)/employer/messages/page.tsx](../../../app/%28portal%29/employer/messages/page.tsx) | 131 | communications | generateMetadata:18, default:55 |
 | [app/(portal)/employer/not-found.tsx](../../../app/%28portal%29/employer/not-found.tsx) | 20 | jobs-employers | default:3 |
 | [app/(portal)/employer/page.tsx](../../../app/%28portal%29/employer/page.tsx) | 740 | jobs-employers | generateMetadata:35, default:44 |
 | [app/(portal)/employer/pipeline/loading.tsx](../../../app/%28portal%29/employer/pipeline/loading.tsx) | 6 | jobs-employers | default:3 |
@@ -284,7 +284,7 @@
 | [app/(portal)/employer/settings/loading.tsx](../../../app/%28portal%29/employer/settings/loading.tsx) | 6 | jobs-employers | default:3 |
 | [app/(portal)/employer/settings/page.tsx](../../../app/%28portal%29/employer/settings/page.tsx) | 105 | jobs-employers | generateMetadata:14, default:23 |
 | [app/(portal)/employer/work-queue/loading.tsx](../../../app/%28portal%29/employer/work-queue/loading.tsx) | 6 | jobs-employers | default:3 |
-| [app/(portal)/employer/work-queue/page.tsx](../../../app/%28portal%29/employer/work-queue/page.tsx) | 91 | jobs-employers | generateMetadata:15, default:24 |
+| [app/(portal)/employer/work-queue/page.tsx](../../../app/%28portal%29/employer/work-queue/page.tsx) | 93 | jobs-employers | generateMetadata:15, default:24 |
 | [app/(portal)/error.tsx](../../../app/%28portal%29/error.tsx) | 13 | pages | default:5 |
 | [app/(portal)/help/page.tsx](../../../app/%28portal%29/help/page.tsx) | 14 | pages | default:12 |
 | [app/(portal)/layout.tsx](../../../app/%28portal%29/layout.tsx) | 45 | pages | metadata:15, maxDuration:28, default:30 |

@@ -6,7 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { programSlugReadCandidates, programSlugsEquivalent } from '@/lib/content/programSlug';
 import { resolveWorkforceApModule } from '@/lib/content/workforceApModule';
-import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
+import { isUngatedDigitalLiteracyProgram } from '@/shared/digitalLiteracyPathway';
 import { DesignSurface, PageOpener, StatusTag } from '@/components/portal/kit';
 import WorkforceApModuleCompleteButton from '@/components/portal/WorkforceApModuleCompleteButton';
 
@@ -58,7 +58,7 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
 
   // Digital literacy is ungated: any signed-in member may open its modules
   // without a program enrollment. All other programs still require enrollment.
-  const ungatedProgram = requestedProgram === DIGITAL_LITERACY_PROGRAM_SLUG;
+  const ungatedProgram = isUngatedDigitalLiteracyProgram(requestedProgram);
 
   let resolvedProgramSlug = requestedProgram;
   let curriculumVersion = '';

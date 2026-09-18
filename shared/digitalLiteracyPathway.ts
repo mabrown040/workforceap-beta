@@ -9,6 +9,15 @@
 
 export const DIGITAL_LITERACY_PROGRAM_SLUG = 'digital-literacy-empowerment-class';
 export const DIGITAL_LITERACY_PROGRAM_TITLE = 'Workforce AP Digital Literacy Course';
+
+/**
+ * Digital literacy is the only program a signed-in member may open and
+ * complete without a CourseEnrollment. Nearby slugs (aliases, category
+ * labels) stay gated so an accidental rename cannot ungate other catalogs.
+ */
+export function isUngatedDigitalLiteracyProgram(programSlug: string): boolean {
+  return programSlug === DIGITAL_LITERACY_PROGRAM_SLUG;
+}
 export const DIGITALLEARN_HOME_URL = 'https://www.digitallearn.org/';
 export const DIGITALLEARN_COURSES_URL = 'https://www.digitallearn.org/courses';
 export const DIGITALLEARN_PROVIDER_NAME = 'DigitalLearn.org';

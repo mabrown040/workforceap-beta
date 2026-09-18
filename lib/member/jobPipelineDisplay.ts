@@ -9,6 +9,21 @@ export const JOBS_EMPTY_RECOMMENDATIONS = {
   secondaryCta: 'Browse jobs',
 } as const;
 
+/**
+ * Honest empty inventory for the member open-roles board (`/dashboard/jobs`
+ * listing). Distinct from filter “no matches” and from pipeline recommendations.
+ * Do not soften this into demo seed copy — empty means no live public jobs.
+ */
+export const JOBS_BOARD_EMPTY = {
+  title: 'No live openings right now',
+  description:
+    'Employer partners have not posted live roles on this board yet. Update your profile so you are ready when matches appear, message your counselor for leads, and check back after new postings go live.',
+  primaryCta: 'Update profile',
+  secondaryCta: 'Message your counselor',
+  primaryHref: '/dashboard/profile',
+  secondaryHref: '/dashboard/messages',
+} as const;
+
 export function displayJobLocation(location: string | null | undefined): string {
   const value = location?.trim();
   if (!value || value === '—') return 'Location not listed';

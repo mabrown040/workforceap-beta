@@ -14,7 +14,9 @@ import JobTailorPanel, { JOB_TAILOR_PREVIEW_RESULT } from '@/components/portal/J
  * Empty-state variant: app/dev/member/jobs-empty/page.tsx.
  *   /dev/member/jobs               — tracked pipeline
  *   /dev/member/jobs?state=board   — open-roles board (PageOpener + kit rows)
+ *   /dev/member/jobs?state=board-empty — board kit empty inventory (honest next steps)
  *   /dev/member/jobs?state=listing — live JobsListingClient on kit JobListingRow
+ *   /dev/member/jobs?state=listing-empty — listing client with empty inventory
  *   /dev/member/jobs?state=detail  — live job detail chrome (PageOpener + kit cards + tailor)
  */
 export const dynamic = 'force-dynamic';
@@ -82,6 +84,16 @@ export default async function DevMemberJobsPage({
       />
     );
   }
+  if (state === 'board-empty') {
+    return (
+      <MemberJobsBoard
+        pipelineHref="/dev/member/jobs"
+        profileHref="/dev/member/profile"
+        messagesHref="/dev/member/messages"
+        jobs={[]}
+      />
+    );
+  }
   if (state === 'listing') {
     return (
       <DesignSurface surface="warm">
@@ -105,6 +117,21 @@ export default async function DevMemberJobsPage({
               { id: 'j3', title: 'Technical Support Associate', company: 'Tesla', location: 'Austin, TX', locationType: 'onsite', matchPct: 74 },
             ]}
           />
+        </div>
+      </DesignSurface>
+    );
+  }
+  if (state === 'listing-empty') {
+    return (
+      <DesignSurface surface="warm">
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+          <PageOpener
+            kicker="Job search"
+            title="Open roles"
+            lede="Hiring-partner openings. Track applications from the pipeline."
+            icon={<Briefcase size={13} aria-hidden="true" />}
+          />
+          <JobsListingClient preview isAuthenticated initialJobs={[]} initialTotal={0} />
         </div>
       </DesignSurface>
     );

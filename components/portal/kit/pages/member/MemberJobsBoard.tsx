@@ -3,6 +3,7 @@ import NextLink from 'next/link';
 import type { ReactNode } from 'react';
 import { DesignSurface, JobListingRow, KitEmptyState, PageOpener } from '@/components/portal/kit';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
+import { JOBS_BOARD_EMPTY } from '@/lib/member/jobPipelineDisplay';
 
 /**
  * Member Portal — JOB BOARD listing (open roles, not the tracked pipeline).
@@ -31,14 +32,25 @@ export interface MemberJobsBoardProps {
   lede?: string;
   pipelineHref?: string;
   jobs?: BoardJob[];
+  profileHref?: string;
+  messagesHref?: string;
 }
 
-function BoardCta({ href, children }: { href: string; children: ReactNode }) {
+function BoardCta({
+  href,
+  children,
+  variant = 'page',
+}: {
+  href: string;
+  children: ReactNode;
+  variant?: 'page' | 'kit';
+}) {
+  const className =
+    variant === 'kit'
+      ? 'wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none'
+      : 'wa-page-action wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
   return (
-    <NextLink
-      href={href}
-      className="wa-page-action wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-    >
+    <NextLink href={href} className={className}>
       {children}
     </NextLink>
   );
@@ -49,6 +61,8 @@ export function MemberJobsBoard({
   lede = 'Hiring-partner openings. Track applications from the pipeline.',
   pipelineHref = '/dev/member/jobs',
   jobs = [],
+  profileHref = JOBS_BOARD_EMPTY.primaryHref,
+  messagesHref = JOBS_BOARD_EMPTY.secondaryHref,
 }: MemberJobsBoardProps) {
   return (
     <DesignSurface surface="warm">
@@ -63,9 +77,18 @@ export function MemberJobsBoard({
         <div className="wa-kit-card" style={{ padding: jobs.length === 0 ? undefined : 0, overflow: 'hidden' }}>
           {jobs.length === 0 ? (
             <KitEmptyState
-              title="No open roles right now"
-              description="Check the pipeline for jobs you already applied to, or add one from another site."
-              action={<BoardCta href={pipelineHref}>View pipeline</BoardCta>}
+              title={JOBS_BOARD_EMPTY.title}
+              description={JOBS_BOARD_EMPTY.description}
+              action={
+                <div className="wa-flex wa-flex-wrap wa-items-center" style={{ gap: 8 }}>
+                  <BoardCta href={profileHref} variant="kit">
+                    {JOBS_BOARD_EMPTY.primaryCta}
+                  </BoardCta>
+                  <BoardCta href={messagesHref} variant="kit">
+                    {JOBS_BOARD_EMPTY.secondaryCta}
+                  </BoardCta>
+                </div>
+              }
             />
           ) : (
             jobs.map((job, i) => (

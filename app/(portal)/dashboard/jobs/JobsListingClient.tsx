@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Briefcase, Search, SlidersHorizontal, X, Bookmark } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Bookmark } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 import { JobListingRow, JobListingRowSkeleton, KitEmptyState, FormField } from '@/components/portal/kit';
@@ -204,14 +204,12 @@ function JobCard({
 
 function JobsEmptyState({ onClearFilters, t }: { onClearFilters: () => void; t: (k: string) => string }) {
   return (
-    <div className="wa-kit-card" style={{ textAlign: 'center' }}>
-      <div style={{ color: 'var(--wa-muted)', marginBottom: 4 }} aria-hidden>
-        <Briefcase size={32} strokeWidth={1.5} />
-      </div>
-      <KitEmptyState title={t('noJobsMatchFilters')} description={t('tryAdjustingFilters')} />
-      <div style={{ marginTop: 16 }}>
-        <KitCta onClick={onClearFilters}>{t('clearFilters')}</KitCta>
-      </div>
+    <div className="wa-kit-card">
+      <KitEmptyState
+        title={t('noJobsMatchFilters')}
+        description={t('tryAdjustingFilters')}
+        action={<KitCta onClick={onClearFilters}>{t('clearFilters')}</KitCta>}
+      />
     </div>
   );
 }
@@ -219,41 +217,39 @@ function JobsEmptyState({ onClearFilters, t }: { onClearFilters: () => void; t: 
 function JobsNoResultsState({ isAuthenticated, t }: { isAuthenticated: boolean; t: (k: string) => string }) {
   if (isAuthenticated) {
     return (
-      <div className="wa-kit-card" style={{ textAlign: 'center' }}>
-        <div style={{ color: 'var(--wa-muted)', marginBottom: 4 }} aria-hidden>
-          <Briefcase size={32} strokeWidth={1.5} />
-        </div>
-        <KitEmptyState title={t('noOpeningsListed')} description={t('newRolesAppear')} />
-        <div
-          className="wa-flex wa-flex-wrap wa-items-center"
-          style={{ gap: 8, justifyContent: 'center', marginTop: 16 }}
-        >
-          <KitCta href="/dashboard/messages" variant="solid">
-            {t('messageCounselor')}
-          </KitCta>
-          <KitCta href="/dashboard/ai-tools/job-match-scorer">{t('improveJobMatches')}</KitCta>
-        </div>
+      <div className="wa-kit-card">
+        <KitEmptyState
+          title={t('noOpeningsListed')}
+          description={t('newRolesAppear')}
+          action={
+            <div className="wa-flex wa-flex-wrap wa-items-center" style={{ gap: 8 }}>
+              <KitCta href="/dashboard/profile" variant="solid">
+                {t('updateProfile')}
+              </KitCta>
+              <KitCta href="/dashboard/messages">{t('messageCounselor')}</KitCta>
+            </div>
+          }
+        />
       </div>
     );
   }
   return (
-    <div className="wa-kit-card" style={{ textAlign: 'center' }}>
-      <div style={{ color: 'var(--wa-muted)', marginBottom: 4 }} aria-hidden>
-        <Briefcase size={32} strokeWidth={1.5} />
-      </div>
-      <KitEmptyState title={t('noJobsAvailable')} description={t('newJobsAddedRegularly')} />
-      <div
-        className="wa-flex wa-flex-wrap wa-items-center"
-        style={{ gap: 8, justifyContent: 'center', marginTop: 16 }}
-      >
-        <KitCta href="/programs" variant="solid">
-          {t('browsePrograms')}
-        </KitCta>
-        <KitCta href="/apply">{t('applyForTraining')}</KitCta>
-        <KitCta href="/employers" variant="ghost">
-          {t('forEmployers')}
-        </KitCta>
-      </div>
+    <div className="wa-kit-card">
+      <KitEmptyState
+        title={t('noJobsAvailable')}
+        description={t('newJobsAddedRegularly')}
+        action={
+          <div className="wa-flex wa-flex-wrap wa-items-center" style={{ gap: 8 }}>
+            <KitCta href="/programs" variant="solid">
+              {t('browsePrograms')}
+            </KitCta>
+            <KitCta href="/apply">{t('applyForTraining')}</KitCta>
+            <KitCta href="/employers" variant="ghost">
+              {t('forEmployers')}
+            </KitCta>
+          </div>
+        }
+      />
     </div>
   );
 }

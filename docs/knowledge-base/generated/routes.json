@@ -30962,12 +30962,12 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 20,
+        "line": 22,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 65,
+        "line": 67,
         "kind": "FunctionDeclaration",
         "localName": "DevMemberJobsPage"
       }

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "3095f8a80c46bcaefde0f8d6922a7c5587bdc079b4da93a47632ac51af808f69",
+  "inputTreeSha256": "9efabec5ad1b74b5a24ae202f3753d0c6770d65867886d53b798a062f63f4a76",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9037,14 +9037,14 @@
       "path": "app/(portal)/dashboard/jobs/JobsListingClient.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 24252,
-      "lines": 714,
-      "sha256": "210e561bbdd5226fc2a6a1f4259d346b712bb50e4ea2c293616dad45fca66f93",
+      "bytes": 23708,
+      "lines": 710,
+      "sha256": "6fa2330500b258992b4c4d6137cf5148c0c702136f28e77f478406019519e8e7",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 261,
+          "line": 257,
           "kind": "FunctionDeclaration",
           "localName": "JobsListingClient"
         }
@@ -9112,12 +9112,12 @@
         },
         {
           "name": "JobsNoResultsState",
-          "line": 219,
+          "line": 217,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "JobsListingClient",
-          "line": 261,
+          "line": 257,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -43035,19 +43035,19 @@
       "path": "app/dev/member/jobs/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 8395,
-      "lines": 192,
-      "sha256": "1d345d5acc6741206e83ce7f1682c121ad5485abb6ca9a4862fba10d7574d11d",
+      "bytes": 9379,
+      "lines": 219,
+      "sha256": "41eb45e772b15b7e7678f7fdf03e2f6973d58ff98339c93698896996324765d1",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 20,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 65,
+          "line": 67,
           "kind": "FunctionDeclaration",
           "localName": "DevMemberJobsPage"
         }
@@ -43055,22 +43055,22 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 20,
-          "kind": "Variable"
-        },
-        {
-          "name": "LISTING_JOBS",
           "line": 22,
           "kind": "Variable"
         },
         {
+          "name": "LISTING_JOBS",
+          "line": 24,
+          "kind": "Variable"
+        },
+        {
           "name": "DevMemberJobsPage",
-          "line": 65,
+          "line": 67,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ProofCopy",
-          "line": 186,
+          "line": 213,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -70732,46 +70732,46 @@
       "path": "components/portal/kit/pages/member/MemberJobsBoard.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 4935,
-      "lines": 131,
-      "sha256": "0d6cceaf424ccf142c9808b9928704ce06f3b3924309bea87ab394e822b111df",
+      "bytes": 5752,
+      "lines": 154,
+      "sha256": "baba8a3180ab6f845072c91598654b88c063965e9bc309ff36a29ec281616dec",
       "binary": false,
       "exports": [
         {
           "name": "BoardJob",
-          "line": 18,
+          "line": 19,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberJobsBoardProps",
-          "line": 29,
+          "line": 30,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberJobsBoard",
-          "line": 47,
+          "line": 59,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "BoardJob",
-          "line": 18,
+          "line": 19,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberJobsBoardProps",
-          "line": 29,
+          "line": 30,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "BoardCta",
-          "line": 36,
+          "line": 39,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MemberJobsBoard",
-          "line": 47,
+          "line": 59,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -117691,9 +117691,9 @@
       "path": "lib/member/jobPipelineDisplay.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 1080,
-      "lines": 22,
-      "sha256": "931f68e00e5acb7313cff94a5810d4f0acd48ddd7652967a91dd22baf59da2fe",
+      "bytes": 1705,
+      "lines": 32,
+      "sha256": "7edc7ff1ee28a39b43a929e4c09846398ea7a4f36133c7226b6cd6a28aef48dc",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -117703,9 +117703,9 @@
       "path": "lib/member/jobPipelineDisplay.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 559,
-      "lines": 16,
-      "sha256": "650d38199ade7e57a75e665475971f96a0f99e5271370c243f4797101ef98e91",
+      "bytes": 1267,
+      "lines": 31,
+      "sha256": "4fa840f61b771b1491bdf23dc44e0b95774f0b109e616f0c2894ee5bd4ae51d2",
       "binary": false,
       "exports": [
         {
@@ -117714,8 +117714,13 @@
           "kind": "Variable"
         },
         {
+          "name": "JOBS_BOARD_EMPTY",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
           "name": "displayJobLocation",
-          "line": 12,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -117726,8 +117731,13 @@
           "kind": "Variable"
         },
         {
+          "name": "JOBS_BOARD_EMPTY",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
           "name": "displayJobLocation",
-          "line": 12,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -137109,27 +137119,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 188470,
-      "lines": 3088,
-      "sha256": "7fe46baae39e5de08fe6afdff5f46b1362001ed26cb91aab78f2a9ffd399409a",
+      "bytes": 188467,
+      "lines": 3089,
+      "sha256": "cba3bd0b3a3f5c3c1bba76d2385a22d680301f77af41d1fbd48f74d0febacb47",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206883,
-      "lines": 3075,
-      "sha256": "be992a4f3b4436fd7d991088f15e28382057f927ffa1ccb8a754eb117b07c2c6",
+      "bytes": 206848,
+      "lines": 3076,
+      "sha256": "4900438b7d4686ac645912a12cc875bf445b2ad2575a7f568d3e4a7817ec74e6",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 207839,
-      "lines": 3028,
-      "sha256": "a2ba97b71016c6192372fbf79efe74977186cb3eb04e1cdba02f9bee5f116393",
+      "bytes": 207736,
+      "lines": 3029,
+      "sha256": "0e2857156e868c104ccdc484017585c8d45645d271d0580e870d22a6964f2d18",
       "binary": false
     },
     {
@@ -137145,9 +137155,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 199869,
-      "lines": 3028,
-      "sha256": "42a8fd72004dada95f41e5b0dd527b4dccf8872bf108f53752b22f78e0568e0f",
+      "bytes": 199801,
+      "lines": 3029,
+      "sha256": "079097102c17d15433f800ad3bc43a7d5a1d977ee6467c31121f6cf6ac40c7ee",
       "binary": false
     },
     {

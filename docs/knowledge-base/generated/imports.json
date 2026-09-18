@@ -81504,6 +81504,14 @@
     "target": "components/portal/jobs/LogExternalApplicationButton.tsx"
   },
   {
+    "from": "components/portal/kit/pages/member/MemberJobsBoard.tsx",
+    "specifier": "@/lib/member/jobPipelineDisplay",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/jobPipelineDisplay.ts"
+  },
+  {
     "from": "components/portal/kit/pages/member/MemberJobsKit.tsx",
     "specifier": "lucide-react",
     "line": 1,

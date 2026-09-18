@@ -318,6 +318,7 @@ export function MemberProfileKit({
               type="button"
               onClick={handleSaveAccount}
               disabled={!live || savingAccount}
+              aria-busy={savingAccount}
               className="wa-kit-cta wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
               style={{
                 marginTop: 20,
@@ -325,7 +326,7 @@ export function MemberProfileKit({
                 opacity: !live || savingAccount ? 0.7 : 1,
               }}
             >
-              {savingAccount ? 'Saving…' : 'Save changes'}
+              <span aria-live="polite">{savingAccount ? 'Saving…' : 'Save changes'}</span>
             </button>
           </div>
 

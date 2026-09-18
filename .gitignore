@@ -115,3 +115,7 @@ marketing/.vercel/
 
 # Python cache (ui-ux-pro-max skill scripts)
 __pycache__/
+
+# Merge/patch artifacts (never commit these)
+*.orig
+*.patch

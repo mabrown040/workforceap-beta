@@ -7,7 +7,7 @@
 | [.crabbox.yaml](../../../.crabbox.yaml) | 31 | root |  |
 | [.env.example](../../../.env.example) | 377 | root |  |
 | [.gitattributes](../../../.gitattributes) | 1 | root |  |
-| [.gitignore](../../../.gitignore) | 117 | root |  |
+| [.gitignore](../../../.gitignore) | 121 | root |  |
 | [.vercelignore](../../../.vercelignore) | 8 | root |  |
 | [AGENTS.md](../../../AGENTS.md) | 210 | root |  |
 | [AI-TOOLS-BACKLOG.md](../../../AI-TOOLS-BACKLOG.md) | 12 | root |  |

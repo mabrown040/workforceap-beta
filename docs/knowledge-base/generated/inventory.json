@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "20599f050de38a26c39d6be6af72611f24848ddebfe4aa52287bdf25a579f0c1",
+  "inputTreeSha256": "fd51d49ce659d744beaabd80f0431f81fd779275549864c73d47d07c19e617c9",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -32728,9 +32728,9 @@
       "path": "app/api/cron/weekly-recap/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5229,
-      "lines": 134,
-      "sha256": "00388111544d2dd48d5e61341624cf8253b4cdf140e384ba491044abd44f5cd4",
+      "bytes": 5655,
+      "lines": 147,
+      "sha256": "202f4d6d1f60d03c2137c33d3b6e0282d60de53eca1f878e4da1fe6b67492b9a",
       "binary": false,
       "exports": [
         {
@@ -32740,12 +32740,12 @@
         },
         {
           "name": "GET",
-          "line": 133,
+          "line": 146,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 134,
+          "line": 147,
           "kind": "Variable"
         }
       ],
@@ -32762,12 +32762,12 @@
         },
         {
           "name": "GET",
-          "line": 133,
+          "line": 146,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 134,
+          "line": 147,
           "kind": "Variable"
         }
       ],
@@ -75588,9 +75588,9 @@
       "path": "docs/WEEKLY-RECAP-CRON.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 979,
-      "lines": 9,
-      "sha256": "27946117c2efb4f4313456c4a94a4bd44717c224be52ce04dbb4368486ee2cf2",
+      "bytes": 1348,
+      "lines": 11,
+      "sha256": "8487ac6dc760dc61a3a53874ccd98d462867477d0c7e183547d7afac607873a3",
       "binary": false
     },
     {
@@ -109783,746 +109783,746 @@
       "path": "lib/email.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 102578,
-      "lines": 2876,
-      "sha256": "37128bb52e3af386977cf39b5af802e176fd5f14116378e7ca322e808d0c1ceb",
+      "bytes": 102756,
+      "lines": 2882,
+      "sha256": "b421319604afb22ccac911a64581a2d1f387d4d84a613cd5293cca120a1e7837",
       "binary": false,
       "exports": [
         {
           "name": "getAdminAlertRecipients",
-          "line": 94,
+          "line": 95,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAssessmentResultRecipients",
-          "line": 111,
+          "line": 112,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getResend",
-          "line": 121,
+          "line": 122,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getVoiceCoachTranscriptRecipients",
-          "line": 150,
+          "line": 151,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachTranscriptEmail",
-          "line": 168,
+          "line": 169,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachArtifactEmail",
-          "line": 246,
+          "line": 247,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceInterviewTranscriptEmail",
-          "line": 314,
+          "line": 315,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendElevatorSpeechEmail",
-          "line": 388,
+          "line": 389,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAssignedEmail",
-          "line": 454,
+          "line": 455,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEnrollmentConfirmationEmail",
-          "line": 498,
+          "line": 499,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAtRiskDigestRecipients",
-          "line": 547,
+          "line": 548,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertRecipients",
-          "line": 562,
+          "line": 563,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseraUnmatchedActorAlertEmail",
-          "line": 574,
+          "line": 575,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAtRiskAlertDigestEmail",
-          "line": 624,
+          "line": 625,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendOnboardingStallsDigestEmail",
-          "line": 671,
+          "line": 672,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationAcceptedEmail",
-          "line": 727,
+          "line": 728,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationRejectedEmail",
-          "line": 771,
+          "line": 772,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPreScreeningReadyEmail",
-          "line": 805,
+          "line": 806,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendNewApplicationAdminEmail",
-          "line": 851,
+          "line": 852,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseEnrolledEmail",
-          "line": 889,
+          "line": 890,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseKickoffEmail",
-          "line": 929,
+          "line": 930,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseAccountabilityEmail",
-          "line": 969,
+          "line": 970,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCertCelebrationEmail",
-          "line": 1008,
+          "line": 1009,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "preparePlacementSurveyEmail",
-          "line": 1059,
+          "line": 1060,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPreparedPlacementSurveyEmail",
-          "line": 1096,
+          "line": 1097,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEmail",
-          "line": 1117,
+          "line": 1118,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEscalationEmail",
-          "line": 1124,
+          "line": 1125,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseCompletedEmail",
-          "line": 1164,
+          "line": 1165,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMilestoneCascadeEmail",
-          "line": 1206,
+          "line": 1207,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWeeklyRecapEmail",
-          "line": 1254,
+          "line": 1255,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInvitationEmail",
-          "line": 1302,
+          "line": 1308,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerReferralInviteEmail",
-          "line": 1355,
+          "line": 1361,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInvitationAcceptedEmail",
-          "line": 1397,
+          "line": 1403,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInactiveNudgeEmail",
-          "line": 1436,
+          "line": 1442,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobAlertDigestEmail",
-          "line": 1474,
+          "line": 1480,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobSubmittedEmail",
-          "line": 1508,
+          "line": 1514,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobApprovedEmail",
-          "line": 1549,
+          "line": 1555,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobRejectedEmail",
-          "line": 1595,
+          "line": 1601,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendNewJobApplicationEmail",
-          "line": 1638,
+          "line": 1644,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAIMatchSuggestionEmail",
-          "line": 1674,
+          "line": 1680,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMatchActionEmail",
-          "line": 1711,
+          "line": 1717,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationConfirmationEmail",
-          "line": 1718,
+          "line": 1724,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentParentAckEmail",
-          "line": 1760,
+          "line": 1766,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentPartnerAckEmail",
-          "line": 1803,
+          "line": 1809,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningConfirmationEmail",
-          "line": 1849,
+          "line": 1855,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningAdminEmail",
-          "line": 1887,
+          "line": 1893,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicantFollowupEmail",
-          "line": 1925,
+          "line": 1931,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminPendingApplicantsEmail",
-          "line": 1960,
+          "line": 1966,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerPendingApplicantsEmail",
-          "line": 1992,
+          "line": 1998,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminStaleApplicantsDigestEmail",
-          "line": 2027,
+          "line": 2033,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerJobExpiryEmail",
-          "line": 2059,
+          "line": 2065,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminWeeklyRecapEmail",
-          "line": 2092,
+          "line": 2098,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWioaReportEmail",
-          "line": 2129,
+          "line": 2135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerWeeklyDigestEmail",
-          "line": 2179,
+          "line": 2185,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerWelcomeEmail",
-          "line": 2220,
+          "line": 2226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerVerificationEmail",
-          "line": 2258,
+          "line": 2264,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerSignupAdminAlertEmail",
-          "line": 2295,
+          "line": 2301,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerApprovedEmail",
-          "line": 2330,
+          "line": 2336,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerRejectedEmail",
-          "line": 2364,
+          "line": 2370,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAssessmentResetNotificationEmail",
-          "line": 2399,
+          "line": 2405,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepBundleEmail",
-          "line": 2438,
+          "line": 2444,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepReminderEmail",
-          "line": 2502,
+          "line": 2508,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewDebriefPromptEmail",
-          "line": 2540,
+          "line": 2546,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAtRiskAlertEmail",
-          "line": 2580,
+          "line": 2586,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberCheckInEmail",
-          "line": 2640,
+          "line": 2646,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberComeBackEmail",
-          "line": 2679,
+          "line": 2685,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberStuckEmail",
-          "line": 2722,
+          "line": 2728,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepLink",
-          "line": 2769,
+          "line": 2775,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ELIGIBILITY_SOFT_DEADLINE_COPY",
-          "line": 2816,
+          "line": 2822,
           "kind": "Variable"
         },
         {
           "name": "sendEligibilityLink",
-          "line": 2824,
+          "line": 2830,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "SITE_URL",
-          "line": 74,
+          "line": 75,
           "kind": "Variable"
         },
         {
           "name": "ADMIN_EMAIL",
-          "line": 76,
+          "line": 77,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_ADMIN_ALERT_RECIPIENTS",
-          "line": 78,
+          "line": 79,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_VOICE_COACH_TRANSCRIPT_RECIPIENTS",
-          "line": 83,
+          "line": 84,
           "kind": "Variable"
         },
         {
           "name": "getAdminAlertRecipients",
-          "line": 94,
+          "line": 95,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAssessmentResultRecipients",
-          "line": 111,
+          "line": 112,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getResend",
-          "line": 121,
+          "line": 122,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getFrom",
-          "line": 129,
+          "line": 130,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getWioaReportRecipients",
-          "line": 142,
+          "line": 143,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getVoiceCoachTranscriptRecipients",
-          "line": 150,
+          "line": 151,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachTranscriptEmail",
-          "line": 168,
+          "line": 169,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceCoachArtifactEmail",
-          "line": 246,
+          "line": 247,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendVoiceInterviewTranscriptEmail",
-          "line": 314,
+          "line": 315,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendElevatorSpeechEmail",
-          "line": 388,
+          "line": 389,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAssignedEmail",
-          "line": 454,
+          "line": 455,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEnrollmentConfirmationEmail",
-          "line": 498,
+          "line": 499,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAtRiskDigestRecipients",
-          "line": 547,
+          "line": 548,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCourseraUnmatchedActorAlertRecipients",
-          "line": 562,
+          "line": 563,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseraUnmatchedActorAlertEmail",
-          "line": 574,
+          "line": 575,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAtRiskAlertDigestEmail",
-          "line": 624,
+          "line": 625,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "OnboardingStallNamedMember",
-          "line": 668,
+          "line": 669,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "sendOnboardingStallsDigestEmail",
-          "line": 671,
+          "line": 672,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationAcceptedEmail",
-          "line": 727,
+          "line": 728,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationRejectedEmail",
-          "line": 771,
+          "line": 772,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPreScreeningReadyEmail",
-          "line": 805,
+          "line": 806,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendNewApplicationAdminEmail",
-          "line": 851,
+          "line": 852,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseEnrolledEmail",
-          "line": 889,
+          "line": 890,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseKickoffEmail",
-          "line": 929,
+          "line": 930,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseAccountabilityEmail",
-          "line": 969,
+          "line": 970,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCertCelebrationEmail",
-          "line": 1008,
+          "line": 1009,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "preparePlacementSurveyEmail",
-          "line": 1059,
+          "line": 1060,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPreparedPlacementSurveyEmail",
-          "line": 1096,
+          "line": 1097,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEmail",
-          "line": 1117,
+          "line": 1118,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPlacementSurveyEscalationEmail",
-          "line": 1124,
+          "line": 1125,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCourseCompletedEmail",
-          "line": 1164,
+          "line": 1165,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMilestoneCascadeEmail",
-          "line": 1206,
+          "line": 1207,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWeeklyRecapEmail",
-          "line": 1254,
+          "line": 1255,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInvitationEmail",
-          "line": 1302,
+          "line": 1308,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerReferralInviteEmail",
-          "line": 1355,
+          "line": 1361,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInvitationAcceptedEmail",
-          "line": 1397,
+          "line": 1403,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInactiveNudgeEmail",
-          "line": 1436,
+          "line": 1442,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobAlertDigestEmail",
-          "line": 1474,
+          "line": 1480,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobSubmittedEmail",
-          "line": 1508,
+          "line": 1514,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobApprovedEmail",
-          "line": 1549,
+          "line": 1555,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendJobRejectedEmail",
-          "line": 1595,
+          "line": 1601,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendNewJobApplicationEmail",
-          "line": 1638,
+          "line": 1644,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAIMatchSuggestionEmail",
-          "line": 1674,
+          "line": 1680,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMatchActionEmail",
-          "line": 1711,
+          "line": 1717,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicationConfirmationEmail",
-          "line": 1718,
+          "line": 1724,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentParentAckEmail",
-          "line": 1760,
+          "line": 1766,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentPartnerAckEmail",
-          "line": 1803,
+          "line": 1809,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningConfirmationEmail",
-          "line": 1849,
+          "line": 1855,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningAdminEmail",
-          "line": 1887,
+          "line": 1893,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicantFollowupEmail",
-          "line": 1925,
+          "line": 1931,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminPendingApplicantsEmail",
-          "line": 1960,
+          "line": 1966,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerPendingApplicantsEmail",
-          "line": 1992,
+          "line": 1998,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminStaleApplicantsDigestEmail",
-          "line": 2027,
+          "line": 2033,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerJobExpiryEmail",
-          "line": 2059,
+          "line": 2065,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminWeeklyRecapEmail",
-          "line": 2092,
+          "line": 2098,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWioaReportEmail",
-          "line": 2129,
+          "line": 2135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerWeeklyDigestEmail",
-          "line": 2179,
+          "line": 2185,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerWelcomeEmail",
-          "line": 2220,
+          "line": 2226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerVerificationEmail",
-          "line": 2258,
+          "line": 2264,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerSignupAdminAlertEmail",
-          "line": 2295,
+          "line": 2301,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerApprovedEmail",
-          "line": 2330,
+          "line": 2336,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerRejectedEmail",
-          "line": 2364,
+          "line": 2370,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAssessmentResetNotificationEmail",
-          "line": 2399,
+          "line": 2405,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepBundleEmail",
-          "line": 2438,
+          "line": 2444,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepReminderEmail",
-          "line": 2502,
+          "line": 2508,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewDebriefPromptEmail",
-          "line": 2540,
+          "line": 2546,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAtRiskAlertEmail",
-          "line": 2580,
+          "line": 2586,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberCheckInEmail",
-          "line": 2640,
+          "line": 2646,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberComeBackEmail",
-          "line": 2679,
+          "line": 2685,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberStuckEmail",
-          "line": 2722,
+          "line": 2728,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepLink",
-          "line": 2769,
+          "line": 2775,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ELIGIBILITY_SOFT_DEADLINE_COPY",
-          "line": 2816,
+          "line": 2822,
           "kind": "Variable"
         },
         {
           "name": "sendEligibilityLink",
-          "line": 2824,
+          "line": 2830,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110638,9 +110638,9 @@
       "path": "lib/email/pacing.test.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 5950,
-      "lines": 195,
-      "sha256": "7521c9da576830f76c876834a6729b0af009aff14ea81d0b2aedd9e3c9b3121b",
+      "bytes": 6041,
+      "lines": 196,
+      "sha256": "4a5cbd2f0957b3fa2a01f092ac10925261ae3a3f38ab1c4a6d5dbf149da30ced",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -110650,9 +110650,9 @@
       "path": "lib/email/pacing.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 5791,
-      "lines": 155,
-      "sha256": "e1468da7785ebc96b7c82c07b8bfa32f2a8249f40c0cf989050ba23488ecf1b0",
+      "bytes": 6028,
+      "lines": 160,
+      "sha256": "02577aedf923b56442f41b5f22c967b6ac05d350a1b606667df65d8944064d16",
       "binary": false,
       "exports": [
         {
@@ -110677,42 +110677,42 @@
         },
         {
           "name": "BULK_EMAIL_CRON_INTERVAL_MS",
-          "line": 81,
+          "line": 86,
           "kind": "Variable"
         },
         {
           "name": "BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS",
-          "line": 82,
+          "line": 87,
           "kind": "Variable"
         },
         {
           "name": "BulkEmailCronPacerOptions",
-          "line": 84,
+          "line": 89,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "BulkEmailPacingSkipped",
-          "line": 93,
+          "line": 98,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "createBulkEmailCronPacer",
-          "line": 100,
+          "line": 105,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "withBulkEmailCronPacer",
-          "line": 139,
+          "line": 144,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runBulkEmailOperation",
-          "line": 147,
+          "line": 152,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "currentBulkEmailDeadlineAtMs",
-          "line": 153,
+          "line": 158,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110744,52 +110744,52 @@
         },
         {
           "name": "BULK_EMAIL_CRON_INTERVAL_MS",
-          "line": 81,
+          "line": 86,
           "kind": "Variable"
         },
         {
           "name": "BULK_EMAIL_CRON_ACCOUNTING_RESERVE_MS",
-          "line": 82,
+          "line": 87,
           "kind": "Variable"
         },
         {
           "name": "BulkEmailCronPacerOptions",
-          "line": 84,
+          "line": 89,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "BulkEmailPacingSkipped",
-          "line": 93,
+          "line": 98,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "createBulkEmailCronPacer",
-          "line": 100,
+          "line": 105,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "BulkEmailCronPacer",
-          "line": 135,
+          "line": 140,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "bulkEmailCronPacerStorage",
-          "line": 136,
+          "line": 141,
           "kind": "Variable"
         },
         {
           "name": "withBulkEmailCronPacer",
-          "line": 139,
+          "line": 144,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runBulkEmailOperation",
-          "line": 147,
+          "line": 152,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "currentBulkEmailDeadlineAtMs",
-          "line": 153,
+          "line": 158,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110799,9 +110799,9 @@
       "path": "lib/email/send.test.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 13150,
-      "lines": 403,
-      "sha256": "1298b2871a325f870c5926cdf3fd3f005d2a1e454398a11d8de8edc3ec0c2b9a",
+      "bytes": 13837,
+      "lines": 418,
+      "sha256": "60ca334873c22d6c537bb8574916ae1bfbb2c913030f3bc410d66b9f1221878a",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -110811,9 +110811,9 @@
       "path": "lib/email/send.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 13467,
-      "lines": 348,
-      "sha256": "d0e3306a9fb3b5b10ee4289dfd7029a00d5bf0d0f4235f836692efb4244f518f",
+      "bytes": 13911,
+      "lines": 359,
+      "sha256": "cdbd0d93adaa213778832e181060bf58a57c1e52d7066e1af21da6f948cd325a",
       "binary": false,
       "exports": [
         {
@@ -110857,18 +110857,23 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "isEmailProviderRateLimitError",
+          "line": 210,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "FixtureRecipientSkippedError",
-          "line": 243,
+          "line": 254,
           "kind": "ClassDeclaration"
         },
         {
           "name": "sendBrandedEmail",
-          "line": 253,
+          "line": 264,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendBrandedEmailOrThrowOnSkip",
-          "line": 337,
+          "line": 348,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110969,23 +110974,28 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "isEmailProviderRateLimitError",
+          "line": 210,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "resendRetryDelayMs",
-          "line": 209,
+          "line": 222,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FixtureRecipientSkippedError",
-          "line": 243,
+          "line": 254,
           "kind": "ClassDeclaration"
         },
         {
           "name": "sendBrandedEmail",
-          "line": 253,
+          "line": 264,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendBrandedEmailOrThrowOnSkip",
-          "line": 337,
+          "line": 348,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -150554,9 +150564,9 @@
       "path": "tests/api/weekly-recap.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 21394,
-      "lines": 536,
-      "sha256": "6c9c3ff09d88c5a5f438ca01acdb327c4b665d09ec47496eb73ad8596f44eabc",
+      "bytes": 22483,
+      "lines": 565,
+      "sha256": "4db6bc6a164afb359f2902a565646c77c75d9d710064614d117c80f70a1b9723",
       "binary": false,
       "exports": [],
       "declarations": [

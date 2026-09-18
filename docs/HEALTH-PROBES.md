@@ -10,6 +10,10 @@
 | **Journey smoke** | `GET /api/cron/smoke-test` | Seven parallel HTTP probes; cron-authenticated | Liveness/readiness JSON, login/program page markers, and the `/dashboard`, `/admin`, `/counselor` login redirect contracts | 200 when every probe is healthy; **503** plus a sanitized Sentry exception when any probe fails or exceeds 8 seconds |
 | SLO snapshot | `GET /api/health/slo` | Admin-only | Internal SLO numbers | Auth-gated |
 
+## Liveness payload
+
+`GET /api/health` returns `{ status, probe, version, supabaseRef, timestamp, note }`. `version` is the first seven characters of the deployed commit (`local` outside Vercel); `supabaseRef` is the project ref behind the public Supabase URL (`esbdrgaonplpvzmtrdhw` on Preview, `jqddnyuszufndwwezdwp` on Production — `docs/STAGING_ENV.md`). Neither field costs a dependency call. The trusted portal audit's health gate (`scripts/portal-audit-health-gate.mjs`) reads both to refuse a target that serves the wrong commit or the wrong database before it signs in.
+
 ## What to alert on
 
 - **Process down / deploy crash-loop:** `/api/health` ≠ 200.

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import NextLink from 'next/link';
 import { Card } from '@astryxdesign/core/Card';
 import { Button } from '@astryxdesign/core/Button';
@@ -59,6 +60,12 @@ export interface TrainingProgressKitProps {
   avgPercent: number;
   /** Override the footer when the loader capped the learner scan. */
   showingLabel?: string;
+  /**
+   * Optional controls rendered between the KPI strip and the table. The page
+   * stays a server component; `TrainingProgressRoster` passes its filter and
+   * sort controls through here.
+   */
+  toolbar?: ReactNode;
 }
 
 const PACE_TOKEN_COLOR: Record<Pace, TokenColor> = {
@@ -75,6 +82,7 @@ export function TrainingProgressKit({
   stalled,
   avgPercent,
   showingLabel,
+  toolbar,
 }: TrainingProgressKitProps) {
   const kpis: KpiItem[] = [
     { label: 'On Track', value: onTrack, color: 'success' },
@@ -123,6 +131,7 @@ export function TrainingProgressKit({
           }}
         >
           {row.program}
+          {row.inWap !== false && row.noProgram ? ' (inferred)' : ''}
         </span>
       ),
     },
@@ -180,6 +189,8 @@ export function TrainingProgressKit({
         <KpiStrip items={kpis} />
       </div>
 
+      {toolbar ? <div className="wa-mb-5">{toolbar}</div> : null}
+
       <DataTable<TrainingRow>
         columns={columns}
         rows={rows}
@@ -226,6 +237,7 @@ export function TrainingProgressKit({
                   }}
                 >
                   {row.program}
+                  {row.inWap !== false && row.noProgram ? ' (inferred)' : ''}
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>

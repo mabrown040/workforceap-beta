@@ -10,7 +10,20 @@ export interface ResumeObjectUpload {
   field: ResumeProfilePathField;
   extension: string;
   contentType: string;
-  body: ArrayBuffer | string;
+  /**
+   * Binary payloads cross this boundary as a byte view, never as a bare
+   * `ArrayBuffer`.
+   *
+   * Supabase Storage accepts either, but an `ArrayBuffer` boundary forces every
+   * producer to surrender a whole backing store, and the obvious way to get one
+   * from bytes already in hand is `view.buffer` — which uploads the entire
+   * allocation rather than the view. For a pooled Node `Buffer` that is
+   * unrelated adjacent heap memory, so the failure is silent and leaks bytes
+   * instead of erroring. A `Uint8Array` carries its own offset and length, so it
+   * can only ever transmit the bytes it describes. `Buffer` extends
+   * `Uint8Array`, so Buffer-producing callers satisfy this unchanged.
+   */
+  body: Uint8Array | string;
 }
 
 interface StorageResult {

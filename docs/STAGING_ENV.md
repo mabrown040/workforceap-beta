@@ -36,11 +36,13 @@ Verify after: each scope shows the correct project ref in the var values.
 ## The guard (make-sure-it-happens)
 
 `scripts/check-supabase-env.mjs` reads `VERCEL_ENV` + the Supabase URLs and **fails the
-build (exit 1)** if a scope is wired to the wrong project. On Vercel, the public,
-pooled, and non-pooled URLs are required, unrecognized targets fail closed, and
-`CI=1` cannot bypass the check:
+build (exit 1)** if a scope is wired to the wrong project. On Vercel, the public
+URL, the public anon key, the pooled URL, and the non-pooled URL are required;
+unrecognized targets fail closed, a missing or truncated `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+fails closed, and `CI=1` cannot bypass the check:
 - Preview/Development pointing at `jqddnyuszufndwwezdwp` → blocked
 - Production pointing at `esbdrgaonplpvzmtrdhw` → blocked
+- Production or Preview with no usable anon key → blocked
 
 Wire it into the build so a misconfig can never deploy. In `package.json`, prepend it to
 the build (or run in CI before deploy):
@@ -81,6 +83,14 @@ ledger. After the demo ledger is repaired, restore previews to the full
 proving their intended schema.
 
 ## Verify preview is actually hitting demo
-After the first preview deploy, confirm the running app reports the demo ref (e.g. a
-`/api/health` or a logged-in dashboard that shows seeded demo data, not real members).
-If you see real names, **stop** — a scope is misconfigured; the guard should have caught it.
+After the first preview deploy, confirm the running app reports the demo ref:
+`GET /api/health` returns `supabaseRef`, which must read `esbdrgaonplpvzmtrdhw` on any
+preview and `jqddnyuszufndwwezdwp` only on production. A logged-in dashboard should show
+seeded demo data, not real members. If you see real names, **stop** — a scope is
+misconfigured; the guard should have caught it.
+
+The authenticated portal smoke enforces the same rule mechanically: its health gate
+(`scripts/portal-audit-health-gate.mjs`) refuses to sign in unless the isolated preview
+reports the demo ref. The preview it audits is the `preview` branch, a mirror of `master`
+maintained by `.github/workflows/mirror-master-to-preview.yml` and allowed through
+`vercel.json`'s ignore step so Vercel builds it in the Preview environment.

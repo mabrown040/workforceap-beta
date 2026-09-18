@@ -5,8 +5,9 @@
  *   Preview / Development  MUST use the DEMO project (esbdrgaonplpvzmtrdhw)
  *   Production             MUST use the REAL project (jqddnyuszufndwwezdwp)
  *
- * Run in CI / as a predeploy / build step. Reads NEXT_PUBLIC_SUPABASE_URL and
- * the connection URLs and fails loud if a scope is wired to the wrong project.
+ * Run in CI / as a predeploy / build step. Reads NEXT_PUBLIC_SUPABASE_URL,
+ * NEXT_PUBLIC_SUPABASE_ANON_KEY, and the connection URLs and fails loud if a
+ * scope is wired to the wrong project or auth is missing the public anon key.
  *
  * Exit 0 = ok, 1 = misconfigured (block the deploy).
  */
@@ -16,7 +17,9 @@ import guard from './lib/supabase-project-guard.cjs';
 const {
   DEMO_REF,
   PROD_REF,
+  formatSupabaseEnvGuardFailure,
   inspectSupabaseEnvironment,
+  projectForAnonKey,
   projectForUrl,
 } = guard;
 
@@ -55,6 +58,8 @@ for (const [name, value] of Object.entries(urls)) {
   }
 }
 
+seen.NEXT_PUBLIC_SUPABASE_ANON_KEY = projectForAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
 if (process.env.VERCEL === '1') {
   const strict = inspectSupabaseEnvironment(process.env, {
     requireVercel: true,
@@ -66,12 +71,10 @@ if (process.env.VERCEL === '1') {
 console.log(`[supabase-env-guard] env=${env} expected=${expected} →`, seen);
 
 if (errors.length) {
-  console.error('\n[supabase-env-guard] BLOCKED — wrong Supabase project for this environment:');
+  const { header, hint } = formatSupabaseEnvGuardFailure(errors, { demo: DEMO_REF, prod: PROD_REF });
+  console.error(`\n${header}`);
   console.error(errors.join('\n'));
-  console.error(
-    `\nFix: in Vercel, the Preview + Development scopes must use the DEMO project (${DEMO_REF}); ` +
-      `Production must use the real project (${PROD_REF}). See docs/STAGING_ENV.md.\n`
-  );
+  console.error(`\n${hint}\n`);
   process.exit(1);
 }
 

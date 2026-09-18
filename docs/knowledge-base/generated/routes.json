@@ -19240,17 +19240,17 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 23,
+        "line": 24,
         "kind": "Variable"
       },
       {
         "name": "TrainingProgressItemRow",
-        "line": 25,
+        "line": 26,
         "kind": "TypeAliasDeclaration"
       },
       {
         "name": "GET",
-        "line": 71,
+        "line": 72,
         "kind": "Variable"
       }
     ],
@@ -19278,7 +19278,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 21,
+        "line": 22,
         "kind": "import"
       }
     ]

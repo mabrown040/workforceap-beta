@@ -198,7 +198,7 @@
 | [app/api/admin/testimonials/\[id\]/route.ts](../../../app/api/admin/testimonials/%5Bid%5D/route.ts) | 184 | administration | PATCH:150, DELETE:184 |
 | [app/api/admin/testimonials/route.ts](../../../app/api/admin/testimonials/route.ts) | 102 | administration | GET:18 |
 | [app/api/admin/token-links/route.ts](../../../app/api/admin/token-links/route.ts) | 157 | administration | POST:39 |
-| [app/api/admin/training-progress/items/route.ts](../../../app/api/admin/training-progress/items/route.ts) | 199 | administration | dynamic:23, TrainingProgressItemRow:25, GET:71 |
+| [app/api/admin/training-progress/items/route.ts](../../../app/api/admin/training-progress/items/route.ts) | 210 | administration | dynamic:24, TrainingProgressItemRow:26, GET:72 |
 | [app/api/admin/users/\[id\]/free-email/route.ts](../../../app/api/admin/users/%5Bid%5D/free-email/route.ts) | 95 | administration | POST:95 |
 | [app/api/admin/users/\[id\]/reset-password/route.ts](../../../app/api/admin/users/%5Bid%5D/reset-password/route.ts) | 74 | administration | POST:74 |
 | [app/api/admin/users/\[id\]/restore/route.ts](../../../app/api/admin/users/%5Bid%5D/restore/route.ts) | 182 | administration | POST:16 |

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "ca041962561c6a8faeaf1c0bcc8227d5184977c5872d70d8e61b54eb7d473ae1",
+  "inputTreeSha256": "1edc17c10847418d4c7d8f5040142a2d0d00de9ed54174df6b419d11b8abb27d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -28288,56 +28288,56 @@
       "path": "app/api/admin/training-progress/items/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7109,
-      "lines": 199,
-      "sha256": "971a75841c938da5eb85a44aa16f7c4ea5fbc177d70eb5e456ca975ec3b2aeed",
+      "bytes": 7937,
+      "lines": 210,
+      "sha256": "b6e453b600933496f14b82dace523c4374d35dac573703fa45f24c7819dec558",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "TrainingProgressItemRow",
-          "line": 25,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "GET",
-          "line": 71,
+          "line": 72,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "dynamic",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "TrainingProgressItemRow",
-          "line": 25,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ITEM_TYPE_LABELS",
-          "line": 39,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "humaniseItemType",
-          "line": 56,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "shortVerb",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 71,
+          "line": 72,
           "kind": "Variable"
         }
       ],
@@ -148147,6 +148147,39 @@
         {
           "name": "postReq",
           "line": 47,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/admin-training-progress-items-exact-email.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5137,
+      "lines": 139,
+      "sha256": "a1d8261b8667719a2cdf4653ca45b3f4a66917432b22c8f6b0dddf2f94288b00",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PATTERN_ADDRESS",
+          "line": 43,
+          "kind": "Variable"
+        },
+        {
+          "name": "itemsRequest",
+          "line": 45,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "statementRow",
+          "line": 51,
           "kind": "Variable"
         }
       ],

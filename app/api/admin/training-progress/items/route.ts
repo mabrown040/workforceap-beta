@@ -17,6 +17,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -100,13 +101,23 @@ function shortVerb(verbId: string | null): string | null {
     } catch {
       return NextResponse.json({ items: [], totals: { items: 0 } });
     }
-    const targetUser = await prisma.$transaction((tx) => tx.user.findFirst({
+    // `mode: 'insensitive'` compiles to ILIKE, so `_`/`%` in `emailParam` are
+    // wildcards here — but the statement read below matches `actorEmail`
+    // against the same string as a literal equality. A pattern that merely
+    // ILIKE-matches some member of the caller's own org therefore passes this
+    // gate and then returns the item-level statements of the literal address,
+    // which may belong to another tenant's learner. Keep only a genuine
+    // case-insensitive equality, so the address that cleared the gate is the
+    // address that gets read. See lib/db/exactEmailMatch.ts.
+    const targetCandidates = await prisma.$transaction((tx) => tx.user.findMany({
       where: {
         email: { equals: emailParam, mode: 'insensitive' },
         organizationId: orgId,
       },
-      select: { id: true },
+      select: { id: true, email: true },
+      take: EXACT_EMAIL_CANDIDATE_LIMIT,
     }));
+    const targetUser = pickExactEmailMatch(targetCandidates, emailParam);
     if (!targetUser) {
       // Don't leak whether the email exists in another tenant.
       return NextResponse.json({ items: [], totals: { items: 0 } });

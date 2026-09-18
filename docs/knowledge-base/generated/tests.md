@@ -32,6 +32,7 @@
 | [tests/api/admin-placements.spec.ts](../../../tests/api/admin-placements.spec.ts) | 409 | tests |  |
 | [tests/api/admin-suggest-matches-route.spec.ts](../../../tests/api/admin-suggest-matches-route.spec.ts) | 137 | tests |  |
 | [tests/api/admin-token-links.spec.ts](../../../tests/api/admin-token-links.spec.ts) | 268 | tests |  |
+| [tests/api/admin-training-progress-items-exact-email.spec.ts](../../../tests/api/admin-training-progress-items-exact-email.spec.ts) | 139 | tests |  |
 | [tests/api/admin-user-create-active-identity-race.spec.ts](../../../tests/api/admin-user-create-active-identity-race.spec.ts) | 223 | tests |  |
 | [tests/api/admin-user-create-tenant-conflict.spec.ts](../../../tests/api/admin-user-create-tenant-conflict.spec.ts) | 131 | tests |  |
 | [tests/api/admin-user-lifecycle.spec.ts](../../../tests/api/admin-user-lifecycle.spec.ts) | 280 | tests |  |

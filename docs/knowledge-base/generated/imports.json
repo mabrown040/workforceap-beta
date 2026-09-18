@@ -39097,8 +39097,16 @@
   },
   {
     "from": "app/api/admin/training-progress/items/route.ts",
+    "specifier": "@/lib/db/exactEmailMatch",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/admin/training-progress/items/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -110158,6 +110166,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
+  },
+  {
+    "from": "tests/api/admin-training-progress-items-exact-email.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-training-progress-items-exact-email.spec.ts",
+    "specifier": "@/app/api/admin/training-progress/items/route",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/training-progress/items/route.ts"
   },
   {
     "from": "tests/api/admin-user-create-active-identity-race.spec.ts",

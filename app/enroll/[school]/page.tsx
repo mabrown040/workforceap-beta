@@ -28,7 +28,9 @@ export default async function PartnerEnrollmentPage({ params }: PageProps) {
 
   const copy = `${model.headline} ${model.blurb} ${model.costSentence}`;
   if (!enrollPageCopyIsStakeSafe(copy)) {
-    throw new Error(`enroll/${school}: public copy failed the no-cost stake (banned "free")`);
+    // Do not 500 the student — withhold the page until ops fixes copy.
+    console.error(`enroll/${school}: public copy failed the no-cost stake (banned "free")`);
+    notFound();
   }
 
   return <PartnerSchoolEnrollPage model={model} />;

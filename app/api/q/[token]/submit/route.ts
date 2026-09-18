@@ -212,8 +212,6 @@ export const POST = withApiGuc(
           const meta: EligibilityFormMeta = {
             version: 1,
             updatedAt: new Date().toISOString(),
-            ageGroup: data.ageGroup ?? null,
-            county: data.county?.trim() || null,
             ...extendedMeta,
           };
           await tx.user.update({
@@ -340,11 +338,6 @@ export const POST = withApiGuc(
             firstName: data.firstName?.trim() || null,
             lastName: data.lastName?.trim() || null,
             phone: data.phone?.trim() || null,
-            ageGroup: data.ageGroup ?? null,
-            city: data.city?.trim() || null,
-            state: data.state?.trim() || null,
-            zip: data.zip?.trim() || null,
-            county: data.county?.trim() || null,
             primaryBarriers: barrierTypes,
             ...extendedMeta,
           },

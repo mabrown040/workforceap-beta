@@ -29,7 +29,7 @@ describe('eligibilityScreeningSummaryHtml', () => {
     const html = eligibilityScreeningSummaryHtml(SAMPLE);
     assert.match(html, /Receiving unemployment/);
     assert.match(html, /yes/);
-    assert.match(html, /Exhausted unemployment/);
+    assert.match(html, /Unemployment benefits exhausted/);
     assert.match(html, /Acme Logistics/);
     assert.match(html, /TANF \/ WIC \/ Food stamps \(SNAP\)/);
     assert.match(html, /Partner or community ambassador/);

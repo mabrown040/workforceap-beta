@@ -20,11 +20,36 @@ export const dynamic = 'force-dynamic';
  * Vercel runtime timeouts for `/dashboard`, `/admin`, `/counselor`.
  *
  * `?deep=true` is ignored. Dependency timing lives on `/api/health/ready`.
+ *
+ * `version` (first seven characters of the deployed commit) and `supabaseRef`
+ * (project ref behind the public Supabase URL) let the trusted portal audit
+ * refuse a target that serves the wrong commit or the wrong database.
  */
 
 function liveVersion(): string {
   // `||` (not `??`): an empty-string SHA must also fall back to 'local'.
   return process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local';
+}
+
+/**
+ * Project ref of the Supabase instance this deployment is wired to, read from
+ * the public `NEXT_PUBLIC_SUPABASE_URL` host (`<ref>.supabase.co`). The ref is
+ * already inlined into every client bundle, so publishing it here exposes
+ * nothing new. It exists so the trusted portal audit can prove an "isolated
+ * preview" really runs on the DEMO project before signing in with five
+ * identities (`docs/STAGING_ENV.md`, `scripts/portal-audit-health-gate.mjs`).
+ * Costs no dependency call.
+ */
+function supabaseProjectRef(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    const hostname = new URL(raw).hostname.toLowerCase();
+    const match = /^([a-z0-9]+)\.supabase\.co$/.exec(hostname);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function OPTIONS() {
@@ -51,6 +76,7 @@ export async function GET(request: Request) {
       status: 'ok' as const,
       probe: 'live' as const,
       version: liveVersion(),
+      supabaseRef: supabaseProjectRef(),
       timestamp: new Date().toISOString(),
       note: 'Liveness only. Use GET /api/health/ready for Prisma/org readiness and 504-adjacent dependency alerts.',
     };

@@ -33,6 +33,8 @@ vi.mock('@/lib/cron/cronExecution', () => ({
   completeCronExecution: vi.fn(async () => undefined),
   runWithCronExecution: vi.fn(async (_id: string, fn: () => Promise<unknown>) => fn()),
   setCronRecordsProcessed: vi.fn(async () => undefined),
+  getCronRecordsProcessed: vi.fn(() => undefined),
+  hasCronDiagnosticBeenLogged: vi.fn(() => false),
 }));
 
 vi.mock('@/lib/cron/isCronEnabled', () => ({

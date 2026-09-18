@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "c6becb3c90f428f408073a6dd9c19b4d8d8a8b3e8bd47924dd77b07f9623f15a",
+  "inputTreeSha256": "2e08484d5673e167832832ee3121079c47c4e0e3e89b5ba19f8955e3a3f9a90b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -1436,9 +1436,9 @@
       "path": ".github/workflows/authenticated-portal-smoke.yml",
       "area": "delivery",
       "domain": "delivery",
-      "bytes": 5096,
-      "lines": 122,
-      "sha256": "bbfdf6ac806e6e187103551c947d932867ca2ce92eb626539516d6e7e9e35c4e",
+      "bytes": 4789,
+      "lines": 118,
+      "sha256": "a7ed1ff5fa9ee5ca765b4c89afa0cb861ac9dfcf293b339f43feb28097325307",
       "binary": false
     },
     {
@@ -1493,15 +1493,6 @@
       "bytes": 5620,
       "lines": 144,
       "sha256": "7fa047e8d97a3c6c070d378a26b94006ea941e86e27c2b52603c8920abb8b638",
-      "binary": false
-    },
-    {
-      "path": ".github/workflows/mirror-master-to-preview.yml",
-      "area": "delivery",
-      "domain": "delivery",
-      "bytes": 2235,
-      "lines": 57,
-      "sha256": "5719c8ba5fc577c4de2bc44f37fbe0f7358c8e8884d91456d7ee8f9eec3acc43",
       "binary": false
     },
     {
@@ -34075,9 +34066,9 @@
       "path": "app/api/health/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 3497,
-      "lines": 95,
-      "sha256": "0c7d8a7de461d1f7260e1b007e76fde38597eb356c17e6809c7bd77160b68df5",
+      "bytes": 2393,
+      "lines": 69,
+      "sha256": "b93b3d2f175901df04713b040a501ea642eb32131f80f145f4fdc904a16c26f9",
       "binary": false,
       "exports": [
         {
@@ -34087,12 +34078,12 @@
         },
         {
           "name": "OPTIONS",
-          "line": 55,
+          "line": 30,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 64,
+          "line": 39,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -34109,22 +34100,17 @@
         },
         {
           "name": "liveVersion",
-          "line": 29,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "supabaseProjectRef",
-          "line": 43,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "OPTIONS",
-          "line": 55,
+          "line": 30,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 64,
+          "line": 39,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -74792,9 +74778,9 @@
       "path": "docs/CROSS-PORTAL-AUDIT-PLAN.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10449,
-      "lines": 123,
-      "sha256": "dc4116874f3a7403bf9ac4183aee83174798413ce42f8d91a257bf25351e5651",
+      "bytes": 9363,
+      "lines": 121,
+      "sha256": "ed2431b77687307399dc01e72bcd341fea1731b3a67d461a7bab5242bbb03a80",
       "binary": false
     },
     {
@@ -74900,9 +74886,9 @@
       "path": "docs/ENVIRONMENT-VARIABLES.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 31375,
-      "lines": 480,
-      "sha256": "09933098546ae607348aab1174d885bd684bba2389bc08b98f3c4d1217a81275",
+      "bytes": 28408,
+      "lines": 464,
+      "sha256": "33e8e96a7eab7ed04a18d078167835ad8a223118b01eca7974ae3eeb12638bbf",
       "binary": false
     },
     {
@@ -74963,9 +74949,9 @@
       "path": "docs/HEALTH-PROBES.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 3594,
-      "lines": 41,
-      "sha256": "ee860d176c22e42623cfa656e16a50bb9615d238cd42d98714f92271a1abc8bf",
+      "bytes": 3012,
+      "lines": 37,
+      "sha256": "61247f1342b63ed2d477f9dc6d6b4516c86a467e0972979f2e92e8beb3098ee3",
       "binary": false
     },
     {
@@ -75179,9 +75165,9 @@
       "path": "docs/PORTAL_REDESIGN_PLAN.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 11314,
-      "lines": 189,
-      "sha256": "9230e417f13bd77306237df75e38540e7392b43899736bdd028440652107bc98",
+      "bytes": 11241,
+      "lines": 188,
+      "sha256": "9b303f95b1714ca470c84d6567a8f99543bc7c10c2fee21fd12e97c5a3669a5c",
       "binary": false
     },
     {
@@ -75332,9 +75318,9 @@
       "path": "docs/STAGING_ENV.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 4939,
-      "lines": 94,
-      "sha256": "1484437e4895c3625711c4865e01ef3428b49e1e2ba7c0721fb0e353059f5301",
+      "bytes": 4399,
+      "lines": 86,
+      "sha256": "051e735b8be40e23a70b61e73e14a88e76eeed47ed2d2fee2b809e9ac85e2530",
       "binary": false
     },
     {
@@ -84533,21 +84519,21 @@
       "path": "lib/admin/logCronRun.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 660,
-      "lines": 22,
-      "sha256": "dd9bb4b35765123bf8a1280e6ef71d7519f95482a57e00a4819d7d68ef5d309d",
+      "bytes": 994,
+      "lines": 28,
+      "sha256": "4e9302e36c5bdadccd9624eaabed2088bb13cb7f7aa58e41c33ac632f3fd1b50",
       "binary": false,
       "exports": [
         {
           "name": "logCronRun",
-          "line": 5,
+          "line": 6,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "logCronRun",
-          "line": 5,
+          "line": 6,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107188,9 +107174,9 @@
       "path": "lib/cron/cronExecution.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 1691,
-      "lines": 59,
-      "sha256": "028e108cf8e02b62a3e9aa6dae58abf62dca91e55964aa71445c6d7465c03d53",
+      "bytes": 2876,
+      "lines": 92,
+      "sha256": "c7ec46b351d79c61d36e73e014327d1e424c03a0a06fc72a903252aa02769af1",
       "binary": false,
       "exports": [
         {
@@ -107200,27 +107186,42 @@
         },
         {
           "name": "startCronExecution",
-          "line": 8,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setCronRecordsProcessed",
-          "line": 19,
+          "line": 31,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "completeCronExecution",
-          "line": 28,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCurrentCronExecutionId",
-          "line": 53,
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "getCronRecordsProcessed",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "markCronDiagnosticLogged",
+          "line": 81,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hasCronDiagnosticBeenLogged",
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runWithCronExecution",
-          "line": 57,
+          "line": 90,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107231,33 +107232,53 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "cronExecutionStorage",
+          "name": "CronExecutionContext",
           "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "cronExecutionStorage",
+          "line": 18,
           "kind": "Variable"
         },
         {
           "name": "startCronExecution",
-          "line": 8,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setCronRecordsProcessed",
-          "line": 19,
+          "line": 31,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "completeCronExecution",
-          "line": 28,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCurrentCronExecutionId",
-          "line": 53,
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "getCronRecordsProcessed",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "markCronDiagnosticLogged",
+          "line": 81,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hasCronDiagnosticBeenLogged",
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runWithCronExecution",
-          "line": 57,
+          "line": 90,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107528,21 +107549,21 @@
       "path": "lib/cron/withCronLogging.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 2415,
-      "lines": 63,
-      "sha256": "a9d944f9641c1ccc25e67ae9dac216ece24f832957e86bdc8aced01450f97f37",
+      "bytes": 3654,
+      "lines": 89,
+      "sha256": "21502c780eed9e66972e6fd46d0c25c889f5f0c497516e1752f022aa75624629",
       "binary": false,
       "exports": [
         {
           "name": "withCronLogging",
-          "line": 16,
+          "line": 32,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "withCronLogging",
-          "line": 16,
+          "line": 32,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -143306,175 +143327,6 @@
       "directive": null
     },
     {
-      "path": "scripts/lib/portal-audit-health-gate.mjs",
-      "area": "operations",
-      "domain": "operations",
-      "bytes": 10165,
-      "lines": 278,
-      "sha256": "5904698df5790af8d98d6bec8fc2a3269d8cc57ad70691a0adca2cf43ff177ea",
-      "binary": false,
-      "exports": [
-        {
-          "name": "HEALTH_PATH",
-          "line": 28,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_HEALTH_GATE_TIMEOUT_MS",
-          "line": 29,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_HEALTH_GATE_INTERVAL_MS",
-          "line": 30,
-          "kind": "Variable"
-        },
-        {
-          "name": "HEALTH_REQUEST_TIMEOUT_MS",
-          "line": 31,
-          "kind": "Variable"
-        },
-        {
-          "name": "MIN_VERSION_LENGTH",
-          "line": 32,
-          "kind": "Variable"
-        },
-        {
-          "name": "normalizeOriginInput",
-          "line": 39,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "expectedSupabaseRefForMode",
-          "line": 45,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "resolveHealthGateTarget",
-          "line": 57,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "normalizeTrustedSha",
-          "line": 66,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "evaluateHealthPayload",
-          "line": 85,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "formatHealthGateAttempt",
-          "line": 158,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "describeHealthGateFailure",
-          "line": 183,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "waitForTrustedHealth",
-          "line": 222,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "formatPortalAuditTargetErrors",
-          "line": 278,
-          "kind": "ReExport"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "DEMO_REF",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "PROD_REF",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "HEALTH_PATH",
-          "line": 28,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_HEALTH_GATE_TIMEOUT_MS",
-          "line": 29,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_HEALTH_GATE_INTERVAL_MS",
-          "line": 30,
-          "kind": "Variable"
-        },
-        {
-          "name": "HEALTH_REQUEST_TIMEOUT_MS",
-          "line": 31,
-          "kind": "Variable"
-        },
-        {
-          "name": "MIN_VERSION_LENGTH",
-          "line": 32,
-          "kind": "Variable"
-        },
-        {
-          "name": "normalizeOriginInput",
-          "line": 39,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "expectedSupabaseRefForMode",
-          "line": 45,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "resolveHealthGateTarget",
-          "line": 57,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "normalizeTrustedSha",
-          "line": 66,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "failure",
-          "line": 71,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "evaluateHealthPayload",
-          "line": 85,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "vercelDiagnostics",
-          "line": 143,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "formatHealthGateAttempt",
-          "line": 158,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "describeHealthGateFailure",
-          "line": 183,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "waitForTrustedHealth",
-          "line": 222,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "scripts/lib/portal-audit-inventory.mjs",
       "area": "operations",
       "domain": "operations",
@@ -144201,54 +144053,6 @@
           "name": "main",
           "line": 590,
           "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "scripts/portal-audit-health-gate.mjs",
-      "area": "operations",
-      "domain": "operations",
-      "bytes": 3016,
-      "lines": 87,
-      "sha256": "1d0bfddc0171706f6094144996d27d068a50d43d0a2b7a83a41309f70a257f95",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "positiveInteger",
-          "line": 29,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "mode",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "target",
-          "line": 35,
-          "kind": "Variable"
-        },
-        {
-          "name": "trustedSha",
-          "line": 46,
-          "kind": "Variable"
-        },
-        {
-          "name": "timeoutMs",
-          "line": 56,
-          "kind": "Variable"
-        },
-        {
-          "name": "intervalMs",
-          "line": 60,
-          "kind": "Variable"
-        },
-        {
-          "name": "outcome",
-          "line": 70,
-          "kind": "Variable"
         }
       ],
       "directive": null
@@ -147918,20 +147722,20 @@
       "path": "tests/api/cron-at-risk-alerts-auth.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5045,
-      "lines": 134,
-      "sha256": "9fc956bbf894401750f36457213d67e7aba44c4d2b57c94509e425cb46da1303",
+      "bytes": 5147,
+      "lines": 136,
+      "sha256": "06bbab47564d75a0b0668f947fbb479f749757367b058ce6358dc6ac0957494e",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "CRON_SECRET",
-          "line": 68,
+          "line": 70,
           "kind": "Variable"
         },
         {
           "name": "request",
-          "line": 70,
+          "line": 72,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -148029,9 +147833,9 @@
       "path": "tests/api/cron-smoke-test.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7892,
-      "lines": 230,
-      "sha256": "ce0e215feb3fcb1094acb5618807cd2eeebbbf6439373eafba1c6885dcddf47f",
+      "bytes": 7994,
+      "lines": 232,
+      "sha256": "e50ac2ba5271abd22e370ec6e89e68806282fc3147fae0d83a24552d74b9e28a",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -148386,9 +148190,9 @@
       "path": "tests/api/health-check.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7911,
-      "lines": 232,
-      "sha256": "41d72df9ed3592dae42ab42766042ad1ebb8f22841356e4b2812231ce07a71e8",
+      "bytes": 6784,
+      "lines": 208,
+      "sha256": "b31f68af2ae8099e3d7ce50f01bbe0debe78c31a039959b8487c2401e7bb8d37",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -152401,6 +152205,49 @@
       "directive": null
     },
     {
+      "path": "tests/lib/cron-diagnostics-visibility.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 7254,
+      "lines": 204,
+      "sha256": "3d76fe4e1142f492b1812b66cce09c50eb5cc5fba8d53f04a3dd2b78d354795b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "DiagnosticRow",
+          "line": 20,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "diagnostics",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
+          "name": "executions",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "executionSeq",
+          "line": 30,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 76,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "rowsFor",
+          "line": 80,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -153699,9 +153546,9 @@
       "path": "tests/lib/with-cron-logging.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 1964,
-      "lines": 58,
-      "sha256": "c4fc7bbc75fff66b9d5ce6304c94af7688444fd2d1a3e8e45ea725395f749b06",
+      "bytes": 2066,
+      "lines": 60,
+      "sha256": "ab94a16a8a0e15d49b2938f6fde58585a1eee30af5ce242d365c7129de229ba3",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -153929,74 +153776,6 @@
         {
           "name": "completeEnvironment",
           "line": 56,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/portal-audit-health-gate.test.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 14678,
-      "lines": 397,
-      "sha256": "b199200dceca03a04239289e89e0f1c5c4937f22bd4ce94f9cfc383ace9b9151",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "DEMO_REF",
-          "line": 15,
-          "kind": "Variable"
-        },
-        {
-          "name": "PROD_REF",
-          "line": 16,
-          "kind": "Variable"
-        },
-        {
-          "name": "TRUSTED_SHA",
-          "line": 17,
-          "kind": "Variable"
-        },
-        {
-          "name": "PREVIEW_ORIGIN",
-          "line": 18,
-          "kind": "Variable"
-        },
-        {
-          "name": "PRODUCTION_ORIGIN",
-          "line": 19,
-          "kind": "Variable"
-        },
-        {
-          "name": "healthBody",
-          "line": 21,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "FakeResponse",
-          "line": 32,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "response",
-          "line": 38,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "Scripted",
-          "line": 47,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "scriptedFetch",
-          "line": 49,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "fakeClock",
-          "line": 63,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154485,9 +154264,9 @@
       "path": "vercel.json",
       "area": "root",
       "domain": "root",
-      "bytes": 2942,
+      "bytes": 2934,
       "lines": 126,
-      "sha256": "065472292465fdb63b3ce1b931c9581ddaced09a69763bd3aac5799770f88a46",
+      "sha256": "fdd6ef33b96bba507b6effd86b22cdf87c4c77fff5e94a4b607018045c16cc84",
       "binary": false
     },
     {

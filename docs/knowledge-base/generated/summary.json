@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "c6becb3c90f428f408073a6dd9c19b4d8d8a8b3e8bd47924dd77b07f9623f15a",
+  "inputTreeSha256": "2e08484d5673e167832832ee3121079c47c4e0e3e89b5ba19f8955e3a3f9a90b",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,9 +8,9 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4523,
-    "sourceModules": 3199,
-    "importReferences": 15145,
+    "files": 4520,
+    "sourceModules": 3197,
+    "importReferences": 15146,
     "resolvedLocalReferences": 10110,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
@@ -29,7 +29,7 @@
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
-    "environmentNames": 199
+    "environmentNames": 194
   },
   "areas": [
     {
@@ -70,7 +70,7 @@
     },
     {
       "area": "delivery",
-      "files": 9
+      "files": 8
     },
     {
       "area": "documentation",
@@ -86,7 +86,7 @@
     },
     {
       "area": "operations",
-      "files": 118
+      "files": 116
     },
     {
       "area": "pages",
@@ -232,14 +232,14 @@
     },
     {
       "file": "lib/admin/logCronRun.ts",
-      "references": 36
-    },
-    {
-      "file": "lib/auth/ensureUser.ts",
-      "references": 35
+      "references": 37
     },
     {
       "file": "lib/cron/cronExecution.ts",
+      "references": 37
+    },
+    {
+      "file": "lib/auth/ensureUser.ts",
       "references": 35
     },
     {

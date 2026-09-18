@@ -6,6 +6,20 @@ vi.mock('next/link', () => ({
     <a href={href}>{children}</a>
   ),
 }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    const copy: Record<string, string> = {
+      noMembersAssignedYet: 'No members assigned yet',
+      membersAppearOnceAssigned: 'Members appear here once an admin assigns them to you.',
+      noConversationsMatch: 'No conversations match',
+      tryAnotherFilterOrSearch: 'Try another filter or search term.',
+      clearConversationFilters: 'Clear filters',
+      browseAllMembers: 'Browse all members',
+      backToDashboard: 'Back to dashboard',
+    };
+    return copy[key] ?? key;
+  },
+}));
 vi.mock('@/components/admin/AdminMemberCounselorChatClient', () => ({
   default: ({ messagesApiBase, initial }: { messagesApiBase: string; initial: { member: { id: string } } }) => (
     <div data-testid="loaded-chat" data-api={messagesApiBase} data-member={initial.member.id}>Loaded chat</div>
@@ -175,5 +189,32 @@ describe('CounselorMessagesInboxClient recipient safety', () => {
     await act(async () => {});
     expect(screen.queryByTestId('loaded-chat')).not.toBeInTheDocument();
     expect(screen.getAllByRole('alert')[0]).toHaveTextContent('Could not load this conversation');
+  });
+});
+
+describe('CounselorMessagesInboxClient kit empty states', () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
+  it('shows roster + dashboard CTAs when no members are assigned', () => {
+    render(<CounselorMessagesInboxClient staffUserId="staff-1" rows={[]} />);
+    expect(screen.getAllByRole('heading', { name: 'No members assigned yet' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Browse all members' })[0]).toHaveAttribute('href', '/counselor/students');
+    expect(screen.getAllByRole('link', { name: 'Back to dashboard' })[0]).toHaveAttribute('href', '/counselor');
+  });
+
+  it('offers clear-filters when a filter yields no conversations', async () => {
+    const noUnread = rows.map((row) => ({ ...row, unreadCount: 0 }));
+    vi.stubGlobal('fetch', vi.fn(async () => chatResponse('member-1')));
+    render(<CounselorMessagesInboxClient staffUserId="staff-1" rows={noUnread} />);
+    const filters = within(screen.getAllByRole('group', { name: 'Filter conversations' })[0]);
+    fireEvent.click(filters.getByRole('button', { name: 'Unread 0' }));
+    expect(await screen.findAllByRole('heading', { name: 'No conversations match' })).not.toHaveLength(0);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Clear filters' })[0]);
+    expect(screen.queryByRole('heading', { name: 'No conversations match' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Ada Member/ }).length).toBeGreaterThan(0);
   });
 });

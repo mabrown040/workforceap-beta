@@ -72490,7 +72490,7 @@
   {
     "from": "components/portal/CounselorMessagesInboxClient.test.tsx",
     "specifier": "./CounselorMessagesInboxClient",
-    "line": 15,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "components/portal/CounselorMessagesInboxClient.tsx"
@@ -72498,7 +72498,7 @@
   {
     "from": "components/portal/CounselorMessagesInboxClient.test.tsx",
     "specifier": "@/lib/messages/counselorInbox",
-    "line": 16,
+    "line": 30,
     "kind": "type",
     "external": false,
     "target": "lib/messages/counselorInbox.ts"
@@ -72529,8 +72529,16 @@
   },
   {
     "from": "components/portal/CounselorMessagesInboxClient.tsx",
-    "specifier": "@/components/admin/AdminMemberCounselorChatClient",
+    "specifier": "next-intl",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/CounselorMessagesInboxClient.tsx",
+    "specifier": "@/components/admin/AdminMemberCounselorChatClient",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/admin/AdminMemberCounselorChatClient.tsx"
@@ -72538,15 +72546,31 @@
   {
     "from": "components/portal/CounselorMessagesInboxClient.tsx",
     "specifier": "@/lib/messages/counselorInbox",
-    "line": 7,
+    "line": 8,
     "kind": "type",
     "external": false,
     "target": "lib/messages/counselorInbox.ts"
   },
   {
     "from": "components/portal/CounselorMessagesInboxClient.tsx",
+    "specifier": "@/lib/counselor/inboxEmptyState",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/inboxEmptyState.ts"
+  },
+  {
+    "from": "components/portal/CounselorMessagesInboxClient.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/CounselorMessagesInboxClient.tsx",
     "specifier": "./CounselorMessagesInboxClient.module.css",
-    "line": 8,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/CounselorMessagesInboxClient.module.css"
@@ -72554,7 +72578,7 @@
   {
     "from": "components/portal/CounselorMessagesInboxClient.tsx",
     "specifier": "@/components/portal/ui/inbox/InboxPrimitives",
-    "line": 9,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/inbox/InboxPrimitives.tsx"
@@ -77474,23 +77498,15 @@
   {
     "from": "components/portal/counselor/InboxZeroClient.tsx",
     "specifier": "lucide-react",
-    "line": 14,
+    "line": 13,
     "kind": "type",
     "external": true,
     "package": "lucide-react"
   },
   {
     "from": "components/portal/counselor/InboxZeroClient.tsx",
-    "specifier": "@/components/portal/PortalEmptyState",
-    "line": 15,
-    "kind": "import",
-    "external": false,
-    "target": "components/portal/PortalEmptyState.tsx"
-  },
-  {
-    "from": "components/portal/counselor/InboxZeroClient.tsx",
     "specifier": "@/lib/fetchWithTimeout",
-    "line": 16,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/fetchWithTimeout.ts"
@@ -77498,7 +77514,7 @@
   {
     "from": "components/portal/counselor/InboxZeroClient.tsx",
     "specifier": "@/lib/counselor/inboxZero",
-    "line": 17,
+    "line": 15,
     "kind": "type",
     "external": false,
     "target": "lib/counselor/inboxZero.ts"
@@ -77506,15 +77522,23 @@
   {
     "from": "components/portal/counselor/InboxZeroClient.tsx",
     "specifier": "@/lib/counselor/templates",
-    "line": 18,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/templates.ts"
   },
   {
     "from": "components/portal/counselor/InboxZeroClient.tsx",
+    "specifier": "@/lib/counselor/inboxEmptyState",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/inboxEmptyState.ts"
+  },
+  {
+    "from": "components/portal/counselor/InboxZeroClient.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 23,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -77522,7 +77546,7 @@
   {
     "from": "components/portal/counselor/InboxZeroClient.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 24,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -93126,6 +93150,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/atRiskScoring.ts"
+  },
+  {
+    "from": "lib/counselor/inboxEmptyState.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/counselor/inboxEmptyState.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/counselor/inboxEmptyState.test.ts",
+    "specifier": "./inboxEmptyState",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/inboxEmptyState.ts"
   },
   {
     "from": "lib/counselor/inboxZero.test.ts",

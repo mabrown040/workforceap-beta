@@ -282,9 +282,9 @@
 | [components/portal/CoachChat.module.css](../../../components/portal/CoachChat.module.css) | 353 | components |  |
 | [components/portal/CoachChat.tsx](../../../components/portal/CoachChat.tsx) | 325 | components | CoachChatGreeting:27, default:146 |
 | [components/portal/CompactReadinessCoach.tsx](../../../components/portal/CompactReadinessCoach.tsx) | 75 | components | default:9 |
-| [components/portal/CounselorMessagesInboxClient.module.css](../../../components/portal/CounselorMessagesInboxClient.module.css) | 111 | components |  |
-| [components/portal/CounselorMessagesInboxClient.test.tsx](../../../components/portal/CounselorMessagesInboxClient.test.tsx) | 179 | components |  |
-| [components/portal/CounselorMessagesInboxClient.tsx](../../../components/portal/CounselorMessagesInboxClient.tsx) | 359 | components | default:114 |
+| [components/portal/CounselorMessagesInboxClient.module.css](../../../components/portal/CounselorMessagesInboxClient.module.css) | 112 | components |  |
+| [components/portal/CounselorMessagesInboxClient.test.tsx](../../../components/portal/CounselorMessagesInboxClient.test.tsx) | 220 | components |  |
+| [components/portal/CounselorMessagesInboxClient.tsx](../../../components/portal/CounselorMessagesInboxClient.tsx) | 429 | components | default:151 |
 | [components/portal/CounselorPortalShell.tsx](../../../components/portal/CounselorPortalShell.tsx) | 36 | components | default:9 |
 | [components/portal/CounselorPortalVoiceBlock.tsx](../../../components/portal/CounselorPortalVoiceBlock.tsx) | 27 | components | default:11 |
 | [components/portal/CourseraAccountLinkCard.tsx](../../../components/portal/CourseraAccountLinkCard.tsx) | 110 | learning-coursera | default:14 |
@@ -459,7 +459,7 @@
 | [components/portal/counselor/CounselorStudentsRosterClient.tsx](../../../components/portal/counselor/CounselorStudentsRosterClient.tsx) | 433 | member-counselor | CounselorRosterClientRow:40, CounselorRosterFilterMeta:56, default:144 |
 | [components/portal/counselor/CounselorTrainingHandoff.test.tsx](../../../components/portal/counselor/CounselorTrainingHandoff.test.tsx) | 40 | member-counselor |  |
 | [components/portal/counselor/CounselorTrainingHandoff.tsx](../../../components/portal/counselor/CounselorTrainingHandoff.tsx) | 64 | member-counselor | CounselorTrainingEnrollment:12, default:21 |
-| [components/portal/counselor/InboxZeroClient.tsx](../../../components/portal/counselor/InboxZeroClient.tsx) | 525 | member-counselor | default:57 |
+| [components/portal/counselor/InboxZeroClient.tsx](../../../components/portal/counselor/InboxZeroClient.tsx) | 539 | member-counselor | default:56 |
 | [components/portal/counselor/LabEvidenceReview.tsx](../../../components/portal/counselor/LabEvidenceReview.tsx) | 158 | member-counselor | default:47 |
 | [components/portal/counselor/LabReviewQueue.tsx](../../../components/portal/counselor/LabReviewQueue.tsx) | 68 | member-counselor | LAB_REVIEW_LABELS:12, labReviewDate:15, default:19 |
 | [components/portal/counselor/MemberProgressTimeline.tsx](../../../components/portal/counselor/MemberProgressTimeline.tsx) | 221 | member-counselor | TimelineStage:5, TimelineEvent:12, default:56 |

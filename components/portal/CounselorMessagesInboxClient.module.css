@@ -71,6 +71,7 @@
 .contextHint { margin-top: 1.25rem; font-size: 0.8125rem; line-height: 1.6; color: var(--wa-muted); }
 .messageState { padding: var(--wa-pad); font-size: 1rem; color: var(--wa-muted); }
 .messageState p { margin-bottom: 1rem; }
+.emptyPad { padding: var(--wa-pad-sm); }
 .chatBody { display: flex; flex: 1; flex-direction: column; min-height: 0; }
 .workspace :global(.admin-member-counselor-chat) { display: flex; flex: 1; flex-direction: column; min-height: 0; }
 .workspace :global(.member-counselor-chat__scroll) { flex: 1; min-height: 10rem; max-height: none; margin: 0; padding: var(--wa-pad); border: 0; border-radius: 0; background: var(--wa-bg); box-shadow: none; }

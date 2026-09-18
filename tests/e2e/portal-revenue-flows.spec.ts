@@ -51,8 +51,9 @@ test.describe('Member portal assessments', () => {
 });
 
 test.describe('Jobs public flow', () => {
-  test('public jobs listing is accessible without auth', async ({ page }) => {
+  test('legacy /jobs redirects into authenticated job board entry', async ({ page }) => {
     await page.goto('/jobs');
-    await expect(page).not.toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/redirectTo=.*dashboard%2Fjobs/);
   });
 });

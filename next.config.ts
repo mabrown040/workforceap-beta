@@ -188,12 +188,53 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Legacy blog slug redirects (slug changes, old URLs must resolve)
-      { source: '/blog/why-we-started-workforceap', destination: '/blog/our-mission', permanent: true },
-      { source: '/blog/getting-started-guide', destination: '/blog/new-member-guide', permanent: true },
-      { source: '/blog/career-change-2024', destination: '/blog/career-change-guide', permanent: true },
-      { source: '/blog/it-certifications-explained', destination: '/blog/it-certifications-guide', permanent: true },
-      { source: '/blog/remote-work-tips', destination: '/blog/remote-work-guide', permanent: true },
+      // Legacy blog slug redirects — destinations must be live Astro posts under
+      // marketing/src/pages/blog (or /blog). Prior targets (our-mission,
+      // new-member-guide, career-change-guide, it-certifications-guide,
+      // remote-work-guide) 404'd in production after the catalog was rewritten.
+      { source: '/blog/why-we-started-workforceap', destination: '/blog/michael-brown-workforce-leader-austin', permanent: true },
+      { source: '/blog/our-mission', destination: '/blog/michael-brown-workforce-leader-austin', permanent: true },
+      { source: '/blog/getting-started-guide', destination: '/blog', permanent: true },
+      { source: '/blog/new-member-guide', destination: '/blog', permanent: true },
+      { source: '/blog/career-change-2024', destination: '/blog/breaking-into-tech-starting-over', permanent: true },
+      { source: '/blog/career-change-guide', destination: '/blog/breaking-into-tech-starting-over', permanent: true },
+      { source: '/blog/it-certifications-explained', destination: '/blog/5-certifications-under-6-months', permanent: true },
+      { source: '/blog/it-certifications-guide', destination: '/blog/5-certifications-under-6-months', permanent: true },
+      { source: '/blog/remote-work-tips', destination: '/blog', permanent: true },
+      { source: '/blog/remote-work-guide', destination: '/blog', permanent: true },
+
+      // Public /jobs board was moved into the member portal (#298). Keep old
+      // URLs working by sending guests through the auth gate to /dashboard/jobs.
+      { source: '/jobs', destination: '/dashboard/jobs', permanent: false },
+      { source: '/jobs/', destination: '/dashboard/jobs', permanent: false },
+      { source: '/jobs/:id', destination: '/dashboard/jobs/:id', permanent: false },
+      {
+        source: '/:locale(en|es|fr|pt)/jobs',
+        destination: '/dashboard/jobs',
+        permanent: false,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/jobs/',
+        destination: '/dashboard/jobs',
+        permanent: false,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/jobs/:id',
+        destination: '/dashboard/jobs/:id',
+        permanent: false,
+      },
+
+      // Short program alias still linked from older materials
+      {
+        source: '/programs/cybersecurity',
+        destination: '/programs/cybersecurity-professional-certificate-google',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/programs/cybersecurity',
+        destination: '/:locale/programs/cybersecurity-professional-certificate-google',
+        permanent: true,
+      },
 
       // Legacy .html redirects
       { source: '/index.html', destination: '/', permanent: true },

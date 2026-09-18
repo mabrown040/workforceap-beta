@@ -23,9 +23,9 @@
 | [components/JsonLdFAQPage.tsx](../../../components/JsonLdFAQPage.tsx) | 39 | components | default:16 |
 | [components/LocalizedLink.tsx](../../../components/LocalizedLink.tsx) | 38 | components | default:28 |
 | [components/LocalizedLinkServer.tsx](../../../components/LocalizedLinkServer.tsx) | 42 | components | default:30 |
-| [components/MainNav.tsx](../../../components/MainNav.tsx) | 577 | components | default:96 |
+| [components/MainNav.tsx](../../../components/MainNav.tsx) | 576 | components | default:95 |
 | [components/MarkdownPreview.tsx](../../../components/MarkdownPreview.tsx) | 24 | components | default:9 |
-| [components/MobileBottomNav.tsx](../../../components/MobileBottomNav.tsx) | 185 | components | default:68 |
+| [components/MobileBottomNav.tsx](../../../components/MobileBottomNav.tsx) | 181 | components | default:64 |
 | [components/PageHero.tsx](../../../components/PageHero.tsx) | 22 | components | default:1 |
 | [components/PhotoHighlight.tsx](../../../components/PhotoHighlight.tsx) | 45 | components | default:13 |
 | [components/ProgramIcon.tsx](../../../components/ProgramIcon.tsx) | 20 | components | ProgramIcon:17 |
@@ -341,7 +341,7 @@
 | [components/portal/MemberLabWorkspace.tsx](../../../components/portal/MemberLabWorkspace.tsx) | 181 | components | MemberLabWorkspace:56 |
 | [components/portal/MemberMessagesMobileClient.tsx](../../../components/portal/MemberMessagesMobileClient.tsx) | 404 | components | default:57 |
 | [components/portal/MemberNextStepsStrip.tsx](../../../components/portal/MemberNextStepsStrip.tsx) | 252 | components | default:13 |
-| [components/portal/MemberPortalTopNav.tsx](../../../components/portal/MemberPortalTopNav.tsx) | 93 | components | default:10, _topNavStyleRef:93 |
+| [components/portal/MemberPortalTopNav.tsx](../../../components/portal/MemberPortalTopNav.tsx) | 91 | components | default:10, _topNavStyleRef:91 |
 | [components/portal/MemberPreScreeningForm.tsx](../../../components/portal/MemberPreScreeningForm.tsx) | 337 | components | default:24 |
 | [components/portal/MemberProgressStrip.tsx](../../../components/portal/MemberProgressStrip.tsx) | 187 | components | default:21 |
 | [components/portal/MemberSessionCard.tsx](../../../components/portal/MemberSessionCard.tsx) | 99 | components | MemberSessionCardProps:15, default:21 |

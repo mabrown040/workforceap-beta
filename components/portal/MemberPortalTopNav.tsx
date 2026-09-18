@@ -43,9 +43,7 @@ export default function MemberPortalTopNav({
     return pathname.startsWith(`${href}/`) || pathname.startsWith(`${canonical}/`) || pathname === canonical;
   };
 
-  // Proofs pass hrefMap to stay on /dev/member. Omit tabs whose canonical
-  // isn't remapped so they don't drop members onto live /dashboard/* routes.
-  // Profile replaces a second AI entry (Lilley lives under AI Career Tools).
+  // Proofs pass hrefMap to stay on /dev/member; omit unmapped tabs.
   const tabs = [
     { canonical: '/dashboard', label: t('dashboard'), icon: 'home' },
     { canonical: '/dashboard/program', label: t('myProgram'), icon: 'school' },

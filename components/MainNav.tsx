@@ -27,7 +27,6 @@ const navItems = [
   },
   {
     label: 'Programs',
-    // Keep parity with marketing Layout.astro Programs dropdown.
     children: [
       { href: '/programs', label: 'Programs' },
       { href: '/find-your-path', label: 'Find Your Path' },

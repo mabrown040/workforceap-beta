@@ -16,8 +16,6 @@ const MOBILE_NAV_BREAKPOINT = 768;
 // the active locale instead of hardcoded English.
 const MARKETING_TABS = [
   { href: '/', labelKey: 'marketing.home', icon: 'home' },
-  // Primary pathfinder (same destination as MainNav “Find Your Path”).
-  // Label is “Path” — not “Quiz” — so it matches /find-your-path, not /career-quiz.
   { href: '/find-your-path', labelKey: 'marketing.path', icon: 'explore' },
   { href: '/programs', labelKey: 'marketing.programs', icon: 'school' },
   { href: '/apply', labelKey: 'marketing.apply', icon: 'assignment_turned_in' },
@@ -30,7 +28,6 @@ const EMPLOYER_TABS = [
   { href: '/employer/messages', labelKey: 'employer.messages', icon: 'chat' },
 ];
 
-// Match counselor rail daily destinations (Overview / Inbox / Members / Messages).
 const COUNSELOR_TABS = [
   { href: '/counselor', labelKey: 'counselor.overview', icon: 'dashboard' },
   { href: '/counselor/inbox', labelKey: 'counselor.inbox', icon: 'inbox' },
@@ -46,7 +43,6 @@ const PARTNER_TABS = [
   { href: '/partner/outcomes', labelKey: 'partner.outcomes', icon: 'bar_chart' },
 ];
 
-// Match ADMIN_PORTAL_NAV_ITEMS daily destinations (Command Center / Students / Messages).
 const ADMIN_TABS = [
   { href: '/admin', labelKey: 'admin.today', icon: 'home' },
   { href: '/admin/students', labelKey: 'admin.students', icon: 'groups' },

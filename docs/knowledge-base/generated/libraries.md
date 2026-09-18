@@ -545,6 +545,7 @@
 | [lib/i18n/config.ts](../../../lib/i18n/config.ts) | 168 | public-experience | APP_LOCALES:1, AppLocale:2, DEFAULT_LOCALE:4, REVIEWED_LOCALES:15, isReviewedLocale:17, WAP_LOCALE_COOKIE:22, WAP_LOCALE_HEADER:25, isAppLocale:27, RTL_LOCALES:32, isRtlLocale:34, LOCALEABLE_PATH_PREFIXES:45, isLocaleableMarketingPath:57, isAstroMarketingPath:104, isLocaleBypassPath:113, splitLocalePrefix:128, pickLocaleFromAcceptLanguage:142, withLocalePrefix:165 |
 | [lib/i18n/cookieLocale.ts](../../../lib/i18n/cookieLocale.ts) | 12 | public-experience | getAppLocaleFromCookieStore:6 |
 | [lib/i18n/date.ts](../../../lib/i18n/date.ts) | 83 | public-experience | formatDate:37, formatDateTime:47, formatLocalizedDate:71 |
+| [lib/i18n/esCopyDeckParity.test.ts](../../../lib/i18n/esCopyDeckParity.test.ts) | 76 | public-experience |  |
 | [lib/i18n/getT.ts](../../../lib/i18n/getT.ts) | 4 | public-experience | getTranslations:4 |
 | [lib/i18n/localizeHref.ts](../../../lib/i18n/localizeHref.ts) | 31 | public-experience | LocalizedHrefResolution:4, localizeHref:10, resolveLocalizedHref:22 |
 | [lib/i18n/pickRootClientMessages.test.ts](../../../lib/i18n/pickRootClientMessages.test.ts) | 85 | public-experience |  |

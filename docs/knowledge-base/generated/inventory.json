@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "95af2724362bb176b726099eb36d171049a8eb48a63c7e3fe1484cd6f78b2fc1",
+  "inputTreeSha256": "b1fac87deeb895154833fc1b76886c83e83cd2df0ab6f0a99ba3235ab7a46b56",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -5801,14 +5801,14 @@
       "path": "app/(portal)/counselor/students/[memberId]/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 64340,
-      "lines": 1426,
-      "sha256": "dd6148016464635bf08e0aeb9f86fc1d8c958e288baa0a6ce7fc2337491a5936",
+      "bytes": 63799,
+      "lines": 1409,
+      "sha256": "96b3511c826cdd79c03d8280c5a70c97d4306433ff70f408ea671f3a5adbae2e",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration",
           "localName": "CounselorStudentDetailPage"
         }
@@ -5816,52 +5816,52 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 52,
+          "line": 53,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getInitials",
-          "line": 54,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorStudentDetailPage",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtRiskAlertDisplay",
-          "line": 1279,
+          "line": 1262,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "NextBestActionRow",
-          "line": 1286,
+          "line": 1269,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Counselor360Signals",
-          "line": 1296,
+          "line": 1279,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CARD_STYLE",
-          "line": 1314,
+          "line": 1297,
           "kind": "Variable"
         },
         {
           "name": "AtRiskSignalCard",
-          "line": 1316,
+          "line": 1299,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CareerQuizRecommendationCard",
-          "line": 1374,
+          "line": 1357,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NextBestActionsCard",
-          "line": 1400,
+          "line": 1383,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75228,9 +75228,9 @@
       "path": "docs/PORTAL-UI-ONE-SHOT-TASK.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 17819,
+      "bytes": 17854,
       "lines": 233,
-      "sha256": "ae5cbc342a549cabd00c806775673c61c01e6af79d9481dfa66684ba72929139",
+      "sha256": "6d0ba7abce7b8fe37df93de32840f4a536d9f33409e23e0c5badbf33345a4f80",
       "binary": false
     },
     {
@@ -75246,9 +75246,9 @@
       "path": "docs/PORTAL-UI-UX-ENHANCEMENTS.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 11953,
+      "bytes": 11965,
       "lines": 166,
-      "sha256": "e836be3e8ef15b10fd9e6c0943d3266d0667e2442c357b34f3c576f9045856e2",
+      "sha256": "3fbfec65f1126a76858f46a0822cd7c3e9cc5564967932aa21c1aa8e750f9235",
       "binary": false
     },
     {
@@ -137074,27 +137074,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 188433,
-      "lines": 3087,
-      "sha256": "0ac50a9d512f2e4c916c332c33a842ba36ba8fc2e020976934152bc5f8f8b516",
+      "bytes": 188470,
+      "lines": 3088,
+      "sha256": "7fe46baae39e5de08fe6afdff5f46b1362001ed26cb91aab78f2a9ffd399409a",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206844,
-      "lines": 3074,
-      "sha256": "e050b1455742761d874527dd07da70532002db083084badd64da63dc83adafa8",
+      "bytes": 206883,
+      "lines": 3075,
+      "sha256": "be992a4f3b4436fd7d991088f15e28382057f927ffa1ccb8a754eb117b07c2c6",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 207795,
-      "lines": 3027,
-      "sha256": "bf28cf9cfda2114e1125c1a82dfb05a3a3201a7d0947b79c55195cd3d185659a",
+      "bytes": 207839,
+      "lines": 3028,
+      "sha256": "a2ba97b71016c6192372fbf79efe74977186cb3eb04e1cdba02f9bee5f116393",
       "binary": false
     },
     {
@@ -137110,9 +137110,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 199830,
-      "lines": 3027,
-      "sha256": "7d44a3e0100011b7eafb8ae15dc94e170cddf8ba9bb5c5975ba76e46cfda1ff1",
+      "bytes": 199869,
+      "lines": 3028,
+      "sha256": "42a8fd72004dada95f41e5b0dd527b4dccf8872bf108f53752b22f78e0568e0f",
       "binary": false
     },
     {
@@ -151095,6 +151095,29 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/app/counselor-member-pageheader.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1211,
+      "lines": 30,
+      "sha256": "68978ce0568e01b6f8825066c44cccff6304cf20f5f8d77131e71b013912cf0c",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "read",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {

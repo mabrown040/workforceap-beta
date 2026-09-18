@@ -144,6 +144,7 @@
 | [tests/app/admin-weekly-recap-page.spec.tsx](../../../tests/app/admin-weekly-recap-page.spec.tsx) | 109 | tests |  |
 | [tests/app/counselor-contextual-messages.spec.tsx](../../../tests/app/counselor-contextual-messages.spec.tsx) | 97 | tests |  |
 | [tests/app/counselor-handoff-access.spec.tsx](../../../tests/app/counselor-handoff-access.spec.tsx) | 74 | tests |  |
+| [tests/app/counselor-member-pageheader.spec.ts](../../../tests/app/counselor-member-pageheader.spec.ts) | 30 | tests |  |
 | [tests/app/diagnostics-read-reliability.spec.tsx](../../../tests/app/diagnostics-read-reliability.spec.tsx) | 57 | tests |  |
 | [tests/app/employer-applications-pageheader.spec.ts](../../../tests/app/employer-applications-pageheader.spec.ts) | 33 | tests |  |
 | [tests/app/employer-billing-page.spec.tsx](../../../tests/app/employer-billing-page.spec.tsx) | 66 | tests |  |

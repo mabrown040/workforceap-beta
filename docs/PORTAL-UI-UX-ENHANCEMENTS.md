@@ -116,7 +116,7 @@ Screenshots in this doc cover **hubs only** (`/employer`, `/partner`, `/counselo
 | `/counselor/messages` | No | Two `PageHeader` rows (mobile/desktop split). |
 | `/counselor/resources` | No | Two `PageHeader` blocks. |
 | `/counselor/students` | No | Two `PageHeader` blocks (same title repeated). |
-| `/counselor/students/[memberId]` | Dynamic | Visible `h1` + `PageHeader` on desktop — **duplicate title pattern**; candidate for same treatment as job detail pages. |
+| `/counselor/students/[memberId]` | Dynamic | **Shipped:** single shared `PageHeader` / one `h1` outside mobile/desktop body splits (jobs pattern); identity card demoted off `h1`. |
 
 ### Member (`/dashboard/**`)
 

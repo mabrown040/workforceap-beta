@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "95af2724362bb176b726099eb36d171049a8eb48a63c7e3fe1484cd6f78b2fc1",
+  "inputTreeSha256": "b1fac87deeb895154833fc1b76886c83e83cd2df0ab6f0a99ba3235ab7a46b56",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4557,
-    "sourceModules": 3233,
-    "importReferences": 15275,
-    "resolvedLocalReferences": 10181,
+    "files": 4558,
+    "sourceModules": 3234,
+    "importReferences": 15279,
+    "resolvedLocalReferences": 10182,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1046,
     "nextRouteFiles": 1013,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 660,
-    "testCandidates": 653,
+    "testFiles": 661,
+    "testCandidates": 654,
     "testHelpers": 7,
-    "staticallySelectedTests": 650,
+    "staticallySelectedTests": 651,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 331
+      "files": 332
     }
   ],
   "mostReferenced": [
@@ -180,7 +180,7 @@
     },
     {
       "file": "components/portal/PortalPageFrame.tsx",
-      "references": 66
+      "references": 67
     },
     {
       "file": "lib/email/escapeHtml.ts",
@@ -306,7 +306,7 @@
     },
     {
       "file": "app/(portal)/counselor/students/[memberId]/page.tsx",
-      "lines": 1426
+      "lines": 1409
     },
     {
       "file": "tests/api/placement-survey.spec.ts",

@@ -6,6 +6,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { MEMBER_HISTORY_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import Link from 'next/link';
 import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -465,70 +466,99 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const billingPackets = await listPacketsForMember(member.id);
 
+  const memberTitle = member.fullName ?? t('member');
+  const messageHref = `/counselor/messages?memberId=${encodeURIComponent(member.id)}`;
+  const sessionHref = `/counselor/sessions/${memberId}/run`;
+
   return (
-    <>
+    <PortalPageFrame>
       {counselor360LoadFailed ? <span hidden data-portal-error-state="counselor-member-360-load" /> : null}
       {readOnlyAudit ? <span hidden data-portal-audit-suppressed="counselor-member-coursera-course-resolution" /> : null}
-      {/* ── Mobile ─────────────────────────────────────────── */}
-      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Back nav */}
-        <div style={{ padding: '1rem 1rem 0' }}>
-          <Link
-            href="/counselor/students"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              color: 'var(--color-accent)',
-              textDecoration: 'none',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
-              arrow_back
-            </span>
-            All Members
-          </Link>
-        </div>
 
-        {/* Student hero */}
-        <div style={{ padding: '1rem' }}>
+      <PageHeader
+        title={memberTitle}
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">{program}</span>
+            <span className="wa-hidden md:wa-block">{member.email}</span>
+          </>
+        }
+        breadcrumbs={[
+          { label: t('members'), href: '/counselor/students' },
+          { label: t('memberDetails') },
+        ]}
+        action={
+          <>
+            <div className="md:wa-hidden" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <Link href={messageHref} className="btn btn-outline btn-sm">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                  chat
+                </span>
+                {t('priorityQueueActionMessage')}
+              </Link>
+              <Link href={sessionHref} className="btn btn-primary btn-sm">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                  event
+                </span>
+                {t('startSession')}
+              </Link>
+            </div>
+            <div className="wa-hidden md:wa-block">
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <Link href={messageHref} className="btn btn-outline">
+                  {t('priorityQueueActionMessage')}
+                </Link>
+                <Link
+                  href={sessionHref}
+                  className="btn btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  {t('startInOfficeSession')}
+                </Link>
+              </div>
+            </div>
+          </>
+        }
+      />
+
+      {/* ── Mobile ─────────────────────────────────────────── */}
+      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+        {/* Member identity card */}
+        <div style={{ padding: '0 1rem 1rem' }}>
           <div
             style={{
-              background: 'var(--surface-container-lowest)',
-              borderRadius: '1rem',
+              background: 'var(--wa-surface)',
+              borderRadius: 'var(--wa-radius)',
               padding: '1.25rem',
-              border: '1px solid var(--outline-variant)',
+              border: '1px solid var(--wa-border)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              {/* Avatar */}
               <div
                 style={{
                   width: 56,
                   height: 56,
-                  borderRadius: '0.875rem',
-                  background: 'var(--color-accent)',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  background: 'var(--wa-accent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
                 }}
               >
-                <span style={{ color: '#fff', fontWeight: 900, fontSize: '1.25rem' }}>{initials}</span>
+                <span style={{ color: 'var(--wa-on-accent)', fontWeight: 900, fontSize: '1.25rem' }}>{initials}</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h1
+                <p
                   title={member.fullName ?? undefined}
                   className="wa-truncate"
-                  style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}
+                  style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--wa-text)', margin: '0 0 0.125rem' }}
                 >
-                  {member.fullName}
-                </h1>
+                  {memberTitle}
+                </p>
                 <p
                   className="wa-truncate"
-                  style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}
+                  style={{ fontSize: '0.8rem', color: 'var(--wa-muted)', margin: '0 0 0.5rem' }}
                 >
                   {program}
                 </p>
@@ -536,9 +566,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Employment barrier chips */}
             {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '0.875rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                 {member.profile.barrierTypes.map((bt) => (
                   <span
                     key={bt}
@@ -549,9 +578,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       borderRadius: '9999px',
                       fontSize: '0.7rem',
                       fontWeight: 700,
-                      background: 'color-mix(in srgb, var(--color-warning-on-surface) 18%, transparent)',
-                      color: 'var(--color-warning-on-surface)',
-                      border: '1px solid color-mix(in srgb, var(--color-warning-on-surface) 32%, transparent)',
+                      background: 'var(--wa-gold-soft)',
+                      color: 'var(--wa-gold-dark)',
+                      border: '1px solid color-mix(in srgb, var(--wa-gold) 32%, transparent)',
                     }}
                   >
                     {bt.replace(/_/g, ' ')}
@@ -559,28 +588,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 ))}
               </div>
             )}
-
-            {/* Action buttons */}
-            <div style={{ display: 'flex', gap: '0.625rem' }}>
-              <Link
-                href={`/counselor/messages?memberId=${encodeURIComponent(member.id)}`}
-                className="btn btn-outline"
-                style={{ flex: 1, fontSize: '0.8rem' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">chat</span>
-                Message
-              </Link>
-              <Link
-                href={`/counselor/sessions/${memberId}/run`}
-                className="btn btn-primary"
-                style={{ flex: 1, fontSize: '0.8rem' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
-                  event
-                </span>
-                Session
-              </Link>
-            </div>
           </div>
         </div>
 
@@ -943,30 +950,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       {/* ── Desktop ─────────────────────────────────────────── */}
       <div className="wa-hidden md:wa-block">
         <div className="portal-main-content">
-          <Link
-            href="/counselor/students"
-            style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
-          >
-            ← {t('backToMembers')}
-          </Link>
-          <PageHeader
-            title={member.fullName}
-            subtitle={member.email}
-            breadcrumbs={[
-              { label: t('members'), href: '/counselor/students' },
-              { label: t('memberDetails') },
-            ]}
-            action={
-              <Link
-                href={`/counselor/sessions/${member.id}/run`}
-                className="btn btn-primary"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                {t('startInOfficeSession')}
-              </Link>
-            }
-          />
-
           <div className="wa-mt-4 wa-mb-4">{trainingHandoff}</div>
 
           {/* Employment barrier chips — desktop */}
@@ -982,9 +965,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     borderRadius: '9999px',
                     fontSize: '0.7rem',
                     fontWeight: 700,
-                    background: 'color-mix(in srgb, var(--color-warning-on-surface) 18%, transparent)',
-                    color: 'var(--color-warning-on-surface)',
-                    border: '1px solid color-mix(in srgb, var(--color-warning-on-surface) 32%, transparent)',
+                    background: 'var(--wa-gold-soft)',
+                    color: 'var(--wa-gold-dark)',
+                    border: '1px solid color-mix(in srgb, var(--wa-gold) 32%, transparent)',
                   }}
                 >
                   {bt.replace(/_/g, ' ')}
@@ -1267,7 +1250,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         </div>
       </div>
 
-    </>
+    </PortalPageFrame>
   );
 }
 

@@ -88,7 +88,7 @@
 | [tests/api/job-match.spec.ts](../../../tests/api/job-match.spec.ts) | 477 | tests |  |
 | [tests/api/lab-evidence.spec.ts](../../../tests/api/lab-evidence.spec.ts) | 173 | tests |  |
 | [tests/api/member-certifications.spec.ts](../../../tests/api/member-certifications.spec.ts) | 130 | tests |  |
-| [tests/api/member-course-complete.spec.ts](../../../tests/api/member-course-complete.spec.ts) | 129 | tests |  |
+| [tests/api/member-course-complete.spec.ts](../../../tests/api/member-course-complete.spec.ts) | 192 | tests |  |
 | [tests/api/member-coursera-enroll-in-course.spec.ts](../../../tests/api/member-coursera-enroll-in-course.spec.ts) | 231 | learning-coursera |  |
 | [tests/api/member-coursera-identity.spec.ts](../../../tests/api/member-coursera-identity.spec.ts) | 83 | learning-coursera |  |
 | [tests/api/member-delete-account.spec.ts](../../../tests/api/member-delete-account.spec.ts) | 213 | tests |  |
@@ -164,7 +164,7 @@
 | [tests/components/admin-directory-results.spec.tsx](../../../tests/components/admin-directory-results.spec.tsx) | 129 | tests |  |
 | [tests/components/admin-hydration-hardening.test.ts](../../../tests/components/admin-hydration-hardening.test.ts) | 34 | tests |  |
 | [tests/components/admin-subgroup-members-table.test.tsx](../../../tests/components/admin-subgroup-members-table.test.tsx) | 86 | tests |  |
-| [tests/components/admin-training-progress-roster.test.tsx](../../../tests/components/admin-training-progress-roster.test.tsx) | 262 | tests |  |
+| [tests/components/admin-training-progress-roster.test.tsx](../../../tests/components/admin-training-progress-roster.test.tsx) | 275 | tests |  |
 | [tests/components/agent-inbox-retry.spec.tsx](../../../tests/components/agent-inbox-retry.spec.tsx) | 79 | tests |  |
 | [tests/components/auth-training-return.spec.tsx](../../../tests/components/auth-training-return.spec.tsx) | 218 | tests |  |
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
@@ -265,7 +265,7 @@
 | [tests/lib/coursera-stage-a-mapping-transaction.spec.ts](../../../tests/lib/coursera-stage-a-mapping-transaction.spec.ts) | 147 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-member-merge-guard.spec.ts](../../../tests/lib/coursera-stage-a-member-merge-guard.spec.ts) | 82 | learning-coursera |  |
 | [tests/lib/coursera-tenant-index-migration.spec.ts](../../../tests/lib/coursera-tenant-index-migration.spec.ts) | 71 | learning-coursera |  |
-| [tests/lib/coursera-unmatched-learners-learning-paths.spec.ts](../../../tests/lib/coursera-unmatched-learners-learning-paths.spec.ts) | 83 | learning-coursera |  |
+| [tests/lib/coursera-unmatched-learners-learning-paths.spec.ts](../../../tests/lib/coursera-unmatched-learners-learning-paths.spec.ts) | 157 | learning-coursera |  |
 | [tests/lib/cron-diagnostics-visibility.spec.ts](../../../tests/lib/cron-diagnostics-visibility.spec.ts) | 204 | tests |  |
 | [tests/lib/curriculum-versioned-read-surfaces.spec.ts](../../../tests/lib/curriculum-versioned-read-surfaces.spec.ts) | 129 | tests |  |
 | [tests/lib/diagnose-member-coursera-tenant.spec.ts](../../../tests/lib/diagnose-member-coursera-tenant.spec.ts) | 119 | learning-coursera |  |
@@ -319,7 +319,7 @@
 | [tests/lib/training-course-practice.spec.ts](../../../tests/lib/training-course-practice.spec.ts) | 47 | tests |  |
 | [tests/lib/training-dashboard-curriculum-cache.spec.ts](../../../tests/lib/training-dashboard-curriculum-cache.spec.ts) | 90 | tests |  |
 | [tests/lib/training-progress-curriculum-version.spec.ts](../../../tests/lib/training-progress-curriculum-version.spec.ts) | 77 | tests |  |
-| [tests/lib/training-progress-roster.spec.ts](../../../tests/lib/training-progress-roster.spec.ts) | 540 | tests |  |
+| [tests/lib/training-progress-roster.spec.ts](../../../tests/lib/training-progress-roster.spec.ts) | 575 | tests |  |
 | [tests/lib/training-workspace-schedule.spec.ts](../../../tests/lib/training-workspace-schedule.spec.ts) | 47 | tests |  |
 | [tests/lib/twc-syllabus-accuracy.spec.ts](../../../tests/lib/twc-syllabus-accuracy.spec.ts) | 283 | tests |  |
 | [tests/lib/voice-studio-card-contrast.spec.ts](../../../tests/lib/voice-studio-card-contrast.spec.ts) | 52 | tests |  |

@@ -11181,7 +11181,7 @@
       },
       {
         "specifier": "@/lib/tenant/adminPageScope",
-        "line": 392,
+        "line": 399,
         "kind": "type"
       }
     ]
@@ -31977,7 +31977,7 @@
       },
       {
         "name": "default",
-        "line": 51,
+        "line": 53,
         "kind": "FunctionDeclaration",
         "localName": "DevStaffTrainingProgressPage"
       }

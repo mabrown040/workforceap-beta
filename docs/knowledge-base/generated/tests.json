@@ -19706,11 +19706,11 @@
       },
       {
         "file": "lib/admin/trainingProgressGrades.ts",
-        "line": 16
+        "line": 18
       },
       {
         "file": "lib/admin/trainingProgressPrograms.ts",
-        "line": 17
+        "line": 19
       }
     ],
     "kind": "test-candidate",

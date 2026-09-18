@@ -25234,7 +25234,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 392,
+    "line": 399,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -122970,7 +122970,7 @@
   {
     "from": "tests/lib/training-progress-roster.spec.ts",
     "specifier": "@/lib/admin/trainingProgressGrades",
-    "line": 16,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressGrades.ts"
@@ -122978,7 +122978,7 @@
   {
     "from": "tests/lib/training-progress-roster.spec.ts",
     "specifier": "@/lib/admin/trainingProgressPrograms",
-    "line": 17,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressPrograms.ts"

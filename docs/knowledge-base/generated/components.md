@@ -141,7 +141,7 @@
 | [components/admin/SubgroupMembersTable.tsx](../../../components/admin/SubgroupMembersTable.tsx) | 351 | administration | default:28 |
 | [components/admin/TestimonialsAdminClient.tsx](../../../components/admin/TestimonialsAdminClient.tsx) | 398 | administration | default:36 |
 | [components/admin/TrainingProgressClient.tsx](../../../components/admin/TrainingProgressClient.tsx) | 818 | administration | CanonicalCatalog:25, CurriculumRow:35, RawCourseraRow:64, default:418 |
-| [components/admin/TrainingProgressRoster.tsx](../../../components/admin/TrainingProgressRoster.tsx) | 271 | administration | TrainingProgressRosterProps:81, default:93 |
+| [components/admin/TrainingProgressRoster.tsx](../../../components/admin/TrainingProgressRoster.tsx) | 272 | administration | TrainingProgressRosterProps:82, default:94 |
 | [components/admin/TriageDigestSection.tsx](../../../components/admin/TriageDigestSection.tsx) | 228 | administration | default:12 |
 | [components/admin/WioaReviewFilterBar.tsx](../../../components/admin/WioaReviewFilterBar.tsx) | 28 | partners-funding | default:4 |
 | [components/admin/WioaScreeningReadonly.tsx](../../../components/admin/WioaScreeningReadonly.tsx) | 65 | partners-funding | default:20 |
@@ -317,7 +317,7 @@
 | [components/portal/JobApplicationForm.tsx](../../../components/portal/JobApplicationForm.tsx) | 238 | components | default:12 |
 | [components/portal/JobApplicationKanban.tsx](../../../components/portal/JobApplicationKanban.tsx) | 283 | components | default:189 |
 | [components/portal/JobApplicationsTracker.tsx](../../../components/portal/JobApplicationsTracker.tsx) | 209 | components | default:19 |
-| [components/portal/JobReadinessScore.tsx](../../../components/portal/JobReadinessScore.tsx) | 79 | components | default:26 |
+| [components/portal/JobReadinessScore.tsx](../../../components/portal/JobReadinessScore.tsx) | 67 | components | default:14 |
 | [components/portal/JobTailorPanel.tsx](../../../components/portal/JobTailorPanel.tsx) | 345 | components | JOB_TAILOR_PREVIEW_RESULT:50, default:103 |
 | [components/portal/JourneyStageGuide.tsx](../../../components/portal/JourneyStageGuide.tsx) | 190 | components | default:19 |
 | [components/portal/LanguageToggle.test.tsx](../../../components/portal/LanguageToggle.test.tsx) | 52 | components |  |
@@ -401,6 +401,7 @@
 | [components/portal/ReadinessCoachReturnButton.tsx](../../../components/portal/ReadinessCoachReturnButton.tsx) | 56 | components | default:11 |
 | [components/portal/ReadinessMobileScoreCard.tsx](../../../components/portal/ReadinessMobileScoreCard.tsx) | 109 | components | default:20 |
 | [components/portal/ReadinessProgress.tsx](../../../components/portal/ReadinessProgress.tsx) | 43 | components | default:9 |
+| [components/portal/ReadinessProgressSummary.tsx](../../../components/portal/ReadinessProgressSummary.tsx) | 146 | components | ReadinessProgressSummary:51 |
 | [components/portal/RefreshCourseraProgressButton.tsx](../../../components/portal/RefreshCourseraProgressButton.tsx) | 74 | learning-coursera | default:13 |
 | [components/portal/RequestHelpButton.tsx](../../../components/portal/RequestHelpButton.tsx) | 56 | components | default:5 |
 | [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 134 | components | default:13 |
@@ -552,7 +553,7 @@
 | [components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx](../../../components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx) | 414 | components | StudentStatus:37, StudentRow:39, StudentFilter:67, StudentsRosterKitProps:69, StudentsRosterKit:165 |
 | [components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx](../../../components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx) | 190 | components | SubgroupKind:38, SubgroupCard:40, SubgroupsDirectoryKitProps:51, SubgroupsDirectoryKit:127 |
 | [components/portal/kit/pages/admin-subviews/SystemHealthKit.tsx](../../../components/portal/kit/pages/admin-subviews/SystemHealthKit.tsx) | 201 | components | TileStatus:33, HealthTile:35, SystemHealthKitProps:46, SystemHealthKit:113, statusToKitColor:199 |
-| [components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx](../../../components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx) | 360 | components | Pace:31, TrainingRow:33, TrainingProgressKitProps:55, TrainingProgressKit:95, TRAINING_PROGRESS_SORT_COLUMNS:360 |
+| [components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx](../../../components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx) | 390 | components | Pace:33, TrainingRow:35, TrainingProgressKitProps:61, TrainingProgressKit:102, TRAINING_PROGRESS_SORT_COLUMNS:390 |
 | [components/portal/kit/pages/admin-subviews/UsersKit.tsx](../../../components/portal/kit/pages/admin-subviews/UsersKit.tsx) | 94 | components | UserRow:19, UsersKitProps:29, UsersKit:49 |
 | [components/portal/kit/pages/admin-subviews/WeeklyRecapKit.tsx](../../../components/portal/kit/pages/admin-subviews/WeeklyRecapKit.tsx) | 113 | components | WeeklyRecapKitProps:13, WeeklyRecapKit:37 |
 | [components/portal/kit/pages/admin-subviews/WioaScreeningKit.tsx](../../../components/portal/kit/pages/admin-subviews/WioaScreeningKit.tsx) | 232 | partners-funding | WioaDetermination:28, WioaScreeningRow:30, WioaScreeningKitProps:47, WioaScreeningKit:69 |
@@ -585,7 +586,7 @@
 | [components/portal/kit/pages/member/MemberMessagesKit.tsx](../../../components/portal/kit/pages/member/MemberMessagesKit.tsx) | 373 | member-counselor | MemberMessagesKitProps:32, MemberMessagesKit:70 |
 | [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 411 | member-counselor | MemberProfileAccountPassthrough:53, MemberProfileKitProps:66, MemberProfileKit:98 |
 | [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 362 | member-counselor | MemberProgramKitProps:37, MemberProgramKit:98 |
-| [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
+| [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 210 | member-counselor | MemberProgressKitProps:32, MemberProgressKit:57 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |
 | [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 335 | member-counselor | TrainingCourseDestination:22, nextCourseContinueTarget:25, MemberTrainingWorkspaceProps:76, MemberTrainingWorkspace:101 |
 | [components/portal/kit/pages/member/ResumeRewriterKit.tsx](../../../components/portal/kit/pages/member/ResumeRewriterKit.tsx) | 55 | member-counselor | ResumeRewriterKit:15 |

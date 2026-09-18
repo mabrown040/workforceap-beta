@@ -222,7 +222,7 @@
 | [app/(portal)/dashboard/program/start/page.tsx](../../../app/%28portal%29/dashboard/program/start/page.tsx) | 174 | member-counselor | metadata:13, default:19 |
 | [app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx](../../../app/%28portal%29/dashboard/readiness/ReadinessMemberClient.tsx) | 149 | member-counselor | default:33 |
 | [app/(portal)/dashboard/readiness/loading.tsx](../../../app/%28portal%29/dashboard/readiness/loading.tsx) | 5 | member-counselor | default:3 |
-| [app/(portal)/dashboard/readiness/page.tsx](../../../app/%28portal%29/dashboard/readiness/page.tsx) | 257 | member-counselor | generateMetadata:14, default:74 |
+| [app/(portal)/dashboard/readiness/page.tsx](../../../app/%28portal%29/dashboard/readiness/page.tsx) | 209 | member-counselor | generateMetadata:21, default:37 |
 | [app/(portal)/dashboard/referrals/page.tsx](../../../app/%28portal%29/dashboard/referrals/page.tsx) | 27 | applications-enrollment | generateMetadata:11, default:15 |
 | [app/(portal)/dashboard/resources/ResourcesClient.tsx](../../../app/%28portal%29/dashboard/resources/ResourcesClient.tsx) | 127 | member-counselor | default:13 |
 | [app/(portal)/dashboard/resources/loading.tsx](../../../app/%28portal%29/dashboard/resources/loading.tsx) | 5 | member-counselor | default:3 |
@@ -484,7 +484,7 @@
 | [app/admin/subgroups/page.tsx](../../../app/admin/subgroups/page.tsx) | 123 | administration | generateMetadata:15, default:43 |
 | [app/admin/testimonials/loading.tsx](../../../app/admin/testimonials/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/testimonials/page.tsx](../../../app/admin/testimonials/page.tsx) | 33 | administration | generateMetadata:10, default:18 |
-| [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | 731 | administration | generateMetadata:35, dynamic:44, default:46 |
+| [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | 738 | administration | generateMetadata:35, dynamic:44, default:46 |
 | [app/admin/users/deleted/page.tsx](../../../app/admin/users/deleted/page.tsx) | 117 | administration | generateMetadata:12, default:36 |
 | [app/admin/users/loading.tsx](../../../app/admin/users/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/users/page.tsx](../../../app/admin/users/page.tsx) | 185 | administration | generateMetadata:18, default:66 |
@@ -568,7 +568,7 @@
 | [app/dev/member/missions/page.tsx](../../../app/dev/member/missions/page.tsx) | 192 | member-counselor | dynamic:20, default:135 |
 | [app/dev/member/profile/page.tsx](../../../app/dev/member/profile/page.tsx) | 45 | member-counselor | dynamic:10, default:12 |
 | [app/dev/member/program/page.tsx](../../../app/dev/member/program/page.tsx) | 120 | member-counselor | dynamic:18, default:57 |
-| [app/dev/member/progress/page.tsx](../../../app/dev/member/progress/page.tsx) | 50 | member-counselor | dynamic:11, default:13 |
+| [app/dev/member/progress/page.tsx](../../../app/dev/member/progress/page.tsx) | 52 | member-counselor | dynamic:16, default:18 |
 | [app/dev/member/resume-rewriter/page.tsx](../../../app/dev/member/resume-rewriter/page.tsx) | 51 | member-counselor | dynamic:10, default:34 |
 | [app/dev/member/resume-strength/page.tsx](../../../app/dev/member/resume-strength/page.tsx) | 104 | member-counselor | dynamic:11, default:86 |
 | [app/dev/member/resume-studio/page.tsx](../../../app/dev/member/resume-studio/page.tsx) | 129 | member-counselor | dynamic:15, default:103 |
@@ -598,7 +598,7 @@
 | [app/dev/staff/placements/layout.tsx](../../../app/dev/staff/placements/layout.tsx) | 11 | jobs-employers | metadata:4, default:9 |
 | [app/dev/staff/placements/page.tsx](../../../app/dev/staff/placements/page.tsx) | 96 | jobs-employers | dynamic:8, default:83 |
 | [app/dev/staff/students-roster/page.tsx](../../../app/dev/staff/students-roster/page.tsx) | 70 | pages | dynamic:12, default:66 |
-| [app/dev/staff/training-progress/page.tsx](../../../app/dev/staff/training-progress/page.tsx) | 61 | pages | dynamic:9, default:51 |
+| [app/dev/staff/training-progress/page.tsx](../../../app/dev/staff/training-progress/page.tsx) | 63 | pages | dynamic:9, default:53 |
 | [app/dev/voice-studio/layout.tsx](../../../app/dev/voice-studio/layout.tsx) | 11 | pages | metadata:4, default:9 |
 | [app/dev/voice-studio/page.tsx](../../../app/dev/voice-studio/page.tsx) | 29 | pages | dynamic:11, default:13 |
 | [app/employer/loi/page.tsx](../../../app/employer/loi/page.tsx) | 31 | jobs-employers | generateMetadata:6, default:15 |

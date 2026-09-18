@@ -1,32 +1,32 @@
 flowchart LR
   agent_tooling["agent-tooling: 319 files"]
-  api["api: 518 files"]
+  api["api: 519 files"]
   assets["assets: 76 files"]
   astro_marketing["astro-marketing: 106 files"]
   audit_graph["audit-graph: 81 files"]
   communications["communications: 71 files"]
-  components["components: 660 files"]
+  components["components: 661 files"]
   content["content: 14 files"]
   database["database: 201 files"]
   delivery["delivery: 9 files"]
   documentation["documentation: 356 files"]
-  libraries["libraries: 938 files"]
+  libraries["libraries: 943 files"]
   localization["localization: 6 files"]
   operations["operations: 122 files"]
   pages["pages: 634 files"]
   root["root: 54 files"]
   styles["styles: 16 files"]
   supporting_files["supporting-files: 72 files"]
-  tests["tests: 338 files"]
+  tests["tests: 339 files"]
   api -->|"8 static references"| communications
   api -->|"1 static references"| content
-  api -->|"3470 static references"| libraries
+  api -->|"3477 static references"| libraries
   astro_marketing -->|"3 static references"| libraries
   audit_graph -->|"2 static references"| api
   audit_graph -->|"1 static references"| root
   communications -->|"63 static references"| libraries
   components -->|"1 static references"| content
-  components -->|"404 static references"| libraries
+  components -->|"408 static references"| libraries
   components -->|"15 static references"| pages
   components -->|"1 static references"| root
   components -->|"3 static references"| supporting_files
@@ -43,17 +43,17 @@ flowchart LR
   operations -->|"47 static references"| libraries
   operations -->|"1 static references"| tests
   pages -->|"2 static references"| api
-  pages -->|"1084 static references"| components
-  pages -->|"1230 static references"| libraries
+  pages -->|"1086 static references"| components
+  pages -->|"1235 static references"| libraries
   pages -->|"37 static references"| styles
   root -->|"22 static references"| libraries
   root -->|"2 static references"| operations
   supporting_files -->|"2 static references"| libraries
-  tests -->|"221 static references"| api
+  tests -->|"222 static references"| api
   tests -->|"5 static references"| astro_marketing
   tests -->|"4 static references"| communications
   tests -->|"41 static references"| components
-  tests -->|"788 static references"| libraries
+  tests -->|"794 static references"| libraries
   tests -->|"4 static references"| localization
   tests -->|"28 static references"| operations
   tests -->|"28 static references"| pages

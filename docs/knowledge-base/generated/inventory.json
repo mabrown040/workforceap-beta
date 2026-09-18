@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "3eeb399fcfcab66dae3c04017abba0306db0e1222cfd429f0113692fe99019d4",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -10483,19 +10483,19 @@
       "path": "app/(portal)/dashboard/readiness/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 13483,
-      "lines": 257,
-      "sha256": "0a2cc758ba44ff64d0714a6110c5eb3473134930d211218d65d50232c44acaba",
+      "bytes": 10153,
+      "lines": 209,
+      "sha256": "436f71939cb156aa0fe597910774561adb473db1b4dc1acf3df8d7c1f69874be",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 14,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 74,
+          "line": 37,
           "kind": "FunctionDeclaration",
           "localName": "DashboardReadinessPage"
         }
@@ -10503,22 +10503,17 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 14,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "buildCategories",
-          "line": 26,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getPriorityAction",
-          "line": 53,
-          "kind": "FunctionDeclaration"
+          "name": "LEGACY_CATEGORY_META",
+          "line": 30,
+          "kind": "Variable"
         },
         {
           "name": "DashboardReadinessPage",
-          "line": 74,
+          "line": 37,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -37003,6 +36998,30 @@
       "directive": null
     },
     {
+      "path": "app/api/member/readiness/summary/route.ts",
+      "area": "api",
+      "domain": "member-counselor",
+      "bytes": 2604,
+      "lines": 71,
+      "sha256": "a68802afa505d30d152407aaaff47e99c94734a5b62a4b25a84449ca856a05f2",
+      "binary": false,
+      "exports": [
+        {
+          "name": "POST",
+          "line": 24,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "POST",
+          "line": 24,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "app/api/member/readiness/voice-session/route.ts",
       "area": "api",
       "domain": "member-counselor",
@@ -43428,19 +43447,19 @@
       "path": "app/dev/member/progress/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 1822,
-      "lines": 50,
-      "sha256": "610ddb7d281f1a0568f361034061274e7850fcbbcd8a138f5d209b94bc2fcdf9",
+      "bytes": 2225,
+      "lines": 52,
+      "sha256": "18d435fb3819413634dd501539540b6a45d3f87bc58d480ada6d44ccece8fdf8",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 11,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 13,
+          "line": 18,
           "kind": "FunctionDeclaration",
           "localName": "DevMemberProgressPage"
         }
@@ -43448,12 +43467,12 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 11,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "DevMemberProgressPage",
-          "line": 13,
+          "line": 18,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -59201,14 +59220,14 @@
       "path": "components/portal/JobReadinessScore.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 2789,
-      "lines": 79,
-      "sha256": "315d362142586abce7465d5b287da05d9460057adeafac43c5610b7b2b2a82b1",
+      "bytes": 2396,
+      "lines": 67,
+      "sha256": "84865ae4b8475791cee2187138613ae69a99294cb8b97284ec2ec37d61792f48",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 26,
+          "line": 14,
           "kind": "FunctionDeclaration",
           "localName": "JobReadinessScore"
         }
@@ -59216,17 +59235,12 @@
       "declarations": [
         {
           "name": "JobReadinessScoreProps",
-          "line": 7,
+          "line": 8,
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "BREAKDOWN_LABELS",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
           "name": "JobReadinessScore",
-          "line": 26,
+          "line": 14,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -62040,6 +62054,45 @@
         {
           "name": "ReadinessProgress",
           "line": 9,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
+    },
+    {
+      "path": "components/portal/ReadinessProgressSummary.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 4594,
+      "lines": 146,
+      "sha256": "2f11c1743e5963525f020d03d129a4311d0d39acd327cdf4cacef5c3e3685f05",
+      "binary": false,
+      "exports": [
+        {
+          "name": "ReadinessProgressSummary",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SummaryResponse",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "sourceTone",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sourceLabel",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ReadinessProgressSummary",
+          "line": 51,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -71419,61 +71472,61 @@
       "path": "components/portal/kit/pages/member/MemberProgressKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 6855,
-      "lines": 153,
-      "sha256": "c16c905b9db74c5ce26abc9e7eeb31aca255811cf2a229177a69d949d9a64193",
+      "bytes": 9372,
+      "lines": 210,
+      "sha256": "e9be56e9fd75511bbb27b7c89ea768af8955f60fa1b797cebe3d66603464509c",
       "binary": false,
       "exports": [
         {
           "name": "MemberProgressKitProps",
-          "line": 25,
+          "line": 32,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProgressKit",
-          "line": 45,
+          "line": 57,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "WeekStat",
-          "line": 11,
+          "line": 18,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MilestoneState",
-          "line": 17,
+          "line": 24,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Milestone",
-          "line": 19,
+          "line": 26,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProgressKitProps",
-          "line": 25,
+          "line": 32,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_WEEK_STATS",
-          "line": 35,
+          "line": 47,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_MILESTONES",
-          "line": 37,
+          "line": 49,
           "kind": "Variable"
         },
         {
           "name": "MILESTONE_META",
-          "line": 39,
+          "line": 51,
           "kind": "Variable"
         },
         {
           "name": "MemberProgressKit",
-          "line": 45,
+          "line": 57,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75442,9 +75495,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 26327,
-      "lines": 383,
-      "sha256": "900c0770de25ca025b3266d7c989a91185772a157b90c5968c00290c3c6cf2c5",
+      "bytes": 26868,
+      "lines": 385,
+      "sha256": "548890e4374090e89f65b36663db027e103442a228449b28dc8242063888d2f1",
       "binary": false
     },
     {
@@ -129080,6 +129133,357 @@
       "directive": null
     },
     {
+      "path": "lib/readiness/progressSummary.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 2934,
+      "lines": 69,
+      "sha256": "d8dfc926c8c463998279a9cdd8ad235720234d40997b748745faaae63e8268af",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/readiness/progressSummary.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 4800,
+      "lines": 128,
+      "sha256": "352fdab0e05462f67c3c85c7880e2ddbb742a0c1de41f219a196b7d6e7352849",
+      "binary": false,
+      "exports": [
+        {
+          "name": "ReadinessSummarySource",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "READINESS_SCORE_LOAD_ERROR",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "READINESS_EMPTY_RECAP",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "buildFactualReadinessRecap",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessSummaryPrompt",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "allowedReadinessPercents",
+          "line": 105,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readinessSummaryLooksGrounded",
+          "line": 118,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "cleanReadinessSummary",
+          "line": 126,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "ReadinessSummarySource",
+          "line": 4,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "READINESS_SCORE_LOAD_ERROR",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "READINESS_EMPTY_RECAP",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "joinList",
+          "line": 12,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "incompleteReason",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildFactualReadinessRecap",
+          "line": 39,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessSummaryPrompt",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "allowedReadinessPercents",
+          "line": 105,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readinessSummaryLooksGrounded",
+          "line": 118,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "cleanReadinessSummary",
+          "line": 126,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/readiness/progressView.fixtures.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1403,
+      "lines": 30,
+      "sha256": "1e63f326f48fe41ce48f0cee2422c44cb1ccb06a789338200004a45d7c19c69e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "SCREENSHOT_86_BREAKDOWN",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "zeroScoreBreakdown",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SCREENSHOT_86_BREAKDOWN",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "zeroScoreBreakdown",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/readiness/progressView.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 3004,
+      "lines": 70,
+      "sha256": "36ddac35c9418ec94b5d0ee1b51ddf4bee0bebcd286404f5402ea5f5f68c5748",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/readiness/progressView.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 7574,
+      "lines": 269,
+      "sha256": "af22f0c88f897df65e0b10e0fe0494a2c9c4cb4ccec37b0fbe3368f141d16f3b",
+      "binary": false,
+      "exports": [
+        {
+          "name": "ScoreBreakdownKey",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessCategoryKey",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessMilestoneState",
+          "line": 7,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessCategoryItem",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessCategory",
+          "line": 17,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessMilestone",
+          "line": 26,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessPriorityAction",
+          "line": 32,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessWeekStat",
+          "line": 39,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessProgressView",
+          "line": 45,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SCORE_ITEM_LABELS",
+          "line": 57,
+          "kind": "Variable"
+        },
+        {
+          "name": "buildReadinessCategories",
+          "line": 174,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "getPriorityAction",
+          "line": 205,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessMilestones",
+          "line": 219,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "overallReadinessScore",
+          "line": 232,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessProgressView",
+          "line": 247,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "ScoreBreakdownKey",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessCategoryKey",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessMilestoneState",
+          "line": 7,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessCategoryItem",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessCategory",
+          "line": 17,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessMilestone",
+          "line": 26,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessPriorityAction",
+          "line": 32,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessWeekStat",
+          "line": 39,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ReadinessProgressView",
+          "line": 45,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SCORE_ITEM_LABELS",
+          "line": 57,
+          "kind": "Variable"
+        },
+        {
+          "name": "PRIORITY_ACTIONS",
+          "line": 75,
+          "kind": "Variable"
+        },
+        {
+          "name": "AREA_COLORS",
+          "line": 143,
+          "kind": "Variable"
+        },
+        {
+          "name": "pct",
+          "line": 150,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "items",
+          "line": 154,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "sumItems",
+          "line": 167,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessCategories",
+          "line": 174,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "getPriorityAction",
+          "line": 205,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessMilestones",
+          "line": 219,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "overallReadinessScore",
+          "line": 232,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildReadinessProgressView",
+          "line": 247,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/readiness/score.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -147888,9 +148292,9 @@
       "path": "scripts/vitest-library-specs.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 1139,
-      "lines": 29,
-      "sha256": "e39c7953c2b7f4b150cada5ca22b8d4e51f7f5424bc3dd226ffe00fce8e2a38f",
+      "bytes": 1222,
+      "lines": 31,
+      "sha256": "81163e6ed3c8a0f35c579e5e131596bdcba21f2412d6c7c1c39f3dcc644fbc65",
       "binary": false,
       "exports": [
         {
@@ -151186,6 +151590,18 @@
           "kind": "Variable"
         }
       ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/member-readiness-summary.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4945,
+      "lines": 123,
+      "sha256": "d2c160b5a9c72ea079a51aecc2665396e82ccf0199052b570cb95302272e20c6",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
       "directive": null
     },
     {

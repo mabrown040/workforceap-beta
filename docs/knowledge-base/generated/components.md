@@ -316,7 +316,7 @@
 | [components/portal/JobApplicationForm.tsx](../../../components/portal/JobApplicationForm.tsx) | 238 | components | default:12 |
 | [components/portal/JobApplicationKanban.tsx](../../../components/portal/JobApplicationKanban.tsx) | 283 | components | default:189 |
 | [components/portal/JobApplicationsTracker.tsx](../../../components/portal/JobApplicationsTracker.tsx) | 209 | components | default:19 |
-| [components/portal/JobReadinessScore.tsx](../../../components/portal/JobReadinessScore.tsx) | 79 | components | default:26 |
+| [components/portal/JobReadinessScore.tsx](../../../components/portal/JobReadinessScore.tsx) | 67 | components | default:14 |
 | [components/portal/JobTailorPanel.tsx](../../../components/portal/JobTailorPanel.tsx) | 345 | components | JOB_TAILOR_PREVIEW_RESULT:50, default:103 |
 | [components/portal/JourneyStageGuide.tsx](../../../components/portal/JourneyStageGuide.tsx) | 190 | components | default:19 |
 | [components/portal/LanguageToggle.test.tsx](../../../components/portal/LanguageToggle.test.tsx) | 52 | components |  |
@@ -400,6 +400,7 @@
 | [components/portal/ReadinessCoachReturnButton.tsx](../../../components/portal/ReadinessCoachReturnButton.tsx) | 56 | components | default:11 |
 | [components/portal/ReadinessMobileScoreCard.tsx](../../../components/portal/ReadinessMobileScoreCard.tsx) | 109 | components | default:20 |
 | [components/portal/ReadinessProgress.tsx](../../../components/portal/ReadinessProgress.tsx) | 43 | components | default:9 |
+| [components/portal/ReadinessProgressSummary.tsx](../../../components/portal/ReadinessProgressSummary.tsx) | 146 | components | ReadinessProgressSummary:51 |
 | [components/portal/RefreshCourseraProgressButton.tsx](../../../components/portal/RefreshCourseraProgressButton.tsx) | 74 | learning-coursera | default:13 |
 | [components/portal/RequestHelpButton.tsx](../../../components/portal/RequestHelpButton.tsx) | 56 | components | default:5 |
 | [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 134 | components | default:13 |
@@ -584,7 +585,7 @@
 | [components/portal/kit/pages/member/MemberMessagesKit.tsx](../../../components/portal/kit/pages/member/MemberMessagesKit.tsx) | 373 | member-counselor | MemberMessagesKitProps:32, MemberMessagesKit:70 |
 | [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 411 | member-counselor | MemberProfileAccountPassthrough:53, MemberProfileKitProps:66, MemberProfileKit:98 |
 | [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 362 | member-counselor | MemberProgramKitProps:37, MemberProgramKit:98 |
-| [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
+| [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 210 | member-counselor | MemberProgressKitProps:32, MemberProgressKit:57 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |
 | [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 335 | member-counselor | TrainingCourseDestination:22, nextCourseContinueTarget:25, MemberTrainingWorkspaceProps:76, MemberTrainingWorkspace:101 |
 | [components/portal/kit/pages/member/ResumeRewriterKit.tsx](../../../components/portal/kit/pages/member/ResumeRewriterKit.tsx) | 55 | member-counselor | ResumeRewriterKit:15 |

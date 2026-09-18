@@ -17644,27 +17644,27 @@
       {
         "level": 2,
         "title": "7. Icons, styling, and motion",
-        "line": 282
+        "line": 284
       },
       {
         "level": 2,
         "title": "8. Common mistakes (all observed in this repo — don't repeat them)",
-        "line": 304
+        "line": 306
       },
       {
         "level": 2,
         "title": "9. Astryx coexistence (`@astryxdesign/core`)",
-        "line": 329
+        "line": 331
       },
       {
         "level": 3,
         "title": "Stakeholder workflow contracts (2026-09-09)",
-        "line": 366
+        "line": 368
       },
       {
         "level": 3,
         "title": "Portal polish contracts (2026-09-09)",
-        "line": 376
+        "line": 378
       }
     ],
     "datedFilename": false,

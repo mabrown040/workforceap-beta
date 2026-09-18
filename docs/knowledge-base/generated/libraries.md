@@ -805,8 +805,8 @@
 | [lib/rate-limit.wrappers.test.ts](../../../lib/rate-limit.wrappers.test.ts) | 24 | libraries |  |
 | [lib/readiness/index.ts](../../../lib/readiness/index.ts) | 12 | libraries | READINESS_SECTIONS:6, getCheckboxItemKeys:7, getJobSiteItemKey:8, getAllItemKeys:9, ReadinessItem:10, ReadinessSection:11 |
 | [lib/readiness/memberReadinessSections.ts](../../../lib/readiness/memberReadinessSections.ts) | 62 | libraries | MemberReadinessItem:4, MemberReadinessSection:13, getMemberReadinessSections:24 |
-| [lib/readiness/progressSummary.test.ts](../../../lib/readiness/progressSummary.test.ts) | 72 | libraries |  |
-| [lib/readiness/progressSummary.ts](../../../lib/readiness/progressSummary.ts) | 126 | libraries | ReadinessSummarySource:4, READINESS_SCORE_LOAD_ERROR:6, READINESS_EMPTY_RECAP:9, buildFactualReadinessRecap:39, buildReadinessSummaryPrompt:67, allowedReadinessPercents:103, readinessSummaryLooksGrounded:116, cleanReadinessSummary:124 |
+| [lib/readiness/progressSummary.test.ts](../../../lib/readiness/progressSummary.test.ts) | 69 | libraries |  |
+| [lib/readiness/progressSummary.ts](../../../lib/readiness/progressSummary.ts) | 128 | libraries | ReadinessSummarySource:4, READINESS_SCORE_LOAD_ERROR:6, READINESS_EMPTY_RECAP:9, buildFactualReadinessRecap:39, buildReadinessSummaryPrompt:69, allowedReadinessPercents:105, readinessSummaryLooksGrounded:118, cleanReadinessSummary:126 |
 | [lib/readiness/progressView.fixtures.ts](../../../lib/readiness/progressView.fixtures.ts) | 30 | libraries | SCREENSHOT_86_BREAKDOWN:4, zeroScoreBreakdown:17 |
 | [lib/readiness/progressView.test.ts](../../../lib/readiness/progressView.test.ts) | 70 | libraries |  |
 | [lib/readiness/progressView.ts](../../../lib/readiness/progressView.ts) | 269 | libraries | ScoreBreakdownKey:3, ReadinessCategoryKey:5, ReadinessMilestoneState:7, ReadinessCategoryItem:9, ReadinessCategory:17, ReadinessMilestone:26, ReadinessPriorityAction:32, ReadinessWeekStat:39, ReadinessProgressView:45, SCORE_ITEM_LABELS:57, buildReadinessCategories:174, getPriorityAction:205, buildReadinessMilestones:219, overallReadinessScore:232, buildReadinessProgressView:247 |

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "65a0eb5642735718960144f383c94b4056ff2a333c0c79f6e5cd67bf850103b0",
+  "inputTreeSha256": "0808b4d13cc04c9622499e5894f071f2bbe5f91e4322b6ef3df745139b7e898c",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -29542,14 +29542,14 @@
       "path": "app/api/apply/confirmation-email/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 3157,
-      "lines": 85,
-      "sha256": "26f3d4c23a271ad00220e1d31508a786a868edc1ea6f9dc4acdb06c45349caa8",
+      "bytes": 3200,
+      "lines": 86,
+      "sha256": "e07a7178f3157edc6c43a050235b6b65d498d3ce59bf9d813c4e8e94fbcf7e17",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 85,
+          "line": 86,
           "kind": "Variable"
         }
       ],
@@ -29571,7 +29571,7 @@
         },
         {
           "name": "POST",
-          "line": 85,
+          "line": 86,
           "kind": "Variable"
         }
       ],
@@ -29629,9 +29629,9 @@
       "path": "app/api/apply/signup/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 45623,
-      "lines": 1030,
-      "sha256": "f185aa694feb5eddcb097bab5556c374e9e6ba6d00046da9d253378d59eb00b3",
+      "bytes": 45670,
+      "lines": 1031,
+      "sha256": "06553c397700b68efea38a374ae0fd7568ad3c29f99771fb7ad388061e16da96",
       "binary": false,
       "exports": [
         {
@@ -74937,9 +74937,9 @@
       "path": "docs/EMAIL-PDF-VOICE-AUDIT.md",
       "area": "documentation",
       "domain": "communications",
-      "bytes": 9391,
+      "bytes": 9600,
       "lines": 136,
-      "sha256": "add94b356a86ad1bd19e3be74224b69230f5ecb6527c6e15573057456e838af2",
+      "sha256": "dae7f60cc06b39bc7c06010ea26a1e93c081b1fc910b58b091eda61078354cc8",
       "binary": false
     },
     {
@@ -76971,9 +76971,9 @@
       "path": "docs/email-templates.md",
       "area": "documentation",
       "domain": "communications",
-      "bytes": 4484,
+      "bytes": 4659,
       "lines": 80,
-      "sha256": "d8972cf1e581ad9d46d3245391dc0be10e064bac95110d9bb531378bb167b228",
+      "sha256": "1a0c964dfe0e615852e821dde23a4bde58641ce2f3457f3662959eeac07d958b",
       "binary": false
     },
     {
@@ -78880,21 +78880,21 @@
       "path": "emails/application-accepted.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 1223,
-      "lines": 29,
-      "sha256": "39f71d2f48560c067cfb5058d586669f68cb7b29fa80558639a25c207fb6e35a",
+      "bytes": 1086,
+      "lines": 25,
+      "sha256": "eef81bf0f8a01ccc590811c446afa5579a9f120cf2779acee14bc13342945fd4",
       "binary": false,
       "exports": [
         {
           "name": "applicationAcceptedHtml",
-          "line": 11,
+          "line": 13,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "applicationAcceptedHtml",
-          "line": 11,
+          "line": 13,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -78904,21 +78904,21 @@
       "path": "emails/application-confirmation.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 2135,
-      "lines": 37,
-      "sha256": "e31075101e478cf4951506adf42b0b763d0a4ca9a76edc1c0ec6a2551ef348b6",
+      "bytes": 1575,
+      "lines": 33,
+      "sha256": "b9f3a38edada27898677aac19387bf188cca2dc266e5b2577c23f22bf4cad73e",
       "binary": false,
       "exports": [
         {
           "name": "applicationConfirmationHtml",
-          "line": 9,
+          "line": 12,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "applicationConfirmationHtml",
-          "line": 9,
+          "line": 12,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -79035,9 +79035,9 @@
       "path": "emails/branding-parameterization.test.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 5607,
-      "lines": 137,
-      "sha256": "5817d1f760d28ae24428a814bf1c4410fc4580469a862bc2676df16478c8e01d",
+      "bytes": 5682,
+      "lines": 138,
+      "sha256": "653914f704dd7f8d5951a7e680ca801088b08320486943d13afaf168e57d4b0f",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -79328,9 +79328,9 @@
       "path": "emails/eligibility-screening-ws5.test.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 4297,
+      "bytes": 4345,
       "lines": 119,
-      "sha256": "ae7969697c5a18055fab8f2562968218b1cc86ccd9a3a0b3624fe8cb25293791",
+      "sha256": "9113d037dfc1c21a8915a2654331bf57752353311279c3be8ded3767bc25d6e7",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -79550,9 +79550,9 @@
       "path": "emails/index.ts",
       "area": "communications",
       "domain": "communications",
-      "bytes": 3245,
-      "lines": 52,
-      "sha256": "db811118b48d31ff9ee9050d01319accc0407cdfbd2dc8248d04ad70493e1548",
+      "bytes": 3346,
+      "lines": 56,
+      "sha256": "a4cae07574bf3de6ba8087f731feadfa38207bec8406d7719eeafadbf13f56ea",
       "binary": false,
       "exports": [
         {
@@ -79651,168 +79651,178 @@
           "kind": "ReExport"
         },
         {
-          "name": "eligibilityScreeningSummaryHtml",
-          "line": 25,
-          "kind": "ReExport"
-        },
-        {
-          "name": "eligibilityScreeningConfirmationHtml",
+          "name": "MEMBER_WELCOME_LETTER_TITLE",
           "line": 26,
           "kind": "ReExport"
         },
         {
-          "name": "eligibilityScreeningAdminAlertHtml",
+          "name": "memberWelcomeLetterHtml",
           "line": 27,
           "kind": "ReExport"
         },
         {
-          "name": "applicantFollowupHtml",
-          "line": 28,
-          "kind": "ReExport"
-        },
-        {
-          "name": "adminPendingApplicantsHtml",
+          "name": "eligibilityScreeningSummaryHtml",
           "line": 29,
           "kind": "ReExport"
         },
         {
-          "name": "adminWeeklyRecapHtml",
+          "name": "eligibilityScreeningConfirmationHtml",
           "line": 30,
           "kind": "ReExport"
         },
         {
-          "name": "partnerWeeklyDigestHtml",
+          "name": "eligibilityScreeningAdminAlertHtml",
           "line": 31,
           "kind": "ReExport"
         },
         {
-          "name": "atRiskDigestHtml",
+          "name": "applicantFollowupHtml",
           "line": 32,
           "kind": "ReExport"
         },
         {
-          "name": "onboardingStallsDigestHtml",
+          "name": "adminPendingApplicantsHtml",
           "line": 33,
           "kind": "ReExport"
         },
         {
-          "name": "counselorAtRiskAlertHtml",
+          "name": "adminWeeklyRecapHtml",
           "line": 34,
           "kind": "ReExport"
         },
         {
-          "name": "counselorAtRiskBatchHtml",
-          "line": 34,
-          "kind": "ReExport"
-        },
-        {
-          "name": "placementSurveyHtml",
+          "name": "partnerWeeklyDigestHtml",
           "line": 35,
           "kind": "ReExport"
         },
         {
-          "name": "placementSurveyEscalationHtml",
-          "line": 35,
-          "kind": "ReExport"
-        },
-        {
-          "name": "counselorAssignedHtml",
+          "name": "atRiskDigestHtml",
           "line": 36,
           "kind": "ReExport"
         },
         {
-          "name": "partnerReferralInviteHtml",
+          "name": "onboardingStallsDigestHtml",
           "line": 37,
           "kind": "ReExport"
         },
         {
-          "name": "employerWelcomeHtml",
+          "name": "counselorAtRiskAlertHtml",
           "line": 38,
           "kind": "ReExport"
         },
         {
-          "name": "employerVerifyEmailHtml",
+          "name": "counselorAtRiskBatchHtml",
+          "line": 38,
+          "kind": "ReExport"
+        },
+        {
+          "name": "placementSurveyHtml",
           "line": 39,
           "kind": "ReExport"
         },
         {
-          "name": "employerSignupAdminAlertHtml",
+          "name": "placementSurveyEscalationHtml",
+          "line": 39,
+          "kind": "ReExport"
+        },
+        {
+          "name": "counselorAssignedHtml",
           "line": 40,
           "kind": "ReExport"
         },
         {
-          "name": "employerApprovedHtml",
+          "name": "partnerReferralInviteHtml",
           "line": 41,
           "kind": "ReExport"
         },
         {
-          "name": "employerRejectedHtml",
+          "name": "employerWelcomeHtml",
           "line": 42,
           "kind": "ReExport"
         },
         {
-          "name": "wioaReportHtml",
+          "name": "employerVerifyEmailHtml",
           "line": 43,
           "kind": "ReExport"
         },
         {
-          "name": "memberCheckInHtml",
+          "name": "employerSignupAdminAlertHtml",
           "line": 44,
           "kind": "ReExport"
         },
         {
-          "name": "memberCheckInSubject",
-          "line": 44,
-          "kind": "ReExport"
-        },
-        {
-          "name": "memberComeBackHtml",
+          "name": "employerApprovedHtml",
           "line": 45,
           "kind": "ReExport"
         },
         {
-          "name": "memberComeBackSubject",
-          "line": 45,
-          "kind": "ReExport"
-        },
-        {
-          "name": "memberStuckHtml",
+          "name": "employerRejectedHtml",
           "line": 46,
           "kind": "ReExport"
         },
         {
-          "name": "memberStuckSubject",
-          "line": 46,
-          "kind": "ReExport"
-        },
-        {
-          "name": "jobAlertDigestHtml",
+          "name": "wioaReportHtml",
           "line": 47,
           "kind": "ReExport"
         },
         {
-          "name": "employerPendingApplicantsHtml",
+          "name": "memberCheckInHtml",
           "line": 48,
           "kind": "ReExport"
         },
         {
-          "name": "adminStaleApplicantsDigestHtml",
+          "name": "memberCheckInSubject",
+          "line": 48,
+          "kind": "ReExport"
+        },
+        {
+          "name": "memberComeBackHtml",
           "line": 49,
           "kind": "ReExport"
         },
         {
-          "name": "employerJobExpiryHtml",
+          "name": "memberComeBackSubject",
+          "line": 49,
+          "kind": "ReExport"
+        },
+        {
+          "name": "memberStuckHtml",
           "line": 50,
           "kind": "ReExport"
         },
         {
-          "name": "schoolEnrollmentParentAckHtml",
+          "name": "memberStuckSubject",
+          "line": 50,
+          "kind": "ReExport"
+        },
+        {
+          "name": "jobAlertDigestHtml",
           "line": 51,
           "kind": "ReExport"
         },
         {
-          "name": "schoolEnrollmentPartnerAckHtml",
+          "name": "employerPendingApplicantsHtml",
           "line": 52,
+          "kind": "ReExport"
+        },
+        {
+          "name": "adminStaleApplicantsDigestHtml",
+          "line": 53,
+          "kind": "ReExport"
+        },
+        {
+          "name": "employerJobExpiryHtml",
+          "line": 54,
+          "kind": "ReExport"
+        },
+        {
+          "name": "schoolEnrollmentParentAckHtml",
+          "line": 55,
+          "kind": "ReExport"
+        },
+        {
+          "name": "schoolEnrollmentPartnerAckHtml",
+          "line": 56,
           "kind": "ReExport"
         }
       ],
@@ -80090,6 +80100,98 @@
           "name": "memberStuckSubject",
           "line": 33,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "emails/member-welcome-letter.test.ts",
+      "area": "communications",
+      "domain": "communications",
+      "bytes": 2667,
+      "lines": 73,
+      "sha256": "9ca8811934bda60fbbd9864a3834826927dc01f0338ddfb69234028b20af2dfd",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "LETTER_PHRASES",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "assertLetterPhrases",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "emails/member-welcome-letter.ts",
+      "area": "communications",
+      "domain": "communications",
+      "bytes": 5978,
+      "lines": 85,
+      "sha256": "9fdafaceb68363648e3150760a6d8ac4ae30eef090658015fa1174b4a5925d52",
+      "binary": false,
+      "exports": [
+        {
+          "name": "MEMBER_WELCOME_LETTER_TITLE",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "memberWelcomeLetterHtml",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "MEMBER_WELCOME_LETTER_TITLE",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "INFO_EMAIL",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "SITE_URL",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "BOOKING_URL",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "ONE_STOP_URL",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "WIOA_DOL_URL",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "WIOA_TEXAS_URL",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "bullets",
+          "line": 20,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "memberWelcomeLetterHtml",
+          "line": 28,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -109515,9 +109617,9 @@
       "path": "lib/email.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 102438,
-      "lines": 2872,
-      "sha256": "1fa1c0c7f187399d2146651d827ae3bbd0c2d7b53ab3a4b8d92c36c6d39bd4ef",
+      "bytes": 102578,
+      "lines": 2876,
+      "sha256": "37128bb52e3af386977cf39b5af802e176fd5f14116378e7ca322e808d0c1ceb",
       "binary": false,
       "exports": [
         {
@@ -109732,142 +109834,142 @@
         },
         {
           "name": "sendSchoolEnrollmentParentAckEmail",
-          "line": 1756,
+          "line": 1760,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentPartnerAckEmail",
-          "line": 1799,
+          "line": 1803,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningConfirmationEmail",
-          "line": 1845,
+          "line": 1849,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningAdminEmail",
-          "line": 1883,
+          "line": 1887,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicantFollowupEmail",
-          "line": 1921,
+          "line": 1925,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminPendingApplicantsEmail",
-          "line": 1956,
+          "line": 1960,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerPendingApplicantsEmail",
-          "line": 1988,
+          "line": 1992,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminStaleApplicantsDigestEmail",
-          "line": 2023,
+          "line": 2027,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerJobExpiryEmail",
-          "line": 2055,
+          "line": 2059,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminWeeklyRecapEmail",
-          "line": 2088,
+          "line": 2092,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWioaReportEmail",
-          "line": 2125,
+          "line": 2129,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerWeeklyDigestEmail",
-          "line": 2175,
+          "line": 2179,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerWelcomeEmail",
-          "line": 2216,
+          "line": 2220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerVerificationEmail",
-          "line": 2254,
+          "line": 2258,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerSignupAdminAlertEmail",
-          "line": 2291,
+          "line": 2295,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerApprovedEmail",
-          "line": 2326,
+          "line": 2330,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerRejectedEmail",
-          "line": 2360,
+          "line": 2364,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAssessmentResetNotificationEmail",
-          "line": 2395,
+          "line": 2399,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepBundleEmail",
-          "line": 2434,
+          "line": 2438,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepReminderEmail",
-          "line": 2498,
+          "line": 2502,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewDebriefPromptEmail",
-          "line": 2536,
+          "line": 2540,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAtRiskAlertEmail",
-          "line": 2576,
+          "line": 2580,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberCheckInEmail",
-          "line": 2636,
+          "line": 2640,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberComeBackEmail",
-          "line": 2675,
+          "line": 2679,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberStuckEmail",
-          "line": 2718,
+          "line": 2722,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepLink",
-          "line": 2765,
+          "line": 2769,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ELIGIBILITY_SOFT_DEADLINE_COPY",
-          "line": 2812,
+          "line": 2816,
           "kind": "Variable"
         },
         {
           "name": "sendEligibilityLink",
-          "line": 2820,
+          "line": 2824,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110119,142 +110221,142 @@
         },
         {
           "name": "sendSchoolEnrollmentParentAckEmail",
-          "line": 1756,
+          "line": 1760,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendSchoolEnrollmentPartnerAckEmail",
-          "line": 1799,
+          "line": 1803,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningConfirmationEmail",
-          "line": 1845,
+          "line": 1849,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEligibilityScreeningAdminEmail",
-          "line": 1883,
+          "line": 1887,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendApplicantFollowupEmail",
-          "line": 1921,
+          "line": 1925,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminPendingApplicantsEmail",
-          "line": 1956,
+          "line": 1960,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerPendingApplicantsEmail",
-          "line": 1988,
+          "line": 1992,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminStaleApplicantsDigestEmail",
-          "line": 2023,
+          "line": 2027,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerJobExpiryEmail",
-          "line": 2055,
+          "line": 2059,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAdminWeeklyRecapEmail",
-          "line": 2088,
+          "line": 2092,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendWioaReportEmail",
-          "line": 2125,
+          "line": 2129,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendPartnerWeeklyDigestEmail",
-          "line": 2175,
+          "line": 2179,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerWelcomeEmail",
-          "line": 2216,
+          "line": 2220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerVerificationEmail",
-          "line": 2254,
+          "line": 2258,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerSignupAdminAlertEmail",
-          "line": 2291,
+          "line": 2295,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerApprovedEmail",
-          "line": 2326,
+          "line": 2330,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendEmployerRejectedEmail",
-          "line": 2360,
+          "line": 2364,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendAssessmentResetNotificationEmail",
-          "line": 2395,
+          "line": 2399,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepBundleEmail",
-          "line": 2434,
+          "line": 2438,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepReminderEmail",
-          "line": 2498,
+          "line": 2502,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewDebriefPromptEmail",
-          "line": 2536,
+          "line": 2540,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendCounselorAtRiskAlertEmail",
-          "line": 2576,
+          "line": 2580,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberCheckInEmail",
-          "line": 2636,
+          "line": 2640,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberComeBackEmail",
-          "line": 2675,
+          "line": 2679,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendMemberStuckEmail",
-          "line": 2718,
+          "line": 2722,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sendInterviewPrepLink",
-          "line": 2765,
+          "line": 2769,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ELIGIBILITY_SOFT_DEADLINE_COPY",
-          "line": 2812,
+          "line": 2816,
           "kind": "Variable"
         },
         {
           "name": "sendEligibilityLink",
-          "line": 2820,
+          "line": 2824,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -138662,25 +138764,25 @@
       "path": "prisma/seed-email-templates.ts",
       "area": "database",
       "domain": "database",
-      "bytes": 8674,
-      "lines": 224,
-      "sha256": "fc0b8cd8d134cff16e52c5274ba5d9c48e3545236dd31afee20ff7ceec06a147",
+      "bytes": 8750,
+      "lines": 225,
+      "sha256": "2f49d3dd4cfe2c0528182ddf7a06a40ba7c1ad35918377e85dbbc7eb71797041",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "prisma",
-          "line": 3,
+          "line": 4,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_TEMPLATES",
-          "line": 5,
+          "line": 6,
           "kind": "Variable"
         },
         {
           "name": "main",
-          "line": 195,
+          "line": 196,
           "kind": "FunctionDeclaration"
         }
       ],

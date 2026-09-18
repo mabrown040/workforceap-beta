@@ -826,6 +826,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           to: user.email!,
           fullName,
           eligibility: eligibilityEmailFields,
+          applicationId: createdApplicationId,
         });
         if (!result.ok) {
           throw new Error(result.error ?? 'Application confirmation email failed');

@@ -22,6 +22,10 @@ export { jobRejectedHtml } from './job-rejected';
 export { newJobApplicationHtml } from './new-job-application';
 export { aiMatchSuggestionHtml } from './ai-match-suggestion';
 export { applicationConfirmationHtml } from './application-confirmation';
+export {
+  MEMBER_WELCOME_LETTER_TITLE,
+  memberWelcomeLetterHtml,
+} from './member-welcome-letter';
 export { eligibilityScreeningSummaryHtml } from './eligibility-screening-summary';
 export { eligibilityScreeningConfirmationHtml } from './eligibility-screening-confirmation';
 export { eligibilityScreeningAdminAlertHtml } from './eligibility-screening-admin-alert';

@@ -40,8 +40,16 @@ jobs:
           set -euo pipefail
           repo="$GITHUB_REPOSITORY"
           sha="$GITHUB_SHA"
+          ref_api="repos/$repo/git/ref/heads/$MIRROR_BRANCH"
           echo "master is at $sha"
-          if current="$(gh api "repos/$repo/git/ref/heads/$MIRROR_BRANCH" --jq '.object.sha' 2>/dev/null)"; then
+
+          # Distinguish a genuine missing ref (HTTP 404 → create) from other
+          # gh/API failures. Swallowing every non-zero exit and POSTing caused
+          # 422 when the ref already existed but the GET hit a transient error.
+          err="$(mktemp)"
+          trap 'rm -f "$err"' EXIT
+
+          if current="$(gh api "$ref_api" --jq '.object.sha' 2>"$err")"; then
             if [ "$current" = "$sha" ]; then
               echo "$MIRROR_BRANCH already points at $sha; nothing to do"
               exit 0
@@ -49,9 +57,13 @@ jobs:
             echo "$MIRROR_BRANCH was at $current; moving it"
             gh api --method PATCH "repos/$repo/git/refs/heads/$MIRROR_BRANCH" \
               -f sha="$sha" -F force=true --jq '.object.sha'
-          else
+          elif grep -qE '\(HTTP 404\)' "$err"; then
             echo "$MIRROR_BRANCH does not exist yet; creating it"
             gh api --method POST "repos/$repo/git/refs" \
               -f ref="refs/heads/$MIRROR_BRANCH" -f sha="$sha" --jq '.object.sha'
+          else
+            echo "::error::Failed to read refs/heads/$MIRROR_BRANCH; not creating (avoid POST 422 on transient GET failures):" >&2
+            cat "$err" >&2
+            exit 1
           fi
           echo "Vercel builds $MIRROR_BRANCH in its Preview environment; the Authenticated Portal Smoke gate waits for that deployment to report this SHA."

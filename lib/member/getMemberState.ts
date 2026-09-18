@@ -145,7 +145,14 @@ async function loadLatestResumeText(
   opts: { readOnlyAudit?: boolean } = {},
 ): Promise<string | null> {
   if (!opts.readOnlyAudit) {
-    const fromFile = await getMemberResumePlainText(userId, 8000, { preferOriginal: true });
+    // Best-effort: a storage or configuration failure here must not take the
+    // member dashboard down; fall through to the last resume analysis instead.
+    let fromFile = '';
+    try {
+      fromFile = await getMemberResumePlainText(userId, 8000, { preferOriginal: true });
+    } catch (err) {
+      console.error('[getMemberState] resume text unavailable, using last analysis:', err instanceof Error ? err.message : String(err));
+    }
     if (fromFile && fromFile.trim().length > 40) return fromFile.trim();
   }
 

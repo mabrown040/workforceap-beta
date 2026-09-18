@@ -60,8 +60,13 @@
       },
       {
         "level": 2,
+        "title": "2024-05-30 - Expandable Action Button and Async Submit States in Career Mappings",
+        "line": 35
+      },
+      {
+        "level": 2,
         "title": "2026-06-25 - Expandable Panels Missing aria-controls in Lists",
-        "line": 34
+        "line": 39
       }
     ],
     "datedFilename": false,
@@ -33097,12 +33102,17 @@
       {
         "level": 2,
         "title": "Refresh",
-        "line": 11
+        "line": 13
       },
       {
         "level": 2,
         "title": "Known gaps",
-        "line": 17
+        "line": 21
+      },
+      {
+        "level": 2,
+        "title": "Learning Paths (`learningPaths.ts`)",
+        "line": 27
       }
     ],
     "datedFilename": false,

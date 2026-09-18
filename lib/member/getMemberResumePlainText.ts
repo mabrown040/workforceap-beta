@@ -10,6 +10,34 @@ import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSw
 
 const BUCKET = 'member-resumes';
 
+let warnedAdminUnavailable = false;
+
+/**
+ * The service-role client is optional for this best-effort reader: when the
+ * deployment has no `SUPABASE_SERVICE_ROLE_KEY`, member pages must still
+ * render (without resume text) rather than fall into the route error boundary.
+ * Logged once per process so the misconfiguration is visible but not noisy.
+ */
+function tryGetSupabaseAdmin(): ReturnType<typeof getSupabaseAdmin> | null {
+  try {
+    return getSupabaseAdmin();
+  } catch (err) {
+    if (!warnedAdminUnavailable) {
+      warnedAdminUnavailable = true;
+      console.error(
+        '[getMemberResumePlainText] Supabase admin client unavailable; resume text skipped:',
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+    return null;
+  }
+}
+
+/** Test-only: forget that the missing-client warning was already emitted. */
+export function __resetAdminUnavailableWarningForTests(): void {
+  warnedAdminUnavailable = false;
+}
+
 function extFromPath(path: string): string {
   const base = path.split('/').pop() ?? '';
   const i = base.lastIndexOf('.');
@@ -38,21 +66,23 @@ export async function getMemberResumePlainText(
   ).filter((p): p is string => Boolean(p) && isResumeObjectPathOwnedByUser(userId, p as string));
   if (paths.length === 0) return '';
 
-  const supabase = getSupabaseAdmin();
+  const supabase = tryGetSupabaseAdmin();
+  if (!supabase) return '';
 
   for (const path of paths) {
-    const { data, error } = await supabase.storage.from(BUCKET).download(path);
-    if (error || !data) continue;
-
-    const buf = Buffer.from(await data.arrayBuffer());
-    const ext = extFromPath(path);
     try {
+      const { data, error } = await supabase.storage.from(BUCKET).download(path);
+      if (error || !data) continue;
+
+      const buf = Buffer.from(await data.arrayBuffer());
+      const ext = extFromPath(path);
       const text = sanitizeResumePlainText(await extractTextFromResumeBuffer(buf, ext));
       if (hasSubstantiveResumeText(text)) {
         return text.slice(0, maxChars);
       }
     } catch (err) {
-      console.warn('[getMemberResumePlainText] extract failed', path, err);
+      // Storage or extraction failures are best-effort too: try the next path.
+      console.warn('[getMemberResumePlainText] resume read failed', path, err);
     }
   }
 

@@ -75,7 +75,9 @@ const state = vi.hoisted(() => ({
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
 
-  existingAccount: null as { id: string } | null,
+  existingAccount: null as { id: string; email?: string } | null,
+  /** Raw ILIKE candidate rows, for exercising wildcard-pattern matches verbatim. */
+  emailCandidates: null as { id: string; email: string }[] | null,
   emailLookups: [] as unknown[],
   resolvedOrgId: 'org-test-1',
   provisionCalls: [] as Array<{ headers?: unknown; programSlug?: string | null }>,
@@ -108,6 +110,16 @@ vi.mock('@/lib/db/prisma', () => {
       }),
       findUnique: vi.fn(async () => null),
       findFirst: vi.fn(async (args: unknown) => { state.emailLookups.push(args); return state.existingAccount; }),
+      // The route uses findMany + an exact-email filter because
+      // `mode: 'insensitive'` is ILIKE and the caller's address is the pattern.
+      // Echo the queried address onto the row so an "existing account" fixture
+      // still represents a genuine exact match.
+      findMany: vi.fn(async (args: { where?: { email?: { equals?: string } } }) => {
+        state.emailLookups.push(args);
+        if (state.emailCandidates) return state.emailCandidates;
+        if (!state.existingAccount) return [];
+        return [{ email: args?.where?.email?.equals, ...state.existingAccount }];
+      }),
     },
     courseEnrollment: {
       findMany: vi.fn(async () => []),
@@ -336,6 +348,7 @@ function makeRequest(overrides: Record<string, unknown> = {}) {
 
 function resetState() {
   state.existingAccount = null;
+  state.emailCandidates = null;
   state.emailLookups.length = 0;
   state.applicationCreates.length = 0;
   state.partnerLookups.length = 0;
@@ -1109,12 +1122,45 @@ describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
     });
     expect(state.emailLookups).toEqual([{
       where: { email: { equals: 'applicant@example.com', mode: 'insensitive' } },
-      select: { id: true },
+      select: { id: true, email: true },
+      take: 25,
     }]);
     expect(supabaseSignUp).not.toHaveBeenCalled();
     expect(state.userUpserts).toEqual([]);
     expect(state.profileUpserts).toEqual([]);
     expect(state.enrollmentUpserts).toEqual([]);
+    expect(state.applicationCreates).toEqual([]);
+  });
+
+  // `mode: 'insensitive'` compiles to ILIKE, so the applicant's own address is
+  // the PATTERN and `_` matches any single character. Treating a pattern hit as
+  // "this account exists" hard-blocks a real applicant out of the funnel with a
+  // 409 they cannot self-resolve — silently, with no log and no Sentry capture.
+  it('lets an applicant whose email contains an underscore through when only a same-shaped row matches', async () => {
+    // What ILIKE 'real_person@example.com' returns: a different person.
+    state.emailCandidates = [{ id: 'unrelated-member', email: 'real.person@example.com' }];
+
+    const res = await POST(makeRequest({ email: 'real_person@example.com' }));
+
+    expect(res.status).not.toBe(409);
+    expect(supabaseSignUp).toHaveBeenCalled();
+    expect(state.applicationCreates).toHaveLength(1);
+  });
+
+  it('still blocks when the exact address is present among wildcard matches', async () => {
+    state.emailCandidates = [
+      { id: 'unrelated-member', email: 'real.person@example.com' },
+      { id: 'the-real-owner', email: 'real_person@example.com' },
+    ];
+
+    const res = await POST(makeRequest({ email: 'real_person@example.com' }));
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: expect.stringContaining('staff-assisted account recovery'),
+    });
+    expect(supabaseSignUp).not.toHaveBeenCalled();
     expect(state.applicationCreates).toEqual([]);
   });
 

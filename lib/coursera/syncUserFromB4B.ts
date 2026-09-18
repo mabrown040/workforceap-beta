@@ -1,4 +1,5 @@
 import 'server-only';
+import { normalizeCourseraCourseId } from '@/lib/content/programCurriculumManifest';
 
 import { CourseProgressStatus } from '@prisma/client';
 
@@ -38,6 +39,11 @@ import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerPr
 import { getMilestonesCrossed, trackLearningMilestoneServer } from '@/lib/analytics/track';
 import { extractGradebookCourseScoreScaled } from '@/lib/coursera/courseGradeDisplay';
 import { programSlugReadCandidates } from '@/lib/content/programSlug';
+import {
+  matchLearningPathReport,
+  resolveReportCollection,
+  withLearnedCollections,
+} from '@/lib/coursera/learningPathAttribution';
 
 /**
  * Shared core for "pull a learner's enrollment + progress from Coursera For
@@ -62,6 +68,15 @@ import { programSlugReadCandidates } from '@/lib/content/programSlug';
 export type DroppedItem = {
   courseraContentId: string;
   reason: string;
+};
+
+export type LearningPathItem = {
+  courseraContentId: string;
+  name: string;
+  /** Canonical WAP program of the path, or null while the path is unresolved. */
+  programSlug: string | null;
+  overallProgress: number | null;
+  isCompleted: boolean;
 };
 
 export type ResolvedCourse = {
@@ -95,6 +110,12 @@ export type SyncUserFromB4BResult = {
     primaryProgramSlug: string | null;
     enrolledProgramSlugs: string[];
     droppedNoMapping: DroppedItem[];
+    /**
+     * Enrollment rows that are a Coursera Learning Path itself (program-level
+     * progress). Recorded here instead of as "dropped, no mapping": a path has
+     * no course target by design.
+     */
+    learningPaths: LearningPathItem[];
     /** CourseProgress rows upserted from the merged gradebook+enrollment signal. */
     courseProgressUpserted: number;
   };
@@ -131,7 +152,9 @@ export function resolveContentIdToWapCourse(
   wapCourseSlug: string;
   courseraProgramId: string | null;
 } | null {
-  const needle = contentId.trim();
+  // The index is keyed by the bare id; normalize so a `Course~`-prefixed
+  // contentId from any caller still lands on the same row.
+  const needle = normalizeCourseraCourseId(contentId);
   if (!needle || needle.startsWith('TODO_')) return null;
 
   const dbHit = canonicalMappings?.byCourseraCourseId.get(needle) ?? null;
@@ -311,6 +334,7 @@ export async function syncUserFromB4B(args: {
   /** Resolve one provider course through the shared approved+legacy union. */
   const resolveProviderCourseTargets = async (
     contentId: string,
+    collectionProgramSlug: string | null,
   ): Promise<ResolvedCourseTarget[]> => {
     const resolution = await resolveProviderCourseMappings({
       courseraCourseId: contentId,
@@ -318,6 +342,7 @@ export async function syncUserFromB4B(args: {
       curriculumIndex: curriculumMappings,
       canonicalIndex: canonicalMappings,
       allowLegacyDiscovery: true,
+      collectionProgramSlug,
     });
     return resolution.targets.map((target) => ({
       wapProgramSlug: target.programSlug,
@@ -357,11 +382,34 @@ export async function syncUserFromB4B(args: {
   const resolvedByTarget = new Map<string, ResolvedCourse>();
   const droppedNoMapping: DroppedItem[] = [];
   const seenDropped = new Set<string>();
+  const learningPaths: LearningPathItem[] = [];
+  const seenLearningPaths = new Set<string>();
+  // A path's own row carries the collection id its course rows cite, so the
+  // learner's batch teaches every collection before any course is attributed.
+  const learningPathIndex = withLearnedCollections(enrollmentReports);
 
   for (const report of enrollmentReports) {
     const contentId = (report.contentId ?? '').trim();
     if (!contentId) continue;
-    const matches = await resolveProviderCourseTargets(contentId);
+    const learningPath = matchLearningPathReport(report, learningPathIndex);
+    if (learningPath) {
+      // Program-level progress: no course target exists by design, so this is
+      // neither a mapping gap nor a course to promote.
+      if (!seenLearningPaths.has(contentId)) {
+        seenLearningPaths.add(contentId);
+        learningPaths.push({
+          courseraContentId: contentId,
+          name: learningPath.path.name,
+          programSlug: learningPath.programSlug,
+          overallProgress:
+            typeof report.overallProgress === 'number' ? report.overallProgress : null,
+          isCompleted: Boolean(report.isCompleted),
+        });
+      }
+      continue;
+    }
+    const collection = resolveReportCollection(report, learningPathIndex);
+    const matches = await resolveProviderCourseTargets(contentId, collection?.programSlug ?? null);
     if (matches.length === 0) {
       if (!seenDropped.has(contentId)) {
         seenDropped.add(contentId);
@@ -652,7 +700,14 @@ export async function syncUserFromB4B(args: {
     // Gradebook-only course — use the same assignment-first resolver. This
     // preserves fan-out for a shared provider course even when Coursera's
     // enrollment report has not caught up yet.
-    const matches = await resolveProviderCourseTargets(courseId);
+    const gradebookCollection = resolveReportCollection(
+      { contentId: courseId, collectionId: gbRow.collectionId, collectionName: gbRow.collectionName },
+      learningPathIndex,
+    );
+    const matches = await resolveProviderCourseTargets(
+      courseId,
+      gradebookCollection?.programSlug ?? null,
+    );
     for (const match of matches) {
       perCourse.set(
         perCourseKey({
@@ -807,6 +862,11 @@ export async function syncUserFromB4B(args: {
       `${droppedNoMapping.length} Coursera contentId(s) had no catalog mapping (TODO_courseId placeholders or unknown courses).`,
     );
   }
+  if (learningPaths.length > 0) {
+    messageParts.push(
+      `${learningPaths.length} Coursera Learning Path row(s) recorded as program-level progress.`,
+    );
+  }
   if (courseProgressUpserted > 0) {
     messageParts.push(
       `Upserted ${courseProgressUpserted} CourseProgress row(s) from merged enrollment+gradebook signal.`,
@@ -830,6 +890,7 @@ export async function syncUserFromB4B(args: {
       primaryProgramSlug: chosenProgramSlug,
       enrolledProgramSlugs,
       droppedNoMapping,
+      learningPaths,
       courseProgressUpserted,
     },
     xapi: {

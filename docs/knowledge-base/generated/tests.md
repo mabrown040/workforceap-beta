@@ -94,12 +94,12 @@
 | [tests/api/member-feedback.spec.ts](../../../tests/api/member-feedback.spec.ts) | 346 | tests |  |
 | [tests/api/member-goals.spec.ts](../../../tests/api/member-goals.spec.ts) | 416 | tests |  |
 | [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 438 | tests |  |
-| [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 520 | tests |  |
+| [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 523 | tests |  |
 | [tests/api/member-profile.spec.ts](../../../tests/api/member-profile.spec.ts) | 469 | tests |  |
 | [tests/api/member-referral-privacy.spec.ts](../../../tests/api/member-referral-privacy.spec.ts) | 29 | tests |  |
 | [tests/api/member-resume.spec.ts](../../../tests/api/member-resume.spec.ts) | 276 | tests |  |
 | [tests/api/member-settings.spec.ts](../../../tests/api/member-settings.spec.ts) | 154 | tests |  |
-| [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 160 | tests |  |
+| [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 161 | tests |  |
 | [tests/api/member-training-workspace.spec.ts](../../../tests/api/member-training-workspace.spec.ts) | 198 | tests |  |
 | [tests/api/member-weekly-recap.spec.ts](../../../tests/api/member-weekly-recap.spec.ts) | 168 | tests |  |
 | [tests/api/member-wioa-voice-session.spec.ts](../../../tests/api/member-wioa-voice-session.spec.ts) | 89 | tests |  |
@@ -230,6 +230,7 @@
 | [tests/lib/course-progress-completion-lock.spec.ts](../../../tests/lib/course-progress-completion-lock.spec.ts) | 126 | tests |  |
 | [tests/lib/course-progress-xapi.spec.ts](../../../tests/lib/course-progress-xapi.spec.ts) | 160 | tests |  |
 | [tests/lib/coursera-atomic-progress-upsert.spec.ts](../../../tests/lib/coursera-atomic-progress-upsert.spec.ts) | 130 | learning-coursera |  |
+| [tests/lib/coursera-canonical-mapping-normalization.spec.ts](../../../tests/lib/coursera-canonical-mapping-normalization.spec.ts) | 174 | learning-coursera |  |
 | [tests/lib/coursera-course-progress-tenant.spec.ts](../../../tests/lib/coursera-course-progress-tenant.spec.ts) | 170 | learning-coursera |  |
 | [tests/lib/coursera-employer-completion-contract.spec.ts](../../../tests/lib/coursera-employer-completion-contract.spec.ts) | 18 | learning-coursera |  |
 | [tests/lib/coursera-legacy-raw-adoption.spec.ts](../../../tests/lib/coursera-legacy-raw-adoption.spec.ts) | 261 | learning-coursera |  |
@@ -246,6 +247,7 @@
 | [tests/lib/coursera-stage-a-mapping-transaction.spec.ts](../../../tests/lib/coursera-stage-a-mapping-transaction.spec.ts) | 147 | learning-coursera |  |
 | [tests/lib/coursera-stage-a-member-merge-guard.spec.ts](../../../tests/lib/coursera-stage-a-member-merge-guard.spec.ts) | 82 | learning-coursera |  |
 | [tests/lib/coursera-tenant-index-migration.spec.ts](../../../tests/lib/coursera-tenant-index-migration.spec.ts) | 71 | learning-coursera |  |
+| [tests/lib/coursera-unmatched-learners-learning-paths.spec.ts](../../../tests/lib/coursera-unmatched-learners-learning-paths.spec.ts) | 83 | learning-coursera |  |
 | [tests/lib/curriculum-versioned-read-surfaces.spec.ts](../../../tests/lib/curriculum-versioned-read-surfaces.spec.ts) | 129 | tests |  |
 | [tests/lib/diagnose-member-coursera-tenant.spec.ts](../../../tests/lib/diagnose-member-coursera-tenant.spec.ts) | 119 | learning-coursera |  |
 | [tests/lib/firstValueActions.test.ts](../../../tests/lib/firstValueActions.test.ts) | 64 | tests |  |
@@ -259,6 +261,7 @@
 | [tests/lib/match-students-tenant-scope.spec.ts](../../../tests/lib/match-students-tenant-scope.spec.ts) | 25 | tests |  |
 | [tests/lib/member-program-training-view.spec.ts](../../../tests/lib/member-program-training-view.spec.ts) | 171 | tests |  |
 | [tests/lib/member-resources.spec.ts](../../../tests/lib/member-resources.spec.ts) | 50 | tests |  |
+| [tests/lib/member-resume-plain-text-missing-admin-env.spec.ts](../../../tests/lib/member-resume-plain-text-missing-admin-env.spec.ts) | 87 | tests |  |
 | [tests/lib/member-voice-data-use-disclosures.spec.ts](../../../tests/lib/member-voice-data-use-disclosures.spec.ts) | 90 | tests |  |
 | [tests/lib/member-voice-fallback.spec.ts](../../../tests/lib/member-voice-fallback.spec.ts) | 106 | tests |  |
 | [tests/lib/message-read-cursor.spec.ts](../../../tests/lib/message-read-cursor.spec.ts) | 64 | tests |  |
@@ -277,7 +280,7 @@
 | [tests/lib/partner-notify-reliability.spec.ts](../../../tests/lib/partner-notify-reliability.spec.ts) | 63 | tests |  |
 | [tests/lib/partner-retention-window.spec.ts](../../../tests/lib/partner-retention-window.spec.ts) | 24 | tests |  |
 | [tests/lib/partner-school-schema.spec.ts](../../../tests/lib/partner-school-schema.spec.ts) | 69 | tests |  |
-| [tests/lib/password-reset-self-heal.spec.ts](../../../tests/lib/password-reset-self-heal.spec.ts) | 149 | tests |  |
+| [tests/lib/password-reset-self-heal.spec.ts](../../../tests/lib/password-reset-self-heal.spec.ts) | 210 | tests |  |
 | [tests/lib/placement-survey-email-provider.spec.ts](../../../tests/lib/placement-survey-email-provider.spec.ts) | 46 | tests |  |
 | [tests/lib/portal-responsive-single-mount.spec.tsx](../../../tests/lib/portal-responsive-single-mount.spec.tsx) | 75 | tests |  |
 | [tests/lib/profileCompleteness.test.ts](../../../tests/lib/profileCompleteness.test.ts) | 166 | tests |  |

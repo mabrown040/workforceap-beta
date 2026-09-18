@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   generateLink: vi.fn(),
-  findFirst: vi.fn(),
+  findMany: vi.fn(),
   reenable: vi.fn(),
   sendBrandedEmail: vi.fn(),
   getResend: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('@/lib/supabase-admin', () => ({
 }));
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
-    $transaction: vi.fn((fn: (tx: unknown) => unknown) => fn({ user: { findFirst: mocks.findFirst } })),
+    $transaction: vi.fn((fn: (tx: unknown) => unknown) => fn({ user: { findMany: mocks.findMany } })),
   },
 }));
 vi.mock('@/lib/admin/authUserLifecycle', () => ({
@@ -62,24 +62,27 @@ describe('sendPasswordResetEmail — auth user self-heal', () => {
 
   it('re-creates a missing Supabase auth user for an active account, then sends the link', async () => {
     mocks.generateLink.mockResolvedValueOnce(USER_NOT_FOUND).mockResolvedValueOnce(MINTED);
-    mocks.findFirst.mockResolvedValue({
+    mocks.findMany.mockResolvedValue([{
       id: 'user-1',
       email: 'Admin@Example.org',
       fullName: 'Michael Brown',
       phone: null,
-    });
+    }]);
     mocks.reenable.mockResolvedValue({ ok: true, action: 'recreated' });
 
     const result = await sendPasswordResetEmail('Admin@Example.org');
 
     expect(result).toEqual({ error: null, via: 'resend' });
-    expect(mocks.findFirst).toHaveBeenCalledWith({
+    expect(mocks.findMany).toHaveBeenCalledWith({
       where: { email: { equals: 'admin@example.org', mode: 'insensitive' }, deletedAt: null },
       select: { id: true, email: true, fullName: true, phone: true },
+      take: 25,
     });
+    // The matched row's own stored address is what reaches auth, not the
+    // request string. `reenableAuthUserAfterRestore` lowercases it itself.
     expect(mocks.reenable).toHaveBeenCalledWith(expect.anything(), {
       id: 'user-1',
-      email: 'admin@example.org',
+      email: 'Admin@Example.org',
       fullName: 'Michael Brown',
       phone: null,
     });
@@ -92,7 +95,7 @@ describe('sendPasswordResetEmail — auth user self-heal', () => {
 
   it('still skips silently when no account exists for the address', async () => {
     mocks.generateLink.mockResolvedValue(USER_NOT_FOUND);
-    mocks.findFirst.mockResolvedValue(null);
+    mocks.findMany.mockResolvedValue([]);
 
     const result = await sendPasswordResetEmail('nobody@example.org');
 
@@ -105,18 +108,18 @@ describe('sendPasswordResetEmail — auth user self-heal', () => {
   it('does not resurrect a soft-deleted account', async () => {
     mocks.generateLink.mockResolvedValue(USER_NOT_FOUND);
     // `deletedAt: null` is part of the lookup, so a deleted row is simply not found.
-    mocks.findFirst.mockResolvedValue(null);
+    mocks.findMany.mockResolvedValue([]);
 
     const result = await sendPasswordResetEmail('deleted@example.org');
 
     expect(result.via).toBe('skipped');
-    expect(mocks.findFirst.mock.calls[0][0].where.deletedAt).toBeNull();
+    expect(mocks.findMany.mock.calls[0][0].where.deletedAt).toBeNull();
     expect(mocks.reenable).not.toHaveBeenCalled();
   });
 
   it('reports skipped when the auth user cannot be re-created', async () => {
     mocks.generateLink.mockResolvedValue(USER_NOT_FOUND);
-    mocks.findFirst.mockResolvedValue({ id: 'user-1', email: 'a@b.org', fullName: 'A', phone: null });
+    mocks.findMany.mockResolvedValue([{ id: 'user-1', email: 'a@b.org', fullName: 'A', phone: null }]);
     mocks.reenable.mockResolvedValue({ ok: false, message: 'auth service refused the id' });
 
     const result = await sendPasswordResetEmail('a@b.org');
@@ -128,7 +131,7 @@ describe('sendPasswordResetEmail — auth user self-heal', () => {
 
   it('reports skipped when the users lookup itself fails', async () => {
     mocks.generateLink.mockResolvedValue(USER_NOT_FOUND);
-    mocks.findFirst.mockRejectedValue(new Error('database unavailable'));
+    mocks.findMany.mockRejectedValue(new Error('database unavailable'));
 
     const result = await sendPasswordResetEmail('a@b.org');
 
@@ -137,13 +140,71 @@ describe('sendPasswordResetEmail — auth user self-heal', () => {
     expect(mocks.generateLink).toHaveBeenCalledTimes(1);
   });
 
+  // `mode: 'insensitive'` compiles to ILIKE on PostgreSQL, so `%` and `_` in
+  // the caller-supplied address are wildcards. This endpoint is
+  // unauthenticated, so a pattern that matches a row must never be treated as
+  // proof that the caller owns that account.
+  it('refuses to self-heal when a wildcard pattern matches somebody else', async () => {
+    mocks.generateLink.mockResolvedValue(USER_NOT_FOUND);
+    // What ILIKE '%@example.org' would return: real rows, none of which IS
+    // the requested string.
+    mocks.findMany.mockResolvedValue([
+      { id: 'victim-1', email: 'someone@example.org', fullName: 'Someone', phone: null },
+      { id: 'victim-2', email: 'another@example.org', fullName: 'Another', phone: null },
+    ]);
+
+    const result = await sendPasswordResetEmail('%@example.org');
+
+    expect(result.via).toBe('skipped');
+    // The critical assertion: no auth identity is created for anyone.
+    expect(mocks.reenable).not.toHaveBeenCalled();
+    expect(mocks.sendBrandedEmail).not.toHaveBeenCalled();
+    expect(mocks.generateLink).toHaveBeenCalledTimes(1);
+  });
+
+  it('never carries the request string into auth when it differs from the matched row', async () => {
+    // Not `...Once`: the self-heal refuses, so the link is never re-minted and
+    // a queued second value would leak into the following test.
+    mocks.generateLink.mockResolvedValue(USER_NOT_FOUND);
+    mocks.findMany.mockResolvedValue([
+      { id: 'victim-1', email: 'real.person@example.org', fullName: 'Real', phone: null },
+    ]);
+    mocks.reenable.mockResolvedValue({ ok: true, action: 'recreated' });
+
+    await sendPasswordResetEmail('real_person@example.org');
+
+    // `real_person@…` ILIKE-matches `real.person@…` because `_` is a
+    // single-character wildcard. Binding an auth identity under victim-1's id
+    // carrying the attacker's address is the exact failure being guarded.
+    expect(mocks.reenable).not.toHaveBeenCalled();
+  });
+
+  it('still self-heals a legitimate address that contains an underscore', async () => {
+    mocks.generateLink.mockResolvedValueOnce(USER_NOT_FOUND).mockResolvedValueOnce(MINTED);
+    // The exact row is present alongside a same-shaped collision, so rejecting
+    // the whole batch would strand a real member.
+    mocks.findMany.mockResolvedValue([
+      { id: 'other-1', email: 'jane.doe@example.org', fullName: 'Collision', phone: null },
+      { id: 'user-9', email: 'jane_doe@example.org', fullName: 'Jane Doe', phone: null },
+    ]);
+    mocks.reenable.mockResolvedValue({ ok: true, action: 'recreated' });
+
+    const result = await sendPasswordResetEmail('jane_doe@example.org');
+
+    expect(result).toEqual({ error: null, via: 'resend' });
+    expect(mocks.reenable).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ id: 'user-9', email: 'jane_doe@example.org' }),
+    );
+  });
+
   it('does not touch the auth user when the link mints normally', async () => {
     mocks.generateLink.mockResolvedValue(MINTED);
 
     const result = await sendPasswordResetEmail('jane@example.org');
 
     expect(result).toEqual({ error: null, via: 'resend' });
-    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.findMany).not.toHaveBeenCalled();
     expect(mocks.reenable).not.toHaveBeenCalled();
   });
 });

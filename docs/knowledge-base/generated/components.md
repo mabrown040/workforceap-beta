@@ -151,7 +151,7 @@
 | [components/analytics/ExperimentedCtaLink.tsx](../../../components/analytics/ExperimentedCtaLink.tsx) | 49 | administration | default:18 |
 | [components/analytics/PortalMetrics.tsx](../../../components/analytics/PortalMetrics.tsx) | 33 | administration | default:23 |
 | [components/api-docs/ApiDocsClient.tsx](../../../components/api-docs/ApiDocsClient.tsx) | 352 | components | default:120 |
-| [components/apply/ApplyConfirmationCta.tsx](../../../components/apply/ApplyConfirmationCta.tsx) | 54 | applications-enrollment | default:8 |
+| [components/apply/ApplyConfirmationCta.tsx](../../../components/apply/ApplyConfirmationCta.tsx) | 39 | applications-enrollment | default:8 |
 | [components/apply/ApplyConfirmationReceiptRetry.tsx](../../../components/apply/ApplyConfirmationReceiptRetry.tsx) | 58 | applications-enrollment | default:18 |
 | [components/apply/ApplyMobileStepNav.tsx](../../../components/apply/ApplyMobileStepNav.tsx) | 72 | applications-enrollment | default:30 |
 | [components/apply/ApplyMobileTrustBar.tsx](../../../components/apply/ApplyMobileTrustBar.tsx) | 41 | applications-enrollment | default:7 |

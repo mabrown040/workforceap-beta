@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import LocalizedLink from '@/components/LocalizedLink';
 import { Suspense } from 'react';
@@ -53,37 +52,32 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
 
   const whatYouCanDoSignedIn = [
     {
-      label: t('confirmationDoDashboardLabel'),
-      href: '/dashboard',
-      desc: t('confirmationDoDashboardDesc'),
+      label: t('confirmationDoStatusLabel'),
+      href: '/apply/status',
+      desc: t('confirmationDoStatusDesc'),
     },
     {
       label: t('confirmationDoProgramsLabel'),
       href: '/programs',
       desc: t('confirmationDoProgramsDesc'),
-    },
-    {
-      label: t('confirmationDoStatusLabel'),
-      href: '/apply/status',
-      desc: t('confirmationDoStatusDesc'),
     },
   ] as const;
 
   const whatYouCanDoGuest = [
     {
-      label: t('confirmationGuestAccountLabel'),
-      href: '/apply/create-account',
-      desc: t('confirmationGuestAccountDesc'),
-    },
-    {
-      label: t('confirmationGuestDashboardLabel'),
-      href: '/login',
-      desc: t('confirmationGuestDashboardDesc'),
+      label: t('confirmationDoStatusLabel'),
+      href: '/apply/status',
+      desc: t('confirmationDoStatusDesc'),
     },
     {
       label: t('confirmationDoProgramsLabel'),
       href: '/programs',
       desc: t('confirmationDoProgramsDesc'),
+    },
+    {
+      label: t('confirmationGuestDashboardLabel'),
+      href: '/login',
+      desc: t('confirmationGuestDashboardDesc'),
     },
   ] as const;
 
@@ -101,67 +95,38 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
       {isAuthenticated && receiptEmail ? (
         <ApplyConfirmationReceiptRetry email={receiptEmail} fullName={receiptName} />
       ) : null}
-      <section className="content-section" style={{ paddingTop: 'calc(var(--nav-height-default, 80px) + 1.5rem)', paddingBottom: '2rem' }}>
-        <div className="container" style={{ maxWidth: 980 }}>
-          <div className="apply-confirmation-shell" style={{ maxWidth: '720px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div
-                style={{
-                  width: '5.5rem',
-                  height: '5.5rem',
-                  borderRadius: '9999px',
-                  background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 1.25rem',
-                  boxShadow: '0 20px 40px -12px color-mix(in srgb, var(--color-accent-dark) 35%, transparent)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-accent)', fontSize: '2.75rem', '--ms-wght': 600 } as CSSProperties}>
-                  check
-                </span>
+      <section className="content-section afd-confirm">
+        <div className="container afd-confirm__container">
+          <div className="apply-confirmation-shell afd-confirm__shell">
+            <div className="afd-confirm__hero">
+              <div className="afd-confirm__badge" aria-hidden="true">
+                <span className="material-symbols-outlined">check</span>
               </div>
-              <h1 className="text-display-sm" style={{ marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
-                {t('confirmationHeroTitle')}
-              </h1>
-              <p style={{ color: 'var(--color-on-surface)', fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '36rem', margin: '0 auto 0.75rem', fontWeight: 600 }}>
-                {tKey('confirmationHeroLead', 'confirmationSchoolHeroLead')}
-              </p>
-              <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.7, maxWidth: '34rem', margin: '0 auto 1rem' }}>
-                {tKey('confirmationHeroBody', 'confirmationSchoolHeroBody')}
-              </p>
+              <h1 className="text-display-sm afd-confirm__title">{t('confirmationHeroTitle')}</h1>
+              <p className="afd-confirm__lead">{tKey('confirmationHeroLead', 'confirmationSchoolHeroLead')}</p>
+              <p className="afd-confirm__body">{tKey('confirmationHeroBody', 'confirmationSchoolHeroBody')}</p>
               {isMinorContext ? (
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: '34rem', margin: '0 auto 1rem' }}>
-                  {t('confirmationSchoolParentAckNote')}
-                </p>
+                <p className="afd-confirm__note">{t('confirmationSchoolParentAckNote')}</p>
               ) : null}
-              <div style={{ display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.9rem', fontWeight: 600 }}>
+              <div className="afd-confirm__chips">
                 <span>{t('confirmationChipOnFile')}</span>
-                <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
+                <span className="afd-confirm__chip-sep" aria-hidden="true">
+                  •
+                </span>
                 <span>{t('confirmationChipReceipt')}</span>
-                <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
+                <span className="afd-confirm__chip-sep" aria-hidden="true">
+                  •
+                </span>
                 <span>{tKey('confirmationChipReview', 'confirmationSchoolChipReview')}</span>
               </div>
             </div>
 
             {isAuthenticated ? (
-              <div
-                className="mdx-card"
-                style={{
-                  background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, transparent), color-mix(in srgb, var(--color-accent) 2%, transparent))',
-                  border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
-                  {t('confirmationRecommendedEyebrow')}
-                </p>
-                <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>{t('confirmationSignedInTitle')}</h2>
-                <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                  {t('confirmationSignedInBody')}
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+              <div className="mdx-card afd-confirm__recommend">
+                <p className="afd-confirm__recommend-eyebrow">{t('confirmationRecommendedEyebrow')}</p>
+                <h2>{t('confirmationSignedInTitle')}</h2>
+                <p className="afd-confirm__recommend-body">{t('confirmationSignedInBody')}</p>
+                <div className="afd-confirm__recommend-actions">
                   <LocalizedLink href="/dashboard" className="btn btn-primary mdx-btn mdx-btn--primary">
                     {t('confirmationOpenDashboard')}
                   </LocalizedLink>
@@ -173,17 +138,10 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
             ) : (
               <Suspense
                 fallback={
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      display: 'grid',
-                      gap: '0.75rem',
-                      padding: '1rem 0',
-                    }}
-                  >
-                    <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.55 }} />
-                    <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.35 }} />
-                    <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>{t('confirmationLoadingNext')}</span>
+                  <div className="afd-confirm__recommend-fallback" aria-hidden="true">
+                    <div className="afd-confirm__recommend-fallback-bar" />
+                    <div className="afd-confirm__recommend-fallback-bar afd-confirm__recommend-fallback-bar--dim" />
+                    <span className="sr-only">{t('confirmationLoadingNext')}</span>
                   </div>
                 }
               >
@@ -191,84 +149,99 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
               </Suspense>
             )}
 
-            <section className="mdx-card" style={{ marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1.25rem' }}>
+            <section className="mdx-card afd-confirm__section" aria-labelledby="afd-confirm-timeline">
+              <h2 id="afd-confirm-timeline" className="afd-confirm__section-label">
                 {t('confirmationTimelineHeading')}
               </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {nextSteps.map((step) => (
-                  <div key={step.num} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <div style={{ flexShrink: 0, width: '2rem', height: '2rem', borderRadius: '9999px', background: 'var(--color-accent)', color: 'var(--color-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem' }}>
-                      {step.num}
-                    </div>
-                    <div>
-                      <p style={{ color: 'var(--color-on-surface)', fontWeight: 700, margin: 0 }}>{step.title}</p>
-                      <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.35rem 0 0', lineHeight: 1.6 }}>{step.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ol className="afd-confirm__timeline">
+                {nextSteps.map((step, index) => {
+                  const state = index === 0 ? 'done' : index === 1 ? 'current' : 'upcoming';
+                  const stateClass =
+                    state === 'done'
+                      ? 'afd-confirm__step--done'
+                      : state === 'current'
+                        ? 'afd-confirm__step--current'
+                        : '';
+                  return (
+                    <li
+                      key={step.num}
+                      className={`afd-confirm__step ${stateClass}`.trim()}
+                      aria-current={state === 'current' ? 'step' : undefined}
+                    >
+                      <div className="afd-confirm__step-mark" aria-hidden="true">
+                        {state === 'done' ? '✓' : step.num}
+                      </div>
+                      <div>
+                        {state === 'done' ? (
+                          <span className="afd-confirm__step-state">{t('confirmationStepDoneLabel')}</span>
+                        ) : null}
+                        {state === 'current' ? (
+                          <span className="afd-confirm__step-state">{t('confirmationStepCurrentLabel')}</span>
+                        ) : null}
+                        <p className="afd-confirm__step-title">{step.title}</p>
+                        <p className="afd-confirm__step-desc">{step.desc}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             </section>
 
-            <section className="mdx-card" style={{ marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1rem' }}>
+            <section className="mdx-card afd-confirm__section" aria-labelledby="afd-confirm-trust">
+              <h2 id="afd-confirm-trust" className="afd-confirm__section-label afd-confirm__section-label--tight">
                 {t('confirmationTrustHeading')}
               </h2>
-              <div className="apply-confirmation-trust-grid" style={{ display: 'grid', gap: '1rem' }}>
+              <div className="afd-confirm__trust-grid">
                 {trustSignals.map((item) => (
-                  <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: '0.875rem', padding: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>
+                  <div key={item.title} className="afd-confirm__trust-card">
+                    <div className="afd-confirm__trust-head">
+                      <span className="material-symbols-outlined" aria-hidden="true">
                         {item.icon}
                       </span>
-                      <p style={{ margin: 0, color: 'var(--color-on-surface)', fontWeight: 700 }}>{item.title}</p>
+                      <p>{item.title}</p>
                     </div>
-                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, fontSize: '0.9375rem' }}>{item.desc}</p>
+                    <p>{item.desc}</p>
                   </div>
                 ))}
               </div>
             </section>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div className="afd-confirm__section">
               <ProgramCommitmentPanel variant="compact" />
             </div>
 
-            <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="afd-confirm__info-grid">
               <div className="mdx-card">
-                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{t('confirmationWhatNowHeading')}</h2>
-                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+                <h2>{t('confirmationAlsoHelpfulHeading')}</h2>
+                <ul className="afd-confirm__link-list">
                   {whatYouCanDoNow.map((item) => (
-                    <li key={item.label} style={{ marginBottom: '0.75rem' }}>
-                      <LocalizedLink href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                        {item.label}
-                      </LocalizedLink>
-                      <span style={{ display: 'block', marginTop: '0.25rem', fontSize: '0.9375rem' }}>{item.desc}</span>
+                    <li key={item.label}>
+                      <LocalizedLink href={item.href}>{item.label}</LocalizedLink>
+                      <span className="afd-confirm__link-desc">{item.desc}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               <div className="mdx-card">
-                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{t('confirmationHelpHeading')}</h2>
-                <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.7 }}>
+                <h2>{t('confirmationHelpHeading')}</h2>
+                <p className="afd-confirm__help-body">
                   {t('confirmationHelpBody')}{' '}
-                  <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
-                  {' '}{t('confirmationHelpOr')}{' '}
-                  <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>
+                  <a href="tel:+15127771808">(512) 777-1808</a> {t('confirmationHelpOr')}{' '}
+                  <a href="mailto:info@workforceap.org">info@workforceap.org</a>
                   {t('confirmationHelpSuffix')}
                 </p>
               </div>
             </div>
 
-            <section style={{ marginBottom: '2rem', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
-                {t('confirmationSpreadWord')}
-              </p>
+            <section className="afd-confirm__share">
+              <p className="afd-confirm__share-label">{t('confirmationSpreadWord')}</p>
               <ShareButtons />
             </section>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <LocalizedLink href="/apply/status" className="btn btn-primary mdx-btn mdx-btn--primary">
+            {/* Secondary escapes only — primary next step lives in the recommend card above */}
+            <div className="afd-confirm__foot-actions">
+              <LocalizedLink href="/apply/status" className="btn btn-outline mdx-btn mdx-btn--ghost">
                 {t('confirmationCtaStatus')}
               </LocalizedLink>
               <LocalizedLink href="/programs" className="btn btn-outline mdx-btn mdx-btn--ghost">
@@ -284,23 +257,7 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
 
       <Footer />
       <MobileBottomNav />
-      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
-
-      <style>{`
-        .apply-confirmation-trust-grid {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-        .apply-confirmation-info-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        @media (max-width: 767px) {
-          .apply-confirmation-trust-grid,
-          .apply-confirmation-info-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

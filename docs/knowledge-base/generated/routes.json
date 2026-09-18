@@ -29856,12 +29856,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 18,
+        "line": 17,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 31,
+        "line": 30,
         "kind": "FunctionDeclaration",
         "localName": "ApplyConfirmationPage"
       }
@@ -29871,7 +29871,7 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/auth/server",
-        "line": 13,
+        "line": 12,
         "kind": "import"
       }
     ]

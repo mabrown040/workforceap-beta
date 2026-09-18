@@ -17,7 +17,8 @@ const MOBILE_NAV_BREAKPOINT = 768;
 const MARKETING_TABS = [
   { href: '/', labelKey: 'marketing.home', icon: 'home' },
   // Primary pathfinder (same destination as MainNav “Find Your Path”).
-  { href: '/find-your-path', labelKey: 'marketing.quiz', icon: 'explore' },
+  // Label is “Path” — not “Quiz” — so it matches /find-your-path, not /career-quiz.
+  { href: '/find-your-path', labelKey: 'marketing.path', icon: 'explore' },
   { href: '/programs', labelKey: 'marketing.programs', icon: 'school' },
   { href: '/apply', labelKey: 'marketing.apply', icon: 'assignment_turned_in' },
 ];
@@ -29,11 +30,12 @@ const EMPLOYER_TABS = [
   { href: '/employer/messages', labelKey: 'employer.messages', icon: 'chat' },
 ];
 
+// Match counselor rail daily destinations (Overview / Inbox / Members / Messages).
 const COUNSELOR_TABS = [
   { href: '/counselor', labelKey: 'counselor.overview', icon: 'dashboard' },
+  { href: '/counselor/inbox', labelKey: 'counselor.inbox', icon: 'inbox' },
   { href: '/counselor/students', labelKey: 'counselor.members', icon: 'groups' },
   { href: '/counselor/messages', labelKey: 'counselor.messages', icon: 'chat' },
-  { href: '/counselor/resources', labelKey: 'counselor.resources', icon: 'menu_book' },
 ];
 
 const PARTNER_TABS = [

@@ -19401,37 +19401,57 @@
   },
   {
     "file": "docs/PORTAL_NAV_SPEC.md",
-    "title": "Portal Nav Spec — Member Top-Nav + Per-Persona Rules",
+    "title": "Portal Nav Spec — Live IA + Reachability",
     "headings": [
       {
         "level": 1,
-        "title": "Portal Nav Spec — Member Top-Nav + Per-Persona Rules",
+        "title": "Portal Nav Spec — Live IA + Reachability",
         "line": 1
       },
       {
         "level": 2,
-        "title": "1. Member nav — flat top-nav (the change)",
-        "line": 13
+        "title": "1. Member nav — what ships today",
+        "line": 16
+      },
+      {
+        "level": 3,
+        "title": "Desktop (≥769px)",
+        "line": 18
+      },
+      {
+        "level": 3,
+        "title": "Mobile (≤768px)",
+        "line": 25
+      },
+      {
+        "level": 3,
+        "title": "Historical flat-nav target (not live)",
+        "line": 42
       },
       {
         "level": 2,
-        "title": "2. ⚠️ Reachability requirement (do NOT orphan)",
-        "line": 31
+        "title": "2. Reachability requirement (do NOT orphan)",
+        "line": 51
       },
       {
         "level": 2,
-        "title": "3. Staff nav — keep the dense sidebar (no change)",
-        "line": 57
+        "title": "3. Staff nav — dense sidebar (unchanged)",
+        "line": 62
+      },
+      {
+        "level": 3,
+        "title": "Staff mobile bottom tabs (subset of the rail)",
+        "line": 67
       },
       {
         "level": 2,
         "title": "4. Implementation notes",
-        "line": 61
+        "line": 81
       },
       {
         "level": 2,
-        "title": "5. Out of scope / done",
-        "line": 69
+        "title": "5. Out of scope here",
+        "line": 93
       }
     ],
     "datedFilename": false,

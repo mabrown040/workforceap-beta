@@ -391,6 +391,7 @@ export default function MainNav() {
                 <li
                   key={item.label}
                   className={`dropdown${isOpen ? ' active' : ''}`}
+                  onMouseEnter={() => { if (window.innerWidth > 900) setActiveDropdown(item.label); }}
                   onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === item.label ? null : cur)); }}
                 >
                   <button
@@ -460,6 +461,9 @@ export default function MainNav() {
           <li
             key="nav-login-portal"
             className={`dropdown nav-login-dropdown${isLoginMenuOpen ? ' active' : ''}`}
+            onMouseEnter={() => {
+              if (window.innerWidth > 900 && loginSubmenuItems.length > 0) setActiveDropdown('__login__');
+            }}
             onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === '__login__' ? null : cur)); }}
           >
             <div className="nav-login-split">

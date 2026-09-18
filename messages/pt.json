@@ -55,7 +55,7 @@
       "ariaLabel": "Navegação móvel principal",
       "marketing": {
         "home": "Início",
-        "quiz": "Questionário",
+        "path": "Caminho",
         "programs": "Programas",
         "apply": "Candidatar-se"
       },
@@ -67,6 +67,7 @@
       },
       "counselor": {
         "overview": "Visão Geral",
+        "inbox": "Caixa",
         "members": "Membros",
         "messages": "Mensagens",
         "resources": "Recursos"

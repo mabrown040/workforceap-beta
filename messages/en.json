@@ -56,7 +56,7 @@
       "ariaLabel": "Primary mobile navigation",
       "marketing": {
         "home": "Home",
-        "quiz": "Quiz",
+        "path": "Path",
         "programs": "Programs",
         "apply": "Apply"
       },
@@ -68,6 +68,7 @@
       },
       "counselor": {
         "overview": "Overview",
+        "inbox": "Inbox",
         "members": "Members",
         "messages": "Messages",
         "resources": "Resources"

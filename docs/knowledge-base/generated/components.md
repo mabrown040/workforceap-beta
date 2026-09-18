@@ -23,9 +23,9 @@
 | [components/JsonLdFAQPage.tsx](../../../components/JsonLdFAQPage.tsx) | 39 | components | default:16 |
 | [components/LocalizedLink.tsx](../../../components/LocalizedLink.tsx) | 38 | components | default:28 |
 | [components/LocalizedLinkServer.tsx](../../../components/LocalizedLinkServer.tsx) | 42 | components | default:30 |
-| [components/MainNav.tsx](../../../components/MainNav.tsx) | 573 | components | default:96 |
+| [components/MainNav.tsx](../../../components/MainNav.tsx) | 577 | components | default:96 |
 | [components/MarkdownPreview.tsx](../../../components/MarkdownPreview.tsx) | 24 | components | default:9 |
-| [components/MobileBottomNav.tsx](../../../components/MobileBottomNav.tsx) | 183 | components | default:66 |
+| [components/MobileBottomNav.tsx](../../../components/MobileBottomNav.tsx) | 185 | components | default:68 |
 | [components/PageHero.tsx](../../../components/PageHero.tsx) | 22 | components | default:1 |
 | [components/PhotoHighlight.tsx](../../../components/PhotoHighlight.tsx) | 45 | components | default:13 |
 | [components/ProgramIcon.tsx](../../../components/ProgramIcon.tsx) | 20 | components | ProgramIcon:17 |

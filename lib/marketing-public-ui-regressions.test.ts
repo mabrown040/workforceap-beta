@@ -62,7 +62,7 @@ test('decision journey and marketing mobile chrome use the canonical pathfinder'
     decisionNav.slice(decisionNav.indexOf('const steps'), decisionNav.indexOf('return (')),
     /href: '\/career-quiz'/,
   );
-  assert.match(mobileNav, /href: '\/find-your-path',\s*labelKey: 'marketing\.quiz'/);
+  assert.match(mobileNav, /href: '\/find-your-path',\s*labelKey: 'marketing\.path'/);
   assert.match(programsPage, /href="\/find-your-path">Find Your Path/);
 });
 
@@ -78,6 +78,26 @@ test('admin mobile bottom tabs match Command Center / Students / Messages', () =
   assert.match(adminBlock, /href: '\/admin\/messages'/);
   assert.doesNotMatch(adminBlock, /command-center/);
   assert.doesNotMatch(adminBlock, /\/admin\/members'/);
+});
+
+test('counselor mobile bottom tabs surface Inbox with members and messages', () => {
+  const mobileNav = source('components/MobileBottomNav.tsx');
+  const counselorBlock = mobileNav.slice(
+    mobileNav.indexOf('const COUNSELOR_TABS'),
+    mobileNav.indexOf('const PARTNER_TABS'),
+  );
+
+  assert.match(counselorBlock, /href: '\/counselor'/);
+  assert.match(counselorBlock, /href: '\/counselor\/inbox'/);
+  assert.match(counselorBlock, /href: '\/counselor\/students'/);
+  assert.match(counselorBlock, /href: '\/counselor\/messages'/);
+  assert.doesNotMatch(counselorBlock, /\/counselor\/resources'/);
+});
+
+test('MainNav desktop dropdowns sync open state on hover', () => {
+  const mainNav = source('components/MainNav.tsx');
+  assert.match(mainNav, /onMouseEnter=\{\(\) => \{ if \(window\.innerWidth > 900\) setActiveDropdown\(item\.label\); \}\}/);
+  assert.match(mainNav, /onMouseEnter=\{\(\) => \{\s*if \(window\.innerWidth > 900 && loginSubmenuItems\.length > 0\) setActiveDropdown\('__login__'\);/);
 });
 
 test('member mobile top nav prefers Profile over a duplicate AI Advisor tab', () => {

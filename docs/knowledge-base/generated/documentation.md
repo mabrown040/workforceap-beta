@@ -66,7 +66,7 @@
 | [docs/PORTAL-UI-UX-ENHANCEMENTS.md](../../../docs/PORTAL-UI-UX-ENHANCEMENTS.md) | 166 | documentation |  |
 | [docs/PORTALS.md](../../../docs/PORTALS.md) | 367 | documentation |  |
 | [docs/PORTAL_DESIGN_KIT.md](../../../docs/PORTAL_DESIGN_KIT.md) | 139 | documentation |  |
-| [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 72 | documentation |  |
+| [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 97 | documentation |  |
 | [docs/PORTAL_REDESIGN_PLAN.md](../../../docs/PORTAL_REDESIGN_PLAN.md) | 189 | documentation |  |
 | [docs/PORTAL_UI_DECISION_MOCKUP.md](../../../docs/PORTAL_UI_DECISION_MOCKUP.md) | 120 | documentation |  |
 | [docs/PORTING_GUIDE.md](../../../docs/PORTING_GUIDE.md) | 108 | documentation |  |

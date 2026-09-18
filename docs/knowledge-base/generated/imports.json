@@ -12401,16 +12401,24 @@
   },
   {
     "from": "app/(portal)/employer/matches/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/components/portal/PageHeader",
     "line": 8,
     "kind": "import",
     "external": false,
-    "target": "components/portal/kit/index.ts"
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/employer/matches/page.tsx",
+    "specifier": "@/components/portal/PortalPageFrame",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PortalPageFrame.tsx"
   },
   {
     "from": "app/(portal)/employer/matches/page.tsx",
     "specifier": "@/components/employer/EmployerMatchHistoryClient",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/employer/EmployerMatchHistoryClient.tsx"
@@ -12418,7 +12426,7 @@
   {
     "from": "app/(portal)/employer/matches/page.tsx",
     "specifier": "next-intl/server",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -12426,7 +12434,7 @@
   {
     "from": "app/(portal)/employer/matches/page.tsx",
     "specifier": "@/lib/db/queryCaps",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/db/queryCaps.ts"
@@ -12505,16 +12513,24 @@
   },
   {
     "from": "app/(portal)/employer/messages/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/components/portal/PageHeader",
     "line": 9,
     "kind": "import",
     "external": false,
-    "target": "components/portal/kit/index.ts"
+    "target": "components/portal/PageHeader.tsx"
+  },
+  {
+    "from": "app/(portal)/employer/messages/page.tsx",
+    "specifier": "@/components/portal/PortalPageFrame",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/PortalPageFrame.tsx"
   },
   {
     "from": "app/(portal)/employer/messages/page.tsx",
     "specifier": "@/components/portal/EmployerMessagesInboxClient",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/EmployerMessagesInboxClient.tsx"
@@ -12522,7 +12538,7 @@
   {
     "from": "app/(portal)/employer/messages/page.tsx",
     "specifier": "@/lib/messages/portalThreads",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/messages/portalThreads.ts"
@@ -12530,7 +12546,7 @@
   {
     "from": "app/(portal)/employer/messages/page.tsx",
     "specifier": "@/lib/messages/counselorThread",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/messages/counselorThread.ts"
@@ -12538,7 +12554,7 @@
   {
     "from": "app/(portal)/employer/messages/page.tsx",
     "specifier": "@/lib/messages/employerInbox",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/messages/employerInbox.ts"
@@ -12546,7 +12562,7 @@
   {
     "from": "app/(portal)/employer/messages/page.tsx",
     "specifier": "next-intl/server",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -12554,7 +12570,7 @@
   {
     "from": "app/(portal)/employer/messages/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -13097,19 +13113,19 @@
   },
   {
     "from": "app/(portal)/employer/work-queue/page.tsx",
-    "specifier": "@/components/portal/PortalBreadcrumb",
+    "specifier": "@/components/portal/PageHeader",
     "line": 7,
     "kind": "import",
     "external": false,
-    "target": "components/portal/PortalBreadcrumb.tsx"
+    "target": "components/portal/PageHeader.tsx"
   },
   {
     "from": "app/(portal)/employer/work-queue/page.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/components/portal/PortalPageFrame",
     "line": 8,
     "kind": "import",
     "external": false,
-    "target": "components/portal/kit/index.ts"
+    "target": "components/portal/PortalPageFrame.tsx"
   },
   {
     "from": "app/(portal)/employer/work-queue/page.tsx",
@@ -117078,6 +117094,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/app/employer-remaining-pageheader.spec.ts",
+    "specifier": "node:fs",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/app/employer-remaining-pageheader.spec.ts",
+    "specifier": "node:path",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/app/employer-remaining-pageheader.spec.ts",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
   },
   {
     "from": "tests/app/member-dashboard-layout.spec.tsx",

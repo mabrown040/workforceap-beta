@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "ee3a1de2bc2ba7d38f3e40f642f35980afec40a892f9cf30210d88d4bbf46749",
+  "inputTreeSha256": "7a4bb7672d1fb32c910d0f5454e9b7eb749646827ff29f0b8b736a3bd3038b45",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4559,
-    "sourceModules": 3235,
-    "importReferences": 15286,
-    "resolvedLocalReferences": 10186,
+    "files": 4560,
+    "sourceModules": 3236,
+    "importReferences": 15291,
+    "resolvedLocalReferences": 10188,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1047,
     "nextRouteFiles": 1014,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 661,
-    "testCandidates": 654,
+    "testFiles": 662,
+    "testCandidates": 655,
     "testHelpers": 7,
-    "staticallySelectedTests": 651,
+    "staticallySelectedTests": 652,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 413,
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 332
+      "files": 333
     }
   ],
   "mostReferenced": [
@@ -144,7 +144,7 @@
     },
     {
       "file": "components/portal/kit/index.ts",
-      "references": 200
+      "references": 197
     },
     {
       "file": "lib/audit/log.ts",
@@ -152,7 +152,7 @@
     },
     {
       "file": "components/portal/PageHeader.tsx",
-      "references": 140
+      "references": 143
     },
     {
       "file": "components/portal/PortalRouteLoading.tsx",
@@ -180,7 +180,7 @@
     },
     {
       "file": "components/portal/PortalPageFrame.tsx",
-      "references": 67
+      "references": 70
     },
     {
       "file": "lib/email/escapeHtml.ts",

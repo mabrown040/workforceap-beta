@@ -148,6 +148,7 @@
 | [tests/app/diagnostics-read-reliability.spec.tsx](../../../tests/app/diagnostics-read-reliability.spec.tsx) | 57 | tests |  |
 | [tests/app/employer-applications-pageheader.spec.ts](../../../tests/app/employer-applications-pageheader.spec.ts) | 33 | tests |  |
 | [tests/app/employer-billing-page.spec.tsx](../../../tests/app/employer-billing-page.spec.tsx) | 66 | tests |  |
+| [tests/app/employer-remaining-pageheader.spec.ts](../../../tests/app/employer-remaining-pageheader.spec.ts) | 42 | tests |  |
 | [tests/app/member-dashboard-layout.spec.tsx](../../../tests/app/member-dashboard-layout.spec.tsx) | 89 | tests |  |
 | [tests/app/member-referrals-page.spec.tsx](../../../tests/app/member-referrals-page.spec.tsx) | 33 | tests |  |
 | [tests/app/member-training-feedback.spec.tsx](../../../tests/app/member-training-feedback.spec.tsx) | 78 | tests |  |

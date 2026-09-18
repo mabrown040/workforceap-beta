@@ -789,7 +789,7 @@
 | [lib/reporting/programCompletion.ts](../../../lib/reporting/programCompletion.ts) | 173 | libraries | ValidatedProgramCompletionSpec:14, VALIDATED_PROGRAM_COMPLETION_SPECS:63, getValidatedProgramCompletionSpec:82, isValidatedProgramComplete:101, hasValidatedProgramCompletion:114, validatedProgramCompletionValuesSql:141, validatedProgramAssignmentRowsSql:159 |
 | [lib/resume-coach-elevenlabs-structure.test.ts](../../../lib/resume-coach-elevenlabs-structure.test.ts) | 96 | ai-voice |  |
 | [lib/resume/atomicResumeObjectSwap.test.ts](../../../lib/resume/atomicResumeObjectSwap.test.ts) | 270 | member-counselor |  |
-| [lib/resume/atomicResumeObjectSwap.ts](../../../lib/resume/atomicResumeObjectSwap.ts) | 214 | member-counselor | ResumeProfilePathField:3, ResumeProfilePaths:5, ResumeObjectUpload:9, AtomicResumeObjectSwapOptions:20, removeResumeObjectsWithRetry:48, AtomicResumeObjectSwapError:69, isResumeObjectPathOwnedByUser:103, isLegacyResumeProfilePath:111, isApplicationResumeSnapshotPath:118, replaceResumeObjectsAtomically:140 |
+| [lib/resume/atomicResumeObjectSwap.ts](../../../lib/resume/atomicResumeObjectSwap.ts) | 227 | member-counselor | ResumeProfilePathField:3, ResumeProfilePaths:5, ResumeObjectUpload:9, AtomicResumeObjectSwapOptions:33, removeResumeObjectsWithRetry:61, AtomicResumeObjectSwapError:82, isResumeObjectPathOwnedByUser:116, isLegacyResumeProfilePath:124, isApplicationResumeSnapshotPath:131, replaceResumeObjectsAtomically:153 |
 | [lib/resume/extractTextFromResumeBuffer.test.ts](../../../lib/resume/extractTextFromResumeBuffer.test.ts) | 208 | member-counselor |  |
 | [lib/resume/extractTextFromResumeBuffer.ts](../../../lib/resume/extractTextFromResumeBuffer.ts) | 419 | member-counselor | ResumeTextExtractionErrorCode:82, ResumeTextExtractionError:90, extractTextFromResumeBuffer:378 |
 | [lib/resume/extractionQuality.test.ts](../../../lib/resume/extractionQuality.test.ts) | 19 | member-counselor |  |
@@ -800,7 +800,7 @@
 | [lib/resume/pendingResumeDraft.test.ts](../../../lib/resume/pendingResumeDraft.test.ts) | 40 | member-counselor |  |
 | [lib/resume/pendingResumeDraft.ts](../../../lib/resume/pendingResumeDraft.ts) | 56 | member-counselor | PendingResumeDraft:6, PENDING_RESUME_DRAFT_KEY_PREFIX:12, LEGACY_PENDING_RESUME_DRAFT_KEY:13, purgePendingResumeDrafts:22, serializePendingResumeDraft:32, parsePendingResumeDraft:37 |
 | [lib/resume/prepareResumeUpload.test.ts](../../../lib/resume/prepareResumeUpload.test.ts) | 177 | member-counselor |  |
-| [lib/resume/prepareResumeUpload.ts](../../../lib/resume/prepareResumeUpload.ts) | 145 | member-counselor | MAX_RESUME_UPLOAD_SIZE:11, ResumeUploadExtension:13, ResumeUploadValidationErrorCode:15, ResumeUploadValidationError:21, RESUME_UPLOAD_ERROR_MESSAGES:31, ResumeUploadFileLike:56, isResumeUploadFileLike:63, PreparedResumeUpload:74, prepareResumeUpload:108 |
+| [lib/resume/prepareResumeUpload.ts](../../../lib/resume/prepareResumeUpload.ts) | 157 | member-counselor | MAX_RESUME_UPLOAD_SIZE:11, ResumeUploadExtension:13, ResumeUploadValidationErrorCode:15, ResumeUploadValidationError:21, RESUME_UPLOAD_ERROR_MESSAGES:31, ResumeUploadFileLike:56, isResumeUploadFileLike:63, PreparedResumeUpload:74, prepareResumeUpload:117 |
 | [lib/resume/profileCompleteness.ts](../../../lib/resume/profileCompleteness.ts) | 55 | member-counselor | getProfileCompleteness:38, getProfileMissingFields:48 |
 | [lib/resume/resumeAiSafetyContract.test.ts](../../../lib/resume/resumeAiSafetyContract.test.ts) | 86 | member-counselor |  |
 | [lib/resume/resumePreviewHtml.test.ts](../../../lib/resume/resumePreviewHtml.test.ts) | 11 | member-counselor |  |
@@ -808,6 +808,7 @@
 | [lib/resume/resumeProfileRevision.ts](../../../lib/resume/resumeProfileRevision.ts) | 27 | member-counselor | getResumeProfileRevision:8, getResumeDraftOwnerToken:21 |
 | [lib/resume/resumeProfileStorage.ts](../../../lib/resume/resumeProfileStorage.ts) | 162 | member-counselor | ResumeProfileConflictError:14, isResumeProfileConflict:21, swapResumeProfilePathsWithCas:42, saveEnhancedResumeText:129 |
 | [lib/resume/resumeUiConcurrencyAndWarnings.test.ts](../../../lib/resume/resumeUiConcurrencyAndWarnings.test.ts) | 131 | member-counselor |  |
+| [lib/resume/resumeUploadBodyFidelity.test.ts](../../../lib/resume/resumeUploadBodyFidelity.test.ts) | 245 | member-counselor |  |
 | [lib/resume/resumeUploadUiContract.test.ts](../../../lib/resume/resumeUploadUiContract.test.ts) | 49 | member-counselor |  |
 | [lib/retention/cleanup.test.ts](../../../lib/retention/cleanup.test.ts) | 220 | member-counselor |  |
 | [lib/retention/cleanup.ts](../../../lib/retention/cleanup.ts) | 213 | member-counselor | CleanupResult:12, DataCleanupReport:19, cleanupTable:36, cleanupDeletedAccounts:122, runDataCleanup:167 |

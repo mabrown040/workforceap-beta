@@ -1292,9 +1292,7 @@ export async function sendWeeklyRecapEmail(params: {
     return {
       ok: false,
       error: message,
-      ...(isEmailProviderRateLimitError(err) || isEmailProviderRateLimitError(message)
-        ? { rateLimited: true }
-        : {}),
+      ...(isEmailProviderRateLimitError(err) ? { rateLimited: true } : {}),
     };
   }
 }

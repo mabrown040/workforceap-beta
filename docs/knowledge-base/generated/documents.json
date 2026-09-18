@@ -57,6 +57,11 @@
         "level": 2,
         "title": "2024-06-25 - Expandable Action Button Accessibility in Admin Panel",
         "line": 31
+      },
+      {
+        "level": 2,
+        "title": "2024-06-25 - Redundant aria-label on aria-live state buttons",
+        "line": 34
       }
     ],
     "datedFilename": false,

@@ -399,7 +399,7 @@
 | [components/portal/ReadinessProgress.tsx](../../../components/portal/ReadinessProgress.tsx) | 43 | components | default:9 |
 | [components/portal/RefreshCourseraProgressButton.tsx](../../../components/portal/RefreshCourseraProgressButton.tsx) | 74 | learning-coursera | default:13 |
 | [components/portal/RequestHelpButton.tsx](../../../components/portal/RequestHelpButton.tsx) | 56 | components | default:5 |
-| [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 131 | components | default:13 |
+| [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 134 | components | default:13 |
 | [components/portal/ResourceDownloadButton.tsx](../../../components/portal/ResourceDownloadButton.tsx) | 64 | components | default:11 |
 | [components/portal/ResourceFilters.tsx](../../../components/portal/ResourceFilters.tsx) | 84 | components | default:14 |
 | [components/portal/ResourceProgressActions.tsx](../../../components/portal/ResourceProgressActions.tsx) | 76 | components | default:11 |

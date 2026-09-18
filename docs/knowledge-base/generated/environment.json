@@ -908,11 +908,11 @@
         },
         {
           "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
-          "line": 77
+          "line": 79
         },
         {
           "file": "tests/api/cron-at-risk-alerts-auth.spec.ts",
-          "line": 81
+          "line": 83
         },
         {
           "file": "tests/api/cron-at-risk-check.spec.ts",

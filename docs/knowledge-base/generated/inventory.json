@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "141259002ba8adcbad4607511c06fb04f7dafe3450b4b202ceb59fe51df84d1d",
+  "inputTreeSha256": "2e08484d5673e167832832ee3121079c47c4e0e3e89b5ba19f8955e3a3f9a90b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -84519,21 +84519,21 @@
       "path": "lib/admin/logCronRun.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 660,
-      "lines": 22,
-      "sha256": "dd9bb4b35765123bf8a1280e6ef71d7519f95482a57e00a4819d7d68ef5d309d",
+      "bytes": 994,
+      "lines": 28,
+      "sha256": "4e9302e36c5bdadccd9624eaabed2088bb13cb7f7aa58e41c33ac632f3fd1b50",
       "binary": false,
       "exports": [
         {
           "name": "logCronRun",
-          "line": 5,
+          "line": 6,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "logCronRun",
-          "line": 5,
+          "line": 6,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107174,9 +107174,9 @@
       "path": "lib/cron/cronExecution.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 1691,
-      "lines": 59,
-      "sha256": "028e108cf8e02b62a3e9aa6dae58abf62dca91e55964aa71445c6d7465c03d53",
+      "bytes": 2876,
+      "lines": 92,
+      "sha256": "c7ec46b351d79c61d36e73e014327d1e424c03a0a06fc72a903252aa02769af1",
       "binary": false,
       "exports": [
         {
@@ -107186,27 +107186,42 @@
         },
         {
           "name": "startCronExecution",
-          "line": 8,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setCronRecordsProcessed",
-          "line": 19,
+          "line": 31,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "completeCronExecution",
-          "line": 28,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCurrentCronExecutionId",
-          "line": 53,
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "getCronRecordsProcessed",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "markCronDiagnosticLogged",
+          "line": 81,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hasCronDiagnosticBeenLogged",
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runWithCronExecution",
-          "line": 57,
+          "line": 90,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107217,33 +107232,53 @@
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "cronExecutionStorage",
+          "name": "CronExecutionContext",
           "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "cronExecutionStorage",
+          "line": 18,
           "kind": "Variable"
         },
         {
           "name": "startCronExecution",
-          "line": 8,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "setCronRecordsProcessed",
-          "line": 19,
+          "line": 31,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "completeCronExecution",
-          "line": 28,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCurrentCronExecutionId",
-          "line": 53,
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "getCronRecordsProcessed",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "markCronDiagnosticLogged",
+          "line": 81,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hasCronDiagnosticBeenLogged",
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runWithCronExecution",
-          "line": 57,
+          "line": 90,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107514,21 +107549,21 @@
       "path": "lib/cron/withCronLogging.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 2415,
-      "lines": 63,
-      "sha256": "a9d944f9641c1ccc25e67ae9dac216ece24f832957e86bdc8aced01450f97f37",
+      "bytes": 3654,
+      "lines": 89,
+      "sha256": "21502c780eed9e66972e6fd46d0c25c889f5f0c497516e1752f022aa75624629",
       "binary": false,
       "exports": [
         {
           "name": "withCronLogging",
-          "line": 16,
+          "line": 32,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "withCronLogging",
-          "line": 16,
+          "line": 32,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -147687,20 +147722,20 @@
       "path": "tests/api/cron-at-risk-alerts-auth.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5045,
-      "lines": 134,
-      "sha256": "9fc956bbf894401750f36457213d67e7aba44c4d2b57c94509e425cb46da1303",
+      "bytes": 5147,
+      "lines": 136,
+      "sha256": "06bbab47564d75a0b0668f947fbb479f749757367b058ce6358dc6ac0957494e",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "CRON_SECRET",
-          "line": 68,
+          "line": 70,
           "kind": "Variable"
         },
         {
           "name": "request",
-          "line": 70,
+          "line": 72,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -147798,9 +147833,9 @@
       "path": "tests/api/cron-smoke-test.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7892,
-      "lines": 230,
-      "sha256": "ce0e215feb3fcb1094acb5618807cd2eeebbbf6439373eafba1c6885dcddf47f",
+      "bytes": 7994,
+      "lines": 232,
+      "sha256": "e50ac2ba5271abd22e370ec6e89e68806282fc3147fae0d83a24552d74b9e28a",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -152170,6 +152205,49 @@
       "directive": null
     },
     {
+      "path": "tests/lib/cron-diagnostics-visibility.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 7254,
+      "lines": 204,
+      "sha256": "3d76fe4e1142f492b1812b66cce09c50eb5cc5fba8d53f04a3dd2b78d354795b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "DiagnosticRow",
+          "line": 20,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "diagnostics",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
+          "name": "executions",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "executionSeq",
+          "line": 30,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 76,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "rowsFor",
+          "line": 80,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -153468,9 +153546,9 @@
       "path": "tests/lib/with-cron-logging.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 1964,
-      "lines": 58,
-      "sha256": "c4fc7bbc75fff66b9d5ce6304c94af7688444fd2d1a3e8e45ea725395f749b06",
+      "bytes": 2066,
+      "lines": 60,
+      "sha256": "ab94a16a8a0e15d49b2938f6fde58585a1eee30af5ce242d365c7129de229ba3",
       "binary": false,
       "exports": [],
       "declarations": [],

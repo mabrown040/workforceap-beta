@@ -96,7 +96,7 @@
 | [tests/api/member-export-data.spec.ts](../../../tests/api/member-export-data.spec.ts) | 288 | tests |  |
 | [tests/api/member-feedback.spec.ts](../../../tests/api/member-feedback.spec.ts) | 346 | tests |  |
 | [tests/api/member-goals.spec.ts](../../../tests/api/member-goals.spec.ts) | 416 | tests |  |
-| [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 438 | tests |  |
+| [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 501 | tests |  |
 | [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 523 | tests |  |
 | [tests/api/member-profile.spec.ts](../../../tests/api/member-profile.spec.ts) | 469 | tests |  |
 | [tests/api/member-referral-privacy.spec.ts](../../../tests/api/member-referral-privacy.spec.ts) | 29 | tests |  |
@@ -121,7 +121,7 @@
 | [tests/api/placement-survey.spec.ts](../../../tests/api/placement-survey.spec.ts) | 1396 | tests |  |
 | [tests/api/points-routes.spec.ts](../../../tests/api/points-routes.spec.ts) | 451 | tests |  |
 | [tests/api/portal-nav-badges.spec.ts](../../../tests/api/portal-nav-badges.spec.ts) | 69 | tests |  |
-| [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 347 | tests |  |
+| [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 409 | tests |  |
 | [tests/api/public-wioa-qualification.spec.ts](../../../tests/api/public-wioa-qualification.spec.ts) | 180 | tests |  |
 | [tests/api/quarterly-outcomes.spec.ts](../../../tests/api/quarterly-outcomes.spec.ts) | 207 | tests |  |
 | [tests/api/resume-builder.spec.ts](../../../tests/api/resume-builder.spec.ts) | 767 | tests |  |

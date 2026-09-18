@@ -949,6 +949,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /dev/member/certificates-empty | page |  | [app/dev/member/certificates-empty/page.tsx](../../../app/dev/member/certificates-empty/page.tsx) |  |
 | /dev/member/certificates | page |  | [app/dev/member/certificates/page.tsx](../../../app/dev/member/certificates/page.tsx) |  |
 | /dev/member/cover-letter | page |  | [app/dev/member/cover-letter/page.tsx](../../../app/dev/member/cover-letter/page.tsx) |  |
+| /dev/member/digital-literacy-module | page |  | [app/dev/member/digital-literacy-module/page.tsx](../../../app/dev/member/digital-literacy-module/page.tsx) |  |
 | /dev/member/elevator-pitch | page |  | [app/dev/member/elevator-pitch/page.tsx](../../../app/dev/member/elevator-pitch/page.tsx) |  |
 | /dev/member/gap-analyzer | page |  | [app/dev/member/gap-analyzer/page.tsx](../../../app/dev/member/gap-analyzer/page.tsx) |  |
 | /dev/member/home | page |  | [app/dev/member/home/page.tsx](../../../app/dev/member/home/page.tsx) |  |

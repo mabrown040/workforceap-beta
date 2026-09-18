@@ -22,6 +22,8 @@ interface ProgramModule {
    * the Learning Hub anchor fallback when no Coursera launch URL is supplied.
    */
   slug?: string;
+  /** WorkforceAP-authored pathway (links out to its provider, not Coursera). */
+  kind?: 'workforceap';
   /** WorkforceAP launch endpoint that resolves and redirects to Coursera. */
   launchHref?: string;
   /**
@@ -238,10 +240,13 @@ export function MemberProgramKit({
                   m.launchHref
                   ?? m.moduleHref
                   ?? (m.slug ? `${resumeHref}#course-${m.slug}` : resumeHref);
+                const continueClassName = m.kind === 'workforceap'
+                  ? 'wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none'
+                  : 'wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none';
                 return (
                   <div
                     key={m.title}
-                    className="wa-flex wa-items-center wa-gap-3"
+                    className="wa-flex wa-items-center wa-gap-3 wa-flex-wrap"
                     style={{
                       padding: 12,
                       borderRadius: 'var(--wa-radius-sm)',
@@ -273,7 +278,7 @@ export function MemberProgramKit({
                         <TrackedCourseraLaunchLink
                           href={moduleHref}
                           courseSlug={m.slug}
-                          className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                          className={continueClassName}
                           style={{ whiteSpace: 'nowrap' }}
                         >
                           Continue in Coursera <ArrowRight size={14} aria-hidden="true" />
@@ -281,7 +286,7 @@ export function MemberProgramKit({
                       ) : (
                         <a
                           href={moduleHref}
-                          className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                          className={continueClassName}
                           style={{ whiteSpace: 'nowrap' }}
                         >
                           Continue <ArrowRight size={14} aria-hidden="true" />

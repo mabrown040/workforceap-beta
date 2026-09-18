@@ -14,6 +14,7 @@ import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
  *   /dev/member/program            — enrolled path
  *   /dev/member/program?state=empty — choose-your-program picker (preview)
  *   /dev/member/program?state=workspace — training overview + Continue this course
+ *   /dev/member/program?state=digital-literacy — WorkforceAP Continue as a filled CTA
  */
 export const dynamic = 'force-dynamic';
 
@@ -90,6 +91,32 @@ export default async function DevMemberProgramPage({
         initialCourseSlug="cloud-concepts"
         syllabusHours={12}
         syllabusBreakdown="12 assigned hours across two courses."
+      />
+    );
+  }
+
+  if (state === 'digital-literacy') {
+    return (
+      <MemberProgramKit
+        programTitle="Workforce AP Digital Literacy Course"
+        progressPercent={0}
+        modulesComplete={0}
+        modulesTotal={3}
+        estRemaining="4 hrs remaining"
+        resumeHref="/dev/member/digital-literacy-module"
+        modules={[
+          {
+            title: 'Computer Basics',
+            state: 'active',
+            slug: 'computer-basics',
+            kind: 'workforceap',
+            moduleHref: '/dev/member/digital-literacy-module',
+          },
+          { title: 'File Management Basics', state: 'locked', slug: 'file-management-basics' },
+          { title: 'Internet Basics', state: 'locked', slug: 'internet-basics' },
+        ]}
+        missionsSummary="No missions assigned."
+        missionsHref="#"
       />
     );
   }

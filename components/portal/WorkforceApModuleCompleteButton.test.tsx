@@ -25,11 +25,15 @@ describe('WorkforceApModuleCompleteButton', () => {
         courseSlug="digital-literacy-empowerment-class-course-6"
         programSlug="digital-literacy-empowerment-class"
         completed={false}
+        appearance="secondary"
         label="Mark module complete in WorkforceAP"
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mark module complete in WorkforceAP' }));
+    const complete = screen.getByRole('button', { name: 'Mark module complete in WorkforceAP' });
+    expect(complete).toHaveClass('wa-kit-cta--ghost');
+    expect(complete).not.toHaveClass('btn-primary');
+    fireEvent.click(complete);
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(1));
     expect(mocks.fetch).toHaveBeenCalledWith('/api/member/courses/complete', {
       method: 'POST',
@@ -53,5 +57,18 @@ describe('WorkforceApModuleCompleteButton', () => {
     );
     expect(screen.getByRole('status')).toHaveTextContent('Completed in WorkforceAP');
     expect(mocks.fetch).not.toHaveBeenCalled();
+  });
+
+  it('keeps applied-lab completion as a filled primary control', () => {
+    render(
+      <WorkforceApModuleCompleteButton
+        courseSlug="applied-lab"
+        programSlug="it-support-professional-certificate-ibm"
+        completed={false}
+        label="Mark lab complete"
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Mark lab complete' })).toHaveClass('btn-primary');
+    expect(screen.getByRole('button', { name: 'Mark lab complete' })).not.toHaveClass('wa-kit-cta--ghost');
   });
 });

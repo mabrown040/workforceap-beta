@@ -216,6 +216,7 @@ export default async function ProgramPage({
         moduleHref: isWorkforceApCourse(c)
           ? workforceApCourseHref(c.slug, enrolledSlug)
           : undefined,
+        kind: isWorkforceApCourse(c) ? ('workforceap' as const) : undefined,
         state: done ? ('done' as const) : isNext ? ('active' as const) : ('locked' as const),
       };
     });

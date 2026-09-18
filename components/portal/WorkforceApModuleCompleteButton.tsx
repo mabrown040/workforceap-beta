@@ -7,21 +7,29 @@ export default function WorkforceApModuleCompleteButton({
   courseSlug,
   programSlug,
   completed,
+  appearance = 'primary',
   label = 'Mark lab complete',
   completedLabel = 'Completed',
 }: {
   courseSlug: string;
   programSlug: string;
   completed: boolean;
+  /** Lesson modules use secondary so Mark complete cannot outrank Start this lesson. */
+  appearance?: 'primary' | 'secondary';
   label?: string;
   completedLabel?: string;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isSecondary = appearance === 'secondary';
+  const idleClassName = isSecondary
+    ? 'wa-kit-cta wa-kit-cta--ghost wa-kit-focus'
+    : 'btn btn-primary';
+  const doneClassName = isSecondary ? 'wa-kit-cta wa-kit-cta--ghost' : 'btn btn-outline';
 
   if (completed) {
-    return <span className="btn btn-outline" role="status">{completedLabel}</span>;
+    return <span className={doneClassName} role="status">{completedLabel}</span>;
   }
 
   const complete = async () => {
@@ -50,7 +58,7 @@ export default function WorkforceApModuleCompleteButton({
     <div>
       <button
         type="button"
-        className="btn btn-primary"
+        className={idleClassName}
         onClick={complete}
         disabled={saving}
         aria-busy={saving}

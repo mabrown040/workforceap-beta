@@ -3996,12 +3996,12 @@
     "exports": [
       {
         "name": "metadata",
-        "line": 13,
+        "line": 14,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 50,
+        "line": 51,
         "kind": "FunctionDeclaration",
         "localName": "WorkforceApModulePage"
       }
@@ -30820,6 +30820,31 @@
     "boundaryReferences": []
   },
   {
+    "file": "app/dev/member/digital-literacy-module/page.tsx",
+    "kind": "page",
+    "path": "/dev/member/digital-literacy-module",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "dynamic",
+        "line": 14,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 16,
+        "kind": "FunctionDeclaration",
+        "localName": "DevDigitalLiteracyModulePage"
+      }
+    ],
+    "methods": [],
+    "configuration": {
+      "dynamic": "force-dynamic"
+    },
+    "boundaryReferences": []
+  },
+  {
     "file": "app/dev/member/elevator-pitch/page.tsx",
     "kind": "page",
     "path": "/dev/member/elevator-pitch",
@@ -31201,12 +31226,12 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 18,
+        "line": 19,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 57,
+        "line": 58,
         "kind": "FunctionDeclaration",
         "localName": "DevMemberProgramPage"
       }

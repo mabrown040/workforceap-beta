@@ -7617,8 +7617,16 @@
   },
   {
     "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
-    "specifier": "@/components/portal/WorkforceApModuleCompleteButton",
+    "specifier": "@/components/portal/WorkforceApLessonCtas",
     "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApLessonCtas.tsx"
+  },
+  {
+    "from": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
+    "specifier": "@/components/portal/WorkforceApModuleCompleteButton",
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
@@ -63120,6 +63128,54 @@
     "target": "components/portal/kit/pages/member/CoverLetterKit.tsx"
   },
   {
+    "from": "app/dev/member/digital-literacy-module/page.tsx",
+    "specifier": "next/navigation",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/dev/member/digital-literacy-module/page.tsx",
+    "specifier": "lucide-react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "lucide-react"
+  },
+  {
+    "from": "app/dev/member/digital-literacy-module/page.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "app/dev/member/digital-literacy-module/page.tsx",
+    "specifier": "@/components/portal/WorkforceApLessonCtas",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApLessonCtas.tsx"
+  },
+  {
+    "from": "app/dev/member/digital-literacy-module/page.tsx",
+    "specifier": "@/components/portal/WorkforceApModuleCompleteButton",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApModuleCompleteButton.tsx"
+  },
+  {
+    "from": "app/dev/member/digital-literacy-module/page.tsx",
+    "specifier": "@/shared/digitalLiteracyPathway",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
     "from": "app/dev/member/elevator-pitch/page.tsx",
     "specifier": "next/navigation",
     "line": 1,
@@ -77062,6 +77118,38 @@
     "kind": "import",
     "external": false,
     "target": "components/portal/VoiceAgentSurface.tsx"
+  },
+  {
+    "from": "components/portal/WorkforceApLessonCtas.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/WorkforceApLessonCtas.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/WorkforceApLessonCtas.test.tsx",
+    "specifier": "./WorkforceApLessonCtas",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/WorkforceApLessonCtas.tsx"
+  },
+  {
+    "from": "components/portal/WorkforceApLessonCtas.tsx",
+    "specifier": "lucide-react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "lucide-react"
   },
   {
     "from": "components/portal/WorkforceApModuleCompleteButton.test.tsx",

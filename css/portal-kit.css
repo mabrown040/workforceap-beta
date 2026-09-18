@@ -141,6 +141,43 @@
 .wa-kit-cta--block {
   width: 100%;
 }
+/* Outbound DigitalLearn / lesson start: bigger than the 44px pill so it
+   cannot lose to a nearby outline control. Full-width on small screens. */
+.wa-kit-cta--lg {
+  min-height: 3.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 700;
+}
+@media (max-width: 639px) {
+  .wa-kit-cta--lg {
+    width: 100%;
+  }
+}
+
+.wa-kit-lesson-ctas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+.wa-kit-lesson-ctas > li {
+  display: grid;
+  gap: 0.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--wa-border);
+}
+.wa-kit-lesson-ctas > li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.wa-kit-lesson-ctas__title {
+  margin: 0;
+  font-weight: 800;
+  font-size: var(--wa-type-body);
+  color: var(--wa-text);
+  line-height: 1.35;
+}
 
 /* Section tabs on member pages are states on the wash, not another title bar. */
 .wa-page-tabs .astryx-segmented-control {

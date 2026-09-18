@@ -74,6 +74,8 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
   Do not set kit metadata below 13px. Member pills use `.wa-kit-cta` /
   `.wa-kit-cta--ghost` (44px, `--wa-type-body`) instead of a 13–14px inline size.
+  Outbound DigitalLearn / lesson start uses `.wa-kit-cta--lg` (56px, full-width on
+  small screens) so it cannot lose to a nearby outline control.
 - **Shape / density / pop (flip per surface, §2):** `--wa-radius`, `--wa-radius-sm`, `--wa-pad`,
   `--wa-pad-sm`, `--wa-pop`, `--wa-shadow`, `--wa-shadow-lg`.
 - **Motion (§7):** `--wa-dur-fast` (120ms) / `--wa-dur-base` (200ms) / `--wa-dur-slow` (300ms) +

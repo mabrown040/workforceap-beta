@@ -56,6 +56,14 @@ If DigitalLearn changes a destination, update
 `shared/digitalLiteracyPathway.ts` only after checking the rendered page, not
 just the HTTP status.
 
+## Member UI
+
+Lessons on `/dashboard/learning/modules/[courseSlug]` are stacked crimson
+`.wa-kit-cta--lg` buttons. The first control is **Start this lesson**. Remaining
+lessons use **Open [lesson title]**. Title and minutes stay supporting copy, not
+the click target. **Mark module complete in WorkforceAP** is a ghost/outline
+control so it cannot outrank Start.
+
 ## Completion and certificate boundary
 
 Members return to WorkforceAP and use **Mark module complete in WorkforceAP**.

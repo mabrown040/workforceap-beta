@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "a4dd601b8687935bf25b036eb47808d6a538b0de601246ec1234e202eb93843e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9541,19 +9541,19 @@
       "path": "app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 11530,
-      "lines": 248,
-      "sha256": "eb3f6b222d694b6511a0f5ae5a3333d0184cdf5ad2a72067737b05a0c149beb2",
+      "bytes": 10466,
+      "lines": 226,
+      "sha256": "7660f0169fa408767cbc744e9e35b417b149d0184dd79827c151427cab3bc79e",
       "binary": false,
       "exports": [
         {
           "name": "metadata",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 50,
+          "line": 51,
           "kind": "FunctionDeclaration",
           "localName": "WorkforceApModulePage"
         }
@@ -9561,22 +9561,22 @@
       "declarations": [
         {
           "name": "metadata",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "Props",
-          "line": 18,
+          "line": 19,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LAB_ACTIONS",
-          "line": 23,
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "WorkforceApModulePage",
-          "line": 50,
+          "line": 51,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -10348,9 +10348,9 @@
       "path": "app/(portal)/dashboard/program/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 19579,
-      "lines": 416,
-      "sha256": "3b7ef2d06aa8e4a5262ebe3e96615e750c3b772a60fc38ef42f39dc51d819f74",
+      "bytes": 19656,
+      "lines": 417,
+      "sha256": "5fbe0a00027970908423a16d6ffdcb6dd834e4300b0fa303db6964278001a959",
       "binary": false,
       "exports": [
         {
@@ -42745,6 +42745,41 @@
       "directive": null
     },
     {
+      "path": "app/dev/member/digital-literacy-module/page.tsx",
+      "area": "pages",
+      "domain": "member-counselor",
+      "bytes": 2618,
+      "lines": 57,
+      "sha256": "7ceaebc6b6d6dc02ce717efc2c56de41c9df3c19c1f829f62dc40b00ea7d1994",
+      "binary": false,
+      "exports": [
+        {
+          "name": "dynamic",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 16,
+          "kind": "FunctionDeclaration",
+          "localName": "DevDigitalLiteracyModulePage"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "dynamic",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "DevDigitalLiteracyModulePage",
+          "line": 16,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "app/dev/member/elevator-pitch/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
@@ -43383,19 +43418,19 @@
       "path": "app/dev/member/program/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 4368,
-      "lines": 120,
-      "sha256": "d057b2272e3533e56e5db945525d4a742fdce9b38e55c99b39be0f2bbd3e5f34",
+      "bytes": 5296,
+      "lines": 147,
+      "sha256": "1555770b6315ed337d85b3702d44ef370f06a3608246ac571d7b2c4467e9bff6",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 18,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 57,
+          "line": 58,
           "kind": "FunctionDeclaration",
           "localName": "DevMemberProgramPage"
         }
@@ -43403,22 +43438,22 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 18,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "PREVIEW_PROGRAMS",
-          "line": 20,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "PREVIEW_WORKSPACE",
-          "line": 24,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "DevMemberProgramPage",
-          "line": 57,
+          "line": 58,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -63753,12 +63788,75 @@
       "directive": "use client"
     },
     {
+      "path": "components/portal/WorkforceApLessonCtas.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 2470,
+      "lines": 54,
+      "sha256": "8e51938fd340d468aae2d2dc7d652f0361c9e02cba02510e43edc2c008b3735b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "LESSONS",
+          "line": 7,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "components/portal/WorkforceApLessonCtas.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 2289,
+      "lines": 65,
+      "sha256": "bfa602a7fc49d4f98d10d4ba9ccaa90b0b92b44e3d22585994a66a9866ecb892",
+      "binary": false,
+      "exports": [
+        {
+          "name": "WorkforceApLessonCta",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "default",
+          "line": 23,
+          "kind": "FunctionDeclaration",
+          "localName": "WorkforceApLessonCtas"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "WorkforceApLessonCta",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LESSON_CTA_CLASS",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "FALLBACK_CTA_CLASS",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "WorkforceApLessonCtas",
+          "line": 23,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/WorkforceApModuleCompleteButton.test.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 2205,
-      "lines": 57,
-      "sha256": "a632fc5c72a30faa330f974ac4c102ea834c62444aa4999424ca5c3f96eb3781",
+      "bytes": 2884,
+      "lines": 74,
+      "sha256": "df0f66356867628435d7c1adf070bd59b0bbd8e659958c908e8db911dc4f3e3c",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -63774,9 +63872,9 @@
       "path": "components/portal/WorkforceApModuleCompleteButton.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 1679,
-      "lines": 63,
-      "sha256": "400b0080f10b776b4c59c36f1ef2625cbc7998f662cbfbbaebdb0525ca6dfcf7",
+      "bytes": 2081,
+      "lines": 71,
+      "sha256": "76975e0f435f993f6fc95724df4fb1e9c31e6d31918e564ba4404a5998079350",
       "binary": false,
       "exports": [
         {
@@ -71365,19 +71463,19 @@
       "path": "components/portal/kit/pages/member/MemberProgramKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 15655,
-      "lines": 362,
-      "sha256": "dcb6b813d29dad095030c98b04eab3a94e3abb8132e967385d665b0a2102fc11",
+      "bytes": 15986,
+      "lines": 367,
+      "sha256": "382474ac492521bc66a072415695a6a87ef576b7d1973462e1d0f33768503440",
       "binary": false,
       "exports": [
         {
           "name": "MemberProgramKitProps",
-          "line": 37,
+          "line": 39,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProgramKit",
-          "line": 98,
+          "line": 100,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -71394,22 +71492,22 @@
         },
         {
           "name": "MemberProgramKitProps",
-          "line": 37,
+          "line": 39,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_MODULES",
-          "line": 64,
-          "kind": "Variable"
-        },
-        {
-          "name": "MODULE_META",
           "line": 66,
           "kind": "Variable"
         },
         {
+          "name": "MODULE_META",
+          "line": 68,
+          "kind": "Variable"
+        },
+        {
           "name": "MemberProgramKit",
-          "line": 98,
+          "line": 100,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75001,9 +75099,9 @@
       "path": "css/portal-kit.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 31292,
-      "lines": 878,
-      "sha256": "3dd677fc796b53749a8964e779c4cc4e4c364920dd6514cdf4a0bae126bb712a",
+      "bytes": 32065,
+      "lines": 915,
+      "sha256": "6f41d4bdfd1e772ab6517ce468fb9e102ecc485d383c0ddb6cee41ab65837fd8",
       "binary": false
     },
     {
@@ -75316,9 +75414,9 @@
       "path": "docs/DIGITAL-LITERACY-COURSE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 4025,
-      "lines": 78,
-      "sha256": "85ee539cdbe87241114a81de27079c027aded6d7de4077dc6410deb1d9e0238a",
+      "bytes": 4389,
+      "lines": 86,
+      "sha256": "d504b0f275ae5bb936892afebca7b84c7e03a691c547905bd7ac41c6c2439097",
       "binary": false
     },
     {
@@ -75442,9 +75540,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 26327,
-      "lines": 383,
-      "sha256": "900c0770de25ca025b3266d7c989a91185772a157b90c5968c00290c3c6cf2c5",
+      "bytes": 26474,
+      "lines": 385,
+      "sha256": "996afe6e3f9f0d344c8506f5093b2a8b5aaa8e4b141cb39143dbfe3b13d259d9",
       "binary": false
     },
     {
@@ -99523,9 +99621,9 @@
       "path": "lib/content/digitalLiteracyUiTruth.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 1873,
-      "lines": 38,
-      "sha256": "8ea2b5e4675dac96f31f748c6dfda3bb9e65f3201733646595fa5e7dbb16e596",
+      "bytes": 2173,
+      "lines": 43,
+      "sha256": "f0f301c00983e96fda7705f82fa8bf1cbe3d738a589c16ceeb3cd4e4bbc2393f",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -127432,9 +127530,9 @@
       "path": "lib/portal/member-program-coursera-links.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 3012,
-      "lines": 76,
-      "sha256": "aa56f3d1aa8ea5d8c200c236216b7a19ae4d182fd00319c4eaf0af0ccbb1a3a3",
+      "bytes": 3220,
+      "lines": 84,
+      "sha256": "3a82aa87c636a85758ac36e7dbccb07a8087b4510fa99cf48d07aca2c032ad35",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -153012,9 +153110,9 @@
       "path": "tests/components/member-program-module-links.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3665,
-      "lines": 92,
-      "sha256": "b068e7f7d62bf4bdc3c58ef65bb04578779b4ab039c168a0b6d5c433e150ff23",
+      "bytes": 3905,
+      "lines": 97,
+      "sha256": "ce8d6096ee46077f9889738364a59f1d3147f6dad3c4cdd06bd682432a4b918e",
       "binary": false,
       "exports": [],
       "declarations": [

@@ -12,9 +12,14 @@ describe('Digital Literacy provider and completion truth', () => {
     assert.match(source, /course\.provider\.license\.url/);
     assert.match(source, /provider terms/);
     assert.match(source, /does not copy, host, adapt, or imply endorsement/);
-    assert.match(source, /lesson\.verificationLabel/);
-    assert.match(source, /lesson\.fallbackUrl/);
+    assert.match(source, /WorkforceApLessonCtas/);
+    assert.match(source, /appearance=\{hasLessons \? 'secondary' : 'primary'\}/);
     assert.match(source, /Mark module complete in WorkforceAP/);
+    const lessonCtas = read('components/portal/WorkforceApLessonCtas.tsx');
+    assert.match(lessonCtas, /Start this lesson/);
+    assert.match(lessonCtas, /wa-kit-cta--lg/);
+    assert.match(lessonCtas, /verificationLabel/);
+    assert.match(lessonCtas, /fallbackUrl/);
     assert.match(source, /does not verify DigitalLearn activity or issue a DigitalLearn certificate/);
     assert.match(source, /\/dashboard\/certifications/);
   });

@@ -193,7 +193,7 @@
 | [app/(portal)/dashboard/learning/interest-profiler/page.tsx](../../../app/%28portal%29/dashboard/learning/interest-profiler/page.tsx) | 48 | learning-coursera | generateMetadata:10, default:19 |
 | [app/(portal)/dashboard/learning/labs/\[labId\]/page.tsx](../../../app/%28portal%29/dashboard/learning/labs/%5BlabId%5D/page.tsx) | 36 | learning-coursera | metadata:10, default:16 |
 | [app/(portal)/dashboard/learning/loading.tsx](../../../app/%28portal%29/dashboard/learning/loading.tsx) | 6 | learning-coursera | default:3 |
-| [app/(portal)/dashboard/learning/modules/\[courseSlug\]/page.tsx](../../../app/%28portal%29/dashboard/learning/modules/%5BcourseSlug%5D/page.tsx) | 248 | learning-coursera | metadata:13, default:50 |
+| [app/(portal)/dashboard/learning/modules/\[courseSlug\]/page.tsx](../../../app/%28portal%29/dashboard/learning/modules/%5BcourseSlug%5D/page.tsx) | 226 | learning-coursera | metadata:14, default:51 |
 | [app/(portal)/dashboard/learning/page.tsx](../../../app/%28portal%29/dashboard/learning/page.tsx) | 569 | learning-coursera | generateMetadata:27, default:43 |
 | [app/(portal)/dashboard/learning/wioa-qualification/loading.tsx](../../../app/%28portal%29/dashboard/learning/wioa-qualification/loading.tsx) | 6 | learning-coursera | default:3 |
 | [app/(portal)/dashboard/learning/wioa-qualification/page.tsx](../../../app/%28portal%29/dashboard/learning/wioa-qualification/page.tsx) | 76 | learning-coursera | generateMetadata:32, default:40 |
@@ -218,7 +218,7 @@
 | [app/(portal)/dashboard/program/change/page.tsx](../../../app/%28portal%29/dashboard/program/change/page.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/program/employer-screening/page.tsx](../../../app/%28portal%29/dashboard/program/employer-screening/page.tsx) | 140 | member-counselor | metadata:13, default:21 |
 | [app/(portal)/dashboard/program/loading.tsx](../../../app/%28portal%29/dashboard/program/loading.tsx) | 6 | member-counselor | default:3 |
-| [app/(portal)/dashboard/program/page.tsx](../../../app/%28portal%29/dashboard/program/page.tsx) | 416 | member-counselor | generateMetadata:34, default:43 |
+| [app/(portal)/dashboard/program/page.tsx](../../../app/%28portal%29/dashboard/program/page.tsx) | 417 | member-counselor | generateMetadata:34, default:43 |
 | [app/(portal)/dashboard/program/start/page.tsx](../../../app/%28portal%29/dashboard/program/start/page.tsx) | 174 | member-counselor | metadata:13, default:19 |
 | [app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx](../../../app/%28portal%29/dashboard/readiness/ReadinessMemberClient.tsx) | 149 | member-counselor | default:33 |
 | [app/(portal)/dashboard/readiness/loading.tsx](../../../app/%28portal%29/dashboard/readiness/loading.tsx) | 5 | member-counselor | default:3 |
@@ -552,6 +552,7 @@
 | [app/dev/member/certificates-empty/page.tsx](../../../app/dev/member/certificates-empty/page.tsx) | 24 | member-counselor | dynamic:8, default:10 |
 | [app/dev/member/certificates/page.tsx](../../../app/dev/member/certificates/page.tsx) | 39 | member-counselor | dynamic:9, default:11 |
 | [app/dev/member/cover-letter/page.tsx](../../../app/dev/member/cover-letter/page.tsx) | 46 | member-counselor | dynamic:10, default:29 |
+| [app/dev/member/digital-literacy-module/page.tsx](../../../app/dev/member/digital-literacy-module/page.tsx) | 57 | member-counselor | dynamic:14, default:16 |
 | [app/dev/member/elevator-pitch/page.tsx](../../../app/dev/member/elevator-pitch/page.tsx) | 42 | member-counselor | dynamic:11, default:24 |
 | [app/dev/member/gap-analyzer/page.tsx](../../../app/dev/member/gap-analyzer/page.tsx) | 41 | member-counselor | dynamic:10, default:24 |
 | [app/dev/member/home/page.tsx](../../../app/dev/member/home/page.tsx) | 108 | member-counselor | dynamic:9, default:11 |
@@ -567,7 +568,7 @@
 | [app/dev/member/messages/page.tsx](../../../app/dev/member/messages/page.tsx) | 60 | communications | dynamic:13, default:15 |
 | [app/dev/member/missions/page.tsx](../../../app/dev/member/missions/page.tsx) | 192 | member-counselor | dynamic:20, default:135 |
 | [app/dev/member/profile/page.tsx](../../../app/dev/member/profile/page.tsx) | 45 | member-counselor | dynamic:10, default:12 |
-| [app/dev/member/program/page.tsx](../../../app/dev/member/program/page.tsx) | 120 | member-counselor | dynamic:18, default:57 |
+| [app/dev/member/program/page.tsx](../../../app/dev/member/program/page.tsx) | 147 | member-counselor | dynamic:19, default:58 |
 | [app/dev/member/progress/page.tsx](../../../app/dev/member/progress/page.tsx) | 50 | member-counselor | dynamic:11, default:13 |
 | [app/dev/member/resume-rewriter/page.tsx](../../../app/dev/member/resume-rewriter/page.tsx) | 51 | member-counselor | dynamic:10, default:34 |
 | [app/dev/member/resume-strength/page.tsx](../../../app/dev/member/resume-strength/page.tsx) | 104 | member-counselor | dynamic:11, default:86 |

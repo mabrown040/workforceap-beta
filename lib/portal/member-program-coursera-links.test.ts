@@ -62,6 +62,10 @@ test('a WorkforceAP-authored module carries its in-platform destination', () => 
     programPage,
     /moduleHref:\s*isWorkforceApCourse\(c\)[\s\S]{0,120}workforceApCourseHref\(c\.slug,\s*enrolledSlug\)/,
   );
+  assert.match(
+    programPage,
+    /kind:\s*isWorkforceApCourse\(c\)\s*\?\s*\('workforceap' as const\)/,
+  );
   assert.doesNotMatch(
     programPage,
     /moduleHref:\s*`\/dashboard\/learning\/modules\//,
@@ -72,5 +76,9 @@ test('a WorkforceAP-authored module carries its in-platform destination', () => 
   assert.match(
     programKit,
     /const moduleHref =\s*\n\s*m\.launchHref\s*\n?\s*\?\?\s*m\.moduleHref\s*\n?\s*\?\?\s*\(m\.slug/,
+  );
+  assert.match(
+    programKit,
+    /const continueClassName = m\.kind === 'workforceap'/,
   );
 });

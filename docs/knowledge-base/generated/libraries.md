@@ -289,7 +289,7 @@
 | [lib/content/coursera/learningPaths.ts](../../../lib/content/coursera/learningPaths.ts) | 303 | learning-coursera | CourseraLearningPath:33, COURSERA_LEARNING_PATHS:55, LEARNING_PATH_CONTENT_TYPES:208, isLearningPathContentType:216, normalizeLearningPathName:222, LearningPathIndex:226, buildLearningPathIndex:232, addLearningPathToIndex:244, cloneLearningPathIndex:256, findLearningPathById:265, findLearningPathByCollection:274, learningPathProgramSlug:288, KNOWN_LEARNING_PATH_IDS:294, KNOWN_LEARNING_PATH_COLLECTION_IDS:299 |
 | [lib/content/coursera/lp_mapping.json](../../../lib/content/coursera/lp_mapping.json) | 754 | learning-coursera |  |
 | [lib/content/courseraDiscoveredCatalog.ts](../../../lib/content/courseraDiscoveredCatalog.ts) | 369 | learning-coursera | CourseraProgramSlug:327, CourseraDiscoveredProgram:332, CourseraDiscoveredCourse:344, DISCOVERED_COURSERA_PROGRAMS:368 |
-| [lib/content/digitalLiteracyUiTruth.test.ts](../../../lib/content/digitalLiteracyUiTruth.test.ts) | 38 | public-experience |  |
+| [lib/content/digitalLiteracyUiTruth.test.ts](../../../lib/content/digitalLiteracyUiTruth.test.ts) | 43 | public-experience |  |
 | [lib/content/employer-case-studies-real.ts](../../../lib/content/employer-case-studies-real.ts) | 136 | public-experience | RealEmployerCaseStudy:8, loadRealEmployerCaseStudies:27 |
 | [lib/content/employer-case-studies.ts](../../../lib/content/employer-case-studies.ts) | 54 | public-experience | EmployerCaseStudy:7, EMPLOYER_CASE_STUDIES:20 |
 | [lib/content/faqData.ts](../../../lib/content/faqData.ts) | 84 | public-experience | FaqItem:8, FaqCategoryKey:14, FAQ_CATEGORIES:23, FAQ_DATA:33 |
@@ -785,7 +785,7 @@
 | [lib/portal/interviewVoice.ts](../../../lib/portal/interviewVoice.ts) | 26 | libraries | InterviewerVoiceOption:1, INTERVIEWER_VOICE_OPTIONS:11, getInterviewerTtsOverrides:16 |
 | [lib/portal/journeyStages.ts](../../../lib/portal/journeyStages.ts) | 85 | libraries | JourneyStageId:8, JourneyStageTool:10, JourneyStage:18, JOURNEY_STAGE_STORAGE_KEY:26, JOURNEY_STAGES:28, isJourneyStageId:83 |
 | [lib/portal/kit-architecture.test.ts](../../../lib/portal/kit-architecture.test.ts) | 48 | libraries |  |
-| [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 76 | learning-coursera |  |
+| [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 84 | learning-coursera |  |
 | [lib/portal/memberProfilePhoto.test.ts](../../../lib/portal/memberProfilePhoto.test.ts) | 25 | libraries |  |
 | [lib/portal/memberProfilePhoto.ts](../../../lib/portal/memberProfilePhoto.ts) | 42 | libraries | PROFILE_PHOTO_BUCKET:1, PROFILE_PHOTO_MAX_BYTES:2, PROFILE_PHOTO_OUTPUT_SIZE:3, PROFILE_PHOTO_ACCEPT:4, profilePhotoStoragePath:15, profilePhotoPrefixForUser:19, isProfilePhotoStoragePath:23, resolveProfilePhotoContentType:30, profilePhotoStorageErrorMessage:36 |
 | [lib/portal/memberProfilePhotoUrl.ts](../../../lib/portal/memberProfilePhotoUrl.ts) | 31 | libraries | getMemberProfilePhotoSignedUrl:7 |

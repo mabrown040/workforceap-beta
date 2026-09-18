@@ -122105,8 +122105,16 @@
   },
   {
     "from": "tests/next-config-redirect-destinations.spec.ts",
-    "specifier": "../next.config",
+    "specifier": "../marketing/src/data/blog",
     "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "marketing/src/data/blog.ts"
+  },
+  {
+    "from": "tests/next-config-redirect-destinations.spec.ts",
+    "specifier": "../next.config",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "next.config.ts"

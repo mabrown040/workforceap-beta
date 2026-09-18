@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9e693326dca5fa4657d334a3f89e035160386b1a625ca2d7aa43bf1fc847021e",
+  "inputTreeSha256": "f65aa7f0b52121c7b40193801614da9c88a23585aea99d66568c7481604a7193",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -155719,25 +155719,30 @@
       "path": "tests/next-config-redirect-destinations.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2396,
-      "lines": 57,
-      "sha256": "b3bcb999ac1782280646311414239ddaa8e67e66c99d8712d1a2b39101217049",
+      "bytes": 2835,
+      "lines": 64,
+      "sha256": "8c4426d9f2f40b823a904a733d76c0769c3e1a33f89dbcd10b4b68f107316bee",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "Redirect",
-          "line": 7,
+          "line": 8,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "root",
-          "line": 9,
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "publishedBlogSlugs",
+          "line": 13,
           "kind": "Variable"
         },
         {
           "name": "marketingPageExists",
-          "line": 11,
+          "line": 15,
           "kind": "FunctionDeclaration"
         }
       ],

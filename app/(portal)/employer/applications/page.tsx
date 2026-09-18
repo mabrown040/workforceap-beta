@@ -23,7 +23,7 @@ const PAGE_SIZE = 25;
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: t('applicants'),
+    title: t('applicantsMetaTitle'),
     description: t('reviewCandidateApplications'),
     path: '/employer/applications',
   });
@@ -80,41 +80,66 @@ export default async function EmployerApplicationsPage({
 
   const t = await getTranslations('employer');
 
+  const headerTitle = statusFilter
+    ? `${t('applicantsMetaTitle')} — ${t('filtered')} (${totalCount})`
+    : `${t('applicantsMetaTitle')} (${totalCount})`;
+
   return (
     <PortalPageFrame>
       <PageHeader
-        title={statusFilter ? `${t('applicants')} — ${t('filtered')} (${totalCount})` : `${t('applicants')} (${totalCount})`}
+        title={headerTitle}
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">{t('reviewCandidatesMobile')}</span>
             <span className="wa-hidden md:wa-block">{t('reviewCandidatesDesktop')}</span>
           </>
         }
-        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('applicants') }]}
+        breadcrumbs={[
+          { label: t('employerPortal'), href: '/employer' },
+          { label: t('applicantsMetaTitle') },
+        ]}
+        action={
+          <>
+            <div className="md:wa-hidden">
+              <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                  add
+                </span>
+                {t('postJob')}
+              </Link>
+            </div>
+            <div className="wa-hidden md:wa-block">
+              <Link href="/employer/jobs/new" className="btn btn-primary">
+                {t('postAJobBtn')}
+              </Link>
+            </div>
+          </>
+        }
       />
       {totalCount === 0 && !statusFilter ? (
-        // True empty state: no applications at all and no filter applied.
-        // (When a filter is active and matches zero rows, fall through to
-        // EmployerApplicationsClient so users keep their filter chips and
-        // "Show all applicants" reset.)
-        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">inbox</span>
-          <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noApplicationsYet')}</h3>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>{t('postRoleToStartReceiving')}</p>
-          <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-            {t('postAJob')}
-          </Link>
-        </div>
+        // True empty: no applications and no filter. Filtered-zero keeps the client so chips/reset remain.
+        <PortalEmptyState
+          title={t('noApplicationsYet')}
+          description={t('postRoleToStartReceiving')}
+          icon={
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '3rem', color: 'var(--wa-muted)' }}
+              aria-hidden="true"
+            >
+              inbox
+            </span>
+          }
+          primaryAction={{ label: t('postAJob'), href: '/employer/jobs/new' }}
+        />
       ) : (
         <>
-          {/* ── Mobile Applications View (≤640px) ── */}
           <div className="wa-block md:wa-hidden wa-pb-24">
             <MobileApplicationsClient initialRows={initialRows} />
             <div className="wa-px-4">
               <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
             </div>
           </div>
-          {/* ── Desktop View ── */}
           <div className="wa-hidden md:wa-block">
             <EmployerApplicationsClient
               initialRows={initialRows}

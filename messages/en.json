@@ -2476,8 +2476,10 @@
     "employerGuideBody": "Access vetted, job-ready talent — in a few simple steps.",
     "importJobsMetaTitle": "Import jobs",
     "importJobsMetaDesc": "Import job postings from URLs, LinkedIn, or careers pages as editable drafts.",
-    "applicationReviewMetaTitle": "Application Review",
+    "applicationReviewMetaTitle": "Application review",
     "applicationReviewMetaDesc": "Review applicant details and update status.",
+    "applyingForJob": "Applying for {title}",
+    "backToApplicants": "Back to applicants",
     "reviewCandidatesMobile": "Review and respond to applicants",
     "reviewCandidatesDesktop": "Review and respond to applicants for your open roles"
   },

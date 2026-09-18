@@ -73,48 +73,25 @@ export default async function EmployerApplicationPage({
 
   if (!application) redirect('/employer');
 
-  const statusHistory = [
-    { label: 'Applied', date: application.appliedAt, active: true },
-    ...(application.statusUpdatedAt
-      ? [{ label: 'Status updated', date: application.statusUpdatedAt, active: true }]
-      : []),
-    ...(application.interviewScheduledAt
-      ? [{ label: 'Interview scheduled', date: application.interviewScheduledAt, active: true }]
-      : []),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const t = await getTranslations('employer');
+  const candidateName = application.student.fullName ?? t('candidate');
 
   return (
     <PortalPageFrame maxWidth="64rem">
-      <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
-        <Link
-          href="/employer"
-          className="hover:wa-opacity-75 wa-transition-opacity motion-reduce:wa-transition-none"
-          style={{
-            fontSize: '0.8125rem',
-            color: 'var(--color-accent)',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            marginBottom: '0.5rem',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
-            arrow_back
-          </span>
-          Back to dashboard
-        </Link>
-
-        <h1
-          className="wa-text-2xl wa-font-extrabold wa-tracking-tight"
-          style={{ color: 'var(--color-on-surface)', lineHeight: 1.2 }}
-        >
-          {application.student.fullName}
-        </h1>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          Applying for: <strong style={{ color: 'var(--color-on-surface)' }}>{application.job.title}</strong>
-        </p>
-      </div>
+      <PageHeader
+        title={candidateName}
+        subtitle={t('applyingForJob', { title: application.job.title })}
+        breadcrumbs={[
+          { label: t('employerPortal'), href: '/employer' },
+          { label: t('applicantsMetaTitle'), href: '/employer/applications' },
+          { label: candidateName },
+        ]}
+        action={
+          <Link href="/employer/applications" className="btn btn-outline btn-sm">
+            {t('backToApplicants')}
+          </Link>
+        }
+      />
 
       <div
         className="portal-pad-x"
@@ -251,6 +228,7 @@ export default async function EmployerApplicationPage({
             </div>
           </PortalCard>
         )}
-      </div>    </PortalPageFrame>
+      </div>
+    </PortalPageFrame>
   );
 }

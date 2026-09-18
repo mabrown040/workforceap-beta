@@ -127,6 +127,7 @@
 | [tests/api/stripe-billing-migration.spec.ts](../../../tests/api/stripe-billing-migration.spec.ts) | 37 | tests |  |
 | [tests/api/stripe-webhook-organization.spec.ts](../../../tests/api/stripe-webhook-organization.spec.ts) | 185 | tests |  |
 | [tests/api/testimonials.spec.ts](../../../tests/api/testimonials.spec.ts) | 502 | tests |  |
+| [tests/api/unsubscribe.spec.ts](../../../tests/api/unsubscribe.spec.ts) | 99 | tests |  |
 | [tests/api/voice-session-boundaries.spec.ts](../../../tests/api/voice-session-boundaries.spec.ts) | 313 | tests |  |
 | [tests/api/webhooks-learning-completion.spec.ts](../../../tests/api/webhooks-learning-completion.spec.ts) | 162 | tests |  |
 | [tests/api/weekly-recap.spec.ts](../../../tests/api/weekly-recap.spec.ts) | 536 | tests |  |

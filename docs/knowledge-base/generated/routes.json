@@ -29564,17 +29564,17 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 17,
+        "line": 19,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 39,
+        "line": 54,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "GET",
-        "line": 48,
+        "line": 63,
         "kind": "FunctionDeclaration"
       }
     ],
@@ -29588,7 +29588,7 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 13,
+        "line": 14,
         "kind": "import"
       }
     ]

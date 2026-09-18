@@ -36,11 +36,13 @@ Verify after: each scope shows the correct project ref in the var values.
 ## The guard (make-sure-it-happens)
 
 `scripts/check-supabase-env.mjs` reads `VERCEL_ENV` + the Supabase URLs and **fails the
-build (exit 1)** if a scope is wired to the wrong project. On Vercel, the public,
-pooled, and non-pooled URLs are required, unrecognized targets fail closed, and
-`CI=1` cannot bypass the check:
+build (exit 1)** if a scope is wired to the wrong project. On Vercel, the public
+URL, the public anon key, the pooled URL, and the non-pooled URL are required;
+unrecognized targets fail closed, a missing or truncated `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+fails closed, and `CI=1` cannot bypass the check:
 - Preview/Development pointing at `jqddnyuszufndwwezdwp` → blocked
 - Production pointing at `esbdrgaonplpvzmtrdhw` → blocked
+- Production or Preview with no usable anon key → blocked
 
 Wire it into the build so a misconfig can never deploy. In `package.json`, prepend it to
 the build (or run in CI before deploy):

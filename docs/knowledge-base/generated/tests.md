@@ -315,9 +315,9 @@
 | [tests/portal-audit-five-role.test.ts](../../../tests/portal-audit-five-role.test.ts) | 1282 | tests |  |
 | [tests/portal-audit-health-gate.test.ts](../../../tests/portal-audit-health-gate.test.ts) | 397 | tests |  |
 | [tests/rls/member-message-assignment.mjs](../../../tests/rls/member-message-assignment.mjs) | 175 | tests |  |
-| [tests/scripts/preview-approved-curriculum-schema.test.ts](../../../tests/scripts/preview-approved-curriculum-schema.test.ts) | 360 | tests |  |
-| [tests/scripts/preview-member-lab-schema.test.ts](../../../tests/scripts/preview-member-lab-schema.test.ts) | 180 | tests |  |
-| [tests/scripts/preview-training-workspace-schema.test.ts](../../../tests/scripts/preview-training-workspace-schema.test.ts) | 116 | tests |  |
+| [tests/scripts/preview-approved-curriculum-schema.test.ts](../../../tests/scripts/preview-approved-curriculum-schema.test.ts) | 491 | tests |  |
+| [tests/scripts/preview-member-lab-schema.test.ts](../../../tests/scripts/preview-member-lab-schema.test.ts) | 181 | tests |  |
+| [tests/scripts/preview-training-workspace-schema.test.ts](../../../tests/scripts/preview-training-workspace-schema.test.ts) | 117 | tests |  |
 | [tests/scripts/safe-migrate.spec.ts](../../../tests/scripts/safe-migrate.spec.ts) | 121 | tests |  |
 | [tests/server-only-stub.cjs](../../../tests/server-only-stub.cjs) | 8 | tests |  |
 | [tests/setup.ts](../../../tests/setup.ts) | 1 | tests |  |

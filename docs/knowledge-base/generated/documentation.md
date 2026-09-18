@@ -84,7 +84,7 @@
 | [docs/SECURITY-HARDENING.md](../../../docs/SECURITY-HARDENING.md) | 811 | documentation |  |
 | [docs/SESSION-2026-05-07.md](../../../docs/SESSION-2026-05-07.md) | 83 | documentation |  |
 | [docs/SLO-AND-STATUS.md](../../../docs/SLO-AND-STATUS.md) | 249 | documentation |  |
-| [docs/STAGING_ENV.md](../../../docs/STAGING_ENV.md) | 94 | documentation |  |
+| [docs/STAGING_ENV.md](../../../docs/STAGING_ENV.md) | 96 | documentation |  |
 | [docs/SUPABASE-STORAGE-SETUP.md](../../../docs/SUPABASE-STORAGE-SETUP.md) | 35 | documentation |  |
 | [docs/SaaS-ONBOARDING.md](../../../docs/SaaS-ONBOARDING.md) | 50 | documentation |  |
 | [docs/TENANT-ISOLATION.md](../../../docs/TENANT-ISOLATION.md) | 344 | documentation |  |

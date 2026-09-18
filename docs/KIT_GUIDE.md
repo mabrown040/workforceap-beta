@@ -281,6 +281,14 @@ against that page in the client.
 both table rows and mobile cards. Keep that identifier visible and wrapping so
 staff can distinguish same-name accounts before opening an account action.
 
+`TrainingProgressKit` (`/admin/training-progress`, proof `/dev/staff/training-progress`)
+is a dense staff roster. Sortable headers are Student, Program, Modules, % Complete,
+Coursera grade, Pace, and Last active. Last active is a relative caption (`2h ago`)
+from existing login / LMS / progress timestamps (`User.lastLoginAt`,
+`CourseProgress.lastActivityAt` / `lastUpdatedAt`) — never a new table. Missing
+timestamps sort last in both directions. Do not mix Astryx primitives inside the
+kit table cells beyond `Token` for Pace.
+
 ---
 
 ## 7. Icons, styling, and motion

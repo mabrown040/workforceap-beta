@@ -49,6 +49,7 @@ const SORT_LABELS: Record<SortKey, string> = {
   percentComplete: '% complete',
   courseraGrade: 'Coursera grade',
   pace: 'Pace',
+  lastActive: 'Last active',
 };
 
 const LINK_LABELS: Record<LinkFilter, string> = {

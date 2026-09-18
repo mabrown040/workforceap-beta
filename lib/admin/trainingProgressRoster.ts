@@ -24,6 +24,10 @@ export type RosterRow = {
   inWap?: boolean;
   /** Member has Coursera activity but no assigned program. */
   noProgram?: boolean;
+  /** Last-active caption, e.g. "2h ago". Display-only. */
+  lastActive?: string;
+  /** Sortable last-activity instant (epoch ms). Caption alone is not ordered. */
+  lastActiveAt?: number | null;
 };
 
 export const PACE_FILTERS = ['all', 'Ahead', 'On track', 'Behind', 'Stalled'] as const;
@@ -39,6 +43,7 @@ export const SORT_KEYS = [
   'percentComplete',
   'courseraGrade',
   'pace',
+  'lastActive',
 ] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 
@@ -140,14 +145,63 @@ function compareOn<T extends RosterRow>(a: T, b: T, key: SortKey): number {
       return paceRank(a.pace) - paceRank(b.pace);
     case 'courseraGrade':
       return 0; // handled by the caller so nulls can bypass direction
-    default:
+    case 'lastActive':
+      return 0; // handled by the caller so missing timestamps park last
+    default: {
+      const _exhaustive: never = key;
+      void _exhaustive;
       return 0;
+    }
   }
 }
 
 function gradeOf(row: RosterRow): number | null {
   const grade = row.courseraGrade;
   return grade != null && Number.isFinite(grade) ? grade : null;
+}
+
+function lastActiveMs(row: RosterRow): number | null {
+  const ms = row.lastActiveAt;
+  return ms != null && Number.isFinite(ms) ? ms : null;
+}
+
+/**
+ * Newest timestamp among login / LMS / progress instants already on the
+ * member. Does not invent a table — callers pass dates they already loaded.
+ */
+export function latestActivityMs(
+  dates: ReadonlyArray<Date | number | null | undefined>,
+): number | null {
+  let best: number | null = null;
+  for (const value of dates) {
+    if (value == null) continue;
+    const ms = typeof value === 'number' ? value : value.getTime();
+    if (!Number.isFinite(ms)) continue;
+    if (best == null || ms > best) best = ms;
+  }
+  return best;
+}
+
+/** Relative caption matching the Students roster (`2h ago` / `—`). */
+export function relativeLastActiveCaption(
+  at: Date | number | null | undefined,
+  now = Date.now(),
+): string {
+  if (at == null) return '—';
+  const ms = typeof at === 'number' ? at : at.getTime();
+  if (!Number.isFinite(ms)) return '—';
+  const delta = now - ms;
+  if (delta < 0) return 'just now';
+  const mins = Math.floor(delta / 60_000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
 }
 
 export function sortTrainingRows<T extends RosterRow>(
@@ -166,6 +220,16 @@ export function sortTrainingRows<T extends RosterRow>(
       if (ga == null) return 1;
       if (gb == null) return -1;
       if (ga !== gb) return (ga - gb) * sign;
+      return a.id.localeCompare(b.id);
+    }
+    if (key === 'lastActive') {
+      const ta = lastActiveMs(a);
+      const tb = lastActiveMs(b);
+      // Missing timestamps park last either way, matching Students roster.
+      if (ta == null && tb == null) return a.id.localeCompare(b.id);
+      if (ta == null) return 1;
+      if (tb == null) return -1;
+      if (ta !== tb) return (ta - tb) * sign;
       return a.id.localeCompare(b.id);
     }
     const primary = compareOn(a, b, key);

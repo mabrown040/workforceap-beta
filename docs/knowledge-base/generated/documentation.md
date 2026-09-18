@@ -47,7 +47,7 @@
 | [docs/I18N-LOCALE-ROUTING.md](../../../docs/I18N-LOCALE-ROUTING.md) | 520 | documentation |  |
 | [docs/INCIDENT-RESPONSE-PLAN.md](../../../docs/INCIDENT-RESPONSE-PLAN.md) | 340 | documentation |  |
 | [docs/JOB-CREATE-FIX.md](../../../docs/JOB-CREATE-FIX.md) | 33 | documentation |  |
-| [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 376 | documentation |  |
+| [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 380 | documentation |  |
 | [docs/LAUNCH-PREP-AUDIT.md](../../../docs/LAUNCH-PREP-AUDIT.md) | 146 | documentation |  |
 | [docs/LIVE-PORTAL-AUDIT-2026-04-26.md](../../../docs/LIVE-PORTAL-AUDIT-2026-04-26.md) | 707 | documentation |  |
 | [docs/MEMBER-PAGES-AUDIT.md](../../../docs/MEMBER-PAGES-AUDIT.md) | 148 | documentation |  |

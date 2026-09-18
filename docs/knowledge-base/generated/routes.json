@@ -31302,6 +31302,31 @@
     "boundaryReferences": []
   },
   {
+    "file": "app/dev/member/wioa-qualification/page.tsx",
+    "kind": "page",
+    "path": "/dev/member/wioa-qualification",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "dynamic",
+        "line": 9,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 11,
+        "kind": "FunctionDeclaration",
+        "localName": "DevMemberWioaQualificationPage"
+      }
+    ],
+    "methods": [],
+    "configuration": {
+      "dynamic": "force-dynamic"
+    },
+    "boundaryReferences": []
+  },
+  {
     "file": "app/dev/staff/admin-command/page.tsx",
     "kind": "page",
     "path": "/dev/staff/admin-command",

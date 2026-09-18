@@ -124,3 +124,93 @@ test('mobile shell remains width-safe and contains keyboard focus in the drawer'
   await expect(drawer).toHaveAttribute('aria-hidden', 'true');
   await expect(menu).toBeFocused();
 });
+
+type FooterClearance = {
+  footerPosition: string;
+  footerZIndex: string;
+  innerMinHeight: string;
+  innerFlexShrink: string;
+  saveVisible: boolean;
+  saveFullyAboveFooter: boolean;
+  nextStepsFullyAboveFooter: boolean;
+  lastInnerFullyAboveFooter: boolean;
+};
+
+async function readFooterClearance(page: Page): Promise<FooterClearance> {
+  return page.evaluate(() => {
+    const main = document.querySelector('.workspace-shell-main');
+    const inner = document.querySelector('.workspace-shell-main-inner');
+    const footer = document.querySelector('.dashboard-site-footer');
+    if (!(main instanceof HTMLElement) || !(inner instanceof HTMLElement) || !(footer instanceof HTMLElement)) {
+      throw new Error('Missing workspace main, inner, or site footer');
+    }
+    const aboveFooter = (el: Element | null) => {
+      if (!(el instanceof HTMLElement)) return false;
+      const rect = el.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+      return rect.height > 0 && rect.bottom <= footerRect.top + 1;
+    };
+
+    main.scrollTop = main.scrollHeight;
+    document.documentElement.scrollTop = document.documentElement.scrollHeight;
+    const lastInner = inner.lastElementChild;
+    const nextStepsHeading = [...inner.querySelectorAll('h2')].find((heading) => heading.textContent?.trim() === 'Next steps') ?? null;
+    const lastInnerFullyAboveFooter = aboveFooter(lastInner);
+    const nextStepsFullyAboveFooter = aboveFooter(nextStepsHeading);
+
+    const save = [...inner.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Save screening') ?? null;
+    if (save instanceof HTMLElement) {
+      save.scrollIntoView({ block: 'end', inline: 'nearest' });
+    }
+    const mainRect = main.getBoundingClientRect();
+    const footerRect = footer.getBoundingClientRect();
+    const saveRect = save instanceof HTMLElement ? save.getBoundingClientRect() : null;
+    const saveFullyVisible =
+      saveRect != null &&
+      saveRect.height > 0 &&
+      saveRect.top >= mainRect.top - 1 &&
+      saveRect.bottom <= Math.min(mainRect.bottom, footerRect.top) + 1;
+
+    return {
+      footerPosition: getComputedStyle(footer).position,
+      footerZIndex: getComputedStyle(footer).zIndex,
+      innerMinHeight: getComputedStyle(inner).minHeight,
+      innerFlexShrink: getComputedStyle(inner).flexShrink,
+      saveVisible: saveFullyVisible,
+      saveFullyAboveFooter: aboveFooter(save),
+      nextStepsFullyAboveFooter,
+      lastInnerFullyAboveFooter,
+    };
+  });
+}
+
+test.describe('site footer does not cover member content', () => {
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 390, height: 844 },
+  ]) {
+    test(`screening Save screening stays above the footer at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/dev/member/wioa-qualification');
+      await expect(page.getByRole('button', { name: 'Save screening' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Next steps' })).toBeVisible();
+
+      const clearance = await readFooterClearance(page);
+      expect(clearance.footerPosition).toBe('relative');
+      expect(Number(clearance.footerZIndex)).toBeLessThanOrEqual(0);
+      expect(clearance.innerFlexShrink).toBe('0');
+      expect(clearance.saveVisible).toBe(true);
+      expect(clearance.saveFullyAboveFooter).toBe(true);
+      expect(clearance.nextStepsFullyAboveFooter).toBe(true);
+    });
+
+    test(`member home last content stays above the footer at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/dev/member/home');
+      await expect(page.locator('.dashboard-site-footer')).toBeVisible();
+      const clearance = await readFooterClearance(page);
+      expect(clearance.footerPosition).toBe('relative');
+      expect(clearance.lastInnerFullyAboveFooter).toBe(true);
+    });
+  }
+});

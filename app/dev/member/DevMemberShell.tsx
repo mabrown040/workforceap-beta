@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import WorkspaceShell from '@/components/portal/WorkspaceShell';
+import DashboardFooter from '@/components/portal/DashboardFooter';
 import { MEMBER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
@@ -80,6 +81,7 @@ export default function DevMemberShell({ children }: { children: ReactNode }) {
       marketingSiteHref="/en"
       marketingSiteLabel="WorkforceAP.org"
       navHrefMap={DEV_HREF}
+      footer={<DashboardFooter />}
     >
       {children}
     </WorkspaceShell>

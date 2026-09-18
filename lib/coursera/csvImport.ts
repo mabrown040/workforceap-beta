@@ -16,10 +16,15 @@ const REQUIRED_HEADERS = [
   'Course ID',
   'Course Slug',
   'Overall Progress',
-  'Total Estimated Learning Hours (since enrolled)',
   'Completed',
   'Removed From Program',
   'Program Slug',
+] as const;
+
+/** Older exports used the long label; newer Course Activity tabs only ship `Learning Hours`. */
+const COURSE_ACTIVITY_HOURS_HEADERS = [
+  'Total Estimated Learning Hours (since enrolled)',
+  'Learning Hours',
 ] as const;
 
 const REQUIRED_BADGE_HEADERS = [
@@ -128,7 +133,10 @@ export function detectCourseraCsvKind(content: string): CsvKind | null {
   if (hasAll(REQUIRED_BADGE_HEADERS) && header.includes('Badge Slug')) {
     return 'learning-path-activity';
   }
-  if (hasAll(REQUIRED_HEADERS)) {
+  if (
+    hasAll(REQUIRED_HEADERS) &&
+    COURSE_ACTIVITY_HOURS_HEADERS.some((label) => header.includes(label))
+  ) {
     return 'course-activity';
   }
   return null;
@@ -289,6 +297,13 @@ export function parseCourseActivityCsv(content: string): ParsedCourseActivityRow
       );
     }
   }
+  const hoursHeader = COURSE_ACTIVITY_HOURS_HEADERS.find((label) => header.includes(label));
+  if (!hoursHeader) {
+    throw new Error(
+      'Coursera CourseActivity CSV is missing a learning-hours column ' +
+        `(expected one of: ${COURSE_ACTIVITY_HOURS_HEADERS.join(', ')}).`,
+    );
+  }
 
   const indexOf = (col: string) => header.indexOf(col);
   const idx = {
@@ -304,7 +319,12 @@ export function parseCourseActivityCsv(content: string): ParsedCourseActivityRow
     classEndTime: indexOf('Class End Time'),
     lastActivityTime: indexOf('Last Course Activity Time'),
     overallProgress: indexOf('Overall Progress'),
-    totalEstimatedLearningHours: indexOf('Total Estimated Learning Hours (since enrolled)'),
+    // Prefer the long label when both exist; otherwise use whichever hours column shipped.
+    totalEstimatedLearningHours: indexOf(
+      header.includes('Total Estimated Learning Hours (since enrolled)')
+        ? 'Total Estimated Learning Hours (since enrolled)'
+        : hoursHeader,
+    ),
     completed: indexOf('Completed'),
     removedFromProgram: indexOf('Removed From Program'),
     programSlug: indexOf('Program Slug'),
@@ -316,7 +336,7 @@ export function parseCourseActivityCsv(content: string): ParsedCourseActivityRow
     courseCertificateUrl: indexOf('Course Certificate URL'),
     contractName: indexOf('Contract'),
     isEnterpriseContractActive: indexOf('Is Enterprise Contract Active'),
-    learningHours: indexOf('Learning Hours'),
+    learningHours: indexOf('Learning Hours') >= 0 ? indexOf('Learning Hours') : indexOf(hoursHeader),
   };
 
   const rows: ParsedCourseActivityRow[] = [];

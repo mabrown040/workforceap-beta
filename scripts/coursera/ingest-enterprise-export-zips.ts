@@ -90,13 +90,25 @@ function unzip(zipPath: string, dest: string): string[] {
 }
 
 function classifyCsv(path: string): string {
-  const base = basename(path).toLowerCase();
-  if (base.startsWith('curatedcollections')) return 'curated-collections';
-  if (base.includes('courseactivity')) return 'course-activity';
-  if (base.includes('learningpathactivity')) return 'learning-path-activity';
+  const base = basename(path).toLowerCase().replace(/\s+/g, '');
+  if (base.startsWith('curatedcollections') || base.startsWith('curatedcurriculum')) {
+    return 'curated-collections';
+  }
+  if (base.includes('courseactivity') || base.startsWith('courseactivity')) {
+    return 'course-activity';
+  }
+  if (base.includes('learningpathactivity') || base.includes('specialisationactivity')) {
+    return 'learning-path-activity';
+  }
   if (base.includes('programactivity')) return 'program-activity-ignored';
   if (base.includes('activityby')) return 'aggregate-ignored';
-  if (base.includes('gradebook') || base.includes('learnerperformance')) return 'performance-or-gradebook';
+  if (base.includes('gradebook') || base.includes('learnerperformance') || base.includes('plagiarism')) {
+    return 'performance-or-gradebook';
+  }
+  // Enterprise "attempts gradebook" export often ships as "<Program Name>.csv"
+  if (base.endsWith('.csv') && !base.includes('activity')) {
+    return 'performance-or-gradebook';
+  }
   return 'unknown';
 }
 

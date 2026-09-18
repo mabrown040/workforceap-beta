@@ -241,3 +241,18 @@ test('detectCourseraCsvKind sniffs the CSV type from the header row', () => {
   assert.equal(detectCourseraCsvKind(badgeHeaderOnly), 'learning-path-activity');
   assert.equal(detectCourseraCsvKind(garbage), null);
 });
+
+const HEADER_WITHOUT_LONG_HOURS =
+  '"Name","Email","External ID","Course","Course ID","Course Slug","University","Enrollment Time","Class Start Time","Class End Time","Last Course Activity Time","Overall Progress","Completed","Removed From Program","Program Slug","Program Name","Collection Name","Collection ID","Completion Time","Course Grade","Course Certificate URL","Contract","Is Enterprise Contract Active","Learning Hours"';
+
+test('parseCourseActivityCsv accepts newer exports that only ship Learning Hours', () => {
+  const csv = `${HEADER_WITHOUT_LONG_HOURS}
+"Jane Doe","jane@example.com","","Sample Course","abc123","sample-course","TestU","2026-04-01T00:00:00","","","2026-04-15T12:00:00","45.5","No","No","prog-slug","Prog Name","Coll","collId","","","","Contract X","Yes","2.5"
+`;
+  assert.equal(detectCourseraCsvKind(csv), 'course-activity');
+  const rows = parseCourseActivityCsv(csv);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].email, 'jane@example.com');
+  assert.equal(rows[0].totalEstimatedLearningHours, 2.5);
+  assert.equal(rows[0].learningHours, 2.5);
+});

@@ -24,7 +24,6 @@ import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatDate } from '@/lib/i18n/date';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
-import { MemberTrainingWorkspace } from '@/components/portal/kit/pages/member/MemberTrainingWorkspace';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { loadTrainingWorkspace } from '@/lib/member/loadTrainingWorkspace';
@@ -220,67 +219,49 @@ export default async function ProgramPage({
       .filter((c) => !completedSet.has(c.slug))
       .reduce((sum, c) => sum + (c.estimatedHours ?? 0), 0);
 
-    // Render workspace vs progress-kit as sibling trees from the server page —
-    // do not dual-mode inside one client component (Sentry JAVASCRIPT-NEXTJS-1T
-    // "Rendered more hooks" on /dashboard/program*).
-    const programNotices = (
-      <>
-        {readOnlyAudit ? <span hidden data-portal-audit-suppressed="member-program-coursera-course-resolution" /> : null}
-        {catalogResult.loadFailed ? <span hidden data-portal-error-state="member-program-catalog-load" /> : null}
-        {activeProgramView.noProgram ? (
-          <div className="wa-kit-card wa-mb-4" role="status">
-            <strong>Your Coursera progress is saved.</strong>{' '}
-            A counselor still needs to enroll you in a WorkforceAP program.
-          </div>
-        ) : null}
-      </>
-    );
-
-    if (workspaceResult.workspace) {
-      return (
-        <>
-          {programNotices}
-          <MemberTrainingWorkspace
-            key={`${workspaceResult.workspace.programSlug}:${workspaceResult.workspace.curriculumVersion}`}
-            workspace={workspaceResult.workspace}
-            programTitle={program.title}
-            completedSlugs={[...completedSet]}
-            practiceMissions={coursePractice.missions}
-            practiceUnavailable={coursePractice.unavailable}
-            initialCourseSlug={typeof params?.course === 'string' ? params.course : undefined}
-            syllabusHours={program.syllabus?.totalHours}
-            syllabusBreakdown={assignedSyllabusBreakdown(curriculumCourses, program.syllabus)}
-            trainingEmail={activeEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail}
-            destinations={curriculumCourses.map((course) => ({
-              slug: course.slug,
-              ...(course.kind === 'workforceap'
-                ? { moduleHref: `/dashboard/learning/modules/${encodeURIComponent(course.slug)}?program=${encodeURIComponent(enrolledSlug)}` }
-                : launchableCourseSlugs.has(course.slug)
-                  ? { launchHref: `/api/member/coursera/launch?course=${encodeURIComponent(course.slug)}` }
-                  : {}),
-            }))}
-          />
-        </>
-      );
-    }
-
     return (
       <>
-        {programNotices}
-        <MemberProgramKit
-          programTitle={program.title}
-          progressPercent={progressPercent}
-          modulesComplete={completedCount}
-          modulesTotal={totalCourses}
-          estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : undefined}
-          resumeHref="/dashboard/learning"
-          courseraLaunchHref={nextCourseLaunchHref}
-          modules={modules}
-          // Live session + missions aren't loaded on this route — keep the kit
-          // defaults and point the missions CTA at the live missions page.
-          missionsHref="/dashboard/missions"
-        />
-        {workspaceResult.failed ? <p className="wa-kit-training-notice" role="status">Your saved training workspace could not be loaded. Your course progress is still available above. Reload to try again.</p> : null}
+      {readOnlyAudit ? <span hidden data-portal-audit-suppressed="member-program-coursera-course-resolution" /> : null}
+      {catalogResult.loadFailed ? <span hidden data-portal-error-state="member-program-catalog-load" /> : null}
+      {activeProgramView.noProgram ? (
+        <div className="wa-kit-card wa-mb-4" role="status">
+          <strong>Your Coursera progress is saved.</strong>{' '}
+          A counselor still needs to enroll you in a WorkforceAP program.
+        </div>
+      ) : null}
+      <MemberProgramKit
+        trainingWorkspace={workspaceResult.workspace ? {
+          workspace: workspaceResult.workspace,
+          programTitle: program.title,
+          completedSlugs: [...completedSet],
+          practiceMissions: coursePractice.missions,
+          practiceUnavailable: coursePractice.unavailable,
+          initialCourseSlug: typeof params?.course === 'string' ? params.course : undefined,
+          syllabusHours: program.syllabus?.totalHours,
+          syllabusBreakdown: assignedSyllabusBreakdown(curriculumCourses, program.syllabus),
+          trainingEmail: activeEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail,
+          destinations: curriculumCourses.map((course) => ({
+            slug: course.slug,
+            ...(course.kind === 'workforceap'
+              ? { moduleHref: `/dashboard/learning/modules/${encodeURIComponent(course.slug)}?program=${encodeURIComponent(enrolledSlug)}` }
+              : launchableCourseSlugs.has(course.slug)
+                ? { launchHref: `/api/member/coursera/launch?course=${encodeURIComponent(course.slug)}` }
+                : {}),
+          })),
+        } : undefined}
+        programTitle={program.title}
+        progressPercent={progressPercent}
+        modulesComplete={completedCount}
+        modulesTotal={totalCourses}
+        estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : undefined}
+        resumeHref="/dashboard/learning"
+        courseraLaunchHref={nextCourseLaunchHref}
+        modules={modules}
+        // Live session + missions aren't loaded on this route — keep the kit
+        // defaults and point the missions CTA at the live missions page.
+        missionsHref="/dashboard/missions"
+      />
+      {workspaceResult.failed ? <p className="wa-kit-training-notice" role="status">Your saved training workspace could not be loaded. Your course progress is still available above. Reload to try again.</p> : null}
       </>
     );
   }

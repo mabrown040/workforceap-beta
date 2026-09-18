@@ -531,7 +531,7 @@
       "writeIn": "Veuillez préciser"
     },
     "heroLabel": "Candidature Membre",
-    "heroHeading": "Commencez Votre Candidature",
+    "heroHeading": "Formation professionnelle sans frais pour les membres qui remplissent les conditions.",
     "heroDesc": "Indiquez comment nous joindre et répondez à trois questions d'éligibilité — situation professionnelle, revenus du foyer et autorisation de travail. Ensuite vous choisissez des programmes et créez votre compte. Un conseiller fait un suivi sous 1 à 2 jours ouvrables.",
     "heroDescHighlight": "Les programmes sont offerts sans frais pour les membres éligibles, financés par des subventions et des partenariats.",
     "heroDescSuffix": "Aucune expérience préalable requise. Nous vous aiderons à confirmer l'adéquation et l'éligibilité pour les prochaines étapes.",
@@ -553,7 +553,7 @@
     "programIntroReadOverview": "Lire la présentation complète du programme",
     "programIntroOr": "ou",
     "programIntroCompareAll": "comparer tous les programmes",
-    "applySocialProof": "Rejoignez les membres qui construisent leur carrière",
+    "applySocialProof": "Financée par des subventions et des partenaires. Certificats reconnus par l'industrie et accompagnement vers l'emploi.",
     "eligibilityPhoneHint": "Numéro américain à 10 chiffres — votre conseiller s'en sert pour le suivi et les mises à jour de votre candidature.",
     "phoneValidationError": "Veuillez entrer un numéro de téléphone à 10 chiffres.",
     "applyConsentLine": "En continuant, vous acceptez notre",

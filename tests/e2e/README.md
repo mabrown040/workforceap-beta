@@ -13,6 +13,26 @@ Fast, stable smoke tests for critical public user flows. Run these before deploy
 
 These are **unauthenticated** smoke tests — no credentials required.
 
+### Authenticated portal hub smoke (optional)
+
+`portal-hub-smoke.spec.ts` covers **login → hub → one deep link** for member
+(`/dashboard` → `/dashboard/jobs`), counselor (`/counselor` → `/counselor/inbox`),
+and employer (`/employer` → `/employer/applications`). Each role soft-skips when
+its `E2E_<ROLE>_EMAIL` / `E2E_<ROLE>_PASSWORD` pair is missing.
+
+```bash
+# Against the trusted isolated preview (DEMO Supabase; same origin as PREVIEW_SITE_URL)
+PLAYWRIGHT_BASE_URL=https://<exact-preview-origin> \
+E2E_MEMBER_EMAIL=… E2E_MEMBER_PASSWORD=… \
+E2E_COUNSELOR_EMAIL=… E2E_COUNSELOR_PASSWORD=… \
+E2E_EMPLOYER_EMAIL=… E2E_EMPLOYER_PASSWORD=… \
+npm run test:e2e:portal-hubs
+```
+
+Or dispatch **Authenticated Portal Smoke** → `hub_smoke` on trusted `master`
+(WAP-66 / `.github/workflows/authenticated-portal-smoke.yml`). Not part of PR
+`ci-gate`. Prefer the full five-role `audit:portal` matrix for release evidence.
+
 ## Requirements
 
 - Node.js 20+

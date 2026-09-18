@@ -11,6 +11,7 @@ on:
         options:
           - isolated_preview
           - production_canary
+          - hub_smoke
 
 permissions:
   contents: read
@@ -28,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      PORTAL_AUDIT_MODE: ${{ inputs.audit_target }}
+      PORTAL_AUDIT_MODE: ${{ inputs.audit_target == 'hub_smoke' && 'isolated_preview' || inputs.audit_target }}
       PORTAL_AUDIT_SECTION: all
       PORTAL_AUDIT_OUTPUT: test-results/portal-audit-results.json
 
@@ -65,7 +66,7 @@ jobs:
 
       # Prove the target before any credentialed step: it must serve the exact
       # commit checked out above and be wired to the Supabase project this policy
-      # allows (the DEMO project for isolated_preview, the real one for
+      # allows (the DEMO project for isolated_preview / hub_smoke, the real one for
       # production_canary). A preview that is still building is retried for up
       # to ten minutes; the wrong database fails at once. The origin is never
       # written to the log.
@@ -74,9 +75,21 @@ jobs:
         shell: bash
         env:
           PORTAL_AUDIT_TARGET_ORIGIN: ${{ inputs.audit_target == 'production_canary' && 'https://www.workforceap.org' || secrets.PREVIEW_SITE_URL }}
-          PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN: ${{ inputs.audit_target == 'isolated_preview' && secrets.PREVIEW_SITE_URL || '' }}
+          PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN: ${{ inputs.audit_target != 'production_canary' && secrets.PREVIEW_SITE_URL || '' }}
           PORTAL_AUDIT_TRUSTED_SHA: ${{ github.sha }}
         run: node scripts/portal-audit-health-gate.mjs
+
+      - name: Run narrow member/counselor/employer hub smoke
+        if: inputs.audit_target == 'hub_smoke'
+        run: pnpm test:e2e:portal-hubs
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PREVIEW_SITE_URL }}
+          E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
+          E2E_MEMBER_PASSWORD: ${{ secrets.E2E_MEMBER_PASSWORD }}
+          E2E_COUNSELOR_EMAIL: ${{ secrets.E2E_COUNSELOR_EMAIL }}
+          E2E_COUNSELOR_PASSWORD: ${{ secrets.E2E_COUNSELOR_PASSWORD }}
+          E2E_EMPLOYER_EMAIL: ${{ secrets.E2E_EMPLOYER_EMAIL }}
+          E2E_EMPLOYER_PASSWORD: ${{ secrets.E2E_EMPLOYER_PASSWORD }}
 
       - name: Run full five-role isolated preview audit
         if: inputs.audit_target == 'isolated_preview'
@@ -112,11 +125,23 @@ jobs:
       # Only after the gate passed: a gate failure produces no result file, and
       # `if-no-files-found: error` below must keep meaning "the audit ran but
       # wrote nothing", not "the target was never reached".
+      # hub_smoke uses Playwright HTML/results instead of the audit JSON artifact.
       - name: Upload current audit artifact
-        if: always() && steps.verify.outcome == 'success'
+        if: always() && steps.verify.outcome == 'success' && inputs.audit_target != 'hub_smoke'
         uses: actions/upload-artifact@v4
         with:
           name: portal-audit-results-${{ inputs.audit_target }}-${{ github.run_id }}
           path: test-results/portal-audit-results.json
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload hub smoke Playwright report
+        if: always() && steps.verify.outcome == 'success' && inputs.audit_target == 'hub_smoke'
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-hub-smoke-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
           retention-days: 14

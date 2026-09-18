@@ -14,11 +14,14 @@ export default function MemberNextStepsStrip({
   actions,
   compact = false,
   fillRow = false,
+  /** When secondary, demote visually under the primary Today card (still actionable). */
+  prominence = 'primary',
 }: {
   actions: NextBestAction[];
   compact?: boolean;
   /** When one card: stretch to full width so the grid does not look half-empty */
   fillRow?: boolean;
+  prominence?: 'primary' | 'secondary';
 }) {
   const t = useTranslations('dashboard');
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
@@ -70,16 +73,20 @@ export default function MemberNextStepsStrip({
   const visible = actions.filter((a) => !dismissed.has(a.id));
   if (visible.length === 0) return null;
 
-  // Product stake: when there is one clear next step, emphasize it so the dashboard feels
-  // guided and calm instead of making members hunt through a menu.
-  const isFeatured = fillRow && visible.length === 1 && !compact;
+  const isSecondary = prominence === 'secondary';
+  // Product stake: when there is one clear next step and this strip is primary,
+  // emphasize it so the dashboard feels guided. Secondary strips stay quieter
+  // under the Today card.
+  const isFeatured = !isSecondary && fillRow && visible.length === 1 && !compact;
 
   return (
     <section
       style={{
-        marginBottom: compact ? '1rem' : '2rem',
+        marginBottom: compact || isSecondary ? '1rem' : '2rem',
         padding: compact ? '0' : undefined,
+        opacity: isSecondary ? 0.92 : 1,
       }}
+      aria-label={isSecondary ? t('alsoForYou') : undefined}
     >
       <div
         style={{
@@ -87,24 +94,24 @@ export default function MemberNextStepsStrip({
           alignItems: 'baseline',
           justifyContent: 'space-between',
           gap: '0.75rem',
-          marginBottom: compact ? '0.65rem' : '1rem',
+          marginBottom: compact || isSecondary ? '0.65rem' : '1rem',
           flexWrap: 'wrap',
         }}
       >
         <h3
           style={{
-            fontSize: compact ? '0.75rem' : '0.8rem',
-            fontWeight: 700,
+            fontSize: isSecondary ? '0.7rem' : compact ? '0.75rem' : '0.8rem',
+            fontWeight: isSecondary ? 600 : 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'var(--color-on-surface-variant)',
+            color: 'var(--wa-muted)',
             margin: 0,
           }}
         >
-          {isFeatured ? t('recommendedNextStep') : t('yourNextStepsTitle')}
+          {isSecondary ? t('alsoForYou') : isFeatured ? t('recommendedNextStep') : t('yourNextStepsTitle')}
         </h3>
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          {isFeatured ? t('startHereBasedOnProgress') : t('pickedForYou')}
+        <span style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>
+          {isSecondary ? t('alsoForYouHint') : isFeatured ? t('startHereBasedOnProgress') : t('pickedForYou')}
         </span>
       </div>
 
@@ -114,10 +121,10 @@ export default function MemberNextStepsStrip({
           gridTemplateColumns:
             fillRow && visible.length === 1
               ? '1fr'
-              : compact
+              : compact || isSecondary
                 ? 'repeat(auto-fill, minmax(200px, 1fr))'
                 : 'repeat(auto-fit, minmax(210px, 1fr))',
-          gap: compact ? '0.65rem' : '1rem',
+          gap: compact || isSecondary ? '0.65rem' : '1rem',
         }}
       >
         {visible.map((a) => (
@@ -125,16 +132,23 @@ export default function MemberNextStepsStrip({
             key={a.id}
             className="portal-card portal-card--flat"
             style={{
-              padding: compact ? '0.85rem' : isFeatured ? '1.25rem' : '1rem',
-              borderLeft:
-                a.variant === 'urgent' || isFeatured ? '4px solid var(--color-accent)' : '1px solid var(--outline-variant)',
-              background: isFeatured ? 'color-mix(in srgb, var(--color-accent) 7%, var(--surface-container-low))' : undefined,
+              padding: compact || isSecondary ? '0.85rem' : isFeatured ? '1.25rem' : '1rem',
+              borderLeft: isSecondary
+                ? '1px solid var(--wa-border)'
+                : a.variant === 'urgent' || isFeatured
+                  ? '4px solid var(--wa-accent)'
+                  : '1px solid var(--wa-border)',
+              background: isFeatured
+                ? 'color-mix(in srgb, var(--wa-accent) 7%, var(--wa-surface))'
+                : isSecondary
+                  ? 'var(--wa-surface)'
+                  : undefined,
               display: 'flex',
               flexDirection: 'column',
               gap: isFeatured ? '0.65rem' : '0.5rem',
               minHeight: compact ? 'auto' : undefined,
               position: 'relative',
-              boxShadow: isFeatured ? '0 10px 30px -18px rgba(140,15,55,0.35)' : undefined,
+              boxShadow: isFeatured ? 'var(--wa-shadow)' : undefined,
             }}
           >
             {!isFeatured && (
@@ -149,7 +163,7 @@ export default function MemberNextStepsStrip({
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--color-on-surface-variant)',
+                  color: 'var(--wa-muted)',
                   fontSize: '1rem',
                   lineHeight: 1,
                   padding: '0.75rem',
@@ -173,8 +187,8 @@ export default function MemberNextStepsStrip({
                   alignSelf: 'flex-start',
                   padding: '0.3rem 0.6rem',
                   borderRadius: '9999px',
-                  background: 'var(--color-accent)',
-                  color: 'var(--color-on-accent)',
+                  background: 'var(--wa-accent)',
+                  color: 'var(--wa-on-accent)',
                   fontSize: '0.72rem',
                   fontWeight: 700,
                   letterSpacing: '0.04em',
@@ -186,10 +200,10 @@ export default function MemberNextStepsStrip({
             )}
             <h4
               style={{
-                fontWeight: 700,
-                fontSize: compact ? '0.9rem' : isFeatured ? '1.1rem' : '0.95rem',
+                fontWeight: isSecondary ? 600 : 700,
+                fontSize: compact || isSecondary ? '0.9rem' : isFeatured ? '1.1rem' : '0.95rem',
                 margin: 0,
-                color: 'var(--color-on-surface)',
+                color: 'var(--wa-text)',
                 lineHeight: 1.3,
                 paddingRight: isFeatured ? '0' : '1.5rem',
                 overflow: 'hidden',
@@ -203,8 +217,8 @@ export default function MemberNextStepsStrip({
             </h4>
             <p
               style={{
-                fontSize: compact ? '0.8125rem' : isFeatured ? '0.95rem' : '0.875rem',
-                color: 'var(--color-on-surface-variant)',
+                fontSize: compact || isSecondary ? '0.8125rem' : isFeatured ? '0.95rem' : '0.875rem',
+                color: 'var(--wa-muted)',
                 lineHeight: 1.5,
                 margin: 0,
                 flex: 1,
@@ -212,7 +226,7 @@ export default function MemberNextStepsStrip({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
-                WebkitLineClamp: 3,
+                WebkitLineClamp: isSecondary ? 2 : 3,
                 WebkitBoxOrient: 'vertical',
               }}
             >
@@ -220,7 +234,7 @@ export default function MemberNextStepsStrip({
             </p>
             <Link
               href={a.href}
-              className="btn btn-primary"
+              className={isSecondary ? 'btn btn-muted' : 'btn btn-primary'}
               onClick={(e) => {
                 if (!UUID_RE.test(a.id)) {
                   trackClick(a.id, a.href, a.cta);
@@ -231,8 +245,8 @@ export default function MemberNextStepsStrip({
               }}
               style={{
                 alignSelf: 'flex-start',
-                fontSize: compact ? '0.8rem' : isFeatured ? '0.9rem' : '0.85rem',
-                padding: compact ? '0.5rem 0.85rem' : isFeatured ? '0.65rem 1.1rem' : '0.55rem 1rem',
+                fontSize: compact || isSecondary ? '0.8rem' : isFeatured ? '0.9rem' : '0.85rem',
+                padding: compact || isSecondary ? '0.5rem 0.85rem' : isFeatured ? '0.65rem 1.1rem' : '0.55rem 1rem',
                 textDecoration: 'none',
                 marginTop: '0.25rem',
                 maxWidth: '100%',

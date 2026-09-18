@@ -95,7 +95,7 @@
 | [app/(portal)/dashboard/_components/MobileDiscoverSection.tsx](../../../app/%28portal%29/dashboard/_components/MobileDiscoverSection.tsx) | 119 | member-counselor | default:9 |
 | [app/(portal)/dashboard/_components/MobileJourneyTimeline.tsx](../../../app/%28portal%29/dashboard/_components/MobileJourneyTimeline.tsx) | 122 | member-counselor | default:5 |
 | [app/(portal)/dashboard/_components/MobilePointsSection.tsx](../../../app/%28portal%29/dashboard/_components/MobilePointsSection.tsx) | 63 | member-counselor | default:12 |
-| [app/(portal)/dashboard/_components/MobilePriorityActionCard.tsx](../../../app/%28portal%29/dashboard/_components/MobilePriorityActionCard.tsx) | 42 | member-counselor | default:7 |
+| [app/(portal)/dashboard/_components/MobilePriorityActionCard.tsx](../../../app/%28portal%29/dashboard/_components/MobilePriorityActionCard.tsx) | 83 | member-counselor | default:5 |
 | [app/(portal)/dashboard/_components/MobileProgramTrainingCard.tsx](../../../app/%28portal%29/dashboard/_components/MobileProgramTrainingCard.tsx) | 144 | member-counselor | default:11 |
 | [app/(portal)/dashboard/_components/MobileQuickActions.tsx](../../../app/%28portal%29/dashboard/_components/MobileQuickActions.tsx) | 33 | member-counselor | default:6 |
 | [app/(portal)/dashboard/_components/MobileRecentActivity.tsx](../../../app/%28portal%29/dashboard/_components/MobileRecentActivity.tsx) | 71 | member-counselor | default:8 |

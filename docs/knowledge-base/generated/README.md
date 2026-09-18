@@ -14,7 +14,7 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | astro-marketing | 106 | [Open](astro-marketing.md) |
 | audit-graph | 81 | [Open](audit-graph.md) |
 | communications | 71 | [Open](communications.md) |
-| components | 656 | [Open](components.md) |
+| components | 657 | [Open](components.md) |
 | content | 14 | [Open](content.md) |
 | database | 200 | [Open](database.md) |
 | delivery | 9 | [Open](delivery.md) |

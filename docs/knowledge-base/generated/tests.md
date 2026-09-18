@@ -193,7 +193,7 @@
 | [tests/e2e/member-portal-mvp.spec.ts](../../../tests/e2e/member-portal-mvp.spec.ts) | 72 | tests |  |
 | [tests/e2e/member-portal-nav.spec.ts](../../../tests/e2e/member-portal-nav.spec.ts) | 22 | tests |  |
 | [tests/e2e/member-signup.spec.ts](../../../tests/e2e/member-signup.spec.ts) | 273 | tests |  |
-| [tests/e2e/portal-revenue-flows.spec.ts](../../../tests/e2e/portal-revenue-flows.spec.ts) | 58 | tests |  |
+| [tests/e2e/portal-revenue-flows.spec.ts](../../../tests/e2e/portal-revenue-flows.spec.ts) | 59 | tests |  |
 | [tests/e2e/portal-sprint-mobile.spec.ts](../../../tests/e2e/portal-sprint-mobile.spec.ts) | 66 | tests |  |
 | [tests/e2e/portal-ui-smoke-unauth.spec.ts](../../../tests/e2e/portal-ui-smoke-unauth.spec.ts) | 38 | tests |  |
 | [tests/e2e/preview-audit.spec.ts](../../../tests/e2e/preview-audit.spec.ts) | 46 | tests |  |
@@ -311,6 +311,7 @@
 | [tests/lib/xapi-replay-tenant-boundary.spec.ts](../../../tests/lib/xapi-replay-tenant-boundary.spec.ts) | 121 | tests |  |
 | [tests/lib/xapi-reprocess-tenant-boundary.spec.ts](../../../tests/lib/xapi-reprocess-tenant-boundary.spec.ts) | 119 | tests |  |
 | [tests/migrations/placement-survey-sent-state.mjs](../../../tests/migrations/placement-survey-sent-state.mjs) | 150 | tests |  |
+| [tests/next-config-redirect-destinations.spec.ts](../../../tests/next-config-redirect-destinations.spec.ts) | 57 | tests |  |
 | [tests/pdf-deployment.test.ts](../../../tests/pdf-deployment.test.ts) | 53 | tests |  |
 | [tests/portal-audit-auth.test.ts](../../../tests/portal-audit-auth.test.ts) | 44 | tests |  |
 | [tests/portal-audit-classify.test.ts](../../../tests/portal-audit-classify.test.ts) | 119 | tests |  |

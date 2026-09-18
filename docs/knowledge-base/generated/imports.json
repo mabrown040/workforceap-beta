@@ -120936,6 +120936,38 @@
     "package": "node:child_process"
   },
   {
+    "from": "tests/next-config-redirect-destinations.spec.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/next-config-redirect-destinations.spec.ts",
+    "specifier": "node:path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/next-config-redirect-destinations.spec.ts",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/next-config-redirect-destinations.spec.ts",
+    "specifier": "../next.config",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "next.config.ts"
+  },
+  {
     "from": "tests/pdf-deployment.test.ts",
     "specifier": "node:fs/promises",
     "line": 2,

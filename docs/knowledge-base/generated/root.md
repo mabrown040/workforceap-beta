@@ -42,7 +42,7 @@
 | [instrumentation-client.ts](../../../instrumentation-client.ts) | 189 | root | onRouterTransitionStart:158, setSentryUser:177 |
 | [instrumentation.ts](../../../instrumentation.ts) | 15 | root | register:3, onRequestError:12 |
 | [middleware.ts](../../../middleware.ts) | 443 | identity-tenancy | middleware:148, config:439 |
-| [next.config.ts](../../../next.config.ts) | 351 | root | default:349 |
+| [next.config.ts](../../../next.config.ts) | 392 | root | default:390 |
 | [package.json](../../../package.json) | 140 | root |  |
 | [playwright.config.ts](../../../playwright.config.ts) | 80 | root | default:56 |
 | [pnpm-lock.yaml](../../../pnpm-lock.yaml) | 12727 | root |  |

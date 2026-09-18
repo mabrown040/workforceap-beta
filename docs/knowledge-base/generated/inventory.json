@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d3e9498513e0d8d3ddf293dd4b0599c580912c9fa16572fd937be55597984ba6",
+  "inputTreeSha256": "7cb51d3e6a70534c04502b10405ef22620e4f2e706bbaae363c704f570a8f65a",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -47136,12 +47136,35 @@
       "directive": "use client"
     },
     {
+      "path": "components/Footer.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 2790,
+      "lines": 84,
+      "sha256": "3f35a95532e03e9926a84698c1db03c7f71b628fa60aae51e4cd3f6af1a3f5c6",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "headingLevels",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "skipsHeadingLevel",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/Footer.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 11549,
-      "lines": 121,
-      "sha256": "957a24b83da6bdcbf9adb764a26de387103e5f4a1d3da415977c43ffbb89faa5",
+      "bytes": 11759,
+      "lines": 123,
+      "sha256": "be1da14837cc2a5453fe150f0d8ef1e5ece8527529dd22de2429d4ab19dd5d71",
       "binary": false,
       "exports": [
         {

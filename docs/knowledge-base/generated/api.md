@@ -346,7 +346,7 @@
 | [app/api/gdpr/export/route.ts](../../../app/api/gdpr/export/route.ts) | 81 | api | GET:6 |
 | [app/api/health/ready/_readyCache.ts](../../../app/api/health/ready/_readyCache.ts) | 20 | api | CACHE_TTL_MS:6, ReadyCacheEntry:8, readyCache:15, __resetReadyCache:18 |
 | [app/api/health/ready/route.ts](../../../app/api/health/ready/route.ts) | 136 | api | dynamic:12, OPTIONS:74, GET:83 |
-| [app/api/health/route.ts](../../../app/api/health/route.ts) | 69 | api | dynamic:8, OPTIONS:30, GET:39 |
+| [app/api/health/route.ts](../../../app/api/health/route.ts) | 95 | api | dynamic:8, OPTIONS:55, GET:64 |
 | [app/api/health/slo/route.ts](../../../app/api/health/slo/route.ts) | 388 | api | dynamic:40, GET:388 |
 | [app/api/interview/history/route.ts](../../../app/api/interview/history/route.ts) | 243 | jobs-employers | GET:103, POST:243 |
 | [app/api/interview/session/route.ts](../../../app/api/interview/session/route.ts) | 133 | jobs-employers | POST:35 |

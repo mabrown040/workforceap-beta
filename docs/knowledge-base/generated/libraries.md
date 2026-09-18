@@ -54,7 +54,7 @@
 | [lib/admin/globalSearchSource.ts](../../../lib/admin/globalSearchSource.ts) | 81 | administration | GlobalSearchItem:5, createGlobalSearchSource:27 |
 | [lib/admin/healthScore.ts](../../../lib/admin/healthScore.ts) | 46 | administration | HealthStatus:6, HealthScoreInput:8, calculateHealthStatus:14, getHealthColor:32, getHealthLabel:40 |
 | [lib/admin/jobReadyCandidates.ts](../../../lib/admin/jobReadyCandidates.ts) | 76 | administration | JobReadyProgressRow:8, loadJobReadyProgressPage:20 |
-| [lib/admin/logCronRun.ts](../../../lib/admin/logCronRun.ts) | 22 | administration | logCronRun:5 |
+| [lib/admin/logCronRun.ts](../../../lib/admin/logCronRun.ts) | 28 | administration | logCronRun:6 |
 | [lib/admin/matchSuggestionsConfig.ts](../../../lib/admin/matchSuggestionsConfig.ts) | 16 | administration | getMatchSuggestionsTestRecipient:8, isMatchSuggestionsDryRun:13 |
 | [lib/admin/memberDeleteStorage.test.ts](../../../lib/admin/memberDeleteStorage.test.ts) | 37 | administration |  |
 | [lib/admin/memberMerge.test.ts](../../../lib/admin/memberMerge.test.ts) | 288 | administration |  |
@@ -425,14 +425,14 @@
 | [lib/cron/cronCaps.test.ts](../../../lib/cron/cronCaps.test.ts) | 79 | communications |  |
 | [lib/cron/cronCaps.ts](../../../lib/cron/cronCaps.ts) | 30 | communications | CRON_NUDGE_CANDIDATE_CAP:8, CRON_PARTNER_DIGEST_PARTNER_CAP:11, CRON_PARTNER_DIGEST_REFERRAL_CAP:17, CRON_JOB_EXPIRY_CAP:20, COURSERA_HEAL_UNMATCHED_CAP:23, COURSERA_HEAL_IGNORED_CAP:26, partnerDigestReferralTake:28 |
 | [lib/cron/cronExecution.test.ts](../../../lib/cron/cronExecution.test.ts) | 116 | communications |  |
-| [lib/cron/cronExecution.ts](../../../lib/cron/cronExecution.ts) | 59 | communications | CronStatus:4, startCronExecution:8, setCronRecordsProcessed:19, completeCronExecution:28, getCurrentCronExecutionId:53, runWithCronExecution:57 |
+| [lib/cron/cronExecution.ts](../../../lib/cron/cronExecution.ts) | 92 | communications | CronStatus:4, startCronExecution:20, setCronRecordsProcessed:31, completeCronExecution:44, getCurrentCronExecutionId:69, getCronRecordsProcessed:73, markCronDiagnosticLogged:81, hasCronDiagnosticBeenLogged:86, runWithCronExecution:90 |
 | [lib/cron/isCronEnabled.ts](../../../lib/cron/isCronEnabled.ts) | 19 | communications | isCronEnabled:7 |
 | [lib/cron/nudgeThrottle.ts](../../../lib/cron/nudgeThrottle.ts) | 69 | communications | NUDGE_LOG_COOLDOWN_DAYS:23, filterNudgeEligibleUserIds:30, recordNudgeSent:51 |
 | [lib/cron/placement-surveys.ts](../../../lib/cron/placement-surveys.ts) | 436 | communications | SurveySendResult:47, EscalationResult:54, DailySurveyRunResult:60, sendDuePlacementSurveys:85, escalateStalePlacementSurveys:311, runDailyPlacementSurveyCron:431 |
 | [lib/cron/placementSurveySentStatePolicy.test.ts](../../../lib/cron/placementSurveySentStatePolicy.test.ts) | 47 | communications |  |
 | [lib/cron/wioa-report.test.ts](../../../lib/cron/wioa-report.test.ts) | 43 | communications |  |
 | [lib/cron/wioa-report.ts](../../../lib/cron/wioa-report.ts) | 129 | communications | WioaReportProgram:11, WioaReport:19, generateWioaReport:39 |
-| [lib/cron/withCronLogging.ts](../../../lib/cron/withCronLogging.ts) | 63 | communications | withCronLogging:16 |
+| [lib/cron/withCronLogging.ts](../../../lib/cron/withCronLogging.ts) | 89 | communications | withCronLogging:32 |
 | [lib/csv.ts](../../../lib/csv.ts) | 59 | libraries | csvEscape:13, csvRow:23, buildCsv:28, csvDate:52 |
 | [lib/csv/admin-export.test.ts](../../../lib/csv/admin-export.test.ts) | 204 | libraries |  |
 | [lib/csv/export.test.ts](../../../lib/csv/export.test.ts) | 85 | libraries |  |
@@ -791,7 +791,7 @@
 | [lib/reporting/programCompletion.ts](../../../lib/reporting/programCompletion.ts) | 173 | libraries | ValidatedProgramCompletionSpec:14, VALIDATED_PROGRAM_COMPLETION_SPECS:63, getValidatedProgramCompletionSpec:82, isValidatedProgramComplete:101, hasValidatedProgramCompletion:114, validatedProgramCompletionValuesSql:141, validatedProgramAssignmentRowsSql:159 |
 | [lib/resume-coach-elevenlabs-structure.test.ts](../../../lib/resume-coach-elevenlabs-structure.test.ts) | 96 | ai-voice |  |
 | [lib/resume/atomicResumeObjectSwap.test.ts](../../../lib/resume/atomicResumeObjectSwap.test.ts) | 270 | member-counselor |  |
-| [lib/resume/atomicResumeObjectSwap.ts](../../../lib/resume/atomicResumeObjectSwap.ts) | 214 | member-counselor | ResumeProfilePathField:3, ResumeProfilePaths:5, ResumeObjectUpload:9, AtomicResumeObjectSwapOptions:20, removeResumeObjectsWithRetry:48, AtomicResumeObjectSwapError:69, isResumeObjectPathOwnedByUser:103, isLegacyResumeProfilePath:111, isApplicationResumeSnapshotPath:118, replaceResumeObjectsAtomically:140 |
+| [lib/resume/atomicResumeObjectSwap.ts](../../../lib/resume/atomicResumeObjectSwap.ts) | 227 | member-counselor | ResumeProfilePathField:3, ResumeProfilePaths:5, ResumeObjectUpload:9, AtomicResumeObjectSwapOptions:33, removeResumeObjectsWithRetry:61, AtomicResumeObjectSwapError:82, isResumeObjectPathOwnedByUser:116, isLegacyResumeProfilePath:124, isApplicationResumeSnapshotPath:131, replaceResumeObjectsAtomically:153 |
 | [lib/resume/extractTextFromResumeBuffer.test.ts](../../../lib/resume/extractTextFromResumeBuffer.test.ts) | 208 | member-counselor |  |
 | [lib/resume/extractTextFromResumeBuffer.ts](../../../lib/resume/extractTextFromResumeBuffer.ts) | 419 | member-counselor | ResumeTextExtractionErrorCode:82, ResumeTextExtractionError:90, extractTextFromResumeBuffer:378 |
 | [lib/resume/extractionQuality.test.ts](../../../lib/resume/extractionQuality.test.ts) | 19 | member-counselor |  |
@@ -802,7 +802,7 @@
 | [lib/resume/pendingResumeDraft.test.ts](../../../lib/resume/pendingResumeDraft.test.ts) | 40 | member-counselor |  |
 | [lib/resume/pendingResumeDraft.ts](../../../lib/resume/pendingResumeDraft.ts) | 56 | member-counselor | PendingResumeDraft:6, PENDING_RESUME_DRAFT_KEY_PREFIX:12, LEGACY_PENDING_RESUME_DRAFT_KEY:13, purgePendingResumeDrafts:22, serializePendingResumeDraft:32, parsePendingResumeDraft:37 |
 | [lib/resume/prepareResumeUpload.test.ts](../../../lib/resume/prepareResumeUpload.test.ts) | 177 | member-counselor |  |
-| [lib/resume/prepareResumeUpload.ts](../../../lib/resume/prepareResumeUpload.ts) | 145 | member-counselor | MAX_RESUME_UPLOAD_SIZE:11, ResumeUploadExtension:13, ResumeUploadValidationErrorCode:15, ResumeUploadValidationError:21, RESUME_UPLOAD_ERROR_MESSAGES:31, ResumeUploadFileLike:56, isResumeUploadFileLike:63, PreparedResumeUpload:74, prepareResumeUpload:108 |
+| [lib/resume/prepareResumeUpload.ts](../../../lib/resume/prepareResumeUpload.ts) | 157 | member-counselor | MAX_RESUME_UPLOAD_SIZE:11, ResumeUploadExtension:13, ResumeUploadValidationErrorCode:15, ResumeUploadValidationError:21, RESUME_UPLOAD_ERROR_MESSAGES:31, ResumeUploadFileLike:56, isResumeUploadFileLike:63, PreparedResumeUpload:74, prepareResumeUpload:117 |
 | [lib/resume/profileCompleteness.ts](../../../lib/resume/profileCompleteness.ts) | 55 | member-counselor | getProfileCompleteness:38, getProfileMissingFields:48 |
 | [lib/resume/resumeAiSafetyContract.test.ts](../../../lib/resume/resumeAiSafetyContract.test.ts) | 86 | member-counselor |  |
 | [lib/resume/resumePreviewHtml.test.ts](../../../lib/resume/resumePreviewHtml.test.ts) | 11 | member-counselor |  |
@@ -810,6 +810,7 @@
 | [lib/resume/resumeProfileRevision.ts](../../../lib/resume/resumeProfileRevision.ts) | 27 | member-counselor | getResumeProfileRevision:8, getResumeDraftOwnerToken:21 |
 | [lib/resume/resumeProfileStorage.ts](../../../lib/resume/resumeProfileStorage.ts) | 162 | member-counselor | ResumeProfileConflictError:14, isResumeProfileConflict:21, swapResumeProfilePathsWithCas:42, saveEnhancedResumeText:129 |
 | [lib/resume/resumeUiConcurrencyAndWarnings.test.ts](../../../lib/resume/resumeUiConcurrencyAndWarnings.test.ts) | 131 | member-counselor |  |
+| [lib/resume/resumeUploadBodyFidelity.test.ts](../../../lib/resume/resumeUploadBodyFidelity.test.ts) | 245 | member-counselor |  |
 | [lib/resume/resumeUploadUiContract.test.ts](../../../lib/resume/resumeUploadUiContract.test.ts) | 49 | member-counselor |  |
 | [lib/retention/cleanup.test.ts](../../../lib/retention/cleanup.test.ts) | 220 | member-counselor |  |
 | [lib/retention/cleanup.ts](../../../lib/retention/cleanup.ts) | 213 | member-counselor | CleanupResult:12, DataCleanupReport:19, cleanupTable:36, cleanupDeletedAccounts:122, runDataCleanup:167 |

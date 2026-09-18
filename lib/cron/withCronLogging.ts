@@ -3,7 +3,13 @@ import { logCronRun } from '@/lib/admin/logCronRun';
 import { runWithGucContext, SYSTEM_GUC_CONTEXT } from '@/lib/db/gucContext';
 import { authorizeCronRequest } from './authorizeCronRequest';
 import { isCronEnabled } from './isCronEnabled';
-import { startCronExecution, completeCronExecution, runWithCronExecution } from './cronExecution';
+import {
+  startCronExecution,
+  completeCronExecution,
+  runWithCronExecution,
+  getCronRecordsProcessed,
+  hasCronDiagnosticBeenLogged,
+} from './cronExecution';
 
 /**
  * Wrap a cron route handler with standard auth, toggle check, error logging,
@@ -12,6 +18,16 @@ import { startCronExecution, completeCronExecution, runWithCronExecution } from 
  * Ensures that even if the handler throws (DB error, timeout, etc.),
  * a CronExecution record is created so the admin dashboard can show
  * exactly what happened, when, and for how long.
+ *
+ * Every terminal path also leaves exactly one WorkflowDiagnostic row. That
+ * matters because CronExecution and WorkflowDiagnostic are separate surfaces:
+ * a handler that *returns* an error response rather than throwing used to be
+ * recorded FAILED in CronExecution while writing nothing to
+ * WorkflowDiagnostic. `/api/cron/at-risk-alerts` returned 401 to its own
+ * scheduler for three weeks that way — counselor alerts and member nudges
+ * silently undelivered, with no diagnostic row to notice. Handlers that log
+ * their own row still win; `hasCronDiagnosticBeenLogged` keeps this from
+ * double-writing for the 28 routes that do.
  */
 export function withCronLogging(
   workflowKey: string,
@@ -35,13 +51,23 @@ export function withCronLogging(
         const responseStatus =
           response && typeof response.status === 'number' ? response.status : 200;
         if (responseStatus >= 400) {
-          await completeCronExecution(
-            executionId,
-            'FAILED',
-            `Cron handler returned HTTP ${responseStatus}`,
-          );
+          const error = `Cron handler returned HTTP ${responseStatus}`;
+          await completeCronExecution(executionId, 'FAILED', error);
+          if (!hasCronDiagnosticBeenLogged()) {
+            await logCronRun(workflowKey, { ok: false, status: responseStatus, error }, 'error');
+          }
         } else {
           await completeCronExecution(executionId, 'SUCCESS');
+          if (!hasCronDiagnosticBeenLogged()) {
+            const recordsProcessed = getCronRecordsProcessed();
+            await logCronRun(
+              workflowKey,
+              recordsProcessed === undefined
+                ? { ok: true, status: responseStatus }
+                : { ok: true, status: responseStatus, recordsProcessed },
+              'ok',
+            );
+          }
         }
         return response;
       } catch (err) {

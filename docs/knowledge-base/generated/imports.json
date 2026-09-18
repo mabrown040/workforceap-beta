@@ -79370,7 +79370,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 68,
+    "line": 69,
     "kind": "type",
     "external": true,
     "package": "@elevenlabs/client"
@@ -79378,7 +79378,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../DesignSurface",
-    "line": 69,
+    "line": 70,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/DesignSurface.tsx"
@@ -79386,7 +79386,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../PageOpener",
-    "line": 70,
+    "line": 71,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/PageOpener.tsx"
@@ -79394,15 +79394,23 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../KitEmptyState",
-    "line": 71,
+    "line": 72,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/KitEmptyState.tsx"
   },
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
+    "specifier": "../StatusTag",
+    "line": 73,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/StatusTag.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../VoiceOrb",
-    "line": 72,
+    "line": 74,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/VoiceOrb.tsx"
@@ -79410,7 +79418,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 698,
+    "line": 700,
     "kind": "dynamic-import",
     "external": true,
     "package": "@elevenlabs/client"

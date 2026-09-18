@@ -238,7 +238,7 @@
 | [tests/lib/auth-user-lifecycle.spec.ts](../../../tests/lib/auth-user-lifecycle.spec.ts) | 99 | tests |  |
 | [tests/lib/boardOutcomes.snapshot.test.ts](../../../tests/lib/boardOutcomes.snapshot.test.ts) | 17 | tests |  |
 | [tests/lib/career-mapping.spec.ts](../../../tests/lib/career-mapping.spec.ts) | 189 | tests |  |
-| [tests/lib/career-studio-consolidation.spec.ts](../../../tests/lib/career-studio-consolidation.spec.ts) | 88 | tests |  |
+| [tests/lib/career-studio-consolidation.spec.ts](../../../tests/lib/career-studio-consolidation.spec.ts) | 134 | tests |  |
 | [tests/lib/coach-memory-safety.spec.ts](../../../tests/lib/coach-memory-safety.spec.ts) | 151 | tests |  |
 | [tests/lib/contextual-message-links.spec.ts](../../../tests/lib/contextual-message-links.spec.ts) | 22 | tests |  |
 | [tests/lib/contextual-message-selection.spec.ts](../../../tests/lib/contextual-message-selection.spec.ts) | 50 | tests |  |

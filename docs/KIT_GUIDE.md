@@ -259,9 +259,11 @@ Reference compositions ("templates"): `components/portal/kit/pages/{member,admin
 plus `PartnerOverviewKit.tsx`, `VoiceStudioKit.tsx`. **Start new pages by copying the nearest one.**
 `VoiceStudioKit` is the canonical Career Studio hub (`/dashboard/ai-tools` and
 `/dev/member/toolkit`): voice coaches, live practice, Resume Studio, and the AI
-toolkit. Do not replace it with `MemberToolkitKit`. Page chrome is `PageOpener`
-on the shared `--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`,
-not raw hex) — that is session chrome, not a second app header.
+toolkit. The All Tools tab is a three-stage path (Resume → Interview → Profile)
+with scannable directory rows — not a stacked dump of feature cards. Do not
+replace it with `MemberToolkitKit`. Page chrome is `PageOpener` on the shared
+`--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`, not raw
+hex) — that is session chrome, not a second app header.
 
 `UsersKit` is the staff/admin directory at `/admin/users`. Its loader searches
 and counts before pagination; `useDirectoryNavigation` keeps URL search, role,

@@ -114730,7 +114730,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/app/api/member/messages/route",
-    "line": 109,
+    "line": 116,
     "kind": "import",
     "external": false,
     "target": "app/api/member/messages/route.ts"
@@ -114738,7 +114738,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 110,
+    "line": 117,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -114746,7 +114746,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 111,
+    "line": 118,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -114754,7 +114754,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/messages/counselorThread",
-    "line": 112,
+    "line": 119,
     "kind": "import",
     "external": false,
     "target": "lib/messages/counselorThread.ts"
@@ -114762,7 +114762,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/messages/rateLimit",
-    "line": 116,
+    "line": 123,
     "kind": "import",
     "external": false,
     "target": "lib/messages/rateLimit.ts"
@@ -114770,7 +114770,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/notifications/create",
-    "line": 117,
+    "line": 124,
     "kind": "import",
     "external": false,
     "target": "lib/notifications/create.ts"

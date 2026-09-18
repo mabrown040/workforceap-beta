@@ -77,23 +77,28 @@ export const POST = withApiGuc(async (request: Request) => {
     },
   }));
 
-  const gate = isMemberWioaVerified({
-    wioaReviewStatus: existing?.wioaReviewStatus,
-    enrolledByAdminId: existing?.courseEnrollments?.[0]?.enrolledByAdminId,
-  });
-  if (!gate.ok) {
-    const messages: Record<string, string> = {
-      WIOA_NOT_STARTED:
-        "Before you can enroll, you'll need to complete a brief eligibility screening. It takes about 5 minutes.",
-      WIOA_PENDING:
-        "Your eligibility screening is under review. We'll let you know once it's approved.",
-      WIOA_NOT_ELIGIBLE:
-        "Unfortunately, you're not eligible for this program based on current WIOA criteria. Let's find the right path.",
-    };
-    return NextResponse.json(
-      { error: messages[gate.code] ?? 'Enrollment not available', code: gate.code },
-      { status: 400 }
-    );
+  // Grant-funded programs (Digital Literacy) are not WIOA-gated. Module open
+  // and completion already treat them as ungated; enroll must match.
+  const fundingSource = programView.static?.fundingSource ?? 'WIOA';
+  if (fundingSource === 'WIOA') {
+    const gate = isMemberWioaVerified({
+      wioaReviewStatus: existing?.wioaReviewStatus,
+      enrolledByAdminId: existing?.courseEnrollments?.[0]?.enrolledByAdminId,
+    });
+    if (!gate.ok) {
+      const messages: Record<string, string> = {
+        WIOA_NOT_STARTED:
+          "Before you can enroll, you'll need to complete a brief eligibility screening. It takes about 5 minutes.",
+        WIOA_PENDING:
+          "Your eligibility screening is under review. We'll let you know once it's approved.",
+        WIOA_NOT_ELIGIBLE:
+          "Unfortunately, you're not eligible for this program based on current WIOA criteria. Let's find the right path.",
+      };
+      return NextResponse.json(
+        { error: messages[gate.code] ?? 'Enrollment not available', code: gate.code },
+        { status: 400 }
+      );
+    }
   }
 
   if (existing?.enrolledProgram) {

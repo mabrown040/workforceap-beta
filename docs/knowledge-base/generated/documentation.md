@@ -50,6 +50,7 @@
 | [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 383 | documentation |  |
 | [docs/LAUNCH-PREP-AUDIT.md](../../../docs/LAUNCH-PREP-AUDIT.md) | 146 | documentation |  |
 | [docs/LIVE-PORTAL-AUDIT-2026-04-26.md](../../../docs/LIVE-PORTAL-AUDIT-2026-04-26.md) | 707 | documentation |  |
+| [docs/MEMBER-FUNNEL-BRIEF-2026-09-18.md](../../../docs/MEMBER-FUNNEL-BRIEF-2026-09-18.md) | 318 | documentation |  |
 | [docs/MEMBER-PAGES-AUDIT.md](../../../docs/MEMBER-PAGES-AUDIT.md) | 148 | documentation |  |
 | [docs/MIGRATION-RUNBOOK.md](../../../docs/MIGRATION-RUNBOOK.md) | 395 | documentation |  |
 | [docs/MIGRATION_FIX.md](../../../docs/MIGRATION_FIX.md) | 28 | documentation |  |

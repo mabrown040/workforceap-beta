@@ -17987,6 +17987,154 @@
     "note": "Filename dates and headings are navigation metadata, not authority or freshness proof."
   },
   {
+    "file": "docs/MEMBER-FUNNEL-BRIEF-2026-09-18.md",
+    "title": "Member Funnel Brief — why a member cannot reach lesson one",
+    "headings": [
+      {
+        "level": 1,
+        "title": "Member Funnel Brief — why a member cannot reach lesson one",
+        "line": 1
+      },
+      {
+        "level": 2,
+        "title": "1. The three moves",
+        "line": 13
+      },
+      {
+        "level": 3,
+        "title": "1. Stop WIOA-gating a grant-funded program",
+        "line": 17
+      },
+      {
+        "level": 3,
+        "title": "2. The default dashboard must always say one true next thing",
+        "line": 24
+      },
+      {
+        "level": 3,
+        "title": "3. No \"message your counselor\" without someone on the other end",
+        "line": 31
+      },
+      {
+        "level": 3,
+        "title": "Seven doors, one channel, nobody listening",
+        "line": 38
+      },
+      {
+        "level": 2,
+        "title": "2. The member journey, traced in code",
+        "line": 64
+      },
+      {
+        "level": 3,
+        "title": "The two loops, end to end",
+        "line": 87
+      },
+      {
+        "level": 3,
+        "title": "The default dashboard has no guidance engine at all",
+        "line": 108
+      },
+      {
+        "level": 3,
+        "title": "The pathway built to need no enrolment can only be reached by members who have one (§2.5)",
+        "line": 114
+      },
+      {
+        "level": 3,
+        "title": "Three staff approvals stand between signup and a first lesson, and the member sees none of them (§2.7)",
+        "line": 120
+      },
+      {
+        "level": 3,
+        "title": "A signed-in applicant has no status surface at all (§2.8)",
+        "line": 128
+      },
+      {
+        "level": 3,
+        "title": "Inverted state guards and hardcoded stubs (§2.2)",
+        "line": 132
+      },
+      {
+        "level": 3,
+        "title": "Smaller, verified (§2.11)",
+        "line": 142
+      },
+      {
+        "level": 3,
+        "title": "The banner Mike is seeing — NOT REPRODUCED (unconfirmed)",
+        "line": 149
+      },
+      {
+        "level": 2,
+        "title": "3. Enhancements, ordered by effect on completion and placement",
+        "line": 155
+      },
+      {
+        "level": 3,
+        "title": "Tier 1 — cheap, unblocks a member today (ship this week · < 1 day total)",
+        "line": 159
+      },
+      {
+        "level": 3,
+        "title": "Tier 2 — the real fix (days, not hours · ~1 week)",
+        "line": 181
+      },
+      {
+        "level": 3,
+        "title": "Tier 3 — after the above is proven (hold until a member reaches a lesson)",
+        "line": 199
+      },
+      {
+        "level": 2,
+        "title": "4. Quality of life, batched to ship together",
+        "line": 211
+      },
+      {
+        "level": 3,
+        "title": "Batch A — naming & copy (mostly `messages/en.json` + a few literals)",
+        "line": 215
+      },
+      {
+        "level": 3,
+        "title": "Batch B — dead & misleading UI",
+        "line": 223
+      },
+      {
+        "level": 3,
+        "title": "Batch C — navigation",
+        "line": 230
+      },
+      {
+        "level": 3,
+        "title": "Batch D — config hygiene",
+        "line": 236
+      },
+      {
+        "level": 2,
+        "title": "5. What not to do, and why",
+        "line": 243
+      },
+      {
+        "level": 2,
+        "title": "6. Seven decisions that need Mike, not an engineer",
+        "line": 261
+      },
+      {
+        "level": 2,
+        "title": "7. Which of the repo's own audit documents are still worth reading",
+        "line": 288
+      },
+      {
+        "level": 3,
+        "title": "How much to trust each part of this",
+        "line": 306
+      }
+    ],
+    "datedFilename": true,
+    "note": "Filename dates and headings are navigation metadata, not authority or freshness proof."
+  },
+  {
     "file": "docs/MEMBER-PAGES-AUDIT.md",
     "title": "Member portal — per-page audit",
     "headings": [

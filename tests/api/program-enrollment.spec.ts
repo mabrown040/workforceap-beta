@@ -200,6 +200,68 @@ describe('POST /api/member/enroll', () => {
       error: 'That program is not available for enrollment right now.',
     });
   });
+
+  it('skips the WIOA gate for Grant-funded programs', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user, email: 'user@example.com' } as any);
+    vi.mocked(getActivePrograms).mockResolvedValue([
+      {
+        slug: 'digital-literacy-empowerment-class',
+        name: 'Digital Literacy',
+        static: { title: 'Digital Literacy', fundingSource: 'Grant' },
+      },
+    ] as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      id: UUIDS.user,
+      enrolledProgram: null,
+      wioaReviewStatus: null,
+      courseEnrollments: [],
+    } as any);
+    vi.mocked(prisma.user.update).mockResolvedValue({
+      email: 'user@example.com',
+      fullName: 'Test User',
+      organizationId: UUIDS.org,
+    } as any);
+    vi.mocked(prisma.courseEnrollment.upsert).mockResolvedValue({
+      id: UUIDS.enrollment,
+      userId: UUIDS.user,
+      programSlug: 'digital-literacy-empowerment-class',
+      isPrimary: true,
+    } as any);
+    vi.mocked(isMemberWioaVerified).mockReturnValue({ ok: false, code: 'WIOA_NOT_STARTED' });
+
+    const res = await enrollPost(
+      makePostRequest({ programSlug: 'digital-literacy-empowerment-class' })
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      ok: true,
+      programSlug: 'digital-literacy-empowerment-class',
+    });
+    expect(isMemberWioaVerified).not.toHaveBeenCalled();
+  });
+
+  it('still WIOA-gates WIOA-funded programs', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user, email: 'user@example.com' } as any);
+    vi.mocked(getActivePrograms).mockResolvedValue([
+      {
+        slug: 'tech-support',
+        name: 'Tech Support',
+        static: { title: 'Tech Support', fundingSource: 'WIOA' },
+      },
+    ] as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      id: UUIDS.user,
+      enrolledProgram: null,
+      wioaReviewStatus: null,
+      courseEnrollments: [],
+    } as any);
+    vi.mocked(isMemberWioaVerified).mockReturnValue({ ok: false, code: 'WIOA_NOT_STARTED' });
+
+    const res = await enrollPost(makePostRequest({ programSlug: 'tech-support' }));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ code: 'WIOA_NOT_STARTED' });
+    expect(isMemberWioaVerified).toHaveBeenCalled();
+  });
 });
 
 describe('GET /api/member/enrollments', () => {

@@ -625,6 +625,8 @@
 | [lib/member/memberApplicationStatus.ts](../../../lib/member/memberApplicationStatus.ts) | 165 | member-counselor | MemberApplicationStage:3, MEMBER_APPLICATION_PROGRESS_STEPS:11, MemberApplicationStatusView:19, buildMemberApplicationStatusView:47, applicationStatusForPublicLookup:160 |
 | [lib/member/memberEngagementSignals.ts](../../../lib/member/memberEngagementSignals.ts) | 60 | member-counselor | MemberEngagementSignals:3, getMemberEngagementSignals:14 |
 | [lib/member/memberProgramTrainingView.ts](../../../lib/member/memberProgramTrainingView.ts) | 221 | member-counselor | STALE_TRAINING_ACTIVITY_DAYS:15, MemberProgramTrainingView:17, loadMemberProgramTrainingView:49, isTrainingStaleForCounselorEscalation:205 |
+| [lib/member/mentorsEmptyState.test.ts](../../../lib/member/mentorsEmptyState.test.ts) | 48 | member-counselor |  |
+| [lib/member/mentorsEmptyState.ts](../../../lib/member/mentorsEmptyState.ts) | 24 | member-counselor | MENTORS_MEMBER_EMPTY:6, MENTORS_ADMIN_EMPTY:19 |
 | [lib/member/missionCourseUnlock.test.ts](../../../lib/member/missionCourseUnlock.test.ts) | 33 | member-counselor |  |
 | [lib/member/missionCourseUnlock.ts](../../../lib/member/missionCourseUnlock.ts) | 44 | member-counselor | MissionUnlockCourse:8, normalizeCourseName:13, resolveMissionUnlockSlugs:22, isMissionCourseComplete:37 |
 | [lib/member/nextBestActions.test.ts](../../../lib/member/nextBestActions.test.ts) | 157 | member-counselor |  |

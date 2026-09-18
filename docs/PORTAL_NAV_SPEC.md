@@ -18,9 +18,12 @@ staff = dense left sidebar (+ role mobile bottom tabs).**
 ### Desktop (≥769px)
 
 `WorkspaceShell` with `portalRole="member"` renders the full `MEMBER_PORTAL_NAV_ITEMS`
-command rail (primary destinations visible; Tools / Progress / Account in disclosed
-groups). Kit tokens: warm surface, ~232px rail (208 laptop / 72 collapsed), sentence-case
-labels, 16px / 44px targets, `aria-current` on the most specific destination only.
+command rail. ICP daily destinations stay visible without opening a group: **Home**,
+**My program**, **Job board**, **My progress**, **AI Career Tools**, **Messages**,
+and **Skill missions**. Job applications, resume, AI Advisor, and remaining
+training/account links stay in disclosed Tools / Training / Account groups. Kit tokens: warm surface, ~232px rail
+(208 laptop / 72 collapsed), sentence-case labels, 16px / 44px targets, `aria-current`
+on the most specific destination only.
 
 ### Mobile (≤768px)
 
@@ -31,9 +34,10 @@ hamburger drawer for the full IA. `MobileBottomNav variant="portal"` is a **no-o
 |---|---|
 | Dashboard | `/dashboard` |
 | My program | `/dashboard/program` |
-| Career toolkit | `/dashboard/ai-tools` |
-| Counselor chat | `/dashboard/messages` |
 | Job board | `/dashboard/jobs` |
+| My progress | `/dashboard/readiness` |
+| Counselor chat | `/dashboard/messages` |
+| Career toolkit | `/dashboard/ai-tools` |
 | Profile | `/dashboard/profile` |
 
 Profile replaced a duplicate Lilley/AI Advisor tab (AI Advisor stays under AI Career Tools

@@ -342,7 +342,7 @@
 | [components/portal/MemberLabWorkspace.tsx](../../../components/portal/MemberLabWorkspace.tsx) | 181 | components | MemberLabWorkspace:56 |
 | [components/portal/MemberMessagesMobileClient.tsx](../../../components/portal/MemberMessagesMobileClient.tsx) | 404 | components | default:57 |
 | [components/portal/MemberNextStepsStrip.tsx](../../../components/portal/MemberNextStepsStrip.tsx) | 266 | components | default:13 |
-| [components/portal/MemberPortalTopNav.tsx](../../../components/portal/MemberPortalTopNav.tsx) | 91 | components | default:10, _topNavStyleRef:91 |
+| [components/portal/MemberPortalTopNav.tsx](../../../components/portal/MemberPortalTopNav.tsx) | 92 | components | default:10, _topNavStyleRef:92 |
 | [components/portal/MemberPreScreeningForm.tsx](../../../components/portal/MemberPreScreeningForm.tsx) | 337 | components | default:24 |
 | [components/portal/MemberProgressStrip.tsx](../../../components/portal/MemberProgressStrip.tsx) | 187 | components | default:21 |
 | [components/portal/MemberSessionCard.tsx](../../../components/portal/MemberSessionCard.tsx) | 99 | components | MemberSessionCardProps:15, default:21 |

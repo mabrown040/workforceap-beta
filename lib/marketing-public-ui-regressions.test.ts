@@ -106,6 +106,19 @@ test('member mobile top nav prefers Profile over a duplicate AI Advisor tab', ()
   assert.doesNotMatch(topNav, /canonical: '\/dashboard\/counselor'/);
 });
 
+test('member mobile top nav surfaces Jobs and Training progress before toolkit', () => {
+  const topNav = source('components/portal/MemberPortalTopNav.tsx');
+  const jobs = topNav.indexOf("canonical: '/dashboard/jobs'");
+  const progress = topNav.indexOf("canonical: '/dashboard/readiness'");
+  const messages = topNav.indexOf("canonical: '/dashboard/messages'");
+  const toolkit = topNav.indexOf("canonical: '/dashboard/ai-tools'");
+  const profile = topNav.indexOf("canonical: '/dashboard/profile'");
+
+  assert.ok(jobs >= 0, 'Job board tab is missing');
+  assert.ok(progress >= 0, 'Training progress tab is missing');
+  assert.ok(jobs < progress && progress < messages && messages < toolkit && toolkit < profile);
+});
+
 test('localized signup opens root legal documents without Next prefetch requests', () => {
   const signup = source('app/(auth)/signup/SignupForm.tsx');
   const consentBlock = signup.slice(signup.indexOf('{/* Consent checkboxes */}'), signup.indexOf('{/* Error banner */}'));

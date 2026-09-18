@@ -561,7 +561,7 @@
 | [lib/jobs/syncCuratedJobToTracker.ts](../../../lib/jobs/syncCuratedJobToTracker.ts) | 60 | jobs-employers | syncCuratedJobToTracker:13 |
 | [lib/lilley-student-coach-structure.test.ts](../../../lib/lilley-student-coach-structure.test.ts) | 309 | libraries |  |
 | [lib/locked-stakes/checkI18nSafeDiff.test.ts](../../../lib/locked-stakes/checkI18nSafeDiff.test.ts) | 26 | libraries |  |
-| [lib/marketing-public-ui-regressions.test.ts](../../../lib/marketing-public-ui-regressions.test.ts) | 116 | libraries |  |
+| [lib/marketing-public-ui-regressions.test.ts](../../../lib/marketing-public-ui-regressions.test.ts) | 129 | libraries |  |
 | [lib/marketing/buttonClasses.ts](../../../lib/marketing/buttonClasses.ts) | 18 | public-experience | MARKETING_BUTTON_VARIANT_CLASS:6, MARKETING_BUTTON_RADIUS_CLASS:7, marketingButton:8, marketingButtonClasses:9, marketingPrimaryButtonClasses:10, marketingSecondaryButtonClasses:11, marketingGhostButtonClasses:12, marketingNumPillClasses:13, marketingButtonPresets:14, MarketingButtonVariant:15, MarketingButtonRadius:16, MarketingButtonOptions:17 |
 | [lib/marketing/employerLanding.ts](../../../lib/marketing/employerLanding.ts) | 153 | public-experience | getEmployerHiringPartnerCtaHref:15, isEmployerHiringPartnerCtaExternal:20, EmployerTrustLogo:24, EmployerLandingTrustMetrics:29, formatEmployerTrustStat:49, getEmployerTrustPlaceholders:60, getEmployerLandingTrustMetrics:64, loadEmployerLandingTrustMetrics:136 |
 | [lib/marketing/googleItSupportLanding.test.ts](../../../lib/marketing/googleItSupportLanding.test.ts) | 71 | public-experience |  |
@@ -702,7 +702,7 @@
 | [lib/nav/marketing-chrome.ts](../../../lib/nav/marketing-chrome.ts) | 29 | public-experience | isMarketingChromeHidden:23 |
 | [lib/nav/mobileBottomNavLayout.ts](../../../lib/nav/mobileBottomNavLayout.ts) | 21 | public-experience | WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER:5, shouldReserveMobileBottomNavClearance:11 |
 | [lib/nav/portalNav.i18n.ts](../../../lib/nav/portalNav.i18n.ts) | 136 | public-experience | MEMBER_PORTAL_NAV_ITEMS_I18N:42 |
-| [lib/nav/portalNav.test.ts](../../../lib/nav/portalNav.test.ts) | 60 | public-experience |  |
+| [lib/nav/portalNav.test.ts](../../../lib/nav/portalNav.test.ts) | 81 | public-experience |  |
 | [lib/nav/portalNav.ts](../../../lib/nav/portalNav.ts) | 494 | public-experience | PortalRole:47, NavGroup:49, NavTab:65, NavBadgeKey:67, PortalNavItem:83, NAV_TAB_META:100, NAV_TAB_ORDER:107, NAV_GROUP_LABELS:109, GROUP_ORDER:126, MEMBER_PORTAL_NAV_ITEMS:147, EMPLOYER_PORTAL_NAV_ITEMS:259, PARTNER_PORTAL_NAV_ITEMS:301, GROUP_PORTAL_NAV_ITEMS:342, ADMIN_PORTAL_NAV_ITEMS:350, COUNSELOR_PORTAL_NAV_ITEMS:442, PORTAL_NAV:454, navItemsForActiveRoute:463, getActiveTab:468, badgeTotalForItem:485 |
 | [lib/nav/workspaceCopy.ts](../../../lib/nav/workspaceCopy.ts) | 42 | public-experience | PRODUCT_COPY:1, EMPLOYER_PORTAL_NAV:11, PARTNER_PORTAL_NAV:18, GROUP_PORTAL_NAV:24, ADMIN_NAV:26 |
 | [lib/notifications/create.ts](../../../lib/notifications/create.ts) | 166 | communications | NotificationType:11, CreateNotificationInput:27, createNotification:54, createBulkNotifications:111 |

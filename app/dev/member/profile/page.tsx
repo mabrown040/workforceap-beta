@@ -9,11 +9,19 @@ import { MemberProfileKit } from '@/components/portal/kit/pages/member/MemberPro
  */
 export const dynamic = 'force-dynamic';
 
-export default function DevMemberProfilePage() {
+export default async function DevMemberProfilePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ live?: string }>;
+}) {
   if (process.env.VERCEL_ENV === 'production') notFound();
+
+  const params = await searchParams;
+  const live = params?.live === '1';
 
   return (
     <MemberProfileKit
+      live={live}
       name="Mike Brown"
       initials="MB"
       headline="AWS Cloud Practitioner candidate · Austin, TX"

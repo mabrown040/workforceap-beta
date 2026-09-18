@@ -4453,12 +4453,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 67,
+        "line": 68,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 75,
+        "line": 76,
         "kind": "FunctionDeclaration",
         "localName": "DashboardProfilePage"
       }
@@ -26570,6 +26570,72 @@
       {
         "specifier": "@/lib/db/withRequestGuc",
         "line": 6,
+        "kind": "import"
+      }
+    ]
+  },
+  {
+    "file": "app/api/member/profile-photo/route.ts",
+    "kind": "route",
+    "path": "/api/member/profile-photo",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "GET",
+        "line": 15,
+        "kind": "Variable"
+      },
+      {
+        "name": "DELETE",
+        "line": 28,
+        "kind": "Variable"
+      }
+    ],
+    "methods": [
+      "GET",
+      "DELETE"
+    ],
+    "configuration": {},
+    "boundaryReferences": [
+      {
+        "specifier": "@/lib/auth/server",
+        "line": 2,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/db/withRequestGuc",
+        "line": 5,
+        "kind": "import"
+      }
+    ]
+  },
+  {
+    "file": "app/api/member/profile-photo/upload/route.ts",
+    "kind": "route",
+    "path": "/api/member/profile-photo/upload",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "POST",
+        "line": 17,
+        "kind": "Variable"
+      }
+    ],
+    "methods": [
+      "POST"
+    ],
+    "configuration": {},
+    "boundaryReferences": [
+      {
+        "specifier": "@/lib/auth/server",
+        "line": 2,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/db/withRequestGuc",
+        "line": 5,
         "kind": "import"
       }
     ]

@@ -9369,8 +9369,16 @@
   },
   {
     "from": "app/(portal)/dashboard/profile/page.tsx",
+    "specifier": "@/lib/portal/memberProfilePhotoUrl",
+    "line": 36,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhotoUrl.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/profile/page.tsx",
     "specifier": "@/app/(portal)/dashboard/resume/ResumeClient",
-    "line": 59,
+    "line": 60,
     "kind": "dynamic-import",
     "external": false,
     "target": "app/(portal)/dashboard/resume/ResumeClient.tsx"
@@ -9378,7 +9386,7 @@
   {
     "from": "app/(portal)/dashboard/profile/page.tsx",
     "specifier": "@/components/portal/ResumeCoachWorkspace",
-    "line": 63,
+    "line": 64,
     "kind": "dynamic-import",
     "external": false,
     "target": "components/portal/ResumeCoachWorkspace.tsx"
@@ -54152,6 +54160,158 @@
     "target": "lib/db/withRequestGuc.ts"
   },
   {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "next/server",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/supabase-admin",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/supabase-admin.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/db/withRequestGuc",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/audit",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/member/getMemberState",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/getMemberState.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/portal/memberProfilePhotoUrl",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhotoUrl.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/route.ts",
+    "specifier": "@/lib/portal/memberProfilePhoto",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "next/server",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/supabase-admin",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/supabase-admin.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/db/withRequestGuc",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/audit",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/member/getMemberState",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/getMemberState.ts"
+  },
+  {
+    "from": "app/api/member/profile-photo/upload/route.ts",
+    "specifier": "@/lib/portal/memberProfilePhoto",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
+  },
+  {
     "from": "app/api/member/profile/completeness/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -78272,6 +78432,62 @@
     "target": "components/portal/kit/FeatureTile.tsx"
   },
   {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "next/navigation",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "lucide-react",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "lucide-react"
+  },
+  {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "./Avatar",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/Avatar.tsx"
+  },
+  {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "@/lib/portal/cropProfilePhoto",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/cropProfilePhoto.ts"
+  },
+  {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "@/lib/portal/memberProfilePhoto",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
+  },
+  {
+    "from": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+    "specifier": "@/lib/fetchWithTimeout",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/fetchWithTimeout.ts"
+  },
+  {
     "from": "components/portal/kit/PageOpener.tsx",
     "specifier": "react",
     "line": 1,
@@ -81985,8 +82201,16 @@
   },
   {
     "from": "components/portal/kit/pages/member/MemberProfileKit.tsx",
-    "specifier": "@/lib/fetchWithTimeout",
+    "specifier": "@/components/portal/kit/MemberProfilePhotoEditor",
     "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/MemberProfilePhotoEditor.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberProfileKit.tsx",
+    "specifier": "@/lib/fetchWithTimeout",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/fetchWithTimeout.ts"
@@ -81994,7 +82218,7 @@
   {
     "from": "components/portal/kit/pages/member/MemberProfileKit.tsx",
     "specifier": "@/components/portal/LanguageToggle",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/LanguageToggle.tsx"
@@ -82002,7 +82226,7 @@
   {
     "from": "components/portal/kit/pages/member/MemberProfileKit.tsx",
     "specifier": "@/components/portal/PushNotificationsToggle",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/PushNotificationsToggle.tsx"
@@ -82010,7 +82234,7 @@
   {
     "from": "components/portal/kit/pages/member/MemberProfileKit.tsx",
     "specifier": "@/components/portal/DeleteAccountButton",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/DeleteAccountButton.tsx"
@@ -97824,6 +98048,14 @@
     "target": "lib/supabase-admin.ts"
   },
   {
+    "from": "lib/gdpr/deleteUserStorage.ts",
+    "specifier": "@/lib/portal/memberProfilePhoto",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
+  },
+  {
     "from": "lib/gdpr/erase-routes.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -103320,6 +103552,14 @@
     "target": "components/portal/kit/astryxMap.ts"
   },
   {
+    "from": "lib/portal/cropProfilePhoto.ts",
+    "specifier": "@/lib/portal/memberProfilePhoto",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
+  },
+  {
     "from": "lib/portal/kit-architecture.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -103390,6 +103630,54 @@
     "kind": "import",
     "external": true,
     "package": "node:path"
+  },
+  {
+    "from": "lib/portal/memberProfilePhoto.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/portal/memberProfilePhoto.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/portal/memberProfilePhoto.test.ts",
+    "specifier": "./memberProfilePhoto",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
+  },
+  {
+    "from": "lib/portal/memberProfilePhotoUrl.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/portal/memberProfilePhotoUrl.ts",
+    "specifier": "@/lib/supabase-admin",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/supabase-admin.ts"
+  },
+  {
+    "from": "lib/portal/memberProfilePhotoUrl.ts",
+    "specifier": "@/lib/portal/memberProfilePhoto",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/portal/memberProfilePhoto.ts"
   },
   {
     "from": "lib/portal/memberResumeUpload.test.ts",

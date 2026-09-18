@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "f65aa7f0b52121c7b40193801614da9c88a23585aea99d66568c7481604a7193",
+  "inputTreeSha256": "197872e39d01f5d0b21a9de79fc39a44bafa7a86ed8ddf101949641ab4f95d77",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -10208,19 +10208,19 @@
       "path": "app/(portal)/dashboard/profile/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 33162,
-      "lines": 951,
-      "sha256": "a490f319c39f62c82e9833d4b441a1cc1aabb9fc85b295377d3415bad63508ca",
+      "bytes": 33453,
+      "lines": 957,
+      "sha256": "cd5d3fdb6f9ee8f95da949998916b4f4b9ebf8679d6e8600552de2d6bf702b98",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 67,
+          "line": 68,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 75,
+          "line": 76,
           "kind": "FunctionDeclaration",
           "localName": "DashboardProfilePage"
         }
@@ -10228,27 +10228,27 @@
       "declarations": [
         {
           "name": "chunkLoadingCard",
-          "line": 37,
+          "line": 38,
           "kind": "Variable"
         },
         {
           "name": "ResumeClient",
-          "line": 59,
+          "line": 60,
           "kind": "Variable"
         },
         {
           "name": "ResumeCoachWorkspace",
-          "line": 63,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "generateMetadata",
-          "line": 67,
+          "line": 68,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DashboardProfilePage",
-          "line": 75,
+          "line": 76,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -36755,6 +36755,64 @@
       "directive": null
     },
     {
+      "path": "app/api/member/profile-photo/route.ts",
+      "area": "api",
+      "domain": "member-counselor",
+      "bytes": 2685,
+      "lines": 79,
+      "sha256": "ab3c61bcd5679b41bc8bb948bdba3737f90c235d06443df3dabd80ed7775256b",
+      "binary": false,
+      "exports": [
+        {
+          "name": "GET",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "DELETE",
+          "line": 28,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "GET",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "DELETE",
+          "line": 28,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "app/api/member/profile-photo/upload/route.ts",
+      "area": "api",
+      "domain": "member-counselor",
+      "bytes": 3432,
+      "lines": 103,
+      "sha256": "6d1e5169c96801e3599c51b5f173698817402bc33de7a46b42c3edc3a61e8bba",
+      "binary": false,
+      "exports": [
+        {
+          "name": "POST",
+          "line": 17,
+          "kind": "Variable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "POST",
+          "line": 17,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "app/api/member/profile/completeness/route.ts",
       "area": "api",
       "domain": "member-counselor",
@@ -43290,9 +43348,9 @@
       "path": "app/dev/member/profile/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 1528,
-      "lines": 37,
-      "sha256": "1fe4421f71c4d7a4bf6aaf25526a9bb71378dc3997d90f4195e484d414af398e",
+      "bytes": 1696,
+      "lines": 45,
+      "sha256": "a8d0a5338626053291668f702696bef9547ce2a89d9cea7766005ef113d0099a",
       "binary": false,
       "exports": [
         {
@@ -64875,14 +64933,14 @@
       "path": "components/portal/kit/Avatar.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 1287,
-      "lines": 52,
-      "sha256": "c785b1e17f0d5b297f0c82f642d9bd9a194af3b58ac84d4910bcb5b91cdbd17e",
+      "bytes": 1596,
+      "lines": 66,
+      "sha256": "a9d64d8019ec0e4be7d2d56f2443abc23ae39e71784f114c7af3fb0852ec156b",
       "binary": false,
       "exports": [
         {
           "name": "Avatar",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -64894,7 +64952,7 @@
         },
         {
           "name": "Avatar",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -65516,6 +65574,35 @@
         }
       ],
       "directive": null
+    },
+    {
+      "path": "components/portal/kit/MemberProfilePhotoEditor.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 8980,
+      "lines": 289,
+      "sha256": "dfe02863e22c71c87138add949a40f1a5801860438dcc4dc23cb8a7a052023ce",
+      "binary": false,
+      "exports": [
+        {
+          "name": "MemberProfilePhotoEditor",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "MemberProfilePhotoEditorProps",
+          "line": 11,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "MemberProfilePhotoEditor",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
     },
     {
       "path": "components/portal/kit/PageOpener.tsx",
@@ -71011,66 +71098,66 @@
       "path": "components/portal/kit/pages/member/MemberProfileKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 16316,
-      "lines": 410,
-      "sha256": "202df214fb5b0c441b40f1836d9ff6f7806d17ce22cbfa183d9acf72cc70c9be",
+      "bytes": 16386,
+      "lines": 411,
+      "sha256": "540315e94368bb561ab98662b127c7bbc401c8ee50992189553559b6777dcd79",
       "binary": false,
       "exports": [
         {
           "name": "MemberProfileAccountPassthrough",
-          "line": 52,
+          "line": 53,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProfileKitProps",
-          "line": 65,
+          "line": 66,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProfileKit",
-          "line": 95,
+          "line": 98,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "ProfileBadge",
-          "line": 29,
+          "line": 30,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "NotificationPref",
-          "line": 40,
+          "line": 41,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProfileAccountPassthrough",
-          "line": 52,
+          "line": 53,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "MemberProfileKitProps",
-          "line": 65,
+          "line": 66,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_BADGES",
-          "line": 89,
+          "line": 92,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_PROGRAM_OPTIONS",
-          "line": 91,
+          "line": 94,
           "kind": "Variable"
         },
         {
           "name": "DEFAULT_NOTIFICATIONS",
-          "line": 93,
+          "line": 96,
           "kind": "Variable"
         },
         {
           "name": "MemberProfileKit",
-          "line": 95,
+          "line": 98,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -113403,9 +113490,9 @@
       "path": "lib/gdpr/deleteUserStorage.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 6028,
-      "lines": 171,
-      "sha256": "25e80e2186ed10239754ce091bd2aa0298332e978d2bec0a693eb920a535285f",
+      "bytes": 6233,
+      "lines": 175,
+      "sha256": "235152bc0ccf38ed9afb099f73be87b7e52952968a43c25a032f456734ee363e",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -113431,166 +113518,166 @@
       "path": "lib/gdpr/deleteUserStorage.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 7030,
-      "lines": 210,
-      "sha256": "c8214b2471bc40dc0b40c9932abc0eee357887bd45b4d4acd7d74f308c397350",
+      "bytes": 7436,
+      "lines": 214,
+      "sha256": "b9674eaa9909d25bcaa0a142d8fed012bc942691bb502a2dd981316d29c48113",
       "binary": false,
       "exports": [
         {
           "name": "MEMBER_RESUME_BUCKET",
-          "line": 3,
-          "kind": "Variable"
-        },
-        {
-          "name": "MEMBER_FILES_BUCKET",
           "line": 4,
           "kind": "Variable"
         },
         {
+          "name": "MEMBER_FILES_BUCKET",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
           "name": "MEMBER_STORAGE_PREFIXES",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "StorageListItem",
-          "line": 21,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberStorageAdmin",
-          "line": 37,
+          "line": 39,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberStorageObject",
-          "line": 41,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "DeleteUserStorageResult",
           "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "DeleteUserStorageResult",
+          "line": 45,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "parseMemberStoragePath",
-          "line": 63,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isMemberOwnedStoragePath",
-          "line": 76,
+          "line": 78,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deleteUserStorageObjects",
-          "line": 156,
+          "line": 160,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ACCOUNT_STORAGE_DELETE_FAILED",
-          "line": 209,
+          "line": 213,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "MEMBER_RESUME_BUCKET",
-          "line": 3,
-          "kind": "Variable"
-        },
-        {
-          "name": "MEMBER_FILES_BUCKET",
           "line": 4,
           "kind": "Variable"
         },
         {
+          "name": "MEMBER_FILES_BUCKET",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
           "name": "MEMBER_STORAGE_PREFIXES",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "LIST_PAGE",
-          "line": 18,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "REMOVE_BATCH",
-          "line": 19,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "StorageListItem",
-          "line": 21,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StorageBucketApi",
-          "line": 27,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberStorageAdmin",
-          "line": 37,
+          "line": 39,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberStorageObject",
-          "line": 41,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "DeleteUserStorageResult",
           "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "DeleteUserStorageResult",
+          "line": 45,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "isSafeUserId",
-          "line": 47,
+          "line": 49,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isNotFoundMessage",
-          "line": 51,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isFolder",
-          "line": 55,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeObjectPath",
-          "line": 59,
+          "line": 61,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseMemberStoragePath",
-          "line": 63,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isMemberOwnedStoragePath",
-          "line": 76,
+          "line": 78,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listPrefix",
-          "line": 93,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "removePaths",
-          "line": 127,
+          "line": 131,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deleteUserStorageObjects",
-          "line": 156,
+          "line": 160,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ACCOUNT_STORAGE_DELETE_FAILED",
-          "line": 209,
+          "line": 213,
           "kind": "Variable"
         }
       ],
@@ -126502,6 +126589,35 @@
       "directive": null
     },
     {
+      "path": "lib/portal/cropProfilePhoto.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1592,
+      "lines": 47,
+      "sha256": "9673b79be0fc1c81bbe85a3be3c1f6a6b3736b308306f9bcd10ab533d448bc14",
+      "binary": false,
+      "exports": [
+        {
+          "name": "cropProfilePhotoToSquare",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "cropProfilePhotoToSquare",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loadImage",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/portal/interviewVoice.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -126671,6 +126787,161 @@
           "name": "programKit",
           "line": 10,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/portal/memberProfilePhoto.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1112,
+      "lines": 25,
+      "sha256": "ceb16996a76f1f1f3aa5dc648cd66abcc9ecaad1e063ed998fb3a56ff2bc5dec",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/portal/memberProfilePhoto.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1610,
+      "lines": 42,
+      "sha256": "c37de69ca3ff36ddfde3ae8970148799496849a5d1af24823203a5dec9afa587",
+      "binary": false,
+      "exports": [
+        {
+          "name": "PROFILE_PHOTO_BUCKET",
+          "line": 1,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_MAX_BYTES",
+          "line": 2,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_OUTPUT_SIZE",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_ACCEPT",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "profilePhotoStoragePath",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "profilePhotoPrefixForUser",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isProfilePhotoStoragePath",
+          "line": 23,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolveProfilePhotoContentType",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "profilePhotoStorageErrorMessage",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PROFILE_PHOTO_BUCKET",
+          "line": 1,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_MAX_BYTES",
+          "line": 2,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_OUTPUT_SIZE",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_ACCEPT",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_EXTENSIONS",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROFILE_PHOTO_MIME",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "profilePhotoStoragePath",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "profilePhotoPrefixForUser",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isProfilePhotoStoragePath",
+          "line": 23,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolveProfilePhotoContentType",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "profilePhotoStorageErrorMessage",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/portal/memberProfilePhotoUrl.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 978,
+      "lines": 31,
+      "sha256": "5e6cacabaf4ba063d950b0c86aced9d138d31981ee5157ef5cee9e38b455fc3f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "getMemberProfilePhotoSignedUrl",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SIGNED_URL_TTL_SECONDS",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "getMemberProfilePhotoSignedUrl",
+          "line": 7,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -139269,6 +139540,15 @@
       "binary": false
     },
     {
+      "path": "prisma/migrations/20260918160000_add_profile_photo_path/migration.sql",
+      "area": "database",
+      "domain": "database",
+      "bytes": 147,
+      "lines": 2,
+      "sha256": "bc85c84582d0a65abbfc6560b78c5dffde19a97a7b8b719a615267638e9c7057",
+      "binary": false
+    },
+    {
       "path": "prisma/migrations/migration_lock.toml",
       "area": "database",
       "domain": "database",
@@ -139281,9 +139561,9 @@
       "path": "prisma/schema.prisma",
       "area": "database",
       "domain": "database",
-      "bytes": 134017,
-      "lines": 3173,
-      "sha256": "2c614655f097e33019ccea4d0db2b6d543698687b4fe099e3dd2bb627f4aa8b2",
+      "bytes": 134173,
+      "lines": 3175,
+      "sha256": "8a2976ffcd41745ded1a1ea34b8821246cd67eb8fe2ad5147130b36156a30935",
       "binary": false
     },
     {

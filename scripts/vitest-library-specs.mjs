@@ -14,6 +14,7 @@ export const VITEST_LIBRARY_SPECS = Object.freeze([
   'lib/counselor/templates.test.ts',
   'lib/coursera/learnerProgress.test.ts',
   'lib/cron/wioa-report.test.ts',
+  'lib/enroll/listPublicEnrollmentPartners.test.ts',
   'lib/marketing/trustStripMetrics.test.ts',
   'lib/marketing/googleItSupportLanding.test.ts',
   'lib/messages/counselorInbox.test.ts',

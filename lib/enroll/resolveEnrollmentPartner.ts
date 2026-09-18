@@ -33,6 +33,14 @@ export type EnrollmentPageModel = {
   programs: EnrollmentProgramCard[];
 };
 
+/** Public directory entry for partner enrollment landings (soft 404 picker). */
+export type EnrollmentPartnerLink = {
+  name: string;
+  slug: string;
+  enrollmentPath: string;
+  schoolDistrict: string | null;
+};
+
 function candidateKeys(school: string): string[] {
   const key = normalizePartnerRef(school);
   if (!key) return [];
@@ -119,4 +127,46 @@ export async function resolveEnrollmentPartner(school: string): Promise<Enrollme
 
 export function enrollPageCopyIsStakeSafe(text: string): boolean {
   return !/\bfree\b/i.test(text);
+}
+
+/** Humanize a URL segment for soft-404 copy (`unknown-school` → `unknown school`). */
+export function humanizeEnrollmentSchoolKey(school: string): string {
+  const key = normalizePartnerRef(school) || school.trim().toLowerCase();
+  if (!key) return 'that school';
+  return key.replace(/-/g, ' ');
+}
+
+/**
+ * Active partners with a live `/enroll/[school]` page (catalog has at least one
+ * known program). Used when an unknown school slug needs a recovery picker.
+ */
+export async function listPublicEnrollmentPartners(): Promise<EnrollmentPartnerLink[]> {
+  const partners = await prisma.partner.findMany({
+    where: {
+      active: true,
+      enrollmentPageEnabled: true,
+    },
+    orderBy: { name: 'asc' },
+    select: {
+      name: true,
+      slug: true,
+      schoolDistrict: true,
+      programCatalog: {
+        select: { programSlug: true },
+      },
+    },
+  });
+
+  const links: EnrollmentPartnerLink[] = [];
+  for (const partner of partners) {
+    const hasProgram = partner.programCatalog.some((row) => Boolean(getProgramBySlug(row.programSlug)));
+    if (!hasProgram) continue;
+    links.push({
+      name: partner.name,
+      slug: partner.slug,
+      enrollmentPath: enrollmentPathForSlug(partner.slug),
+      schoolDistrict: partner.schoolDistrict,
+    });
+  }
+  return links;
 }

@@ -14,12 +14,12 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | astro-marketing | 106 | [Open](astro-marketing.md) |
 | audit-graph | 81 | [Open](audit-graph.md) |
 | communications | 71 | [Open](communications.md) |
-| components | 655 | [Open](components.md) |
+| components | 656 | [Open](components.md) |
 | content | 14 | [Open](content.md) |
 | database | 200 | [Open](database.md) |
 | delivery | 9 | [Open](delivery.md) |
 | documentation | 355 | [Open](documentation.md) |
-| libraries | 918 | [Open](libraries.md) |
+| libraries | 919 | [Open](libraries.md) |
 | localization | 6 | [Open](localization.md) |
 | operations | 120 | [Open](operations.md) |
 | pages | 631 | [Open](pages.md) |

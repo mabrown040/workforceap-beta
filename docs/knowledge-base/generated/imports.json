@@ -64201,11 +64201,11 @@
   },
   {
     "from": "app/enroll/[school]/page.tsx",
-    "specifier": "next/navigation",
+    "specifier": "@/components/marketing/PartnerSchoolEnrollMissing",
     "line": 2,
     "kind": "import",
-    "external": true,
-    "package": "next"
+    "external": false,
+    "target": "components/marketing/PartnerSchoolEnrollMissing.tsx"
   },
   {
     "from": "app/enroll/[school]/page.tsx",
@@ -64226,7 +64226,7 @@
   {
     "from": "app/enroll/[school]/page.tsx",
     "specifier": "@/css/enroll-school.css",
-    "line": 5,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "css/enroll-school.css"
@@ -70286,6 +70286,30 @@
     "kind": "import",
     "external": true,
     "package": "next-intl"
+  },
+  {
+    "from": "components/marketing/PartnerSchoolEnrollMissing.tsx",
+    "specifier": "next/link",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/marketing/PartnerSchoolEnrollMissing.tsx",
+    "specifier": "@/lib/enroll/resolveEnrollmentPartner",
+    "line": 2,
+    "kind": "type",
+    "external": false,
+    "target": "lib/enroll/resolveEnrollmentPartner.ts"
+  },
+  {
+    "from": "components/marketing/PartnerSchoolEnrollMissing.tsx",
+    "specifier": "@/lib/enroll/resolveEnrollmentPartner",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/enroll/resolveEnrollmentPartner.ts"
   },
   {
     "from": "components/marketing/PartnerSchoolEnrollPage.tsx",
@@ -96990,6 +97014,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/enroll/listPublicEnrollmentPartners.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "lib/enroll/listPublicEnrollmentPartners.test.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/enroll/listPublicEnrollmentPartners.test.ts",
+    "specifier": "@/lib/enroll/resolveEnrollmentPartner",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/enroll/resolveEnrollmentPartner.ts"
   },
   {
     "from": "lib/enroll/resolveEnrollmentPartner.test.ts",

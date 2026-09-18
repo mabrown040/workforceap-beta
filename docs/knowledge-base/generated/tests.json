@@ -5511,6 +5511,40 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/enroll/listPublicEnrollmentPartners.test.ts",
+    "area": "libraries",
+    "domain": "applications-enrollment",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 19
+      },
+      {
+        "file": "lib/enroll/resolveEnrollmentPartner.ts",
+        "line": 20
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "delegated",
+        "reason": "owned by npm run test:vitest (shared manifest; collection guarded)"
+      },
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/enroll/resolveEnrollmentPartner.test.ts",
     "area": "libraries",
     "domain": "applications-enrollment",

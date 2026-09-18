@@ -1,7 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { enrollmentPathForSlug, enrollmentPathSegment } from './enrollmentPath';
-import { enrollPageCopyIsStakeSafe } from './resolveEnrollmentPartner';
+import {
+  enrollPageCopyIsStakeSafe,
+  humanizeEnrollmentSchoolKey,
+} from './resolveEnrollmentPartner';
 
 describe('enrollment path helpers', () => {
   it('shortens a high-school slug for the public URL', () => {
@@ -27,5 +30,16 @@ describe('enroll page copy stake', () => {
 
   it('rejects the banned word', () => {
     assert.equal(enrollPageCopyIsStakeSafe('Free career training for students'), false);
+  });
+});
+
+describe('humanizeEnrollmentSchoolKey', () => {
+  it('turns URL segments into readable labels', () => {
+    assert.equal(humanizeEnrollmentSchoolKey('unknown-school'), 'unknown school');
+    assert.equal(humanizeEnrollmentSchoolKey('Concordia-HS'), 'concordia hs');
+  });
+
+  it('falls back when the segment is empty', () => {
+    assert.equal(humanizeEnrollmentSchoolKey('   '), 'that school');
   });
 });

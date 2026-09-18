@@ -7,7 +7,7 @@
  */
 
 import { getProgramBySlug } from './programs';
-import type { Program } from './programs';
+import type { LanguageSupport, Program } from './programs';
 import { getProgramExtra } from './programExtras';
 import { salaryRangeDisplay } from './programSalaryOutcomes';
 
@@ -22,6 +22,8 @@ export type ComparisonTrack = {
   certs: string;
   categoryLabel: string;
   categoryOrder: number;
+  /** Coursera language support from the canonical program record (English always available). */
+  languagesSupported?: LanguageSupport;
 };
 
 type FeaturedEntry = {
@@ -188,6 +190,7 @@ export function getProgramComparisonTracks(): ComparisonTrack[] {
       certs,
       categoryLabel,
       categoryOrder,
+      languagesSupported: program.languagesSupported,
     };
   });
 }

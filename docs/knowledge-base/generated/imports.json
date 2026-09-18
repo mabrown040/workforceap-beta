@@ -27249,8 +27249,16 @@
   },
   {
     "from": "app/api/admin/coursera/backfill-xapi/route.ts",
-    "specifier": "@/lib/xapi/statementModel",
+    "specifier": "@/lib/db/exactEmailMatch",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/admin/coursera/backfill-xapi/route.ts",
+    "specifier": "@/lib/xapi/statementModel",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/statementModel.ts"
@@ -27258,7 +27266,7 @@
   {
     "from": "app/api/admin/coursera/backfill-xapi/route.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
@@ -27266,7 +27274,7 @@
   {
     "from": "app/api/admin/coursera/backfill-xapi/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -27274,7 +27282,7 @@
   {
     "from": "app/api/admin/coursera/backfill-xapi/route.ts",
     "specifier": "@/lib/audit",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -27282,7 +27290,7 @@
   {
     "from": "app/api/admin/coursera/backfill-xapi/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -28601,8 +28609,16 @@
   },
   {
     "from": "app/api/admin/coursera/sync-user-from-b4b/route.ts",
-    "specifier": "@/lib/db/withRequestGuc",
+    "specifier": "@/lib/db/exactEmailMatch",
     "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/admin/coursera/sync-user-from-b4b/route.ts",
+    "specifier": "@/lib/db/withRequestGuc",
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -28610,7 +28626,7 @@
   {
     "from": "app/api/admin/coursera/sync-user-from-b4b/route.ts",
     "specifier": "@/lib/audit",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -28618,7 +28634,7 @@
   {
     "from": "app/api/admin/coursera/sync-user-from-b4b/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -39081,8 +39097,16 @@
   },
   {
     "from": "app/api/admin/training-progress/items/route.ts",
+    "specifier": "@/lib/db/exactEmailMatch",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "app/api/admin/training-progress/items/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -105481,8 +105505,16 @@
   },
   {
     "from": "lib/xapi/mappings.ts",
-    "specifier": "@/lib/email",
+    "specifier": "@/lib/db/exactEmailMatch",
     "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "lib/xapi/mappings.ts",
+    "specifier": "@/lib/email",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -105490,7 +105522,7 @@
   {
     "from": "lib/xapi/mappings.ts",
     "specifier": "@/lib/email/pacing",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/email/pacing.ts"
@@ -105498,7 +105530,7 @@
   {
     "from": "lib/xapi/mappings.ts",
     "specifier": "@/lib/coursera/testAccountHeuristic",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/testAccountHeuristic.ts"
@@ -105506,7 +105538,7 @@
   {
     "from": "lib/xapi/mappings.ts",
     "specifier": "@/lib/coursera/mapIdentityAndProgress.server",
-    "line": 427,
+    "line": 437,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/mapIdentityAndProgress.server.ts"
@@ -105553,8 +105585,16 @@
   },
   {
     "from": "lib/xapi/reprocess.ts",
-    "specifier": "@/lib/xapi/inboundStatementPipeline",
+    "specifier": "@/lib/db/exactEmailMatch",
     "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/exactEmailMatch.ts"
+  },
+  {
+    "from": "lib/xapi/reprocess.ts",
+    "specifier": "@/lib/xapi/inboundStatementPipeline",
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/inboundStatementPipeline.ts"
@@ -105562,7 +105602,7 @@
   {
     "from": "lib/xapi/reprocess.ts",
     "specifier": "@/lib/xapi/statements",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/statements.ts"
@@ -105570,7 +105610,7 @@
   {
     "from": "lib/xapi/reprocess.ts",
     "specifier": "@/lib/coursera/mapIdentityAndProgress.server",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/mapIdentityAndProgress.server.ts"
@@ -105578,7 +105618,7 @@
   {
     "from": "lib/xapi/reprocess.ts",
     "specifier": "@/lib/coursera/replayPendingXapi",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/replayPendingXapi.ts"
@@ -105586,7 +105626,7 @@
   {
     "from": "lib/xapi/reprocess.ts",
     "specifier": "@/lib/xapi/persistedOrganization",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/persistedOrganization.ts"
@@ -108680,6 +108720,46 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "next/server",
+    "line": 20,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "@/app/api/admin/coursera/backfill-xapi/route",
+    "line": 55,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/coursera/backfill-xapi/route.ts"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "@/app/api/admin/coursera/sync-user-from-b4b/route",
+    "line": 56,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/coursera/sync-user-from-b4b/route.ts"
+  },
+  {
+    "from": "tests/api/admin-coursera-exact-email-match.spec.ts",
+    "specifier": "next/server",
+    "line": 77,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
     "from": "tests/api/admin-coursera-map-unmatched.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -110086,6 +110166,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
+  },
+  {
+    "from": "tests/api/admin-training-progress-items-exact-email.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-training-progress-items-exact-email.spec.ts",
+    "specifier": "@/app/api/admin/training-progress/items/route",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/training-progress/items/route.ts"
   },
   {
     "from": "tests/api/admin-user-create-active-identity-race.spec.ts",
@@ -121374,6 +121470,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/cron/withCronLogging.ts"
+  },
+  {
+    "from": "tests/lib/xapi-exact-email-match.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/xapi-exact-email-match.spec.ts",
+    "specifier": "@/lib/xapi/mappings",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/mappings.ts"
+  },
+  {
+    "from": "tests/lib/xapi-exact-email-match.spec.ts",
+    "specifier": "@/lib/xapi/reprocess",
+    "line": 46,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/reprocess.ts"
   },
   {
     "from": "tests/lib/xapi-first-completion-side-effects.spec.ts",

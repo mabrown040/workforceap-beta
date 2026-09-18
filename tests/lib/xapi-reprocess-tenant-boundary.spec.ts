@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   queryRaw: vi.fn(),
-  findFirst: vi.fn(),
+  findMany: vi.fn(),
   handle: vi.fn(),
   parse: vi.fn(),
   mapIdentity: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('server-only', () => ({}));
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $queryRaw: mocks.queryRaw,
-    user: { findFirst: mocks.findFirst },
+    user: { findMany: mocks.findMany },
   },
 }));
 vi.mock('@/lib/xapi/inboundStatementPipeline', () => ({
@@ -54,7 +54,9 @@ describe('xAPI reprocess tenant boundary', () => {
     vi.clearAllMocks();
     mocks.parse.mockReturnValue(parsed);
     mocks.handle.mockResolvedValue({ completions: [{ ok: true }] });
-    mocks.findFirst.mockResolvedValue({ id: 'user-a', organizationId: 'org-a' });
+    mocks.findMany.mockResolvedValue([
+      { id: 'user-a', email: 'learner@example.com', organizationId: 'org-a' },
+    ]);
     mocks.mapIdentity.mockResolvedValue({});
     mocks.replayPending.mockResolvedValue({
       scanned: 0,
@@ -73,7 +75,7 @@ describe('xAPI reprocess tenant boundary', () => {
 
     const result = await autoHealUnmatchedXapiEvents(10);
 
-    expect(mocks.findFirst).toHaveBeenCalledWith(
+    expect(mocks.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ organizationId: 'org-a', deletedAt: null }),
       }),
@@ -95,7 +97,7 @@ describe('xAPI reprocess tenant boundary', () => {
 
     const result = await autoHealUnmatchedXapiEvents(10);
 
-    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.findMany).not.toHaveBeenCalled();
     expect(mocks.mapIdentity).not.toHaveBeenCalled();
     expect(mocks.handle).not.toHaveBeenCalled();
     expect(result.errors).toBe(1);

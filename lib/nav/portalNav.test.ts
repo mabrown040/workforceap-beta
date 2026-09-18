@@ -9,6 +9,22 @@ import { MEMBER_PORTAL_NAV_ITEMS_I18N } from './portalNav.i18n';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const source = (relativePath: string) => readFileSync(path.join(root, relativePath), 'utf8');
 
+test('Job board and Training progress stay in the member primary rail', () => {
+  const jobs = MEMBER_PORTAL_NAV_ITEMS.find((entry) => entry.href === '/dashboard/jobs');
+  const progress = MEMBER_PORTAL_NAV_ITEMS.find((entry) => entry.href === '/dashboard/readiness');
+  assert.equal(jobs?.group, 'primary');
+  assert.equal(jobs?.label, 'Job board');
+  assert.equal(progress?.group, 'primary');
+  assert.equal(progress?.label, 'My progress');
+});
+
+test('i18n Job board and Training progress stay in the member primary rail', () => {
+  const jobs = MEMBER_PORTAL_NAV_ITEMS_I18N.find((entry) => entry.href === '/dashboard/jobs');
+  const progress = MEMBER_PORTAL_NAV_ITEMS_I18N.find((entry) => entry.href === '/dashboard/readiness');
+  assert.equal(jobs?.group, 'primary');
+  assert.equal(progress?.group, 'primary');
+});
+
 test('Training preassessment nav points at the assessment page, not AI tools', () => {
   const item = MEMBER_PORTAL_NAV_ITEMS.find((entry) => entry.label === 'Training preassessment');
   assert.ok(item, 'expected a Training preassessment nav item');

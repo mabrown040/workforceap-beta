@@ -149,6 +149,15 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard', label: 'Home', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
   { href: '/dashboard/program', label: 'My program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  {
+    href: '/dashboard/jobs',
+    label: 'Job board',
+    group: 'primary',
+    tab: 'jobs',
+    Icon: Briefcase,
+    tourTarget: 'tour-jobs',
+  },
+  { href: '/dashboard/readiness', label: 'My progress', group: 'primary', tab: 'jobs', Icon: CheckCircle },
   { href: '/dashboard/missions', label: 'Skill missions', group: 'primary', tab: 'program', Icon: Target },
   {
     href: '/dashboard/program/start',
@@ -171,15 +180,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
         } as PortalNavItem,
       ]
     : []),
-  // ── Jobs tab ──
-  {
-    href: '/dashboard/jobs',
-    label: 'Job board',
-    group: 'workflows',
-    tab: 'jobs',
-    Icon: Briefcase,
-    tourTarget: 'tour-jobs',
-  },
+  // ── Jobs tab (board + progress sit in primary; apply/resume stay grouped) ──
   {
     href: '/dashboard/job-applications',
     label: 'Job applications',
@@ -190,7 +191,6 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'applications_new',
   },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
-  { href: '/dashboard/readiness', label: 'My progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },

@@ -42,6 +42,15 @@ const WIOA_AVAILABLE = isWioaPortalAvailable(process.env.NEXT_PUBLIC_WIOA_ENABLE
 export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
   { href: '/dashboard', label: 'nav:dashboard', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   { href: '/dashboard/program', label: 'nav:programs', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  {
+    href: '/dashboard/jobs',
+    label: 'nav:jobBoard',
+    group: 'primary',
+    tab: 'jobs',
+    Icon: Briefcase,
+    tourTarget: 'tour-jobs',
+  },
+  { href: '/dashboard/readiness', label: 'nav:myProgress', group: 'primary', tab: 'jobs', Icon: CheckCircle },
   { href: '/dashboard/certifications', label: 'nav:certifications', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
   { href: '/dashboard/career-brief', label: 'nav:careerPlan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE
@@ -56,14 +65,6 @@ export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
       ]
     : []),
   {
-    href: '/dashboard/jobs',
-    label: 'nav:jobBoard',
-    group: 'workflows',
-    tab: 'jobs',
-    Icon: Briefcase,
-    tourTarget: 'tour-jobs',
-  },
-  {
     href: '/dashboard/job-applications',
     label: 'nav:jobApplications',
     group: 'workflows',
@@ -73,7 +74,6 @@ export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
     badgeKey: 'applications_new',
   },
   { href: '/dashboard/resume', label: 'nav:resume', group: 'workflows', tab: 'jobs', Icon: FileText },
-  { href: '/dashboard/readiness', label: 'nav:myProgress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   { href: '/dashboard/ai-tools', label: 'nav:aiToolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   {
     href: '/dashboard/learning',

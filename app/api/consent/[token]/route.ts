@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { consumeTokenizedLink, validateTokenizedLink } from '@/lib/tokenizedLink';
 import { checkPublicQuestionnaireSubmitRateLimit } from '@/lib/rate-limit';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import {
+  persistGuardianConsent,
+} from '@/lib/consent/guardianConsentPersistence';
+import { interactiveTransactionsGuaranteed } from '@/lib/db/transactionPolicy';
 
 /**
  * POST /api/consent/[token]
@@ -42,19 +45,13 @@ export const POST = withApiGuc(
       }
 
       const { token } = await context.params;
-      const validation = await validateTokenizedLink(token, 'guardian_consent');
-      if (!validation.ok) {
-        const msg =
-          validation.reason === 'expired'
-            ? 'This link has expired.'
-            : validation.reason === 'consumed'
-              ? 'This link has already been used.'
-              : 'This link is no longer valid.';
-        return NextResponse.json({ error: msg }, { status: 410 });
+      if (!interactiveTransactionsGuaranteed()) {
+        return NextResponse.json(
+          { error: 'Guardian consent is temporarily unavailable. Please try again later.' },
+          { status: 503 },
+        );
       }
-
-      const { link } = validation;
-      if (!link.subjectUserId) {
+      if (!token || token.length < 32) {
         return NextResponse.json({ error: 'This link is no longer valid.' }, { status: 410 });
       }
 
@@ -72,44 +69,42 @@ export const POST = withApiGuc(
         );
       }
 
-      const consumed = await consumeTokenizedLink(link.id);
-      if (!consumed) {
-        return NextResponse.json({ error: 'This link has already been used.' }, { status: 409 });
-      }
-
-      const subjectId = link.subjectUserId;
-      const now = new Date();
-      const profileData = {
-        isMinor: true,
-        parentGuardianName: parsed.data.guardianName,
-        parentGuardianEmail: parsed.data.guardianEmail,
-        parentGuardianPhone: parsed.data.guardianPhone?.trim() || null,
-        parentalConsentGiven: true,
-        parentalConsentDate: now,
-      };
-
-      await prisma.profile.upsert({
-        where: { userId: subjectId },
-        create: { userId: subjectId, ...profileData },
-        update: profileData,
+      const outcome = await persistGuardianConsent(prisma, {
+        token,
+        guardianName: parsed.data.guardianName,
+        guardianEmail: parsed.data.guardianEmail,
+        guardianPhone: parsed.data.guardianPhone?.trim() || null,
       });
+
+      if (!outcome.ok) {
+        const message =
+          outcome.reason === 'expired'
+            ? 'This link has expired.'
+            : outcome.reason === 'consumed' || outcome.reason === 'conflict'
+              ? 'This link has already been used.'
+              : 'This link is no longer valid.';
+        return NextResponse.json(
+          { error: message },
+          { status: outcome.reason === 'conflict' ? 409 : 410 },
+        );
+      }
 
       await Promise.resolve(
         auditLog({
-          actorUserId: subjectId,
+          actorUserId: outcome.subjectId,
           action: 'guardian_consent_submitted',
           targetType: 'User',
-          targetId: subjectId,
-          metadata: { linkId: link.id, orgId: link.orgId },
+          targetId: outcome.subjectId,
+          metadata: { linkId: outcome.linkId, orgId: outcome.orgId },
         }),
       ).catch(() => {});
       logAuditEvent({
-        user: { id: subjectId, role: 'member' },
+        user: { id: outcome.subjectId, role: 'member' },
         verb: 'submitted',
-        object: { type: 'GuardianConsent', id: link.id },
+        object: { type: 'GuardianConsent', id: outcome.linkId },
         result: { success: true },
         request: auditRequestMeta(request),
-        orgId: link.orgId,
+        orgId: outcome.orgId,
       }).catch(() => {});
 
       return NextResponse.json({ ok: true });

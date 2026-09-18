@@ -1,4 +1,6 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,9 +20,20 @@ vi.mock('@/components/portal/MemberPortalTopNav', () => ({ default: () => null }
 vi.mock('@/components/portal/GlobalSearch', () => ({ default: () => null }));
 vi.mock('@/components/MobileBottomNav', () => ({ default: () => null }));
 vi.mock('@/components/portal/LanguageToggle', () => ({ default: () => <span>Language</span> }));
-vi.mock('@/components/theme/ThemeSelector', () => ({ default: () => <span>Theme preference</span> }));
+vi.mock('@/components/theme/ThemeSelector', () => ({
+  default: () => <div role="radiogroup" aria-label="Appearance">
+    <span>Theme preference</span>
+    <button type="button" role="radio" aria-checked="false" tabIndex={-1}>Light</button>
+    <button type="button" role="radio" aria-checked="true" tabIndex={0}>System</button>
+    <button type="button" role="radio" aria-checked="false" tabIndex={-1}>Dark</button>
+  </div>,
+}));
 vi.mock('@/components/portal/UnreviewedLocaleBanner', () => ({ default: () => null }));
-vi.mock('@/components/portal/SignOutButton', () => ({ SignOutButton: () => null }));
+vi.mock('@/components/portal/SignOutButton', () => ({
+  SignOutButton: ({ className, children }: { className?: string; children?: React.ReactNode }) => (
+    <button type="button" className={className}>{children ?? 'Sign out'}</button>
+  ),
+}));
 vi.mock('@/hooks/useWorkspaceMobileScrollChrome', () => ({ useWorkspaceMobileScrollChrome: () => {} }));
 
 beforeEach(() => {
@@ -46,6 +59,17 @@ function show(role: 'member' | 'employer' = 'member') {
 }
 
 describe('workspace navigation', () => {
+  it('keeps desktop scrolling inside the shell and reserves the remaining width for main content', () => {
+    const css = readFileSync(join(process.cwd(), 'css/portal-main-extracted.css'), 'utf8');
+
+    expect(css).toMatch(/@media \(min-width: 769px\)[\s\S]*?\.workspace-shell-root \{[\s\S]*?height: 100dvh;[\s\S]*?overflow: hidden;/);
+    expect(css).toMatch(/\.workspace-shell-body \{[\s\S]*?align-items: stretch;[\s\S]*?overflow: hidden;/);
+    expect(css).toMatch(/\.workspace-shell-main \{[\s\S]*?flex: 1 1 auto;[\s\S]*?width: auto;[\s\S]*?height: 100%;[\s\S]*?min-height: 0;[\s\S]*?overflow: auto;/);
+    expect(css).toMatch(/\.workspace-sidebar \{[\s\S]*?align-self: stretch;[\s\S]*?height: 100%;[\s\S]*?overflow-y: hidden;/);
+    expect(css).toMatch(/\.workspace-sidebar-nav \{[\s\S]*?min-height: 0;[\s\S]*?overflow-y: auto;/);
+    expect(css).toMatch(/@media \(max-height: 40rem\)[\s\S]*?\.workspace-shell-root\[data-workspace-role\] \.workspace-sidebar \{[\s\S]*?overflow-y: auto;/);
+  });
+
   it.each(['/dashboard/program', '/en/dashboard/program', '/dashboard/program/start'])('marks only the most specific destination at %s', (pathname) => {
     location.pathname = pathname;
     const { container } = show();
@@ -114,6 +138,22 @@ describe('workspace navigation', () => {
     await user.click(screen.getByRole('button', { name: 'Expand sidebar' }));
     expect(screen.getByText('Language')).toBeInTheDocument();
     expect(screen.getByText('Theme preference')).toBeInTheDocument();
+  });
+
+  it('keeps every visible desktop footer control in keyboard order through sign out', async () => {
+    const user = userEvent.setup();
+    const { container } = show();
+    const footer = container.querySelector('.workspace-sidebar-footer');
+    expect(footer).not.toBeNull();
+
+    const appearance = within(footer as HTMLElement).getByRole('radiogroup', { name: 'Appearance' });
+    const selectedTheme = within(appearance).getByRole('radio', { name: 'System' });
+    const signOut = within(footer as HTMLElement).getByRole('button', { name: 'Sign out' });
+    expect(selectedTheme).toHaveAttribute('tabindex', '0');
+
+    selectedTheme.focus();
+    await user.tab();
+    expect(signOut).toHaveFocus();
   });
 
   it('keeps a closed mobile drawer out of keyboard and screen-reader navigation', async () => {

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE, VOICE_SESSION_RESPONSE_HEADERS, VOICE_SESSION_UNAVAILABLE_MESSAGE } from '@/lib/ai/voiceSessionBoundary';
 import { prisma } from '@/lib/db/prisma';
-import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { startMemberVoiceSessionWithLilleyFallback } from '@/lib/ai/memberVoiceFallback';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import {
@@ -90,18 +90,22 @@ export const POST = withApiGuc(async (req: NextRequest) => {
   
     try {
       const dynamicVariables = await getResumeCoachDynamicVariables(user.id, { liveResumeDraft });
-      const {
-        signedUrl,
-        expiresAt,
-        dynamicVariables: clampedDynamicVariables,
-      } = await startElevenLabsPortalSession('resume_coach', {
+      const session = await startMemberVoiceSessionWithLilleyFallback({
+        key: 'resume_coach',
+        userId: user.id,
         dynamicVariables,
+        routeLabel: 'member/resume-coach/session',
       });
-      return NextResponse.json({
-        signedUrl,
-        expiresAt,
-        dynamicVariables: clampedDynamicVariables ?? {},
-      }, { headers: VOICE_SESSION_RESPONSE_HEADERS });
+      return NextResponse.json(
+        {
+          signedUrl: session.signedUrl,
+          expiresAt: session.expiresAt,
+          conversationId: session.conversationId,
+          dynamicVariables: session.dynamicVariables,
+          agent: session.agent,
+        },
+        { headers: VOICE_SESSION_RESPONSE_HEADERS },
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       console.error('[member/resume-coach/session]', msg);

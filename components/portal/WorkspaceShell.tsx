@@ -690,11 +690,9 @@ export default function WorkspaceShell({
                 <span className="workspace-sidebar-appearance__label">Appearance</span>
                 <ThemeSelector />
               </div>
-              {!wide ? (
-                <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
-                  {translateLabel('Sign out')}
-                </SignOutButton>
-              ) : null}
+              <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
+                {translateLabel('Sign out')}
+              </SignOutButton>
             </div> : null}
           </div>
         </aside>

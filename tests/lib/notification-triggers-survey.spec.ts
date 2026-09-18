@@ -9,7 +9,13 @@ vi.mock('@/lib/db/prisma', () => ({
     },
     placementSurvey: {
       findMany: vi.fn().mockResolvedValue([]),
-      create: vi.fn().mockResolvedValue({ id: 'survey-1' }),
+      create: vi.fn().mockImplementation(async ({ data }: any) => ({
+        id: data.id,
+        tokenExpiresAt: data.tokenExpiresAt,
+        deliveryAttempt: data.deliveryAttempt,
+        acceptedAttempt: data.acceptedAttempt,
+        deliveryPayload: data.deliveryPayload,
+      })),
       update: vi.fn(),
       updateMany: vi.fn(),
     },
@@ -21,7 +27,16 @@ vi.mock('@/lib/security/placementSurveyToken', () => ({
 }));
 
 vi.mock('@/lib/email', () => ({
-  sendPlacementSurveyEmail: vi.fn().mockResolvedValue({ ok: true }),
+  preparePlacementSurveyEmail: vi.fn((input: any) => ({
+    from: 'WorkforceAP <hello@workforceap.org>',
+    to: input.to,
+    subject: 'Placement survey',
+    html: '<p>Placement survey</p>',
+    text: 'Placement survey',
+    headers: {},
+    idempotencyKey: input.idempotencyKey,
+  })),
+  sendPreparedPlacementSurveyEmail: vi.fn().mockResolvedValue({ ok: true }),
   sendPlacementSurveyEscalationEmail: vi.fn(),
 }));
 
@@ -64,7 +79,7 @@ describe('Trigger: survey_due', () => {
         type: 'survey_due',
         title: 'Placement survey ready',
         body: expect.stringContaining('placement survey is ready'),
-        data: expect.objectContaining({ surveyId: 'survey-1', wave: 'thirty_day' }),
+        data: expect.objectContaining({ surveyId: expect.any(String), wave: 'thirty_day' }),
       })
     );
   });
@@ -96,7 +111,7 @@ describe('Trigger: survey_due', () => {
         type: 'survey_due',
         title: 'Placement survey ready',
         body: expect.stringContaining('placement survey is ready'),
-        data: expect.objectContaining({ surveyId: 'survey-1', wave: 'sixty_day' }),
+        data: expect.objectContaining({ surveyId: expect.any(String), wave: 'sixty_day' }),
       })
     );
   });

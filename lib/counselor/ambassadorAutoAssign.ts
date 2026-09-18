@@ -127,7 +127,7 @@ export async function autoAssignAmbassadorFromReferral(
         where: { id: thread.id },
         data: { counselorUserId: candidate.userId },
       });
-      void createNotification({
+      await createNotification({
         userId: member.id,
         type: 'task_assigned',
         title: 'You have a new advisor',
@@ -141,7 +141,7 @@ export async function autoAssignAmbassadorFromReferral(
       });
     }
 
-    void createNotification({
+    await createNotification({
       userId: candidate.userId,
       type: 'task_assigned',
       title: 'A member you referred just joined',

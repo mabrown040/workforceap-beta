@@ -27,6 +27,36 @@ Raw output: [pristine replay](../graph/evidence/deps-recovery-01-pristine-replay
 [next failure](../graph/evidence/deps-recovery-04-replay-after-duplicate.txt), and
 [final state](../graph/evidence/deps-recovery-05-final-audit-state.txt).
 
+## Repository migration collision gate
+
+`npm run check-migrations` (or `node scripts/check-duplicate-migrations.mjs`)
+runs directly in required CI before dependency installation. New migrations need
+a unique 14-digit timestamp prefix. Existing shorter numeric prefixes are also
+checked for collisions without renaming them. The checker accepts only the ten historical
+collision groups recorded in [the reviewed exception manifest](../scripts/migration-collision-baseline.json),
+pinned to the 20 exact directory names and SQL SHA256 values at source commit
+`ff7c319a09d15f15ee3f04e781ece8884cf31e42`. Removing or renaming a recorded
+member, changing its SQL, adding a member or creating a new collision fails.
+Missing migration input, missing SQL or an invalid exception manifest also fails.
+The checker separately pins that source commit and the SHA256 of the entire
+reviewed manifest file, including formatting. Editing a migration together with
+its JSON exception cannot authorize the change: the independent source anchors
+are checked before current migrations are read. Preserve the manifest bytes;
+changing either checker anchor requires an explicit, separate source review.
+
+Choose a different timestamp only for a **new, unapplied** migration. Never rename
+an applied historical migration or edit `migration_lock.toml` to conceal a collision.
+Do not regenerate the exception manifest to make a failing new change pass; there
+is no automatic baseline-update mode. Any intentional change to these historical
+exceptions needs a separately reviewed migration-history transition.
+
+This manifest records repository collision exceptions, not the checksums stored in
+production. Only the exception members are checksum-pinned by this guard. Continue
+to preserve all applied migration files and perform the existing-database preflight
+below. Passing the guard does not establish complete schema equivalence, safe SQL,
+clean historical replay, backup recovery or deployed acceptance. The existing
+production recovery commands remain unchanged.
+
 ## Preflight for an existing database
 
 1. Identify the intended environment, database, schema, and application release

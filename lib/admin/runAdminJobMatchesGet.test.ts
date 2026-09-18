@@ -29,10 +29,11 @@ function sampleRow(studentId: string): AdminJobMatchRow {
   };
 }
 
-test('runAdminJobMatchesGet returns 404 when job missing', async () => {
-  const r = await runAdminJobMatchesGet('missing', {
-    findJobForMatch: async () => null,
-    findCachedRows: async () => [],
+test('runAdminJobMatchesGet starts candidate work only after receiving an authorized job', async () => {
+  let cacheRead = false;
+  const r = await runAdminJobMatchesGet('job-1', baseJob, {
+    findAuthorizedJob: async () => baseJob,
+    findCachedRows: async () => { cacheRead = true; return []; },
     computeMatches: async () => [],
     persistMatches: async () => {},
     markMatchesComputedAt: async () => {},
@@ -41,14 +42,15 @@ test('runAdminJobMatchesGet returns 404 when job missing', async () => {
     clearEmptyCooldown: () => {},
     logDiagnostic: async () => {},
   });
-  assert.equal('notFound' in r && r.notFound, true);
+  assert.equal(cacheRead, true);
+  assert.deepEqual(r.body, []);
 });
 
 test('runAdminJobMatchesGet returns cached rows without compute', async () => {
   let computed = false;
   const row = sampleRow('stu-1');
-  const r = await runAdminJobMatchesGet('job-1', {
-    findJobForMatch: async () => baseJob,
+  const r = await runAdminJobMatchesGet('job-1', baseJob, {
+    findAuthorizedJob: async () => baseJob,
     findCachedRows: async () => [row],
     computeMatches: async () => {
       computed = true;
@@ -68,8 +70,8 @@ test('runAdminJobMatchesGet returns cached rows without compute', async () => {
 
 test('runAdminJobMatchesGet empty compute returns empty array', async () => {
   let marked = false;
-  const r = await runAdminJobMatchesGet('job-1', {
-    findJobForMatch: async () => baseJob,
+  const r = await runAdminJobMatchesGet('job-1', baseJob, {
+    findAuthorizedJob: async () => baseJob,
     findCachedRows: async () => [],
     computeMatches: async () => [],
     persistMatches: async () => {
@@ -92,8 +94,8 @@ test('runAdminJobMatchesGet empty compute returns empty array', async () => {
 test('runAdminJobMatchesGet persists then reloads serialized rows', async () => {
   const persisted: StudentMatch[] = [];
   const row = sampleRow('stu-2');
-  const r = await runAdminJobMatchesGet('job-1', {
-    findJobForMatch: async () => baseJob,
+  const r = await runAdminJobMatchesGet('job-1', baseJob, {
+    findAuthorizedJob: async () => baseJob,
     findCachedRows: async () => [],
     computeMatches: async () => [{ studentId: 'stu-2', matchScore: 70, matchReasons: ['x'] }],
     persistMatches: async (_jid, m) => {
@@ -113,8 +115,8 @@ test('runAdminJobMatchesGet persists then reloads serialized rows', async () => 
 
 test('runAdminJobMatchesGet continues when persist throws (error path)', async () => {
   const row = sampleRow('stu-3');
-  const r = await runAdminJobMatchesGet('job-1', {
-    findJobForMatch: async () => baseJob,
+  const r = await runAdminJobMatchesGet('job-1', baseJob, {
+    findAuthorizedJob: async () => baseJob,
     findCachedRows: async () => [],
     computeMatches: async () => [{ studentId: 'stu-3', matchScore: 50, matchReasons: [] }],
     persistMatches: async () => {

@@ -3,6 +3,7 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseraUnmatchedActorAlertEmail } from '@/lib/email';
+import { runBulkEmailOperation } from '@/lib/email/pacing';
 import { isLikelyTestAccount } from '@/lib/coursera/testAccountHeuristic';
 
 export type XapiIdentity = {
@@ -230,10 +231,10 @@ async function notifyIfNewUnmatchedActorEmail(args: {
   );
 
   try {
-    const result = await sendCourseraUnmatchedActorAlertEmail({
+    const result = await runBulkEmailOperation(() => sendCourseraUnmatchedActorAlertEmail({
       actorEmail: emailLower,
       statementId: sid,
-    });
+    }));
     if (result.ok) {
       await prisma.$executeRaw`
         UPDATE coursera_unmatched_actor_alerts
@@ -586,7 +587,10 @@ export async function recordXapiEvent(args: {
     && actorEmail
     && !mappingMethod
   ) {
-    void notifyIfNewUnmatchedActorEmail({
+    // This may be the first-seen actor and therefore an actual provider send.
+    // Await the paced operation so scheduled replay cannot finish while the
+    // alert is still pending or lose its delivery-state update.
+    await notifyIfNewUnmatchedActorEmail({
       actorEmailLower: actorEmail,
       statementId: statementId ?? null,
       organizationId,

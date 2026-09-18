@@ -64,6 +64,7 @@ const createSchema = z.object({
     }
   
     const isSuper = await isSuperAdmin(admin.id);
+    const organizationId = await getActorOrganizationId(admin.id);
   
     let body: unknown;
     try {
@@ -87,13 +88,38 @@ const createSchema = z.object({
     // User.email is @unique GLOBALLY in the schema, so the pre-check has to
     // see all tenants — otherwise a cross-tenant collision would surface as
     // a 500 from Prisma's P2002 instead of a clean 409 here.
-    const existingDbUser = await crossTenantOK(() =>
+    const duplicateIdentity = await crossTenantOK(() =>
       prisma.user.findFirst({
         where: { email },
-        select: { id: true, fullName: true, email: true, profile: { select: { role: true } } },
+        // Global uniqueness classification may read only tenant ownership and
+        // the opaque primary key. Personal fields stay behind tenant scope.
+        select: { id: true, organizationId: true },
       }),
     );
-    if (existingDbUser) {
+    if (duplicateIdentity) {
+      if (duplicateIdentity.organizationId !== organizationId) {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
+      }
+      const existingDbUser = await withTenantScope(organizationId, (db) =>
+        db.user.findFirst({
+          where: { id: duplicateIdentity.id },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            profile: { select: { role: true } },
+          },
+        }),
+      );
+      if (!existingDbUser) {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
+      }
       return NextResponse.json(
         {
           error: 'That email already has an account. Use the edit or reset tools on the existing user.',
@@ -150,7 +176,6 @@ const createSchema = z.object({
       // Tag the new user with the actor's tenant, not the seeded default org.
       // Codex P1 catch on PR #1047: a non-default-org admin creating users
       // would otherwise plant them in the wrong tenant.
-      const organizationId = await getActorOrganizationId(admin.id);
       const created = await prisma.$transaction(async (tx) => {
         const user = await ensureAppUser(tx, {
           authUserId,
@@ -185,6 +210,21 @@ const createSchema = z.object({
       logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'User', id: created.id }, result: { success: true, extensions: { role: created.role } } }).catch(() => {});
       return NextResponse.json({ success: true, user: created });
     } catch (error) {
+      if (
+        error instanceof Error &&
+        ['ADMIN_USER_AUTH_IDENTITY_CONFLICT', 'ADMIN_USER_EMAIL_USER_ID_MISMATCH'].includes(error.message)
+      ) {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
+      }
+      if ((error as { code?: unknown })?.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'That email already has an account.' },
+          { status: 409 },
+        );
+      }
       console.error('[admin/users POST] database setup failed', error);
       return NextResponse.json({ error: 'Failed to finish provisioning the new user.' }, { status: 500 });
     }

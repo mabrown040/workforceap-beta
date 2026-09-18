@@ -45,6 +45,9 @@ vi.mock('@/lib/db/prisma', () => ({
       // (never roll back a returning member's auth user). Default: brand new.
       findUnique: vi.fn(async () => null),
       findFirst: vi.fn(async () => null),
+      // The route selects ILIKE candidates and then keeps only an exact
+      // case-insensitive match, so the collision check reads findMany.
+      findMany: vi.fn(async () => []),
     },
     application: {
       findFirst: vi.fn(),

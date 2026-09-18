@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE, VOICE_SESSION_RESPONSE_HEADERS, VOICE_SESSION_UNAVAILABLE_MESSAGE } from '@/lib/ai/voiceSessionBoundary';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
-import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { startMemberVoiceSessionWithLilleyFallback } from '@/lib/ai/memberVoiceFallback';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { trackEvent } from '@/lib/events/track';
 
@@ -33,14 +33,22 @@ export const POST = withApiGuc(async () => {
   
       const memberDynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
       const { member_name: _memberName, ...dynamicVariables } = memberDynamicVariables;
-      const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('readiness', {
+      const session = await startMemberVoiceSessionWithLilleyFallback({
+        key: 'readiness',
+        userId: user.id,
         dynamicVariables,
+        routeLabel: 'member/readiness/voice-session',
       });
-      return NextResponse.json({
-        signedUrl,
-        expiresAt,
-        dynamicVariables: returned ?? dynamicVariables,
-      }, { headers: VOICE_SESSION_RESPONSE_HEADERS });
+      return NextResponse.json(
+        {
+          signedUrl: session.signedUrl,
+          expiresAt: session.expiresAt,
+          conversationId: session.conversationId,
+          dynamicVariables: session.dynamicVariables,
+          agent: session.agent,
+        },
+        { headers: VOICE_SESSION_RESPONSE_HEADERS },
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       console.error('[member/readiness/voice-session]', msg);

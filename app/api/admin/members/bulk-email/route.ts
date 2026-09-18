@@ -144,7 +144,7 @@ async function _POST(request: NextRequest) {
               data: { updatedAt: new Date(), staffUserId: user.id, staffLastReadAt: new Date() },
             });
           });
-          void createNotification({
+          await createNotification({
             userId: member.id,
             type: 'broadcast',
             title: subject,

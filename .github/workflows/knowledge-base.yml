@@ -1,0 +1,32 @@
+name: Knowledge Base
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: knowledge-base-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  knowledge-base:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - name: Install tooling without application lifecycle scripts
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Verify knowledge tooling
+        run: npm run kb:test
+      - name: Verify source index and links
+        run: npm run kb:check

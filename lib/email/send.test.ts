@@ -1,9 +1,64 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { sendBrandedEmail } from '@/lib/email/send';
+import { sendBrandedEmail, sendBrandedEmailOrThrowOnSkip } from '@/lib/email/send';
+import { createBulkEmailCronPacer } from '@/lib/email/pacing';
 
 describe('sendBrandedEmail', () => {
+  it('skips reserved and configured fixture recipient domains without calling Resend', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    const originalFixtureDomains = process.env.EMAIL_FIXTURE_DOMAINS;
+    process.env.EMAIL_FIXTURE_DOMAINS = 'fixtures.workforceap.internal, qa.example.org';
+    let providerCalls = 0;
+    const resend = {
+      emails: {
+        send: async () => {
+          providerCalls++;
+          return { data: { id: 'must-not-send' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    try {
+      for (const to of [
+        'member@example.com',
+        'member@school.test',
+        'member@sample.invalid',
+        'member@dev.localhost',
+        'member@fixtures.workforceap.internal',
+        'member@sub.qa.example.org',
+      ]) {
+        const result = await sendBrandedEmail(resend, {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to,
+          subject: 'Fixture safety test',
+          html: '<p>Never send</p>',
+        });
+        assert.deepEqual(result, {
+          ok: false,
+          skipped: true,
+          reason: 'fixture_recipient',
+          data: null,
+          error: null,
+        });
+      }
+      for (const field of ['to', 'cc', 'bcc'] as const) {
+        const result = await sendBrandedEmail(resend, {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'member@workforceap.org',
+          subject: `Fixture ${field} safety test`,
+          html: '<p>Never send</p>',
+          [field]: `fixture@${field}.test`,
+        });
+        assert.equal('skipped' in result && result.skipped, true, `${field} fixture must skip`);
+      }
+      assert.equal(providerCalls, 0);
+    } finally {
+      if (originalFixtureDomains === undefined) delete process.env.EMAIL_FIXTURE_DOMAINS;
+      else process.env.EMAIL_FIXTURE_DOMAINS = originalFixtureDomains;
+    }
+  });
+
   it('throws when Resend returns an error object instead of throwing', async () => {
     process.env.CRON_SECRET = 'test-unsubscribe-secret';
     const resend = {
@@ -16,12 +71,269 @@ describe('sendBrandedEmail', () => {
       () =>
         sendBrandedEmail(resend, {
           from: 'WorkforceAP <hello@workforceap.org>',
-          to: 'applicant@example.com',
+          to: 'applicant@workforceap.org',
           subject: 'Test',
           html: '<p>Hi</p>',
         }),
       /Invalid from address/,
     );
+  });
+
+  it('retries Resend 429 responses with provider metadata and preserves the idempotent request', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    const calls: Array<{ payload: unknown; options: unknown }> = [];
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async (payload: unknown, options: unknown) => {
+          calls.push({ payload, options });
+          if (calls.length === 1) {
+            return {
+              data: null,
+              error: { name: 'rate_limit_exceeded', message: 'Too many requests', retry_after: 2 },
+            };
+          }
+          return { data: { id: 'accepted' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'applicant@workforceap.org',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+        idempotencyKey: 'weekly-recap:user-1:2026-09-07',
+      },
+      { sleep: async (ms) => { delays.push(ms); } },
+    );
+
+    assert.equal(result.data?.id, 'accepted');
+    assert.deepEqual(delays, [2_000]);
+    assert.equal(calls.length, 2);
+    assert.deepEqual(calls[1], calls[0]);
+  });
+
+  it('adds deterministic jitter to fallback exponential retry delays', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          if (attempts < 3) {
+            return {
+              data: null,
+              error: { name: 'rate_limit_exceeded', message: 'Too many requests' },
+            };
+          }
+          return { data: { id: 'accepted-with-jitter' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const randomValues = [0, 1];
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'member@workforceap.org',
+        subject: 'Jitter test',
+        html: '<p>Hi</p>',
+      },
+      {
+        sleep: async (ms) => { delays.push(ms); },
+        random: () => randomValues.shift() ?? 0.5,
+      },
+    );
+
+    assert.equal(result.data?.id, 'accepted-with-jitter');
+    assert.deepEqual(delays, [500, 1_250]);
+  });
+
+  it('honors a long provider Retry-After before retrying without jittering the provider minimum', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          if (attempts === 1) {
+            return {
+              data: null,
+              error: {
+                name: 'rate_limit_exceeded',
+                message: 'Rate limited for one minute',
+                headers: { 'Retry-After': '60' },
+              },
+            };
+          }
+          return { data: { id: 'accepted-after-provider-window' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'applicant@workforceap.org',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+        idempotencyKey: 'weekly-recap:user-1:2026-09-07',
+      },
+      { sleep: async (ms) => { delays.push(ms); } },
+    );
+
+    assert.equal(result.data?.id, 'accepted-after-provider-window');
+    assert.equal(attempts, 2);
+    assert.deepEqual(delays, [60_000]);
+  });
+
+  it('uses provider Retry-After exactly even when below fallback backoff', async () => {
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return attempts === 1
+            ? { data: null, error: { name: 'rate_limit_exceeded', message: 'brief limit', retry_after: 0.1 } }
+            : { data: { id: 'accepted-exact' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+    await sendBrandedEmail(resend, {
+      from: 'WorkforceAP <hello@workforceap.org>',
+      to: 'member@workforceap.org',
+      subject: 'Exact provider delay',
+      html: '<p>Hi</p>',
+    }, { sleep: async (ms) => { delays.push(ms); }, random: () => 1 });
+    assert.deepEqual(delays, [100]);
+  });
+
+  it('does not retry early when provider timing exceeds the total retry budget', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: {
+              name: 'rate_limit_exceeded',
+              message: 'Rate limited beyond execution budget',
+              headers: { 'Retry-After': '61' },
+            },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    await assert.rejects(
+      () => sendBrandedEmail(
+        resend,
+        {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'applicant@workforceap.org',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        },
+        { sleep: async (ms) => { delays.push(ms); } },
+      ),
+      /Rate limited beyond execution budget/,
+    );
+
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
+  });
+
+  it('does not consume a provider retry delay beyond the caller request deadline', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const nowMs = 1_000;
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: {
+              name: 'rate_limit_exceeded',
+              message: 'Rate limited beyond remaining request time',
+              headers: { 'Retry-After': '60' },
+            },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    await assert.rejects(
+      sendBrandedEmail(
+        resend,
+        {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'applicant@workforceap.org',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        },
+        {
+          now: () => nowMs,
+          sleep: async (ms) => { delays.push(ms); },
+          deadlineAtMs: nowMs + 30_000,
+        },
+      ),
+      /Rate limited beyond remaining request time/,
+    );
+
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
+  });
+
+  it('inherits the admitted cron deadline for provider retry decisions', async () => {
+    let nowMs = 1_000;
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: { name: 'rate_limit_exceeded', message: 'Retry outside cron deadline', retry_after: 2 },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+    const pacer = createBulkEmailCronPacer({
+      maxDurationSeconds: 2,
+      reserveMs: 500,
+      startedAtMs: nowMs,
+      now: () => nowMs,
+      sleep: async (ms) => { nowMs += ms; },
+    });
+
+    await assert.rejects(
+      pacer.run(() => sendBrandedEmailOrThrowOnSkip(resend, {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'member@workforceap.org',
+        subject: 'Deadline inheritance',
+        html: '<p>Hi</p>',
+      }, {
+        now: () => nowMs,
+        sleep: async (ms) => { delays.push(ms); nowMs += ms; },
+      })),
+      /Retry outside cron deadline/,
+    );
+    assert.equal(attempts, 1);
+    assert.deepEqual(delays, []);
   });
 
   it('strips CR/LF from headers so a newline in NEXT_PUBLIC_SITE_URL cannot fail the send', async () => {
@@ -51,7 +363,7 @@ describe('sendBrandedEmail', () => {
     try {
       await sendBrandedEmail(resend, {
         from: 'WorkforceAP <hello@workforceap.org>',
-        to: 'applicant@example.com',
+        to: 'applicant@workforceap.org',
         subject: 'Test',
         html: '<p>Hi</p>',
       });
@@ -79,7 +391,7 @@ describe('sendBrandedEmail', () => {
 
     await sendBrandedEmail(resend, {
       from: 'WorkforceAP <hello@workforceap.org>',
-      to: 'applicant@example.com',
+      to: 'applicant@workforceap.org',
       subject: 'Test',
       html: '<p>Hi</p>',
       headers: { 'X-Campaign': 'weekly-recap\nX-Injected: evil' },

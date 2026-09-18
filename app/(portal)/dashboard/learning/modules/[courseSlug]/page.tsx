@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { programSlugReadCandidates, programSlugsEquivalent } from '@/lib/content/programSlug';
 import { resolveWorkforceApModule } from '@/lib/content/workforceApModule';
+import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
 import { DesignSurface, PageOpener, StatusTag } from '@/components/portal/kit';
 import WorkforceApModuleCompleteButton from '@/components/portal/WorkforceApModuleCompleteButton';
 
@@ -55,25 +56,35 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
   }
   if (!courseSlug || !requestedProgram) notFound();
 
-  const enrollments = await prisma.courseEnrollment.findMany({
-    where: {
-      userId: user.id,
-      programSlug: { in: programSlugReadCandidates(requestedProgram) },
-    },
-    select: {
-      programSlug: true,
-      curriculumVersion: true,
-      isPrimary: true,
-    },
-  });
-  const enrollment = enrollments.find((row) => row.programSlug === requestedProgram)
-    ?? enrollments.find((row) => row.isPrimary)
-    ?? enrollments.find((row) => programSlugsEquivalent(row.programSlug, requestedProgram));
-  if (!enrollment) notFound();
+  // Digital literacy is ungated: any signed-in member may open its modules
+  // without a program enrollment. All other programs still require enrollment.
+  const ungatedProgram = requestedProgram === DIGITAL_LITERACY_PROGRAM_SLUG;
+
+  let resolvedProgramSlug = requestedProgram;
+  let curriculumVersion = '';
+  if (!ungatedProgram) {
+    const enrollments = await prisma.courseEnrollment.findMany({
+      where: {
+        userId: user.id,
+        programSlug: { in: programSlugReadCandidates(requestedProgram) },
+      },
+      select: {
+        programSlug: true,
+        curriculumVersion: true,
+        isPrimary: true,
+      },
+    });
+    const enrollment = enrollments.find((row) => row.programSlug === requestedProgram)
+      ?? enrollments.find((row) => row.isPrimary)
+      ?? enrollments.find((row) => programSlugsEquivalent(row.programSlug, requestedProgram));
+    if (!enrollment) notFound();
+    resolvedProgramSlug = enrollment.programSlug;
+    curriculumVersion = enrollment.curriculumVersion;
+  }
 
   const course = resolveWorkforceApModule({
-    programSlug: enrollment.programSlug,
-    curriculumVersion: enrollment.curriculumVersion,
+    programSlug: resolvedProgramSlug,
+    curriculumVersion,
     courseSlug,
   });
   if (!course) notFound();
@@ -84,7 +95,7 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
   const completion = await prisma.courseProgress.findFirst({
     where: {
       userId: user.id,
-      programSlug: { in: programSlugReadCandidates(enrollment.programSlug) },
+      programSlug: { in: programSlugReadCandidates(resolvedProgramSlug) },
       courseSlug,
       status: 'COMPLETED',
     },
@@ -108,18 +119,33 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
 
         {hasLessons ? (
           <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Watch the lessons</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Open course pages and materials</h2>
             <p style={{ margin: '8px 0 16px', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
-              Each lesson opens on {course.provider?.name ?? 'the provider site'} in a new tab — free, self-paced, in English or Spanish.
-              Come back here and mark the module complete when you have finished them all.
+              These links open on {course.provider?.name ?? 'the provider site'} in a new tab. Access is free and a provider account is optional.
+              {course.provider?.languageNote ? ` ${course.provider.languageNote}` : ''} WorkforceAP does not receive provider-side activity.
             </p>
-            <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'grid', gap: 10 }}>
+            <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'grid', gap: 14 }}>
               {(course.lessons ?? []).map((lesson) => (
                 <li key={`${lesson.title}-${lesson.url}`} style={{ lineHeight: 1.5 }}>
                   <a href={lesson.url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700 }}>
                     {lesson.title}
                   </a>
                   <span style={{ color: 'var(--wa-muted)' }}> · {lesson.minutes} min</span>
+                  {lesson.verificationLabel ? (
+                    <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: 'var(--wa-muted)' }}>
+                      {lesson.verificationLabel}
+                    </span>
+                  ) : null}
+                  {lesson.fallbackUrl ? (
+                    <a
+                      href={lesson.fallbackUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-block', marginTop: 5, fontSize: 13, fontWeight: 700 }}
+                    >
+                      {lesson.fallbackLabel ?? 'Open provider materials fallback'}
+                    </a>
+                  ) : null}
                 </li>
               ))}
             </ol>
@@ -134,21 +160,59 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
               </>
             ) : null}
             {course.provider ? (
-              <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--wa-muted)' }}>
-                Can&apos;t find a lesson? Browse all courses at{' '}
-                <a href={course.provider.url} target="_blank" rel="noopener noreferrer">
-                  {course.provider.name}
-                </a>
-                . Creating a free account there lets you print a certificate for each course.
-              </p>
+              <div
+                role="note"
+                aria-label="Provider attribution and license"
+                style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--wa-border)', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.55 }}
+              >
+                <strong style={{ color: 'var(--wa-text)' }}>Provider and license.</strong>{' '}
+                {course.provider.attribution ?? `Linked material is provided by ${course.provider.name}.`}{' '}
+                {course.provider.license ? (
+                  <>
+                    DigitalLearn identifies its course content as{' '}
+                    <a href={course.provider.license.url} target="_blank" rel="noopener noreferrer">
+                      {course.provider.license.name}
+                    </a>
+                    {course.provider.license.termsUrl ? (
+                      <>
+                        {' '}(<a href={course.provider.license.termsUrl} target="_blank" rel="noopener noreferrer">provider terms</a>)
+                      </>
+                    ) : null}
+                    . WorkforceAP links to the original pages and does not copy, host, adapt, or imply endorsement of provider videos.
+                  </>
+                ) : null}
+                <span style={{ display: 'block', marginTop: 6 }}>
+                  Need another route? Browse the{' '}
+                  <a href={course.provider.url} target="_blank" rel="noopener noreferrer">
+                    {course.provider.name} course index
+                  </a>
+                  .
+                </span>
+              </div>
             ) : null}
           </section>
         ) : null}
 
+        {hasLessons ? (
+          <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }} aria-labelledby="workforceap-completion-heading">
+            <h2 id="workforceap-completion-heading" style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>
+              WorkforceAP completion record
+            </h2>
+            <p style={{ margin: '8px 0 0', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
+              Return here after finishing the linked material. Marking this module complete records WorkforceAP progress, points, and counselor-visible completion. It does not verify DigitalLearn activity or issue a DigitalLearn certificate.
+            </p>
+            <p style={{ margin: '10px 0 0', fontSize: 13 }}>
+              <Link href="/dashboard/certifications">View your WorkforceAP completion and certificate records</Link>
+            </p>
+          </section>
+        ) : null}
+
         <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>{hasLessons ? 'Put it to work' : 'Complete the applied work'}</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>{hasLessons ? 'Keep your learning moving' : 'Complete the applied work'}</h2>
           <p style={{ margin: '8px 0 20px', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
-            Work through these portal tools, keep your project evidence, and mark the lab complete when your required work is finished.
+            {hasLessons
+              ? 'Use these optional WorkforceAP tools to practice, document, and discuss what you learned.'
+              : 'Work through these portal tools, keep your project evidence, and mark the lab complete when your required work is finished.'}
           </p>
           <div style={{ display: 'grid', gap: 12 }}>
             {LAB_ACTIONS.map(({ href, title, detail, icon: Icon }) => (
@@ -171,8 +235,10 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
         <div style={{ marginTop: 20, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
           <WorkforceApModuleCompleteButton
             courseSlug={courseSlug}
-            programSlug={enrollment.programSlug}
+            programSlug={resolvedProgramSlug}
             completed={Boolean(completion)}
+            label={hasLessons ? 'Mark module complete in WorkforceAP' : 'Mark lab complete'}
+            completedLabel={hasLessons ? 'Completed in WorkforceAP' : 'Completed'}
           />
           <Link href="/dashboard/learning" className="btn btn-outline">Back to Learning Hub</Link>
         </div>

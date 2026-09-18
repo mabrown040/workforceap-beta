@@ -370,7 +370,7 @@ export default function JobsListingClient({
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setJobs(data); })
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasActiveFilters, preview]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasActiveFilters, preview, initialJobs.length]);
 
   useEffect(() => {
     if (preview || !isAuthenticated) return;

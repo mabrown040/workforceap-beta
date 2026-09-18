@@ -162,7 +162,16 @@ test('resume coach returns the dynamic variables clamped by the ElevenLabs bound
     'utf8',
   );
 
-  assert.match(source, /dynamicVariables: clampedDynamicVariables/);
-  assert.match(source, /dynamicVariables: clampedDynamicVariables \?\? \{\}/);
+  // The route hands the session start to the shared member-voice helper and
+  // returns only what the helper hands back.
+  assert.match(source, /startMemberVoiceSessionWithLilleyFallback\(\{/);
+  assert.match(source, /key: 'resume_coach'/);
+  assert.match(source, /dynamicVariables: session\.dynamicVariables/);
   assert.doesNotMatch(source, /NextResponse\.json\(\{ signedUrl, expiresAt, dynamicVariables \}\)/);
+
+  // …and the helper returns the provider-boundary-clamped set, never the raw
+  // input variables.
+  const helper = await readFile(join(process.cwd(), 'lib', 'ai', 'memberVoiceFallback.ts'), 'utf8');
+  assert.match(helper, /dynamicVariables: primary\.dynamicVariables \?\? \{\}/);
+  assert.doesNotMatch(helper, /primary\.dynamicVariables \?\? input\.dynamicVariables/);
 });

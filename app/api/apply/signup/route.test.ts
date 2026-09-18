@@ -75,12 +75,20 @@ const state = vi.hoisted(() => ({
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
 
-  existingAccount: null as { id: string } | null,
+  existingAccount: null as { id: string; email?: string } | null,
+  /** Raw ILIKE candidate rows, for exercising wildcard-pattern matches verbatim. */
+  emailCandidates: null as { id: string; email: string }[] | null,
   emailLookups: [] as unknown[],
   resolvedOrgId: 'org-test-1',
   provisionCalls: [] as Array<{ headers?: unknown; programSlug?: string | null }>,
   userUpserts: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
   screeningUpserts: [] as UpsertArgs[],
+  userUpsertError: null as unknown,
+  authAdminUser: null as { id: string; email?: string | null } | null,
+  authAdminLookupError: null as unknown,
+  authDeleteError: null as unknown,
+  authAdminLookups: [] as string[],
+  authDeletes: [] as string[],
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -97,10 +105,21 @@ vi.mock('@/lib/db/prisma', () => {
     user: {
       upsert: vi.fn(async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
         state.userUpserts.push(args);
+        if (state.userUpsertError) throw state.userUpsertError;
         return {};
       }),
       findUnique: vi.fn(async () => null),
       findFirst: vi.fn(async (args: unknown) => { state.emailLookups.push(args); return state.existingAccount; }),
+      // The route uses findMany + an exact-email filter because
+      // `mode: 'insensitive'` is ILIKE and the caller's address is the pattern.
+      // Echo the queried address onto the row so an "existing account" fixture
+      // still represents a genuine exact match.
+      findMany: vi.fn(async (args: { where?: { email?: { equals?: string } } }) => {
+        state.emailLookups.push(args);
+        if (state.emailCandidates) return state.emailCandidates;
+        if (!state.existingAccount) return [];
+        return [{ email: args?.where?.email?.equals, ...state.existingAccount }];
+      }),
     },
     courseEnrollment: {
       findMany: vi.fn(async () => []),
@@ -227,7 +246,21 @@ vi.mock('@/lib/db/withDbRetry', () => ({
 
 vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdmin: vi.fn(() => ({
-    auth: { admin: { deleteUser: vi.fn(async () => ({ error: null })) } },
+    auth: {
+      admin: {
+        getUserById: vi.fn(async (userId: string) => {
+          state.authAdminLookups.push(userId);
+          return {
+            data: { user: state.authAdminUser },
+            error: state.authAdminLookupError,
+          };
+        }),
+        deleteUser: vi.fn(async (userId: string) => {
+          state.authDeletes.push(userId);
+          return { error: state.authDeleteError };
+        }),
+      },
+    },
   })),
 }));
 
@@ -259,7 +292,11 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 const supabaseGetUser = vi.fn(async () => ({ data: { user: null }, error: null }));
 const supabaseSignUp = vi.fn(async () => ({
   data: {
-    user: { id: 'user-test-1', email: 'applicant@example.com' },
+    user: {
+      id: 'user-test-1',
+      email: 'applicant@example.com',
+      identities: [{ id: 'identity-test-1', user_id: 'user-test-1' }],
+    },
     session: null,
   },
   error: null,
@@ -282,6 +319,7 @@ import {
   sendSchoolEnrollmentParentAckEmail,
   sendSchoolEnrollmentPartnerAckEmail,
 } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 function makeRequest(overrides: Record<string, unknown> = {}) {
   const body = {
@@ -310,6 +348,7 @@ function makeRequest(overrides: Record<string, unknown> = {}) {
 
 function resetState() {
   state.existingAccount = null;
+  state.emailCandidates = null;
   state.emailLookups.length = 0;
   state.applicationCreates.length = 0;
   state.partnerLookups.length = 0;
@@ -321,6 +360,12 @@ function resetState() {
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
   state.screeningUpserts.length = 0;
+  state.userUpsertError = null;
+  state.authAdminUser = null;
+  state.authAdminLookupError = null;
+  state.authDeleteError = null;
+  state.authAdminLookups.length = 0;
+  state.authDeletes.length = 0;
 
   state.provisionCalls.length = 0;
   state.userUpserts.length = 0;
@@ -1040,7 +1085,14 @@ describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
     supabaseGetUser.mockResolvedValue({ data: { user: null }, error: null } as never);
     supabaseSignUp.mockReset();
     supabaseSignUp.mockResolvedValue({
-      data: { user: { id: 'user-test-1', email: 'applicant@example.com' }, session: null },
+      data: {
+        user: {
+          id: 'user-test-1',
+          email: 'applicant@example.com',
+          identities: [{ id: 'identity-test-1', user_id: 'user-test-1' }],
+        },
+        session: null,
+      },
       error: null,
     } as never);
   });
@@ -1070,12 +1122,45 @@ describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
     });
     expect(state.emailLookups).toEqual([{
       where: { email: { equals: 'applicant@example.com', mode: 'insensitive' } },
-      select: { id: true },
+      select: { id: true, email: true },
+      take: 25,
     }]);
     expect(supabaseSignUp).not.toHaveBeenCalled();
     expect(state.userUpserts).toEqual([]);
     expect(state.profileUpserts).toEqual([]);
     expect(state.enrollmentUpserts).toEqual([]);
+    expect(state.applicationCreates).toEqual([]);
+  });
+
+  // `mode: 'insensitive'` compiles to ILIKE, so the applicant's own address is
+  // the PATTERN and `_` matches any single character. Treating a pattern hit as
+  // "this account exists" hard-blocks a real applicant out of the funnel with a
+  // 409 they cannot self-resolve — silently, with no log and no Sentry capture.
+  it('lets an applicant whose email contains an underscore through when only a same-shaped row matches', async () => {
+    // What ILIKE 'real_person@example.com' returns: a different person.
+    state.emailCandidates = [{ id: 'unrelated-member', email: 'real.person@example.com' }];
+
+    const res = await POST(makeRequest({ email: 'real_person@example.com' }));
+
+    expect(res.status).not.toBe(409);
+    expect(supabaseSignUp).toHaveBeenCalled();
+    expect(state.applicationCreates).toHaveLength(1);
+  });
+
+  it('still blocks when the exact address is present among wildcard matches', async () => {
+    state.emailCandidates = [
+      { id: 'unrelated-member', email: 'real.person@example.com' },
+      { id: 'the-real-owner', email: 'real_person@example.com' },
+    ];
+
+    const res = await POST(makeRequest({ email: 'real_person@example.com' }));
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: expect.stringContaining('staff-assisted account recovery'),
+    });
+    expect(supabaseSignUp).not.toHaveBeenCalled();
     expect(state.applicationCreates).toEqual([]);
   });
 
@@ -1092,5 +1177,128 @@ describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
 
     expect(res.status).toBe(400);
     expect((await res.json()).error).toMatch(/already exists/i);
+  });
+
+  function p2002EmailCollision() {
+    return {
+      code: 'P2002',
+      meta: { target: ['email'] },
+      message: 'Unique constraint failed on the fields: (`email`)',
+    };
+  }
+
+  it('compensates only the freshly created Auth identity after a raced app-email collision', async () => {
+    state.userUpsertError = p2002EmailCollision();
+    state.authAdminUser = { id: 'user-test-1', email: 'applicant@example.com' };
+
+    const res = await POST(makeRequest({ email: 'Applicant@Example.COM' }));
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: expect.stringContaining('staff-assisted account recovery'),
+    });
+    expect(state.authAdminLookups).toEqual(['user-test-1']);
+    expect(state.authDeletes).toEqual(['user-test-1']);
+    expect(state.profileUpserts).toEqual([]);
+    expect(state.enrollmentUpserts).toEqual([]);
+    expect(state.applicationCreates).toEqual([]);
+    expect(state.screeningUpserts).toEqual([]);
+    expect(state.partnerReferralUpserts).toEqual([]);
+    expect(sendApplicationConfirmationEmail).not.toHaveBeenCalled();
+    expect(sendNewApplicationAdminEmail).not.toHaveBeenCalled();
+    expect(captureApiError).toHaveBeenCalledWith(
+      expect.any(Error),
+      {
+        route: 'POST /api/apply/signup#authCompensation',
+        extra: {
+          collision: 'app_email_unique',
+          compensation: 'deleted',
+        },
+      },
+    );
+    expect(JSON.stringify(vi.mocked(captureApiError).mock.calls)).not.toContain('applicant@example.com');
+    expect(JSON.stringify(vi.mocked(captureApiError).mock.calls)).not.toContain('user-test-1');
+  });
+
+  it('returns the same generic recovery response when guarded compensation fails', async () => {
+    state.userUpsertError = p2002EmailCollision();
+    state.authAdminUser = { id: 'user-test-1', email: 'applicant@example.com' };
+    state.authDeleteError = { message: 'provider delete unavailable' };
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: expect.stringContaining('staff-assisted account recovery'),
+    });
+    expect(state.authDeletes).toEqual(['user-test-1']);
+  });
+
+  it('does not delete when the provider identity email does not exactly match the request', async () => {
+    state.userUpsertError = p2002EmailCollision();
+    state.authAdminUser = { id: 'user-test-1', email: 'different@example.com' };
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(409);
+    expect(state.authAdminLookups).toEqual(['user-test-1']);
+    expect(state.authDeletes).toEqual([]);
+  });
+
+  it('does not delete when the exact-ID provider lookup returns another identity', async () => {
+    state.userUpsertError = p2002EmailCollision();
+    state.authAdminUser = { id: 'different-user', email: 'applicant@example.com' };
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(409);
+    expect(state.authAdminLookups).toEqual(['user-test-1']);
+    expect(state.authDeletes).toEqual([]);
+  });
+
+  it('does not delete when the exact-ID provider lookup fails', async () => {
+    state.userUpsertError = p2002EmailCollision();
+    state.authAdminLookupError = { message: 'provider lookup unavailable' };
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(409);
+    expect(state.authAdminLookups).toEqual(['user-test-1']);
+    expect(state.authDeletes).toEqual([]);
+    expect(captureApiError).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        extra: expect.objectContaining({ compensation: 'guard_failed' }),
+      }),
+    );
+  });
+
+  it('does not compensate an obfuscated reused Auth identity', async () => {
+    supabaseSignUp.mockResolvedValue({
+      data: {
+        user: { id: 'user-existing', email: 'applicant@example.com', identities: [] },
+        session: null,
+      },
+      error: null,
+    } as never);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(400);
+    expect(state.authAdminLookups).toEqual([]);
+    expect(state.authDeletes).toEqual([]);
+  });
+
+  it('does not compensate a newly returned identity for a non-collision database failure', async () => {
+    state.userUpsertError = { code: 'P2024', message: 'connection pool timeout' };
+    state.authAdminUser = { id: 'user-test-1', email: 'applicant@example.com' };
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(500);
+    expect(state.authAdminLookups).toEqual([]);
+    expect(state.authDeletes).toEqual([]);
   });
 });

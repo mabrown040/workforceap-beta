@@ -27,9 +27,13 @@ model Organization {
   accentColor        String?  @map("accent_color")
   billingType        String   @default("flat") @map("billing_type")
   plan               String   @default("nonprofit")
-  subscriptionTier   String   @default("starter") @map("subscription_tier")
-  subscriptionStatus String   @default("trial") @map("subscription_status")
-  active             Boolean  @default(true)
+  subscriptionTier         String   @default("starter") @map("subscription_tier")
+  subscriptionStatus       String   @default("trial") @map("subscription_status")
+  stripeSubscriptionId     String?  @map("stripe_subscription_id")
+  stripeSubscriptionEventAt   Int?    @map("stripe_subscription_event_at")
+  stripeSubscriptionEventId   String? @map("stripe_subscription_event_id")
+  stripeSubscriptionRevision  Int     @default(0) @map("stripe_subscription_revision")
+  active                   Boolean  @default(true)
   overviewVideoUrl String?  @map("overview_video_url")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
@@ -50,6 +54,7 @@ model Organization {
   wioaReviewSnapshots WioaReviewSnapshot[]
   trainingBillingPackets TrainingBillingPacket[]
 
+  @@index([stripeSubscriptionId])
   @@map("organizations")
 }
 
@@ -1648,6 +1653,8 @@ model Employer {
   stripeCustomerId         String?   @map("stripe_customer_id")
   stripeSubscriptionId     String?   @map("stripe_subscription_id")
   stripeSubscriptionStatus String?   @map("stripe_subscription_status")
+  stripeSubscriptionEventId   String? @map("stripe_subscription_event_id")
+  stripeSubscriptionRevision  Int     @default(0) @map("stripe_subscription_revision")
   /// `created` timestamp (seconds since epoch) of the last Stripe webhook event that
   /// updated tier/subscription state. Stripe does not guarantee delivery order, so a
   /// delayed/out-of-order event (e.g. a late invoice.payment_failed arriving after a
@@ -2818,7 +2825,14 @@ model PlacementSurvey {
   userId          String   @map("user_id")
   placementId     String   @map("placement_id")
   wave            PlacementSurveyWave @default(thirty_day) @map("wave")
-  sentAt          DateTime @default(now()) @map("sent_at")
+  // Null until the first Resend acceptance is stamped.
+  sentAt          DateTime? @map("sent_at")
+  // Frozen per delivery attempt so ambiguous retries preserve the exact URL.
+  tokenExpiresAt  DateTime @map("token_expires_at")
+  deliveryAttempt Int @default(1) @map("delivery_attempt")
+  acceptedAttempt Int @default(0) @map("accepted_attempt")
+  // Exact helper-level provider input frozen before each delivery attempt.
+  deliveryPayload Json? @map("delivery_payload")
   completedAt     DateTime? @map("completed_at")
   escalatedAt     DateTime? @map("escalated_at")
 

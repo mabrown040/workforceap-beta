@@ -1,0 +1,57 @@
+name: Mirror master to preview
+
+# The trusted "Authenticated Portal Smoke" workflow refuses to sign in until its
+# isolated preview target serves master's exact commit. Vercel only builds
+# Preview deployments for non-production branches, so this workflow keeps a
+# machine-owned `preview` branch pointed at master's head. `vercel.json` lets
+# Vercel build that branch in its Preview environment, which is wired to the
+# DEMO Supabase project (docs/STAGING_ENV.md), and the deployment's stable
+# branch alias is what the PREVIEW_SITE_URL repository secret must hold.
+#
+# `preview` is a mirror, never a place to commit: every push to master rewrites
+# it to master's SHA. Nothing else may push to it.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-master-to-preview
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    name: Point preview at master
+    if: github.repository == 'mabrown040/workforceap-beta' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MIRROR_BRANCH: preview
+
+    steps:
+      - name: Update refs/heads/preview to the trusted master SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          sha="$GITHUB_SHA"
+          echo "master is at $sha"
+          if current="$(gh api "repos/$repo/git/ref/heads/$MIRROR_BRANCH" --jq '.object.sha' 2>/dev/null)"; then
+            if [ "$current" = "$sha" ]; then
+              echo "$MIRROR_BRANCH already points at $sha; nothing to do"
+              exit 0
+            fi
+            echo "$MIRROR_BRANCH was at $current; moving it"
+            gh api --method PATCH "repos/$repo/git/refs/heads/$MIRROR_BRANCH" \
+              -f sha="$sha" -F force=true --jq '.object.sha'
+          else
+            echo "$MIRROR_BRANCH does not exist yet; creating it"
+            gh api --method POST "repos/$repo/git/refs" \
+              -f ref="refs/heads/$MIRROR_BRANCH" -f sha="$sha" --jq '.object.sha'
+          fi
+          echo "Vercel builds $MIRROR_BRANCH in its Preview environment; the Authenticated Portal Smoke gate waits for that deployment to report this SHA."

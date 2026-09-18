@@ -24961,8 +24961,24 @@
   },
   {
     "from": "app/admin/training-progress/page.tsx",
-    "specifier": "@/components/portal/PageHeader",
+    "specifier": "@/lib/admin/trainingProgressGrades",
     "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressGrades.ts"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/components/portal/PageHeader",
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -24970,7 +24986,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 20,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -24978,23 +24994,31 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/components/admin/TrainingProgressClient",
-    "line": 21,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "components/admin/TrainingProgressClient.tsx"
   },
   {
     "from": "app/admin/training-progress/page.tsx",
-    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
-    "line": 25,
+    "specifier": "@/components/admin/TrainingProgressRoster",
+    "line": 27,
     "kind": "import",
+    "external": false,
+    "target": "components/admin/TrainingProgressRoster.tsx"
+  },
+  {
+    "from": "app/admin/training-progress/page.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 28,
+    "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
   },
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 407,
+    "line": 416,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -68632,6 +68656,46 @@
     "target": "components/portal/StatusBadge.tsx"
   },
   {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@astryxdesign/core/Button",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
+  },
+  {
+    "from": "components/admin/TrainingProgressRoster.tsx",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
+  },
+  {
     "from": "components/admin/TriageDigestSection.tsx",
     "specifier": "next/link",
     "line": 1,
@@ -80257,8 +80321,16 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "next/link",
+    "specifier": "react",
     "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "next/link",
+    "line": 2,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -80266,14 +80338,6 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
     "specifier": "@astryxdesign/core/Card",
-    "line": 2,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
     "line": 3,
     "kind": "import",
     "external": true,
@@ -80281,7 +80345,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
+    "specifier": "@astryxdesign/core/Button",
     "line": 4,
     "kind": "import",
     "external": true,
@@ -80289,7 +80353,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
+    "specifier": "@astryxdesign/core/Token",
     "line": 5,
     "kind": "import",
     "external": true,
@@ -80297,8 +80361,16 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/Link",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -87080,6 +87152,14 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "lib/admin/logCronRun.ts",
+    "specifier": "@/lib/cron/cronExecution",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/cronExecution.ts"
+  },
+  {
     "from": "lib/admin/memberDeleteStorage.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -87510,6 +87590,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
+  },
+  {
+    "from": "lib/admin/trainingProgressGrades.ts",
+    "specifier": "@/lib/coursera/courseGradeDisplay",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/courseGradeDisplay.ts"
   },
   {
     "from": "lib/admin/triageDigest.ts",
@@ -103528,6 +103616,70 @@
     "package": "node:url"
   },
   {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:buffer",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:buffer"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:fs/promises",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:module",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:module"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:path",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "node:test",
+    "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "./atomicResumeObjectSwap",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/resume/atomicResumeObjectSwap.ts"
+  },
+  {
+    "from": "lib/resume/resumeUploadBodyFidelity.test.ts",
+    "specifier": "./prepareResumeUpload",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/resume/prepareResumeUpload.ts"
+  },
+  {
     "from": "lib/resume/resumeUploadUiContract.test.ts",
     "specifier": "node:assert/strict",
     "line": 1,
@@ -106546,7 +106698,7 @@
   {
     "from": "scripts/check-supabase-env.mjs",
     "specifier": "./lib/supabase-project-guard.cjs",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "scripts/lib/supabase-project-guard.cjs"
@@ -107080,6 +107232,22 @@
     "package": "node:fs"
   },
   {
+    "from": "scripts/lib/portal-audit-health-gate.mjs",
+    "specifier": "./supabase-project-guard.cjs",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/supabase-project-guard.cjs"
+  },
+  {
+    "from": "scripts/lib/portal-audit-health-gate.mjs",
+    "specifier": "./portal-audit-target.mjs",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-target.mjs"
+  },
+  {
     "from": "scripts/lib/portal-audit-inventory.mjs",
     "specifier": "node:fs",
     "line": 1,
@@ -107190,6 +107358,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/gucContext.ts"
+  },
+  {
+    "from": "scripts/portal-audit-health-gate.mjs",
+    "specifier": "./lib/portal-audit-health-gate.mjs",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-health-gate.mjs"
   },
   {
     "from": "scripts/portal-screenshots.mjs",
@@ -111106,7 +111282,7 @@
   {
     "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
     "specifier": "@/app/api/cron/at-risk-alerts/route",
-    "line": 61,
+    "line": 63,
     "kind": "import",
     "external": false,
     "target": "app/api/cron/at-risk-alerts/route.ts"
@@ -111114,7 +111290,7 @@
   {
     "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
     "specifier": "@/lib/cron/at-risk-alerts",
-    "line": 62,
+    "line": 64,
     "kind": "import",
     "external": false,
     "target": "lib/cron/at-risk-alerts.ts"
@@ -111122,7 +111298,7 @@
   {
     "from": "tests/api/cron-at-risk-alerts-auth.spec.ts",
     "specifier": "@/lib/cron/cronExecution",
-    "line": 66,
+    "line": 68,
     "kind": "import",
     "external": false,
     "target": "lib/cron/cronExecution.ts"
@@ -111410,7 +111586,7 @@
   {
     "from": "tests/api/cron-smoke-test.spec.ts",
     "specifier": "@/app/api/cron/smoke-test/route",
-    "line": 28,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "app/api/cron/smoke-test/route.ts"
@@ -111418,7 +111594,7 @@
   {
     "from": "tests/api/cron-smoke-test.spec.ts",
     "specifier": "@/lib/admin/logCronRun",
-    "line": 29,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/admin/logCronRun.ts"
@@ -111426,7 +111602,7 @@
   {
     "from": "tests/api/cron-smoke-test.spec.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 30,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -116680,6 +116856,38 @@
     "target": "components/admin/MembersTable.tsx"
   },
   {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "@/components/admin/TrainingProgressRoster",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/TrainingProgressRoster.tsx"
+  },
+  {
+    "from": "tests/components/admin-training-progress-roster.test.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 22,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
+  },
+  {
     "from": "tests/components/agent-inbox-retry.spec.tsx",
     "specifier": "vitest",
     "line": 1,
@@ -118936,6 +119144,46 @@
     "target": "lib/coursera/progressQueries.ts"
   },
   {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "next/server",
+    "line": 71,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "@/lib/admin/logCronRun",
+    "line": 72,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/logCronRun.ts"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "@/lib/cron/cronExecution",
+    "line": 73,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/cronExecution.ts"
+  },
+  {
+    "from": "tests/lib/cron-diagnostics-visibility.spec.ts",
+    "specifier": "@/lib/cron/withCronLogging",
+    "line": 74,
+    "kind": "import",
+    "external": false,
+    "target": "lib/cron/withCronLogging.ts"
+  },
+  {
     "from": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
     "specifier": "node:fs",
     "line": 1,
@@ -120368,6 +120616,30 @@
     "package": "vitest"
   },
   {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
+  },
+  {
+    "from": "tests/lib/training-progress-roster.spec.ts",
+    "specifier": "@/lib/admin/trainingProgressGrades",
+    "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/trainingProgressGrades.ts"
+  },
+  {
     "from": "tests/lib/training-workspace-schedule.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -120514,7 +120786,7 @@
   {
     "from": "tests/lib/with-cron-logging.spec.ts",
     "specifier": "@/lib/cron/cronExecution",
-    "line": 26,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "lib/cron/cronExecution.ts"
@@ -120522,7 +120794,7 @@
   {
     "from": "tests/lib/with-cron-logging.spec.ts",
     "specifier": "@/lib/cron/withCronLogging",
-    "line": 27,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/cron/withCronLogging.ts"
@@ -120768,6 +121040,22 @@
     "target": "scripts/lib/portal-audit-target.mjs"
   },
   {
+    "from": "tests/portal-audit-health-gate.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/portal-audit-health-gate.test.ts",
+    "specifier": "../scripts/lib/portal-audit-health-gate.mjs",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "scripts/lib/portal-audit-health-gate.mjs"
+  },
+  {
     "from": "tests/rls/member-message-assignment.mjs",
     "specifier": "node:assert/strict",
     "line": 8,
@@ -120874,7 +121162,7 @@
   {
     "from": "tests/scripts/preview-approved-curriculum-schema.test.ts",
     "specifier": "node:fs/promises",
-    "line": 283,
+    "line": 414,
     "kind": "dynamic-import",
     "external": true,
     "package": "node:fs"
@@ -120882,7 +121170,7 @@
   {
     "from": "tests/scripts/preview-approved-curriculum-schema.test.ts",
     "specifier": "node:fs/promises",
-    "line": 315,
+    "line": 446,
     "kind": "dynamic-import",
     "external": true,
     "package": "node:fs"

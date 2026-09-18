@@ -8,7 +8,7 @@ import {
   type ResumeProfilePaths,
 } from './atomicResumeObjectSwap';
 
-const ORIGINAL_BODY = new ArrayBuffer(8);
+const ORIGINAL_BODY = new Uint8Array(8);
 
 function versionSequence(...versions: string[]): () => string {
   let index = 0;

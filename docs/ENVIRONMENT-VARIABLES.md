@@ -1,6 +1,6 @@
 # WorkforceAP Environment Variables
 
-> **Last audited:** 2026-08-31
+> **Last audited:** 2026-09-17
 >
 > **Scope:** Application code (`app/`, `lib/`, `components/`, `scripts/`, `tests/`, `prisma/`)
 >
@@ -83,6 +83,7 @@
 | `STAFF_MFA_ENFORCEMENT` | 🟡 🔒 | Set `1` to force MFA for staff | `0` or `1` | Auth flows |
 | `CRON_SECRET` | 🔴 🔒 | Protects `/api/cron/*` endpoints | `openssl rand -hex 32` | All cron routes |
 | `PLACEMENT_SURVEY_TOKEN_SECRET` | 🔴 🔒 | Signs post-placement survey email links | `openssl rand -hex 32` | Placement survey cron |
+| `UNSUBSCRIBE_TOKEN_SECRET` | 🟡 🔒 | Signs one-click email unsubscribe tokens. When unset the code falls back to `CRON_SECRET`, then `SUPABASE_SERVICE_ROLE_KEY`; set it explicitly, because the tokens never expire and rotating a fallback silently invalidates every unsubscribe link already sent | `openssl rand -hex 32` | `lib/email/unsubscribeToken.ts` |
 | `NEXT_PUBLIC_CAPTCHA_ENABLED` | 🟡 👁️ | Enable Cloudflare Turnstile | `false` | Public forms |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | 🟡 👁️ | Turnstile site key (public) | `0x4AAAA...` | Employer contact, public forms |
 | `TURNSTILE_SECRET_KEY` | 🟡 🔒 | Turnstile secret key | `0x4AAAA...` | API validation |
@@ -284,12 +285,23 @@ Lilley's member prompt contains no browser-supplied text placeholders. The sessi
 | `PORTAL_AUDIT_SECTION` | 🛠️ 🔒 | Local-only portal section filter; trusted remote policies require `all` | `all` | Portal audit runner and cross-portal E2E |
 | `PORTAL_AUDIT_OUTPUT` | 🛠️ 🔒 | Current audit result path | `test-results/portal-audit-results.json` | Portal audit runner |
 | `PORTAL_AUDIT_ROUTE_CONCURRENCY` | 🛠️ 🔒 | Bounded page concurrency (1–12) | `8` | Portal audit runner |
+| `PORTAL_AUDIT_READ_ONLY_TOKEN` | 🛠️ 🔒 | Capability token (≥ 32 chars) the audit browser sends only to the exact trusted origin; the target deployment must hold the same value | `openssl rand -hex 32` | Portal audit runner, `middleware.ts` |
+| `PORTAL_AUDIT_TARGET_ORIGIN` | 🛠️ 🔒 | Origin the pre-audit health gate probes (falls back to `PLAYWRIGHT_BASE_URL`) | `https://exact-preview.example` | `scripts/portal-audit-health-gate.mjs` |
+| `PORTAL_AUDIT_TRUSTED_SHA` | 🛠️ 🔒 | Full commit the target must serve on `/api/health` (falls back to `GITHUB_SHA`) | `f630cf65…` | `scripts/portal-audit-health-gate.mjs` |
+| `PORTAL_AUDIT_HEALTH_TIMEOUT_MS` | 🛠️ 🔒 | How long the health gate waits for a still-building preview (default 10 minutes) | `600000` | `scripts/portal-audit-health-gate.mjs` |
+| `PORTAL_AUDIT_HEALTH_INTERVAL_MS` | 🛠️ 🔒 | Delay between health gate attempts (default 15 seconds) | `15000` | `scripts/portal-audit-health-gate.mjs` |
 | `ARTIFACTS_DIR` | 🛠️ 🔒 | E2E artifact output dir | `./test-results/artifacts` | Visual regression tests |
 | `E2E_<ROLE>_EMAIL` | 🛠️ 🔒 | Dedicated identity email for member/admin/employer/partner/counselor | `member-audit@...` | Five-role portal audit and E2E |
 | `E2E_<ROLE>_PASSWORD` | 🛠️ 🔒 | Password paired only with that role identity | `...` | Five-role portal audit and E2E |
 | `E2E_ISSUE_XAPI_TOKEN` | 🛠️ 🔒 | xAPI token for E2E issue testing | `...` | Coursera E2E |
 | `SEED_TEST_ACCOUNTS` | 🛠️ 🔒 | Seed QA test accounts in DB | `true` | `prisma/seed.ts` |
 | `SEED_DEMO` | 🛠️ 🔒 | Seed demo data | `true` | `prisma/seed-demo.ts` |
+
+**GitHub Actions secrets behind the trusted portal audit** (`.github/workflows/authenticated-portal-smoke.yml`; stored in the repository's Actions secrets, not in Vercel):
+
+- `PREVIEW_SITE_URL` — the exact origin of the isolated preview. It must be the branch alias of the `preview` mirror branch that `.github/workflows/mirror-master-to-preview.yml` keeps at master's head, so the deployment serves master's commit from the **Preview** environment (DEMO Supabase project, `docs/STAGING_ENV.md`). The workflow feeds it to both `PLAYWRIGHT_BASE_URL` and `PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN`; the health gate tolerates a pasted trailing newline or slash. Never a production alias.
+- `E2E_<ROLE>_EMAIL` / `E2E_<ROLE>_PASSWORD` for member, admin, employer, partner and counselor — five distinct accounts that must exist in the DEMO project (`production_canary` injects only member, employer and partner).
+- `PORTAL_AUDIT_READ_ONLY_TOKEN` — the same value the Preview deployment holds in Vercel.
 
 ---
 
@@ -333,6 +345,8 @@ The following variables appear in `.env.example` or old docs but **are not refer
 - `RESEND_API_KEY` — could be used to send spam
 - `CRON_SECRET` — could trigger arbitrary cron jobs
 - `PLACEMENT_SURVEY_TOKEN_SECRET` — could forge survey links
+- `UNSUBSCRIBE_TOKEN_SECRET` — could forge unsubscribe links (and, unset, the fallbacks above become the signing key)
+- `PORTAL_AUDIT_READ_ONLY_TOKEN` — could switch a session into read-only audit mode
 - `AUTH_TRUST_COOKIE_SECRET` — could forge MFA trust cookies
 - `STRIPE_SECRET_KEY` — financial access
 - All `*_API_KEY`, `*_SECRET`, `*_SECRET_KEY`, `*_TOKEN` vars
@@ -369,6 +383,7 @@ These are referenced in the application but absent from `.env.example`. New deve
 - `ADMIN_MFA_TRUST_DAYS`
 - `ADMIN_MATCH_SUGGESTIONS_DRY_RUN`
 - `ADMIN_MATCH_SUGGESTIONS_TEST_EMAIL`
+- `UNSUBSCRIBE_TOKEN_SECRET`
 
 **AI / Voice:**
 - `ELEVENLABS_CAREER_BUSINESS_AGENT_ID`
@@ -434,7 +449,7 @@ These are referenced in the application but absent from `.env.example`. New deve
 - `E2E_ISSUE_XAPI_TOKEN`
 - `E2E_MEMBER_EMAIL`, `E2E_MEMBER_PASSWORD`
 - `PLAYWRIGHT_ADMIN_STORAGE_STATE`, `PLAYWRIGHT_BASE_URL`, `PLAYWRIGHT_MEMBER_EMAIL`, `PLAYWRIGHT_PARTNER_EMAIL`, `PLAYWRIGHT_PORTAL_PASSWORD`, `PLAYWRIGHT_SCREENSHOT`, `PLAYWRIGHT_STORAGE_STATE`, `PLAYWRIGHT_TRACE`, `PLAYWRIGHT_VERCEL_SHARE_URL`, `PLAYWRIGHT_VIDEO`
-- `PORTAL_AUDIT_SECTION`
+- `PORTAL_AUDIT_SECTION`, `PORTAL_AUDIT_READ_ONLY_TOKEN`, `PORTAL_AUDIT_TARGET_ORIGIN`, `PORTAL_AUDIT_TRUSTED_SHA`, `PORTAL_AUDIT_HEALTH_TIMEOUT_MS`, `PORTAL_AUDIT_HEALTH_INTERVAL_MS`
 - `SEED_DEMO`, `SEED_TEST_ACCOUNTS`
 
 **WIOA:**
@@ -459,6 +474,7 @@ These are referenced in the application but absent from `.env.example`. New deve
 
 | Date | Change |
 |------|--------|
+| 2026-09-17 | WAP-66: documented `UNSUBSCRIBE_TOKEN_SECRET` and its rotation caveat, `PORTAL_AUDIT_READ_ONLY_TOKEN`, the pre-audit health gate variables, and the GitHub Actions secrets behind the isolated preview audit. |
 | 2026-08-31 | Documented the fail-closed member-agent gateway, Upstash dependency, reviewed-agent registry, and secure ElevenLabs activation commands. |
 | 2026-05-13 | Comprehensive audit. Documented 81 vars. Identified 6 deprecated. Updated `.env.example`. |
 | 2026-04-24 | Initial env variable list in `ENV-VARIABLES.md` (now superseded by this doc). |

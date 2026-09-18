@@ -84,7 +84,7 @@ Production selects `build:with-migrate`: two named historical rollback-resolutio
 
 ## Database and rollback
 
-[The Supabase guard](../../scripts/check-supabase-env.mjs#L23) requires explicit recognized public, pooled and direct URLs on Vercel; Vercel's CI flag cannot bypass it. [The shared validator](../../scripts/lib/supabase-project-guard.cjs#L69) owns environment-to-project mapping. Preview/development use the demo project; production uses the production project. [Prisma](../../prisma/schema.prisma#L12) uses `POSTGRES_PRISMA_URL` at runtime and `POSTGRES_URL_NON_POOLING` for direct operations. `DATABASE_URL` is a wrapper fallback, not a replacement for Vercel's required explicit names.
+[The Supabase guard](../../scripts/check-supabase-env.mjs#L23) requires explicit recognized public, pooled and direct URLs on Vercel, plus a usable `NEXT_PUBLIC_SUPABASE_ANON_KEY`; Vercel's CI flag cannot bypass it. [The shared validator](../../scripts/lib/supabase-project-guard.cjs#L111) owns environment-to-project mapping. Preview/development use the demo project; production uses the production project. [Prisma](../../prisma/schema.prisma#L12) uses `POSTGRES_PRISMA_URL` at runtime and `POSTGRES_URL_NON_POOLING` for direct operations. `DATABASE_URL` is a wrapper fallback, not a replacement for Vercel's required explicit names.
 
 Before a release, follow [existing-database preflight](../DATABASE-RECOVERY.md#preflight-for-an-existing-database): identify target and release, inspect migration status and pending SQL against actual objects, confirm backup/restore evidence, and record schema compatibility. Let the configured production build run migration once. Do not run a second migration concurrently.
 

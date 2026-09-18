@@ -45,9 +45,11 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
           </div>
         </div>
 
-        {/* Programs */}
+        {/* Programs / About / Support titles are sibling h2s (not h4) so public
+            apply pages whose last content heading is h1 or h2 do not skip levels.
+            Visual size stays on .text-label-upper, not the heading tag. */}
         <div>
-          <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('programs')}</h4>
+          <h2 className="text-label-upper" style={{ color: 'var(--color-on-surface)', margin: '0 0 1.5rem' }}>{t('programs')}</h2>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li><LocalizedLink href="/programs" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.75rem 0.5rem' }}>{t('allPrograms')}</LocalizedLink></li>
             <li><LocalizedLink href="/find-your-path" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.75rem 0.5rem' }}>{t('findYourPath')}</LocalizedLink></li>
@@ -60,7 +62,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
 
         {/* About */}
         <div>
-          <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('about')}</h4>
+          <h2 className="text-label-upper" style={{ color: 'var(--color-on-surface)', margin: '0 0 1.5rem' }}>{t('about')}</h2>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li><LocalizedLink href="/what-we-do" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.75rem 0.5rem' }}>{t('whatWeDo')}</LocalizedLink></li>
             <li><LocalizedLink href="/how-it-works" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.75rem 0.5rem' }}>{t('howItWorks')}</LocalizedLink></li>
@@ -73,7 +75,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
 
         {/* Support */}
         <div>
-          <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('support')}</h4>
+          <h2 className="text-label-upper" style={{ color: 'var(--color-on-surface)', margin: '0 0 1.5rem' }}>{t('support')}</h2>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li><LocalizedLink href="/donate" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.75rem 0.5rem' }}>{t('donate')}</LocalizedLink></li>
             <li><LocalizedLink href="/contact" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.75rem 0.5rem' }}>{t('contactUs')}</LocalizedLink></li>

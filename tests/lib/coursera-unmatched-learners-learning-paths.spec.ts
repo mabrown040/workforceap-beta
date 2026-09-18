@@ -68,6 +68,80 @@ describe('loadUnmatchedLearners ignores Learning Path rows', () => {
     expect(calls[2].slice(1)).toContainEqual([...KNOWN_LEARNING_PATH_IDS]);
   });
 
+  it('skips a newer 0% row when choosing latestProgressPercent', async () => {
+    mocks.queryRaw
+      .mockResolvedValueOnce([
+        {
+          externalEmail: 'learner@example.com',
+          externalName: 'Learner',
+          courseCount: 2,
+          badgeCount: 0,
+          xapiCount: 0,
+          actorIdentifier: null,
+          actorHomePage: null,
+          lastActivityTime: new Date('2026-09-16T00:00:00Z'),
+        },
+      ])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          externalEmail: 'learner@example.com',
+          courseGrade: null,
+          overallProgress: 0,
+          isCompleted: false,
+          lastActivityTime: new Date('2026-09-16T00:00:00Z'),
+        },
+        {
+          externalEmail: 'learner@example.com',
+          courseGrade: null,
+          overallProgress: 67,
+          isCompleted: false,
+          lastActivityTime: new Date('2026-09-12T00:00:00Z'),
+        },
+      ]);
+
+    const learners = await loadUnmatchedLearners('org-1', 100, { includeTestAccounts: true });
+
+    expect(learners).toHaveLength(1);
+    expect(learners[0]).toMatchObject({
+      latestProgressPercent: 67,
+      averageProgressPercent: 34,
+    });
+  });
+
+  it('keeps latestProgressPercent at 0 when every unmatched row is unused', async () => {
+    mocks.queryRaw
+      .mockResolvedValueOnce([
+        {
+          externalEmail: 'learner@example.com',
+          externalName: 'Learner',
+          courseCount: 1,
+          badgeCount: 0,
+          xapiCount: 0,
+          actorIdentifier: null,
+          actorHomePage: null,
+          lastActivityTime: new Date('2026-09-16T00:00:00Z'),
+        },
+      ])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          externalEmail: 'learner@example.com',
+          courseGrade: null,
+          overallProgress: 0,
+          isCompleted: false,
+          lastActivityTime: new Date('2026-09-16T00:00:00Z'),
+        },
+      ]);
+
+    const learners = await loadUnmatchedLearners('org-1', 100, { includeTestAccounts: true });
+
+    expect(learners[0]).toMatchObject({
+      latestProgressPercent: 0,
+      averageProgressPercent: 0,
+    });
+  });
+
   it('binds at least the six paths seen on the live feed', () => {
     for (const id of [
       'vjCRy6uOReCwkcurjsXg3Q',

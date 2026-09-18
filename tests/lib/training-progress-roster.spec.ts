@@ -7,6 +7,8 @@ import {
   isLinkFilter,
   isPaceFilter,
   isSortKey,
+  latestActivityMs,
+  relativeLastActiveCaption,
   countMembersWithTraining,
   rosterProgramOptions,
   sortTrainingRows,
@@ -27,6 +29,8 @@ function row(over: Partial<RosterRow> & { id: string }): RosterRow {
     modulesTotal: 10,
     percentComplete: 0,
     pace: 'Stalled',
+    lastActive: '—',
+    lastActiveAt: null,
     ...over,
   };
 }
@@ -41,6 +45,8 @@ const NOEL = row({
   courseraGrade: 85.4,
   inWap: true,
   noProgram: true,
+  lastActive: '2h ago',
+  lastActiveAt: 3,
 });
 const JOSEPH = row({
   id: 'u2:ai',
@@ -53,6 +59,8 @@ const JOSEPH = row({
   courseraGrade: 86.8,
   inWap: true,
   noProgram: true,
+  lastActive: '1d ago',
+  lastActiveAt: 2,
 });
 const AVERY = row({
   id: 'u3:it',
@@ -63,6 +71,8 @@ const AVERY = row({
   pace: 'Ahead',
   courseraGrade: null,
   inWap: true,
+  lastActive: '16d ago',
+  lastActiveAt: 1,
 });
 const UNMATCHED = row({
   id: 'coursera:zed@example.com',
@@ -73,6 +83,8 @@ const UNMATCHED = row({
   percentComplete: 4,
   pace: 'Stalled',
   inWap: false,
+  lastActive: '—',
+  lastActiveAt: null,
 });
 
 const ALL = [NOEL, JOSEPH, AVERY, UNMATCHED];
@@ -196,6 +208,28 @@ describe('training roster sorting', () => {
     expect(ascending.slice(2)).toEqual(['Zed Coursera', 'Avery Stone']);
   });
 
+  it('keeps rows with no last-active timestamp last in both directions', () => {
+    const descending = sortTrainingRows(ALL, 'lastActive', 'desc').map((r) => r.student);
+    const ascending = sortTrainingRows(ALL, 'lastActive', 'asc').map((r) => r.student);
+    expect(descending.slice(0, 3)).toEqual(['Noel Gonzalez', 'Joseph David Ring', 'Avery Stone']);
+    expect(ascending.slice(0, 3)).toEqual(['Avery Stone', 'Joseph David Ring', 'Noel Gonzalez']);
+    expect(descending.slice(3)).toEqual(['Zed Coursera']);
+    expect(ascending.slice(3)).toEqual(['Zed Coursera']);
+  });
+
+  it('picks the newest of login and LMS timestamps', () => {
+    const login = new Date('2026-09-10T00:00:00Z');
+    const lms = new Date('2026-09-18T00:00:00Z');
+    expect(latestActivityMs([login, lms])).toBe(lms.getTime());
+    expect(latestActivityMs([null, undefined])).toBeNull();
+  });
+
+  it('renders a relative last-active caption', () => {
+    const now = Date.parse('2026-09-18T18:00:00Z');
+    expect(relativeLastActiveCaption(now - 2 * 60 * 60 * 1000, now)).toBe('2h ago');
+    expect(relativeLastActiveCaption(null, now)).toBe('—');
+  });
+
   it('breaks module ties on the smaller program', () => {
     // Two modules of ten is further along than two of seventeen.
     expect(sortTrainingRows([JOSEPH, NOEL], 'modules', 'desc').map((r) => r.student))
@@ -312,6 +346,7 @@ describe('roster control guards', () => {
     expect(isLinkFilter('no-program')).toBe(true);
     expect(isLinkFilter('everyone')).toBe(false);
     expect(isSortKey('percentComplete')).toBe(true);
+    expect(isSortKey('lastActive')).toBe(true);
     expect(isSortKey('grade')).toBe(false);
   });
 });

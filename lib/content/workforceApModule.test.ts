@@ -67,6 +67,23 @@ describe('WorkforceAP approved modules', () => {
     }
   });
 
+  it('still resolves Digital Literacy modules when curriculum version is blank', () => {
+    const programSlug = 'digital-literacy-empowerment-class';
+    const program = getProgramBySlug(programSlug);
+    assert.ok(program);
+
+    for (const course of program.courses) {
+      assert.deepEqual(
+        resolveWorkforceApModule({
+          programSlug,
+          curriculumVersion: '',
+          courseSlug: course.slug,
+        }),
+        course,
+      );
+    }
+  });
+
   it('resolves every CPT and CLT course behind its generated local module URL', () => {
     for (const programSlug of [
       'certified-production-technician-cpt',

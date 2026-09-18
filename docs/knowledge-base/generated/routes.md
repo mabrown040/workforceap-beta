@@ -410,7 +410,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/subgroups | page |  | [app/admin/subgroups/page.tsx](../../../app/admin/subgroups/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/testimonials | loading |  | [app/admin/testimonials/loading.tsx](../../../app/admin/testimonials/loading.tsx) |  |
 | /admin/testimonials | page |  | [app/admin/testimonials/page.tsx](../../../app/admin/testimonials/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
-| /admin/training-progress | page |  | [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | @/lib/auth/server:5, @/lib/tenant/adminPageScope:6, @/lib/tenant/adminPageScope:392 |
+| /admin/training-progress | page |  | [app/admin/training-progress/page.tsx](../../../app/admin/training-progress/page.tsx) | @/lib/auth/server:5, @/lib/tenant/adminPageScope:6, @/lib/tenant/adminPageScope:399 |
 | /admin/users/deleted | page |  | [app/admin/users/deleted/page.tsx](../../../app/admin/users/deleted/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/users | loading |  | [app/admin/users/loading.tsx](../../../app/admin/users/loading.tsx) |  |
 | /admin/users | page |  | [app/admin/users/page.tsx](../../../app/admin/users/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/tenant/adminPageScope:8 |
@@ -813,6 +813,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/program-change-request | route | GET, POST | [app/api/member/program-change-request/route.ts](../../../app/api/member/program-change-request/route.ts) | @/lib/auth/server:3, @/lib/auth/ensureUser:4, @/lib/db/withRequestGuc:8 |
 | /api/member/program-comparison | route | GET | [app/api/member/program-comparison/route.ts](../../../app/api/member/program-comparison/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/readiness | route | GET | [app/api/member/readiness/route.ts](../../../app/api/member/readiness/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
+| /api/member/readiness/summary | route | POST | [app/api/member/readiness/summary/route.ts](../../../app/api/member/readiness/summary/route.ts) | @/lib/auth/server:2, @/lib/rate-limit:3, @/lib/db/withRequestGuc:5 |
 | /api/member/readiness/voice-session | route | POST | [app/api/member/readiness/voice-session/route.ts](../../../app/api/member/readiness/voice-session/route.ts) | @/lib/auth/server:2, @/lib/rate-limit:4, @/lib/db/withRequestGuc:9 |
 | /api/member/referral | route | GET | [app/api/member/referral/route.ts](../../../app/api/member/referral/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/request-help | route | POST | [app/api/member/request-help/route.ts](../../../app/api/member/request-help/route.ts) | @/lib/auth/server:2, @/lib/rate-limit:7, @/lib/db/withRequestGuc:9 |

@@ -24,7 +24,9 @@ import type { SortDirection, SortKey } from '@/lib/admin/trainingProgressRoster'
  * Target route: /admin/training-progress
  *
  * Desktop: wide roster table with sticky Student column, horizontal scroll, and
- * clickable sort headers. Mobile: stacked cards (headers not on screen).
+ * clickable sort headers (Student, Program, Modules, % Complete, Coursera
+ * grade, Pace, Last active). Mobile: stacked cards (headers not on screen).
+ * Last active uses existing login / LMS / progress timestamps — never a new table.
  */
 
 /** Pace classification derived from progress + recent activity. */
@@ -50,6 +52,10 @@ export interface TrainingRow {
   inWap?: boolean;
   /** Linked WAP member has Coursera progress but no assigned program. */
   noProgram?: boolean;
+  /** Last-active caption, e.g. "2h ago". */
+  lastActive?: string;
+  /** Sortable last-activity instant (epoch ms). Caption alone is not ordered. */
+  lastActiveAt?: number | null;
 }
 
 export interface TrainingProgressKitProps {
@@ -90,6 +96,7 @@ const SORTABLE_COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'percentComplete', label: '% Complete' },
   { key: 'courseraGrade', label: 'Coursera grade' },
   { key: 'pace', label: 'Pace' },
+  { key: 'lastActive', label: 'Last active' },
 ];
 
 export function TrainingProgressKit({
@@ -231,6 +238,25 @@ export function TrainingProgressKit({
         </span>
       ),
     },
+    {
+      key: 'lastActive',
+      header: sortHeader('lastActive', 'Last active'),
+      align: 'right',
+      minWidth: 96,
+      ariaSort: ariaSortForColumn('lastActive', sortKey, sortDirection),
+      render: (row) => (
+        <span
+          style={{
+            color: 'var(--wa-muted)',
+            fontSize: 'var(--wa-type-meta)',
+            fontVariantNumeric: 'tabular-nums',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {row.lastActive ?? '—'}
+        </span>
+      ),
+    },
   ];
 
   return (
@@ -256,7 +282,7 @@ export function TrainingProgressKit({
         columns={columns}
         rows={rows}
         rowKey={(row) => row.id}
-        minWidth={960}
+        minWidth={1080}
         mobile="cards"
         cardRender={(row) => (
           <Card>
@@ -334,6 +360,10 @@ export function TrainingProgressKit({
                     ? `${Math.round(row.courseraGrade * 100) / 100}%`
                     : '—'}
                 </b>
+              </span>
+              <span>
+                Last active{' '}
+                <b style={{ color: 'var(--wa-text)' }}>{row.lastActive ?? '—'}</b>
               </span>
             </div>
           </Card>

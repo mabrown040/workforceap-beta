@@ -110,8 +110,17 @@
   transform: translateY(-50%);
   color: #a89f99;
   transition: color 0.15s ease;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
 .signup-depth .sd-pw-toggle:hover {
+  color: var(--sd-crimson);
+}
+.signup-depth .sd-pw-toggle:focus-visible {
+  outline: 2px solid var(--sd-crimson);
+  outline-offset: 2px;
   color: var(--sd-crimson);
 }
 

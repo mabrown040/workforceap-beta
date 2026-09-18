@@ -31,25 +31,30 @@ const ROWS: TrainingRow[] = [
     id: 'u1:it', student: 'Noel Gonzalez', program: IT,
     modulesDone: 2, modulesTotal: 10, percentComplete: 22, pace: 'Behind',
     courseraGrade: 85.4, inWap: true, noProgram: true,
+    lastActive: '2h ago', lastActiveAt: 3,
   },
   {
     id: 'u2:ai', student: 'Joseph David Ring', program: AI,
     modulesDone: 2, modulesTotal: 17, percentComplete: 16, pace: 'Behind',
     courseraGrade: 86.8, inWap: true, noProgram: true,
+    lastActive: '1d ago', lastActiveAt: 2,
   },
   {
     id: 'u3:it', student: 'Avery Stone', program: IT,
     modulesDone: 9, modulesTotal: 10, percentComplete: 91, pace: 'Ahead',
     courseraGrade: null, inWap: true,
+    lastActive: '16d ago', lastActiveAt: 1,
   },
   {
     id: 'u4:it', student: 'Dana Reed', program: IT,
     modulesDone: 0, modulesTotal: 10, percentComplete: 0, pace: 'Stalled',
     courseraGrade: null, inWap: true,
+    lastActive: '—', lastActiveAt: null,
   },
   {
     id: 'coursera:zed@example.com', student: 'Zed Coursera', program: 'Coursera activity',
     modulesDone: 0, modulesTotal: 3, percentComplete: 4, pace: 'Stalled', inWap: false,
+    lastActive: '5h ago', lastActiveAt: 4,
   },
 ];
 
@@ -142,6 +147,14 @@ describe('admin training roster — sorting', () => {
     expect(studentsInTable()[0]).toBe('Dana Reed');
     fireEvent.click(screen.getByRole('button', { name: /^Sort by % Complete, ascending/ }));
     expect(studentsInTable()[0]).toBe('Avery Stone');
+  });
+
+  it('sorts by Last active from the column header and parks missing timestamps last', () => {
+    renderRoster();
+    fireEvent.click(screen.getByRole('button', { name: /^Sort by Last active/ }));
+    expect(studentsInTable()).toEqual([
+      'Zed Coursera', 'Noel Gonzalez', 'Joseph David Ring', 'Avery Stone', 'Dana Reed',
+    ]);
   });
 });
 

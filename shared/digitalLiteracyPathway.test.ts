@@ -6,8 +6,10 @@ import {
   DIGITALLEARN_PROVIDER,
   DIGITALLEARN_TERMS_URL,
   DIGITAL_LITERACY_MODULES,
+  DIGITAL_LITERACY_PROGRAM_SLUG,
   DIGITAL_LITERACY_TOTAL_MINUTES,
   digitalLiteracyCatalogCourses,
+  isUngatedDigitalLiteracyProgram,
 } from './digitalLiteracyPathway';
 
 const EXPECTED_MODULES = [
@@ -28,6 +30,14 @@ function allDestinations(): string[] {
     module.lessons.flatMap((lesson) => [lesson.url, ...(lesson.fallbackUrl ? [lesson.fallbackUrl] : [])]),
   );
 }
+
+test('only the exact digital-literacy program slug is ungated', () => {
+  assert.equal(isUngatedDigitalLiteracyProgram(DIGITAL_LITERACY_PROGRAM_SLUG), true);
+  assert.equal(isUngatedDigitalLiteracyProgram('digital-literacy'), false);
+  assert.equal(isUngatedDigitalLiteracyProgram('Digital-Literacy-Empowerment-Class'), false);
+  assert.equal(isUngatedDigitalLiteracyProgram('it-support-google'), false);
+  assert.equal(isUngatedDigitalLiteracyProgram(''), false);
+});
 
 test('the pathway preserves the exact ten-module sequence and stable keys', () => {
   assert.deepEqual(DIGITAL_LITERACY_MODULES.map((module) => module.name), EXPECTED_MODULES);

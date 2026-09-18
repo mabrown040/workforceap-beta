@@ -25,6 +25,7 @@ vi.mock('@/lib/member/courseCompletion', () => ({
 vi.mock('@/lib/audit', () => ({ auditLog: mocks.auditLog }));
 vi.mock('@/lib/audit/log', () => ({ logAuditEvent: mocks.logAuditEvent }));
 
+import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
 import { POST } from '@/app/api/member/courses/complete/route';
 
 function request(body: Record<string, unknown>) {
@@ -95,6 +96,50 @@ describe('POST /api/member/courses/complete', () => {
       source: 'member',
     });
   });
+
+  it('records digital literacy completion without looking up an enrollment', async () => {
+    mocks.findEnrollment.mockResolvedValue(null);
+
+    const response = await POST(request({
+      courseSlug: 'digital-literacy-empowerment-class-course-1',
+      programSlug: DIGITAL_LITERACY_PROGRAM_SLUG,
+    }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.findEnrollment).not.toHaveBeenCalled();
+    expect(mocks.completeMemberCourse).toHaveBeenCalledWith({
+      userId: 'user-1',
+      courseSlug: 'digital-literacy-empowerment-class-course-1',
+      resolvedProgramSlug: DIGITAL_LITERACY_PROGRAM_SLUG,
+      source: 'member',
+    });
+  });
+
+  it('does not treat nearby digital-literacy slugs as ungated', async () => {
+    mocks.findEnrollment.mockResolvedValue(null);
+
+    const response = await POST(request({
+      courseSlug: 'digital-literacy-empowerment-class-course-1',
+      programSlug: 'digital-literacy',
+    }));
+
+    expect(response.status).toBe(403);
+    expect(mocks.findEnrollment).toHaveBeenCalled();
+    expect(mocks.completeMemberCourse).not.toHaveBeenCalled();
+  });
+
+  it('still requires a signed-in member for ungated digital literacy', async () => {
+    mocks.getUser.mockResolvedValue(null);
+
+    const response = await POST(request({
+      courseSlug: 'digital-literacy-empowerment-class-course-1',
+      programSlug: DIGITAL_LITERACY_PROGRAM_SLUG,
+    }));
+
+    expect(response.status).toBe(401);
+    expect(mocks.findEnrollment).not.toHaveBeenCalled();
+    expect(mocks.completeMemberCourse).not.toHaveBeenCalled();
+  });
 });
 
 describe('Learning Hub completion identity contract', () => {
@@ -125,5 +170,23 @@ describe('Learning Hub completion identity contract', () => {
     expect(trainingCourseList).toContain(
       'body: JSON.stringify({ courseSlug: slug, programSlug })',
     );
+  });
+});
+
+describe('Digital literacy ungating contract', () => {
+  const completeRoute = readFileSync(
+    join(process.cwd(), 'app/api/member/courses/complete/route.ts'),
+    'utf8',
+  );
+  const modulePage = readFileSync(
+    join(process.cwd(), 'app/(portal)/dashboard/learning/modules/[courseSlug]/page.tsx'),
+    'utf8',
+  );
+
+  it('uses the shared ungated-program helper on both the page and completion API', () => {
+    expect(completeRoute).toContain('isUngatedDigitalLiteracyProgram(programSlug)');
+    expect(modulePage).toContain('isUngatedDigitalLiteracyProgram(requestedProgram)');
+    expect(modulePage).toContain('if (!ungatedProgram)');
+    expect(modulePage).toContain('courseEnrollment.findMany');
   });
 });

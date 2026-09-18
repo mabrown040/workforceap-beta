@@ -1,12 +1,17 @@
 import { notFound } from 'next/navigation';
 import { MemberProgressKit } from '@/components/portal/kit/pages/member/MemberProgressKit';
+import { ReadinessProgressSummary } from '@/components/portal/ReadinessProgressSummary';
+import { buildReadinessProgressView } from '@/lib/readiness/progressView';
+import { SCREENSHOT_86_BREAKDOWN, zeroScoreBreakdown } from '@/lib/readiness/progressView.fixtures';
+import { READINESS_SCORE_LOAD_ERROR, buildFactualReadinessRecap } from '@/lib/readiness/progressSummary';
 
 /**
  * Storybook-lite showcase — MemberProgressKit (readiness ring + category
- * scores + milestones). Preview-only, no auth/DB.
+ * scores + milestones + factual recap). Preview-only, no auth/DB.
  *
- *   /dev/member/progress              — sample scores + milestones
+ *   /dev/member/progress              — 86% screenshot fixture + summary
  *   /dev/member/progress?state=empty  — KitEmptyState for category scores + milestones
+ *   /dev/member/progress?state=error  — honest score-load error
  */
 export const dynamic = 'force-dynamic';
 
@@ -18,32 +23,29 @@ export default async function DevMemberProgressPage({
   if (process.env.VERCEL_ENV === 'production') notFound();
   const { state } = await searchParams;
   const empty = state === 'empty';
+  const error = state === 'error';
+  const view = buildReadinessProgressView(SCREENSHOT_86_BREAKDOWN);
+  const emptyView = buildReadinessProgressView(zeroScoreBreakdown());
+  const factual = buildFactualReadinessRecap(empty ? emptyView : view);
 
   return (
     <MemberProgressKit
-      readinessScore={empty ? 0 : 84}
-      readinessNote={empty ? 'Complete Training Preassessment to see a score.' : 'Next: finish AWS Practitioner.'}
+      readinessScore={empty || error ? 0 : view.overallScore}
+      readinessNote={empty ? emptyView.readinessNote : view.readinessNote}
       statsHeading="Progress by area"
       readinessCoachHref="/dev/member/toolkit"
-      weekStats={
-        empty
-          ? []
-          : [
-              { value: '80%', label: 'Resume & profile', color: 'var(--wa-info)' },
-              { value: '78%', label: 'Training & certs', color: 'var(--wa-accent)' },
-              { value: '60%', label: 'Interview & jobs', color: 'var(--wa-success)' },
-              { value: '40%', label: 'Engagement', color: 'var(--wa-gold)' },
-            ]
-      }
-      milestones={
-        empty
-          ? []
-          : [
-              { label: 'Resume & profile', when: '80%', state: 'done' },
-              { label: 'Training & certs', when: 'In progress', state: 'active' },
-              { label: 'Interview & jobs', when: 'Goal', state: 'goal' },
-              { label: 'Engagement', when: 'Goal', state: 'goal' },
-            ]
+      weekStats={empty || error ? [] : view.weekStats}
+      milestones={empty || error ? [] : view.milestones}
+      nextAction={empty || error ? null : view.priorityAction}
+      loadFailed={error}
+      summary={
+        <ReadinessProgressSummary
+          factualSummary={error ? READINESS_SCORE_LOAD_ERROR : factual}
+          nextAction={empty || error ? null : view.priorityAction}
+          coachHref="/dev/member/toolkit"
+          enableGeneration={false}
+          loadFailed={error}
+        />
       }
     />
   );

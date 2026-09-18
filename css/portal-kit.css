@@ -565,6 +565,264 @@ html.dark [data-surface] .wa-kit-card,
   }
 }
 
+/* AI Career Tools — All Tools path + directory (VoiceStudioKit toolkit tab).
+   Stages read left-to-right as a journey on desktop; stacked path + lists on
+   phones. Rows follow JobListingRow (icon tile, title, meta) rather than a
+   1173px dump of hairline stacks. */
+.wa-kit-toolkit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-pad);
+}
+.wa-kit-toolkit__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-pad-sm);
+}
+.wa-kit-toolkit__lede {
+  margin: 0;
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+}
+.wa-kit-toolkit-path {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+}
+.wa-kit-toolkit-path__item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+.wa-kit-toolkit-path__item:not(:last-child)::after {
+  content: '';
+  width: 0.75rem;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--wa-border);
+}
+.wa-kit-toolkit-path__step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  color: var(--wa-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+.wa-kit-toolkit-path__num,
+.wa-kit-toolkit-stage__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--wa-accent);
+  color: var(--wa-on-accent);
+  font-size: var(--wa-type-meta);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.wa-kit-toolkit-path__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.1rem;
+}
+.wa-kit-toolkit-path__label {
+  font-weight: 750;
+  font-size: var(--wa-type-body);
+  line-height: 1.2;
+}
+.wa-kit-toolkit-path__count {
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+  font-variant-numeric: tabular-nums;
+}
+.wa-kit-toolkit-stages {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--wa-pad);
+  align-items: start;
+}
+.wa-kit-toolkit-stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  scroll-margin-top: calc(var(--wa-pad) * 3);
+}
+.wa-kit-toolkit-stage__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+.wa-kit-toolkit-stage__titles {
+  min-width: 0;
+}
+.wa-kit-toolkit-stage__label {
+  margin: 0;
+  font-size: var(--wa-type-body);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.wa-kit-toolkit-stage__title {
+  margin: 0.15rem 0 0;
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+  line-height: 1.35;
+}
+.wa-kit-toolkit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+}
+.wa-kit-toolkit-list > li + li {
+  border-top: 1px solid var(--wa-border);
+}
+.wa-kit-toolkit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
+  color: var(--wa-text);
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color var(--wa-dur-fast) var(--wa-ease);
+}
+.wa-kit-toolkit-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-surface-2);
+  color: var(--wa-accent);
+}
+.wa-kit-toolkit-row__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.4rem;
+  row-gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+  align-items: start;
+}
+.wa-kit-toolkit-row__title {
+  grid-column: 1;
+  font-weight: 700;
+  font-size: var(--wa-type-body);
+  line-height: 1.25;
+  min-width: 0;
+  text-wrap: balance;
+}
+.wa-kit-toolkit-row__body > .wa-kit-tag {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  margin-top: 0.1rem;
+}
+.wa-kit-toolkit-row__meta {
+  grid-column: 1 / -1;
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wa-kit-toolkit-row__chevron {
+  flex-shrink: 0;
+  color: var(--wa-muted);
+}
+.wa-kit-toolkit-row .wa-kit-tag {
+  padding: 0.15rem 0.5rem;
+}
+@media (hover: hover) {
+  .wa-kit-toolkit-path__step:hover {
+    background: var(--wa-surface-2);
+  }
+  .wa-kit-toolkit-row:hover {
+    background: color-mix(in srgb, var(--wa-accent) 7%, var(--wa-surface));
+  }
+  .wa-kit-toolkit-row:hover .wa-kit-toolkit-row__chevron {
+    color: var(--wa-accent);
+  }
+}
+@media (min-width: 900px) {
+  /* Column headers are the path on desktop — don't repeat the jump strip. */
+  .wa-kit-toolkit-path {
+    display: none;
+  }
+  .wa-kit-toolkit-stages {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--wa-pad-sm);
+    align-items: stretch;
+    position: relative;
+  }
+  .wa-kit-toolkit-stages::before {
+    content: '';
+    position: absolute;
+    top: 0.875rem;
+    left: 0.9rem;
+    right: 0.9rem;
+    height: 1px;
+    background: var(--wa-border);
+    pointer-events: none;
+  }
+  .wa-kit-toolkit-stage__num {
+    position: relative;
+    box-shadow: 0 0 0 0.35rem var(--wa-bg);
+  }
+  .wa-kit-toolkit-row__meta {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+  }
+}
+@media (max-width: 480px) {
+  .wa-kit-toolkit-path__count {
+    display: none;
+  }
+  .wa-kit-toolkit-path__step {
+    padding: 0.55rem;
+  }
+  .wa-kit-toolkit-path__item:not(:last-child)::after {
+    width: 1px;
+    height: 1.25rem;
+  }
+  .wa-kit-toolkit-row__meta {
+    white-space: normal;
+  }
+}
+
 /* Job listing filters — keep .job-filters-drawer behavior, paint with --wa-*.
    main.css sets .job-filters-drawer-inner { position: absolute } AFTER the
    md+ promotion block, so desktop never un-fixed. These selectors win. */

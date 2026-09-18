@@ -290,9 +290,14 @@ export default function EmployerSignupPage() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="sd-pw-toggle"
-                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPassword}
                     >
-                      {showPassword ? <EyeOff className="wa-w-5 wa-h-5" /> : <Eye className="wa-w-5 wa-h-5" />}
+                      {showPassword ? (
+                        <EyeOff className="wa-w-5 wa-h-5" aria-hidden="true" />
+                      ) : (
+                        <Eye className="wa-w-5 wa-h-5" aria-hidden="true" />
+                      )}
                     </button>
                   </div>
                   {passwordErrors.length > 0 && (

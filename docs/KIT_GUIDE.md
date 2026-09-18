@@ -259,9 +259,13 @@ Reference compositions ("templates"): `components/portal/kit/pages/{member,admin
 plus `PartnerOverviewKit.tsx`, `VoiceStudioKit.tsx`. **Start new pages by copying the nearest one.**
 `VoiceStudioKit` is the canonical Career Studio hub (`/dashboard/ai-tools` and
 `/dev/member/toolkit`): voice coaches, live practice, Resume Studio, and the AI
-toolkit. Do not replace it with `MemberToolkitKit`. Page chrome is `PageOpener`
-on the shared `--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`,
-not raw hex) — that is session chrome, not a second app header.
+toolkit. The All Tools tab is a three-stage path (Resume → Interview → Profile)
+with scannable directory rows — not a stacked dump of feature cards. Do not
+replace it with `MemberToolkitKit`. Page chrome is `PageOpener` on the shared
+`--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`, not raw
+hex) — that is session chrome, not a second app header.
+
+`MemberProgressKit` (`/dashboard/readiness`, proof `/dev/member/progress`) shows the weighted readiness score, four area percents, milestones, and a kit-token progress summary. Numbers come from `getScoreBreakdown` via `buildReadinessProgressView` — never invented weekly counters. The summary starts as a factual recap of those same points and may be replaced by an AI rewrite that is rejected if it cites unknown percents. Score-load failure is an explicit empty/error, not a 0% ring. Do not mix Astryx primitives inside this kit page.
 
 `UsersKit` is the staff/admin directory at `/admin/users`. Its loader searches
 and counts before pagination; `useDirectoryNavigation` keeps URL search, role,
@@ -276,6 +280,14 @@ against that page in the client.
 `StudentsRosterKit` shows the full account email beneath each student name in
 both table rows and mobile cards. Keep that identifier visible and wrapping so
 staff can distinguish same-name accounts before opening an account action.
+
+`TrainingProgressKit` (`/admin/training-progress`, proof `/dev/staff/training-progress`)
+is a dense staff roster. Sortable headers are Student, Program, Modules, % Complete,
+Coursera grade, Pace, and Last active. Last active is a relative caption (`2h ago`)
+from existing login / LMS / progress timestamps (`User.lastLoginAt`,
+`CourseProgress.lastActivityAt` / `lastUpdatedAt`) — never a new table. Missing
+timestamps sort last in both directions. Do not mix Astryx primitives inside the
+kit table cells beyond `Token` for Pace.
 
 ---
 

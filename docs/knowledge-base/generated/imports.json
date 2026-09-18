@@ -9961,8 +9961,16 @@
   },
   {
     "from": "app/(portal)/dashboard/readiness/page.tsx",
-    "specifier": "@/lib/readiness/memberReadinessSections",
+    "specifier": "@/components/portal/ReadinessProgressSummary",
     "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/ReadinessProgressSummary.tsx"
+  },
+  {
+    "from": "app/(portal)/dashboard/readiness/page.tsx",
+    "specifier": "@/lib/readiness/memberReadinessSections",
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/readiness/memberReadinessSections.ts"
@@ -9970,10 +9978,26 @@
   {
     "from": "app/(portal)/dashboard/readiness/page.tsx",
     "specifier": "@/components/portal/kit/pages/member/MemberProgressKit",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/member/MemberProgressKit.tsx"
+  },
+  {
+    "from": "app/(portal)/dashboard/readiness/page.tsx",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/readiness/page.tsx",
+    "specifier": "@/lib/readiness/progressSummary",
+    "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressSummary.ts"
   },
   {
     "from": "app/(portal)/dashboard/referrals/page.tsx",
@@ -25210,7 +25234,7 @@
   {
     "from": "app/admin/training-progress/page.tsx",
     "specifier": "@/lib/tenant/adminPageScope",
-    "line": 392,
+    "line": 399,
     "kind": "type",
     "external": false,
     "target": "lib/tenant/adminPageScope.ts"
@@ -54528,6 +54552,70 @@
     "target": "lib/db/withRequestGuc.ts"
   },
   {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "next/server",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/rate-limit",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/rate-limit.ts"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/ai/groq",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/groq.ts"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/db/withRequestGuc",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/readiness/score",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/score.ts"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "app/api/member/readiness/summary/route.ts",
+    "specifier": "@/lib/readiness/progressSummary",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressSummary.ts"
+  },
+  {
     "from": "app/api/member/readiness/voice-session/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -63616,6 +63704,38 @@
     "target": "components/portal/kit/pages/member/MemberProgressKit.tsx"
   },
   {
+    "from": "app/dev/member/progress/page.tsx",
+    "specifier": "@/components/portal/ReadinessProgressSummary",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/ReadinessProgressSummary.tsx"
+  },
+  {
+    "from": "app/dev/member/progress/page.tsx",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "app/dev/member/progress/page.tsx",
+    "specifier": "@/lib/readiness/progressView.fixtures",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.fixtures.ts"
+  },
+  {
+    "from": "app/dev/member/progress/page.tsx",
+    "specifier": "@/lib/readiness/progressSummary",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressSummary.ts"
+  },
+  {
     "from": "app/dev/member/resume-rewriter/page.tsx",
     "specifier": "next/navigation",
     "line": 1,
@@ -65918,6 +66038,30 @@
     "kind": "re-export",
     "external": false,
     "target": "components/error/ErrorBoundary.tsx"
+  },
+  {
+    "from": "components/Footer.test.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/Footer.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/Footer.test.tsx",
+    "specifier": "./Footer",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/Footer.tsx"
   },
   {
     "from": "components/Footer.tsx",
@@ -73872,6 +74016,14 @@
     "target": "lib/readiness/score.ts"
   },
   {
+    "from": "components/portal/JobReadinessScore.tsx",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
     "from": "components/portal/JobTailorPanel.tsx",
     "specifier": "react",
     "line": 3,
@@ -75886,6 +76038,46 @@
     "kind": "import",
     "external": true,
     "package": "next-intl"
+  },
+  {
+    "from": "components/portal/ReadinessProgressSummary.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/ReadinessProgressSummary.tsx",
+    "specifier": "lucide-react",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "lucide-react"
+  },
+  {
+    "from": "components/portal/ReadinessProgressSummary.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/ReadinessProgressSummary.tsx",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 6,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "components/portal/ReadinessProgressSummary.tsx",
+    "specifier": "@/lib/readiness/progressSummary",
+    "line": 7,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/progressSummary.ts"
   },
   {
     "from": "components/portal/RefreshCourseraProgressButton.tsx",
@@ -79346,7 +79538,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 68,
+    "line": 69,
     "kind": "type",
     "external": true,
     "package": "@elevenlabs/client"
@@ -79354,7 +79546,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../DesignSurface",
-    "line": 69,
+    "line": 70,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/DesignSurface.tsx"
@@ -79362,7 +79554,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../PageOpener",
-    "line": 70,
+    "line": 71,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/PageOpener.tsx"
@@ -79370,15 +79562,23 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../KitEmptyState",
-    "line": 71,
+    "line": 72,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/KitEmptyState.tsx"
   },
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
+    "specifier": "../StatusTag",
+    "line": 73,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/StatusTag.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "../VoiceOrb",
-    "line": 72,
+    "line": 74,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/VoiceOrb.tsx"
@@ -79386,7 +79586,7 @@
   {
     "from": "components/portal/kit/pages/VoiceStudioKit.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 698,
+    "line": 700,
     "kind": "dynamic-import",
     "external": true,
     "package": "@elevenlabs/client"
@@ -82489,8 +82689,16 @@
   },
   {
     "from": "components/portal/kit/pages/member/MemberProgressKit.tsx",
-    "specifier": "lucide-react",
+    "specifier": "react",
     "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberProgressKit.tsx",
+    "specifier": "lucide-react",
+    "line": 2,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -82498,7 +82706,7 @@
   {
     "from": "components/portal/kit/pages/member/MemberProgressKit.tsx",
     "specifier": "lucide-react",
-    "line": 2,
+    "line": 3,
     "kind": "type",
     "external": true,
     "package": "lucide-react"
@@ -82506,10 +82714,18 @@
   {
     "from": "components/portal/kit/pages/member/MemberProgressKit.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberProgressKit.tsx",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 5,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
   },
   {
     "from": "components/portal/kit/pages/member/MemberToolkitKit.tsx",
@@ -104264,6 +104480,102 @@
     "target": "lib/content/readinessChecklist.ts"
   },
   {
+    "from": "lib/readiness/progressSummary.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "lib/readiness/progressSummary.test.ts",
+    "specifier": "./progressView.fixtures",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.fixtures.ts"
+  },
+  {
+    "from": "lib/readiness/progressSummary.test.ts",
+    "specifier": "./progressView",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "lib/readiness/progressSummary.test.ts",
+    "specifier": "./progressSummary",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressSummary.ts"
+  },
+  {
+    "from": "lib/readiness/progressSummary.ts",
+    "specifier": "@/lib/ai/postProcess",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/postProcess.ts"
+  },
+  {
+    "from": "lib/readiness/progressSummary.ts",
+    "specifier": "@/lib/readiness/progressView",
+    "line": 2,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "lib/readiness/progressView.fixtures.ts",
+    "specifier": "./score",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/score.ts"
+  },
+  {
+    "from": "lib/readiness/progressView.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "lib/readiness/progressView.test.ts",
+    "specifier": "./progressView.fixtures",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.fixtures.ts"
+  },
+  {
+    "from": "lib/readiness/progressView.test.ts",
+    "specifier": "./progressView",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.ts"
+  },
+  {
+    "from": "lib/readiness/progressView.test.ts",
+    "specifier": "./score",
+    "line": 4,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/score.ts"
+  },
+  {
+    "from": "lib/readiness/progressView.ts",
+    "specifier": "@/lib/readiness/score",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/readiness/score.ts"
+  },
+  {
     "from": "lib/readiness/score.ts",
     "specifier": "@/lib/db/prisma",
     "line": 1,
@@ -114377,8 +114689,16 @@
   },
   {
     "from": "tests/api/member-course-complete.spec.ts",
-    "specifier": "@/app/api/member/courses/complete/route",
+    "specifier": "@/shared/digitalLiteracyPathway",
     "line": 28,
+    "kind": "import",
+    "external": false,
+    "target": "shared/digitalLiteracyPathway.ts"
+  },
+  {
+    "from": "tests/api/member-course-complete.spec.ts",
+    "specifier": "@/app/api/member/courses/complete/route",
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "app/api/member/courses/complete/route.ts"
@@ -115006,6 +115326,70 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/app/api/member/readiness/summary/route",
+    "line": 39,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/member/readiness/summary/route.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 40,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/lib/rate-limit",
+    "line": 41,
+    "kind": "import",
+    "external": false,
+    "target": "lib/rate-limit.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/lib/ai/groq",
+    "line": 42,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/groq.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/lib/readiness/score",
+    "line": 43,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/score.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/lib/readiness/progressView.fixtures",
+    "line": 44,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressView.fixtures.ts"
+  },
+  {
+    "from": "tests/api/member-readiness-summary.spec.ts",
+    "specifier": "@/lib/readiness/progressSummary",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/readiness/progressSummary.ts"
   },
   {
     "from": "tests/api/member-referral-privacy.spec.ts",
@@ -118888,6 +119272,46 @@
     "target": "lib/fetchWithTimeout.ts"
   },
   {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "react",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/employer-signup-password-toggle.spec.tsx",
+    "specifier": "@/app/employers/signup/page",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "app/employers/signup/page.tsx"
+  },
+  {
     "from": "tests/components/inbox-zero-reassignment-receipt.spec.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -122546,7 +122970,7 @@
   {
     "from": "tests/lib/training-progress-roster.spec.ts",
     "specifier": "@/lib/admin/trainingProgressGrades",
-    "line": 16,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressGrades.ts"
@@ -122554,7 +122978,7 @@
   {
     "from": "tests/lib/training-progress-roster.spec.ts",
     "specifier": "@/lib/admin/trainingProgressPrograms",
-    "line": 17,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/admin/trainingProgressPrograms.ts"

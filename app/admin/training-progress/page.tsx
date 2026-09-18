@@ -22,7 +22,7 @@ import {
   deriveTrainingPace,
   programSlugsForLearner,
 } from '@/lib/admin/trainingProgressPrograms';
-import { countMembersWithTraining } from '@/lib/admin/trainingProgressRoster';
+import { countMembersWithTraining, latestActivityMs, relativeLastActiveCaption } from '@/lib/admin/trainingProgressRoster';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
@@ -69,6 +69,7 @@ export default async function AdminTrainingProgressPage({
     id: string;
     fullName: string | null;
     enrolledProgram: string | null;
+    lastLoginAt: Date | null;
   }>;
   let learnerTotal = 0;
   try {
@@ -77,7 +78,7 @@ export default async function AdminTrainingProgressPage({
         take: ADMIN_SSR_LIST_CAP,
         where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
         orderBy: [{ fullName: 'asc' }],
-        select: { id: true, fullName: true, enrolledProgram: true },
+        select: { id: true, fullName: true, enrolledProgram: true, lastLoginAt: true },
       })),
       withAdminPageScope(scope, (db) => db.user.count({
         where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
@@ -296,6 +297,7 @@ export default async function AdminTrainingProgressPage({
       });
       const percentComplete = reconciliation.programPercent;
       const lastActivity = lastActivityByUserProgram.get(`${learner.id}:${programSlug}`);
+      const lastActiveAt = latestActivityMs([lastActivity, learner.lastLoginAt]);
 
       rows.push({
         id: `${learner.id}:${programSlug}`,
@@ -308,6 +310,8 @@ export default async function AdminTrainingProgressPage({
         inWap: true,
         noProgram: !storedProgramSlug,
         courseraGrade: gradeByUserId.get(learner.id) ?? null,
+        lastActive: relativeLastActiveCaption(lastActiveAt),
+        lastActiveAt,
       });
     }
   }
@@ -335,6 +339,7 @@ export default async function AdminTrainingProgressPage({
     const lastActivity = learner.lastActivityTime
       ? new Date(learner.lastActivityTime)
       : undefined;
+    const lastActiveAt = latestActivityMs([lastActivity]);
     // averageProgressPercent means over every historical row for the email,
     // so one stale 0% row halves the real number (38% reads as 19%).
     // latestProgressPercent is the most recently active course with real
@@ -350,6 +355,8 @@ export default async function AdminTrainingProgressPage({
       pace: deriveTrainingPace({ percentComplete, lastActivity, idleCutoff }),
       inWap: false,
       courseraGrade: learner.latestGradePercent,
+      lastActive: relativeLastActiveCaption(lastActiveAt),
+      lastActiveAt,
     });
   }
 

@@ -12,7 +12,7 @@
  *   coaches  → Voice Coaches hub        (default)
  *   session  → Live Voice Session       (dark panel, animated mic orb)
  *   studio   → Resume Studio · Beta     (Career Studio: score + issues + rewrite)
- *   toolkit  → AI Career Toolkit        (3 numbered steps of tool cards)
+ *   toolkit  → AI Career Toolkit        (3-stage path + scannable directory rows)
  *
  * The "Mock Interview" coach card and the Live Session tab button both switch to
  * the `session` tab. Page chrome is PageOpener + SegmentedControl on the shared
@@ -63,12 +63,14 @@ import {
   Play,
   FlaskConical,
   AlertTriangle,
+  ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
 import type { Conversation } from '@elevenlabs/client';
 import { DesignSurface } from '../DesignSurface';
 import { PageOpener } from '../PageOpener';
 import { KitEmptyState } from '../KitEmptyState';
+import { StatusTag } from '../StatusTag';
 import { VoiceOrb } from '../VoiceOrb';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
@@ -1441,20 +1443,21 @@ function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
 /* VIEW: AI TOOLKIT HUB                                          */
 /* ============================================================ */
 
-type ToolAccent = 'crimson' | 'gold' | 'blue';
+type ToolTag = 'BETA' | 'VOICE';
 
 interface ToolCard {
   Icon: LucideIcon;
   title: string;
   body: string;
-  accent: ToolAccent;
-  tag?: 'BETA' | 'VOICE';
+  tag?: ToolTag;
   /** Real route this tool opens. */
   href: string;
 }
 
 interface ToolStep {
   n: number;
+  /** Short path label (Resume / Interview / Profile). */
+  label: string;
   title: string;
   tools: ToolCard[];
 }
@@ -1462,117 +1465,127 @@ interface ToolStep {
 const TOOLKIT_STEPS: ToolStep[] = [
   {
     n: 1,
-    title: 'Get your resume & applications ready',
+    label: 'Resume',
+    title: 'Get applications ready',
     tools: [
-      { Icon: FileText, title: 'Resume Studio', body: 'Score, rewrite & talk through your resume.', accent: 'crimson', tag: 'BETA', href: TOOL_HREF['resume-studio'] },
-      { Icon: MailOpen, title: 'Cover Letter', body: 'Tailored to any saved job in seconds.', accent: 'crimson', href: TOOL_HREF['cover-letter'] },
-      { Icon: CheckCircle2, title: 'Skill Checkpoints', body: "Verify what you've actually mastered.", accent: 'crimson', href: TOOL_HREF['skill-checkpoints'] },
+      { Icon: FileText, title: 'Resume Studio', body: 'Score, rewrite & talk through your resume.', tag: 'BETA', href: TOOL_HREF['resume-studio'] },
+      { Icon: MailOpen, title: 'Cover Letter', body: 'Tailored to any saved job in seconds.', href: TOOL_HREF['cover-letter'] },
+      { Icon: CheckCircle2, title: 'Skill Checkpoints', body: "Verify what you've actually mastered.", href: TOOL_HREF['skill-checkpoints'] },
     ],
   },
   {
     n: 2,
-    title: 'Pre-interview prep & role targeting',
+    label: 'Interview',
+    title: 'Prep and target the role',
     tools: [
-      { Icon: AudioLines, title: 'Interview Practice', body: 'Live mock interviews with voice coaching.', accent: 'crimson', tag: 'VOICE', href: TOOL_HREF['interview-practice'] },
-      { Icon: Headset, title: 'Interview Coach', body: 'Question-by-question guidance.', accent: 'crimson', href: TOOL_HREF['interview-coach'] },
-      { Icon: Search, title: 'Job Match Scorer', body: 'See how you match a specific job.', accent: 'blue', href: TOOL_HREF['job-match-scorer'] },
-      { Icon: Network, title: 'Skill Mapper', body: 'Find skills employers want.', accent: 'blue', href: TOOL_HREF['skill-mapper'] },
-      { Icon: Route, title: 'Training Bridge', body: 'Map missing skills to free training.', accent: 'gold', tag: 'BETA', href: TOOL_HREF['training-bridge'] },
+      { Icon: AudioLines, title: 'Interview Practice', body: 'Live mock interviews with voice coaching.', tag: 'VOICE', href: TOOL_HREF['interview-practice'] },
+      { Icon: Headset, title: 'Interview Coach', body: 'Question-by-question guidance.', href: TOOL_HREF['interview-coach'] },
+      { Icon: Search, title: 'Job Match Scorer', body: 'See how you match a specific job.', href: TOOL_HREF['job-match-scorer'] },
+      { Icon: Network, title: 'Skill Mapper', body: 'Find skills employers want.', href: TOOL_HREF['skill-mapper'] },
+      { Icon: Route, title: 'Training Bridge', body: 'Map missing skills to free training.', tag: 'BETA', href: TOOL_HREF['training-bridge'] },
     ],
   },
   {
     n: 3,
-    title: 'Polish your profile & job-search strategy',
+    label: 'Profile',
+    title: 'Polish profile and strategy',
     tools: [
-      { Icon: Linkedin, title: 'LinkedIn Headline', body: 'A headline recruiters stop on.', accent: 'blue', href: TOOL_HREF['linkedin-headline'] },
-      { Icon: UserPen, title: 'LinkedIn About', body: 'Write your professional story.', accent: 'blue', href: TOOL_HREF['linkedin-about'] },
-      { Icon: Search, title: 'Gap Analyzer', body: "See what's missing for a job.", accent: 'crimson', href: TOOL_HREF['gap-analyzer'] },
-      { Icon: MessagesSquare, title: 'Salary Negotiation', body: 'Practice asking for better pay.', accent: 'crimson', href: TOOL_HREF['salary-negotiation'] },
-      { Icon: Scale, title: 'Benefits Cliff Check', body: 'Will this offer leave you better off?', accent: 'gold', tag: 'BETA', href: TOOL_HREF['benefits-cliff'] },
+      { Icon: Linkedin, title: 'LinkedIn Headline', body: 'A headline recruiters stop on.', href: TOOL_HREF['linkedin-headline'] },
+      { Icon: UserPen, title: 'LinkedIn About', body: 'Write your professional story.', href: TOOL_HREF['linkedin-about'] },
+      { Icon: Search, title: 'Gap Analyzer', body: "See what's missing for a job.", href: TOOL_HREF['gap-analyzer'] },
+      { Icon: MessagesSquare, title: 'Salary Negotiation', body: 'Practice asking for better pay.', href: TOOL_HREF['salary-negotiation'] },
+      { Icon: Scale, title: 'Benefits Cliff Check', body: 'Will this offer leave you better off?', tag: 'BETA', href: TOOL_HREF['benefits-cliff'] },
     ],
   },
 ];
+
+function ToolkitToolTag({ tag }: { tag: ToolTag }) {
+  switch (tag) {
+    case 'BETA':
+      return <StatusTag tone="warn">Beta</StatusTag>;
+    case 'VOICE':
+      return <StatusTag tone="info">Voice</StatusTag>;
+    default: {
+      const _exhaustive: never = tag;
+      return _exhaustive;
+    }
+  }
+}
 
 function ToolkitPanel() {
   // Computed (not hardcoded) so the count can never drift from what's
   // actually rendered below as tools are added or removed from a step.
   const toolCount = TOOLKIT_STEPS.reduce((n, step) => n + step.tools.length, 0);
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0 }}>
-        {toolCount} tools. Work top to bottom.
-      </p>
-
-      {TOOLKIT_STEPS.map((step) => (
-        <div key={step.n}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <span
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: 999,
-                background: 'var(--wa-accent)',
-                color: 'var(--wa-on-accent)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 'var(--wa-type-meta)',
-                fontWeight: 700,
-              }}
-            >
-              {step.n}
-            </span>
-            <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em' }}>{step.title}</h3>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {step.tools.map((tool) => (
-              <ToolCardView key={tool.title} tool={tool} />
+    <section className="wa-kit-toolkit" aria-label="All career tools">
+      <header className="wa-kit-toolkit__intro">
+        <p className="wa-kit-toolkit__lede">{toolCount} tools in three stages.</p>
+        <nav aria-label="Job-search path">
+          <ol className="wa-kit-toolkit-path">
+            {TOOLKIT_STEPS.map((step) => (
+              <li key={step.n} className="wa-kit-toolkit-path__item">
+                <a className="wa-kit-toolkit-path__step wa-kit-focus" href={`#toolkit-stage-${step.n}`}>
+                  <span className="wa-kit-toolkit-path__num" aria-hidden="true">
+                    {step.n}
+                  </span>
+                  <span className="wa-kit-toolkit-path__copy">
+                    <span className="wa-kit-toolkit-path__label">{step.label}</span>
+                    <span className="wa-kit-toolkit-path__count">{step.tools.length} tools</span>
+                  </span>
+                </a>
+              </li>
             ))}
-          </div>
-        </div>
-      ))}
+          </ol>
+        </nav>
+      </header>
+
+      <div className="wa-kit-toolkit-stages">
+        {TOOLKIT_STEPS.map((step) => (
+          <section
+            key={step.n}
+            id={`toolkit-stage-${step.n}`}
+            className="wa-kit-toolkit-stage"
+            aria-labelledby={`toolkit-stage-${step.n}-title`}
+          >
+            <header className="wa-kit-toolkit-stage__head">
+              <span className="wa-kit-toolkit-stage__num" aria-hidden="true">
+                {step.n}
+              </span>
+              <div className="wa-kit-toolkit-stage__titles">
+                <h2 id={`toolkit-stage-${step.n}-title`} className="wa-kit-toolkit-stage__label">
+                  {step.label}
+                </h2>
+                <p className="wa-kit-toolkit-stage__title">{step.title}</p>
+              </div>
+            </header>
+            <ul className="wa-kit-toolkit-list">
+              {step.tools.map((tool) => (
+                <li key={tool.title}>
+                  <ToolCardView tool={tool} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
     </section>
   );
 }
 
 function ToolCardView({ tool }: { tool: ToolCard }) {
-  const { Icon, title, body, accent, tag, href } = tool;
-  const tagStyle =
-    accent === 'gold'
-      ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
-      : { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' };
+  const { Icon, title, body, tag, href } = tool;
 
   return (
-    <Link
-      href={href}
-      className="wa-kit-focus"
-      style={{
-        textAlign: 'left',
-        background: 'var(--wa-surface)',
-        borderBottom: '1px solid var(--wa-border)',
-        padding: '14px 4px',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        width: '100%',
-        minHeight: 64,
-        textDecoration: 'none',
-        color: 'var(--wa-text)',
-      }}
-    >
-      <div style={{ minWidth: 0, flex: 1 }}>
-        <div className="wa-flex wa-items-center wa-gap-2">
-          <h4 style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', margin: 0 }}>{title}</h4>
-          {tag === 'BETA' ? (
-            <span style={{ padding: '2px 8px', fontSize: 'var(--wa-type-meta)', fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
-          ) : tag === 'VOICE' ? (
-            <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
-          ) : null}
-        </div>
-        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 0' }}>{body}</p>
-      </div>
-      <Icon size={16} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-muted)' }} />
+    <Link href={href} className="wa-kit-toolkit-row wa-kit-focus">
+      <span className="wa-kit-toolkit-row__icon" aria-hidden="true">
+        <Icon size={18} />
+      </span>
+      <span className="wa-kit-toolkit-row__body">
+        <span className="wa-kit-toolkit-row__title">{title}</span>
+        {tag ? <ToolkitToolTag tag={tag} /> : null}
+        <span className="wa-kit-toolkit-row__meta">{body}</span>
+      </span>
+      <ChevronRight size={18} aria-hidden="true" className="wa-kit-toolkit-row__chevron" />
     </Link>
   );
 }

@@ -45,6 +45,8 @@ const ROWS: TrainingRow[] = Array.from({ length: 53 }, (_, index) => {
     courseraGrade: index % 5 === 0 ? null : 70 + (index % 28),
     inWap: !unmatched,
     noProgram: !unmatched && noProgram,
+    lastActive: index % 4 === 0 ? '16d ago' : index % 2 === 0 ? '2h ago' : '1d ago',
+    lastActiveAt: Date.now() - index * 86_400_000,
   };
 });
 

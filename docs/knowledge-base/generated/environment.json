@@ -4112,7 +4112,7 @@
         },
         {
           "file": "app/dev/member/progress/page.tsx",
-          "line": 18
+          "line": 23
         },
         {
           "file": "app/dev/member/resume-rewriter/page.tsx",
@@ -4196,7 +4196,7 @@
         },
         {
           "file": "app/dev/staff/training-progress/page.tsx",
-          "line": 52
+          "line": 54
         },
         {
           "file": "app/dev/voice-studio/page.tsx",

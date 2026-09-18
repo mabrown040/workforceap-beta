@@ -163,7 +163,7 @@
 | [tests/components/admin-directory-results.spec.tsx](../../../tests/components/admin-directory-results.spec.tsx) | 129 | tests |  |
 | [tests/components/admin-hydration-hardening.test.ts](../../../tests/components/admin-hydration-hardening.test.ts) | 34 | tests |  |
 | [tests/components/admin-subgroup-members-table.test.tsx](../../../tests/components/admin-subgroup-members-table.test.tsx) | 86 | tests |  |
-| [tests/components/admin-training-progress-roster.test.tsx](../../../tests/components/admin-training-progress-roster.test.tsx) | 237 | tests |  |
+| [tests/components/admin-training-progress-roster.test.tsx](../../../tests/components/admin-training-progress-roster.test.tsx) | 262 | tests |  |
 | [tests/components/agent-inbox-retry.spec.tsx](../../../tests/components/agent-inbox-retry.spec.tsx) | 79 | tests |  |
 | [tests/components/auth-training-return.spec.tsx](../../../tests/components/auth-training-return.spec.tsx) | 218 | tests |  |
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
@@ -182,7 +182,8 @@
 | [tests/components/portal-team-chat-read-cursor.spec.tsx](../../../tests/components/portal-team-chat-read-cursor.spec.tsx) | 123 | tests |  |
 | [tests/components/referral-share-toolkit.spec.tsx](../../../tests/components/referral-share-toolkit.spec.tsx) | 146 | applications-enrollment |  |
 | [tests/components/skill-mission-close-guard.test.tsx](../../../tests/components/skill-mission-close-guard.test.tsx) | 98 | tests |  |
-| [tests/components/students-roster-identity.spec.tsx](../../../tests/components/students-roster-identity.spec.tsx) | 51 | tests |  |
+| [tests/components/students-roster-identity.spec.tsx](../../../tests/components/students-roster-identity.spec.tsx) | 53 | tests |  |
+| [tests/components/students-roster-sort.spec.tsx](../../../tests/components/students-roster-sort.spec.tsx) | 92 | tests |  |
 | [tests/components/training-feedback-handoff.test.tsx](../../../tests/components/training-feedback-handoff.test.tsx) | 100 | tests |  |
 | [tests/components/workspace-sidebar.test.tsx](../../../tests/components/workspace-sidebar.test.tsx) | 300 | tests |  |
 | [tests/e2e/README.md](../../../tests/e2e/README.md) | 72 | tests |  |
@@ -312,6 +313,7 @@
 | [tests/lib/stale-training-completion.spec.ts](../../../tests/lib/stale-training-completion.spec.ts) | 223 | tests |  |
 | [tests/lib/start-member-agent-session.spec.ts](../../../tests/lib/start-member-agent-session.spec.ts) | 149 | tests |  |
 | [tests/lib/students-roster-enrichment.spec.ts](../../../tests/lib/students-roster-enrichment.spec.ts) | 89 | tests |  |
+| [tests/lib/students-roster-sort.spec.ts](../../../tests/lib/students-roster-sort.spec.ts) | 56 | tests |  |
 | [tests/lib/training-course-practice.spec.ts](../../../tests/lib/training-course-practice.spec.ts) | 47 | tests |  |
 | [tests/lib/training-dashboard-curriculum-cache.spec.ts](../../../tests/lib/training-dashboard-curriculum-cache.spec.ts) | 90 | tests |  |
 | [tests/lib/training-progress-curriculum-version.spec.ts](../../../tests/lib/training-progress-curriculum-version.spec.ts) | 77 | tests |  |

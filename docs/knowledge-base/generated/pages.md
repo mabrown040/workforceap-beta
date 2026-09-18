@@ -474,7 +474,7 @@
 | [app/admin/sessions/walk-in/page.tsx](../../../app/admin/sessions/walk-in/page.tsx) | 40 | administration | generateMetadata:9, default:17 |
 | [app/admin/settings/loading.tsx](../../../app/admin/settings/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/settings/page.tsx](../../../app/admin/settings/page.tsx) | 44 | administration | generateMetadata:13, default:21 |
-| [app/admin/students/page.tsx](../../../app/admin/students/page.tsx) | 345 | administration | generateMetadata:28, default:89 |
+| [app/admin/students/page.tsx](../../../app/admin/students/page.tsx) | 348 | administration | generateMetadata:28, default:89 |
 | [app/admin/subgroups/\[id\]/edit/page.tsx](../../../app/admin/subgroups/%5Bid%5D/edit/page.tsx) | 59 | administration | generateMetadata:12, default:22 |
 | [app/admin/subgroups/\[id\]/page.tsx](../../../app/admin/subgroups/%5Bid%5D/page.tsx) | 169 | administration | default:15 |
 | [app/admin/subgroups/legacy.tsx](../../../app/admin/subgroups/legacy.tsx) | 170 | administration | default:14 |
@@ -597,6 +597,8 @@
 | [app/dev/staff/pipeline-funnel/page.tsx](../../../app/dev/staff/pipeline-funnel/page.tsx) | 43 | pages | dynamic:12, default:29 |
 | [app/dev/staff/placements/layout.tsx](../../../app/dev/staff/placements/layout.tsx) | 11 | jobs-employers | metadata:4, default:9 |
 | [app/dev/staff/placements/page.tsx](../../../app/dev/staff/placements/page.tsx) | 96 | jobs-employers | dynamic:8, default:83 |
+| [app/dev/staff/students-roster/page.tsx](../../../app/dev/staff/students-roster/page.tsx) | 70 | pages | dynamic:12, default:66 |
+| [app/dev/staff/training-progress/page.tsx](../../../app/dev/staff/training-progress/page.tsx) | 61 | pages | dynamic:9, default:51 |
 | [app/dev/voice-studio/layout.tsx](../../../app/dev/voice-studio/layout.tsx) | 11 | pages | metadata:4, default:9 |
 | [app/dev/voice-studio/page.tsx](../../../app/dev/voice-studio/page.tsx) | 29 | pages | dynamic:11, default:13 |
 | [app/employer/loi/page.tsx](../../../app/employer/loi/page.tsx) | 31 | jobs-employers | generateMetadata:6, default:15 |

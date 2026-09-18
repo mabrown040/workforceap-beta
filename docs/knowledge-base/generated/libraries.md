@@ -31,6 +31,7 @@
 | [lib/admin/commandCenterHelpers.ts](../../../lib/admin/commandCenterHelpers.ts) | 154 | administration | AdminCommandCenterBaseRow:1, AdminNeedsReplyRow:7, AdminAtRiskRow:14, AdminInterviewingRow:20, ApplicationEmailPacket:27, AdminApplicationPendingRow:33, AdminCommandCenterTotals:45, AdminProgramHealthRow:60, ADMIN_QUEUE_KEYS:67, AdminQueueKey:68, normalizeAdminQueueRequest:69, adminQueueHref:76, AdminCommandCenter:80, buildApplicationEmailPacket:90, bucketCommandCenterTotals:139 |
 | [lib/admin/counselorRosterAggregates.test.ts](../../../lib/admin/counselorRosterAggregates.test.ts) | 33 | administration |  |
 | [lib/admin/counselorRosterAggregates.ts](../../../lib/admin/counselorRosterAggregates.ts) | 60 | administration | CounselorAssignmentAgg:3, loadCounselorAssignmentAggregates:12 |
+| [lib/admin/counselorsRosterSort.ts](../../../lib/admin/counselorsRosterSort.ts) | 74 | administration | COUNSELOR_SORT_KEYS:3, CounselorSortKey:12, CounselorSortDirection:13, DEFAULT_COUNSELOR_SORT_KEY:15, DEFAULT_COUNSELOR_SORT_DIRECTION:16, sortCounselorRows:54 |
 | [lib/admin/courseraConsentGate.test.ts](../../../lib/admin/courseraConsentGate.test.ts) | 30 | learning-coursera |  |
 | [lib/admin/courseraConsentGate.ts](../../../lib/admin/courseraConsentGate.ts) | 9 | learning-coursera | courseraApprovalBlockedByConsent:2, MINOR_CONSENT_REQUIRED_MESSAGE:8 |
 | [lib/admin/courseraEnrollmentApproval.ts](../../../lib/admin/courseraEnrollmentApproval.ts) | 95 | learning-coursera | CourseraApprovalResult:20, setCourseraEnrollmentApproval:24 |
@@ -56,6 +57,7 @@
 | [lib/admin/globalSearchSource.ts](../../../lib/admin/globalSearchSource.ts) | 81 | administration | GlobalSearchItem:5, createGlobalSearchSource:27 |
 | [lib/admin/healthScore.ts](../../../lib/admin/healthScore.ts) | 46 | administration | HealthStatus:6, HealthScoreInput:8, calculateHealthStatus:14, getHealthColor:32, getHealthLabel:40 |
 | [lib/admin/jobReadyCandidates.ts](../../../lib/admin/jobReadyCandidates.ts) | 76 | administration | JobReadyProgressRow:8, loadJobReadyProgressPage:20 |
+| [lib/admin/jobsBoardSort.ts](../../../lib/admin/jobsBoardSort.ts) | 65 | administration | JOB_SORT_KEYS:3, JobSortKey:4, JobSortDirection:5, DEFAULT_JOB_SORT_KEY:7, DEFAULT_JOB_SORT_DIRECTION:8, sortJobRows:45 |
 | [lib/admin/logCronRun.ts](../../../lib/admin/logCronRun.ts) | 28 | administration | logCronRun:6 |
 | [lib/admin/matchSuggestionsConfig.ts](../../../lib/admin/matchSuggestionsConfig.ts) | 16 | administration | getMatchSuggestionsTestRecipient:8, isMatchSuggestionsDryRun:13 |
 | [lib/admin/memberDeleteStorage.test.ts](../../../lib/admin/memberDeleteStorage.test.ts) | 37 | administration |  |
@@ -67,11 +69,13 @@
 | [lib/admin/metrics.ts](../../../lib/admin/metrics.ts) | 478 | administration | getAdminMetrics:357 |
 | [lib/admin/overviewOrgFilter.test.ts](../../../lib/admin/overviewOrgFilter.test.ts) | 47 | administration |  |
 | [lib/admin/overviewOrgFilter.ts](../../../lib/admin/overviewOrgFilter.ts) | 75 | administration | trainingDashboardMemberWhere:5, triageDigestMemberWhere:17, triageDigestNewApplicantWhere:27, triageDigestStaleTrainingWhere:38, triageDigestEventWhere:48, triageDigestAssignmentWhere:58, analyticsOverviewUserWhere:67 |
+| [lib/admin/placementsRosterSort.ts](../../../lib/admin/placementsRosterSort.ts) | 72 | administration | PLACEMENT_SORT_KEYS:7, PlacementSortKey:16, PlacementSortDirection:17, DEFAULT_PLACEMENT_SORT_KEY:19, DEFAULT_PLACEMENT_SORT_DIRECTION:20, sortPlacementRows:52 |
 | [lib/admin/roleLabels.ts](../../../lib/admin/roleLabels.ts) | 18 | administration | directoryRoleLabel:14 |
 | [lib/admin/runAdminJobMatchesGet.test.ts](../../../lib/admin/runAdminJobMatchesGet.test.ts) | 135 | administration |  |
 | [lib/admin/runAdminJobMatchesGet.ts](../../../lib/admin/runAdminJobMatchesGet.ts) | 105 | administration | AdminJobMatchRow:5, RunAdminJobMatchesDeps:21, serializeAdminJobMatchRow:39, runAdminJobMatchesGet:52 |
 | [lib/admin/studentStatus.ts](../../../lib/admin/studentStatus.ts) | 122 | administration | StudentStatus:4, STUDENT_STATUS_LABELS:6, StudentStatusContext:14, getStudentStatus:35, buildStatusWhere:55 |
 | [lib/admin/studentsRosterEnrichment.ts](../../../lib/admin/studentsRosterEnrichment.ts) | 233 | administration | StudentRosterEnrichmentRow:16, loadStudentRosterEnrichment:78 |
+| [lib/admin/studentsRosterSort.ts](../../../lib/admin/studentsRosterSort.ts) | 98 | administration | STUDENT_SORT_KEYS:7, StudentSortKey:18, StudentSortDirection:19, DEFAULT_STUDENT_SORT_KEY:21, DEFAULT_STUDENT_SORT_DIRECTION:22, sortStudentRows:65, isStudentSortKey:96 |
 | [lib/admin/trainingDashboard.ts](../../../lib/admin/trainingDashboard.ts) | 315 | administration | TrainingDashboardMetrics:20, TrainingDashboardRow:29, TrainingDashboardData:56, loadTrainingDashboardData:70 |
 | [lib/admin/trainingProgressGrades.ts](../../../lib/admin/trainingProgressGrades.ts) | 56 | administration | CourseGradeFact:21, latestCompletedGradeByUser:31 |
 | [lib/admin/trainingProgressPrograms.ts](../../../lib/admin/trainingProgressPrograms.ts) | 76 | administration | TrainingPace:10, STALLED_IDLE_DAYS:13, TrainingLearnerRef:15, programSlugsForLearner:28, deriveTrainingPace:64 |

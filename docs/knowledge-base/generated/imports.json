@@ -64248,6 +64248,46 @@
     "target": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx"
   },
   {
+    "from": "app/dev/staff/students-roster/page.tsx",
+    "specifier": "next/navigation",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/dev/staff/students-roster/page.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/StudentsRosterKit",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
+    "from": "app/dev/staff/training-progress/page.tsx",
+    "specifier": "next/navigation",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "app/dev/staff/training-progress/page.tsx",
+    "specifier": "@/components/admin/TrainingProgressRoster",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/TrainingProgressRoster.tsx"
+  },
+  {
+    "from": "app/dev/staff/training-progress/page.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/TrainingProgressKit",
+    "line": 3,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx"
+  },
+  {
     "from": "app/dev/voice-studio/layout.tsx",
     "specifier": "react",
     "line": 1,
@@ -79136,6 +79176,22 @@
     "target": "components/portal/kit/tokens.ts"
   },
   {
+    "from": "components/portal/kit/kitTableSort.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/kitTableSort.tsx",
+    "specifier": "@/components/portal/kit/KitSortHeader",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/KitSortHeader.tsx"
+  },
+  {
     "from": "components/portal/kit/pages/PartnerOverviewKit.tsx",
     "specifier": "react",
     "line": 19,
@@ -79761,16 +79817,40 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 1,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
+    "specifier": "@/components/portal/kit/kitTableSort",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/kitTableSort.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
+    "specifier": "@/lib/admin/counselorsRosterSort",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/counselorsRosterSort.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
     "specifier": "@astryxdesign/core/Card",
-    "line": 10,
+    "line": 20,
     "kind": "import",
     "external": true,
     "package": "@astryxdesign/core"
@@ -79778,7 +79858,7 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx",
     "specifier": "@astryxdesign/core/Token",
-    "line": 11,
+    "line": 21,
     "kind": "import",
     "external": true,
     "package": "@astryxdesign/core"
@@ -80265,15 +80345,15 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
-    "specifier": "next/navigation",
+    "specifier": "react",
     "line": 3,
     "kind": "import",
     "external": true,
-    "package": "next"
+    "package": "react"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
-    "specifier": "next/link",
+    "specifier": "next/navigation",
     "line": 4,
     "kind": "import",
     "external": true,
@@ -80281,8 +80361,16 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next/link",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
+    "specifier": "lucide-react",
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -80290,14 +80378,6 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
     "specifier": "@astryxdesign/core/Card",
-    "line": 6,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
     "line": 7,
     "kind": "import",
     "external": true,
@@ -80305,7 +80385,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
+    "specifier": "@astryxdesign/core/Button",
     "line": 8,
     "kind": "import",
     "external": true,
@@ -80313,11 +80393,35 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/Link",
     "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
+    "specifier": "@/components/portal/kit/kitTableSort",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/kitTableSort.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx",
+    "specifier": "@/lib/admin/jobsBoardSort",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/jobsBoardSort.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/MentorsDirectoryKit.tsx",
@@ -80545,15 +80649,15 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "next/navigation",
+    "specifier": "react",
     "line": 3,
     "kind": "import",
     "external": true,
-    "package": "next"
+    "package": "react"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "next/link",
+    "specifier": "next/navigation",
     "line": 4,
     "kind": "import",
     "external": true,
@@ -80561,15 +80665,15 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "@astryxdesign/core/Card",
+    "specifier": "next/link",
     "line": 5,
     "kind": "import",
     "external": true,
-    "package": "@astryxdesign/core"
+    "package": "next"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
+    "specifier": "@astryxdesign/core/Card",
     "line": 6,
     "kind": "import",
     "external": true,
@@ -80577,7 +80681,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
+    "specifier": "@astryxdesign/core/Button",
     "line": 7,
     "kind": "import",
     "external": true,
@@ -80585,7 +80689,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
+    "specifier": "@astryxdesign/core/Token",
     "line": 8,
     "kind": "import",
     "external": true,
@@ -80593,11 +80697,35 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/Link",
     "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
+    "specifier": "@/components/portal/kit/kitTableSort",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/kitTableSort.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
+    "specifier": "@/lib/admin/placementsRosterSort",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/placementsRosterSort.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/ProgramChangeRequestsKit.tsx",
@@ -80840,6 +80968,22 @@
     "target": "components/portal/kit/index.ts"
   },
   {
+    "from": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx",
+    "specifier": "@/components/portal/kit/kitTableSort",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/kitTableSort.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx",
+    "specifier": "@/lib/admin/studentsRosterSort",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/studentsRosterSort.ts"
+  },
+  {
     "from": "components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx",
     "specifier": "next/link",
     "line": 3,
@@ -80938,7 +81082,7 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
     "specifier": "react",
-    "line": 1,
+    "line": 3,
     "kind": "type",
     "external": true,
     "package": "react"
@@ -80946,7 +81090,7 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
     "specifier": "next/link",
-    "line": 2,
+    "line": 4,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -80954,22 +81098,6 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
     "specifier": "@astryxdesign/core/Card",
-    "line": 3,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
-    "line": 4,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
     "line": 5,
     "kind": "import",
     "external": true,
@@ -80977,7 +81105,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
+    "specifier": "@astryxdesign/core/Button",
     "line": 6,
     "kind": "import",
     "external": true,
@@ -80985,11 +81113,51 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/Token",
     "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@astryxdesign/core/Link",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@/components/portal/kit/KitSortHeader",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/KitSortHeader.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@/components/portal/kit/kitTableSort",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/kitTableSort.tsx"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx",
+    "specifier": "@/lib/admin/trainingProgressRoster",
+    "line": 19,
+    "kind": "type",
+    "external": false,
+    "target": "lib/admin/trainingProgressRoster.ts"
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/UsersKit.tsx",
@@ -87248,6 +87416,14 @@
     "package": "@prisma/client"
   },
   {
+    "from": "lib/admin/counselorsRosterSort.ts",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/CounselorsRosterKit",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx"
+  },
+  {
     "from": "lib/admin/courseraConsentGate.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -87888,6 +88064,14 @@
     "target": "lib/tenant/withTenantScope.ts"
   },
   {
+    "from": "lib/admin/jobsBoardSort.ts",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/JobsBoardKit",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/JobsBoardKit.tsx"
+  },
+  {
     "from": "lib/admin/logCronRun.ts",
     "specifier": "@prisma/client",
     "line": 1,
@@ -88112,6 +88296,14 @@
     "target": "lib/admin/memberOnlyWhere.ts"
   },
   {
+    "from": "lib/admin/placementsRosterSort.ts",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/PlacementsKit",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx"
+  },
+  {
     "from": "lib/admin/roleLabels.ts",
     "specifier": "./directorySearch",
     "line": 1,
@@ -88262,6 +88454,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterSort.ts",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/StudentsRosterKit",
+    "line": 5,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
   },
   {
     "from": "lib/admin/trainingDashboard.ts",
@@ -107648,6 +107848,38 @@
     "target": "lib/coursera/progressReconciliation.ts"
   },
   {
+    "from": "scripts/capture-roster-after-screenshots.mjs",
+    "specifier": "playwright",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "playwright"
+  },
+  {
+    "from": "scripts/capture-roster-after-screenshots.mjs",
+    "specifier": "fs",
+    "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "fs"
+  },
+  {
+    "from": "scripts/capture-roster-after-screenshots.mjs",
+    "specifier": "path",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "path"
+  },
+  {
+    "from": "scripts/capture-roster-after-screenshots.mjs",
+    "specifier": "child_process",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "child_process"
+  },
+  {
     "from": "scripts/check-b4b-programs.ts",
     "specifier": "@/lib/coursera/b4bClient",
     "line": 1,
@@ -119056,6 +119288,30 @@
     "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
   },
   {
+    "from": "tests/components/students-roster-sort.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/students-roster-sort.spec.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/students-roster-sort.spec.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/StudentsRosterKit",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
     "from": "tests/components/training-feedback-handoff.test.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -122046,6 +122302,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/admin/studentsRosterEnrichment.ts"
+  },
+  {
+    "from": "tests/lib/students-roster-sort.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/students-roster-sort.spec.ts",
+    "specifier": "@/lib/admin/studentsRosterSort",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/studentsRosterSort.ts"
+  },
+  {
+    "from": "tests/lib/students-roster-sort.spec.ts",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/StudentsRosterKit",
+    "line": 8,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
   },
   {
     "from": "tests/lib/training-course-practice.spec.ts",

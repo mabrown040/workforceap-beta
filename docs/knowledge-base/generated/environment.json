@@ -4191,6 +4191,14 @@
           "line": 84
         },
         {
+          "file": "app/dev/staff/students-roster/page.tsx",
+          "line": 67
+        },
+        {
+          "file": "app/dev/staff/training-progress/page.tsx",
+          "line": 52
+        },
+        {
           "file": "app/dev/voice-studio/page.tsx",
           "line": 18
         },

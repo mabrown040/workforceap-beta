@@ -928,6 +928,24 @@
     "shareButtonEmailBody": "Découvrez WorkforceAP :",
     "shareButtonSmsBody": "Découvrez la formation professionnelle WorkforceAP, gratuite pour les membres :"
   },
+  "enroll": {
+    "missingPill": "Inscription scolaire",
+    "missingTitle": "Nous n’avons pas trouvé de page d’inscription pour <glow>{school}</glow>",
+    "missingLeadWithSchools": "Ce lien peut être incorrect, obsolète ou pas encore publié. Choisissez votre école ci-dessous pour continuer.",
+    "missingLeadEmpty": "Ce lien peut être incorrect, obsolète ou pas encore publié. Vous pouvez toujours postuler via le parcours public.",
+    "missingPrimaryChooseSchool": "Choisir votre école",
+    "missingPrimaryApply": "Postuler sans lien scolaire",
+    "missingSecondaryPrograms": "Parcourir les programmes",
+    "missingSchoolsEyebrow": "Écoles partenaires",
+    "missingSchoolsTitle": "Choisissez votre école pour continuer",
+    "missingSchoolsBody": "Chaque page scolaire liste les programmes de certification sponsorisés pour ses élèves.",
+    "missingEmptyTitle": "Aucune page scolaire n’est active pour le moment",
+    "missingEmptyBody": "Vous pouvez tout de même démarrer une candidature WorkforceAP, ou nous contacter si vous attendiez un lien scolaire.",
+    "missingOpenEnrollment": "Ouvrir l’inscription",
+    "missingContact": "Contacter WorkforceAP",
+    "missingHome": "Retour à l’accueil",
+    "missingMetaTitle": "Page d’inscription scolaire introuvable"
+  },
   "training": {
     "myTraining": "Ma Formation",
     "course": "Cours",

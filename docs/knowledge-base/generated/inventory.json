@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9efabec5ad1b74b5a24ae202f3753d0c6770d65867886d53b798a062f63f4a76",
+  "inputTreeSha256": "ee3a1de2bc2ba7d38f3e40f642f35980afec40a892f9cf30210d88d4bbf46749",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -44944,24 +44944,24 @@
       "path": "app/enroll/[school]/page.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 1580,
-      "lines": 42,
-      "sha256": "a0a0e05be6f8edce0b4c85518b7aae42ce638aa81ad38d49a4814865d821b595",
+      "bytes": 1666,
+      "lines": 44,
+      "sha256": "b8888ea653ef423c6ecf4268ff1843dcf16a6fabfc6583406d21d2a26db8b302",
       "binary": false,
       "exports": [
         {
           "name": "dynamic",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "generateMetadata",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 28,
+          "line": 30,
           "kind": "FunctionDeclaration",
           "localName": "PartnerEnrollmentPage"
         }
@@ -44969,22 +44969,22 @@
       "declarations": [
         {
           "name": "dynamic",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "PageProps",
-          "line": 13,
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "generateMetadata",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerEnrollmentPage",
-          "line": 28,
+          "line": 30,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54913,14 +54913,14 @@
       "path": "components/marketing/PartnerSchoolEnrollMissing.tsx",
       "area": "components",
       "domain": "public-experience",
-      "bytes": 3525,
-      "lines": 90,
-      "sha256": "3e76e4ba6816abfd75679c667d71871569ee6875a9e892bcb714728751265dc3",
+      "bytes": 4276,
+      "lines": 111,
+      "sha256": "e9d4efc85821b991f78d338dd96d9b47858e0dc83d7f5e47a44be41e31cadc14",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 10,
+          "line": 15,
           "kind": "FunctionDeclaration",
           "localName": "PartnerSchoolEnrollMissing"
         }
@@ -54928,12 +54928,12 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 5,
+          "line": 6,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PartnerSchoolEnrollMissing",
-          "line": 10,
+          "line": 15,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -74624,9 +74624,9 @@
       "path": "css/enroll-school.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 15313,
-      "lines": 192,
-      "sha256": "078766d8d4a31e1fa9d3791634685563efb81ddc3efc259d5792df69b1180b60",
+      "bytes": 16920,
+      "lines": 228,
+      "sha256": "f6735585b7fcf9f8c093ef4cad4ce37b8e2cd4b5772c361c977bdd0d702f9937",
       "binary": false
     },
     {
@@ -77117,9 +77117,9 @@
       "path": "docs/knowledge-base/features.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 9654,
+      "bytes": 9953,
       "lines": 36,
-      "sha256": "748db581aae5dbe30932823766560a0d0d1902ecba38062d3d57eefa594dfada",
+      "sha256": "562e66a888ce11927138c8b683c77d85b849c95fdce180917695683a0d07ee5b",
       "binary": false
     },
     {
@@ -137119,27 +137119,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 188467,
-      "lines": 3089,
-      "sha256": "cba3bd0b3a3f5c3c1bba76d2385a22d680301f77af41d1fbd48f74d0febacb47",
+      "bytes": 189628,
+      "lines": 3107,
+      "sha256": "07adc60750ff97ba1d76da2d006ef4325297a7d3dc0025b3b4669837817c85d5",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 206848,
-      "lines": 3076,
-      "sha256": "4900438b7d4686ac645912a12cc875bf445b2ad2575a7f568d3e4a7817ec74e6",
+      "bytes": 208098,
+      "lines": 3094,
+      "sha256": "d7d8d8f2f819f8b854da0e5ea037cea7d2e5127e1c758cedebfe7886c3c6819d",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 207736,
-      "lines": 3029,
-      "sha256": "0e2857156e868c104ccdc484017585c8d45645d271d0580e870d22a6964f2d18",
+      "bytes": 209046,
+      "lines": 3047,
+      "sha256": "5c5b75b173cf9a2e65a5d622f517b9c64f99e9cc8ca712790924b92e53dc644f",
       "binary": false
     },
     {
@@ -137155,9 +137155,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 199801,
-      "lines": 3029,
-      "sha256": "079097102c17d15433f800ad3bc43a7d5a1d977ee6467c31121f6cf6ac40c7ee",
+      "bytes": 201067,
+      "lines": 3047,
+      "sha256": "86539e3b5d27ff599c5242a78a82316f7768fa2153094180a5d444f3683c64ba",
       "binary": false
     },
     {
@@ -148918,9 +148918,9 @@
       "path": "tests/api/concordia-enroll-page.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3542,
-      "lines": 81,
-      "sha256": "ec624288b2fbc6c9649e40ca3dbf7530cc614cb197262bd28d1c5ac467639b57",
+      "bytes": 4001,
+      "lines": 86,
+      "sha256": "9e39b0849d4e4d591f6ee86390ae4f42a5568aa0b63b38907991ff4ec38fcf97",
       "binary": false,
       "exports": [],
       "declarations": [],

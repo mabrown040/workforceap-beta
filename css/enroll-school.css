@@ -155,7 +155,16 @@
 .enroll-school .bbtn--outline{background:transparent;color:var(--color-on-accent);border:1px solid color-mix(in srgb, var(--color-on-accent) 45%, transparent)}
 .enroll-school .wrap{width:min(1120px, calc(100% - 48px));margin:0 auto}
 
-/* Soft recovery when /enroll/[school] does not resolve a live partner page */
+/* Soft recovery when /enroll/[school] does not resolve a live partner page.
+   Prefer kit --wa-* tokens for the missing surface (KIT_GUIDE §1). */
+.enroll-school--missing{
+  --surface:var(--wa-surface,var(--surface-container-lowest,#ffffff));
+  --surface-2:var(--wa-surface-2,var(--surface-container,#f0f1f3));
+  --bg:var(--wa-bg,var(--surface-container-low,#f7f4f1));
+  --text:var(--wa-text,var(--color-on-surface,#1c1b1b));
+  --muted:var(--wa-muted,var(--color-on-surface-variant,#584144));
+  --border:var(--wa-border,var(--outline-variant,#e4e4e7));
+}
 .enroll-school .stage--compact{padding:72px 0 64px}
 .enroll-school .lede--missing{max-width:40rem}
 .enroll-school .school-picker{
@@ -164,23 +173,50 @@
 }
 .enroll-school .school-picker__card{
   display:flex;flex-direction:column;gap:8px;min-height:100%;
-  padding:20px 22px;border-radius:18px;text-decoration:none;
-  background:var(--surface);border:1px solid var(--border);color:var(--text);
-  box-shadow:0 10px 28px -18px color-mix(in srgb, var(--text) 35%, transparent);
+  padding:var(--wa-pad-sm,20px) var(--wa-pad-sm,22px);
+  border-radius:var(--wa-radius-sm,18px);text-decoration:none;
+  background:var(--wa-surface,var(--surface));
+  border:1px solid var(--wa-border,var(--border));
+  color:var(--wa-text,var(--text));
+  box-shadow:var(--wa-shadow,0 10px 28px -18px color-mix(in srgb, var(--wa-text,var(--text)) 35%, transparent));
   transition:transform var(--wa-dur-fast,120ms) var(--wa-ease,ease),border-color var(--wa-dur-fast,120ms) var(--wa-ease,ease);
 }
 .enroll-school .school-picker__card:hover,
 .enroll-school .school-picker__card:focus-visible{
-  border-color:color-mix(in srgb, var(--color-accent,#ad2c4d) 45%, var(--border));
+  border-color:color-mix(in srgb, var(--wa-accent,var(--color-accent,#ad2c4d)) 45%, var(--wa-border,var(--border)));
   transform:translateY(-2px);outline:none;
 }
-.enroll-school .school-picker__name{font-weight:800;font-size:1.05rem;line-height:1.25}
-.enroll-school .school-picker__meta{color:var(--muted);font-size:.92rem}
-.enroll-school .school-picker__cta{
-  margin-top:auto;padding-top:8px;font-weight:800;font-size:.92rem;
-  color:var(--crimson, var(--color-accent,#ad2c4d));
+.enroll-school .school-picker__name{
+  font-weight:800;font-size:var(--wa-type-body,1.05rem);line-height:1.25;
+  color:var(--wa-text,var(--text));
 }
+.enroll-school .school-picker__meta{
+  color:var(--wa-muted,var(--muted));font-size:var(--wa-type-meta,.92rem);
+}
+.enroll-school .school-picker__cta{
+  margin-top:auto;padding-top:8px;font-weight:800;font-size:var(--wa-type-meta,.92rem);
+  color:var(--wa-accent,var(--crimson, var(--color-accent,#ad2c4d)));
+}
+.enroll-school .enroll-empty{
+  max-width:36rem;margin:0 auto;text-align:left;
+  padding:var(--wa-pad,28px);
+  border-radius:var(--wa-radius-sm,16px);
+  background:var(--wa-surface-2,var(--surface-2));
+  border:1px solid var(--wa-border,var(--border));
+}
+.enroll-school .enroll-empty__title{
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+  font-size:clamp(1.35rem,2.6vw,1.75rem);letter-spacing:-.02em;
+  margin:0;color:var(--wa-text,var(--text));
+}
+.enroll-school .enroll-empty__body{
+  margin:8px 0 0;color:var(--wa-muted,var(--muted));
+  font-size:var(--wa-type-body,1rem);line-height:1.55;
+}
+.enroll-school .enroll-empty__action{margin-top:16px}
 .enroll-school .missing-foot{margin-top:36px;gap:12px;flex-wrap:wrap}
+.enroll-school--missing .band--surface{background:var(--wa-bg,var(--surface))}
+.enroll-school--missing #partner-schools{scroll-margin-top:5.5rem}
 
 @media(max-width:880px){
   .enroll-school .stage{padding:64px 0 76px}

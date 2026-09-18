@@ -607,7 +607,7 @@
 | [app/employers/signup/layout.tsx](../../../app/employers/signup/layout.tsx) | 15 | applications-enrollment | generateMetadata:4, default:13 |
 | [app/employers/signup/page.tsx](../../../app/employers/signup/page.tsx) | 397 | applications-enrollment | default:17 |
 | [app/employers/signup/signup-depth.css](../../../app/employers/signup/signup-depth.css) | 152 | applications-enrollment |  |
-| [app/enroll/\[school\]/page.tsx](../../../app/enroll/%5Bschool%5D/page.tsx) | 42 | applications-enrollment | dynamic:11, generateMetadata:15, default:28 |
+| [app/enroll/\[school\]/page.tsx](../../../app/enroll/%5Bschool%5D/page.tsx) | 44 | applications-enrollment | dynamic:12, generateMetadata:16, default:30 |
 | [app/error.tsx](../../../app/error.tsx) | 66 | pages | default:9 |
 | [app/favicon.ico](../../../app/favicon.ico) | binary | pages |  |
 | [app/global-error.tsx](../../../app/global-error.tsx) | 56 | pages | default:7 |

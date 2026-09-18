@@ -32015,17 +32015,17 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 11,
+        "line": 12,
         "kind": "Variable"
       },
       {
         "name": "generateMetadata",
-        "line": 15,
+        "line": 16,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 28,
+        "line": 30,
         "kind": "FunctionDeclaration",
         "localName": "PartnerEnrollmentPage"
       }

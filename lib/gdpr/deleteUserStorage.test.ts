@@ -72,6 +72,9 @@ test('deleteUserStorageObjects lists both member buckets and removes leftovers',
       [`${MEMBER_FILES_BUCKET}:cert-files/${userId}`]: [
         { name: 'cert-1.pdf', id: 'file-3' },
       ],
+      [`${MEMBER_FILES_BUCKET}:profile-photos/${userId}`]: [
+        { name: 'photo.webp', id: 'file-4' },
+      ],
     },
   });
 
@@ -83,6 +86,7 @@ test('deleteUserStorageObjects lists both member buckets and removes leftovers',
     result.deleted.map((row) => `${row.bucket}:${row.path}`).sort(),
     [
       `${MEMBER_FILES_BUCKET}:cert-files/${userId}/cert-1.pdf`,
+      `${MEMBER_FILES_BUCKET}:profile-photos/${userId}/photo.webp`,
       `${MEMBER_RESUME_BUCKET}:${userId}/resume-original.pdf`,
       `${MEMBER_RESUME_BUCKET}:${userId}/voice-interview-recordings/abc.webm`,
     ],
@@ -165,7 +169,7 @@ test('deleteUserStorageObjects rejects path-traversal user ids', async () => {
 test('member storage prefixes cover both upload buckets', () => {
   assert.deepEqual(
     MEMBER_STORAGE_PREFIXES.map((row) => row.bucket),
-    [MEMBER_RESUME_BUCKET, MEMBER_FILES_BUCKET],
+    [MEMBER_RESUME_BUCKET, MEMBER_FILES_BUCKET, MEMBER_FILES_BUCKET],
   );
   assert.equal(ACCOUNT_STORAGE_DELETE_FAILED.includes('not erased'), true);
 });

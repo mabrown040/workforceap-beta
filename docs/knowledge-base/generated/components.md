@@ -471,7 +471,7 @@
 | [components/portal/jobs/LogExternalApplicationButton.tsx](../../../components/portal/jobs/LogExternalApplicationButton.tsx) | 327 | jobs-employers | default:53 |
 | [components/portal/kit/AppShellMember.tsx](../../../components/portal/kit/AppShellMember.tsx) | 113 | components | MemberTab:3, AppShellMember:26 |
 | [components/portal/kit/AppShellSidebar.tsx](../../../components/portal/kit/AppShellSidebar.tsx) | 117 | components | NavItem:7, NavGroup:13, AppShellSidebar:34 |
-| [components/portal/kit/Avatar.tsx](../../../components/portal/kit/Avatar.tsx) | 52 | components | Avatar:14 |
+| [components/portal/kit/Avatar.tsx](../../../components/portal/kit/Avatar.tsx) | 66 | components | Avatar:16 |
 | [components/portal/kit/Charts.tsx](../../../components/portal/kit/Charts.tsx) | 200 | components | ChartDatum:3, BarChartMini:19, Sparkline:54, AreaChartMini:101, RankDatum:173, RankBars:184 |
 | [components/portal/kit/ChatThread.tsx](../../../components/portal/kit/ChatThread.tsx) | 179 | components | ChatMessage:7, ChatThread:36 |
 | [components/portal/kit/CommandCenter.tsx](../../../components/portal/kit/CommandCenter.tsx) | 186 | components | SparkStat:21, CardHead:35, DeltaChip:49, StatSparkTile:65, StageTrack:135, SegmentedProgress:158 |
@@ -485,6 +485,7 @@
 | [components/portal/kit/KitTableShell.tsx](../../../components/portal/kit/KitTableShell.tsx) | 116 | components | KitTableShellColumn:7, KitTableShellRow:13, KitTableShell:38 |
 | [components/portal/kit/KpiStrip.tsx](../../../components/portal/kit/KpiStrip.tsx) | 38 | components | KpiItem:5, KpiStrip:30 |
 | [components/portal/kit/MemberDashboardKit.tsx](../../../components/portal/kit/MemberDashboardKit.tsx) | 119 | components | MemberDashboardKitProps:16, MemberDashboardKit:28 |
+| [components/portal/kit/MemberProfilePhotoEditor.tsx](../../../components/portal/kit/MemberProfilePhotoEditor.tsx) | 289 | components | MemberProfilePhotoEditor:17 |
 | [components/portal/kit/PageOpener.tsx](../../../components/portal/kit/PageOpener.tsx) | 64 | components | PageOpener:24 |
 | [components/portal/kit/ProgressBar.tsx](../../../components/portal/kit/ProgressBar.tsx) | 46 | components | ProgressBar:15 |
 | [components/portal/kit/ProgressRing.tsx](../../../components/portal/kit/ProgressRing.tsx) | 75 | components | ProgressRing:24 |
@@ -579,7 +580,7 @@
 | [components/portal/kit/pages/member/MemberMentorsKit.tsx](../../../components/portal/kit/pages/member/MemberMentorsKit.tsx) | 142 | member-counselor | MentorSummary:26, MemberMentorsKitProps:34, MemberMentorsKit:68 |
 | [components/portal/kit/pages/member/MemberMessagesEmpty.tsx](../../../components/portal/kit/pages/member/MemberMessagesEmpty.tsx) | 44 | member-counselor | MemberMessagesEmpty:10 |
 | [components/portal/kit/pages/member/MemberMessagesKit.tsx](../../../components/portal/kit/pages/member/MemberMessagesKit.tsx) | 373 | member-counselor | MemberMessagesKitProps:32, MemberMessagesKit:70 |
-| [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 410 | member-counselor | MemberProfileAccountPassthrough:52, MemberProfileKitProps:65, MemberProfileKit:95 |
+| [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 411 | member-counselor | MemberProfileAccountPassthrough:53, MemberProfileKitProps:66, MemberProfileKit:98 |
 | [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 352 | member-counselor | MemberProgramKitProps:29, MemberProgramKit:90 |
 | [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |

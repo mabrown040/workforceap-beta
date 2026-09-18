@@ -527,8 +527,8 @@
 | [lib/formatPhone.ts](../../../lib/formatPhone.ts) | 20 | libraries | formatPhone:6 |
 | [lib/gdpr/deleteAuthUser.test.ts](../../../lib/gdpr/deleteAuthUser.test.ts) | 56 | libraries |  |
 | [lib/gdpr/deleteAuthUser.ts](../../../lib/gdpr/deleteAuthUser.ts) | 15 | libraries | deleteSupabaseAuthUser:5 |
-| [lib/gdpr/deleteUserStorage.test.ts](../../../lib/gdpr/deleteUserStorage.test.ts) | 171 | libraries |  |
-| [lib/gdpr/deleteUserStorage.ts](../../../lib/gdpr/deleteUserStorage.ts) | 210 | libraries | MEMBER_RESUME_BUCKET:3, MEMBER_FILES_BUCKET:4, MEMBER_STORAGE_PREFIXES:13, StorageListItem:21, MemberStorageAdmin:37, MemberStorageObject:41, DeleteUserStorageResult:43, parseMemberStoragePath:63, isMemberOwnedStoragePath:76, deleteUserStorageObjects:156, ACCOUNT_STORAGE_DELETE_FAILED:209 |
+| [lib/gdpr/deleteUserStorage.test.ts](../../../lib/gdpr/deleteUserStorage.test.ts) | 175 | libraries |  |
+| [lib/gdpr/deleteUserStorage.ts](../../../lib/gdpr/deleteUserStorage.ts) | 214 | libraries | MEMBER_RESUME_BUCKET:4, MEMBER_FILES_BUCKET:5, MEMBER_STORAGE_PREFIXES:14, StorageListItem:23, MemberStorageAdmin:39, MemberStorageObject:43, DeleteUserStorageResult:45, parseMemberStoragePath:65, isMemberOwnedStoragePath:78, deleteUserStorageObjects:160, ACCOUNT_STORAGE_DELETE_FAILED:213 |
 | [lib/gdpr/erase-routes.test.ts](../../../lib/gdpr/erase-routes.test.ts) | 48 | libraries |  |
 | [lib/hooks/useTheme.ts](../../../lib/hooks/useTheme.ts) | 113 | libraries | Theme:5, useTheme:56 |
 | [lib/http/clientIp.ts](../../../lib/http/clientIp.ts) | 80 | libraries | getClientIpFromRequest:23 |
@@ -775,10 +775,14 @@
 | [lib/portal/aiToolsHub.ts](../../../lib/portal/aiToolsHub.ts) | 124 | libraries | AiToolsHubLink:4, AiToolkitToolCard:5, AiToolkitSection:6, AiToolsHubCategory:8, AI_TOOLS_HUB:42, AI_TOOLKIT_EXTRA_SECTIONS:111 |
 | [lib/portal/astryxMap.test.ts](../../../lib/portal/astryxMap.test.ts) | 15 | libraries |  |
 | [lib/portal/counselorVoice.ts](../../../lib/portal/counselorVoice.ts) | 25 | libraries | getWioaGuideTtsOverrides:8 |
+| [lib/portal/cropProfilePhoto.ts](../../../lib/portal/cropProfilePhoto.ts) | 47 | libraries | cropProfilePhotoToSquare:7 |
 | [lib/portal/interviewVoice.ts](../../../lib/portal/interviewVoice.ts) | 26 | libraries | InterviewerVoiceOption:1, INTERVIEWER_VOICE_OPTIONS:11, getInterviewerTtsOverrides:16 |
 | [lib/portal/journeyStages.ts](../../../lib/portal/journeyStages.ts) | 85 | libraries | JourneyStageId:8, JourneyStageTool:10, JourneyStage:18, JOURNEY_STAGE_STORAGE_KEY:26, JOURNEY_STAGES:28, isJourneyStageId:83 |
 | [lib/portal/kit-architecture.test.ts](../../../lib/portal/kit-architecture.test.ts) | 48 | libraries |  |
 | [lib/portal/member-program-coursera-links.test.ts](../../../lib/portal/member-program-coursera-links.test.ts) | 46 | learning-coursera |  |
+| [lib/portal/memberProfilePhoto.test.ts](../../../lib/portal/memberProfilePhoto.test.ts) | 25 | libraries |  |
+| [lib/portal/memberProfilePhoto.ts](../../../lib/portal/memberProfilePhoto.ts) | 42 | libraries | PROFILE_PHOTO_BUCKET:1, PROFILE_PHOTO_MAX_BYTES:2, PROFILE_PHOTO_OUTPUT_SIZE:3, PROFILE_PHOTO_ACCEPT:4, profilePhotoStoragePath:15, profilePhotoPrefixForUser:19, isProfilePhotoStoragePath:23, resolveProfilePhotoContentType:30, profilePhotoStorageErrorMessage:36 |
+| [lib/portal/memberProfilePhotoUrl.ts](../../../lib/portal/memberProfilePhotoUrl.ts) | 31 | libraries | getMemberProfilePhotoSignedUrl:7 |
 | [lib/portal/memberResumeUpload.test.ts](../../../lib/portal/memberResumeUpload.test.ts) | 44 | libraries |  |
 | [lib/portal/memberResumeUpload.ts](../../../lib/portal/memberResumeUpload.ts) | 56 | libraries | RESUME_UPLOAD_ACCEPT:5, RESUME_UPLOAD_FORMAT_LABEL:6, getResumeUploadFileError:8, uploadMemberResumeFile:24 |
 | [lib/portal/messagingSurfaces.ts](../../../lib/portal/messagingSurfaces.ts) | 50 | libraries | memberMessagingSurface:12, partnerMessagingSurface:20, employerMessagingSurface:28, counselorStaffMessagingSurface:36, adminMessagingSurface:44 |

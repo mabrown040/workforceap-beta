@@ -806,6 +806,8 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/pre-screening | route | GET, POST | [app/api/member/pre-screening/route.ts](../../../app/api/member/pre-screening/route.ts) | @/lib/auth/server:3, @/lib/db/withRequestGuc:7 |
 | /api/member/prep-bundle | route | GET | [app/api/member/prep-bundle/route.ts](../../../app/api/member/prep-bundle/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/prep-bundle/send | route | POST | [app/api/member/prep-bundle/send/route.ts](../../../app/api/member/prep-bundle/send/route.ts) | @/lib/auth/server:2, @/lib/rate-limit:5, @/lib/db/withRequestGuc:6 |
+| /api/member/profile-photo | route | GET, DELETE | [app/api/member/profile-photo/route.ts](../../../app/api/member/profile-photo/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
+| /api/member/profile-photo/upload | route | POST | [app/api/member/profile-photo/upload/route.ts](../../../app/api/member/profile-photo/upload/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
 | /api/member/profile/completeness | route | GET | [app/api/member/profile/completeness/route.ts](../../../app/api/member/profile/completeness/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
 | /api/member/profile | route | GET, PATCH | [app/api/member/profile/route.ts](../../../app/api/member/profile/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:6 |
 | /api/member/program-change-request | route | GET, POST | [app/api/member/program-change-request/route.ts](../../../app/api/member/program-change-request/route.ts) | @/lib/auth/server:3, @/lib/auth/ensureUser:4, @/lib/db/withRequestGuc:8 |

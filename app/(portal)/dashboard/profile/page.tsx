@@ -33,6 +33,7 @@ import {
 } from "@/lib/member/starterProfileReview";
 import { MemberProfileKit } from "@/components/portal/kit/pages/member/MemberProfileKit";
 import { isReadOnlyPortalAuditHeader } from "@/lib/audit/readOnlyPortalAudit";
+import { getMemberProfilePhotoSignedUrl } from "@/lib/portal/memberProfilePhotoUrl";
 
 const chunkLoadingCard = (
   label: string,
@@ -114,6 +115,7 @@ export default async function DashboardProfilePage({
         financialAidInterest: true,
         resumeEnhancedPath: true,
         resumeOriginalPath: true,
+        profilePhotoPath: true,
         hasEmploymentBarrier: true,
         barrierTypes: true,
         employmentStatusAtEnroll: true,
@@ -253,13 +255,16 @@ export default async function DashboardProfilePage({
     //   • Daily streak    → MemberPoints.currentStreak (single denormalized row).
     // Each badge is only shown when its value is meaningful (> 0), so a brand-new
     // member with no signal doesn't see "0 Certs / 0 Readiness / 0-day streak".
-    const [certCount, readinessResult, pointsRow] = await Promise.all([
+    const [certCount, readinessResult, pointsRow, profilePhotoUrl] = await Promise.all([
       prisma.userCertification.count({ where: { userId: user.id } }),
       getScoreBreakdownSafeResult(user.id),
       prisma.memberPoints.findUnique({
         where: { userId: user.id },
         select: { currentStreak: true },
       }),
+      dbUser.profile?.profilePhotoPath
+        ? getMemberProfilePhotoSignedUrl(user.id)
+        : Promise.resolve(null),
     ]);
     const readinessBreakdown = readinessResult.breakdown;
     const readinessScore = Math.min(
@@ -302,6 +307,7 @@ export default async function DashboardProfilePage({
         )}
         <MemberProfileKit
         live
+        photoUrl={profilePhotoUrl}
         name={dbUser.fullName ?? ""}
         initials={initials}
         headline={kitHeadline}

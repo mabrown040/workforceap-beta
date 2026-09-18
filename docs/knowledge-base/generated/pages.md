@@ -214,7 +214,7 @@
 | [app/(portal)/dashboard/points/loading.tsx](../../../app/%28portal%29/dashboard/points/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/points/page.tsx](../../../app/%28portal%29/dashboard/points/page.tsx) | 451 | member-counselor | generateMetadata:31, default:121 |
 | [app/(portal)/dashboard/profile/loading.tsx](../../../app/%28portal%29/dashboard/profile/loading.tsx) | 6 | member-counselor | default:3 |
-| [app/(portal)/dashboard/profile/page.tsx](../../../app/%28portal%29/dashboard/profile/page.tsx) | 951 | member-counselor | generateMetadata:67, default:75 |
+| [app/(portal)/dashboard/profile/page.tsx](../../../app/%28portal%29/dashboard/profile/page.tsx) | 957 | member-counselor | generateMetadata:68, default:76 |
 | [app/(portal)/dashboard/program/change/page.tsx](../../../app/%28portal%29/dashboard/program/change/page.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/program/employer-screening/page.tsx](../../../app/%28portal%29/dashboard/program/employer-screening/page.tsx) | 140 | member-counselor | metadata:13, default:21 |
 | [app/(portal)/dashboard/program/loading.tsx](../../../app/%28portal%29/dashboard/program/loading.tsx) | 6 | member-counselor | default:3 |
@@ -566,7 +566,7 @@
 | [app/dev/member/linkedin-headline/page.tsx](../../../app/dev/member/linkedin-headline/page.tsx) | 40 | member-counselor | dynamic:9, default:23 |
 | [app/dev/member/messages/page.tsx](../../../app/dev/member/messages/page.tsx) | 60 | communications | dynamic:13, default:15 |
 | [app/dev/member/missions/page.tsx](../../../app/dev/member/missions/page.tsx) | 192 | member-counselor | dynamic:20, default:135 |
-| [app/dev/member/profile/page.tsx](../../../app/dev/member/profile/page.tsx) | 37 | member-counselor | dynamic:10, default:12 |
+| [app/dev/member/profile/page.tsx](../../../app/dev/member/profile/page.tsx) | 45 | member-counselor | dynamic:10, default:12 |
 | [app/dev/member/program/page.tsx](../../../app/dev/member/program/page.tsx) | 67 | member-counselor | dynamic:15, default:21 |
 | [app/dev/member/progress/page.tsx](../../../app/dev/member/progress/page.tsx) | 50 | member-counselor | dynamic:11, default:13 |
 | [app/dev/member/resume-rewriter/page.tsx](../../../app/dev/member/resume-rewriter/page.tsx) | 51 | member-counselor | dynamic:10, default:34 |

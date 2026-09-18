@@ -419,6 +419,8 @@
 | [app/api/member/pre-screening/route.ts](../../../app/api/member/pre-screening/route.ts) | 141 | member-counselor | GET:38, POST:140 |
 | [app/api/member/prep-bundle/route.ts](../../../app/api/member/prep-bundle/route.ts) | 28 | member-counselor | GET:28 |
 | [app/api/member/prep-bundle/send/route.ts](../../../app/api/member/prep-bundle/send/route.ts) | 71 | member-counselor | POST:15 |
+| [app/api/member/profile-photo/route.ts](../../../app/api/member/profile-photo/route.ts) | 79 | member-counselor | GET:15, DELETE:28 |
+| [app/api/member/profile-photo/upload/route.ts](../../../app/api/member/profile-photo/upload/route.ts) | 103 | member-counselor | POST:17 |
 | [app/api/member/profile/completeness/route.ts](../../../app/api/member/profile/completeness/route.ts) | 77 | member-counselor | GET:29 |
 | [app/api/member/profile/route.ts](../../../app/api/member/profile/route.ts) | 126 | member-counselor | GET:48, PATCH:125 |
 | [app/api/member/program-change-request/route.ts](../../../app/api/member/program-change-request/route.ts) | 86 | member-counselor | GET:42, POST:86 |

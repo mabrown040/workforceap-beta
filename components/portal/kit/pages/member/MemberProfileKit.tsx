@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IdCard } from 'lucide-react';
-import { DesignSurface, Avatar, FormField, Toggle, PageOpener } from '@/components/portal/kit';
+import { DesignSurface, FormField, Toggle, PageOpener } from '@/components/portal/kit';
+import { MemberProfilePhotoEditor } from '@/components/portal/kit/MemberProfilePhotoEditor';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import PushNotificationsToggle from '@/components/portal/PushNotificationsToggle';
@@ -84,6 +85,8 @@ export interface MemberProfileKitProps {
    * stays local-only so the kit can be previewed without a backend.
    */
   live?: boolean;
+  /** Signed URL for the member's profile photo, when one is on file. */
+  photoUrl?: string | null;
 }
 
 const DEFAULT_BADGES: ProfileBadge[] = [];
@@ -104,6 +107,7 @@ export function MemberProfileKit({
   notifications = DEFAULT_NOTIFICATIONS,
   accountPassthrough,
   live = false,
+  photoUrl = null,
 }: MemberProfileKitProps) {
   const router = useRouter();
   const [prefs, setPrefs] = useState<NotificationPref[]>(notifications);
@@ -225,7 +229,7 @@ export function MemberProfileKit({
         />
         {/* Profile header */}
         <div className="wa-kit-card wa-flex wa-flex-col sm:wa-flex-row wa-items-center wa-gap-5">
-          <Avatar initials={initials || '?'} size={80} gradient />
+          <MemberProfilePhotoEditor initials={initials || '?'} photoUrl={photoUrl} live={live} />
           <div style={{ flex: 1, textAlign: 'center' }} className="sm:wa-text-left">
             <h2 className="h-font" style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>
               {name || 'Name not on file'}
@@ -244,9 +248,6 @@ export function MemberProfileKit({
               ))}
             </div>
           </div>
-          <p className="wa-kit-meta" style={{ maxWidth: 180, textAlign: 'center', lineHeight: 1.45 }}>
-            Photo is managed by your counselor.
-          </p>
         </div>
 
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">

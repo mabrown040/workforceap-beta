@@ -12482,8 +12482,12 @@
     ],
     "localReferences": [
       {
-        "file": "app/api/member/courses/complete/route.ts",
+        "file": "shared/digitalLiteracyPathway.ts",
         "line": 28
+      },
+      {
+        "file": "app/api/member/courses/complete/route.ts",
+        "line": 29
       }
     ],
     "kind": "test-candidate",

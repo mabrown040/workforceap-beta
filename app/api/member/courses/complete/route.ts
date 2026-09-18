@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
-import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
+import { isUngatedDigitalLiteracyProgram } from '@/shared/digitalLiteracyPathway';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -33,7 +33,7 @@ async function _POST(request: Request) {
 
     // Digital literacy is ungated: completion may be recorded without enrollment.
     let resolvedProgramSlug = programSlug;
-    if (programSlug !== DIGITAL_LITERACY_PROGRAM_SLUG) {
+    if (!isUngatedDigitalLiteracyProgram(programSlug)) {
       const enrollment = await prisma.courseEnrollment.findUnique({
         where: {
           userId_programSlug: {

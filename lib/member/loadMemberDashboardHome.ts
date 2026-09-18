@@ -8,9 +8,10 @@ import {
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
-import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { buildNextBestActions, type NextBestAction } from '@/lib/member/nextBestActions';
 import { MEMBER_PROGRAM_HREF, resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { digitalLiteracyFirstModuleHref } from '@/lib/content/courseDelivery';
 
 /**
  * Kit-default `/dashboard` home loader (SCALE Phase 2).
@@ -89,6 +90,8 @@ export type MemberDashboardHomeView = {
   toolkitHref: string;
   jobsHref: string;
   doThisNext: NextBestAction | null;
+  /** Always the Digital Literacy lesson-1 URL; the kit shows it when no program is enrolled. */
+  ungatedDigitalBasicsHref: string;
   /** Prisma client operations issued by this call (happy path ≤ budget). */
   prismaOpCount: number;
 };
@@ -113,6 +116,7 @@ type DashboardHomeDb = {
 type DashboardUserRow = {
   fullName: string | null;
   enrolledProgram: string | null;
+  assessmentCompleted?: boolean;
   organization: {
     courses: Array<{
       programSlug: string;
@@ -309,6 +313,7 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext: null,
+    ungatedDigitalBasicsHref: digitalLiteracyFirstModuleHref(),
     prismaOpCount: 1,
   };
 }
@@ -365,22 +370,51 @@ function shapeHome(args: {
   const allCoursesComplete = reconciliation.allComplete;
   const firstName = displayFirstName(args.row.fullName, args.fallbackDisplayName);
 
-  const topAction = args.row.nextBestActions[0] ?? null;
+  const persistedAction = args.row.nextBestActions[0] ?? null;
   const programHref = MEMBER_PROGRAM_HREF;
   // /dashboard/training only redirects back to /dashboard, so enrolled members
   // must resume on My Program — otherwise Continue/Resume is a do-loop.
   const resumeHref = programHref;
-  const doThisNext: NextBestAction | null = topAction
+  const nextIncompleteCourse = validatedCourses.find((course) =>
+    !matchingCourseProgress.some((row) => row.courseSlug === course.slug && row.status === 'COMPLETED'),
+  );
+  const heuristicAction = persistedAction
+    ? null
+    : (buildNextBestActions({
+        state: !assignedSlug
+          ? 'A'
+          : args.row.assessmentCompleted
+            ? (allCoursesComplete ? 'D' : 'C')
+            : 'B',
+        noApplicationOnFile: !assignedSlug,
+        enrolledProgram: assignedSlug,
+        assessmentCompleted: Boolean(args.row.assessmentCompleted),
+        completedCourseCount: completedCount,
+        hasResume: true,
+        profileCompletenessPct: 100,
+        jobApplicationCount: args.row._count.jobApplications,
+        counselorUnreadCount: 0,
+        weeklyRecapUnopened: false,
+        courseEnrollmentActive: args.row.courseEnrollments.length > 0,
+        trainingCoursesIncomplete: totalCourses > 0 && completedCount < totalCourses,
+        nextIncompleteCourseName: nextIncompleteCourse?.name ?? null,
+      })[0] ?? null);
+  const doThisNext: NextBestAction | null = persistedAction
     ? {
-        id: topAction.id,
-        title: topAction.title,
-        body: topAction.description,
-        href: resolveMemberProgramHref(topAction.ctaHref),
-        cta: topAction.ctaLabel,
+        id: persistedAction.id,
+        title: persistedAction.title,
+        body: persistedAction.description,
+        href: resolveMemberProgramHref(persistedAction.ctaHref),
+        cta: persistedAction.ctaLabel,
         variant: 'urgent',
-        weight: topAction.priority + 100,
+        weight: persistedAction.priority + 100,
       }
-    : null;
+    : heuristicAction
+      ? {
+          ...heuristicAction,
+          href: resolveMemberProgramHref(heuristicAction.href),
+        }
+      : null;
 
   const weekAgo = Date.now() - WEEK_MS;
   const pointsThisWeek = args.row.pointsTransactions
@@ -405,7 +439,7 @@ function shapeHome(args: {
     currentStreak: args.row.memberPoints?.currentStreak ?? 0,
     longestStreak: args.row.memberPoints?.longestStreak ?? 0,
     goals: mapGoalSummaries(args.row.goals),
-    nextLesson: topAction?.title,
+    nextLesson: persistedAction?.title ?? heuristicAction?.title,
     nextBadgeName: badge.nextBadgeName,
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,
@@ -420,6 +454,7 @@ function shapeHome(args: {
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext,
+    ungatedDigitalBasicsHref: digitalLiteracyFirstModuleHref(),
     prismaOpCount: args.prismaOpCount,
   };
 }
@@ -428,6 +463,7 @@ function userSelect() {
   return {
     fullName: true,
     enrolledProgram: true,
+    assessmentCompleted: true,
     organization: {
       select: {
         courses: {

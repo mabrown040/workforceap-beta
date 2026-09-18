@@ -35,7 +35,23 @@ describe('member program module CTAs', () => {
 
     const cta = screen.getByRole('link', { name: /continue/i });
     expect(cta).toHaveAttribute('href', href);
+    expect(cta).toHaveClass('wa-kit-cta');
+    expect(cta).not.toHaveClass('wa-page-action');
     expect(cta.getAttribute('href')).toContain('/dashboard/learning/modules/');
+  });
+
+  it('keeps completed WorkforceAP modules openable as kit CTAs', () => {
+    const href = workforceApCourseHref('computer-basics', DIGITAL_LITERACY);
+    render(
+      <MemberProgramKit
+        resumeHref={RESUME_HREF}
+        modules={[{ title: 'Computer Basics', state: 'done', slug: 'computer-basics', moduleHref: href }]}
+      />,
+    );
+
+    const cta = screen.getByRole('link', { name: /^Open$/ });
+    expect(cta).toHaveAttribute('href', href);
+    expect(cta).toHaveClass('wa-kit-cta');
   });
 
   it('never leaves a non-Coursera module pointing at the Learning Hub anchor', () => {
@@ -76,6 +92,8 @@ describe('member program module CTAs', () => {
 
     const cta = screen.getByRole('link', { name: /continue in coursera/i });
     expect(cta).toHaveAttribute('href', launchHref);
+    expect(cta).toHaveClass('wa-page-action');
+    expect(cta).not.toHaveClass('wa-kit-cta');
   });
 
   it('keeps the Learning Hub fallback for a module with neither destination', () => {

@@ -200,7 +200,11 @@ export default async function ProgramPage({
       : undefined;
 
     // Per-course state: completed → done, the resolved "next" course → active,
-    // everything else → locked. Mirrors the legacy course-list logic below.
+    // everything else → locked. WorkforceAP-authored programs (Digital Literacy)
+    // are self-paced and not sequential — every unfinished module stays open,
+    // and completed modules remain reopenable.
+    const workforceApProgram = curriculumCourses.length > 0
+      && curriculumCourses.every((course) => isWorkforceApCourse(course));
     const modules = curriculumCourses.map((c) => {
       const done = completedSet.has(c.slug);
       const isNext = !done && c.slug === nextCourseSlug;
@@ -216,7 +220,11 @@ export default async function ProgramPage({
         moduleHref: isWorkforceApCourse(c)
           ? workforceApCourseHref(c.slug, enrolledSlug)
           : undefined,
-        state: done ? ('done' as const) : isNext ? ('active' as const) : ('locked' as const),
+        state: done
+          ? ('done' as const)
+          : workforceApProgram || isNext
+            ? ('active' as const)
+            : ('locked' as const),
       };
     });
 

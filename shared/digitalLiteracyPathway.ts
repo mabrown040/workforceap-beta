@@ -9,6 +9,7 @@
 
 export const DIGITAL_LITERACY_PROGRAM_SLUG = 'digital-literacy-empowerment-class';
 export const DIGITAL_LITERACY_PROGRAM_TITLE = 'Workforce AP Digital Literacy Course';
+export const DIGITAL_LITERACY_FIRST_COURSE_SLUG = `${DIGITAL_LITERACY_PROGRAM_SLUG}-course-1`;
 export const DIGITALLEARN_HOME_URL = 'https://www.digitallearn.org/';
 export const DIGITALLEARN_COURSES_URL = 'https://www.digitallearn.org/courses';
 export const DIGITALLEARN_PROVIDER_NAME = 'DigitalLearn.org';

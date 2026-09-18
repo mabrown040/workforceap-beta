@@ -203,6 +203,7 @@ async function renderMemberDashboard(
         toolkitHref={home.toolkitHref}
         jobsHref={home.jobsHref}
         doThisNext={home.doThisNext}
+        ungatedDigitalBasicsHref={home.programTitle ? null : home.ungatedDigitalBasicsHref}
       />
     );
   }

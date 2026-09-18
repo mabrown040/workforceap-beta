@@ -37,7 +37,11 @@ test('live program CTAs launch the selected Coursera course and keep Learning Hu
   );
   assert.match(
     programKit,
-    /m\.launchHref\s*\?\s*\(\s*<TrackedCourseraLaunchLink\s+href=\{moduleHref\}/,
+    /isActive && m\.launchHref \? \(/,
+  );
+  assert.match(
+    programKit,
+    /<TrackedCourseraLaunchLink\s+href=\{moduleHref\}/,
   );
   assert.match(
     programKit,

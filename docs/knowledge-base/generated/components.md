@@ -392,8 +392,8 @@
 | [components/portal/ProgramChangeRequestModal.tsx](../../../components/portal/ProgramChangeRequestModal.tsx) | 309 | components | default:25 |
 | [components/portal/ProgramChangeRequestPanel.tsx](../../../components/portal/ProgramChangeRequestPanel.tsx) | 204 | components | default:15 |
 | [components/portal/ProgramCommitmentPanel.tsx](../../../components/portal/ProgramCommitmentPanel.tsx) | 82 | components | default:18 |
-| [components/portal/ProgramPicker.test.tsx](../../../components/portal/ProgramPicker.test.tsx) | 94 | components |  |
-| [components/portal/ProgramPicker.tsx](../../../components/portal/ProgramPicker.tsx) | 350 | components | default:137 |
+| [components/portal/ProgramPicker.test.tsx](../../../components/portal/ProgramPicker.test.tsx) | 102 | components |  |
+| [components/portal/ProgramPicker.tsx](../../../components/portal/ProgramPicker.tsx) | 349 | components | default:136 |
 | [components/portal/ProgressBanner.tsx](../../../components/portal/ProgressBanner.tsx) | 39 | components | default:11 |
 | [components/portal/PushNotificationsToggle.tsx](../../../components/portal/PushNotificationsToggle.tsx) | 124 | communications | default:20 |
 | [components/portal/QueryToast.tsx](../../../components/portal/QueryToast.tsx) | 46 | components | default:6 |
@@ -446,6 +446,7 @@
 | [components/portal/WioaQualificationClient.tsx](../../../components/portal/WioaQualificationClient.tsx) | 546 | partners-funding | default:50 |
 | [components/portal/WorkforceApModuleCompleteButton.test.tsx](../../../components/portal/WorkforceApModuleCompleteButton.test.tsx) | 57 | components |  |
 | [components/portal/WorkforceApModuleCompleteButton.tsx](../../../components/portal/WorkforceApModuleCompleteButton.tsx) | 63 | components | default:6 |
+| [components/portal/WorkforceApModuleLessons.tsx](../../../components/portal/WorkforceApModuleLessons.tsx) | 54 | components | WorkforceApLesson:3, lessonCtaLabel:8, default:12 |
 | [components/portal/WorkspaceShell.tsx](../../../components/portal/WorkspaceShell.tsx) | 718 | components | default:48 |
 | [components/portal/YouthDashboardNotice.tsx](../../../components/portal/YouthDashboardNotice.tsx) | 123 | components | default:4 |
 | [components/portal/counselor/AtRiskDashboard.tsx](../../../components/portal/counselor/AtRiskDashboard.tsx) | 1045 | member-counselor | AtRiskFactor:49, AtRiskMember:55, AtRiskDashboardViewProps:180, AtRiskDashboardView:195, default:721 |
@@ -574,7 +575,7 @@
 | [components/portal/kit/pages/member/MemberCertificatesKit.tsx](../../../components/portal/kit/pages/member/MemberCertificatesKit.tsx) | 177 | member-counselor | MemberCertificatesKitProps:39, MemberCertificatesKit:68 |
 | [components/portal/kit/pages/member/MemberCounselorKit.tsx](../../../components/portal/kit/pages/member/MemberCounselorKit.tsx) | 95 | member-counselor | CounselorSessionSummary:16, MemberCounselorKitProps:22, MemberCounselorKit:31 |
 | [components/portal/kit/pages/member/MemberCounselorSessionKit.tsx](../../../components/portal/kit/pages/member/MemberCounselorSessionKit.tsx) | 57 | member-counselor | MemberCounselorSessionKitProps:13, MemberCounselorSessionKit:20 |
-| [components/portal/kit/pages/member/MemberHomeKit.tsx](../../../components/portal/kit/pages/member/MemberHomeKit.tsx) | 886 | member-counselor | StatSpark:85, WeeklyActivityPoint:95, PointsLedgerEntry:101, MemberHomeKitProps:107, MemberHomeKit:543 |
+| [components/portal/kit/pages/member/MemberHomeKit.tsx](../../../components/portal/kit/pages/member/MemberHomeKit.tsx) | 907 | member-counselor | StatSpark:85, WeeklyActivityPoint:95, PointsLedgerEntry:101, MemberHomeKitProps:107, MemberHomeKit:545 |
 | [components/portal/kit/pages/member/MemberJobDetail.tsx](../../../components/portal/kit/pages/member/MemberJobDetail.tsx) | 193 | member-counselor | JobDetailScreeningQuestion:15, MemberJobDetailProps:21, MemberJobDetail:52 |
 | [components/portal/kit/pages/member/MemberJobsBoard.tsx](../../../components/portal/kit/pages/member/MemberJobsBoard.tsx) | 154 | member-counselor | BoardJob:19, MemberJobsBoardProps:30, MemberJobsBoard:59 |
 | [components/portal/kit/pages/member/MemberJobsKit.tsx](../../../components/portal/kit/pages/member/MemberJobsKit.tsx) | 194 | member-counselor | MemberJobsKitProps:38, MemberJobsKit:72 |
@@ -583,7 +584,7 @@
 | [components/portal/kit/pages/member/MemberMessagesEmpty.tsx](../../../components/portal/kit/pages/member/MemberMessagesEmpty.tsx) | 44 | member-counselor | MemberMessagesEmpty:10 |
 | [components/portal/kit/pages/member/MemberMessagesKit.tsx](../../../components/portal/kit/pages/member/MemberMessagesKit.tsx) | 373 | member-counselor | MemberMessagesKitProps:32, MemberMessagesKit:70 |
 | [components/portal/kit/pages/member/MemberProfileKit.tsx](../../../components/portal/kit/pages/member/MemberProfileKit.tsx) | 411 | member-counselor | MemberProfileAccountPassthrough:53, MemberProfileKitProps:66, MemberProfileKit:98 |
-| [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 362 | member-counselor | MemberProgramKitProps:37, MemberProgramKit:98 |
+| [components/portal/kit/pages/member/MemberProgramKit.tsx](../../../components/portal/kit/pages/member/MemberProgramKit.tsx) | 359 | member-counselor | MemberProgramKitProps:37, MemberProgramKit:98 |
 | [components/portal/kit/pages/member/MemberProgressKit.tsx](../../../components/portal/kit/pages/member/MemberProgressKit.tsx) | 153 | member-counselor | MemberProgressKitProps:25, MemberProgressKit:45 |
 | [components/portal/kit/pages/member/MemberToolkitKit.tsx](../../../components/portal/kit/pages/member/MemberToolkitKit.tsx) | 331 | member-counselor | MemberToolkitKitProps:43, MemberToolkitKit:168 |
 | [components/portal/kit/pages/member/MemberTrainingWorkspace.tsx](../../../components/portal/kit/pages/member/MemberTrainingWorkspace.tsx) | 335 | member-counselor | TrainingCourseDestination:22, nextCourseContinueTarget:25, MemberTrainingWorkspaceProps:76, MemberTrainingWorkspace:101 |

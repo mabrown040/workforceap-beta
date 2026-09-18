@@ -203,7 +203,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
         <LocalizedLink href="/contact" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-on-accent)', borderColor: 'color-mix(in srgb, var(--color-on-accent) 30%, transparent)' }}>
           {t('helpCta1')}
         </LocalizedLink>
-        <a href="tel:+15127771808" className="btn btn-primary mdx-btn mdx-btn--solid" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
+        <a href="tel:+15127771808" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-on-accent)', borderColor: 'color-mix(in srgb, var(--color-on-accent) 30%, transparent)' }}>
           {t('helpCta2')}
         </a>
       </div>
@@ -425,8 +425,8 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
           margin: var(--space-5) auto 0;
           min-width: min(100%, 320px);
           min-height: 48px;
-          background: var(--color-gold);
-          color: var(--color-on-surface);
+          background: var(--color-accent);
+          color: var(--color-on-accent, #fff);
           font-weight: 700;
         }
 

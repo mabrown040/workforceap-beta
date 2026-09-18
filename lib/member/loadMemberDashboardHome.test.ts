@@ -20,6 +20,7 @@ function makeRow(overrides: Record<string, unknown> = {}) {
   return {
     fullName: 'Alex Rivera',
     enrolledProgram: null,
+    assessmentCompleted: false,
     organization: { courses: [] },
     courseEnrollments: [{ programSlug: 'it-support-professional-certificate-ibm' }],
     courseProgress: [],
@@ -309,6 +310,24 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   assert.equal(view.nextLesson, undefined);
   assert.equal(view.programTitle, undefined);
   assert.equal(view.programStatus, undefined);
+});
+
+test('loadMemberDashboardHome falls back to buildNextBestActions when no persisted rows exist', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      enrolledProgram: null,
+      courseEnrollments: [],
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'fresh-1', fallbackDisplayName: 'fresh@example.com' },
+    db,
+  );
+  assert.equal(view.doThisNext?.id, 'submit_application');
+  assert.equal(view.doThisNext?.cta, 'Start application');
+  assert.match(view.ungatedDigitalBasicsHref, /digital-literacy-empowerment-class-course-1/);
 });
 
 test('loader module imports only pure Coursera reconciliation, never providers or member-state fanout', () => {

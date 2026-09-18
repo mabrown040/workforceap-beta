@@ -72,8 +72,10 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
 - **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
   `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
-  Do not set kit metadata below 13px. Member pills use `.wa-kit-cta` /
+  Do not set kit metadata below 13px.   Member pills use `.wa-kit-cta` /
   `.wa-kit-cta--ghost` (44px, `--wa-type-body`) instead of a 13–14px inline size.
+  Lesson-start and other “must look like a button” member actions use
+  `.wa-kit-cta--xl` (52px, full-width on mobile) with `.wa-kit-cta--block`.
 - **Shape / density / pop (flip per surface, §2):** `--wa-radius`, `--wa-radius-sm`, `--wa-pad`,
   `--wa-pad-sm`, `--wa-pop`, `--wa-shadow`, `--wa-shadow-lg`.
 - **Motion (§7):** `--wa-dur-fast` (120ms) / `--wa-dur-base` (200ms) / `--wa-dur-slow` (300ms) +

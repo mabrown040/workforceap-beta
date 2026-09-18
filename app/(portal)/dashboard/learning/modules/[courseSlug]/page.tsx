@@ -9,6 +9,7 @@ import { resolveWorkforceApModule } from '@/lib/content/workforceApModule';
 import { DIGITAL_LITERACY_PROGRAM_SLUG } from '@/shared/digitalLiteracyPathway';
 import { DesignSurface, PageOpener, StatusTag } from '@/components/portal/kit';
 import WorkforceApModuleCompleteButton from '@/components/portal/WorkforceApModuleCompleteButton';
+import WorkforceApModuleLessons from '@/components/portal/WorkforceApModuleLessons';
 
 export const metadata: Metadata = {
   title: 'WorkforceAP Lab',
@@ -124,31 +125,7 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
               These links open on {course.provider?.name ?? 'the provider site'} in a new tab. Access is free and a provider account is optional.
               {course.provider?.languageNote ? ` ${course.provider.languageNote}` : ''} WorkforceAP does not receive provider-side activity.
             </p>
-            <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'grid', gap: 14 }}>
-              {(course.lessons ?? []).map((lesson) => (
-                <li key={`${lesson.title}-${lesson.url}`} style={{ lineHeight: 1.5 }}>
-                  <a href={lesson.url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700 }}>
-                    {lesson.title}
-                  </a>
-                  <span style={{ color: 'var(--wa-muted)' }}> · {lesson.minutes} min</span>
-                  {lesson.verificationLabel ? (
-                    <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: 'var(--wa-muted)' }}>
-                      {lesson.verificationLabel}
-                    </span>
-                  ) : null}
-                  {lesson.fallbackUrl ? (
-                    <a
-                      href={lesson.fallbackUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: 'inline-block', marginTop: 5, fontSize: 13, fontWeight: 700 }}
-                    >
-                      {lesson.fallbackLabel ?? 'Open provider materials fallback'}
-                    </a>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
+            <WorkforceApModuleLessons lessons={course.lessons ?? []} />
             {course.topics?.length ? (
               <>
                 <h3 style={{ fontSize: 15, fontWeight: 800, margin: '20px 0 8px' }}>What you will practice</h3>

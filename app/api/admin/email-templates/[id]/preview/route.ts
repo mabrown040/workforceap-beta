@@ -22,7 +22,7 @@ export const POST = withApiGuc(async (
     if (!template) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     let body: { variables?: Record<string, string> } = {};
-    try { body = await req.json(); } catch { /* no body is fine */ }
+    body = (await req.json().catch(() => ({}))) ?? {}; // no body is fine
 
     const sampleData = body.variables ?? getDefaultSampleData(template.variables);
     const rendered = renderTemplate(template, sampleData);

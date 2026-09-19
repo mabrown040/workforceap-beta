@@ -111,8 +111,9 @@ async function _DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { noteId } = await request.json().catch(() => ({}));
-    if (!noteId) return NextResponse.json({ error: 'noteId required' }, { status: 400 });
+    const raw: unknown = await request.json().catch(() => null);
+    const noteId = (raw && typeof raw === 'object' ? (raw as { noteId?: unknown }).noteId : undefined);
+    if (typeof noteId !== 'string' || !noteId) return NextResponse.json({ error: 'noteId required' }, { status: 400 });
 
     const note = await prisma.$transaction((tx) => tx.advisorSessionNote.findFirst({
       where: { id: noteId, memberId, authorId: user.id },

@@ -29,6 +29,9 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
 
     const certId = typeof body.certId === 'string' ? body.certId : '';
     const action = body.action;

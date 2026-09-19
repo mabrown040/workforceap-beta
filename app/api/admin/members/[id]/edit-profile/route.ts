@@ -46,6 +46,13 @@ const schema = z.object({
     // scope proxy adds `organizationId: orgId` to the where filter.
     const orgId = await getActorOrganizationId(admin.id);
 
+    // An unknown or foreign member id is a 404, not an "Update failed" 500:
+    // the tenant-scoped lookup only sees members in this admin's org.
+    const existing = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({ where: { id, deletedAt: null }, select: { id: true } }),
+    );
+    if (!existing) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
     try {
       // Verify the member belongs to this admin's org before touching
       // Profile (which isn't tenant-scoped via withTenantScope but is

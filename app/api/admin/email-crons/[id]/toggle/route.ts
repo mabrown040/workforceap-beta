@@ -24,7 +24,7 @@ export const POST = withApiGuc(async (
   if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
 
   let body: { enabled?: boolean };
-  try { body = await req.json(); } catch {
+  try { body = await req.json(); if (!body || typeof body !== 'object') throw new Error('Body must be a JSON object'); } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 

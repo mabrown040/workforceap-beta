@@ -269,7 +269,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /partner | not-found |  | [app/(portal)/partner/not-found.tsx](../../../app/%28portal%29/partner/not-found.tsx) |  |
 | /partner/outcomes | loading |  | [app/(portal)/partner/outcomes/loading.tsx](../../../app/%28portal%29/partner/outcomes/loading.tsx) |  |
 | /partner/outcomes | page |  | [app/(portal)/partner/outcomes/page.tsx](../../../app/%28portal%29/partner/outcomes/page.tsx) | @/lib/auth/portalGuards:3, @/lib/auth/server:5, @/lib/auth/roles:6 |
-| /partner | page |  | [app/(portal)/partner/page.tsx](../../../app/%28portal%29/partner/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/auth/portalGuards:8, @/lib/auth/roles:22 |
+| /partner | page |  | [app/(portal)/partner/page.tsx](../../../app/%28portal%29/partner/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/auth/portalGuards:8, @/lib/auth/roles:23 |
 | /partner/referred-members/\[memberId\] | page |  | [app/(portal)/partner/referred-members/\[memberId\]/page.tsx](../../../app/%28portal%29/partner/referred-members/%5BmemberId%5D/page.tsx) | @/lib/auth/roles:10, @/lib/auth/portalGuards:11, @/lib/auth/server:12 |
 | /partner/referred-members | loading |  | [app/(portal)/partner/referred-members/loading.tsx](../../../app/%28portal%29/partner/referred-members/loading.tsx) |  |
 | /partner/referred-members | page |  | [app/(portal)/partner/referred-members/page.tsx](../../../app/%28portal%29/partner/referred-members/page.tsx) | @/lib/auth/portalGuards:3, @/lib/auth/roles:8, @/lib/auth/server:9 |

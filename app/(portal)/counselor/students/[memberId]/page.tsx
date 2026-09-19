@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDate } from '@/lib/formatDate';
 import { MEMBER_HISTORY_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -812,7 +813,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                         {ev.meta.employer ?? '—'}
                       </p>
                       <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
-                        {new Date(ev.meta.usedAt ?? ev.createdAt).toLocaleDateString()}
+                        {formatPortalDate(ev.meta.usedAt ?? ev.createdAt)}
                       </p>
                     </div>
                     <span
@@ -1156,7 +1157,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                         {pitchOutcomeLabel(ev.meta.outcome)}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        {new Date(ev.meta.usedAt ?? ev.createdAt).toLocaleDateString()}
+                        {formatPortalDate(ev.meta.usedAt ?? ev.createdAt)}
                       </span>
                     </div>
                   ))}
@@ -1331,6 +1332,19 @@ function Counselor360Signals({
 
 const CARD_STYLE = { padding: '1.25rem', border: '1px solid var(--outline-variant)' } as const;
 
+// Mirrors STATUS_LABEL in components/portal/counselor/AtRiskDashboard.tsx so the
+// raw "acknowledged" / "escalated" enum never reaches the counselor's screen.
+const AT_RISK_ALERT_STATUS_LABEL: Record<string, string> = {
+  open: 'Open',
+  acknowledged: 'Acknowledged',
+  resolved: 'Resolved',
+  escalated: 'Escalated',
+};
+
+function atRiskAlertStatusLabel(status: string): string {
+  return AT_RISK_ALERT_STATUS_LABEL[status] ?? status;
+}
+
 function AtRiskSignalCard({ alert }: { alert: AtRiskAlertDisplay }) {
   if (!alert) {
     return (
@@ -1382,8 +1396,8 @@ function AtRiskSignalCard({ alert }: { alert: AtRiskAlertDisplay }) {
         )}
       </div>
       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-        Status: <strong style={{ color: 'var(--color-on-surface)' }}>{alert.status}</strong> · scanned{' '}
-        {alert.createdAt.toLocaleDateString()}
+        Status: <strong style={{ color: 'var(--color-on-surface)' }}>{atRiskAlertStatusLabel(alert.status)}</strong> · scanned{' '}
+        {formatPortalDate(alert.createdAt)}
       </p>
     </div>
   );

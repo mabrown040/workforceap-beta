@@ -9,7 +9,7 @@
 | [app/(auth)/forgot-password/page.tsx](../../../app/%28auth%29/forgot-password/page.tsx) | 161 | pages | default:155 |
 | [app/(auth)/layout.tsx](../../../app/%28auth%29/layout.tsx) | 34 | pages | default:21 |
 | [app/(auth)/loading.tsx](../../../app/%28auth%29/loading.tsx) | 5 | pages | default:3 |
-| [app/(auth)/login/LoginForm.tsx](../../../app/%28auth%29/login/LoginForm.tsx) | 750 | pages | default:314 |
+| [app/(auth)/login/LoginForm.tsx](../../../app/%28auth%29/login/LoginForm.tsx) | 751 | pages | default:315 |
 | [app/(auth)/login/loading.tsx](../../../app/%28auth%29/login/loading.tsx) | 5 | pages | default:3 |
 | [app/(auth)/login/page.tsx](../../../app/%28auth%29/login/page.tsx) | 70 | pages | generateMetadata:14, default:24 |
 | [app/(auth)/not-found.tsx](../../../app/%28auth%29/not-found.tsx) | 20 | pages | default:3 |
@@ -18,7 +18,7 @@
 | [app/(auth)/setup-mfa/layout.tsx](../../../app/%28auth%29/setup-mfa/layout.tsx) | 17 | pages | generateMetadata:5, default:15 |
 | [app/(auth)/setup-mfa/loading.tsx](../../../app/%28auth%29/setup-mfa/loading.tsx) | 5 | pages | default:3 |
 | [app/(auth)/setup-mfa/page.tsx](../../../app/%28auth%29/setup-mfa/page.tsx) | 313 | pages | default:16 |
-| [app/(auth)/signup/SignupForm.tsx](../../../app/%28auth%29/signup/SignupForm.tsx) | 636 | applications-enrollment | default:250 |
+| [app/(auth)/signup/SignupForm.tsx](../../../app/%28auth%29/signup/SignupForm.tsx) | 637 | applications-enrollment | default:251 |
 | [app/(auth)/signup/loading.tsx](../../../app/%28auth%29/signup/loading.tsx) | 5 | applications-enrollment | default:3 |
 | [app/(auth)/signup/page.tsx](../../../app/%28auth%29/signup/page.tsx) | 41 | applications-enrollment | generateMetadata:11, default:20 |
 | [app/(auth)/verify-mfa/layout.tsx](../../../app/%28auth%29/verify-mfa/layout.tsx) | 17 | pages | generateMetadata:5, default:15 |

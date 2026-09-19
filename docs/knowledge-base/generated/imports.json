@@ -23921,8 +23921,24 @@
   },
   {
     "from": "app/admin/placements/new/page.tsx",
-    "specifier": "@/components/portal/PageHeader",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/admin/placements/new/page.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/admin/placements/new/page.tsx",
+    "specifier": "@/components/portal/PageHeader",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -23930,7 +23946,7 @@
   {
     "from": "app/admin/placements/new/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -75712,6 +75728,46 @@
     "target": "lib/a11y/scrollBehavior.ts"
   },
   {
+    "from": "components/portal/MemberNextStepsStrip.test.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/MemberNextStepsStrip.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/MemberNextStepsStrip.test.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "components/portal/MemberNextStepsStrip.test.tsx",
+    "specifier": "./MemberNextStepsStrip",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/MemberNextStepsStrip.tsx"
+  },
+  {
+    "from": "components/portal/MemberNextStepsStrip.test.tsx",
+    "specifier": "@/lib/member/nextBestActions",
+    "line": 6,
+    "kind": "type",
+    "external": false,
+    "target": "lib/member/nextBestActions.ts"
+  },
+  {
     "from": "components/portal/MemberNextStepsStrip.tsx",
     "specifier": "react",
     "line": 3,
@@ -77566,6 +77622,46 @@
     "kind": "import",
     "external": false,
     "target": "lib/resume/pendingResumeDraft.ts"
+  },
+  {
+    "from": "components/portal/SkillCheckpointsClient.test.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/SkillCheckpointsClient.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/SkillCheckpointsClient.test.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "components/portal/SkillCheckpointsClient.test.tsx",
+    "specifier": "./SkillCheckpointsClient",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/SkillCheckpointsClient.tsx"
+  },
+  {
+    "from": "components/portal/SkillCheckpointsClient.test.tsx",
+    "specifier": "@/lib/content/checkpoints",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/checkpoints/index.ts"
   },
   {
     "from": "components/portal/SkillCheckpointsClient.tsx",
@@ -121648,6 +121744,38 @@
     "target": "app/(portal)/partner/guide/page.tsx"
   },
   {
+    "from": "tests/app/record-placement-connection-copy.spec.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/record-placement-connection-copy.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/app/record-placement-connection-copy.spec.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "tests/app/record-placement-connection-copy.spec.tsx",
+    "specifier": "@/app/admin/placements/new/page",
+    "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "app/admin/placements/new/page.tsx"
+  },
+  {
     "from": "tests/app/root-auth-bootstrap.spec.tsx",
     "specifier": "vitest",
     "line": 2,
@@ -124744,6 +124872,54 @@
     "package": "vitest"
   },
   {
+    "from": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+    "specifier": "@/app/(portal)/dashboard/_components/MobileStateANextStepCard",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/dashboard/_components/MobileStateANextStepCard.tsx"
+  },
+  {
+    "from": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+    "specifier": "@/app/(portal)/dashboard/_components/types",
+    "line": 7,
+    "kind": "type",
+    "external": false,
+    "target": "app/(portal)/dashboard/_components/types.ts"
+  },
+  {
     "from": "tests/lib/diagnose-member-coursera-tenant.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -126094,6 +126270,38 @@
     "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
+    "from": "tests/lib/success-text-token-contrast.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/success-text-token-contrast.spec.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/lib/success-text-token-contrast.spec.ts",
+    "specifier": "node:path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/lib/success-text-token-contrast.spec.ts",
+    "specifier": "@/lib/ui/statusColors",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ui/statusColors.ts"
   },
   {
     "from": "tests/lib/training-course-practice.spec.ts",

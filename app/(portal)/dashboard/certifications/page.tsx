@@ -373,7 +373,9 @@ export default async function DashboardCertificationsPage({
                   alignItems: 'center',
                   gap: '0.25rem',
                   background: '#fff',
-                  color: 'var(--color-accent)',
+                  // White pill in both modes: pin the label to the light-mode crimson
+                  // (var(--color-accent) is #e0658a in dark mode, 3.28:1 on white).
+                  color: '#ad2c4d',
                   borderRadius: '0.5rem',
                   padding: '0.375rem 0.875rem',
                   fontWeight: 700,

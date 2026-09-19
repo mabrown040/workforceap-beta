@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "d69d1ec481fa8baa733e8c8429b76393a9573bde68fb35f490ea14fb8f6e48f0",
+  "inputTreeSha256": "76f73b5c8dbf9366ef461906ad75f001ecbc47c5bf9ac23aa5e54a775a26d24a",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -19028,14 +19028,14 @@
       "path": "app/admin/partners/[id]/quarterly-outcomes/PartnerQuarterlyOutcomesClient.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 17155,
-      "lines": 477,
-      "sha256": "b060c01213ac291a42cd582d9f8cc19e8eeeb67fb909a4354773bfe3922aa6df",
+      "bytes": 17151,
+      "lines": 476,
+      "sha256": "ecaeacbe5f1a95ba3882acff835a4d556e297e20a04c97195d5a4bdaae594a61",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 159,
+          "line": 158,
           "kind": "FunctionDeclaration",
           "localName": "PartnerQuarterlyOutcomesClient"
         }
@@ -19052,38 +19052,33 @@
           "kind": "Variable"
         },
         {
-          "name": "GREEN",
+          "name": "GOLD",
           "line": 10,
           "kind": "Variable"
         },
         {
-          "name": "GOLD",
-          "line": 11,
-          "kind": "Variable"
-        },
-        {
           "name": "PartnerQuarterlyReport",
-          "line": 13,
+          "line": 12,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "objectsToCsv",
-          "line": 57,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildCsvBundle",
-          "line": 76,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MetricCard",
-          "line": 135,
+          "line": 134,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerQuarterlyOutcomesClient",
-          "line": 159,
+          "line": 158,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -45420,14 +45415,14 @@
       "path": "app/mentor/apply/MentorApplyForm.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 5111,
-      "lines": 164,
-      "sha256": "e9116e6eea9a59470cf0501b4aee2b27902750350d94e5c7a873bf9ba5359ffd",
+      "bytes": 6126,
+      "lines": 187,
+      "sha256": "2bb77b634e7753a1b6e4aa5691b06a54da0aef123b48083a92108abcfc5b582e",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 21,
+          "line": 25,
           "kind": "FunctionDeclaration",
           "localName": "MentorApplyForm"
         }
@@ -45435,12 +45430,17 @@
       "declarations": [
         {
           "name": "INDUSTRIES",
-          "line": 8,
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "SUBMIT_FAILED",
+          "line": 23,
           "kind": "Variable"
         },
         {
           "name": "MentorApplyForm",
-          "line": 21,
+          "line": 25,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -53771,24 +53771,24 @@
       "path": "components/employer/EmployerApplicationsClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 21570,
-      "lines": 533,
-      "sha256": "c8e00ff3c6e11515ef873b637993bbffaf809885cce87f46be3355d86186b905",
+      "bytes": 21941,
+      "lines": 541,
+      "sha256": "092e611a4edd0062b68bbe983cf7407b6361bdc9254a12afade463f2cb7ce531",
       "binary": false,
       "exports": [
         {
           "name": "AppMsg",
-          "line": 12,
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EmployerApplicationRow",
-          "line": 20,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 42,
+          "line": 44,
           "kind": "FunctionDeclaration",
           "localName": "EmployerApplicationsClient"
         }
@@ -53796,27 +53796,27 @@
       "declarations": [
         {
           "name": "AppMsg",
-          "line": 12,
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EmployerApplicationRow",
-          "line": 20,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "STATUSES",
-          "line": 30,
-          "kind": "Variable"
-        },
-        {
-          "name": "FILTER_CHIPS",
           "line": 32,
           "kind": "Variable"
         },
         {
+          "name": "FILTER_CHIPS",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
           "name": "EmployerApplicationsClient",
-          "line": 42,
+          "line": 44,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -53931,19 +53931,19 @@
       "path": "components/employer/EmployerJobsBoard.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 45750,
-      "lines": 1184,
-      "sha256": "563fc7744aed68ccfd1f3be425c1375086fc14b6f45b0dcde3d1e0ef55af630b",
+      "bytes": 46826,
+      "lines": 1204,
+      "sha256": "895e75366136914623051e166efe25c437504c5ae0b214961eb9ac71d7e41f75",
       "binary": false,
       "exports": [
         {
           "name": "EmployerJobBoardItem",
-          "line": 35,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 219,
+          "line": 221,
           "kind": "FunctionDeclaration",
           "localName": "EmployerJobsBoard"
         }
@@ -53951,87 +53951,87 @@
       "declarations": [
         {
           "name": "chunkIds",
-          "line": 27,
+          "line": 29,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerJobBoardItem",
-          "line": 35,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "FILTERS",
-          "line": 55,
+          "line": 57,
           "kind": "Variable"
         },
         {
           "name": "BADGE_VARIANT_TONE",
-          "line": 65,
+          "line": 67,
           "kind": "Variable"
         },
         {
           "name": "statusTone",
-          "line": 73,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatCompensation",
-          "line": 77,
+          "line": 79,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatWorkStyle",
-          "line": 86,
+          "line": 88,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "nextStepHint",
-          "line": 94,
+          "line": 96,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "canBulkDelete",
-          "line": 108,
+          "line": 110,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "canBulkClose",
-          "line": 112,
+          "line": 114,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "BULK_DELETE_FLASH_KEY",
-          "line": 116,
+          "line": 118,
           "kind": "Variable"
         },
         {
           "name": "BULK_CLOSE_FLASH_KEY",
-          "line": 117,
+          "line": 119,
           "kind": "Variable"
         },
         {
           "name": "BulkRow",
-          "line": 119,
+          "line": 121,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Banner",
-          "line": 125,
+          "line": 127,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pillBase",
-          "line": 187,
+          "line": 189,
           "kind": "Variable"
         },
         {
           "name": "FilterPill",
-          "line": 202,
+          "line": 204,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerJobsBoard",
-          "line": 219,
+          "line": 221,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54256,14 +54256,14 @@
       "path": "components/employer/EmployerPipelineClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 5319,
-      "lines": 136,
-      "sha256": "9b276b80e7cbf16e7ac5eca98a1d6057d03e2bbd2909a6b0d045a8ef0c6db5a3",
+      "bytes": 6282,
+      "lines": 157,
+      "sha256": "f02eb9358784c567103034852f61a034fa1306ffcefdf22c6058776de4f2670a",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration",
           "localName": "EmployerPipelineClient"
         }
@@ -54271,32 +54271,37 @@
       "declarations": [
         {
           "name": "MatchRow",
-          "line": 8,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "BADGE_VARIANT_TONE",
-          "line": 17,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "statusTone",
-          "line": 26,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "scoreColor",
-          "line": 30,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "UPDATE_FAILED",
+          "line": 38,
+          "kind": "Variable"
+        },
+        {
           "name": "getInitials",
-          "line": 36,
+          "line": 40,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerPipelineClient",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54634,14 +54639,14 @@
       "path": "components/employer/MobileApplicationsClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 13532,
-      "lines": 298,
-      "sha256": "fb783f04fd2bf1b7da6d45a2632703e447f4e86a949515968bb49bd71b8e25eb",
+      "bytes": 13896,
+      "lines": 305,
+      "sha256": "a8d90bee8c0482e66b2f8af43da0222b6d794db6984731fff3fb497e0648ea23",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 58,
+          "line": 60,
           "kind": "FunctionDeclaration",
           "localName": "MobileApplicationsClient"
         }
@@ -54649,32 +54654,32 @@
       "declarations": [
         {
           "name": "STATUS_CHIP_FILTERS",
-          "line": 7,
+          "line": 9,
           "kind": "Variable"
         },
         {
           "name": "STATUS_ACTIONS",
-          "line": 17,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "statusColor",
-          "line": 26,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "statusLabel",
-          "line": 36,
+          "line": 38,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "initials",
-          "line": 48,
+          "line": 50,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MobileApplicationsClient",
-          "line": 58,
+          "line": 60,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56653,14 +56658,14 @@
       "path": "components/partner/PartnerAttentionClient.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 15649,
-      "lines": 417,
-      "sha256": "3e4734f7f9fe8e79b126eee7281951d29674b91d71f5479ba5c20e32d73145af",
+      "bytes": 16750,
+      "lines": 438,
+      "sha256": "55df5625fd34bcfc510db537b37ddfedd433b680d835835bf850fad87fd24e5b",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 83,
+          "line": 86,
           "kind": "FunctionDeclaration",
           "localName": "PartnerAttentionClient"
         }
@@ -56668,57 +56673,62 @@
       "declarations": [
         {
           "name": "AttentionMember",
-          "line": 11,
+          "line": 12,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LogRow",
-          "line": 25,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberOption",
-          "line": 35,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "TeamUser",
           "line": 36,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "TeamUser",
+          "line": 37,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "TierFilter",
-          "line": 38,
+          "line": 39,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TIER_ORDER",
-          "line": 40,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "TIER_TONE",
-          "line": 47,
+          "line": 48,
           "kind": "Variable"
         },
         {
           "name": "TIER_ICON",
-          "line": 54,
+          "line": 55,
           "kind": "Variable"
         },
         {
           "name": "kitFieldStyle",
-          "line": 61,
+          "line": 62,
           "kind": "Variable"
         },
         {
           "name": "kitSmallSelectStyle",
-          "line": 73,
+          "line": 74,
+          "kind": "Variable"
+        },
+        {
+          "name": "ASSIGN_FAILED",
+          "line": 84,
           "kind": "Variable"
         },
         {
           "name": "PartnerAttentionClient",
-          "line": 83,
+          "line": 86,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -57307,19 +57317,19 @@
       "path": "components/portal/AiResultRenderer.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 34887,
-      "lines": 623,
-      "sha256": "1c36b9fa836e924c8f3a0f3a2f7686e3e9faa5a9aa1edf3fc9e0bb0c739f8ba4",
+      "bytes": 35777,
+      "lines": 643,
+      "sha256": "465088fb19cb91b00a599f9eb16f60049f89de07e524d999fd7d84e34ce69b32",
       "binary": false,
       "exports": [
         {
           "name": "AiResultRendererProps",
-          "line": 502,
+          "line": 522,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 542,
+          "line": 562,
           "kind": "FunctionDeclaration",
           "localName": "AiResultRenderer"
         }
@@ -57327,122 +57337,127 @@
       "declarations": [
         {
           "name": "RadarAxis",
-          "line": 27,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "SkillRow",
-          "line": 28,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "GapRow",
           "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "SkillAssessmentOutput",
+          "name": "SkillRow",
+          "line": 30,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "GapRow",
           "line": 31,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "SkillAssessmentOutput",
+          "line": 33,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "InterviewQuestion",
-          "line": 39,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "JobMatchOutput",
-          "line": 48,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ElevatorPitchOutput",
-          "line": 57,
+          "line": 59,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "tryParseJson",
-          "line": 69,
+          "line": 71,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatMarkdownProse",
-          "line": 86,
+          "line": 88,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillAssessmentRenderer",
-          "line": 95,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ResumeRenderer",
-          "line": 172,
+          "line": 174,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CoverLetterRenderer",
-          "line": 196,
+          "line": 198,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LinkedInHeadlineRenderer",
-          "line": 220,
+          "line": 222,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InterviewQARenderer",
-          "line": 241,
+          "line": 243,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "JobMatchRenderer",
-          "line": 289,
+          "line": 291,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ProseSectionRenderer",
-          "line": 340,
+          "line": 342,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FallbackRenderer",
-          "line": 399,
+          "line": 401,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CopyButton",
-          "line": 426,
+          "line": 428,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "PDF_FAILED",
+          "line": 448,
+          "kind": "Variable"
+        },
+        {
           "name": "DownloadPdfButton",
-          "line": 446,
+          "line": 450,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "TOOL_LABELS",
-          "line": 487,
+          "line": 507,
           "kind": "Variable"
         },
         {
           "name": "AiResultRendererProps",
-          "line": 502,
+          "line": 522,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "cleanForExport",
-          "line": 512,
+          "line": 532,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "serializeInterviewForExport",
-          "line": 520,
+          "line": 540,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AiResultRenderer",
-          "line": 542,
+          "line": 562,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -64235,9 +64250,9 @@
       "path": "components/portal/counselor/AtRiskDashboard.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 38405,
-      "lines": 1049,
-      "sha256": "d9917290dbc07109dd93af7523856ec2eacc3dcdf934ca05f2c0c499e65866a1",
+      "bytes": 38616,
+      "lines": 1052,
+      "sha256": "4a2e4d113b3b4716ae64e0b5cac7a04859f28cf4d30099d50f0645b5d5e7e56e",
       "binary": false,
       "exports": [
         {
@@ -64370,17 +64385,17 @@
         },
         {
           "name": "FilterTag",
-          "line": 875,
+          "line": 878,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FactorChips",
-          "line": 902,
+          "line": 905,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "RiskRow",
-          "line": 925,
+          "line": 928,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -72724,14 +72739,14 @@
       "path": "components/portal/tools/ElevatorPitchDeploymentLogger.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 13244,
-      "lines": 310,
-      "sha256": "77ba801debf922bdc8427ee2e40526ff11802fbedd411be3cc55f9cd30911fc4",
+      "bytes": 14021,
+      "lines": 325,
+      "sha256": "bbf651912059dd8b572bc94a0354a182742e8e0c2900b700cb02f96a90253d97",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 22,
+          "line": 26,
           "kind": "FunctionDeclaration",
           "localName": "ElevatorPitchDeploymentLogger"
         }
@@ -72739,17 +72754,22 @@
       "declarations": [
         {
           "name": "Deployment",
-          "line": 5,
+          "line": 7,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "OUTCOME_LABELS",
-          "line": 15,
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "SUBMIT_FAILED",
+          "line": 24,
           "kind": "Variable"
         },
         {
           "name": "ElevatorPitchDeploymentLogger",
-          "line": 22,
+          "line": 26,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -155674,6 +155694,84 @@
       "directive": null
     },
     {
+      "path": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 18130,
+      "lines": 386,
+      "sha256": "42bf7b7397461b945ec5a79814be6708b791f7ba649d8f2423f09116ba8ca31e",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "refresh",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
+          "name": "CONNECTION_COPY",
+          "line": 54,
+          "kind": "Variable"
+        },
+        {
+          "name": "RAW_BROWSER_TEXT",
+          "line": 55,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 57,
+          "kind": "Variable"
+        },
+        {
+          "name": "consoleError",
+          "line": 58,
+          "kind": "Variable"
+        },
+        {
+          "name": "droppedConnection",
+          "line": 61,
+          "kind": "Variable"
+        },
+        {
+          "name": "htmlErrorPage",
+          "line": 63,
+          "kind": "Variable"
+        },
+        {
+          "name": "serverMessage",
+          "line": 68,
+          "kind": "Variable"
+        },
+        {
+          "name": "okJson",
+          "line": 70,
+          "kind": "Variable"
+        },
+        {
+          "name": "withMessages",
+          "line": 73,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expectAlert",
+          "line": 81,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expectConnectionCopy",
+          "line": 86,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applicationRow",
+          "line": 172,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/skill-mission-close-guard.test.tsx",
       "area": "tests",
       "domain": "tests",
@@ -158903,6 +159001,79 @@
         {
           "name": "ALL",
           "line": 28,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/success-chip-text-token-sweep.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4093,
+      "lines": 88,
+      "sha256": "7d674d83d64a7a39b2464e957657caebbb54071635060da651fbff5f84c8c22a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "tokensCss",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "lightDark",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hexToRgb",
+          "line": 24,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "parseColor",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "over",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "luminance",
+          "line": 37,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 44,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "text",
+          "line": 49,
+          "kind": "Variable"
+        },
+        {
+          "name": "tint",
+          "line": 50,
+          "kind": "Variable"
+        },
+        {
+          "name": "pageBg",
+          "line": 51,
+          "kind": "Variable"
+        },
+        {
+          "name": "surface",
+          "line": 52,
           "kind": "Variable"
         }
       ],

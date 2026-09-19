@@ -17549,6 +17549,63 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 19
+      },
+      {
+        "file": "app/mentor/apply/MentorApplyForm.tsx",
+        "line": 20
+      },
+      {
+        "file": "components/employer/EmployerPipelineClient.tsx",
+        "line": 21
+      },
+      {
+        "file": "components/employer/EmployerApplicationsClient.tsx",
+        "line": 22
+      },
+      {
+        "file": "components/employer/MobileApplicationsClient.tsx",
+        "line": 23
+      },
+      {
+        "file": "components/employer/EmployerJobsBoard.tsx",
+        "line": 24
+      },
+      {
+        "file": "components/partner/PartnerAttentionClient.tsx",
+        "line": 25
+      },
+      {
+        "file": "components/portal/tools/ElevatorPitchDeploymentLogger.tsx",
+        "line": 26
+      },
+      {
+        "file": "components/portal/AiResultRenderer.tsx",
+        "line": 27
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/skill-mission-close-guard.test.tsx",
     "area": "tests",
     "domain": "tests",
@@ -21059,6 +21116,25 @@
         "line": 8
       }
     ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/success-chip-text-token-sweep.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
     "kind": "test-candidate",
     "declaredRunners": [
       {

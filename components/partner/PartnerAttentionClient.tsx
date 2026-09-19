@@ -7,6 +7,7 @@ import { AlertTriangle, Bell, Clock, Eye, MessageSquare } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { CardHead, FormField, KitEmptyState, QueueRow, StatusTag, type QueueTone } from '@/components/portal/kit';
 import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type AttentionMember = {
   memberId: string;
@@ -80,6 +81,8 @@ const kitSmallSelectStyle: React.CSSProperties = {
   color: 'var(--wa-text)',
 };
 
+const ASSIGN_FAILED = 'Could not change the owner. Please try again.';
+
 export default function PartnerAttentionClient({ initialTier = 'high' as TierFilter }) {
   const t = useTranslations('partner');
   const router = useRouter();
@@ -96,8 +99,10 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [assignBusy, setAssignBusy] = useState<string | null>(null);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
 
   useEffect(() => {
     const tr = searchParams?.get('tier');
@@ -209,6 +214,8 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
       setMessage('Outreach logged.');
       await reload();
       window.location.reload();
+    } catch (err) {
+      setMessage(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Save failed' }, 'partner-outreach'));
     } finally {
       setSaving(false);
     }
@@ -216,6 +223,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
 
   const assign = async (memberIdTarget: string, userId: string | null) => {
     setAssignBusy(memberIdTarget);
+    setAssignError(null);
     try {
       const r = await fetch(`/api/partner/referrals/${memberIdTarget}`, {
         method: 'PATCH',
@@ -223,7 +231,15 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
         credentials: 'include',
         body: JSON.stringify({ assignedPartnerUserId: userId }),
       });
-      if (r.ok) window.location.reload();
+      if (r.ok) {
+        window.location.reload();
+        return;
+      }
+      // The select re-renders back to the saved owner; say why it did not stick.
+      const data = (await r.json().catch(() => ({}))) as { error?: unknown };
+      setAssignError(typeof data.error === 'string' && data.error.trim() ? data.error : ASSIGN_FAILED);
+    } catch (err) {
+      setAssignError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: ASSIGN_FAILED }, 'partner-assign-owner'));
     } finally {
       setAssignBusy(null);
     }
@@ -271,6 +287,11 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
           })}
         </div>
 
+        {assignError ? (
+          <p role="alert" style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-danger)', margin: '0 0 12px' }}>
+            {assignError}
+          </p>
+        ) : null}
         {loadError ? (
           <div role="alert" className="wa-kit-card wa-kit-card--sm">
             <p style={{ color: 'var(--wa-muted)', marginBottom: 12 }}>{loadError}</p>

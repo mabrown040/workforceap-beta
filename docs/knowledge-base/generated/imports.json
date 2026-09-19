@@ -60400,6 +60400,22 @@
     "target": "lib/observability/logger.ts"
   },
   {
+    "from": "app/api/unsubscribe/route.ts",
+    "specifier": "@/lib/rate-limit",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "lib/rate-limit.ts"
+  },
+  {
+    "from": "app/api/unsubscribe/route.ts",
+    "specifier": "@/lib/http/clientIp",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/clientIp.ts"
+  },
+  {
     "from": "app/api/waitlist/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -119764,6 +119780,70 @@
     "specifier": "next/server",
     "line": 86,
     "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "vitest",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 61,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "@/app/api/unsubscribe/route",
+    "line": 71,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/unsubscribe/route.ts"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "@/app/api/member/saved-jobs/route",
+    "line": 72,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/member/saved-jobs/route.ts"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "@/app/api/leader/chapters/route",
+    "line": 73,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/leader/chapters/route.ts"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "@/app/api/counselor/counselors/route",
+    "line": 74,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/counselors/route.ts"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "@/lib/email/unsubscribeToken",
+    "line": 75,
+    "kind": "import",
+    "external": false,
+    "target": "lib/email/unsubscribeToken.ts"
+  },
+  {
+    "from": "tests/api/public-abuse-hardening.spec.ts",
+    "specifier": "next/server",
+    "line": 77,
+    "kind": "type",
     "external": true,
     "package": "next"
   },

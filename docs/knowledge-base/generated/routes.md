@@ -878,7 +878,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/partner/signup | route | POST | [app/api/partner/signup/route.ts](../../../app/api/partner/signup/route.ts) | @/lib/rate-limit:5, @/lib/tenant/resolveProvisionOrg:9, @/lib/db/withRequestGuc:10 |
 | /api/partner/team-assign | route | GET | [app/api/partner/team-assign/route.ts](../../../app/api/partner/team-assign/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:6 |
 | /api/partner/voice-session | route | POST | [app/api/partner/voice-session/route.ts](../../../app/api/partner/voice-session/route.ts) | @/lib/auth/server:4, @/lib/rate-limit:6, @/lib/auth/roles:7, @/lib/db/withRequestGuc:12 |
-| /api/placement-survey | route | POST, GET | [app/api/placement-survey/route.ts](../../../app/api/placement-survey/route.ts) | @/lib/security/placementSurveyToken:3, @/lib/rate-limit:4, @/lib/db/withRequestGuc:9 |
+| /api/placement-survey | route | POST, GET | [app/api/placement-survey/route.ts](../../../app/api/placement-survey/route.ts) | @/lib/security/placementSurveyToken:3, @/lib/rate-limit:4, @/lib/db/withRequestGuc:10 |
 | /api/portal/nav-badges | route | GET | [app/api/portal/nav-badges/route.ts](../../../app/api/portal/nav-badges/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/public/career-quiz/score | route | POST | [app/api/public/career-quiz/score/route.ts](../../../app/api/public/career-quiz/score/route.ts) | @/lib/rate-limit:8 |
 | /api/public/interest-profiler/questions | route | GET | [app/api/public/interest-profiler/questions/route.ts](../../../app/api/public/interest-profiler/questions/route.ts) | @/lib/rate-limit:4 |

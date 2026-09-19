@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { trackFunnelEvent } from '@/lib/analytics/events';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 function getMfaSetupNextPath() {
   if (typeof window === 'undefined') return '/dashboard';
@@ -15,6 +16,7 @@ function getMfaSetupNextPath() {
 
 export default function SetupMfaPage() {
   const tAuth = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const [step, setStep] = useState<'loading' | 'qr' | 'confirm' | 'done' | 'error'>('loading');
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
@@ -44,7 +46,15 @@ export default function SetupMfaPage() {
         setStep('qr');
       })
       .catch((e) => {
-        setError(e.message);
+        // Raw fetch/JSON failures ("Failed to fetch", "Unexpected token '<'")
+        // become plain translated copy; server-raised messages pass through.
+        setError(
+          requestFailureMessage(
+            e,
+            { connection: tCommon('connectionError'), fallback: tAuth('mfaSetup.setupInitFailed') },
+            'setup-mfa',
+          ),
+        );
         setStep('error');
         trackFunnelEvent('member_login_mfa', 'setup_init_failed', {
           error_message: e?.message?.slice(0, 120) ?? 'unknown',

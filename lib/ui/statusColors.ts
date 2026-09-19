@@ -38,9 +38,13 @@ export const STATUS_COLORS: Record<StatusTone, StatusColorSet> = {
     bg: 'color-mix(in srgb, var(--color-green) 15%, transparent)',
     border: 'color-mix(in srgb, var(--color-green) 35%, transparent)',
   },
+  // Gold text on an 18% gold tint fails WCAG AA (3.0:1 in light mode:
+  // #a47f38 on #efe8db). `--wa-gold-dark` is the token layer's text-on-gold-tint
+  // colour and `--wa-gold-soft` its tint (5.3:1 light: #7d5f26 on #fef3c7) — the
+  // same pair StatusBadge's 'warning' variant and .wa-kit-tag--warn use.
   warning: {
-    fg: 'var(--color-gold)',
-    bg: 'color-mix(in srgb, var(--color-gold) 18%, transparent)',
+    fg: 'var(--wa-gold-dark)',
+    bg: 'var(--wa-gold-soft)',
     border: 'color-mix(in srgb, var(--color-gold) 40%, transparent)',
   },
   // See file header: matches StatusBadge's 'error' variant + AtRiskDashboard's

@@ -117,7 +117,7 @@
 | [components/admin/MemberReviewTable.tsx](../../../components/admin/MemberReviewTable.tsx) | 271 | administration | MemberReviewTable:34 |
 | [components/admin/MemberSubgroupSection.tsx](../../../components/admin/MemberSubgroupSection.tsx) | 143 | administration | default:8 |
 | [components/admin/MembersListNav.tsx](../../../components/admin/MembersListNav.tsx) | 85 | administration | default:53 |
-| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1169 | administration | default:269 |
+| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1171 | administration | default:270 |
 | [components/admin/MentorStatusButtons.tsx](../../../components/admin/MentorStatusButtons.tsx) | 95 | administration | default:12 |
 | [components/admin/MfaStatusBanner.tsx](../../../components/admin/MfaStatusBanner.tsx) | 67 | administration | default:5 |
 | [components/admin/OutcomesDashboard.tsx](../../../components/admin/OutcomesDashboard.tsx) | 558 | administration | default:198 |
@@ -344,7 +344,8 @@
 | [components/portal/MemberLabWorkspace.module.css](../../../components/portal/MemberLabWorkspace.module.css) | 84 | components |  |
 | [components/portal/MemberLabWorkspace.tsx](../../../components/portal/MemberLabWorkspace.tsx) | 184 | components | MemberLabWorkspace:58 |
 | [components/portal/MemberMessagesMobileClient.tsx](../../../components/portal/MemberMessagesMobileClient.tsx) | 404 | components | default:57 |
-| [components/portal/MemberNextStepsStrip.tsx](../../../components/portal/MemberNextStepsStrip.tsx) | 266 | components | default:13 |
+| [components/portal/MemberNextStepsStrip.test.tsx](../../../components/portal/MemberNextStepsStrip.test.tsx) | 79 | components |  |
+| [components/portal/MemberNextStepsStrip.tsx](../../../components/portal/MemberNextStepsStrip.tsx) | 279 | components | default:13 |
 | [components/portal/MemberPortalTopNav.tsx](../../../components/portal/MemberPortalTopNav.tsx) | 138 | components | default:10, _topNavStyleRef:138 |
 | [components/portal/MemberPreScreeningForm.tsx](../../../components/portal/MemberPreScreeningForm.tsx) | 337 | components | default:24 |
 | [components/portal/MemberProgressStrip.tsx](../../../components/portal/MemberProgressStrip.tsx) | 187 | components | default:21 |
@@ -419,7 +420,8 @@
 | [components/portal/SalaryTableWrapper.tsx](../../../components/portal/SalaryTableWrapper.tsx) | 12 | components | default:5 |
 | [components/portal/SettingsForm.tsx](../../../components/portal/SettingsForm.tsx) | 102 | components | default:12 |
 | [components/portal/SignOutButton.tsx](../../../components/portal/SignOutButton.tsx) | 59 | components | SignOutButton:14 |
-| [components/portal/SkillCheckpointsClient.tsx](../../../components/portal/SkillCheckpointsClient.tsx) | 482 | components | default:157 |
+| [components/portal/SkillCheckpointsClient.test.tsx](../../../components/portal/SkillCheckpointsClient.test.tsx) | 75 | components |  |
+| [components/portal/SkillCheckpointsClient.tsx](../../../components/portal/SkillCheckpointsClient.tsx) | 532 | components | default:197 |
 | [components/portal/SkillMissionChallenge.tsx](../../../components/portal/SkillMissionChallenge.tsx) | 1235 | components | default:1076, SkillMissionChallengePreview:1216 |
 | [components/portal/SkillMissionEmpty.tsx](../../../components/portal/SkillMissionEmpty.tsx) | 35 | components | SkillMissionEmpty:10 |
 | [components/portal/SkillMissionPanel.tsx](../../../components/portal/SkillMissionPanel.tsx) | 425 | components | SkillMissionSummary:46, default:298 |
@@ -428,7 +430,7 @@
 | [components/portal/StaffViewBanner.tsx](../../../components/portal/StaffViewBanner.tsx) | 82 | components | default:19 |
 | [components/portal/StartHereCard.tsx](../../../components/portal/StartHereCard.tsx) | 58 | components | default:25 |
 | [components/portal/StatusBadge.test.tsx](../../../components/portal/StatusBadge.test.tsx) | 130 | components |  |
-| [components/portal/StatusBadge.tsx](../../../components/portal/StatusBadge.tsx) | 46 | components | BadgeVariant:13, default:27 |
+| [components/portal/StatusBadge.tsx](../../../components/portal/StatusBadge.tsx) | 48 | components | BadgeVariant:13, default:29 |
 | [components/portal/StatusCard.tsx](../../../components/portal/StatusCard.tsx) | 54 | components | StatusCard:27 |
 | [components/portal/TodayHero.module.css](../../../components/portal/TodayHero.module.css) | 197 | components |  |
 | [components/portal/TodayHero.tsx](../../../components/portal/TodayHero.tsx) | 89 | components | TodayHeroProps:7, default:34 |

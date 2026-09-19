@@ -76,3 +76,19 @@ test('warning pill uses the token layer text-on-gold-tint pair StatusBadge uses'
   assert.equal(STATUS_COLORS.warning.fg, 'var(--wa-gold-dark)');
   assert.equal(STATUS_COLORS.warning.bg, 'var(--wa-gold-soft)');
 });
+
+test('success status text meets WCAG AA (4.5:1) on its own pill tint in light mode', () => {
+  const tokens = lightTokens();
+  const fg = resolve(STATUS_COLORS.success.fg, tokens);
+  const bg = resolve(STATUS_COLORS.success.bg, tokens);
+  const ratio = contrast(fg, bg);
+  assert.ok(
+    ratio >= 4.5,
+    `success fg ${fg} on bg ${bg} is ${ratio.toFixed(2)}:1 — below the 4.5:1 AA threshold for pill text`,
+  );
+});
+
+test('success pill uses the token layer text-on-success-tint pair StatusBadge uses', () => {
+  assert.equal(STATUS_COLORS.success.fg, 'var(--wa-success-dark)');
+  assert.equal(STATUS_COLORS.success.bg, 'var(--wa-success-soft)');
+});

@@ -34,8 +34,10 @@ export type StatusColorSet = {
 
 export const STATUS_COLORS: Record<StatusTone, StatusColorSet> = {
   success: {
-    fg: 'var(--color-green)',
-    bg: 'color-mix(in srgb, var(--color-green) 15%, transparent)',
+    // Green text on its own 15% tint measured 3.4:1; the token layer's
+    // text-on-success-tint pair (--wa-success-dark on --wa-success-soft) is AA.
+    fg: 'var(--wa-success-dark)',
+    bg: 'var(--wa-success-soft)',
     border: 'color-mix(in srgb, var(--color-green) 35%, transparent)',
   },
   // Gold text on an 18% gold tint fails WCAG AA (3.0:1 in light mode:

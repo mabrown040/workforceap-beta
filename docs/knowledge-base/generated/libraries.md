@@ -173,6 +173,7 @@
 | [lib/api-utils.ts](../../../lib/api-utils.ts) | 28 | libraries | createApiErrorResponse:3, createNotFoundResponse:14, createUnauthorizedResponse:18, withIdempotency:22 |
 | [lib/api/errors.test.ts](../../../lib/api/errors.test.ts) | 118 | libraries |  |
 | [lib/api/errors.ts](../../../lib/api/errors.ts) | 122 | libraries | ApiErrorCode:4, ApiErrorResponse:14, ApiError:26, toApiError:84, buildApiErrorResponse:95, handleApiError:116 |
+| [lib/api/readJsonBody.ts](../../../lib/api/readJsonBody.ts) | 34 | libraries | JsonObject:11, isJsonObject:13, readJsonObjectBody:26 |
 | [lib/apply/applyProgramPage.ts](../../../lib/apply/applyProgramPage.ts) | 83 | applications-enrollment | resolveApplyProgramSlug:7, buildApplyProgramBlockCopy:14, buildApplyProgramSeo:35, buildApplyPageMetadata:43, getProgramBySlug:83 |
 | [lib/apply/applyProgramStorage.ts](../../../lib/apply/applyProgramStorage.ts) | 77 | applications-enrollment | APPLY_PROGRAM_SLUG_KEY:2, APPLY_PROGRAM_RANKED_KEY:4, FYP_RESULTS_STORAGE_KEY:7, APPLY_FLOW_DRAFT_KEY:10, ApplyFlowDraftV1:12, CareerQuizSignupPayload:44, getCareerQuizPayloadFromStorage:52 |
 | [lib/apply/applyReferralCapture.test.ts](../../../lib/apply/applyReferralCapture.test.ts) | 221 | applications-enrollment |  |

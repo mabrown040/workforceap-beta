@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "8c06388ce55d2bea084ab5a8389675005c13f2fef93151fb2df4e8a572b3daf7",
+  "inputTreeSha256": "6b401c5ddeac4916f82c06875c163cd036e63e99eb63a29aae9540ee64cc9145",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -17904,9 +17904,9 @@
       "path": "app/admin/members/[id]/stakeholder/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 24448,
-      "lines": 694,
-      "sha256": "01d442baa58ac7e0efc6be2282f93b92d280efbf1b3cb78535a91e9a0d7401ad",
+      "bytes": 24677,
+      "lines": 697,
+      "sha256": "0e5103873fc75435c58c66606144b546e82026d444c766318cf0711bee9761d4",
       "binary": false,
       "exports": [
         {
@@ -33875,41 +33875,41 @@
       "path": "app/api/gdpr/consent/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 2577,
-      "lines": 71,
-      "sha256": "5fd40f777030af72392920eda5274b39a0f4ee0d0508a93a13cbad7c492c2862",
+      "bytes": 2772,
+      "lines": 74,
+      "sha256": "45de6dc0144c705aac67b6feb2c027bcb743b7efcf1a9d141e6190e469c6af59",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 29,
+          "line": 30,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 70,
+          "line": 73,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_GET",
-          "line": 7,
+          "line": 8,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 29,
+          "line": 30,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 29,
+          "line": 30,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 70,
+          "line": 73,
           "kind": "Variable"
         }
       ],
@@ -34253,61 +34253,61 @@
       "path": "app/api/interview/history/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 9071,
-      "lines": 243,
-      "sha256": "d9122ed235956d9582a5c01897731b51bdd07dc9ceed96e5e8f0bc00c1c758a8",
+      "bytes": 9111,
+      "lines": 242,
+      "sha256": "0a586fd328b1e9717d42b89baf4bfb93fab255ae6e4b186e005100923f76e4ff",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 103,
+          "line": 104,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "ALLOWED_TYPES",
-          "line": 14,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "InterviewType",
-          "line": 15,
+          "line": 16,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "HistoryBody",
-          "line": 17,
+          "line": 18,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "generateFeedback",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 56,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 103,
+          "line": 104,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 103,
+          "line": 104,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 243,
+          "line": 242,
           "kind": "Variable"
         }
       ],
@@ -34402,106 +34402,106 @@
       "path": "app/api/invite/accept/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 26665,
-      "lines": 815,
-      "sha256": "def21596678ada2ae6ce69b98374d5c6f5b6ae294567f38b7d7f4a57142d20f5",
+      "bytes": 26660,
+      "lines": 813,
+      "sha256": "ce2bd7021a80facdfa676966c229fd3401da9e0b1a58ab6bfc560afcafb4f8dd",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 315,
+          "line": 316,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "InviteTx",
-          "line": 31,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "AcceptInvitation",
           "line": 32,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "AcceptInvitation",
+          "line": 33,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "profileRoleForInvitation",
-          "line": 45,
+          "line": 46,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureProfileRow",
-          "line": 49,
+          "line": 50,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensurePartnerUserLink",
-          "line": 87,
+          "line": 88,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureMemberSubgroupLink",
-          "line": 108,
+          "line": 109,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "findRoleByName",
-          "line": 131,
+          "line": 132,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadInviterForNotification",
-          "line": 135,
+          "line": 136,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "inviteAcceptLog",
-          "line": 148,
+          "line": 149,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureAppUserForInvite",
-          "line": 163,
+          "line": 164,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureCourseEnrollmentForInvite",
-          "line": 225,
+          "line": 226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorAffiliationValue",
-          "line": 256,
+          "line": 257,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "resolveCounselorAffiliation",
-          "line": 258,
+          "line": 259,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureCounselorRow",
-          "line": 276,
+          "line": 277,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 315,
+          "line": 316,
           "kind": "Variable"
         },
         {
           "name": "acceptExistingUser",
-          "line": 426,
+          "line": 424,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createNewUserAndAccept",
-          "line": 562,
+          "line": 560,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "finishNewUserDbSetup",
-          "line": 645,
+          "line": 643,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -34977,36 +34977,36 @@
       "path": "app/api/member/career-business-coach/completion/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3755,
-      "lines": 94,
-      "sha256": "5bdb7f89d51263d4e9a3c1aa77c71203e75a7cb759903096a4bcb79109341129",
+      "bytes": 3764,
+      "lines": 93,
+      "sha256": "669592727a1684cd0e196177951f1e171051d570929517795bf6c4e871fb2a2f",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 34,
+          "line": 35,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "TranscriptTurn",
-          "line": 11,
+          "line": 12,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeTranscript",
-          "line": 13,
+          "line": 14,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildHistoryOutput",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 34,
+          "line": 35,
           "kind": "Variable"
         }
       ],
@@ -35186,36 +35186,36 @@
       "path": "app/api/member/coursera/enroll-in-course/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 13142,
-      "lines": 325,
-      "sha256": "efc8e741803d1ae712899edd8c44d17d3a1c6d4262aa0df3ad2ede0588373d3a",
+      "bytes": 13137,
+      "lines": 323,
+      "sha256": "343a7502083be0849418d9a83498dbd179c7e532a12f9f0005b43988dcef226e",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 325,
+          "line": 323,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 52,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "triggerAutoSyncBestEffort",
-          "line": 282,
+          "line": 280,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reportPostEnrollmentIssue",
-          "line": 311,
+          "line": 309,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 325,
+          "line": 323,
           "kind": "Variable"
         }
       ],
@@ -35336,26 +35336,26 @@
       "path": "app/api/member/courses/complete/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 2933,
-      "lines": 77,
-      "sha256": "ce3b5af2e6e9433f6aa9d04841616b357a2a34bd2cbcf99dc9bf91c1d3d2d9c9",
+      "bytes": 2928,
+      "lines": 75,
+      "sha256": "ca1d13d34bacbfa1bdb144ab3c2399bf6fa363f67b57ce51c10ea67ad2afdc4e",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 77,
+          "line": 75,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 11,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 77,
+          "line": 75,
           "kind": "Variable"
         }
       ],
@@ -35487,21 +35487,21 @@
       "path": "app/api/member/enroll/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 7926,
-      "lines": 214,
-      "sha256": "39945f8fbb501e4a840860b0b80c1628fa41ad8f599b397ba5f12ffcff8b1fe0",
+      "bytes": 7927,
+      "lines": 212,
+      "sha256": "2dc56cb6f739e29df44131cbd1386b3c9291c312ac1f6c6ad151d3521ca6f9ec",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 26,
+          "line": 27,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 26,
+          "line": 27,
           "kind": "Variable"
         }
       ],
@@ -36239,21 +36239,21 @@
       "path": "app/api/member/linkedin-enrich/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6488,
-      "lines": 140,
-      "sha256": "4d9100f71b76d7ae46465fe3d59e55b5b2e0ae0c0575afde170f9f947262a9cb",
+      "bytes": 6555,
+      "lines": 141,
+      "sha256": "e806506f95518867b5e7217cdab62d525761e6f2fb63f1bd7e50624e4891daa7",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         }
       ],
@@ -36287,56 +36287,56 @@
       "path": "app/api/member/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 6967,
-      "lines": 191,
-      "sha256": "93b67ba2a8f6d714f1cabedd0461bda0ff0f8eff5ab40f5cc6faa40de0ad1418",
+      "bytes": 6973,
+      "lines": 190,
+      "sha256": "3f7eee955ab2d2edc6aca1a5e870de381e4c13a81bc912edea0bf1f975f251ff",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 55,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 166,
+          "line": 165,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 190,
+          "line": 189,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_GET",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 55,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 55,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 166,
+          "line": 165,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 166,
+          "line": 165,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 190,
+          "line": 189,
           "kind": "Variable"
         }
       ],
@@ -36583,41 +36583,41 @@
       "path": "app/api/member/pitch-deployments/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2796,
-      "lines": 75,
-      "sha256": "e6ea8140e4bfe9f934c8bf7e08acc42e1abdd492c31bd94c9334656da3373e95",
+      "bytes": 2857,
+      "lines": 74,
+      "sha256": "037011311f231f1c6909af9a10e32fcb84116bcaaba0309c56e329ad7a39a8f9",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 27,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 74,
+          "line": 73,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_GET",
-          "line": 8,
+          "line": 9,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 27,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 27,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 74,
+          "line": 73,
           "kind": "Variable"
         }
       ],
@@ -37273,36 +37273,36 @@
       "path": "app/api/member/resume-coach/parse-suggestions/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 4536,
-      "lines": 111,
-      "sha256": "c3c270b8ded8d0ed3be3c230a1e8e0690903ea403c295975dbd87fc8231e3a8d",
+      "bytes": 4718,
+      "lines": 114,
+      "sha256": "8ee1072f83687a791ce827c7ebe0ac77e54a5377625f0d186b07f129945e3e10",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 45,
+          "line": 46,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "MAX_HISTORY_CHARS",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         },
         {
           "name": "ResumeTranscriptTurn",
-          "line": 17,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "buildHistoryOutput",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 45,
+          "line": 46,
           "kind": "Variable"
         }
       ],
@@ -37390,21 +37390,21 @@
       "path": "app/api/member/resume/generate/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 7616,
-      "lines": 175,
-      "sha256": "007d541466b4c4d6c13010a8e3003e0a7f825233be8740d77577daf9f8e2b243",
+      "bytes": 7793,
+      "lines": 173,
+      "sha256": "2c5dee2f08adf8b1dae012bdff9339938d588ad6148c3efe7ec4e897c56aadcc",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 25,
+          "line": 26,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 25,
+          "line": 26,
           "kind": "Variable"
         }
       ],
@@ -37414,26 +37414,26 @@
       "path": "app/api/member/resume/plain-text/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3643,
-      "lines": 90,
-      "sha256": "efb35b3f36d5292c04f4899819986d18213eec7ca6d13725a00e403756b13644",
+      "bytes": 3812,
+      "lines": 94,
+      "sha256": "969f9fe9785f638f6973678de948535ab148136997293e3501a27a1928aec198",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 21,
+          "line": 22,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "MAX_CHARS",
-          "line": 21,
+          "line": 22,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 21,
+          "line": 22,
           "kind": "Variable"
         }
       ],
@@ -37614,21 +37614,21 @@
       "path": "app/api/member/settings/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 1915,
-      "lines": 46,
-      "sha256": "83edda9150c01ca34cfe4a80cf15aeddaf2011e423d1c27bd3c045f714f17ff8",
+      "bytes": 1916,
+      "lines": 44,
+      "sha256": "f8fafb7e6710ae766d1882ac04a5b2e94b1fb4709ecd5b321bffe5b1cc491c20",
       "binary": false,
       "exports": [
         {
           "name": "PATCH",
-          "line": 8,
+          "line": 9,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "PATCH",
-          "line": 8,
+          "line": 9,
           "kind": "Variable"
         }
       ],
@@ -37828,61 +37828,61 @@
       "path": "app/api/member/voice-interview/recording/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6456,
-      "lines": 157,
-      "sha256": "d2f10844dc779414607251d2f7ae9620a73248cad9c1d0c47fa3cd7f822f0c02",
+      "bytes": 6600,
+      "lines": 161,
+      "sha256": "4bb7840973b22773511f1778684e715ec463b7c06c5c5f8abf4ab72d94e94cdb",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 51,
+          "line": 52,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 157,
+          "line": 161,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "BUCKET",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "MAX_VIDEO_BYTES",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "isValidRecordingPath",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "storageErrorMessage",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 28,
+          "line": 29,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 51,
+          "line": 52,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 51,
+          "line": 52,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 157,
+          "line": 161,
           "kind": "Variable"
         }
       ],
@@ -37921,36 +37921,36 @@
       "path": "app/api/member/voice-interview/transcript/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5612,
-      "lines": 134,
-      "sha256": "17f5f38b8373df66e31ed0d4e3ea7abf4e1035341a351018ac78d6d05b05a9b5",
+      "bytes": 5540,
+      "lines": 127,
+      "sha256": "6a4d8917331756c101d0e41cacad4ff25a65f919b70384d955793ced736e1c51",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 30,
+          "line": 31,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "TranscriptTurn",
-          "line": 12,
+          "line": 13,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeTranscript",
-          "line": 14,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "hasMeaningfulUserPractice",
-          "line": 25,
+          "line": 26,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 30,
+          "line": 31,
           "kind": "Variable"
         }
       ],
@@ -37960,26 +37960,26 @@
       "path": "app/api/member/voice-session/checkpoint/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2671,
-      "lines": 75,
-      "sha256": "ee9a388cfdebb6bd12ce793865b8a6f129b1364f8cb4dde4d63cc67673e8018c",
+      "bytes": 2710,
+      "lines": 74,
+      "sha256": "07512115d32c38c858a923c51c34f354534342c5f4658cc5a33632852b420bf2",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "CheckpointBody",
-          "line": 9,
+          "line": 10,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "POST",
-          "line": 13,
+          "line": 14,
           "kind": "Variable"
         }
       ],
@@ -38140,9 +38140,9 @@
       "path": "app/api/mentors/[id]/sessions/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 3132,
-      "lines": 87,
-      "sha256": "bc0f74cb93f8b3f5d756380c3082cdaa2921b43f07ee221b2c538982f8457022",
+      "bytes": 3476,
+      "lines": 93,
+      "sha256": "84bd2d6ec77d411ce7ead55177ae404ad3bf848ff87970dd3d678aa8ed7496ac",
       "binary": false,
       "exports": [
         {
@@ -38152,7 +38152,7 @@
         },
         {
           "name": "POST",
-          "line": 86,
+          "line": 92,
           "kind": "Variable"
         }
       ],
@@ -38173,18 +38173,23 @@
           "kind": "Variable"
         },
         {
+          "name": "MAX_NOTES_CHARS",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
           "name": "createSessionSchema",
-          "line": 34,
+          "line": 36,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 44,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 86,
+          "line": 92,
           "kind": "Variable"
         }
       ],
@@ -93163,6 +93168,50 @@
         {
           "name": "handleApiError",
           "line": 116,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/api/readJsonBody.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1350,
+      "lines": 34,
+      "sha256": "541318d1a52bfe02eefd1f0cce0001e0246c10031f32152d6c313ca452aec4e7",
+      "binary": false,
+      "exports": [
+        {
+          "name": "JsonObject",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "isJsonObject",
+          "line": 13,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readJsonObjectBody",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "JsonObject",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "isJsonObject",
+          "line": 13,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readJsonObjectBody",
+          "line": 26,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152524,9 +152573,9 @@
       "path": "tests/api/member-route-malformed-input.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 11062,
-      "lines": 230,
-      "sha256": "f4a5d2d4bbbb17eca941897168705e5a4438975438987b250f276b017d62ef15",
+      "bytes": 11107,
+      "lines": 231,
+      "sha256": "f4b76dc6f607722c2bb23fdb3c38868031020da573941914bb79a648be67289d",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152553,6 +152602,59 @@
         {
           "name": "mentorParams",
           "line": 97,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/member-route-null-body.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 16869,
+      "lines": 334,
+      "sha256": "c7b508460cc3b9c29b4ba13d6d80edcc0083794963bfdc9bf12204de520e7d4b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "MEMBER",
+          "line": 133,
+          "kind": "Variable"
+        },
+        {
+          "name": "Handler",
+          "line": 135,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "jsonRequest",
+          "line": 137,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readJson",
+          "line": 141,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "NON_OBJECT_BODIES",
+          "line": 146,
+          "kind": "Variable"
+        },
+        {
+          "name": "RouteCase",
+          "line": 152,
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "RESUME_TEXT",
+          "line": 165,
+          "kind": "Variable"
+        },
+        {
+          "name": "ROUTES",
+          "line": 175,
           "kind": "Variable"
         }
       ],
@@ -152732,6 +152834,44 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/api/mentor-session-topic.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4161,
+      "lines": 109,
+      "sha256": "37630d887a9a1f57ad9eb339706c49ec5b1692d606e2a00c83469cde8e0cb06b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "MEMBER",
+          "line": 48,
+          "kind": "Variable"
+        },
+        {
+          "name": "MENTOR_ID",
+          "line": 49,
+          "kind": "Variable"
+        },
+        {
+          "name": "params",
+          "line": 50,
+          "kind": "Variable"
+        },
+        {
+          "name": "post",
+          "line": 52,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "createdData",
+          "line": 63,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {

@@ -330,7 +330,7 @@ async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; p
       metadata: { code: detail.code },
     });
     return NextResponse.json(
-      { error: 'Failed to create draft jobs.', detail: detail.message, code: detail.code },
+      { error: 'Failed to create draft jobs.', code: detail.code },
       { status: 500 }
     );
   }

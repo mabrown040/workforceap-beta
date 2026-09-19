@@ -475,7 +475,7 @@
 | [app/api/partner/dashboard/route.ts](../../../app/api/partner/dashboard/route.ts) | 57 | partners-funding | GET:57 |
 | [app/api/partner/earnings/route.ts](../../../app/api/partner/earnings/route.ts) | 65 | partners-funding | GET:9 |
 | [app/api/partner/export/referrals/route.ts](../../../app/api/partner/export/referrals/route.ts) | 146 | applications-enrollment | GET:14 |
-| [app/api/partner/invitations/route.ts](../../../app/api/partner/invitations/route.ts) | 119 | partners-funding | POST:21 |
+| [app/api/partner/invitations/route.ts](../../../app/api/partner/invitations/route.ts) | 122 | partners-funding | POST:21 |
 | [app/api/partner/members/needs-attention/route.ts](../../../app/api/partner/members/needs-attention/route.ts) | 23 | partners-funding | GET:23 |
 | [app/api/partner/members/route.ts](../../../app/api/partner/members/route.ts) | 43 | partners-funding | GET:43 |
 | [app/api/partner/messages/route.ts](../../../app/api/partner/messages/route.ts) | 160 | communications | GET:49, POST:119, PATCH:160 |

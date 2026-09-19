@@ -119,6 +119,7 @@
 | [tests/api/onboarding-complete.spec.ts](../../../tests/api/onboarding-complete.spec.ts) | 117 | tests |  |
 | [tests/api/onboarding-step.spec.ts](../../../tests/api/onboarding-step.spec.ts) | 169 | tests |  |
 | [tests/api/org-onboard.spec.ts](../../../tests/api/org-onboard.spec.ts) | 244 | tests |  |
+| [tests/api/partner-employer-route-error-handling.spec.ts](../../../tests/api/partner-employer-route-error-handling.spec.ts) | 186 | tests |  |
 | [tests/api/partner-message-history.spec.ts](../../../tests/api/partner-message-history.spec.ts) | 129 | tests |  |
 | [tests/api/partner-payout.spec.ts](../../../tests/api/partner-payout.spec.ts) | 380 | tests |  |
 | [tests/api/partner-routes.spec.ts](../../../tests/api/partner-routes.spec.ts) | 718 | tests |  |
@@ -183,6 +184,7 @@
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
 | [tests/components/counselor-analytics.spec.tsx](../../../tests/components/counselor-analytics.spec.tsx) | 145 | tests |  |
 | [tests/components/counselor-note-saves.spec.tsx](../../../tests/components/counselor-note-saves.spec.tsx) | 87 | tests |  |
+| [tests/components/employer-action-connection-failure.spec.tsx](../../../tests/components/employer-action-connection-failure.spec.tsx) | 154 | tests |  |
 | [tests/components/employer-signup-password-toggle.spec.tsx](../../../tests/components/employer-signup-password-toggle.spec.tsx) | 51 | tests |  |
 | [tests/components/inbox-zero-reassignment-receipt.spec.tsx](../../../tests/components/inbox-zero-reassignment-receipt.spec.tsx) | 68 | tests |  |
 | [tests/components/lab-evidence-review.test.tsx](../../../tests/components/lab-evidence-review.test.tsx) | 118 | tests |  |

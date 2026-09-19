@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 interface TierCheckoutFormProps {
   tierKey: string;
@@ -17,6 +19,7 @@ export default function TierCheckoutForm({
   downgradeLabel,
   switchLabel,
 }: TierCheckoutFormProps) {
+  const tCommon = useTranslations('common');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -33,6 +36,14 @@ export default function TierCheckoutForm({
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else setError(data.error || 'Something went wrong');
+    } catch (err) {
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Something went wrong' },
+          'employer-tier-checkout',
+        ),
+      );
     } finally {
       setLoading(false);
     }

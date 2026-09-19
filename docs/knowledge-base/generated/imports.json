@@ -11184,6 +11184,22 @@
     "package": "react"
   },
   {
+    "from": "app/(portal)/employer/billing/TierCheckoutForm.tsx",
+    "specifier": "next-intl",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/employer/billing/TierCheckoutForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
     "from": "app/(portal)/employer/billing/loading.tsx",
     "specifier": "@/components/portal/PortalRouteLoading",
     "line": 1,
@@ -12038,6 +12054,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/a11y/scrollBehavior.ts"
+  },
+  {
+    "from": "app/(portal)/employer/jobs/import/ImportJobClient.tsx",
+    "specifier": "next-intl",
+    "line": 10,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/employer/jobs/import/ImportJobClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "app/(portal)/employer/jobs/import/loading.tsx",
@@ -70864,6 +70896,22 @@
     "package": "react"
   },
   {
+    "from": "components/employer/EmployerJobQuickActions.tsx",
+    "specifier": "next-intl",
+    "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerJobQuickActions.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "next/link",
     "line": 3,
@@ -71241,8 +71289,24 @@
   },
   {
     "from": "components/employer/EmployerUiActions.test.tsx",
-    "specifier": "./EmployerJobPostForm",
+    "specifier": "next-intl",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerUiActions.test.tsx",
+    "specifier": "@/messages/en.json",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "components/employer/EmployerUiActions.test.tsx",
+    "specifier": "./EmployerJobPostForm",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/employer/EmployerJobPostForm.tsx"
@@ -71250,7 +71314,7 @@
   {
     "from": "components/employer/EmployerUiActions.test.tsx",
     "specifier": "./EmployerJobQuickActions",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/employer/EmployerJobQuickActions.tsx"
@@ -71258,7 +71322,7 @@
   {
     "from": "components/employer/EmployerUiActions.test.tsx",
     "specifier": "./EmployerMatchHistoryClient",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/employer/EmployerMatchHistoryClient.tsx"
@@ -71266,7 +71330,7 @@
   {
     "from": "components/employer/EmployerUiActions.test.tsx",
     "specifier": "./EmployerWorkQueueClient",
-    "line": 9,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/employer/EmployerWorkQueueClient.tsx"
@@ -118296,6 +118360,46 @@
     "package": "next"
   },
   {
+    "from": "tests/api/partner-employer-route-error-handling.spec.ts",
+    "specifier": "vitest",
+    "line": 14,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/partner-employer-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/jobs/route",
+    "line": 101,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/jobs/route.ts"
+  },
+  {
+    "from": "tests/api/partner-employer-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/jobs/import/route",
+    "line": 102,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/jobs/import/route.ts"
+  },
+  {
+    "from": "tests/api/partner-employer-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/jobs/import-bulk/route",
+    "line": 103,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/jobs/import-bulk/route.ts"
+  },
+  {
+    "from": "tests/api/partner-employer-route-error-handling.spec.ts",
+    "specifier": "@/app/api/partner/invitations/route",
+    "line": 104,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/partner/invitations/route.ts"
+  },
+  {
     "from": "tests/api/partner-message-history.spec.ts",
     "specifier": "vitest",
     "line": 2,
@@ -122270,6 +122374,62 @@
     "kind": "import",
     "external": false,
     "target": "lib/fetchWithTimeout.ts"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 13,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "next-intl",
+    "line": 14,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "vitest",
+    "line": 15,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "@/app/(portal)/employer/billing/TierCheckoutForm",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/employer/billing/TierCheckoutForm.tsx"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "@/app/(portal)/employer/jobs/import/ImportJobClient",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/employer/jobs/import/ImportJobClient.tsx"
+  },
+  {
+    "from": "tests/components/employer-action-connection-failure.spec.tsx",
+    "specifier": "@/components/employer/EmployerJobQuickActions",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerJobQuickActions.tsx"
   },
   {
     "from": "tests/components/employer-signup-password-toggle.spec.tsx",

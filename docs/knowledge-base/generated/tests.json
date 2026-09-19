@@ -5855,6 +5855,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/http/requestFailureCopy.test.ts",
+    "area": "libraries",
+    "domain": "libraries",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/http/requestFailureCopy.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/i18n/config.test.ts",
     "area": "libraries",
     "domain": "public-experience",
@@ -14841,6 +14865,32 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/app/account-privacy-consent.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "@testing-library/user-event",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/(portal)/account/privacy/page.tsx",
+        "line": 10
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/app/add-member-wizard.spec.tsx",
     "area": "tests",
     "domain": "tests",
@@ -15956,6 +16006,47 @@
       {
         "file": "lib/member/labWorkspaceTypes.ts",
         "line": 7
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/member-form-connection-failure.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 11
+      },
+      {
+        "file": "app/(portal)/dashboard/survey/SurveyClient.tsx",
+        "line": 12
+      },
+      {
+        "file": "components/portal/SkillMissionChallenge.tsx",
+        "line": 13
+      },
+      {
+        "file": "components/portal/CourseraAccountLinkCard.tsx",
+        "line": 14
+      },
+      {
+        "file": "components/portal/JobApplicationForm.tsx",
+        "line": 15
       }
     ],
     "kind": "test-candidate",

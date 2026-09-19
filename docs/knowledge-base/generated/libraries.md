@@ -538,6 +538,8 @@
 | [lib/http/clientIp.ts](../../../lib/http/clientIp.ts) | 80 | libraries | getClientIpFromRequest:23 |
 | [lib/http/errorResponse.ts](../../../lib/http/errorResponse.ts) | 53 | libraries | apiError:21, safeBadRequest:45 |
 | [lib/http/publicApiCors.ts](../../../lib/http/publicApiCors.ts) | 12 | libraries | publicApiCorsHeaders:5 |
+| [lib/http/requestFailureCopy.test.ts](../../../lib/http/requestFailureCopy.test.ts) | 63 | libraries |  |
+| [lib/http/requestFailureCopy.ts](../../../lib/http/requestFailureCopy.ts) | 40 | libraries | isConnectionFailure:18, RequestFailureCopy:24, requestFailureMessage:35 |
 | [lib/http/safeFetchJson.ts](../../../lib/http/safeFetchJson.ts) | 18 | libraries | safeParseResponseJson:4 |
 | [lib/http/safeOutboundFetch.ts](../../../lib/http/safeOutboundFetch.ts) | 200 | libraries | UnsafeUrlError:74, AssertPublicHttpUrlOptions:81, assertPublicHttpUrl:92, SafeFetchInit:139, safeFetch:155 |
 | [lib/i18n/client.ts](../../../lib/i18n/client.ts) | 55 | public-experience | useLocaleFromPath:20, useLocalizedHref:37, localizeHref:42, parseLocaleFromPathname:44, setLocaleCookie:49, isAppLocale:55, withLocalePrefix:55, splitLocalePrefix:55 |

@@ -138,6 +138,7 @@
 | [tests/api/wioa-report.spec.ts](../../../tests/api/wioa-report.spec.ts) | 487 | partners-funding |  |
 | [tests/api/xapi-inbound-program.spec.ts](../../../tests/api/xapi-inbound-program.spec.ts) | 457 | tests |  |
 | [tests/api/xapi-persistence.spec.ts](../../../tests/api/xapi-persistence.spec.ts) | 403 | tests |  |
+| [tests/app/account-privacy-consent.spec.tsx](../../../tests/app/account-privacy-consent.spec.tsx) | 89 | tests |  |
 | [tests/app/add-member-wizard.spec.tsx](../../../tests/app/add-member-wizard.spec.tsx) | 249 | tests |  |
 | [tests/app/admin-command-center-pagination.spec.tsx](../../../tests/app/admin-command-center-pagination.spec.tsx) | 83 | tests |  |
 | [tests/app/admin-directory-search.spec.tsx](../../../tests/app/admin-directory-search.spec.tsx) | 212 | tests |  |
@@ -173,6 +174,7 @@
 | [tests/components/employer-signup-password-toggle.spec.tsx](../../../tests/components/employer-signup-password-toggle.spec.tsx) | 51 | tests |  |
 | [tests/components/inbox-zero-reassignment-receipt.spec.tsx](../../../tests/components/inbox-zero-reassignment-receipt.spec.tsx) | 68 | tests |  |
 | [tests/components/lab-evidence-review.test.tsx](../../../tests/components/lab-evidence-review.test.tsx) | 113 | tests |  |
+| [tests/components/member-form-connection-failure.spec.tsx](../../../tests/components/member-form-connection-failure.spec.tsx) | 153 | tests |  |
 | [tests/components/member-lab-workspace.test.tsx](../../../tests/components/member-lab-workspace.test.tsx) | 149 | tests |  |
 | [tests/components/member-program-module-links.test.tsx](../../../tests/components/member-program-module-links.test.tsx) | 134 | tests |  |
 | [tests/components/member-signup-form.spec.tsx](../../../tests/components/member-signup-form.spec.tsx) | 147 | tests |  |

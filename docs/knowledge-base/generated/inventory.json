@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "61430152fe9b7a0db16764f344538b7eb777422d3059311f44c56e2dbd8e7f27",
+  "inputTreeSha256": "17e688c93d86bc13ef7e723cb09724e64f61bf5a886e4d69f2e3a4a10f8afade",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -4365,9 +4365,9 @@
       "path": "app/(portal)/account/privacy/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 9922,
-      "lines": 259,
-      "sha256": "97ef1323fa5dc4b39947b70074b25a53d32fe878b88c4370f82de61b773dbf4e",
+      "bytes": 10418,
+      "lines": 267,
+      "sha256": "3e5d47c144f87c3817bb6041cbcde33b448e6b56eca6af3f7cf797f7e22fb300",
       "binary": false,
       "exports": [
         {
@@ -45117,9 +45117,9 @@
       "path": "app/employers/signup/signup-depth.css",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 4225,
-      "lines": 161,
-      "sha256": "6384375d66c4fdec8916c93f8a1935ae99a96128c067d8abfdbd9d7adca88fef",
+      "bytes": 4535,
+      "lines": 167,
+      "sha256": "d64d6468e2eee3c124644796ac286242d214153321e39519a4eaa417835927ee",
       "binary": false
     },
     {
@@ -75080,9 +75080,9 @@
       "path": "css/auth-depth.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 7135,
-      "lines": 206,
-      "sha256": "1c757622064e354815b204ec8f00a3148b36209df67c6421af25004d8969dce9",
+      "bytes": 7610,
+      "lines": 215,
+      "sha256": "942828842a7760989b3444c7fdd47a9540502def09d1817189a5cec95c2ac6fd",
       "binary": false
     },
     {
@@ -114670,6 +114670,73 @@
       "directive": null
     },
     {
+      "path": "lib/http/requestFailureCopy.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 2511,
+      "lines": 63,
+      "sha256": "27a63c9903baad9f00ec5f76208001915e2272e99ba767985f7f556b92e83463",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "copy",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "withSilentConsole",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/http/requestFailureCopy.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1768,
+      "lines": 40,
+      "sha256": "19e1e2c3fdf1fd28c8e55d1f78ee450caa50485e9e2c1f2afbcabad318f16128",
+      "binary": false,
+      "exports": [
+        {
+          "name": "isConnectionFailure",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RequestFailureCopy",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "requestFailureMessage",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "isConnectionFailure",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RequestFailureCopy",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "requestFailureMessage",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/http/safeFetchJson.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -138974,27 +139041,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192529,
-      "lines": 3143,
-      "sha256": "34453baebf6edcee477d7b82e2f7c6ba288b36c26de876018578a484e9a4a9a5",
+      "bytes": 192672,
+      "lines": 3145,
+      "sha256": "893e8cd197a74bbc10d9329a73cd0f5574a1c0f19c3d543cd046a518ae5021a0",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211230,
-      "lines": 3130,
-      "sha256": "acc94ba62eebf2f1a83a85d5536f68c720e5cfbca538bbdff06f23918d5d0acd",
+      "bytes": 211402,
+      "lines": 3132,
+      "sha256": "a5d469dd3be6a7dad5e41efa068bf8b49d1d460dd632dc26626a035a5c553341",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212495,
-      "lines": 3083,
-      "sha256": "7e990e4af8ba0f26fafaa879192f5ef0ed7194f348861419a8c4a14937e68dc5",
+      "bytes": 212666,
+      "lines": 3085,
+      "sha256": "f4eb13a2f32a354a58185ff9698dd20f6606de4218d4c94f1e6daf86cadf6be6",
       "binary": false
     },
     {
@@ -139010,9 +139077,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204303,
-      "lines": 3083,
-      "sha256": "4db30d32bee5ba7ccedf5b71938540809f991993044da954dbbcfaff4dd6418c",
+      "bytes": 204474,
+      "lines": 3085,
+      "sha256": "7c1c551661def64d8ec111756aeb2d89bdffe1848896afab0ba786018c6906e5",
       "binary": false
     },
     {
@@ -152899,6 +152966,29 @@
       "directive": null
     },
     {
+      "path": "tests/app/account-privacy-consent.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3521,
+      "lines": 89,
+      "sha256": "98d3b1bb8927ca0b9ae98ee85bf5b48c15f00681301efe6d7bfffe8ecd97cf87",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "consentCheckbox",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "renderLoaded",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/add-member-wizard.spec.tsx",
       "area": "tests",
       "domain": "tests",
@@ -153753,6 +153843,59 @@
         {
           "name": "scoreAll",
           "line": 25,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/member-form-connection-failure.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 7771,
+      "lines": 153,
+      "sha256": "6ffe03d9d779b7d8940ac513afa00f388066ae54bb0b0b00b70ebb971249fccb",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "CONNECTION_COPY",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "RAW_BROWSER_TEXT",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "consoleError",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "droppedConnection",
+          "line": 24,
+          "kind": "Variable"
+        },
+        {
+          "name": "htmlErrorPage",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "withMessages",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expectAlert",
+          "line": 51,
           "kind": "FunctionDeclaration"
         }
       ],

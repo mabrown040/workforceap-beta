@@ -47,9 +47,6 @@ export const POST = withApiGuc(async () => {
     });
   } catch (error) {
     console.error('/admin/coursera/backfill-orphans error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Unable to backfill orphaned Coursera progress.' }, { status: 500 });
   }
 });

@@ -90,8 +90,12 @@ const bodySchema = z.object({
         programSlugs,
       });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Scoring failed';
-      return NextResponse.json({ error: msg }, { status: 502 });
+      // Keep the O*NET error text (URL, credentials hint) in the server log.
+      console.error('[member/interest-profiler/score] O*NET request failed:', e);
+      return NextResponse.json(
+        { error: 'Unable to score your interest profile right now. Please try again in a few minutes.' },
+        { status: 502 },
+      );
     }
   } catch (error) {
     console.error('/member/interest-profiler/score:', error);

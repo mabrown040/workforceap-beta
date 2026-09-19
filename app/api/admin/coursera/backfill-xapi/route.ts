@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
@@ -43,10 +44,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     }
   
-    let body: { email?: string };
-    try {
-      body = await request.json();
-    } catch {
+    const body = await readJsonObjectBody<{ email?: string }>(request);
+    if (!body) {
       return NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 });
     }
   

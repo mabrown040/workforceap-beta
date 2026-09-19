@@ -10,6 +10,7 @@ vi.mock('@/lib/db/prisma', () => ({
 }));
 
 import { buildPartnerAttentionQueue } from '@/lib/partner/attentionQueue';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 const programSlug = 'it-support-professional-certificate-ibm';
 const now = new Date('2026-09-09T12:00:00Z');
@@ -98,5 +99,21 @@ describe('partner follow-up eligibility', () => {
       },
     }));
     expect(db.logs).not.toHaveBeenCalled();
+  });
+});
+
+describe('program titles on partner attention rows', () => {
+  it('renders a catalog title for a known slug and readable words for an unknown one, never a dash', async () => {
+    const unknownSlug = 'cybersecurity-google';
+    db.referrals.mockResolvedValue([
+      referral('known'),
+      referral('unknown', { enrolledProgram: unknownSlug, courseEnrollments: [{ programSlug: unknownSlug, curriculumVersion: 'legacy-v1', isPrimary: true }] }),
+    ]);
+    const rows = await buildPartnerAttentionQueue('partner-1', 'org-1');
+    const byId = new Map(rows.map(row => [row.memberId, row]));
+    expect(byId.get('known')?.programTitle).toBe(programDisplayTitle(programSlug));
+    expect(byId.get('known')?.programTitle).not.toMatch(/-/);
+    expect(byId.get('unknown')?.programTitle).toBe('Cybersecurity Google');
+    expect(rows.map(row => row.programTitle)).not.toContain('—');
   });
 });

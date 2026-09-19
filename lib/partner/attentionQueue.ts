@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -139,7 +139,6 @@ export async function buildPartnerAttentionQueue(partnerId: string, organization
 
     const staleDays = staleDaysSince(m.updatedAt);
     const riskTier = computeRiskTier(staleDays);
-    const program = assignment.programSlug ? getProgramBySlug(assignment.programSlug) : null;
 
     rows.push({
       memberId: m.id,
@@ -148,7 +147,7 @@ export async function buildPartnerAttentionQueue(partnerId: string, organization
       stageLabel: stage === 'approval_pending'
         ? 'Training approval pending'
         : PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS] ?? stage,
-      programTitle: program?.title ?? '—',
+      programTitle: assignment.programSlug ? programDisplayTitle(assignment.programSlug) : '—',
       staleDays,
       riskTier,
       nextBestAction: nextBestAction(stage, riskTier),

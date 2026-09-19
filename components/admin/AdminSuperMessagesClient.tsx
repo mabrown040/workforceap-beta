@@ -197,13 +197,7 @@ export default function AdminSuperMessagesClient() {
   const [mobileView, setMobileView] = useState<'list' | 'thread'>('list');
   const [isWide, setIsWide] = useState(false);
   const [showAdminControls, setShowAdminControls] = useState(false);
-  const [showCompose, setShowCompose] = useState(false);
-  const [composeQuery, setComposeQuery] = useState('');
-  const [composeResults, setComposeResults] = useState<Array<{ id: string; fullName: string; email: string }>>([]);
-  const [composeLoading, setComposeLoading] = useState(false);
-  const [composeCreating, setComposeCreating] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const composeInputRef = useRef<HTMLInputElement>(null);
 
   const isMobileThreadView = mobileView === 'thread' && Boolean(selectedId);
 
@@ -222,50 +216,6 @@ export default function AdminSuperMessagesClient() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   }, [detail?.messages.length]);
-
-  // Compose: search members
-  useEffect(() => {
-    if (!showCompose) return;
-    const q = composeQuery.trim();
-    if (q.length < 2) { setComposeResults([]); return; }
-    const timer = setTimeout(async () => {
-      setComposeLoading(true);
-      try {
-        const r = await fetch(`/api/admin/members?q=${encodeURIComponent(q)}&limit=10&role=member`, { credentials: 'include' });
-        if (r.ok) setComposeResults(await r.json());
-      } catch { /* ignore */ }
-      finally { setComposeLoading(false); }
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [composeQuery, showCompose]);
-
-  useEffect(() => {
-    if (showCompose) {
-      setTimeout(() => composeInputRef.current?.focus(), 100);
-    } else {
-      setComposeQuery('');
-      setComposeResults([]);
-    }
-  }, [showCompose]);
-
-  const startConversation = async (memberId: string) => {
-    setComposeCreating(true);
-    try {
-      const r = await fetch('/api/admin/messages/threads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memberId }),
-        credentials: 'include',
-      });
-      if (!r.ok) return;
-      const data = (await r.json()) as { threadId: string };
-      setShowCompose(false);
-      setSelectedId(data.threadId);
-      setMobileView('thread');
-      refreshList();
-    } catch { /* ignore */ }
-    finally { setComposeCreating(false); }
-  };
 
   const loadThreads = useCallback(
     async (opts: { reset: boolean; appendCursor?: string | null }) => {

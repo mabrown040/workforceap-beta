@@ -763,7 +763,7 @@
 | [lib/outcomes/socialProof.ts](../../../lib/outcomes/socialProof.ts) | 141 | libraries | OutcomesSocialProofRate:5, PlacementStoryCard:7, PartnerOutcomeSnapshot:17, PartnerReferralBadge:24, OutcomesSocialProofBundle:26, isOutcomesSocialProofEnabled:55, formatSuppressedRate:59, buildPartnerReferralBadge:66, getOutcomesSocialProof:91 |
 | [lib/partner/adminSchoolPartner.test.ts](../../../lib/partner/adminSchoolPartner.test.ts) | 111 | partners-funding |  |
 | [lib/partner/adminSchoolPartner.ts](../../../lib/partner/adminSchoolPartner.ts) | 76 | partners-funding | sponsorshipWindowFromTerm:6, validateAdminProgramSlugs:17, sponsorshipStampFields:32, partnerDirectoryMeta:51, isSchoolManagedPartner:66 |
-| [lib/partner/attentionQueue.ts](../../../lib/partner/attentionQueue.ts) | 169 | partners-funding | RiskTier:7, staleDaysSince:9, computeRiskTier:13, nextBestAction:20, PartnerAttentionRow:37, buildPartnerAttentionQueue:51, countActionablePartnerAttention:167 |
+| [lib/partner/attentionQueue.ts](../../../lib/partner/attentionQueue.ts) | 168 | partners-funding | RiskTier:7, staleDaysSince:9, computeRiskTier:13, nextBestAction:20, PartnerAttentionRow:37, buildPartnerAttentionQueue:51, countActionablePartnerAttention:166 |
 | [lib/partner/memberProgress.test.ts](../../../lib/partner/memberProgress.test.ts) | 127 | partners-funding |  |
 | [lib/partner/memberProgress.ts](../../../lib/partner/memberProgress.ts) | 17 | partners-funding | memberProgramProgressPct:6, memberProgramCompleted:12 |
 | [lib/partner/partnerPayout.ts](../../../lib/partner/partnerPayout.ts) | 15 | partners-funding | getPartnerPlacementPayoutUsd:5, buildPartnerPayoutIdempotencyKey:13 |

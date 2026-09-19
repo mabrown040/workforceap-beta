@@ -281,6 +281,7 @@
 | [tests/lib/coursera-map-identity-atomic.spec.ts](../../../tests/lib/coursera-map-identity-atomic.spec.ts) | 135 | learning-coursera |  |
 | [tests/lib/coursera-org-scoped-urls.spec.ts](../../../tests/lib/coursera-org-scoped-urls.spec.ts) | 128 | learning-coursera |  |
 | [tests/lib/coursera-progress-promotion.spec.ts](../../../tests/lib/coursera-progress-promotion.spec.ts) | 292 | learning-coursera |  |
+| [tests/lib/coursera-provisioning-state.spec.ts](../../../tests/lib/coursera-provisioning-state.spec.ts) | 204 | learning-coursera |  |
 | [tests/lib/coursera-raw-insert-guard.spec.ts](../../../tests/lib/coursera-raw-insert-guard.spec.ts) | 66 | learning-coursera |  |
 | [tests/lib/coursera-raw-progress-keys.spec.ts](../../../tests/lib/coursera-raw-progress-keys.spec.ts) | 40 | learning-coursera |  |
 | [tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts](../../../tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts) | 76 | learning-coursera |  |

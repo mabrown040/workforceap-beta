@@ -316,6 +316,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/coursera/learners/unmatched/\[externalEmail\]/events | page |  | [app/admin/coursera/learners/unmatched/\[externalEmail\]/events/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/events/page.tsx) | @/lib/auth/server:8, @/lib/tenant/adminPageScope:9, @/lib/tenant/organization:10 |
 | /admin/coursera/learners/unmatched/\[externalEmail\] | page |  | [app/admin/coursera/learners/unmatched/\[externalEmail\]/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/page.tsx) | @/lib/auth/server:11, @/lib/tenant/adminPageScope:12, @/lib/tenant/organization:13 |
 | /admin/coursera | page |  | [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | @/lib/auth/server:22, @/lib/tenant/adminPageScope:23, @/lib/tenant/organization:28 |
+| /admin/coursera/provisioning | page |  | [app/admin/coursera/provisioning/page.tsx](../../../app/admin/coursera/provisioning/page.tsx) | @/lib/auth/server:8, @/lib/tenant/adminPageScope:9, @/lib/tenant/organization:10 |
 | /admin/crons | loading |  | [app/admin/crons/loading.tsx](../../../app/admin/crons/loading.tsx) |  |
 | /admin/crons | page |  | [app/admin/crons/page.tsx](../../../app/admin/crons/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
 | /admin/dashboard | page |  | [app/admin/dashboard/page.tsx](../../../app/admin/dashboard/page.tsx) |  |

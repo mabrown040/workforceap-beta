@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "b30a7719eda5fd86197f7a4d65cc5557bb193f58f14415c08f8c9233f3e86543",
+  "inputTreeSha256": "dd5d6bf8df68f074ae4185ed5ee125b83f0b8103ec6f3f66a5d12b2799b6b57a",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -15680,9 +15680,9 @@
       "path": "app/admin/coursera/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 66536,
-      "lines": 1620,
-      "sha256": "dad55dad38afda04c5409f5144bdab25cfc382c56fd9cf2371bd92541534691b",
+      "bytes": 67800,
+      "lines": 1650,
+      "sha256": "65b58648e2fa8798f0f5bf9bcd4242b544d41c3b13b51edfc5cc34390a689873",
       "binary": false,
       "exports": [
         {
@@ -15781,6 +15781,56 @@
         {
           "name": "AdminCourseraPage",
           "line": 510,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "app/admin/coursera/provisioning/page.tsx",
+      "area": "pages",
+      "domain": "learning-coursera",
+      "bytes": 4293,
+      "lines": 102,
+      "sha256": "3ae18b81cf3e6f3eca60bc97c423937846019d97422b97b00f473aea5d8f6c9f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "generateMetadata",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "dynamic",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 37,
+          "kind": "FunctionDeclaration",
+          "localName": "AdminCourseraProvisioningPage"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "generateMetadata",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "dynamic",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "QUEUE_TILES",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
+          "name": "AdminCourseraProvisioningPage",
+          "line": 37,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -50353,6 +50403,61 @@
         }
       ],
       "directive": null
+    },
+    {
+      "path": "components/admin/CourseraProvisioningQueueTable.tsx",
+      "area": "components",
+      "domain": "learning-coursera",
+      "bytes": 10335,
+      "lines": 287,
+      "sha256": "f23a7824989c5dd1bd8459144f9ef79009f608f517b26e6d9f4d6dd1fcac69db",
+      "binary": false,
+      "exports": [
+        {
+          "name": "default",
+          "line": 60,
+          "kind": "FunctionDeclaration",
+          "localName": "CourseraProvisioningQueueTable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "STATE_VARIANT",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "STATE_ORDER",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
+          "name": "AttentionFilter",
+          "line": 32,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "fmtDate",
+          "line": 34,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "downloadCsv",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "controlStyle",
+          "line": 51,
+          "kind": "Variable"
+        },
+        {
+          "name": "CourseraProvisioningQueueTable",
+          "line": 60,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
     },
     {
       "path": "components/admin/CourseraReconcileCard.tsx",
@@ -84930,6 +85035,55 @@
       "directive": null
     },
     {
+      "path": "lib/admin/courseraProvisioningQueue.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 7825,
+      "lines": 204,
+      "sha256": "943f50dc6dc3b6669db26e0c24a7a733289e7df4f4f4141e59a3f9f29a1d2f2b",
+      "binary": false,
+      "exports": [
+        {
+          "name": "CourseraProvisioningQueueData",
+          "line": 26,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "loadCourseraProvisioningQueue",
+          "line": 44,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CourseraProvisioningQueueData",
+          "line": 26,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "AUDIT_ACTIONS",
+          "line": 33,
+          "kind": "Variable"
+        },
+        {
+          "name": "AuditAction",
+          "line": 34,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "maxDate",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loadCourseraProvisioningQueue",
+          "line": 44,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/courseraSyncDrift.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -108551,6 +108705,165 @@
         {
           "name": "reconcileProgramProgress",
           "line": 70,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/coursera/provisioningState.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 10657,
+      "lines": 285,
+      "sha256": "18b36c28388a7453474b934c3b109f5dfee0f377cee152b66748b9a3205f03c8",
+      "binary": false,
+      "exports": [
+        {
+          "name": "CourseraProvisioningState",
+          "line": 44,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PROVISIONING_STATES",
+          "line": 55,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_LABELS",
+          "line": 66,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_HINTS",
+          "line": 77,
+          "kind": "Variable"
+        },
+        {
+          "name": "CourseraProvisioningSignals",
+          "line": 88,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningDerived",
+          "line": 111,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ACTIVE_WINDOW_DAYS",
+          "line": 126,
+          "kind": "Variable"
+        },
+        {
+          "name": "INVITE_ATTENTION_DAYS",
+          "line": 128,
+          "kind": "Variable"
+        },
+        {
+          "name": "deriveCourseraProvisioningState",
+          "line": 134,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ProvisioningSummary",
+          "line": 200,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "summarizeProvisioningStates",
+          "line": 206,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningRow",
+          "line": 222,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildProvisioningCsv",
+          "line": 249,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CourseraProvisioningState",
+          "line": 44,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PROVISIONING_STATES",
+          "line": 55,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_LABELS",
+          "line": 66,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_HINTS",
+          "line": 77,
+          "kind": "Variable"
+        },
+        {
+          "name": "CourseraProvisioningSignals",
+          "line": 88,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningDerived",
+          "line": 111,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DAY_MS",
+          "line": 125,
+          "kind": "Variable"
+        },
+        {
+          "name": "ACTIVE_WINDOW_DAYS",
+          "line": 126,
+          "kind": "Variable"
+        },
+        {
+          "name": "INVITE_ATTENTION_DAYS",
+          "line": 128,
+          "kind": "Variable"
+        },
+        {
+          "name": "daysBetween",
+          "line": 130,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "deriveCourseraProvisioningState",
+          "line": 134,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ProvisioningSummary",
+          "line": 200,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "summarizeProvisioningStates",
+          "line": 206,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningRow",
+          "line": 222,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "isoToCsvDate",
+          "line": 243,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildProvisioningCsv",
+          "line": 249,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -157737,6 +158050,39 @@
           "name": "mocks",
           "line": 4,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/coursera-provisioning-state.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 7654,
+      "lines": 204,
+      "sha256": "d0ddb8e2f2a0b5c9e2cc7592f326eb9b7fa212298060ac29332e308848cc6324",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "NOW",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "DAYS",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "daysAgo",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "signals",
+          "line": 17,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "b30a7719eda5fd86197f7a4d65cc5557bb193f58f14415c08f8c9233f3e86543",
+  "inputTreeSha256": "dd5d6bf8df68f074ae4185ed5ee125b83f0b8103ec6f3f66a5d12b2799b6b57a",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,24 +8,24 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4656,
-    "sourceModules": 3330,
-    "importReferences": 16040,
-    "resolvedLocalReferences": 10694,
+    "files": 4661,
+    "sourceModules": 3335,
+    "importReferences": 16067,
+    "resolvedLocalReferences": 10714,
     "unresolvedLocalReferences": 0,
-    "routeFiles": 1052,
-    "nextRouteFiles": 1019,
+    "routeFiles": 1053,
+    "nextRouteFiles": 1020,
     "apiHandlers": 489,
-    "pageFiles": 312,
+    "pageFiles": 313,
     "astroPageFiles": 33,
     "configuredCrons": 30,
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 724,
-    "testCandidates": 717,
+    "testFiles": 725,
+    "testCandidates": 718,
     "testHelpers": 7,
-    "staticallySelectedTests": 714,
+    "staticallySelectedTests": 715,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 670
+      "files": 671
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 960
+      "files": 962
     },
     {
       "area": "localization",
@@ -90,7 +90,7 @@
     },
     {
       "area": "pages",
-      "files": 633
+      "files": 634
     },
     {
       "area": "root",
@@ -106,17 +106,17 @@
     },
     {
       "area": "tests",
-      "files": 371
+      "files": 372
     }
   ],
   "mostReferenced": [
     {
       "file": "lib/db/prisma.ts",
-      "references": 866
+      "references": 867
     },
     {
       "file": "lib/auth/server.ts",
-      "references": 708
+      "references": 709
     },
     {
       "file": "lib/db/withRequestGuc.ts",
@@ -128,7 +128,7 @@
     },
     {
       "file": "lib/tenant/organization.ts",
-      "references": 240
+      "references": 241
     },
     {
       "file": "lib/content/programs.ts",
@@ -140,7 +140,7 @@
     },
     {
       "file": "app/seo.ts",
-      "references": 205
+      "references": 206
     },
     {
       "file": "components/portal/kit/index.ts",
@@ -152,7 +152,7 @@
     },
     {
       "file": "components/portal/PageHeader.tsx",
-      "references": 151
+      "references": 152
     },
     {
       "file": "components/portal/PortalRouteLoading.tsx",
@@ -168,7 +168,7 @@
     },
     {
       "file": "lib/tenant/adminPageScope.ts",
-      "references": 95
+      "references": 96
     },
     {
       "file": "lib/observability/captureApiError.ts",
@@ -180,11 +180,11 @@
     },
     {
       "file": "lib/content/programTitle.ts",
-      "references": 82
+      "references": 83
     },
     {
       "file": "components/portal/PortalPageFrame.tsx",
-      "references": 70
+      "references": 71
     },
     {
       "file": "lib/content/programSlug.ts",
@@ -199,12 +199,12 @@
       "references": 59
     },
     {
-      "file": "lib/supabase-admin.ts",
+      "file": "components/portal/ui/DataTable.tsx",
       "references": 54
     },
     {
-      "file": "components/portal/ui/DataTable.tsx",
-      "references": 53
+      "file": "lib/supabase-admin.ts",
+      "references": 54
     },
     {
       "file": "lib/analytics/events.ts",
@@ -289,12 +289,12 @@
       "lines": 1679
     },
     {
-      "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
-      "lines": 1629
+      "file": "app/admin/coursera/page.tsx",
+      "lines": 1650
     },
     {
-      "file": "app/admin/coursera/page.tsx",
-      "lines": 1620
+      "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
+      "lines": 1629
     },
     {
       "file": "scripts/audit-portal-routes.mjs",

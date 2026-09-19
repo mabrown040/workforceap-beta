@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type Suggestion = {
   userId: string;
@@ -238,7 +239,7 @@ export default function MapToUserActions({
                 </span>
               </p>
               <p style={{ margin: '0.15rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                {s.email} {s.enrolledProgram ? `· enrolled in ${s.enrolledProgram}` : '· not enrolled'}
+                {s.email} {s.enrolledProgram ? `· enrolled in ${programDisplayTitle(s.enrolledProgram)}` : '· not enrolled'}
               </p>
               <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
                 {s.notes}

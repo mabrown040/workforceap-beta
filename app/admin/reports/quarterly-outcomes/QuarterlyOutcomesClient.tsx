@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import PageHeader from '@/components/portal/PageHeader';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
@@ -372,7 +373,7 @@ export default function QuarterlyOutcomesClient() {
                   <tbody>
                     {data!.programBreakdown.map((p) => (
                       <tr key={p.programSlug} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                        <td style={{ padding: '0.5rem', color: 'var(--color-on-surface)' }}>{p.programSlug}</td>
+                        <td style={{ padding: '0.5rem', color: 'var(--color-on-surface)' }}>{programDisplayTitle(p.programSlug)}</td>
                         <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>{p.enrolled}</td>
                         <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>{p.completions}</td>
                         <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>{p.placements}</td>

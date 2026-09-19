@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Quote, Star } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { InfoCard } from '@/components/marketing/ui';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type PublishedTestimonial = Prisma.TestimonialGetPayload<{
   include: {
@@ -61,7 +61,7 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
     <div className="testimonials-carousel__grid">
       {testimonials.map((testimonial) => {
         const enrolledProgramTitle = testimonial.member.enrolledProgram
-          ? getProgramBySlug(testimonial.member.enrolledProgram)?.title ?? testimonial.member.enrolledProgram
+          ? programDisplayTitle(testimonial.member.enrolledProgram)
           : null;
 
         return (

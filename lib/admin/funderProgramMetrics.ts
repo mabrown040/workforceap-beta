@@ -1,6 +1,7 @@
 import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import type { FunderProgramSummaryRow } from '@/lib/admin/funderProgramSummaryCsv';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
 import { Prisma } from '@prisma/client';
 
@@ -121,8 +122,8 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
   const rows: FunderProgramSummaryRow[] = [];
 
   const sortedSlugs = [...aggBySlug.keys()].sort((a, b) => {
-    const titleA = getProgramBySlug(a)?.title ?? a;
-    const titleB = getProgramBySlug(b)?.title ?? b;
+    const titleA = programDisplayTitle(a);
+    const titleB = programDisplayTitle(b);
     return titleA.localeCompare(titleB);
   });
 
@@ -136,7 +137,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
 
     rows.push({
       programSlug: slug,
-      programTitle: getProgramBySlug(slug)?.title ?? slug,
+      programTitle: programDisplayTitle(slug),
       totalEnrolled: agg.totalEnrolled,
       activeLast30d: agg.activeLast30d,
       completed: agg.completed,

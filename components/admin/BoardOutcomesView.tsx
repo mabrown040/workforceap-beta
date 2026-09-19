@@ -1,6 +1,7 @@
 import { Award, Briefcase, GraduationCap, Info, TrendingUp, Users } from 'lucide-react';
 import type { BoardOutcomes } from '@/lib/admin/boardOutcomes';
 import DataTable from '@/components/portal/ui/DataTable';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 /**
  * Board / Funder outcomes dashboard.
@@ -249,7 +250,7 @@ export default function BoardOutcomesView({
                       Program
                     </span>
                   ),
-                  cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{p.enrolledProgram ?? '—'}</span>,
+                  cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{p.enrolledProgram ? programDisplayTitle(p.enrolledProgram) : '—'}</span>,
                 },
                 {
                   key: 'wage',

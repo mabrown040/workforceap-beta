@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_COHORT_DETAIL_CAP, sqlCount } from '@/lib/db/scanCaps';
 import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import {
@@ -358,8 +359,8 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
 
     const programRows: ImpactProgramRow[] = [...bySlug.keys()]
       .sort((a, b) => {
-        const titleA = getProgramBySlug(a)?.title ?? a;
-        const titleB = getProgramBySlug(b)?.title ?? b;
+        const titleA = programDisplayTitle(a);
+        const titleB = programDisplayTitle(b);
         return titleA.localeCompare(titleB);
       })
       .map((programSlug) => {
@@ -367,7 +368,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
         const avgDaysToComplete = agg.dayCount > 0 ? agg.daySum / agg.dayCount : null;
         return {
           programSlug,
-          programTitle: getProgramBySlug(programSlug)?.title ?? programSlug,
+          programTitle: programDisplayTitle(programSlug),
           enrolled: agg.enrolled,
           completed: agg.completed,
           avgDaysToComplete,

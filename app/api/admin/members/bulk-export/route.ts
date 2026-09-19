@@ -7,7 +7,7 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { formatPhone } from '@/lib/formatPhone';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -147,7 +147,7 @@ async function _POST(request: NextRequest) {
     ];
 
     const rows = members.map((m) => {
-      const programTitle = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : '';
+      const programTitle = m.enrolledProgram ? programDisplayTitle(m.enrolledProgram) : '';
       const progress = m.enrolledProgram
         ? progressMap.get(`${m.id}:${m.enrolledProgram}`)
         : null;

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "734bfc0d70e26904bfb54aed37d1cf37c844e66d6f718eb4fbdfc608f69dbb78",
+  "inputTreeSha256": "153de116e9f977573a154c16f228b39110a254c5326d10a327ec547052e21079",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3505,14 +3505,14 @@
       "path": "app/(auth)/forgot-password/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 6200,
-      "lines": 166,
-      "sha256": "64207b4759dacd37a0c3f9b6c34efdabc28857faad33b7e35ba2765323850198",
+      "bytes": 6011,
+      "lines": 161,
+      "sha256": "77d00b3fc23c94639ef4da3cceedd9bdd405b717a5cfe39c560d5f865ce8aa61",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 160,
+          "line": 155,
           "kind": "FunctionDeclaration",
           "localName": "ForgotPasswordPage"
         }
@@ -3520,17 +3520,17 @@
       "declarations": [
         {
           "name": "ForgotPasswordForm",
-          "line": 11,
+          "line": 10,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ForgotPasswordLoadingFallback",
-          "line": 151,
+          "line": 146,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ForgotPasswordPage",
-          "line": 160,
+          "line": 155,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -3590,14 +3590,14 @@
       "path": "app/(auth)/login/LoginForm.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 28525,
-      "lines": 750,
-      "sha256": "d18e860f72120635ae5f9af9db2df55d44bcc9106494db47085a6ea61c440323",
+      "bytes": 28592,
+      "lines": 751,
+      "sha256": "2e206804f8f30152e960c593ee3ca82455495dd4bec8118d8b3856ec690da7e6",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 314,
+          "line": 315,
           "kind": "FunctionDeclaration",
           "localName": "LoginForm"
         }
@@ -3630,12 +3630,12 @@
         },
         {
           "name": "LoginFormProps",
-          "line": 308,
+          "line": 309,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LoginForm",
-          "line": 314,
+          "line": 315,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -3765,14 +3765,14 @@
       "path": "app/(auth)/reset-password/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 13614,
-      "lines": 334,
-      "sha256": "50bb2a25d9cb261ccafadf544a1cb27313f896dfe584bc84a018bbad4d44d4ab",
+      "bytes": 13107,
+      "lines": 326,
+      "sha256": "eabec3c63194941975d8148ecd4f3699df8878d046953bf02c9efa0c13fd250d",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 328,
+          "line": 320,
           "kind": "FunctionDeclaration",
           "localName": "ResetPasswordPage"
         }
@@ -3790,12 +3790,12 @@
         },
         {
           "name": "ResetPasswordLoadingFallback",
-          "line": 319,
+          "line": 311,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ResetPasswordPage",
-          "line": 328,
+          "line": 320,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -3865,14 +3865,14 @@
       "path": "app/(auth)/setup-mfa/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 13096,
-      "lines": 323,
-      "sha256": "c11179a52741ec591143ebdb4e1c05d7f4d316d7df3abbddc36d954207ec93d5",
+      "bytes": 12636,
+      "lines": 313,
+      "sha256": "02dbf5a8059d1c5a70d1243c252634f9184e90af1dd1eb1ddcb756273d077277",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration",
           "localName": "SetupMfaPage"
         }
@@ -3880,12 +3880,12 @@
       "declarations": [
         {
           "name": "getMfaSetupNextPath",
-          "line": 12,
+          "line": 11,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SetupMfaPage",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -3895,14 +3895,14 @@
       "path": "app/(auth)/signup/SignupForm.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 25425,
-      "lines": 636,
-      "sha256": "1b6b043fd483da6af5344a79334592141eaf40606a4fa9e25587b6afa6d48703",
+      "bytes": 25492,
+      "lines": 637,
+      "sha256": "2ec7fcfee02b56b8141290fd8c020b5246995057420770dcc83abcbc7f3211ce",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 250,
+          "line": 251,
           "kind": "FunctionDeclaration",
           "localName": "SignupForm"
         }
@@ -3955,17 +3955,17 @@
         },
         {
           "name": "getPasswordStrength",
-          "line": 233,
+          "line": 234,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "strengthColor",
-          "line": 243,
+          "line": 244,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SignupForm",
-          "line": 250,
+          "line": 251,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -42547,9 +42547,9 @@
       "path": "app/dev/member/assessment/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 4989,
+      "bytes": 4938,
       "lines": 123,
-      "sha256": "ed2919dfbc51c67d76c58637c0049cebbe3a011b150fd6edfce1a2d5f3e47d42",
+      "sha256": "c83e807a681d4f1a434c2fa2d54186843a31f194176f5a421de17f9def89e45f",
       "binary": false,
       "exports": [
         {
@@ -45634,9 +45634,9 @@
       "path": "app/org/onboard/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 4498,
+      "bytes": 4419,
       "lines": 115,
-      "sha256": "074492d78823242c37b8cf2dd09967a18af317ffae9206b9d993fcd862a170f4",
+      "sha256": "9fef80cfe966d90f84747d823337de8376c43268400f7dac3ae314d923dda869",
       "binary": false,
       "exports": [
         {
@@ -63113,12 +63113,80 @@
       "directive": null
     },
     {
+      "path": "components/portal/StatusBadge.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 4811,
+      "lines": 130,
+      "sha256": "3eb50ea30f55174c563300ae128cd6d44c0ef015397c44b76a019d03a2d3b4ba",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "Rgba",
+          "line": 20,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "Scheme",
+          "line": 21,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "TOKENS_CSS",
+          "line": 23,
+          "kind": "Variable"
+        },
+        {
+          "name": "loadTokens",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "splitTopLevel",
+          "line": 34,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolve",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "parseColor",
+          "line": 68,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "over",
+          "line": 82,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "luminance",
+          "line": 91,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 99,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "renderedStyle",
+          "line": 105,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/StatusBadge.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 1714,
-      "lines": 43,
-      "sha256": "7c504a7c68a44ed183bf732271325d5d6bcf20dbced661da4cfd6a5889c99484",
+      "bytes": 1929,
+      "lines": 46,
+      "sha256": "ea924192ee49465b59fdb5ea79f6ed459f246b6ee0c8840c68d403bc317b23d5",
       "binary": false,
       "exports": [
         {
@@ -63128,7 +63196,7 @@
         },
         {
           "name": "default",
-          "line": 24,
+          "line": 27,
           "kind": "FunctionDeclaration",
           "localName": "StatusBadge"
         }
@@ -63146,7 +63214,7 @@
         },
         {
           "name": "StatusBadge",
-          "line": 24,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75080,9 +75148,9 @@
       "path": "css/auth-depth.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 7610,
-      "lines": 215,
-      "sha256": "942828842a7760989b3444c7fdd47a9540502def09d1817189a5cec95c2ac6fd",
+      "bytes": 7733,
+      "lines": 217,
+      "sha256": "646fca8ba2c79ff5197b1b0f6c06dd09679c6da4c2f4aeb8db0394f510a1f360",
       "binary": false
     },
     {
@@ -114670,73 +114738,6 @@
       "directive": null
     },
     {
-      "path": "lib/http/requestFailureCopy.test.ts",
-      "area": "libraries",
-      "domain": "libraries",
-      "bytes": 2511,
-      "lines": 63,
-      "sha256": "27a63c9903baad9f00ec5f76208001915e2272e99ba767985f7f556b92e83463",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "copy",
-          "line": 5,
-          "kind": "Variable"
-        },
-        {
-          "name": "withSilentConsole",
-          "line": 7,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "lib/http/requestFailureCopy.ts",
-      "area": "libraries",
-      "domain": "libraries",
-      "bytes": 1768,
-      "lines": 40,
-      "sha256": "19e1e2c3fdf1fd28c8e55d1f78ee450caa50485e9e2c1f2afbcabad318f16128",
-      "binary": false,
-      "exports": [
-        {
-          "name": "isConnectionFailure",
-          "line": 18,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "RequestFailureCopy",
-          "line": 24,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "requestFailureMessage",
-          "line": 35,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "isConnectionFailure",
-          "line": 18,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "RequestFailureCopy",
-          "line": 24,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "requestFailureMessage",
-          "line": 35,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "lib/http/safeFetchJson.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -120045,9 +120046,9 @@
       "path": "lib/member/nextBestActions.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7083,
-      "lines": 210,
-      "sha256": "b7c773dc5749b853bab0ec3ae34d2d63e9943bb4d32e9c741420d8c178cfcfa1",
+      "bytes": 5718,
+      "lines": 174,
+      "sha256": "41e9413cfd9cb9c0c6dad60fa923ec477a65505014e684ef60f6ad3171b5f260",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -120057,9 +120058,9 @@
       "path": "lib/member/nextBestActions.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 11151,
-      "lines": 328,
-      "sha256": "4e9b332da7395e5c8bf393d4ce1c36dc79413aa52cc820471d2b9652c828cdaf",
+      "bytes": 10837,
+      "lines": 324,
+      "sha256": "79197f294dde1f6c20ab8f0f2e0951131c3bf8cc2a3cce1018d84f8e1204067d",
       "binary": false,
       "exports": [
         {
@@ -134285,65 +134286,12 @@
       "directive": null
     },
     {
-      "path": "lib/ui/statusColors.test.ts",
-      "area": "libraries",
-      "domain": "libraries",
-      "bytes": 3108,
-      "lines": 78,
-      "sha256": "98466f226d25902e70e90351af957d4630789d0f3e986cdba1bfb0e481f2b205",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "ROOT",
-          "line": 13,
-          "kind": "Variable"
-        },
-        {
-          "name": "LIGHT_SURFACE",
-          "line": 14,
-          "kind": "Variable"
-        },
-        {
-          "name": "lightTokens",
-          "line": 16,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "hexToRgb",
-          "line": 25,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "mixOver",
-          "line": 29,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "resolve",
-          "line": 35,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "luminance",
-          "line": 51,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "contrast",
-          "line": 59,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "lib/ui/statusColors.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 3120,
-      "lines": 72,
-      "sha256": "47244401b5a94cb54b94d21c140b6924c1be79471242443c1cfc2ca9dfeea82b",
+      "bytes": 2842,
+      "lines": 68,
+      "sha256": "4e40cf8ac69c32a6a4fe6d338f0079b38bfb51acbac4c3456f7b5eac110296cc",
       "binary": false,
       "exports": [
         {
@@ -134363,7 +134311,7 @@
         },
         {
           "name": "statusColor",
-          "line": 70,
+          "line": 66,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -134385,7 +134333,7 @@
         },
         {
           "name": "statusColor",
-          "line": 70,
+          "line": 66,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -139139,27 +139087,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192760,
-      "lines": 3146,
-      "sha256": "c52b91898e17a2d4bae7fa1ffc8257a3fcb3e343b513c8faeab032a623160338",
+      "bytes": 192632,
+      "lines": 3145,
+      "sha256": "0b911ce07a0fbbde8195c1f05c5ab816adbdca1b6b0dec77cf7077dc51599f50",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211487,
-      "lines": 3133,
-      "sha256": "51e01b00a7be23ca6fdcbfb054ec413b035f6c93a6c25f7a8cb9400d196afd4c",
+      "bytes": 211354,
+      "lines": 3132,
+      "sha256": "0ae00c42904885976a276cb2b39f6e2506855ad2c4cbb15f30eb4d8c3090d713",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212765,
-      "lines": 3086,
-      "sha256": "a47219f594744ccf5adbec0a451671e3c4e17d703fcc85494f6637fb961b31f3",
+      "bytes": 212615,
+      "lines": 3085,
+      "sha256": "474062d5d19e9e16647360cc1758e7d1bdd1262d626418a8a14e1da941651d0a",
       "binary": false
     },
     {
@@ -139175,9 +139123,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204562,
-      "lines": 3086,
-      "sha256": "a13f6206c4697cafb3060e5ce3595e695f7d93bc4ef6fa11c8715e97a674035f",
+      "bytes": 204420,
+      "lines": 3085,
+      "sha256": "ffeab3b5d28e0e194b8edca3320e2f2fc178c056c6336f34a37823cd21a63aa2",
       "binary": false
     },
     {
@@ -153787,54 +153735,6 @@
           "name": "retrySummary",
           "line": 21,
           "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/components/auth-connection-failure.spec.tsx",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 7090,
-      "lines": 145,
-      "sha256": "f6c6a4effe6907858253a25c2cc9c6ced8b3194ff74f791dc46bbcf6ac7a7385",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "navigation",
-          "line": 7,
-          "kind": "Variable"
-        },
-        {
-          "name": "auth",
-          "line": 11,
-          "kind": "Variable"
-        },
-        {
-          "name": "fetchMock",
-          "line": 37,
-          "kind": "Variable"
-        },
-        {
-          "name": "connectionCopy",
-          "line": 38,
-          "kind": "Variable"
-        },
-        {
-          "name": "forgotConnectionCopy",
-          "line": 39,
-          "kind": "Variable"
-        },
-        {
-          "name": "mount",
-          "line": 41,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "htmlErrorPage",
-          "line": 45,
-          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

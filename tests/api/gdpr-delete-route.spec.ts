@@ -44,6 +44,7 @@ vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     $executeRaw: vi.fn(),
+    memberEvent: { create: vi.fn() },
   },
 }));
 
@@ -104,6 +105,16 @@ describe('POST /api/gdpr/delete', () => {
     expect(userUpdateSql).toContain("full_name = 'Deleted User'");
     expect(deleteUserStorageObjects).toHaveBeenCalledWith('user-123');
     expect(deleteSupabaseAuthUser).toHaveBeenCalledWith('user-123');
+    // The deletion marker is a typed Prisma write (the former raw INSERT bound
+    // the metadata as text into the jsonb column and failed with 42804).
+    expect(prisma.memberEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        userId: 'user-123',
+        eventName: 'account_deleted',
+        entityType: 'gdpr',
+        metadata: expect.objectContaining({ reason: 'user_requested', deletedAt: expect.any(String) }),
+      }),
+    });
   });
 
   it('does not claim erased when storage object delete fails', async () => {

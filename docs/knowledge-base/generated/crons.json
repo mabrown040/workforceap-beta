@@ -306,12 +306,12 @@
       "exports": [
         {
           "name": "GET",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 33,
+          "line": 34,
           "kind": "Variable"
         }
       ],

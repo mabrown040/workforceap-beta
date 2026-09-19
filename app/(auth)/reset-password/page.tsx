@@ -11,6 +11,7 @@ type Stage = 'verifying' | 'ready' | 'submitting' | 'success' | 'error';
 
 function ResetPasswordForm() {
   const tAuth = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const searchParams = useSearchParams();
   const redirectTo = normalizePostLoginRedirect(searchParams?.get('redirectTo'));
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
@@ -111,11 +112,18 @@ function ResetPasswordForm() {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
         const message = error.message?.trim();
+        // supabase-js reports a dropped connection as AuthRetryableFetchError
+        // (status 0) and a non-JSON answer as AuthUnknownError; their messages
+        // ("Failed to fetch", "Unexpected token '<'") mean nothing to a member.
+        const connectionFailure =
+          error.name === 'AuthRetryableFetchError' || error.name === 'AuthUnknownError' || error.status === 0;
         const retryableProviderFailure = error.status !== undefined && error.status >= 500;
         setFormError(
-          !retryableProviderFailure && message && message !== '{}' && message !== '[object Object]'
-            ? message
-            : tAuth('resetPassword.updateFailed'),
+          connectionFailure
+            ? tCommon('connectionError')
+            : !retryableProviderFailure && message && message !== '{}' && message !== '[object Object]'
+              ? message
+              : tAuth('resetPassword.updateFailed'),
         );
         setStage('ready');
         passwordRef.current?.focus();

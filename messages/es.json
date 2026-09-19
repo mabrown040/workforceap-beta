@@ -171,6 +171,7 @@
   },
   "common": {
     "error": "Algo salió mal",
+    "connectionError": "No pudimos conectarnos en este momento. Revisa tu conexión a internet e inténtalo de nuevo.",
     "retry": "Intentar de nuevo",
     "cancel": "Cancelar",
     "confirm": "Confirmar",
@@ -488,7 +489,7 @@
     "voiceInterviewMetaTitle": "Voice Job/Role Interviewer",
     "voiceInterviewMetaDesc": "Practice a live voice mock interview for a specific job or role, with optional camera recording and real-time coaching feedback.",
     "assessmentMetaTitle": "Pre-evaluación de Capacitación",
-    "assessmentMetaDesc": "Una revisión breve de habilidades antes de desbloquear tus cursos de Coursera.",
+    "assessmentMetaDesc": "Una revisión breve de habilidades que ayuda a ubicarte. Completarla no desbloquea Coursera.",
     "programMetaTitle": "My Program",
     "programMetaDesc": "View or select your enrolled program.",
     "mentorMetaTitle": "Mentor Dashboard",

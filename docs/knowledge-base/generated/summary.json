@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "fb137380b63f494749e7a59de30d7aeb2cef995636eb8763ee076a70834cbf83",
+  "inputTreeSha256": "ce8751b57d7edcffaa90d5d38705c8ec28dab67aeecea1a476568bdb8958a84f",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4668,
-    "sourceModules": 3342,
-    "importReferences": 16094,
-    "resolvedLocalReferences": 10729,
+    "files": 4673,
+    "sourceModules": 3347,
+    "importReferences": 16132,
+    "resolvedLocalReferences": 10757,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1052,
     "nextRouteFiles": 1019,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 733,
-    "testCandidates": 726,
+    "testFiles": 740,
+    "testCandidates": 733,
     "testHelpers": 7,
-    "staticallySelectedTests": 723,
+    "staticallySelectedTests": 730,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 670
+      "files": 667
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 963
+      "files": 964
     },
     {
       "area": "localization",
@@ -106,17 +106,17 @@
     },
     {
       "area": "tests",
-      "files": 380
+      "files": 387
     }
   ],
   "mostReferenced": [
     {
       "file": "lib/db/prisma.ts",
-      "references": 870
+      "references": 872
     },
     {
       "file": "lib/auth/server.ts",
-      "references": 712
+      "references": 716
     },
     {
       "file": "lib/db/withRequestGuc.ts",
@@ -124,7 +124,7 @@
     },
     {
       "file": "lib/auth/roles.ts",
-      "references": 417
+      "references": 421
     },
     {
       "file": "lib/tenant/organization.ts",
@@ -306,7 +306,7 @@
     },
     {
       "file": "app/(portal)/counselor/students/[memberId]/page.tsx",
-      "lines": 1413
+      "lines": 1427
     },
     {
       "file": "tests/api/placement-survey.spec.ts",
@@ -314,7 +314,7 @@
     },
     {
       "file": "app/(portal)/partner/page.tsx",
-      "lines": 1388
+      "lines": 1389
     },
     {
       "file": "components/portal/sessions/SessionRunClient.tsx",

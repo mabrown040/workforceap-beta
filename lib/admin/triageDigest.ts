@@ -3,7 +3,7 @@ import 'server-only';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateHealthStatus, type HealthStatus, getHealthLabel, getHealthColor } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
-import { stalledCheckInAction } from '@/lib/admin/triageDigestCopy';
+import { stalledCheckInAction, TRIAGE_BUCKET_ACCENTS } from '@/lib/admin/triageDigestCopy';
 import {
   inheritMemberOrg,
   inheritUserOrg,
@@ -202,7 +202,7 @@ export async function getTriageDigest(scope: AdminPageTenantOk): Promise<TriageD
       count: newMembersCount,
       label: `${newMembersCount} new ${pluralPeople(newMembersCount, 'applicant', 'applicants')} — no counselor yet`,
       icon: 'assignment_ind',
-      accent: '#3b82f6',
+      accent: TRIAGE_BUCKET_ACCENTS['new-applicants'],
       members: newMembers.map((m) => {
         const d = daysSince(m.createdAt);
         const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
@@ -255,7 +255,7 @@ export async function getTriageDigest(scope: AdminPageTenantOk): Promise<TriageD
         count: atRiskRows.length,
         label: `${atRiskRows.length} ${pluralPeople(atRiskRows.length, 'student', 'students')} at risk`,
         icon: 'warning',
-        accent: '#dc2626',
+        accent: TRIAGE_BUCKET_ACCENTS['at-risk'],
         members: atRiskRows.slice(0, TOP_N).map(({ m, lastEventAt, health, isStaleFlagged }) => {
           const d = daysSince(lastEventAt);
           const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
@@ -302,7 +302,7 @@ export async function getTriageDigest(scope: AdminPageTenantOk): Promise<TriageD
         icon: 'pause_circle',
         // Token, not a hex literal: #d97706 measured 2.82:1 on the card
         // surface. --wa-gold-dark is the text-on-tint gold (5.4:1 light).
-        accent: 'var(--wa-gold-dark)',
+        accent: TRIAGE_BUCKET_ACCENTS.stalled,
         members: stalledRows.slice(0, TOP_N).map(({ m, daysInactive }) => {
           const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
           const d = daysInactive;

@@ -37,6 +37,8 @@
 | [lib/admin/courseraEnrollmentApproval.ts](../../../lib/admin/courseraEnrollmentApproval.ts) | 95 | learning-coursera | CourseraApprovalResult:20, setCourseraEnrollmentApproval:24 |
 | [lib/admin/courseraEnrollmentPipeline.ts](../../../lib/admin/courseraEnrollmentPipeline.ts) | 230 | learning-coursera | EnrollmentSignal:33, ENROLLMENT_SIGNAL_LABELS:35, EnrollmentPipelineRow:43, EnrollmentPipelineSummary:56, EnrollmentPipelineData:66, loadCourseraEnrollmentPipeline:86 |
 | [lib/admin/courseraOps.ts](../../../lib/admin/courseraOps.ts) | 347 | learning-coursera | XapiStatementAttentionRow:14, listXapiStatementsNeedingAttention:40, countXapiStatementsNeedingAttention:90, CourseraSyncStatus:120, getCourseraSyncStatus:126, CourseProgressAuditRow:158, ProgramProgressAuditRollup:168, MemberProgressAuditResult:178, loadMemberProgressAuditByEmail:216 |
+| [lib/admin/courseraSyncDrift.test.ts](../../../lib/admin/courseraSyncDrift.test.ts) | 61 | learning-coursera |  |
+| [lib/admin/courseraSyncDrift.ts](../../../lib/admin/courseraSyncDrift.ts) | 101 | learning-coursera | SyncDriftRawRow:12, SyncDriftRow:22, SyncDriftResult:31, SYNC_DRIFT_THRESHOLD_HOURS:35, SYNC_DRIFT_LIMIT:36, buildSyncDriftQuery:41, mapSyncDriftRows:71, loadSyncDriftPairs:87 |
 | [lib/admin/cronPreviewTypes.ts](../../../lib/admin/cronPreviewTypes.ts) | 10 | administration | CronPreviewRecipient:1, CronPreviewResponse:3 |
 | [lib/admin/cronRegistry.ts](../../../lib/admin/cronRegistry.ts) | 404 | administration | CronDef:8, CRON_REGISTRY:22, CRON_CATEGORY_COLOR:399 |
 | [lib/admin/diagnoseMemberCoursera.ts](../../../lib/admin/diagnoseMemberCoursera.ts) | 395 | learning-coursera | CourseraDiagnoseReport:17, diagnoseMemberCoursera:91 |
@@ -81,8 +83,8 @@
 | [lib/admin/trainingProgressPrograms.ts](../../../lib/admin/trainingProgressPrograms.ts) | 76 | administration | TrainingPace:10, STALLED_IDLE_DAYS:13, TrainingLearnerRef:15, programSlugsForLearner:28, deriveTrainingPace:64 |
 | [lib/admin/trainingProgressRoster.ts](../../../lib/admin/trainingProgressRoster.ts) | 311 | administration | RosterRow:14, PACE_FILTERS:33, PaceFilter:34, LINK_FILTERS:36, LinkFilter:37, SORT_KEYS:39, SortKey:48, SortDirection:50, RosterFilters:52, DEFAULT_ROSTER_FILTERS:61, DEFAULT_SORT_KEY:68, DEFAULT_SORT_DIRECTION:69, filterTrainingRows:106, latestActivityMs:172, relativeLastActiveCaption:186, sortTrainingRows:207, RosterSummary:243, summarizeTrainingRows:257, countMembersWithTraining:286, rosterProgramOptions:297, isPaceFilter:301, isLinkFilter:305, isSortKey:309 |
 | [lib/admin/triageDigest.ts](../../../lib/admin/triageDigest.ts) | 326 | administration | TriageMember:27, TriageBucketKey:42, TriageBucket:44, TriageDigest:62, getTriageDigest:80 |
-| [lib/admin/triageDigestCopy.test.ts](../../../lib/admin/triageDigestCopy.test.ts) | 14 | administration |  |
-| [lib/admin/triageDigestCopy.ts](../../../lib/admin/triageDigestCopy.ts) | 14 | administration | stalledCheckInAction:11 |
+| [lib/admin/triageDigestCopy.test.ts](../../../lib/admin/triageDigestCopy.test.ts) | 22 | administration |  |
+| [lib/admin/triageDigestCopy.ts](../../../lib/admin/triageDigestCopy.ts) | 26 | administration | TRIAGE_BUCKET_ACCENTS:12, stalledCheckInAction:23 |
 | [lib/admin/userDeleteResponse.test.ts](../../../lib/admin/userDeleteResponse.test.ts) | 16 | administration |  |
 | [lib/admin/userDeleteResponse.ts](../../../lib/admin/userDeleteResponse.ts) | 13 | administration | userAuthDeleteFailedResponse:3 |
 | [lib/agents/gateway/core.test.ts](../../../lib/agents/gateway/core.test.ts) | 252 | libraries |  |
@@ -321,6 +323,8 @@
 | [lib/content/programSlug.ts](../../../lib/content/programSlug.ts) | 64 | public-experience | PROGRAM_SLUG_ALIASES:6, canonicalizeProgramSlug:37, programSlugsEquivalent:42, programSlugReadCandidates:54 |
 | [lib/content/programSubgroup.test.ts](../../../lib/content/programSubgroup.test.ts) | 15 | public-experience |  |
 | [lib/content/programSubgroup.ts](../../../lib/content/programSubgroup.ts) | 155 | public-experience | ProgramSubgroupId:4, ProgramSubgroup:16, PROGRAM_SUBGROUPS:23, subgroupForProgram:99, programsBySubgroup:140, orderedSubgroupIdsWithPrograms:152 |
+| [lib/content/programTitle.test.ts](../../../lib/content/programTitle.test.ts) | 38 | public-experience |  |
+| [lib/content/programTitle.ts](../../../lib/content/programTitle.ts) | 67 | public-experience | humanizeProgramSlug:40, programDisplayTitle:61 |
 | [lib/content/programs.test.ts](../../../lib/content/programs.test.ts) | 48 | public-experience |  |
 | [lib/content/programs.ts](../../../lib/content/programs.ts) | 686 | public-experience | PROGRAM_SLUG_ALIASES:19, FUNDING_SOURCES:41, FundingSource:48, LanguageSupportLevel:50, LanguageSupport:52, formatFundingSourceLabel:59, FUNDING_COLORS:64, ProgramCourse:79, Program:113, getDiscoveredProgram:169, getProgramDisplayTitle:196, getProgramDisplayPartner:204, PROGRAM_CATEGORY_COLORS:211, PROGRAMS:389, WORKFORCEAP_PROGRAM_CATALOG_SIZE:450, PROGRAM_AXIS_MAP:457, RadarAxis:527, RADAR_AXES:528, ProgramRecommendation:530, recommendProgramsForGaps:546, PROGRAM_TITLES:600, LEGACY_PROGRAM_TITLE_VALUES:617, SUPPORTED_PROGRAM_STORAGE_VALUES:630, CURRICULUM_MIGRATION_PENDING_CODE:638, CURRICULUM_MIGRATION_PENDING_MESSAGE:639, isCurriculumMigrationPending:648, getProgramByInterestValue:654, getProgramBySlug:674, getAllPrograms:679, invalidateProgramCache:684 |
 | [lib/content/quizIpMerge.test.ts](../../../lib/content/quizIpMerge.test.ts) | 140 | public-experience |  |

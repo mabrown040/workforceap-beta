@@ -12,6 +12,8 @@ interface Note {
   content: string;
   createdAt: string;
   author: { fullName: string | null; email: string };
+  /** Server-side author gate: DELETE 404s for anyone else's note. */
+  canDelete?: boolean;
 }
 
 export default function CounselorNotesPanel({ memberId }: { memberId: string }) {
@@ -213,14 +215,16 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                 {new Date(note.createdAt).toLocaleDateString('en-US')} · {note.author.fullName ?? note.author.email}
               </p>
-              <button type="button"
-                onClick={() => setConfirmDeleteId(note.id)}
-                className={styles.deleteButton}
-                title="Delete note"
-                aria-label="Delete note"
-              >
-                ×
-              </button>
+              {note.canDelete ? (
+                <button type="button"
+                  onClick={() => setConfirmDeleteId(note.id)}
+                  className={styles.deleteButton}
+                  title="Delete note"
+                  aria-label="Delete note"
+                >
+                  ×
+                </button>
+              ) : null}
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0, whiteSpace: 'pre-wrap' }}>
               {note.content}

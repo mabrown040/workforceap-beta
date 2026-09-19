@@ -47,7 +47,9 @@ const noteSchema = z.object({
     take: 20,
     include: { author: { select: { fullName: true, email: true } } },
   }));
-  return NextResponse.json(notes);
+  // DELETE only accepts the author's own notes; tell the client up front so it
+  // does not offer a delete control that can only 404.
+  return NextResponse.json(notes.map((note) => ({ ...note, canDelete: note.authorId === user.id })));
 
   } catch (error) {
     console.error('/counselor/members/[memberId]/notes error:', error);
@@ -98,7 +100,7 @@ export const GET = withApiGuc(_GET);async function _POST(
     result: { success: true },
   }).catch(() => {});
 
-  return NextResponse.json(note, { status: 201 });
+  return NextResponse.json({ ...note, canDelete: true }, { status: 201 });
 
   } catch (error) {
     console.error('/counselor/members/[memberId]/notes error:', error);

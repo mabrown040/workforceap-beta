@@ -587,7 +587,10 @@ export default async function AdminMemberDetailPage({
         <MemberProgressStrip {...adminProgressStripProps} />
       </div>
 
-      <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
+      {/* `minmax(0, 1fr)` + `minWidth: 0` on the cards: the auto track otherwise
+          grows to the widest card's min-content (433px at a 390px viewport), the
+          same guard the stakeholder page uses (#2359). */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '1.5rem', maxWidth: '800px' }}>
         {/* Admin DB actions — password reset, profile edit */}
         <section className="portal-profile-section-card">
           <div className="portal-profile-section-card__header">

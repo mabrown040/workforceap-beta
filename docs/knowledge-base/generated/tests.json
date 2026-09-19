@@ -7269,6 +7269,34 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/nav/memberToolRoutes.test.ts",
+    "area": "libraries",
+    "domain": "public-experience",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/nav/portalNav.ts",
+        "line": 3
+      },
+      {
+        "file": "lib/nav/memberToolRoutes.ts",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/nav/portalNav.test.ts",
     "area": "libraries",
     "domain": "public-experience",
@@ -16417,16 +16445,20 @@
         "line": 10
       },
       {
-        "file": "lib/i18n/pickRootClientMessages.ts",
+        "file": "lib/nav/memberToolRoutes.ts",
         "line": 11
       },
       {
-        "file": "messages/en.json",
+        "file": "lib/i18n/pickRootClientMessages.ts",
         "line": 12
       },
       {
-        "file": "messages/es.json",
+        "file": "messages/en.json",
         "line": 13
+      },
+      {
+        "file": "messages/es.json",
+        "line": 14
       }
     ],
     "kind": "test-candidate",

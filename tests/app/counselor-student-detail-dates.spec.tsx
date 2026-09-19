@@ -52,6 +52,9 @@ vi.mock('@/components/admin/WioaScreeningReadonly', () => ({ default: () => null
 vi.mock('@/components/admin/AssessmentAnswersReadonly', () => ({ default: () => null }));
 vi.mock('@/components/billing/BillingPacketList', () => ({ default: () => null }));
 vi.mock('@/components/counselor/StaffMemberResumePanel', () => ({ default: () => null }));
+// Client panel (calls useRouter); stubbed like the other panels so the
+// server render only exercises the page's own date formatting.
+vi.mock('@/components/counselor/CounselorIntakeReviewPanel', () => ({ default: () => null }));
 vi.mock('@/components/portal/AwardPointsButton', () => ({ default: () => null }));
 vi.mock('@/components/portal/PointsWidget', () => ({ default: () => null }));
 vi.mock('@/components/portal/SkillsetProgressList', () => ({ default: () => null }));

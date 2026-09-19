@@ -3137,8 +3137,16 @@
   },
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
-    "specifier": "@/components/billing/BillingPacketList",
+    "specifier": "@/components/counselor/CounselorIntakeReviewPanel",
     "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "components/counselor/CounselorIntakeReviewPanel.tsx"
+  },
+  {
+    "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
+    "specifier": "@/components/billing/BillingPacketList",
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "components/billing/BillingPacketList.tsx"
@@ -3146,7 +3154,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/billing/packetAccess",
-    "line": 31,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/billing/packetAccess.ts"
@@ -3154,7 +3162,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/admin/WioaScreeningReadonly",
-    "line": 32,
+    "line": 33,
     "kind": "import",
     "external": false,
     "target": "components/admin/WioaScreeningReadonly.tsx"
@@ -3162,7 +3170,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/admin/AssessmentAnswersReadonly",
-    "line": 33,
+    "line": 34,
     "kind": "import",
     "external": false,
     "target": "components/admin/AssessmentAnswersReadonly.tsx"
@@ -3170,7 +3178,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/assessment/reviewRows",
-    "line": 34,
+    "line": 35,
     "kind": "import",
     "external": false,
     "target": "lib/assessment/reviewRows.ts"
@@ -3178,7 +3186,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/wioa/wioaQualification",
-    "line": 35,
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "lib/wioa/wioaQualification.ts"
@@ -3186,7 +3194,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/employer/jobPostingApplicationStatus",
-    "line": 36,
+    "line": 37,
     "kind": "import",
     "external": false,
     "target": "lib/employer/jobPostingApplicationStatus.ts"
@@ -3194,7 +3202,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/employer/aiMatchPipelineLabels",
-    "line": 40,
+    "line": 41,
     "kind": "import",
     "external": false,
     "target": "lib/employer/aiMatchPipelineLabels.ts"
@@ -3202,7 +3210,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/employer/matchScoreDisplay",
-    "line": 44,
+    "line": 45,
     "kind": "import",
     "external": false,
     "target": "lib/employer/matchScoreDisplay.ts"
@@ -3210,7 +3218,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/portal/PointsWidget",
-    "line": 45,
+    "line": 46,
     "kind": "import",
     "external": false,
     "target": "components/portal/PointsWidget.tsx"
@@ -3218,7 +3226,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/portal/AwardPointsButton",
-    "line": 46,
+    "line": 47,
     "kind": "import",
     "external": false,
     "target": "components/portal/AwardPointsButton.tsx"
@@ -3226,7 +3234,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/member/points",
-    "line": 47,
+    "line": 48,
     "kind": "import",
     "external": false,
     "target": "lib/member/points.ts"
@@ -3234,7 +3242,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/portal/SkillsetProgressList",
-    "line": 48,
+    "line": 49,
     "kind": "import",
     "external": false,
     "target": "components/portal/SkillsetProgressList.tsx"
@@ -3242,7 +3250,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/coursera/memberSkillsetProgress",
-    "line": 49,
+    "line": 50,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/memberSkillsetProgress.ts"
@@ -3250,7 +3258,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/portal/counselor/MemberProgressTimeline",
-    "line": 50,
+    "line": 51,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/MemberProgressTimeline.tsx"
@@ -3258,7 +3266,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/components/portal/counselor/MemberProgressTimeline",
-    "line": 51,
+    "line": 52,
     "kind": "type",
     "external": false,
     "target": "components/portal/counselor/MemberProgressTimeline.tsx"
@@ -3266,7 +3274,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/member/atRiskScoring",
-    "line": 52,
+    "line": 53,
     "kind": "import",
     "external": false,
     "target": "lib/member/atRiskScoring.ts"
@@ -3274,7 +3282,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/page.tsx",
     "specifier": "@/lib/onet/types",
-    "line": 53,
+    "line": 54,
     "kind": "type",
     "external": false,
     "target": "lib/onet/types.ts"
@@ -27097,16 +27105,8 @@
   },
   {
     "from": "app/api/admin/applications/bulk-review/route.ts",
-    "specifier": "@/lib/auth/roles",
-    "line": 4,
-    "kind": "import",
-    "external": false,
-    "target": "lib/auth/roles.ts"
-  },
-  {
-    "from": "app/api/admin/applications/bulk-review/route.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 5,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -27114,7 +27114,7 @@
   {
     "from": "app/api/admin/applications/bulk-review/route.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 6,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -27122,7 +27122,7 @@
   {
     "from": "app/api/admin/applications/bulk-review/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 7,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -27130,10 +27130,18 @@
   {
     "from": "app/api/admin/applications/bulk-review/route.ts",
     "specifier": "@/lib/admin/applicationReview",
-    "line": 8,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/admin/applicationReview.ts"
+  },
+  {
+    "from": "app/api/admin/applications/bulk-review/route.ts",
+    "specifier": "@/lib/counselor/applicationReviewAccess",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/applicationReviewAccess.ts"
   },
   {
     "from": "app/api/admin/applications/bulk-review/route.ts",
@@ -34817,16 +34825,8 @@
   },
   {
     "from": "app/api/admin/members/[id]/status/route.ts",
-    "specifier": "@/lib/auth/roles",
-    "line": 4,
-    "kind": "import",
-    "external": false,
-    "target": "lib/auth/roles.ts"
-  },
-  {
-    "from": "app/api/admin/members/[id]/status/route.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 5,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -34834,7 +34834,7 @@
   {
     "from": "app/api/admin/members/[id]/status/route.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 6,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -34842,7 +34842,7 @@
   {
     "from": "app/api/admin/members/[id]/status/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 7,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -34850,10 +34850,18 @@
   {
     "from": "app/api/admin/members/[id]/status/route.ts",
     "specifier": "@/lib/admin/applicationReview",
-    "line": 8,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/admin/applicationReview.ts"
+  },
+  {
+    "from": "app/api/admin/members/[id]/status/route.ts",
+    "specifier": "@/lib/counselor/applicationReviewAccess",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/applicationReviewAccess.ts"
   },
   {
     "from": "app/api/admin/members/[id]/status/route.ts",
@@ -35153,16 +35161,8 @@
   },
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
-    "specifier": "@/lib/auth/roles",
-    "line": 4,
-    "kind": "import",
-    "external": false,
-    "target": "lib/auth/roles.ts"
-  },
-  {
-    "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/tenant/withTenantScope",
-    "line": 5,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
@@ -35170,7 +35170,7 @@
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 6,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -35178,15 +35178,23 @@
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/wioa/wioaReview",
-    "line": 7,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/wioa/wioaReview.ts"
   },
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
+    "specifier": "@/lib/counselor/applicationReviewAccess",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/applicationReviewAccess.ts"
+  },
+  {
+    "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/wioa/reviewSnapshot",
-    "line": 8,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/wioa/reviewSnapshot.ts"
@@ -35194,7 +35202,7 @@
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 9,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -35202,7 +35210,7 @@
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 10,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -35210,7 +35218,7 @@
   {
     "from": "app/api/admin/members/[id]/wioa-review/route.ts",
     "specifier": "@/lib/audit",
-    "line": 11,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -71208,6 +71216,38 @@
     "target": "lib/billing/packetText.ts"
   },
   {
+    "from": "components/counselor/CounselorIntakeReviewPanel.tsx",
+    "specifier": "react",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/counselor/CounselorIntakeReviewPanel.tsx",
+    "specifier": "next/navigation",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "components/counselor/CounselorIntakeReviewPanel.tsx",
+    "specifier": "@/lib/formatDate",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
+    "from": "components/counselor/CounselorIntakeReviewPanel.tsx",
+    "specifier": "@/lib/wioa/wioaReview",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/wioa/wioaReview.ts"
+  },
+  {
     "from": "components/counselor/StaffMemberResumePanel.tsx",
     "specifier": "react",
     "line": 3,
@@ -87818,7 +87858,7 @@
   {
     "from": "emails/applicant-followup.ts",
     "specifier": "@/lib/email/escapeHtml",
-    "line": 5,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/email/escapeHtml.ts"
@@ -96638,6 +96678,38 @@
     "kind": "import",
     "external": false,
     "target": "lib/referralSources.ts"
+  },
+  {
+    "from": "lib/counselor/applicationReviewAccess.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/counselor/applicationReviewAccess.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "lib/counselor/applicationReviewAccess.ts",
+    "specifier": "@/lib/counselor/staffMemberAccess",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/staffMemberAccess.ts"
+  },
+  {
+    "from": "lib/counselor/applicationReviewAccess.ts",
+    "specifier": "@/lib/wioa/wioaReview",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/wioa/wioaReview.ts"
   },
   {
     "from": "lib/counselor/assignment.ts",
@@ -116176,6 +116248,70 @@
     "target": "lib/auth/roles.ts"
   },
   {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "vitest",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/status/route",
+    "line": 50,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/status/route.ts"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/app/api/admin/applications/bulk-review/route",
+    "line": 51,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/applications/bulk-review/route.ts"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 52,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 53,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/lib/counselor/staffMemberAccess",
+    "line": 54,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/staffMemberAccess.ts"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/lib/admin/applicationReview",
+    "line": 55,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicationReview.ts"
+  },
+  {
+    "from": "tests/api/counselor-application-review.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 56,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
     "from": "tests/api/counselor-dashboard.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -116806,6 +116942,78 @@
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "vitest",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 38,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/wioa-review/route",
+    "line": 59,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/wioa-review/route.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 60,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 61,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/counselor/staffMemberAccess",
+    "line": 62,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/staffMemberAccess.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/audit/log",
+    "line": 63,
+    "kind": "import",
+    "external": false,
+    "target": "lib/audit/log.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/wioa/reviewSnapshot",
+    "line": 64,
+    "kind": "import",
+    "external": false,
+    "target": "lib/wioa/reviewSnapshot.ts"
+  },
+  {
+    "from": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 65,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
   },
   {
     "from": "tests/api/coursera-b4b-continuation.spec.ts",
@@ -123234,7 +123442,7 @@
   {
     "from": "tests/app/counselor-student-detail-dates.spec.tsx",
     "specifier": "@/app/(portal)/counselor/students/[memberId]/page",
-    "line": 61,
+    "line": 64,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/counselor/students/[memberId]/page.tsx"
@@ -127006,6 +127214,46 @@
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
+  },
+  {
+    "from": "tests/lib/applicant-followup-email.spec.ts",
+    "specifier": "vitest",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/applicant-followup-email.spec.ts",
+    "specifier": "@/emails/applicant-followup",
+    "line": 38,
+    "kind": "import",
+    "external": false,
+    "target": "emails/applicant-followup.ts"
+  },
+  {
+    "from": "tests/lib/applicant-followup-email.spec.ts",
+    "specifier": "@/app/api/cron/applicant-followup/route",
+    "line": 39,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/cron/applicant-followup/route.ts"
+  },
+  {
+    "from": "tests/lib/applicant-followup-email.spec.ts",
+    "specifier": "@/lib/email",
+    "line": 40,
+    "kind": "import",
+    "external": false,
+    "target": "lib/email.ts"
+  },
+  {
+    "from": "tests/lib/applicant-followup-email.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 41,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
   },
   {
     "from": "tests/lib/applicant-triage.spec.ts",

@@ -1931,7 +1931,6 @@ export async function sendEligibilityScreeningAdminEmail(params: {
 export async function sendApplicantFollowupEmail(params: {
   to: string;
   fullName: string;
-  expectedDate: string;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1941,7 +1940,7 @@ export async function sendApplicantFollowupEmail(params: {
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
   const html = brandedEmailLayout({
     title: 'Your Application is Being Reviewed',
-    bodyHtml: applicantFollowupHtml({ firstName: first, expectedDate: params.expectedDate }),
+    bodyHtml: applicantFollowupHtml({ firstName: first }),
     ctaText: 'Explore Our Programs',
     ctaUrl: `${SITE_URL}/programs`,
   });

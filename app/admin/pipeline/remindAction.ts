@@ -43,7 +43,6 @@ export async function remindStaleApplication(applicationId: string, userId: stri
     const emailResult = await sendApplicantFollowupEmail({
       to: application.user.email,
       fullName: application.user.fullName ?? 'there',
-      expectedDate: 'within the next 2 business days',
     });
 
     await prisma.memberEvent.create({

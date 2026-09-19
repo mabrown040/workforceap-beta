@@ -1660,7 +1660,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 67,
+        "line": 68,
         "kind": "FunctionDeclaration",
         "localName": "CounselorStudentDetailPage"
       }
@@ -11831,7 +11831,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 107,
+        "line": 110,
         "kind": "Variable"
       }
     ],
@@ -11846,18 +11846,13 @@
         "kind": "import"
       },
       {
-        "specifier": "@/lib/auth/roles",
+        "specifier": "@/lib/rate-limit",
         "line": 4,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/rate-limit",
-        "line": 5,
-        "kind": "import"
-      },
-      {
         "specifier": "@/lib/tenant/organization",
-        "line": 6,
+        "line": 5,
         "kind": "import"
       },
       {
@@ -16352,18 +16347,13 @@
         "kind": "import"
       },
       {
-        "specifier": "@/lib/auth/roles",
+        "specifier": "@/lib/rate-limit",
         "line": 4,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/rate-limit",
-        "line": 5,
-        "kind": "import"
-      },
-      {
         "specifier": "@/lib/tenant/organization",
-        "line": 6,
+        "line": 5,
         "kind": "import"
       },
       {
@@ -16513,7 +16503,7 @@
     "exports": [
       {
         "name": "PATCH",
-        "line": 107,
+        "line": 123,
         "kind": "Variable"
       }
     ],
@@ -16528,23 +16518,18 @@
         "kind": "import"
       },
       {
-        "specifier": "@/lib/auth/roles",
+        "specifier": "@/lib/tenant/withTenantScope",
         "line": 4,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/withTenantScope",
+        "specifier": "@/lib/tenant/organization",
         "line": 5,
         "kind": "import"
       },
       {
-        "specifier": "@/lib/tenant/organization",
-        "line": 6,
-        "kind": "import"
-      },
-      {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 10,
+        "line": 15,
         "kind": "import"
       }
     ]
@@ -22282,12 +22267,12 @@
       },
       {
         "name": "GET",
-        "line": 102,
+        "line": 88,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 103,
+        "line": 89,
         "kind": "Variable"
       }
     ],

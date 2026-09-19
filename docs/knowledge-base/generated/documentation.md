@@ -264,7 +264,7 @@
 | [docs/email-templates.md](../../../docs/email-templates.md) | 80 | communications |  |
 | [docs/knowledge-base/README.md](../../../docs/knowledge-base/README.md) | 50 | documentation |  |
 | [docs/knowledge-base/agent-context.md](../../../docs/knowledge-base/agent-context.md) | 33 | documentation |  |
-| [docs/knowledge-base/architecture.md](../../../docs/knowledge-base/architecture.md) | 193 | documentation |  |
+| [docs/knowledge-base/architecture.md](../../../docs/knowledge-base/architecture.md) | 195 | documentation |  |
 | [docs/knowledge-base/audit-baseline.json](../../../docs/knowledge-base/audit-baseline.json) | 6 | documentation |  |
 | [docs/knowledge-base/audit-report.md](../../../docs/knowledge-base/audit-report.md) | 37 | documentation |  |
 | [docs/knowledge-base/data.md](../../../docs/knowledge-base/data.md) | 62 | documentation |  |

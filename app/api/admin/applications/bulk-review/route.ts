@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditRequestMeta } from '@/lib/audit/log';
 import { changeApplicationStatus, type ApplicationReviewResult } from '@/lib/admin/applicationReview';
+import { canReviewActorActOnApplication, resolveReviewActor } from '@/lib/counselor/applicationReviewAccess';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 // Same cap the existing member bulk-update route uses (app/api/admin/members/bulk-update).
@@ -24,7 +24,7 @@ const bodySchema = z.object({
   status: z.enum(['APPROVED', 'DENIED', 'NEEDS_INFO']),
   notes: z.string().max(2000).optional(),
   // Required, and must be true, when bulk-approving: a lightweight
-  // caseworker attestation ("I reviewed eligibility for these applicants")
+  // caseworker attestation ("I reviewed intake for these applicants")
   // so a batch action can't silently multiply un-reviewed approvals. Not
   // required for DENIED/NEEDS_INFO — declining someone doesn't carry the
   // same funder-facing "we determined this person eligible" claim.
@@ -52,11 +52,10 @@ async function _POST(request: NextRequest) {
 
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    try {
-      await requireAdmin(user.id);
-    } catch {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Admins (org-scoped, as before) and active counselors may review;
+    // counselors only for applications of members assigned to them.
+    const actor = await resolveReviewActor(user.id);
+    if (!actor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const parsed = bodySchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) {
@@ -66,24 +65,28 @@ async function _POST(request: NextRequest) {
 
     if (status === 'APPROVED' && verified !== true) {
       return NextResponse.json(
-        { error: 'Confirm you reviewed eligibility for these applicants before bulk-approving.' },
+        { error: 'Confirm you reviewed intake for these applicants before bulk-approving.' },
         { status: 400 },
       );
     }
 
     const orgId = await getActorOrganizationId(user.id);
-    const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
     const requestMeta = auditRequestMeta(request);
 
     const results: ApplicationReviewResult[] = [];
     for (const applicationId of applicationIds) {
+      if (!(await canReviewActorActOnApplication(actor, applicationId, orgId))) {
+        // Out of the counselor's caseload: reported like a not-in-org id.
+        results.push({ ok: false, applicationId, error: 'Application not found' });
+        continue;
+      }
       const result = await changeApplicationStatus({
         applicationId,
         status,
         notes,
         orgId,
         actorUserId: user.id,
-        actorRole,
+        actorRole: actor.role,
         requestMeta,
       });
       results.push(result);

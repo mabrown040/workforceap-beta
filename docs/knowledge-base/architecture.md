@@ -90,6 +90,8 @@ sequenceDiagram
 
 The actual branches are in [apply signup](../../app/api/apply/signup/route.ts). The identity service and application database are separate systems: a database failure after signup is not automatically a rolled-back Supabase account. Follow the route's explicit recovery behavior. Program choices come from the code catalog and curriculum logic, while tenant catalogs and enrollment rows control assignment/visibility. Guardian consent is a separate tokenized route and a prerequisite for relevant minor training activation; recovery work is tracked in [technical debt](technical-debt.md), with its detailed reproducer retained privately.
 
+Application review (approve, deny, request info) and WIOA intake verification go through [the status route](../../app/api/admin/members/[id]/status/route.ts), [bulk review](../../app/api/admin/applications/bulk-review/route.ts) and [WIOA review](../../app/api/admin/members/[id]/wioa-review/route.ts). Since 2026-09-19 those routes admit org-scoped admins and active counselors; a counselor may act only on members they are actively assigned to, per [the review access helper](../../lib/counselor/applicationReviewAccess.ts), and records intake verification, never an eligibility determination, which belongs to the workforce board. The counselor student page exposes both controls through `components/counselor/CounselorIntakeReviewPanel.tsx`.
+
 ## Training and progress flow
 
 ```mermaid

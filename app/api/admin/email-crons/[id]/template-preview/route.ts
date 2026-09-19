@@ -89,10 +89,7 @@ function buildPreview(id: string): TemplatePreviewResponse | null {
     }
 
     case 'applicant-followup': {
-      const body = applicantFollowupHtml({
-        firstName: 'Taylor',
-        expectedDate: 'May 9, 2026',
-      });
+      const body = applicantFollowupHtml({ firstName: 'Taylor' });
       return {
         cronId: id,
         cronName: 'Applicant Day-3 Follow-up',

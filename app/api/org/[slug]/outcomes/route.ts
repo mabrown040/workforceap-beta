@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { checkPublicOrgOutcomesRateLimit } from '@/lib/rate-limit';
 import {
   generatePartnerQuarterlyOutcomes,
   getDefaultQuarter,
@@ -23,6 +25,13 @@ function parseYearParam(raw: string | null): number | null {
 
 async function _GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    // Public, unauthenticated read that fans out into several aggregate
+    // queries per call — cap per IP before touching the database.
+    const { success } = await checkPublicOrgOutcomesRateLimit(getClientIpFromRequest(req));
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const { slug } = await params;
     const partner = await prisma.partner.findUnique({
       where: { slug },

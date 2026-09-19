@@ -14725,6 +14725,46 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/public-api-hardening-batch4.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/health/ready/route.ts",
+        "line": 82
+      },
+      {
+        "file": "app/api/health/ready/_readyCache.ts",
+        "line": 83
+      },
+      {
+        "file": "app/api/invite/validate/route.ts",
+        "line": 84
+      },
+      {
+        "file": "app/api/org/[slug]/outcomes/route.ts",
+        "line": 85
+      },
+      {
+        "file": "app/api/apply/confirmation-email/route.ts",
+        "line": 86
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/public-api-hardening-followups.spec.ts",
     "area": "tests",
     "domain": "tests",

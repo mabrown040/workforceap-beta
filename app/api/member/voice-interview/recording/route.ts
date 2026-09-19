@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { isMissingPrismaEnumValue } from '@/lib/db/prismaEnumFallback';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
@@ -58,7 +59,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       return NextResponse.json({ error: 'Expected JSON body' }, { status: 415 });
     }
 
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = await readJsonObjectBody(request);
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
 
     if (body.action === 'prepare') {
       const extRaw = typeof body.fileExt === 'string' ? body.fileExt.toLowerCase().replace(/^\./, '') : 'webm';

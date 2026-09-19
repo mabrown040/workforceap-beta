@@ -103,13 +103,15 @@
 | [tests/api/member-readiness-summary.spec.ts](../../../tests/api/member-readiness-summary.spec.ts) | 123 | tests |  |
 | [tests/api/member-referral-privacy.spec.ts](../../../tests/api/member-referral-privacy.spec.ts) | 29 | tests |  |
 | [tests/api/member-resume.spec.ts](../../../tests/api/member-resume.spec.ts) | 276 | tests |  |
-| [tests/api/member-route-malformed-input.spec.ts](../../../tests/api/member-route-malformed-input.spec.ts) | 230 | tests |  |
+| [tests/api/member-route-malformed-input.spec.ts](../../../tests/api/member-route-malformed-input.spec.ts) | 231 | tests |  |
+| [tests/api/member-route-null-body.spec.ts](../../../tests/api/member-route-null-body.spec.ts) | 334 | tests |  |
 | [tests/api/member-settings.spec.ts](../../../tests/api/member-settings.spec.ts) | 154 | tests |  |
 | [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 161 | tests |  |
 | [tests/api/member-training-workspace.spec.ts](../../../tests/api/member-training-workspace.spec.ts) | 198 | tests |  |
 | [tests/api/member-weekly-recap.spec.ts](../../../tests/api/member-weekly-recap.spec.ts) | 168 | tests |  |
 | [tests/api/member-wioa-voice-session.spec.ts](../../../tests/api/member-wioa-voice-session.spec.ts) | 89 | tests |  |
 | [tests/api/mentor-letter-route.spec.ts](../../../tests/api/mentor-letter-route.spec.ts) | 80 | tests |  |
+| [tests/api/mentor-session-topic.spec.ts](../../../tests/api/mentor-session-topic.spec.ts) | 109 | tests |  |
 | [tests/api/milestone-approve-reliability.spec.ts](../../../tests/api/milestone-approve-reliability.spec.ts) | 65 | member-counselor |  |
 | [tests/api/notifications.spec.ts](../../../tests/api/notifications.spec.ts) | 510 | communications |  |
 | [tests/api/onboarding-complete.spec.ts](../../../tests/api/onboarding-complete.spec.ts) | 117 | tests |  |

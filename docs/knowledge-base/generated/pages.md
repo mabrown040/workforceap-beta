@@ -414,7 +414,7 @@
 | [app/admin/members/\[id\]/page.tsx](../../../app/admin/members/%5Bid%5D/page.tsx) | 1178 | administration | generateMetadata:79, default:87 |
 | [app/admin/members/\[id\]/readiness/ReadinessCounselorClient.tsx](../../../app/admin/members/%5Bid%5D/readiness/ReadinessCounselorClient.tsx) | 216 | administration | default:25 |
 | [app/admin/members/\[id\]/readiness/page.tsx](../../../app/admin/members/%5Bid%5D/readiness/page.tsx) | 57 | administration | generateMetadata:11, default:19 |
-| [app/admin/members/\[id\]/stakeholder/page.tsx](../../../app/admin/members/%5Bid%5D/stakeholder/page.tsx) | 694 | administration | dynamic:21, generateMetadata:23, default:57 |
+| [app/admin/members/\[id\]/stakeholder/page.tsx](../../../app/admin/members/%5Bid%5D/stakeholder/page.tsx) | 697 | administration | dynamic:21, generateMetadata:23, default:57 |
 | [app/admin/members/duplicates/page.tsx](../../../app/admin/members/duplicates/page.tsx) | 196 | administration | metadata:21, default:79 |
 | [app/admin/members/interview-ready/loading.tsx](../../../app/admin/members/interview-ready/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/members/interview-ready/page.tsx](../../../app/admin/members/interview-ready/page.tsx) | 90 | administration | generateMetadata:11, default:19 |

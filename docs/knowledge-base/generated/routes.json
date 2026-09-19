@@ -24081,12 +24081,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 29,
+        "line": 30,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 70,
+        "line": 73,
         "kind": "Variable"
       }
     ],
@@ -24103,7 +24103,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 7,
+        "line": 8,
         "kind": "import"
       }
     ]
@@ -24310,12 +24310,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 103,
+        "line": 104,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 243,
+        "line": 242,
         "kind": "Variable"
       }
     ],
@@ -24337,12 +24337,12 @@
       },
       {
         "specifier": "@/lib/rate-limit",
-        "line": 10,
+        "line": 11,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 12,
+        "line": 13,
         "kind": "import"
       }
     ]
@@ -24391,7 +24391,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 315,
+        "line": 316,
         "kind": "Variable"
       }
     ],
@@ -24402,27 +24402,27 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/tenant/organization",
-        "line": 5,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/tenant/resolveOrgFromRequest",
         "line": 6,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/tenant/resolveOrgFromRequest",
+        "line": 7,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/rate-limit",
-        "line": 12,
+        "line": 13,
         "kind": "import"
       },
       {
         "specifier": "@/lib/auth/supabaseAdminUsers",
-        "line": 14,
+        "line": 15,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 29,
+        "line": 30,
         "kind": "import"
       }
     ]
@@ -24888,7 +24888,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 34,
+        "line": 35,
         "kind": "Variable"
       }
     ],
@@ -24904,12 +24904,12 @@
       },
       {
         "specifier": "@/lib/auth/ensureUser",
-        "line": 3,
+        "line": 4,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 9,
+        "line": 10,
         "kind": "import"
       }
     ]
@@ -25104,7 +25104,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 325,
+        "line": 323,
         "kind": "Variable"
       }
     ],
@@ -25120,17 +25120,17 @@
       },
       {
         "specifier": "@/lib/tenant/withTenantScope",
-        "line": 4,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/tenant/organization",
         "line": 5,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/tenant/organization",
+        "line": 6,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 11,
+        "line": 12,
         "kind": "import"
       }
     ]
@@ -25269,7 +25269,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 77,
+        "line": 75,
         "kind": "Variable"
       }
     ],
@@ -25285,7 +25285,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 7,
+        "line": 8,
         "kind": "import"
       }
     ]
@@ -25400,7 +25400,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 26,
+        "line": 27,
         "kind": "Variable"
       }
     ],
@@ -25416,7 +25416,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 21,
+        "line": 22,
         "kind": "import"
       }
     ]
@@ -26047,7 +26047,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 11,
+        "line": 12,
         "kind": "Variable"
       }
     ],
@@ -26063,7 +26063,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 6,
+        "line": 7,
         "kind": "import"
       }
     ]
@@ -26107,17 +26107,17 @@
     "exports": [
       {
         "name": "GET",
-        "line": 55,
+        "line": 56,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 166,
+        "line": 165,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 190,
+        "line": 189,
         "kind": "Variable"
       }
     ],
@@ -26135,12 +26135,12 @@
       },
       {
         "specifier": "@/lib/messages/rateLimit",
-        "line": 10,
+        "line": 11,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 13,
+        "line": 14,
         "kind": "import"
       }
     ]
@@ -26405,12 +26405,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 27,
+        "line": 28,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 74,
+        "line": 73,
         "kind": "Variable"
       }
     ],
@@ -26427,7 +26427,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 5,
+        "line": 6,
         "kind": "import"
       }
     ]
@@ -27082,7 +27082,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 45,
+        "line": 46,
         "kind": "Variable"
       }
     ],
@@ -27098,12 +27098,12 @@
       },
       {
         "specifier": "@/lib/auth/ensureUser",
-        "line": 3,
+        "line": 4,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 13,
+        "line": 14,
         "kind": "import"
       }
     ]
@@ -27182,7 +27182,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 25,
+        "line": 26,
         "kind": "Variable"
       }
     ],
@@ -27198,12 +27198,12 @@
       },
       {
         "specifier": "@/lib/rate-limit",
-        "line": 8,
+        "line": 9,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 21,
+        "line": 22,
         "kind": "import"
       }
     ]
@@ -27217,7 +27217,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 21,
+        "line": 22,
         "kind": "Variable"
       }
     ],
@@ -27233,12 +27233,12 @@
       },
       {
         "specifier": "@/lib/rate-limit",
-        "line": 15,
+        "line": 16,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 17,
+        "line": 18,
         "kind": "import"
       }
     ]
@@ -27394,7 +27394,7 @@
     "exports": [
       {
         "name": "PATCH",
-        "line": 8,
+        "line": 9,
         "kind": "Variable"
       }
     ],
@@ -27410,7 +27410,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 5,
+        "line": 6,
         "kind": "import"
       }
     ]
@@ -27595,12 +27595,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 51,
+        "line": 52,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 157,
+        "line": 161,
         "kind": "Variable"
       }
     ],
@@ -27617,7 +27617,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 8,
+        "line": 9,
         "kind": "import"
       }
     ]
@@ -27666,7 +27666,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 30,
+        "line": 31,
         "kind": "Variable"
       }
     ],
@@ -27682,7 +27682,7 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 8,
+        "line": 9,
         "kind": "import"
       }
     ]
@@ -27696,7 +27696,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 13,
+        "line": 14,
         "kind": "Variable"
       }
     ],
@@ -27712,12 +27712,12 @@
       },
       {
         "specifier": "@/lib/auth/ensureUser",
-        "line": 3,
+        "line": 4,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 7,
+        "line": 8,
         "kind": "import"
       }
     ]
@@ -27873,7 +27873,7 @@
       },
       {
         "name": "POST",
-        "line": 86,
+        "line": 92,
         "kind": "Variable"
       }
     ],

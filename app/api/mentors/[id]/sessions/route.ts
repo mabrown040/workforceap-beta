@@ -25,11 +25,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(_req: N
 export const GET = withApiGuc(_GET);
 
 const MAX_TOPIC_CHARS = 4000;
+const MAX_NOTES_CHARS = 4000;
 
 /**
  * Body sent by components/portal/MentorSessionForm: `scheduledAt` is a
- * datetime-local string, `topic` free text. Anything else (empty date, wrong
- * types, non-object JSON) used to reach Prisma and surface as a 500.
+ * datetime-local string, `topic` free text. `notes` is accepted for clients
+ * that send one. Anything else (empty date, wrong types, non-object JSON)
+ * used to reach Prisma and surface as a 500.
  */
 const createSessionSchema = z.object({
   scheduledAt: z
@@ -38,6 +40,7 @@ const createSessionSchema = z.object({
     .min(1, 'Pick a date and time for the session')
     .refine((value) => !Number.isNaN(new Date(value).getTime()), 'Pick a valid date and time for the session'),
   topic: z.string().trim().max(MAX_TOPIC_CHARS).optional().nullable(),
+  notes: z.string().trim().max(MAX_NOTES_CHARS).optional().nullable(),
   durationMin: z.number().int().min(15).max(480).optional().nullable(),
 });
 
@@ -71,7 +74,10 @@ async function _POST(req: NextRequest, { params }: { params: Promise<{ id: strin
       memberId: user.id,
       scheduledAt: new Date(parsed.data.scheduledAt),
       durationMin: parsed.data.durationMin ?? 30,
-      notes: parsed.data.topic || null,
+      // `topic` is what the member typed into the form; `notes` is its own
+      // column. Sessions booked before this fix carry the topic in `notes`.
+      topic: parsed.data.topic || null,
+      notes: parsed.data.notes || null,
       status: 'PENDING',
     },
   }));

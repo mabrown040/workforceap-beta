@@ -1,5 +1,6 @@
 import { NextResponse, after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseEnrolledEmail } from '@/lib/email';
@@ -28,14 +29,11 @@ export const POST = withApiGuc(async (request: Request) => {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const o = await readJsonObjectBody(request);
+  if (!o) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const o = body as Record<string, unknown>;
   const slug = typeof o.programSlug === 'string'
     ? canonicalizeProgramSlug(o.programSlug)
     : '';

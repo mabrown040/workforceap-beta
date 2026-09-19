@@ -13415,6 +13415,106 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/member-route-null-body.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 51
+      },
+      {
+        "file": "app/api/gdpr/consent/route.ts",
+        "line": 113
+      },
+      {
+        "file": "app/api/interview/history/route.ts",
+        "line": 114
+      },
+      {
+        "file": "app/api/invite/accept/route.ts",
+        "line": 115
+      },
+      {
+        "file": "app/api/member/career-business-coach/completion/route.ts",
+        "line": 116
+      },
+      {
+        "file": "app/api/member/coursera/enroll-in-course/route.ts",
+        "line": 117
+      },
+      {
+        "file": "app/api/member/courses/complete/route.ts",
+        "line": 118
+      },
+      {
+        "file": "app/api/member/enroll/route.ts",
+        "line": 119
+      },
+      {
+        "file": "app/api/member/linkedin-enrich/route.ts",
+        "line": 120
+      },
+      {
+        "file": "app/api/member/messages/route.ts",
+        "line": 121
+      },
+      {
+        "file": "app/api/member/pitch-deployments/route.ts",
+        "line": 122
+      },
+      {
+        "file": "app/api/member/settings/route.ts",
+        "line": 123
+      },
+      {
+        "file": "app/api/member/resume/generate/route.ts",
+        "line": 124
+      },
+      {
+        "file": "app/api/member/resume/plain-text/route.ts",
+        "line": 125
+      },
+      {
+        "file": "app/api/member/resume-coach/parse-suggestions/route.ts",
+        "line": 126
+      },
+      {
+        "file": "app/api/member/voice-interview/recording/route.ts",
+        "line": 127
+      },
+      {
+        "file": "app/api/member/voice-interview/transcript/route.ts",
+        "line": 128
+      },
+      {
+        "file": "app/api/member/voice-session/checkpoint/route.ts",
+        "line": 129
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 130
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 131
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/member-settings.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -13609,6 +13709,42 @@
       {
         "file": "lib/db/prisma.ts",
         "line": 45
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/mentor-session-topic.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 36
+      },
+      {
+        "file": "app/api/mentors/[id]/sessions/route.ts",
+        "line": 44
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 45
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 46
       }
     ],
     "kind": "test-candidate",

@@ -1,5 +1,6 @@
 import { after, NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -320,14 +321,11 @@ async function ensureCounselorRow(
       return NextResponse.json({ error: 'Too many attempts. Please try again in an hour.' }, { status: 429 });
     }
   
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
+    const o = await readJsonObjectBody(request);
+    if (!o) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
   
-    const o = body as Record<string, unknown>;
     const token = typeof o.token === 'string' ? o.token.trim() : '';
     const fullName = typeof o.fullName === 'string' ? o.fullName.trim() : '';
     const phone = typeof o.phone === 'string' ? o.phone.trim() || null : null;

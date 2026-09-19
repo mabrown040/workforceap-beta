@@ -1,11 +1,12 @@
 import type { TrainingBillingPacket } from '@prisma/client';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import type { PacketDocumentInput } from './packetPdf';
 import { getTrainingProviderIdentity } from './providerIdentity';
 import { parseLineItems } from './packetSchema';
 
 export function resolveProgramTitle(programSlug: string, catalogName?: string | null): string {
-  return getProgramBySlug(programSlug)?.title ?? catalogName ?? programSlug;
+  return getProgramBySlug(programSlug)?.title ?? catalogName ?? programDisplayTitle(programSlug);
 }
 
 /** Turn a stored packet row into the renderer input (shared by the PDF route and the emails). */

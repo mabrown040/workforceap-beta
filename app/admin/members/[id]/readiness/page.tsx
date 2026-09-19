@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
@@ -44,13 +45,13 @@ export default async function AdminMemberReadinessPage({
             Back to {member.fullName}
           </Link>
           <h1 className="readiness-title">Career Readiness Checklist — {member.fullName}</h1>
-          <p className="readiness-meta">Program: {program?.title ?? member.enrolledProgram ?? '—'}</p>
+          <p className="readiness-meta">Program: {member.enrolledProgram ? programDisplayTitle(member.enrolledProgram) : '—'}</p>
         </div>
       </div>
       <ReadinessCounselorClient
         memberId={id}
         memberName={member.fullName}
-        programName={program?.title ?? member.enrolledProgram ?? '—'}
+        programName={member.enrolledProgram ? programDisplayTitle(member.enrolledProgram) : '—'}
       />
     </div>
   );

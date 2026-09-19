@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { CheckCircle2, Clock, MessageSquare, TriangleAlert } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   listFollowUpTemplates,
   templateMatchesPriorities,
@@ -382,7 +382,7 @@ function PriorityRow({
         </div>
         <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
           {row.enrolledProgram
-            ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram
+            ? programDisplayTitle(row.enrolledProgram)
             : t('priorityQueueNoProgram')}
         </div>
         <div style={{ fontSize: 12, color: 'var(--wa-text)', marginTop: 4 }}>{row.blockerReason}</div>

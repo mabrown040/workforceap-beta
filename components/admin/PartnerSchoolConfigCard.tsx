@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { enrollmentPathForSlug } from '@/lib/enroll/enrollmentPath';
 import { CardHead, StatusTag } from '@/components/portal/kit';
 
@@ -19,7 +19,7 @@ export type PartnerSchoolConfig = {
 export default function PartnerSchoolConfigCard({ config }: { config: PartnerSchoolConfig }) {
   const enrollPath = enrollmentPathForSlug(config.slug);
   const programs = config.programSlugs
-    .map((slug) => getProgramBySlug(slug)?.title ?? slug)
+    .map((slug) => programDisplayTitle(slug))
     .filter(Boolean);
 
   return (

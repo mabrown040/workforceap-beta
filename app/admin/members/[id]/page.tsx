@@ -10,6 +10,7 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { prisma } from '@/lib/db/prisma';
 import { LOOKUP_LIST_CAP, MEMBER_HISTORY_CAP, isListTruncated } from '@/lib/db/queryCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { buildMemberProgramOptions } from '@/lib/admin/assignableProgramOptions';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
@@ -738,7 +739,7 @@ export default async function AdminMemberDetailPage({
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
-          <p><strong>Enrolled:</strong> {program?.title ?? activeProgramSlug ?? '—'}</p>
+          <p><strong>Enrolled:</strong> {activeProgramSlug ? programDisplayTitle(activeProgramSlug) : '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) ?? '—'}</p>
           {program ? (
             <p>

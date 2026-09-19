@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { JOB_READY_TRAINING_PCT } from '@/lib/member/trainingProgress';
 import DataTable from '@/components/portal/ui/DataTable';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export type JobReadyRow = {
   id: string;
@@ -51,7 +52,7 @@ export default function AdminJobReadyTable({ rows }: { rows: JobReadyRow[] }) {
               </>
             ),
           },
-          { key: 'program', header: 'Program', cell: (r) => r.enrolledProgram ?? '—' },
+          { key: 'program', header: 'Program', cell: (r) => (r.enrolledProgram ? programDisplayTitle(r.enrolledProgram) : '—') },
           {
             key: 'training',
             header: 'Training progress',

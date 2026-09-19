@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
@@ -107,7 +108,7 @@ export const GET = withApiGuc(async (
         id: m.id,
         fullName: m.fullName,
         email: m.email,
-        enrolledProgram: program?.title ?? assignment.programSlug,
+        enrolledProgram: assignment.programSlug ? programDisplayTitle(assignment.programSlug) : assignment.programSlug,
         enrolledAt: m.enrolledAt,
         progressPct: pct,
         stage: PIPELINE_STAGE_LABELS[stage],

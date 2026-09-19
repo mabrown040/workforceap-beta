@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   programSlugReadCandidates,
   programSlugsEquivalent,
@@ -540,7 +541,7 @@ async function renderMemberDashboard(
   const programSelectorOptions = activeProgramView.allEnrollments.map((e) => ({
     id: e.id,
     programSlug: e.programSlug,
-    programTitle: getProgramBySlug(e.programSlug)?.title ?? e.programSlug,
+    programTitle: programDisplayTitle(e.programSlug),
     isPrimary: e.isPrimary,
   }));
   const showProgramSelector = programSelectorOptions.length > 1 && !!enrolledProgram;

@@ -6,7 +6,7 @@ import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { assignMemberCounselor } from '@/lib/counselor/assignment';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { logInboxZeroBulkAuditEvent } from '@/lib/counselor/inboxZeroAudit';
 import {
@@ -114,12 +114,9 @@ export const POST = withApiGuc(async (request: Request) => {
             continue;
           }
 
-          const program = member.enrolledProgram
-            ? getProgramBySlug(member.enrolledProgram)
-            : null;
           const rendered = renderFollowUpTemplate(template, {
             memberName: member.fullName ?? 'there',
-            programName: program?.title ?? member.enrolledProgram ?? 'your program',
+            programName: member.enrolledProgram ? programDisplayTitle(member.enrolledProgram) : 'your program',
           });
           const normalized = normalizeMessageBody(`${rendered.subject}\n\n${rendered.body}`);
           if (!normalized.ok) {

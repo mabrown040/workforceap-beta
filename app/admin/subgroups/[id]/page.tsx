@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritLeaderOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import PageHeader from '@/components/portal/PageHeader';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
@@ -92,7 +93,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
         id: m.id,
         fullName: m.fullName,
         email: m.email,
-        enrolledProgram: program?.title ?? assignment.programSlug,
+        enrolledProgram: assignment.programSlug ? programDisplayTitle(assignment.programSlug) : assignment.programSlug,
         enrolledAt: m.enrolledAt,
         progressPct: pct,
         stage: PIPELINE_STAGE_LABELS[stage],

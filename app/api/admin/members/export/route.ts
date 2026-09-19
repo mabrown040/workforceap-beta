@@ -7,7 +7,7 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { formatPhone } from '@/lib/formatPhone';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { buildDirectorySearchWhere, normalizeDirectorySearch } from '@/lib/admin/directorySearch';
@@ -193,7 +193,7 @@ async function _GET(request: NextRequest) {
     ];
 
     const rows = filtered.map((m) => {
-      const programTitle = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : '';
+      const programTitle = m.enrolledProgram ? programDisplayTitle(m.enrolledProgram) : '';
       const status = m.pipelineBoardStage ?? 'Active';
       const placementStatus = m.placementRecord
         ? `Placed at ${m.placementRecord.employerName} — ${m.placementRecord.jobTitle}`

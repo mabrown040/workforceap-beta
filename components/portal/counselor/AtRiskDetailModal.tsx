@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { useFocusTrap } from '@/components/portal/kit/hooks/useFocusTrap';
 import {
   X,
@@ -68,6 +70,7 @@ interface Props {
 }
 
 export default function AtRiskDetailModal({ member, onClose, onStatusChange }: Props) {
+  const tCommon = useTranslations('common');
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [notes, setNotes] = useState<CounselorNote[]>([]);
   const [loadingTimeline, setLoadingTimeline] = useState(false);
@@ -134,7 +137,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
       setNotes((prev) => [data.note, ...prev]);
       setNoteText('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save note');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Failed to save note' }, 'at-risk-note'));
     } finally {
       setSavingNote(false);
     }

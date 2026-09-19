@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, useCallback, type ReactNode } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import {
   BookOpen,
   Check,
@@ -199,6 +201,7 @@ export function AtRiskDashboardView({
   onRetry,
   onUpdateStatus,
   onBulkAcknowledge}: AtRiskDashboardViewProps) {
+  const tCommon = useTranslations('common');
   // Local mirror of `members` so the detail modal's status-change callback
   // (which — matching the legacy behavior — only syncs local UI state, it
   // does not itself call the PATCH endpoint) can update the list instantly.
@@ -322,7 +325,7 @@ export function AtRiskDashboardView({
         return next;
       });
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Failed to update status');
+      setActionError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Failed to update status' }, 'at-risk-status'));
     } finally {
       setActingIds((prev) => {
         const next = new Set(prev);
@@ -350,7 +353,7 @@ export function AtRiskDashboardView({
       }
       setSelectedIds(new Set());
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Bulk update failed');
+      setActionError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Bulk update failed' }, 'at-risk-bulk-acknowledge'));
     } finally {
       setBulkActionLoading(false);
     }
@@ -719,6 +722,7 @@ export function AtRiskDashboardView({
 // ─── Data-fetching container (the real /counselor/at-risk route) ──────────
 
 export default function AtRiskDashboard() {
+  const tCommon = useTranslations('common');
   const [members, setMembers] = useState<AtRiskMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -740,11 +744,11 @@ export default function AtRiskDashboard() {
       const data: ApiResponse = await res.json();
       setMembers(data.results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Unknown error' }, 'at-risk-dashboard'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tCommon]);
 
   useEffect(() => {
     fetchData();

@@ -3,6 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 
 type InviteData = {
@@ -19,6 +21,7 @@ type InviteData = {
 };
 
 function InviteContent() {
+  const tCommon = useTranslations('common');
   const searchParams = useSearchParams();
   const tokenParam = searchParams?.get('token');
   // The token either arrives in the link or is resolved from email + login code.
@@ -84,7 +87,7 @@ function InviteContent() {
       setData(parsed.data);
       setToken(parsed.data.token);
     } catch (err) {
-      setCodeError(err instanceof Error ? err.message : 'Something went wrong. Try again in a moment.');
+      setCodeError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Something went wrong. Try again in a moment.' }, 'invite-code'));
     } finally {
       setCodeSubmitting(false);
     }
@@ -129,7 +132,7 @@ function InviteContent() {
       setSuccess(true);
       window.location.href = next;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong. Try again in a moment.');
+      setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Something went wrong. Try again in a moment.' }, 'invite-accept'));
       setSubmitting(false);
     }
   };

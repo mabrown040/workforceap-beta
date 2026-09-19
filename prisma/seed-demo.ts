@@ -4,15 +4,23 @@
  * Creates a realistic demo dataset for investor/partner demos and testing.
  * Safe to run multiple times (idempotent via upsert).
  *
+ * Writes live training rows (`CourseEnrollment`, `CourseProgress`,
+ * `MemberProgramProgress`, `MemberPoints`, `UserCertification`) in addition
+ * to the legacy `User.coursesCompleted` JSON. The member dashboard reads the
+ * live tables, not that JSON column.
+ *
  * Run with: npm run db:seed:demo
  * Requires: SEED_DEMO=true in environment
  */
 
 import { randomUUID } from 'crypto';
-import { PrismaClient, ApplicationStatus, JobLocationType, JobTypeEnum, JobStatusEnum, AIJobMatchStatus } from '@prisma/client';
+import { PrismaClient, ApplicationStatus, JobLocationType, JobTypeEnum, JobStatusEnum, AIJobMatchStatus, CourseProgressStatus } from '@prisma/client';
 import { seedOrganizationProgramCatalog } from '../lib/platform/seedProgramCatalog';
 import { DEMO_JOBS, DEMO_AI_MATCHES } from './fixtures/demo-employer-data';
 import { DEFAULT_BRAND_ACCENT } from '../lib/platform/brandColors';
+import { LEGACY_CURRICULUM_VERSION } from '../lib/content/programCurriculumManifest';
+import { programSlugReadCandidates } from '../lib/content/programSlug';
+import { planDemoMemberProgress } from '../lib/demo/demoProgressPlan';
 
 const prisma = new PrismaClient();
 
@@ -108,7 +116,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
       email: 'demo-member@workforceap.org',
       fullName: 'Jordan Williams',
       phone: '5124445001',
-      program: 'ai-professional-developer-certificate-ibm',
+      program: 'software-developer-professional-certificate-ibm',
       coursesCompleted: ['Module 1: Python Basics', 'Module 2: Data Structures', 'Module 3: ML Fundamentals'],
       assessmentScore: 84,
       status: 'enrolled',
@@ -121,7 +129,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
       email: 'maria.santos@demo.workforceap.org',
       fullName: 'Maria Santos',
       phone: '5124445002',
-      program: 'google-it-support-certificate',
+      program: 'it-support-professional-certificate-ibm',
       coursesCompleted: ['Module 1: Technical Support Fundamentals', 'Module 2: The Bits and Bytes of Computer Networking'],
       assessmentScore: 79,
       status: 'enrolled',
@@ -156,7 +164,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
       email: 'priya.kumar@demo.workforceap.org',
       fullName: 'Priya Kumar',
       phone: '5124445004',
-      program: 'data-analytics-google',
+      program: 'data-analytics-professional-certificate-google',
       coursesCompleted: ['Module 1: Foundations', 'Module 2: Ask Questions to Make Data-Driven Decisions'],
       assessmentScore: 76,
       status: 'enrolled',
@@ -168,7 +176,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
       email: 'marcus.bell@demo.workforceap.org',
       fullName: 'Marcus Bell',
       phone: '5124445005',
-      program: 'cybersecurity-google',
+      program: 'cybersecurity-professional-certificate-google',
       coursesCompleted: [
         'Module 1: Foundations of Cybersecurity',
         'Module 2: Play It Safe: Manage Security Risks',
@@ -235,8 +243,150 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
 
   const memberIds: Record<string, string> = {};
 
+  async function seedMemberLiveProgress(
+    userId: string,
+    m: (typeof members)[number],
+  ) {
+    const plan = planDemoMemberProgress({
+      program: m.program,
+      coursesCompleted: m.coursesCompleted,
+      assessmentScore: m.assessmentScore,
+      status: m.status,
+    });
+    if (!plan) {
+      console.warn(`Demo progress skipped for ${m.email}: unknown program ${m.program}`);
+      return;
+    }
+
+    const equivalentSlugs = programSlugReadCandidates(plan.programSlug);
+    await prisma.courseEnrollment.updateMany({
+      where: { userId, programSlug: { in: equivalentSlugs } },
+      data: { isPrimary: false },
+    });
+    await prisma.courseEnrollment.upsert({
+      where: { userId_programSlug: { userId, programSlug: plan.programSlug } },
+      create: {
+        organizationId: orgId,
+        userId,
+        programSlug: plan.programSlug,
+        curriculumVersion: LEGACY_CURRICULUM_VERSION,
+        isPrimary: true,
+      },
+      update: { isPrimary: true },
+    });
+
+    await prisma.courseProgress.deleteMany({
+      where: { userId, programSlug: { in: equivalentSlugs } },
+    });
+    for (const [index, course] of plan.completedCourses.entries()) {
+      const completedAt = new Date(Date.now() - (plan.completedCourses.length - index) * 24 * 60 * 60 * 1000);
+      await prisma.courseProgress.create({
+        data: {
+          userId,
+          programSlug: plan.programSlug,
+          courseSlug: course.slug,
+          courseId: course.courseraCourseId ?? null,
+          status: CourseProgressStatus.COMPLETED,
+          percentComplete: 100,
+          progressPct: 100,
+          startedAt: new Date(completedAt.getTime() - 3 * 24 * 60 * 60 * 1000),
+          completedAt,
+          lastActivityAt: completedAt,
+        },
+      });
+    }
+    const nextCourse = plan.remainingCourses[0];
+    if (nextCourse && m.assessmentScore !== null) {
+      const lastActivityAt = new Date();
+      await prisma.courseProgress.create({
+        data: {
+          userId,
+          programSlug: plan.programSlug,
+          courseSlug: nextCourse.slug,
+          courseId: nextCourse.courseraCourseId ?? null,
+          status: CourseProgressStatus.IN_PROGRESS,
+          percentComplete: 35,
+          progressPct: 35,
+          startedAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
+          lastActivityAt,
+        },
+      });
+    }
+
+    await prisma.memberProgramProgress.upsert({
+      where: { userId_programSlug: { userId, programSlug: plan.programSlug } },
+      create: {
+        userId,
+        programSlug: plan.programSlug,
+        coursesCompleted: plan.coursesCompletedCount,
+        averagePercent: plan.averagePercent,
+      },
+      update: {
+        coursesCompleted: plan.coursesCompletedCount,
+        averagePercent: plan.averagePercent,
+      },
+    });
+
+    for (const event of plan.pointsEvents) {
+      await prisma.pointsTransaction.upsert({
+        where: {
+          userId_event_entityId: {
+            userId,
+            event: event.event,
+            entityId: event.entityId,
+          },
+        },
+        create: {
+          userId,
+          event: event.event,
+          entityId: event.entityId,
+          points: event.points,
+        },
+        update: { points: event.points },
+      });
+    }
+    await prisma.memberPoints.upsert({
+      where: { userId },
+      create: {
+        userId,
+        totalPoints: plan.totalPoints,
+        level: plan.level,
+        currentStreak: Math.min(5, plan.coursesCompletedCount),
+        longestStreak: Math.min(8, plan.coursesCompletedCount + 2),
+        lastActiveDate: new Date(),
+      },
+      update: {
+        totalPoints: plan.totalPoints,
+        level: plan.level,
+        currentStreak: Math.min(5, plan.coursesCompletedCount),
+        longestStreak: Math.min(8, plan.coursesCompletedCount + 2),
+        lastActiveDate: new Date(),
+      },
+    });
+
+    if (plan.awardCertificate && plan.programTitle) {
+      await prisma.userCertification.upsert({
+        where: { userId_certName: { userId, certName: plan.programTitle } },
+        create: {
+          userId,
+          certName: plan.programTitle,
+          earnedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+          status: 'approved',
+        },
+        update: { certName: plan.programTitle },
+      });
+    }
+  }
+
   for (const m of members) {
     const id = randomUUID();
+    const progressPlan = planDemoMemberProgress({
+      program: m.program,
+      coursesCompleted: m.coursesCompleted,
+      assessmentScore: m.assessmentScore,
+      status: m.status,
+    });
+    const enrolledProgram = progressPlan?.programSlug ?? m.program;
     const user = await prisma.user.upsert({
       where: { email: m.email },
       create: {
@@ -245,7 +395,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
         email: m.email,
         fullName: m.fullName,
         phone: m.phone,
-        enrolledProgram: m.program,
+        enrolledProgram,
         coursesCompleted: m.coursesCompleted,
         assessmentCompleted: m.assessmentScore !== null,
         assessmentCompletedAt: m.assessmentScore !== null ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) : null,
@@ -253,7 +403,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
         interviewEligible: m.interviewEligible,
       },
       update: {
-        enrolledProgram: m.program,
+        enrolledProgram,
         coursesCompleted: m.coursesCompleted,
         assessmentCompleted: m.assessmentScore !== null,
         assessmentScorePct: m.assessmentScore,
@@ -262,6 +412,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
       select: { id: true },
     });
     memberIds[m.email] = user.id;
+    await seedMemberLiveProgress(user.id, m);
 
     await prisma.userRole.upsert({
       where: { userId_roleId: { userId: user.id, roleId: memberRole.id } },
@@ -289,7 +440,7 @@ async function seedDemoMembers(orgId: string, partnerIds: Record<string, string>
         data: {
           userId: user.id,
           status: m.applicationStatus,
-          programInterest: m.program,
+          programInterest: enrolledProgram,
           submittedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
         },
       });

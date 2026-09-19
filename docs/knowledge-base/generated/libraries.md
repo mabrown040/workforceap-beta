@@ -484,6 +484,8 @@
 | [lib/db/withDbRetry.ts](../../../lib/db/withDbRetry.ts) | 142 | libraries | isRetryableDbError:76, isConnectionAcquisitionError:89, DbRetryOptions:99, withDbRetry:120 |
 | [lib/db/withRequestGuc.test.ts](../../../lib/db/withRequestGuc.test.ts) | 66 | libraries |  |
 | [lib/db/withRequestGuc.ts](../../../lib/db/withRequestGuc.ts) | 150 | libraries | buildGucContextFromUser:21, withUserGuc:43, withSystemGuc:66, withAnonymousGuc:76, withApiGuc:97, withApiGuc:102, withApiGuc:105, withAuthenticatedApiGuc:128, withAuthenticatedApiGuc:131, withAuthenticatedApiGuc:134 |
+| [lib/demo/demoProgressPlan.test.ts](../../../lib/demo/demoProgressPlan.test.ts) | 101 | libraries |  |
+| [lib/demo/demoProgressPlan.ts](../../../lib/demo/demoProgressPlan.ts) | 160 | libraries | DemoMemberProgressInput:5, DemoPointsEvent:12, DemoProgressPlan:18, matchCompletedCatalogCourses:42, planDemoMemberPoints:69, planDemoMemberProgress:129 |
 | [lib/diagnostics.ts](../../../lib/diagnostics.ts) | 37 | libraries | WorkflowDiagnosticParams:3, recordWorkflowDiagnostic:17 |
 | [lib/elevenlabs-agent-dynamic-defaults.test.ts](../../../lib/elevenlabs-agent-dynamic-defaults.test.ts) | 188 | ai-voice |  |
 | [lib/elevenlabs-agent-patch-runner.test.ts](../../../lib/elevenlabs-agent-patch-runner.test.ts) | 864 | ai-voice |  |

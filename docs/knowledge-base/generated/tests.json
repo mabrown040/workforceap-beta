@@ -5690,6 +5690,34 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/demo/demoProgressPlan.test.ts",
+    "area": "libraries",
+    "domain": "libraries",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/member/pointsConfig.ts",
+        "line": 4
+      },
+      {
+        "file": "lib/demo/demoProgressPlan.ts",
+        "line": 6
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/elevenlabs-agent-dynamic-defaults.test.ts",
     "area": "libraries",
     "domain": "ai-voice",
@@ -18979,6 +19007,36 @@
   },
   {
     "file": "tests/e2e/employer-partner-portal-auth.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@playwright/test"
+    ],
+    "localReferences": [
+      {
+        "file": "tests/e2e/auth-helpers.ts",
+        "line": 2
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "excluded",
+        "reason": "Excluded by tests/e2e/**"
+      },
+      {
+        "runner": "playwright",
+        "source": "playwright.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/e2e/learning-hub-course-card-tablet.spec.ts",
     "area": "tests",
     "domain": "tests",
     "frameworkImports": [

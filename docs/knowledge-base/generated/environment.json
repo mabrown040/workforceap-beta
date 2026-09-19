@@ -2940,6 +2940,10 @@
       "declaredInRootExample": false,
       "references": [
         {
+          "file": "tests/e2e/learning-hub-course-card-tablet.spec.ts",
+          "line": 4
+        },
+        {
           "file": "tests/e2e/workspace-shell-layout.spec.ts",
           "line": 3
         }
@@ -3494,7 +3498,7 @@
       "references": [
         {
           "file": "prisma/seed-demo.ts",
-          "line": 507
+          "line": 658
         }
       ]
     },

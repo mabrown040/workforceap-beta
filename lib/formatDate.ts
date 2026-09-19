@@ -22,6 +22,18 @@ export function formatPortalDate(input: string | number | Date): string {
   return d.toLocaleDateString(PORTAL_LOCALE, dateOpts);
 }
 
+/** Time-of-day only (e.g. `9:30 PM CDT`) for compact inbox / list rows. */
+export function formatPortalTime(input: string | number | Date): string {
+  const d = input instanceof Date ? input : new Date(input);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString(PORTAL_LOCALE, {
+    timeZone: PORTAL_TIMEZONE,
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  });
+}
+
 export function formatPortalDateTime(input: string | number | Date): string {
   const d = input instanceof Date ? input : new Date(input);
   if (Number.isNaN(d.getTime())) return '';

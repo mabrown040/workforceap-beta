@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
+import { statusLabel } from '@/lib/employer/statusLabel';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import type { AppMsg, EmployerApplicationRow } from './EmployerApplicationsClient';
 
@@ -35,7 +36,7 @@ function statusColor(status: string): { bg: string; color: string } {
   return { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };
 }
 
-function statusLabel(status: string): string {
+function applicationStatusLabel(status: string): string {
   const map: Record<string, string> = {
     pending: 'New',
     reviewing: 'Under Review',
@@ -44,7 +45,7 @@ function statusLabel(status: string): string {
     hired: 'Hired',
     rejected: 'Declined',
   };
-  return map[status] ?? status;
+  return map[status] ?? statusLabel(status);
 }
 
 function initials(name: string | null): string {
@@ -206,7 +207,7 @@ export default function MobileApplicationsClient({
                         className="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0"
                         style={{ background: sc.bg, color: sc.color, whiteSpace: 'nowrap' }}
                       >
-                        {statusLabel(app.status)}
+                        {applicationStatusLabel(app.status)}
                       </span>
                     </div>
                     <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
@@ -272,7 +273,7 @@ export default function MobileApplicationsClient({
                                   : { background: 'var(--color-accent)', color: '#ffffff' }
                               }
                             >
-                              {busyId === app.id ? '…' : statusLabel(s)}
+                              {busyId === app.id ? '…' : applicationStatusLabel(s)}
                             </button>
                           );
                         })}

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "2a411b984de426b873088d0997c7dcfc4429d2173b95564b3816a3ae18fd0bed",
+  "inputTreeSha256": "930db524cb0babc8a215da3e05ba41290c13ab8b89f24a3307ef32745851daaf",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9740,19 +9740,19 @@
       "path": "app/(portal)/dashboard/mentor/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 5392,
-      "lines": 129,
-      "sha256": "75749eb8e060569dfd70d1fea236fc690b1b712058efaf8ce5bf04731314481e",
+      "bytes": 5546,
+      "lines": 131,
+      "sha256": "72d332d1969209b13883081d883c99148820c982908a046fe10307bcadefac4e",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 11,
+          "line": 13,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 20,
+          "line": 22,
           "kind": "FunctionDeclaration",
           "localName": "MentorDashboardPage"
         }
@@ -9760,12 +9760,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 11,
+          "line": 13,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MentorDashboardPage",
-          "line": 20,
+          "line": 22,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -9885,19 +9885,19 @@
       "path": "app/(portal)/dashboard/messages/page.tsx",
       "area": "pages",
       "domain": "communications",
-      "bytes": 8891,
-      "lines": 224,
-      "sha256": "e3b3cb7d26bd6a5b2a602e37c167cd2eee51f643cc6561c73e7d3ee6169b6592",
+      "bytes": 8881,
+      "lines": 223,
+      "sha256": "dac534f388865300fdaf859d645084eeead07e7f7b2f754508c5a915f699619a",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 28,
+          "line": 29,
           "kind": "FunctionDeclaration",
           "localName": "MemberMessagesPage"
         }
@@ -9905,12 +9905,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MemberMessagesPage",
-          "line": 28,
+          "line": 29,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -11433,19 +11433,19 @@
       "path": "app/(portal)/employer/candidates/[studentId]/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 40236,
-      "lines": 735,
-      "sha256": "d041c6db4e2c3a3aefa345316efb001532edfc68fbefd1a478362855eadfaee9",
+      "bytes": 40324,
+      "lines": 732,
+      "sha256": "1335bbb9c629f6bf9c8eec67693ddd70794cf5e670b337d164b9329a5a995971",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 33,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 58,
+          "line": 55,
           "kind": "FunctionDeclaration",
           "localName": "EmployerCandidateProfilePage"
         }
@@ -11453,22 +11453,22 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 28,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "generateMetadata",
-          "line": 33,
+          "line": 34,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDateTime",
-          "line": 47,
+          "line": 50,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerCandidateProfilePage",
-          "line": 58,
+          "line": 55,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13278,19 +13278,19 @@
       "path": "app/(portal)/partner/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 61969,
-      "lines": 1387,
-      "sha256": "5cac5d1e29dc0381ab0a33ceb9c365d641e263d3cbbe8f3a842320b371648494",
+      "bytes": 62031,
+      "lines": 1388,
+      "sha256": "2c0135de92a82687156f35d68ac758e68c680c1c128927ba111ea2c3772f5366",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 58,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration",
           "localName": "PartnerDashboardPage"
         }
@@ -13298,17 +13298,17 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 58,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "JOURNEY_STAGES",
-          "line": 67,
+          "line": 68,
           "kind": "Variable"
         },
         {
           "name": "PartnerDashboardPage",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13318,19 +13318,19 @@
       "path": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 25088,
-      "lines": 530,
-      "sha256": "d75caefabd28faf5d0775a5fb165b25d0c81803dfcddde109a4fae3c02f105f8",
+      "bytes": 25183,
+      "lines": 533,
+      "sha256": "d22f91d9e9a76abcaa969f59a67b23109e3251c7de79808aeb1fe4e4e7fec9cf",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 31,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 58,
+          "line": 61,
           "kind": "FunctionDeclaration",
           "localName": "PartnerReferredMemberDetailPage"
         }
@@ -13338,37 +13338,37 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 27,
+          "line": 28,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "generateMetadata",
-          "line": 31,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDate",
-          "line": 40,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDateTime",
-          "line": 44,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatSalary",
-          "line": 48,
+          "line": 51,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sectionHeading",
-          "line": 54,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerReferredMemberDetailPage",
-          "line": 58,
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54316,14 +54316,14 @@
       "path": "components/employer/EmployerOutcomesDashboard.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 8545,
-      "lines": 230,
-      "sha256": "7ee76f7a4da70801e57971f84afe97460a566496b456a9f0839aaa5c03a51bc8",
+      "bytes": 8616,
+      "lines": 231,
+      "sha256": "4b397071e61b6c161638c3ce195554dd521017f8f4d06799a13e70fac0f90b55",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 45,
+          "line": 46,
           "kind": "FunctionDeclaration",
           "localName": "EmployerOutcomesDashboard"
         }
@@ -54331,27 +54331,27 @@
       "declarations": [
         {
           "name": "Metrics",
-          "line": 10,
+          "line": 11,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "Job",
-          "line": 21,
+          "line": 22,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "ProgramStat",
-          "line": 28,
+          "line": 29,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "EmployerOutcomesData",
-          "line": 35,
+          "line": 36,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "EmployerOutcomesDashboard",
-          "line": 45,
+          "line": 46,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54504,24 +54504,24 @@
       "path": "components/employer/EmployerWorkQueueClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 10791,
-      "lines": 326,
-      "sha256": "e38ed4d67c7a688cf0dd732bb302a538a51e0ba0005d1b6692be56f302ac52a7",
+      "bytes": 10708,
+      "lines": 321,
+      "sha256": "f19318b3fb88891423637554a73a9453ca632d6489714bdd782db5053cedf314",
       "binary": false,
       "exports": [
         {
           "name": "WqApp",
-          "line": 10,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WqJob",
-          "line": 20,
+          "line": 21,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 122,
+          "line": 117,
           "kind": "FunctionDeclaration",
           "localName": "EmployerWorkQueueClient"
         }
@@ -54529,57 +54529,52 @@
       "declarations": [
         {
           "name": "WqApp",
-          "line": 10,
+          "line": 11,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WqJob",
-          "line": 20,
+          "line": 21,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Focus",
-          "line": 27,
+          "line": 28,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "APPLICATION_UPDATE_FAILED",
-          "line": 29,
+          "line": 30,
           "kind": "Variable"
         },
         {
           "name": "SectionId",
-          "line": 30,
+          "line": 31,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SECTION_TONE",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "SECTION_STATUS_TONE",
-          "line": 38,
+          "line": 39,
           "kind": "Variable"
         },
         {
-          "name": "statusLabel",
-          "line": 44,
-          "kind": "FunctionDeclaration"
-        },
-        {
           "name": "pillButton",
-          "line": 51,
+          "line": 46,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pillLink",
-          "line": 89,
+          "line": 84,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerWorkQueueClient",
-          "line": 122,
+          "line": 117,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54589,14 +54584,14 @@
       "path": "components/employer/EmployerWorkflowTimeline.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 1597,
-      "lines": 41,
-      "sha256": "a14aa2c344569a479d95c21eaa4c9eebeb8c1364621cb84cc687ff8c787d1d22",
+      "bytes": 1650,
+      "lines": 43,
+      "sha256": "a99098becd3fca4ccee531918c9c8ea3f3c8ef7e85279400e8ee66cd38385dd1",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration",
           "localName": "EmployerWorkflowTimeline"
         }
@@ -54604,12 +54599,12 @@
       "declarations": [
         {
           "name": "Ev",
-          "line": 1,
+          "line": 3,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EmployerWorkflowTimeline",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54684,14 +54679,14 @@
       "path": "components/employer/JobForm.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 18684,
-      "lines": 469,
-      "sha256": "f2e90ed4e31e948ad262bb7dd6d1fe57b026e1c5c85400790db628460dc90537",
+      "bytes": 18854,
+      "lines": 472,
+      "sha256": "68171051ed9610e7ff3dcf031290d1607ddbc211961a888219e9a24428b9f157",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration",
           "localName": "JobForm"
         }
@@ -54699,27 +54694,27 @@
       "declarations": [
         {
           "name": "JobProvenance",
-          "line": 9,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "JobFormProps",
-          "line": 15,
+          "line": 16,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "FieldErrors",
-          "line": 52,
+          "line": 53,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "formatImportMethod",
-          "line": 56,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "JobForm",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54764,14 +54759,14 @@
       "path": "components/employer/MobileApplicationsClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 13896,
-      "lines": 305,
-      "sha256": "a8d90bee8c0482e66b2f8af43da0222b6d794db6984731fff3fb497e0648ea23",
+      "bytes": 14000,
+      "lines": 306,
+      "sha256": "f477f75e3e810aaca43b47f3be966badc428231119507fdef89e42a41bdcf000",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 60,
+          "line": 61,
           "kind": "FunctionDeclaration",
           "localName": "MobileApplicationsClient"
         }
@@ -54779,32 +54774,32 @@
       "declarations": [
         {
           "name": "STATUS_CHIP_FILTERS",
-          "line": 9,
+          "line": 10,
           "kind": "Variable"
         },
         {
           "name": "STATUS_ACTIONS",
-          "line": 19,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "statusColor",
-          "line": 28,
+          "line": 29,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "statusLabel",
-          "line": 38,
+          "name": "applicationStatusLabel",
+          "line": 39,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "initials",
-          "line": 50,
+          "line": 51,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MobileApplicationsClient",
-          "line": 60,
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -57267,14 +57262,14 @@
       "path": "components/partner/PartnerWorkflowTimeline.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 1739,
-      "lines": 43,
-      "sha256": "badf0abfb27b0914f5058d3fe7816ba92ce499cafb2726f09a445a701ff9b3b6",
+      "bytes": 1792,
+      "lines": 45,
+      "sha256": "a9ee7ec47cb22ad99db0274abe0d508e9f820c37fc5fbb1b4ed70fbd89ffb8d9",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration",
           "localName": "PartnerWorkflowTimeline"
         }
@@ -57282,12 +57277,12 @@
       "declarations": [
         {
           "name": "Ev",
-          "line": 1,
+          "line": 3,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PartnerWorkflowTimeline",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -113642,6 +113637,50 @@
       "directive": null
     },
     {
+      "path": "lib/employer/jobExpiryInstant.ts",
+      "area": "libraries",
+      "domain": "jobs-employers",
+      "bytes": 2649,
+      "lines": 62,
+      "sha256": "b4168e2d7186e79f68e231eea5dcd123462f806354ee1989481e00eed1983532",
+      "binary": false,
+      "exports": [
+        {
+          "name": "jobExpiryInstant",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "jobExpiryDateInput",
+          "line": 50,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "DATE_INPUT_RE",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "portalOffsetMinutes",
+          "line": 6,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "jobExpiryInstant",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "jobExpiryDateInput",
+          "line": 50,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/employer/jobImportBulk.ts",
       "area": "libraries",
       "domain": "jobs-employers",
@@ -114189,6 +114228,30 @@
         {
           "name": "createEmployerUser",
           "line": 12,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/employer/statusLabel.ts",
+      "area": "libraries",
+      "domain": "jobs-employers",
+      "bytes": 410,
+      "lines": 11,
+      "sha256": "cd3f53e7aeebb18287a78937f322e49e3d27e5334eee6caa5e4338d8b31985a4",
+      "binary": false,
+      "exports": [
+        {
+          "name": "statusLabel",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "statusLabel",
+          "line": 7,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -115046,9 +115109,9 @@
       "path": "lib/formatDate.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 1195,
-      "lines": 34,
-      "sha256": "dfbb14422f259a6d2a6e626266733da3f48e65a094a94084a7c893bf7e90bd2f",
+      "bytes": 1608,
+      "lines": 46,
+      "sha256": "656f7b7cf0bebbaec3493bf935a7fbc0634bec7e827066cdaca212ee3ebf4366",
       "binary": false,
       "exports": [
         {
@@ -115062,8 +115125,13 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "formatPortalTime",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "formatPortalDateTime",
-          "line": 25,
+          "line": 37,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -115089,8 +115157,13 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "formatPortalTime",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "formatPortalDateTime",
-          "line": 25,
+          "line": 37,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -122748,6 +122821,40 @@
         {
           "name": "inferCourseProgressStatusFromXapiVerb",
           "line": 9,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/mentor/sessionStatusLabel.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 578,
+      "lines": 16,
+      "sha256": "63e8a9bead04797acc43e14933405191478738d80aed44ea27875e7648f300cb",
+      "binary": false,
+      "exports": [
+        {
+          "name": "MENTOR_SESSION_STATUS_LABELS",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "mentorSessionStatusLabel",
+          "line": 14,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "MENTOR_SESSION_STATUS_LABELS",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "mentorSessionStatusLabel",
+          "line": 14,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -155132,6 +155239,24 @@
       "directive": null
     },
     {
+      "path": "tests/app/employer-candidate-times.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3655,
+      "lines": 75,
+      "sha256": "2b3211ab4ed6f1dfbe753f75b366db271dfd3ded4223e7e0e25c2ab1df1d4e53",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "INSTANT",
+          "line": 38,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/employer-remaining-pageheader.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -155161,6 +155286,18 @@
       "bytes": 3082,
       "lines": 89,
       "sha256": "85a9de04fd817de9bfc4ca3eea27dfabd5b9a6d0cbac0ae1e05420766ccd7f54",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/app/member-messages-inbox-time.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3065,
+      "lines": 54,
+      "sha256": "414b17b44851e118021770dbeb39499d8341291d99ab575a8a298b00af61dfdc",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -155207,6 +155344,24 @@
         {
           "name": "propsOf",
           "line": 27,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/mentor-dashboard-page.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2451,
+      "lines": 55,
+      "sha256": "871538bef4298c793b5b97580dbf742dad5d248590c6ef2c255e7e031aaa4c4f",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "SCHEDULED_AT",
+          "line": 25,
           "kind": "Variable"
         }
       ],
@@ -155265,6 +155420,24 @@
         {
           "name": "mocks",
           "line": 4,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/partner-referred-member-times.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3767,
+      "lines": 76,
+      "sha256": "efc74ed9480db7363892390d83cdb94bfae2ae5fcf88f6a44f390e9e99a0803a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "INSTANT",
+          "line": 41,
           "kind": "Variable"
         }
       ],
@@ -155778,6 +155951,24 @@
       "directive": null
     },
     {
+      "path": "tests/components/employer-outcomes-status-labels.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1792,
+      "lines": 43,
+      "sha256": "db4e0e18f0df910006bc1d483210177a36c1b2a5f5a0325626dea4de39c80b91",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "payload",
+          "line": 9,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/employer-signup-password-toggle.spec.tsx",
       "area": "tests",
       "domain": "tests",
@@ -155876,6 +156067,24 @@
           "name": "reassign",
           "line": 29,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/job-form-expiry.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2578,
+      "lines": 59,
+      "sha256": "aaf583f99dd43ded7d4820f4325aab6cf0ee51148d4c8cb5331b26caa87c0073",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "fetchMock",
+          "line": 10,
+          "kind": "Variable"
         }
       ],
       "directive": null
@@ -156525,6 +156734,24 @@
       "declarations": [
         {
           "name": "workspace",
+          "line": 9,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/workflow-timelines-portal-time.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1096,
+      "lines": 27,
+      "sha256": "8a948a0cc15e2e77baa9bd0c9cca62f05b91ccbc0c420a2ba7cbff9cef22a491",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "events",
           "line": 9,
           "kind": "Variable"
         }
@@ -158507,6 +158734,18 @@
           "kind": "FunctionDeclaration"
         }
       ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/job-expiry-instant.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1801,
+      "lines": 43,
+      "sha256": "1ee69e4ab3a10522bad60e1bd6617c3b37242ba91e184e9d39a6e05476d9e1ad",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
       "directive": null
     },
     {

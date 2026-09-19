@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Briefcase, UserRound, TriangleAlert, Clock, CalendarClock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
+import { statusLabel } from '@/lib/employer/statusLabel';
 import { QueueRow, WorkQueueItem, StatusTag, type QueueTone, type KitTone } from '@/components/portal/kit';
 
 export type WqApp = {
@@ -40,12 +41,6 @@ const SECTION_STATUS_TONE: Record<SectionId, KitTone> = {
   stale: 'danger',
   interview: 'info',
 };
-
-function statusLabel(status: string): string {
-  return status
-    .replace(/[_-]+/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
 
 /** Small pill CTA, styled with kit tokens (mirrors EmployerHomeKit's "Post a role" action). */
 function pillButton({

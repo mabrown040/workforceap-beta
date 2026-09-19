@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "fc15b1c5b6602631cb7f98279871447d99842305c42bbb71ad36d5835764ec46",
+  "inputTreeSha256": "e715799abb873548b07ab13a9c376abb1e8caa8f9bc49709d7d28ac9a2a17d9b",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -158297,9 +158297,9 @@
       "path": "tests/lib/staff-program-label-contract.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 1510,
-      "lines": 35,
-      "sha256": "0d77d2385db07c52933f8f17e86ef0854d764a098c5c0d817a695b37466e03ad",
+      "bytes": 924,
+      "lines": 23,
+      "sha256": "0270423e555d7c2bcd7bf6c78c7d1f0be4364bfbb5fca4b612420dcbcd50d6fe",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -158311,11 +158311,6 @@
         {
           "name": "STAFF_PROGRAM_SURFACES",
           "line": 7,
-          "kind": "Variable"
-        },
-        {
-          "name": "CATALOG_TITLE_RESOLVERS",
-          "line": 24,
           "kind": "Variable"
         }
       ],

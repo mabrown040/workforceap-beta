@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "5420b0c386b5150c9352f31dbcb9f32565bf6fa4b0965cc473b43b7447e82703",
+  "inputTreeSha256": "a65f9824be1dea20d85e0decd67c689219a309c89e13c75a03100be594ac80c0",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -4365,9 +4365,9 @@
       "path": "app/(portal)/account/privacy/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 9922,
-      "lines": 259,
-      "sha256": "97ef1323fa5dc4b39947b70074b25a53d32fe878b88c4370f82de61b773dbf4e",
+      "bytes": 11670,
+      "lines": 298,
+      "sha256": "bd81ba9da4a008b5590874aa2a6fd5a081beb9782dc55f416901e0a8a4230109",
       "binary": false,
       "exports": [
         {
@@ -31711,19 +31711,19 @@
       "path": "app/api/cron/data-cleanup/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 1061,
-      "lines": 33,
-      "sha256": "fbd7a0dbfba237d9d309804e15c34df73022dbfcfcf2a9a389bb497feaf952b0",
+      "bytes": 1112,
+      "lines": 34,
+      "sha256": "6aba0bfdccc03c3a9485d1dacab501cf853bdd09013bc47b674bca90af2175fd",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 33,
+          "line": 34,
           "kind": "Variable"
         }
       ],
@@ -31735,12 +31735,12 @@
         },
         {
           "name": "GET",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 33,
+          "line": 34,
           "kind": "Variable"
         }
       ],
@@ -33894,9 +33894,9 @@
       "path": "app/api/gdpr/delete/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 5366,
-      "lines": 161,
-      "sha256": "0830272af60328bff793e8124f91d3aa347987edc0babd973607d15191c4b39d",
+      "bytes": 5471,
+      "lines": 160,
+      "sha256": "4ce93c547381288dc6e0d9f11159bb14e84156e56b1d94e69951613ce7c2bae4",
       "binary": false,
       "exports": [
         {
@@ -131642,9 +131642,9 @@
       "path": "lib/retention/cleanup.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7270,
-      "lines": 220,
-      "sha256": "f9cfa8ff841038898f77994ed6b6fba888439398cdc10406bbfe30d31222adcb",
+      "bytes": 12416,
+      "lines": 334,
+      "sha256": "3299f8c6dd81c5efa57340db1a94ca32300e000d6e1237ea4cf2858ea42a5dba",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -131662,6 +131662,16 @@
           "name": "mockCount",
           "line": 12,
           "kind": "Variable"
+        },
+        {
+          "name": "mockAuditEventDeleteMany",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "foreignKeyError",
+          "line": 16,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -131670,9 +131680,9 @@
       "path": "lib/retention/cleanup.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 6529,
-      "lines": 213,
-      "sha256": "a5b05725c507b342216ed450f5371c850c89a1df1548bd305c4c5bf5ec4c1f10",
+      "bytes": 9584,
+      "lines": 284,
+      "sha256": "32a6400f4399388374b27baf97cedd5a723378e9e62aac7f3dbadab2c8dfb8a7",
       "binary": false,
       "exports": [
         {
@@ -131687,17 +131697,32 @@
         },
         {
           "name": "cleanupTable",
-          "line": 36,
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "BlockedAccount",
+          "line": 118,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DeletedAccountsResult",
+          "line": 123,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "foreignKeyConstraintName",
+          "line": 141,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "cleanupDeletedAccounts",
-          "line": 122,
+          "line": 171,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runDataCleanup",
-          "line": 167,
+          "line": 226,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -131714,17 +131739,37 @@
         },
         {
           "name": "cleanupTable",
-          "line": 36,
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "BlockedAccount",
+          "line": 118,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DeletedAccountsResult",
+          "line": 123,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SELF_SERVICE_AUDIT_ACTOR_ROLE",
+          "line": 134,
+          "kind": "Variable"
+        },
+        {
+          "name": "foreignKeyConstraintName",
+          "line": 141,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "cleanupDeletedAccounts",
-          "line": 122,
+          "line": 171,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runDataCleanup",
-          "line": 167,
+          "line": 226,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -138974,27 +139019,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192426,
-      "lines": 3142,
-      "sha256": "34cf0745f059c3adede3004ff0518d15c9591af7b18a7d0cd0ae4659a1dce5b4",
+      "bytes": 192489,
+      "lines": 3143,
+      "sha256": "ad434d21a74c5ca7f5987f78d119621f2b258fd5c5a903818f9fb15e4f731d1f",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211110,
-      "lines": 3129,
-      "sha256": "c6eadd2ab18d1227e84a70ce4b289381fea5c1957f123a640ae57a787ebb4378",
+      "bytes": 211182,
+      "lines": 3130,
+      "sha256": "7f5dfe3eae0f189f2eb68cdafafdfd065a6bb0c75b9ae1b099342b7606c3ffa6",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212368,
-      "lines": 3082,
-      "sha256": "e7e817ae7b7bafa9e7d6d596a78ad8ba793db68ca429ae7e12615dc2e8364b5f",
+      "bytes": 212444,
+      "lines": 3083,
+      "sha256": "fb2028e8aab2bd91672dd6501bedaef0438b9b90c461d6da90315f29e8295e85",
       "binary": false
     },
     {
@@ -139010,9 +139055,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204185,
-      "lines": 3082,
-      "sha256": "c15317578f7b144764dc71b15499ab6726580f5e53595a4a1fc0543747cbf687",
+      "bytes": 204249,
+      "lines": 3083,
+      "sha256": "9e09acab82df94d90402b9ebcd00e11294a19bfd83bdbed256f1a8c8b87a08df",
       "binary": false
     },
     {

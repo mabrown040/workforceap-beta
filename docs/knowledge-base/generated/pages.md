@@ -31,7 +31,7 @@
 | [app/(decision-journey)/loading.tsx](../../../app/%28decision-journey%29/loading.tsx) | 5 | pages | default:3 |
 | [app/(decision-journey)/not-found.tsx](../../../app/%28decision-journey%29/not-found.tsx) | 59 | pages | default:3 |
 | [app/(portal)/account/page.tsx](../../../app/%28portal%29/account/page.tsx) | 18 | pages | default:16 |
-| [app/(portal)/account/privacy/page.tsx](../../../app/%28portal%29/account/privacy/page.tsx) | 259 | pages | default:9 |
+| [app/(portal)/account/privacy/page.tsx](../../../app/%28portal%29/account/privacy/page.tsx) | 298 | pages | default:9 |
 | [app/(portal)/admin/chapters/page.tsx](../../../app/%28portal%29/admin/chapters/page.tsx) | 307 | administration | default:54 |
 | [app/(portal)/applications/page.tsx](../../../app/%28portal%29/applications/page.tsx) | 20 | jobs-employers | generateMetadata:7, default:16 |
 | [app/(portal)/certifications/page.tsx](../../../app/%28portal%29/certifications/page.tsx) | 6 | pages | default:4 |

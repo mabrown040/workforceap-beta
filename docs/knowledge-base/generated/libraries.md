@@ -843,8 +843,8 @@
 | [lib/resume/resumeUiConcurrencyAndWarnings.test.ts](../../../lib/resume/resumeUiConcurrencyAndWarnings.test.ts) | 131 | member-counselor |  |
 | [lib/resume/resumeUploadBodyFidelity.test.ts](../../../lib/resume/resumeUploadBodyFidelity.test.ts) | 245 | member-counselor |  |
 | [lib/resume/resumeUploadUiContract.test.ts](../../../lib/resume/resumeUploadUiContract.test.ts) | 49 | member-counselor |  |
-| [lib/retention/cleanup.test.ts](../../../lib/retention/cleanup.test.ts) | 220 | member-counselor |  |
-| [lib/retention/cleanup.ts](../../../lib/retention/cleanup.ts) | 213 | member-counselor | CleanupResult:12, DataCleanupReport:19, cleanupTable:36, cleanupDeletedAccounts:122, runDataCleanup:167 |
+| [lib/retention/cleanup.test.ts](../../../lib/retention/cleanup.test.ts) | 334 | member-counselor |  |
+| [lib/retention/cleanup.ts](../../../lib/retention/cleanup.ts) | 284 | member-counselor | CleanupResult:12, DataCleanupReport:19, cleanupTable:38, BlockedAccount:118, DeletedAccountsResult:123, foreignKeyConstraintName:141, cleanupDeletedAccounts:171, runDataCleanup:226 |
 | [lib/retention/config.ts](../../../lib/retention/config.ts) | 131 | member-counselor | RetentionTableConfig:22, RETENTION_BATCH_SIZE:33, CRITICAL_AUDIT_ACTION_PREFIXES:46, RETENTION_AUDIT_DAYS:66, CRITICAL_AUDIT_RETENTION_DAYS:75, RETENTION_TABLES:77, DELETED_ACCOUNT_RETENTION_DAYS:123, getCutoffDate:126 |
 | [lib/security/auditAiToolsHistory.test.ts](../../../lib/security/auditAiToolsHistory.test.ts) | 23 | libraries |  |
 | [lib/security/placementSurveyToken.ts](../../../lib/security/placementSurveyToken.ts) | 118 | libraries | issuePlacementSurveyToken:66, VerifyResult:90, verifyPlacementSurveyToken:94 |

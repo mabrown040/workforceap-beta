@@ -12,7 +12,7 @@ import {
   getBoardSnapshot,
   type BoardOutcomesPeriod,
 } from '@/lib/admin/boardOutcomes';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import PageHeader from '@/components/portal/PageHeader';
 import BoardOutcomesView from '@/components/admin/BoardOutcomesView';
 import { BoardOutcomesKit } from '@/components/portal/kit/pages/admin-subviews/BoardOutcomesKit';
@@ -97,7 +97,7 @@ export default async function BoardOutcomesPage({
       .filter((p) => p.placed > 0)
       .sort((a, b) => b.placed - a.placed)
       .map((p) => ({
-        label: getProgramBySlug(p.programSlug)?.title ?? p.programSlug,
+        label: programDisplayTitle(p.programSlug),
         value: p.placed,
         pct: Math.round((p.placed / programMaxPlaced) * 100),
         color: 'info',
@@ -131,7 +131,7 @@ export default async function BoardOutcomesPage({
   // Resolve program slugs to display titles for the programs breakdown.
   const programsWithTitles = outcomes.programs.map((p) => ({
     ...p,
-    title: getProgramBySlug(p.programSlug)?.title ?? p.programSlug,
+    title: programDisplayTitle(p.programSlug),
   }));
 
   // White-label slug from URL (e.g. /admin/board?org=workforce-solutions-austin).

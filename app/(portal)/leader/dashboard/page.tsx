@@ -7,6 +7,7 @@ import PortalPageFrame from "@/components/portal/PortalPageFrame";
 import PageHeader from "@/components/portal/PageHeader";
 import DataTable, { type DataTableColumn } from "@/components/portal/ui/DataTable";
 import { statusColor, type StatusTone } from "@/lib/ui/statusColors";
+import { programDisplayTitle } from "@/lib/content/programTitle";
 
 interface Member {
   id: string;
@@ -120,7 +121,7 @@ export default function LeaderDashboardPage() {
       header: "Name",
       cell: (m) => <span style={{ fontWeight: 600 }}>{m.user.fullName}</span>,
     },
-    { key: "program", header: "Program", cell: (m) => m.user.enrolledProgram || "—" },
+    { key: "program", header: "Program", cell: (m) => (m.user.enrolledProgram ? programDisplayTitle(m.user.enrolledProgram) : "—") },
     {
       key: "status",
       header: "Status",
@@ -353,7 +354,7 @@ export default function LeaderDashboardPage() {
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{item.course.name}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)" }}>
-                          {item.course.programSlug}
+                          {programDisplayTitle(item.course.programSlug)}
                         </div>
                       </div>
                       {item.notes && (

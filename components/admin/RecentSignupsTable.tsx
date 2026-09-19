@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import DataTable from '@/components/portal/ui/DataTable';
 
 type RecentUser = {
@@ -49,7 +49,7 @@ export default function RecentSignupsTable({ users }: RecentSignupsTableProps) {
             key: 'program',
             header: 'Program',
             cell: (u) =>
-              u.enrolledProgram ? getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram : '—',
+              u.enrolledProgram ? programDisplayTitle(u.enrolledProgram) : '—',
           },
           {
             key: 'enrolled',

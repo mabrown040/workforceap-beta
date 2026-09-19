@@ -9,6 +9,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/db/prisma";
 import { getProgramBySlug } from "@/lib/content/programs";
+import { programDisplayTitle } from "@/lib/content/programTitle";
 import { getScoreBreakdownSafeResult } from "@/lib/readiness/score";
 // Use the client-safe questions file. This page doesn't need the answer
 // key (only renders question text + member's recorded answer), so we
@@ -216,7 +217,7 @@ export default async function DashboardProfilePage({
     email: dbUser.email,
     phone: dbUser.phone ?? dbUser.profile?.profilePhone ?? "",
     recentEmployer: "—",
-    targetJob: program?.title ?? dbUser.enrolledProgram ?? "Target role",
+    targetJob: dbUser.enrolledProgram ? programDisplayTitle(dbUser.enrolledProgram) : "Target role",
     skills: program?.skills?.join(", ") ?? "—",
   };
   const hasEnhanced = !!dbUser.profile?.resumeEnhancedPath;
@@ -314,9 +315,9 @@ export default async function DashboardProfilePage({
         badges={profileBadges}
         email={dbUser.email}
         location={kitLocation}
-        programInterest={program?.title ?? dbUser.enrolledProgram ?? "Not enrolled"}
+        programInterest={dbUser.enrolledProgram ? programDisplayTitle(dbUser.enrolledProgram) : "Not enrolled"}
         programOptions={
-          program?.title ? [program.title] : dbUser.enrolledProgram ? [dbUser.enrolledProgram] : ["Not enrolled"]
+          program?.title ? [program.title] : dbUser.enrolledProgram ? [programDisplayTitle(dbUser.enrolledProgram)] : ["Not enrolled"]
         }
         notifications={[
           {

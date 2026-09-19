@@ -9,7 +9,7 @@ import { ANALYTICS_SAMPLE_CAP } from '@/lib/db/queryCaps';
 
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getAnalyticsOverview } from '@/lib/admin/analytics';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { AnalyticsKit } from '@/components/portal/kit/pages/admin-subviews/AnalyticsKit';
 import type { KpiItem, RankDatum } from '@/components/portal/kit';
@@ -195,7 +195,7 @@ async function getEngagementData(orgId?: string): Promise<EngagementData> {
     const progMax = Math.max(1, ...ranked.map(([, c]) => c));
     for (const [slug, count] of ranked) {
       activeByProgram.push({
-        label: getProgramBySlug(slug)?.title ?? slug,
+        label: programDisplayTitle(slug),
         value: count,
         pct: Math.round((count / progMax) * 100),
         color: 'info',

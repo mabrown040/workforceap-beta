@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { claudeChat, isAnthropicConfigured } from '@/lib/ai/anthropicChat';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
@@ -76,7 +77,7 @@ export const POST = withApiGuc(async (request: Request) => {
       `Bio: ${profile?.profileBio ?? 'N/A'}`,
       `Employment: ${profile?.employmentStatus ?? 'N/A'}`,
       `Education: ${profile?.educationLevel ?? 'N/A'}`,
-      `Target program: ${program?.title ?? dbUser.enrolledProgram ?? 'Career training'}`,
+      `Target program: ${dbUser.enrolledProgram ? programDisplayTitle(dbUser.enrolledProgram) : 'Career training'}`,
       `Program category: ${program?.categoryLabel ?? 'N/A'}`,
     ].join('\n');
   

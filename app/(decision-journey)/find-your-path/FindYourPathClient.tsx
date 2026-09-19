@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { mergeQuizShortAnswers, scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
@@ -291,7 +292,7 @@ function QuizResultsView({
               const p = getProgramBySlug(r.programSlug);
               return (
                 <li key={`${r.programSlug}-${r.priority}`}>
-                  {p?.title ?? r.programSlug}
+                  {p?.title ?? programDisplayTitle(r.programSlug)}
                   {r.recommendationType === 'bridge' ? ' (foundation step)' : ''}
                 </li>
               );

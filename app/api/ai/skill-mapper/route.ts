@@ -13,6 +13,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { getFallbackDesignScore } from '@/lib/content/courseSkillMap';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -69,7 +70,7 @@ import {
             const p = getProgramBySlug(m.programSlug);
             return {
               programSlug: m.programSlug,
-              programTitle: p?.title ?? m.programSlug,
+              programTitle: p?.title ?? programDisplayTitle(m.programSlug),
               categoryLabel: p?.categoryLabel ?? '',
               categoryColor: p?.categoryColor ?? '#666',
               icon: p?.icon ?? '',

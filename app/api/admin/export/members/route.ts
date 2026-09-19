@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
@@ -120,7 +121,7 @@ async function _GET(req: NextRequest) {
     const assignedCourses = program
       ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
       : [];
-    const programTitle = program?.title ?? programSlug ?? '';
+    const programTitle = programSlug ? programDisplayTitle(programSlug) : '';
     const totalCourses = assignedCourses.length;
     const completedSlugSet = new Set(
       programSlug

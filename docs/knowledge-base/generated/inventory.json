@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "8797178f2361b5cfbd5ad0ee66a591b5b3d742c45457d7066585d893cf7a1f58",
+  "inputTreeSha256": "e3203a6eefc35a8dc4b529e1717a86984bd089268deba30fe9cabcbe98aaccec",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -30152,36 +30152,36 @@
       "path": "app/api/counselor/bulk-followup/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6974,
-      "lines": 207,
-      "sha256": "b34f59754a5572bdef8406e07bd384b12f033e0317635f6bd013b285552a733c",
+      "bytes": 7372,
+      "lines": 215,
+      "sha256": "e3c1974e9418d2a2142990a9a327f6efdb5bdbcd63ae6832598539db0d9c1a2b",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 207,
+          "line": 215,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "MAX_BATCH",
-          "line": 39,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "BulkResultEntry",
-          "line": 41,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "handle",
-          "line": 48,
+          "line": 49,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 207,
+          "line": 215,
           "kind": "Variable"
         }
       ],
@@ -30508,66 +30508,66 @@
       "path": "app/api/counselor/members/[memberId]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 8956,
-      "lines": 223,
-      "sha256": "3aedf922e44d455fe531c9db6b92bf5a6802294cfdf9cb3dd60d84bb996a8f6c",
+      "bytes": 9633,
+      "lines": 236,
+      "sha256": "909007b2be81e83bae738ffb86158c00f07fdae35f5cc9342b4cf3a068390226",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 113,
+          "line": 121,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 184,
+          "line": 197,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 222,
+          "line": 235,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "Props",
-          "line": 35,
+          "line": 36,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "canUseCounselorMessaging",
-          "line": 37,
+          "line": 38,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 42,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 113,
+          "line": 121,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 113,
+          "line": 121,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 184,
+          "line": 197,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 184,
+          "line": 197,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 222,
+          "line": 235,
           "kind": "Variable"
         }
       ],
@@ -30875,26 +30875,26 @@
       "path": "app/api/counselor/nudge/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5868,
-      "lines": 152,
-      "sha256": "be88b92412ab42ef871a4e8e6fc99dd69c6b71e84e74ff1e6f366544cdc591a5",
+      "bytes": 6245,
+      "lines": 159,
+      "sha256": "0467039772270324f59b45638e2fddffefb39be1a8284bddf2c2b7b06caf2f59",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "VALID_TEMPLATE_IDS",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         }
       ],
@@ -85090,12 +85090,30 @@
       "directive": null
     },
     {
+      "path": "lib/admin/cronRegistry.test.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 854,
+      "lines": 25,
+      "sha256": "da0319b8632105cb103ebb09fb4c3a330057e55c364d219964bf717787437af4",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "duplicates",
+          "line": 5,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/cronRegistry.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 14897,
-      "lines": 404,
-      "sha256": "fa998a80805f7115cc89e68d8c9605dc638ab35746421e7d56e23756cd4155be",
+      "bytes": 14482,
+      "lines": 391,
+      "sha256": "6b4085bb100f2a94b61669fcf074ad7be2175e0e005ee3c47837d81addaf2472",
       "binary": false,
       "exports": [
         {
@@ -85110,7 +85128,7 @@
         },
         {
           "name": "CRON_CATEGORY_COLOR",
-          "line": 399,
+          "line": 386,
           "kind": "Variable"
         }
       ],
@@ -85127,7 +85145,7 @@
         },
         {
           "name": "CRON_CATEGORY_COLOR",
-          "line": 399,
+          "line": 386,
           "kind": "Variable"
         }
       ],
@@ -152159,9 +152177,9 @@
       "path": "tests/api/counselor-routes.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 65221,
-      "lines": 1739,
-      "sha256": "87f0107e81ebb4cb3c89eef79fd696bcc71cf458a1bf6989d89e1022823cd132",
+      "bytes": 66139,
+      "lines": 1751,
+      "sha256": "908ed655346b45a98bb46b7b245a3424737a75bf69e1fb530e35332a6b318450",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152173,6 +152191,49 @@
         {
           "name": "makeRequest",
           "line": 261,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/counselor-thread-access-gate.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 6364,
+      "lines": 139,
+      "sha256": "97338981d2992b6a847a5e1461f26b3fbaf10e6bd35bbc95c0504b35cd894627",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "db",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "gate",
+          "line": 54,
+          "kind": "Variable"
+        },
+        {
+          "name": "MEMBER_ID",
+          "line": 74,
+          "kind": "Variable"
+        },
+        {
+          "name": "THREAD",
+          "line": 75,
+          "kind": "Variable"
+        },
+        {
+          "name": "ctx",
+          "line": 76,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonRequest",
+          "line": 78,
           "kind": "FunctionDeclaration"
         }
       ],

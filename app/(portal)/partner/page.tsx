@@ -7,6 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDateTime } from '@/lib/formatDate';
 import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
@@ -1371,7 +1372,7 @@ export default async function PartnerDashboardPage({
                       {ev.metadata && typeof ev.metadata === 'object' && ev.metadata !== null && 'label' in ev.metadata && (
                         <span> — {String((ev.metadata as { label?: string }).label)}</span>
                       )}
-                      <span className="partner-activity-date">{ev.createdAt.toLocaleString()}</span>
+                      <span className="partner-activity-date">{formatPortalDateTime(ev.createdAt)}</span>
                     </li>
                   ))}
                 </ul>

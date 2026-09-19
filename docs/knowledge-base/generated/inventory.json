@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "077cfd2f1d4ec302b309d1270d6a055c123c6e46ec00d5862ba107d6fe229b1d",
+  "inputTreeSha256": "a164ba6f817791f98e4368e94ffb21d99d6e8a51427fa4ebd7b4bb3000a14cbc",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -40838,14 +40838,14 @@
       "path": "app/apply/layout.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 517,
-      "lines": 9,
-      "sha256": "e98f0b14b108c23ffbca36f28acda3b367fd1d8a4fddf171b4cd1bc82784bfc4",
+      "bytes": 742,
+      "lines": 12,
+      "sha256": "508942247321d035274b19fd597ce24c67cc6d85731ed9c1987f5df31bf4edb9",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 6,
+          "line": 9,
           "kind": "FunctionDeclaration",
           "localName": "ApplyLayout"
         }
@@ -40853,7 +40853,7 @@
       "declarations": [
         {
           "name": "ApplyLayout",
-          "line": 6,
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154548,6 +154548,69 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/app/apply-funnel-token-scope.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5327,
+      "lines": 125,
+      "sha256": "c8f515019a9b54c7bf2b6a0cf8cf7174e0de804d4a27bac72a32636e9f99a721",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ROOT",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "APPLY_DIR",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "FUNNEL_CSS",
+          "line": 23,
+          "kind": "Variable"
+        },
+        {
+          "name": "resolveSpecifier",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "cssImportsOf",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expandCss",
+          "line": 43,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "declaredTokens",
+          "line": 55,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "tokensReadWithoutFallback",
+          "line": 64,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applyPageFiles",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "routeStylesheets",
+          "line": 80,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {

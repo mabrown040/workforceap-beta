@@ -1660,7 +1660,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 66,
+        "line": 67,
         "kind": "FunctionDeclaration",
         "localName": "CounselorStudentDetailPage"
       }
@@ -5079,12 +5079,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 17,
+        "line": 18,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 26,
+        "line": 27,
         "kind": "FunctionDeclaration",
         "localName": "EmployerApplicationPage"
       }
@@ -6039,12 +6039,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 35,
+        "line": 36,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 44,
+        "line": 45,
         "kind": "FunctionDeclaration",
         "localName": "EmployerDashboardPage"
       }
@@ -6866,12 +6866,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 24,
+        "line": 25,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 52,
+        "line": 53,
         "kind": "FunctionDeclaration",
         "localName": "PartnerOutcomesPage"
       }
@@ -6907,12 +6907,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 59,
+        "line": 60,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 70,
+        "line": 71,
         "kind": "FunctionDeclaration",
         "localName": "PartnerDashboardPage"
       }
@@ -6937,7 +6937,7 @@
       },
       {
         "specifier": "@/lib/auth/roles",
-        "line": 22,
+        "line": 23,
         "kind": "import"
       }
     ]
@@ -7136,12 +7136,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 16,
+        "line": 17,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 61,
+        "line": 64,
         "kind": "FunctionDeclaration",
         "localName": "PartnerSettingsPage"
       }
@@ -21159,7 +21159,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 207,
+        "line": 215,
         "kind": "Variable"
       }
     ],
@@ -21544,17 +21544,17 @@
     "exports": [
       {
         "name": "GET",
-        "line": 113,
+        "line": 121,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 184,
+        "line": 197,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 222,
+        "line": 235,
         "kind": "Variable"
       }
     ],
@@ -21875,7 +21875,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 35,
+        "line": 36,
         "kind": "Variable"
       }
     ],

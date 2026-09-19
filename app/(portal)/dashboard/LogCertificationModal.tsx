@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { todayInPortalTimezone } from '@/lib/date/todayInPortalTimezone';
 import { logExternalCertification } from './logCertAction';
 
 const inputStyle: React.CSSProperties = {
@@ -18,7 +19,7 @@ export default function LogCertificationModal() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInPortalTimezone();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

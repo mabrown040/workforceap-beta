@@ -196,7 +196,7 @@
 | [components/error/ErrorBoundary.tsx](../../../components/error/ErrorBoundary.tsx) | 166 | components | default:21 |
 | [components/error/RouteErrorFallback.tsx](../../../components/error/RouteErrorFallback.tsx) | 333 | components | ErrorContext:7, default:112 |
 | [components/forms/MemberSignupForm.tsx](../../../components/forms/MemberSignupForm.tsx) | 307 | components | default:27 |
-| [components/forms/ParentalConsentForm.tsx](../../../components/forms/ParentalConsentForm.tsx) | 285 | components | default:21 |
+| [components/forms/ParentalConsentForm.tsx](../../../components/forms/ParentalConsentForm.tsx) | 286 | components | default:22 |
 | [components/forms/PlacementSurveyForm.tsx](../../../components/forms/PlacementSurveyForm.tsx) | 258 | components | default:89 |
 | [components/graphics/DataLandingEmptyArt.tsx](../../../components/graphics/DataLandingEmptyArt.tsx) | 22 | components | DataLandingEmptyArt:4 |
 | [components/marketing/ConversionThankYouPage.tsx](../../../components/marketing/ConversionThankYouPage.tsx) | 171 | public-experience | default:26 |
@@ -341,7 +341,6 @@
 | [components/portal/MemberFirstCertProgressBar.tsx](../../../components/portal/MemberFirstCertProgressBar.tsx) | 133 | components | FirstCertProgress:5, default:24 |
 | [components/portal/MemberFirstValuePanel.tsx](../../../components/portal/MemberFirstValuePanel.tsx) | 149 | components | default:10 |
 | [components/portal/MemberInterviewRequestButton.tsx](../../../components/portal/MemberInterviewRequestButton.tsx) | 71 | components | default:6 |
-| [components/portal/MemberJobPostingTransparency.tsx](../../../components/portal/MemberJobPostingTransparency.tsx) | 52 | components | default:14 |
 | [components/portal/MemberLabWorkspace.module.css](../../../components/portal/MemberLabWorkspace.module.css) | 84 | components |  |
 | [components/portal/MemberLabWorkspace.tsx](../../../components/portal/MemberLabWorkspace.tsx) | 184 | components | MemberLabWorkspace:58 |
 | [components/portal/MemberMessagesMobileClient.tsx](../../../components/portal/MemberMessagesMobileClient.tsx) | 404 | components | default:57 |
@@ -355,7 +354,6 @@
 | [components/portal/MemberTodayNextStep.test.tsx](../../../components/portal/MemberTodayNextStep.test.tsx) | 141 | components |  |
 | [components/portal/MemberWorkspaceShell.tsx](../../../components/portal/MemberWorkspaceShell.tsx) | 62 | components | default:13 |
 | [components/portal/MentorSessionForm.tsx](../../../components/portal/MentorSessionForm.tsx) | 68 | components | default:5 |
-| [components/portal/MilestoneBadge.tsx](../../../components/portal/MilestoneBadge.tsx) | 151 | member-counselor | Milestone:21, default:88, MILESTONE_DISPLAY_ORDER:146 |
 | [components/portal/MobileProfileSkillsResume.tsx](../../../components/portal/MobileProfileSkillsResume.tsx) | 346 | components | default:50 |
 | [components/portal/NotificationBell.tsx](../../../components/portal/NotificationBell.tsx) | 408 | communications | default:107 |
 | [components/portal/OtherProgramsList.tsx](../../../components/portal/OtherProgramsList.tsx) | 143 | components | OtherProgram:21, default:28 |
@@ -639,7 +637,6 @@
 | [components/portal/tools/VoiceInterviewScaffold.tsx](../../../components/portal/tools/VoiceInterviewScaffold.tsx) | 394 | components | default:70 |
 | [components/portal/tools/VoiceSessionIntroStrip.tsx](../../../components/portal/tools/VoiceSessionIntroStrip.tsx) | 38 | components | default:5 |
 | [components/portal/ui/DataTable.tsx](../../../components/portal/ui/DataTable.tsx) | 326 | components | DataTableColumn:35, DataTableProps:67, default:133 |
-| [components/portal/ui/DefinitionList.tsx](../../../components/portal/ui/DefinitionList.tsx) | 60 | components | DefinitionList:59, DefinitionRow:59, DefinitionRowProps:60, DefinitionListProps:60 |
 | [components/portal/ui/FormField.tsx](../../../components/portal/ui/FormField.tsx) | 139 | components | FormField:13, TextInput:79, SelectField:99, TextArea:119 |
 | [components/portal/ui/PortalActionCard.tsx](../../../components/portal/ui/PortalActionCard.tsx) | 88 | components | PortalActionCardProps:4, default:19 |
 | [components/portal/ui/PortalCard.tsx](../../../components/portal/ui/PortalCard.tsx) | 37 | components | PortalCardProps:3, default:12 |

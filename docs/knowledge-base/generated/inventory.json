@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "bb2f4f1ed6e48223a6ae2292d26584feb3bcf5b4382469e9597487db80744260",
+  "inputTreeSha256": "f602c97127c4870592dff54673f9bcb4fe4bade09e4888514510601e96abc23d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -29542,14 +29542,14 @@
       "path": "app/api/apply/confirmation-email/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 3200,
-      "lines": 86,
-      "sha256": "e07a7178f3157edc6c43a050235b6b65d498d3ce59bf9d813c4e8e94fbcf7e17",
+      "bytes": 3457,
+      "lines": 91,
+      "sha256": "303479f1db85de77cf8542c6312b06bd620231cdb65a03e7dadd897dc2fc4e05",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 86,
+          "line": 91,
           "kind": "Variable"
         }
       ],
@@ -29571,7 +29571,7 @@
         },
         {
           "name": "POST",
-          "line": 86,
+          "line": 91,
           "kind": "Variable"
         }
       ],
@@ -29857,31 +29857,31 @@
       "path": "app/api/auth/setup-mfa/route.ts",
       "area": "api",
       "domain": "identity-tenancy",
-      "bytes": 5249,
-      "lines": 153,
-      "sha256": "d05dad6a3207a73a25f941d650523ca02838e2bfb56b42b78ccf2779bc303bab",
+      "bytes": 5455,
+      "lines": 156,
+      "sha256": "58bc5cdae60347ca2554a580950d73c13838eb98d699607a3a0313ce78e2f452",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 20,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 87,
+          "line": 88,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 20,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 87,
+          "line": 88,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -29891,26 +29891,26 @@
       "path": "app/api/auth/verify-mfa/route.ts",
       "area": "api",
       "domain": "identity-tenancy",
-      "bytes": 5048,
-      "lines": 134,
-      "sha256": "b2ab920b95ecf865e32ff9a7e97667884a60c0ec09ec69bd22b1afa7db207150",
+      "bytes": 5243,
+      "lines": 137,
+      "sha256": "13016733ddf6da808bd9d05ffbb4b8e862da9891d78ca4b55ab206634ae42d67",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 134,
+          "line": 137,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 134,
+          "line": 137,
           "kind": "Variable"
         }
       ],
@@ -33778,9 +33778,9 @@
       "path": "app/api/employer/webhook/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 4988,
-      "lines": 121,
-      "sha256": "94791b13baaaea99202dada7c739b050b591eee028d97886b4d9592baae6e75b",
+      "bytes": 5150,
+      "lines": 123,
+      "sha256": "1f199f47acdcd9a065d639514f6b03b542df5f3382dd027a1796f33e2ee58b44",
       "binary": false,
       "exports": [
         {
@@ -39408,46 +39408,46 @@
       "path": "app/api/placement-survey/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 10235,
-      "lines": 245,
-      "sha256": "c6527916aa939e82cac3d8974c81eb918004545632b1d4aa2347ca54c03c2b8f",
+      "bytes": 10428,
+      "lines": 246,
+      "sha256": "8a8754b3c0c1d6ff62b4f1cd0211805f525edc8c4618cfdfc0c4ca5f8dbf6594",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 213,
+          "line": 214,
           "kind": "Variable"
         },
         {
           "name": "GET",
-          "line": 245,
+          "line": 246,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "PENDING_ISH_RETENTION_STATUSES",
-          "line": 19,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 21,
+          "line": 22,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 213,
+          "line": 214,
           "kind": "Variable"
         },
         {
           "name": "_GET",
-          "line": 213,
+          "line": 214,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 245,
+          "line": 246,
           "kind": "Variable"
         }
       ],
@@ -39481,26 +39481,31 @@
       "path": "app/api/public/career-quiz/score/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 3513,
-      "lines": 86,
-      "sha256": "d42005f1c9a2d189f2e9c4594a589dee86b145643d10f2c0b08286a67df79fa9",
+      "bytes": 3822,
+      "lines": 90,
+      "sha256": "681866643e4d9c116b5642b6dd690c5d7e4fe17d3d6e2688917bfd8d0f27fce8",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 23,
+          "line": 25,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "ONET_UNAVAILABLE",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
           "name": "bodySchema",
-          "line": 18,
+          "line": 20,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 23,
+          "line": 25,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -39510,21 +39515,26 @@
       "path": "app/api/public/interest-profiler/questions/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 1487,
-      "lines": 39,
-      "sha256": "dbdb94fa16ff3ca2c80d5bcbfe5356590498a03bcf6e55f67af82db0e4b95ba1",
+      "bytes": 1806,
+      "lines": 43,
+      "sha256": "901d84959f9bea49c6e491b3f483b1a93e43fab3b020626be55e74178c842e5b",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 7,
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
-          "name": "GET",
+          "name": "ONET_UNAVAILABLE",
           "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "GET",
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -39534,26 +39544,31 @@
       "path": "app/api/public/interest-profiler/score/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 2917,
-      "lines": 78,
-      "sha256": "3d8afb82bfce862cfcbb53b69b49a024c2241bf758eef9a30a6276149e900483",
+      "bytes": 3232,
+      "lines": 82,
+      "sha256": "3156e45ce3d460b17a491d0dbab0ada1183ffdd4bcf8c2c5b946bafb6263f9c2",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 18,
+          "line": 20,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
-          "name": "bodySchema",
+          "name": "ONET_UNAVAILABLE",
           "line": 11,
           "kind": "Variable"
         },
         {
+          "name": "bodySchema",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
           "name": "POST",
-          "line": 18,
+          "line": 20,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -153412,6 +153427,54 @@
           "name": "makeGetRequest",
           "line": 104,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/public-route-error-handling.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 12963,
+      "lines": 286,
+      "sha256": "56d59a664a946e280c6cc76c3553f4c76d886076f7f657e6750aff13fa51d6f9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "stripeState",
+          "line": 94,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVIDER_ERROR",
+          "line": 112,
+          "kind": "Variable"
+        },
+        {
+          "name": "ONET_ERROR",
+          "line": 117,
+          "kind": "Variable"
+        },
+        {
+          "name": "Handler",
+          "line": 139,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "jsonRequest",
+          "line": 143,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readJson",
+          "line": 151,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "NON_OBJECT_BODIES",
+          "line": 156,
+          "kind": "Variable"
         }
       ],
       "directive": null

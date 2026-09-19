@@ -14,6 +14,7 @@ import { getSupabaseEnv } from '@/lib/supabase/env';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { trackEvent } from '@/lib/events/track';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 
 /**
  * POST /api/auth/verify-mfa
@@ -35,7 +36,9 @@ async function _POST(request: Request) {
     return NextResponse.json({ error: 'Too many verification attempts. Please wait before trying again.' }, { status: 429, headers: { 'Cache-Control': 'no-store', 'Retry-After': '900' } });
   }
 
-  const body: { code?: string; trustDevice?: boolean } = await request.json().catch(() => ({}));
+  // A body that is not a JSON object (bad JSON, `null`, an array) reads as
+  // empty and falls through to the code check below.
+  const body = (await readJsonObjectBody<{ code?: unknown; trustDevice?: unknown }>(request)) ?? {};
   const code = typeof body.code === 'string' ? body.code.trim() : '';
   const trustDevice = body.trustDevice !== false;
 

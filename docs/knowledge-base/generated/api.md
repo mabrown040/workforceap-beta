@@ -232,7 +232,7 @@
 | [app/api/ai/resume-strength/route.ts](../../../app/api/ai/resume-strength/route.ts) | 128 | ai-voice | POST:15 |
 | [app/api/ai/salary-negotiation/route.ts](../../../app/api/ai/salary-negotiation/route.ts) | 112 | ai-voice | POST:16 |
 | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | 206 | ai-voice | GET:23 |
-| [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 86 | applications-enrollment | POST:86 |
+| [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 91 | applications-enrollment | POST:91 |
 | [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1304 | applications-enrollment |  |
 | [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1031 | applications-enrollment | POST:180 |
 | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | 55 | applications-enrollment | POST:28 |
@@ -241,8 +241,8 @@
 | [app/api/auth/login/route.ts](../../../app/api/auth/login/route.ts) | 296 | identity-tenancy | POST:294 |
 | [app/api/auth/logout/route.ts](../../../app/api/auth/logout/route.ts) | 63 | identity-tenancy | POST:9 |
 | [app/api/auth/me/route.ts](../../../app/api/auth/me/route.ts) | 131 | identity-tenancy | GET:18 |
-| [app/api/auth/setup-mfa/route.ts](../../../app/api/auth/setup-mfa/route.ts) | 153 | identity-tenancy | POST:20, PATCH:87 |
-| [app/api/auth/verify-mfa/route.ts](../../../app/api/auth/verify-mfa/route.ts) | 134 | identity-tenancy | POST:134 |
+| [app/api/auth/setup-mfa/route.ts](../../../app/api/auth/setup-mfa/route.ts) | 156 | identity-tenancy | POST:21, PATCH:88 |
+| [app/api/auth/verify-mfa/route.ts](../../../app/api/auth/verify-mfa/route.ts) | 137 | identity-tenancy | POST:137 |
 | [app/api/billing-packets/\[packetId\]/pdf/route.ts](../../../app/api/billing-packets/%5BpacketId%5D/pdf/route.ts) | 45 | api | GET:15 |
 | [app/api/billing-packets/\[packetId\]/send/route.ts](../../../app/api/billing-packets/%5BpacketId%5D/send/route.ts) | 57 | api | POST:13 |
 | [app/api/careers/occupation/\[onetCode\]/route.ts](../../../app/api/careers/occupation/%5BonetCode%5D/route.ts) | 104 | api | GET:11 |
@@ -338,7 +338,7 @@
 | [app/api/employer/signup/route.ts](../../../app/api/employer/signup/route.ts) | 253 | applications-enrollment | POST:23 |
 | [app/api/employer/subscribe/route.ts](../../../app/api/employer/subscribe/route.ts) | 146 | jobs-employers | POST:146 |
 | [app/api/employer/voice-session/route.ts](../../../app/api/employer/voice-session/route.ts) | 62 | jobs-employers | POST:13 |
-| [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | 121 | jobs-employers | POST:25 |
+| [app/api/employer/webhook/route.ts](../../../app/api/employer/webhook/route.ts) | 123 | jobs-employers | POST:25 |
 | [app/api/events/route.ts](../../../app/api/events/route.ts) | 49 | api | POST:15 |
 | [app/api/feature-flags/route.ts](../../../app/api/feature-flags/route.ts) | 45 | api | GET:10 |
 | [app/api/gdpr/consent/route.ts](../../../app/api/gdpr/consent/route.ts) | 74 | learning-coursera | GET:30, PATCH:73 |
@@ -492,11 +492,11 @@
 | [app/api/partner/signup/route.ts](../../../app/api/partner/signup/route.ts) | 401 | applications-enrollment | POST:72 |
 | [app/api/partner/team-assign/route.ts](../../../app/api/partner/team-assign/route.ts) | 31 | partners-funding | GET:7 |
 | [app/api/partner/voice-session/route.ts](../../../app/api/partner/voice-session/route.ts) | 62 | partners-funding | POST:13 |
-| [app/api/placement-survey/route.ts](../../../app/api/placement-survey/route.ts) | 245 | api | POST:213, GET:245 |
+| [app/api/placement-survey/route.ts](../../../app/api/placement-survey/route.ts) | 246 | api | POST:214, GET:246 |
 | [app/api/portal/nav-badges/route.ts](../../../app/api/portal/nav-badges/route.ts) | 33 | api | GET:6 |
-| [app/api/public/career-quiz/score/route.ts](../../../app/api/public/career-quiz/score/route.ts) | 86 | api | POST:23 |
-| [app/api/public/interest-profiler/questions/route.ts](../../../app/api/public/interest-profiler/questions/route.ts) | 39 | api | GET:7 |
-| [app/api/public/interest-profiler/score/route.ts](../../../app/api/public/interest-profiler/score/route.ts) | 78 | api | POST:18 |
+| [app/api/public/career-quiz/score/route.ts](../../../app/api/public/career-quiz/score/route.ts) | 90 | api | POST:25 |
+| [app/api/public/interest-profiler/questions/route.ts](../../../app/api/public/interest-profiler/questions/route.ts) | 43 | api | GET:9 |
+| [app/api/public/interest-profiler/score/route.ts](../../../app/api/public/interest-profiler/score/route.ts) | 82 | api | POST:20 |
 | [app/api/public/wioa-qualification/route.ts](../../../app/api/public/wioa-qualification/route.ts) | 113 | partners-funding | POST:113 |
 | [app/api/public/wioa-qualification/voice-session/route.ts](../../../app/api/public/wioa-qualification/voice-session/route.ts) | 66 | partners-funding | POST:15 |
 | [app/api/push/subscribe/route.ts](../../../app/api/push/subscribe/route.ts) | 65 | communications | POST:64, DELETE:65 |

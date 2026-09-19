@@ -227,6 +227,8 @@
       "consentHeading": "Preferencias de comunicación",
       "consentLabel": "Novedades de programas y oportunidades",
       "consentDescription": "Recibe correos sobre nuevos programas, talleres y oportunidades de carrera.",
+      "consentSuccess": "Preferencias de comunicación guardadas.",
+      "consentError": "No se pudieron guardar tus preferencias de comunicación. Inténtalo de nuevo.",
       "deleteHeading": "Eliminar cuenta",
       "deleteBody": "Elimina permanentemente tu cuenta y anonimiza tus datos personales. Esta acción no se puede deshacer. Tus datos de actividad anónimos pueden conservarse para mejorar el programa.",
       "deleteButton": "Eliminar mi cuenta",

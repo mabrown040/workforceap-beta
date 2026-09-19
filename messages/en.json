@@ -227,6 +227,8 @@
       "consentHeading": "Communication Preferences",
       "consentLabel": "Program updates and opportunities",
       "consentDescription": "Receive emails about new programs, workshops, and career opportunities.",
+      "consentSuccess": "Communication preferences saved.",
+      "consentError": "Could not save your communication preferences. Try again.",
       "deleteHeading": "Delete Account",
       "deleteBody": "Permanently delete your account and anonymize your personal data. This action cannot be undone. Your anonymous activity data may be kept for program improvement purposes.",
       "deleteButton": "Delete My Account",

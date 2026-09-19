@@ -31,7 +31,7 @@
 | [app/(decision-journey)/loading.tsx](../../../app/%28decision-journey%29/loading.tsx) | 5 | pages | default:3 |
 | [app/(decision-journey)/not-found.tsx](../../../app/%28decision-journey%29/not-found.tsx) | 59 | pages | default:3 |
 | [app/(portal)/account/page.tsx](../../../app/%28portal%29/account/page.tsx) | 18 | pages | default:16 |
-| [app/(portal)/account/privacy/page.tsx](../../../app/%28portal%29/account/privacy/page.tsx) | 298 | pages | default:9 |
+| [app/(portal)/account/privacy/page.tsx](../../../app/%28portal%29/account/privacy/page.tsx) | 306 | pages | default:9 |
 | [app/(portal)/admin/chapters/page.tsx](../../../app/%28portal%29/admin/chapters/page.tsx) | 307 | administration | default:54 |
 | [app/(portal)/applications/page.tsx](../../../app/%28portal%29/applications/page.tsx) | 20 | jobs-employers | generateMetadata:7, default:16 |
 | [app/(portal)/certifications/page.tsx](../../../app/%28portal%29/certifications/page.tsx) | 6 | pages | default:4 |
@@ -608,7 +608,7 @@
 | [app/employers/EmployerHiringPartnerCta.tsx](../../../app/employers/EmployerHiringPartnerCta.tsx) | 39 | pages | default:13 |
 | [app/employers/signup/layout.tsx](../../../app/employers/signup/layout.tsx) | 15 | applications-enrollment | generateMetadata:4, default:13 |
 | [app/employers/signup/page.tsx](../../../app/employers/signup/page.tsx) | 402 | applications-enrollment | default:17 |
-| [app/employers/signup/signup-depth.css](../../../app/employers/signup/signup-depth.css) | 161 | applications-enrollment |  |
+| [app/employers/signup/signup-depth.css](../../../app/employers/signup/signup-depth.css) | 167 | applications-enrollment |  |
 | [app/enroll/\[school\]/page.tsx](../../../app/enroll/%5Bschool%5D/page.tsx) | 44 | applications-enrollment | dynamic:12, generateMetadata:16, default:30 |
 | [app/error.tsx](../../../app/error.tsx) | 66 | pages | default:9 |
 | [app/favicon.ico](../../../app/favicon.ico) | binary | pages |  |

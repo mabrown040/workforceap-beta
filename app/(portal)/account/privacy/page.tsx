@@ -88,15 +88,23 @@ export default function PrivacySettingsPage() {
   };
 
   const updateConsent = async (value: boolean) => {
+    // Optimistic move, but this is a consent record: if the server does not
+    // accept it we must put the control back to the stored value rather than
+    // leave the member believing a preference they never got.
+    const previous = consentMarketing;
     setConsentMarketing(value);
+    setMessage(null);
     try {
-      await fetch('/api/gdpr/consent', {
+      const res = await fetch('/api/gdpr/consent', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ consentCommunications: value }),
       });
+      if (!res.ok) throw new Error('Consent update failed');
+      setMessage({ kind: 'success', text: t('consentSuccess') });
     } catch {
-      // Silent fail
+      setConsentMarketing(previous);
+      setMessage({ kind: 'error', text: t('consentError') });
     }
   };
 

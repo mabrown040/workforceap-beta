@@ -138,6 +138,7 @@
 | [tests/api/wioa-report.spec.ts](../../../tests/api/wioa-report.spec.ts) | 487 | partners-funding |  |
 | [tests/api/xapi-inbound-program.spec.ts](../../../tests/api/xapi-inbound-program.spec.ts) | 457 | tests |  |
 | [tests/api/xapi-persistence.spec.ts](../../../tests/api/xapi-persistence.spec.ts) | 403 | tests |  |
+| [tests/app/account-privacy-consent.spec.tsx](../../../tests/app/account-privacy-consent.spec.tsx) | 89 | tests |  |
 | [tests/app/add-member-wizard.spec.tsx](../../../tests/app/add-member-wizard.spec.tsx) | 249 | tests |  |
 | [tests/app/admin-command-center-pagination.spec.tsx](../../../tests/app/admin-command-center-pagination.spec.tsx) | 83 | tests |  |
 | [tests/app/admin-directory-search.spec.tsx](../../../tests/app/admin-directory-search.spec.tsx) | 212 | tests |  |

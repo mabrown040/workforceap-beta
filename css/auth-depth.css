@@ -39,7 +39,16 @@
      Re-pin every neutral/surface token the auth components read.
      Because these are set on .auth-depth (a descendant of <html>),
      they win over html.dark / [data-theme="dark"] for this subtree
-     without any JS. Brand hues stay crimson/gold. */
+     without any JS. Brand hues stay crimson/gold.
+
+     `color-scheme: light` is part of the lock, not decoration: without it a
+     browser in dark mode still paints UA-rendered chrome (autofilled inputs,
+     checkboxes, <select> dropdown lists, scrollbars) dark, while the rules
+     below put near-black text on top — saved email addresses come out
+     unreadable. It also pins any `light-dark()` token resolved inside this
+     subtree to its light branch, which is exactly the lock's intent. */
+  color-scheme: light;
+
   --color-white: #ffffff;
   --color-primary: var(--ad-crimson);
   --color-on-primary: #ffffff;

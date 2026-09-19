@@ -26321,8 +26321,32 @@
   },
   {
     "from": "app/admin/wioa-screening/page.tsx",
-    "specifier": "@/components/portal/kit/pages/admin-subviews/WioaScreeningKit",
+    "specifier": "@/components/admin/ApplicantTriageChip",
     "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChip.tsx"
+  },
+  {
+    "from": "app/admin/wioa-screening/page.tsx",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "app/admin/wioa-screening/page.tsx",
+    "specifier": "@/lib/admin/applicantTriageLoad",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriageLoad.ts"
+  },
+  {
+    "from": "app/admin/wioa-screening/page.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/WioaScreeningKit",
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/WioaScreeningKit.tsx"
@@ -67577,8 +67601,16 @@
   },
   {
     "from": "components/admin/AdminCommandCenterClient.tsx",
-    "specifier": "@/lib/admin/commandCenter",
+    "specifier": "@/components/admin/ApplicantTriageChip",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChip.tsx"
+  },
+  {
+    "from": "components/admin/AdminCommandCenterClient.tsx",
+    "specifier": "@/lib/admin/commandCenter",
+    "line": 10,
     "kind": "type",
     "external": false,
     "target": "lib/admin/commandCenter.ts"
@@ -67586,7 +67618,7 @@
   {
     "from": "components/admin/AdminCommandCenterClient.tsx",
     "specifier": "@/lib/content/programTitle",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/content/programTitle.ts"
@@ -89657,8 +89689,24 @@
   },
   {
     "from": "lib/admin/commandCenter.ts",
-    "specifier": "@/lib/admin/commandCenterHelpers",
+    "specifier": "@/lib/admin/applicantTriage",
     "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "lib/admin/commandCenter.ts",
+    "specifier": "@/lib/admin/applicantTriageLoad",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriageLoad.ts"
+  },
+  {
+    "from": "lib/admin/commandCenter.ts",
+    "specifier": "@/lib/admin/commandCenterHelpers",
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/admin/commandCenterHelpers.ts"
@@ -89666,7 +89714,7 @@
   {
     "from": "lib/admin/commandCenter.ts",
     "specifier": "@/lib/admin/commandCenterHelpers",
-    "line": 20,
+    "line": 22,
     "kind": "re-export",
     "external": false,
     "target": "lib/admin/commandCenterHelpers.ts"
@@ -89674,10 +89722,18 @@
   {
     "from": "lib/admin/commandCenter.ts",
     "specifier": "@/lib/admin/commandCenterHelpers",
-    "line": 21,
+    "line": 23,
     "kind": "re-export",
     "external": false,
     "target": "lib/admin/commandCenterHelpers.ts"
+  },
+  {
+    "from": "lib/admin/commandCenterHelpers.ts",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
   },
   {
     "from": "lib/admin/counselorRosterAggregates.test.ts",

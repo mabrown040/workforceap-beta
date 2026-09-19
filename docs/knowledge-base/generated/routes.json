@@ -11442,12 +11442,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 22,
+        "line": 25,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 88,
+        "line": 91,
         "kind": "FunctionDeclaration",
         "localName": "AdminWioaScreeningQueuePage"
       }

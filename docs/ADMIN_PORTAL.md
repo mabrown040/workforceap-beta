@@ -212,9 +212,11 @@ Precedence: concern > missing > human > ready. Every bucket carries plain-langua
 seven-item checklist (`{key, label, ok}`), all resolved through `admin.applicantTriage.*` in
 `messages/{en,fr,pt}.json`.
 
-Where it shows: a chip (reasons in the tooltip) in the **Priority** column of `/admin/members` plus an
-"Intake triage" page-scoped filter, and a pre-filled checklist panel on `/admin/members/[id]` above the
-WIOA self-screening panel.
+Where it shows: the Command Center "Applications Pending" queue (chip on each card; the loaded page is
+sorted ready → missing info → needs a human → concern, oldest-first inside each bucket), a chip (reasons in
+the tooltip) in the **Priority** column of `/admin/members` plus an "Intake triage" page-scoped filter, an
+"Intake triage" column on the legacy `/admin/wioa-screening?ui=legacy` table, and a pre-filled checklist
+panel on `/admin/members/[id]` above the WIOA self-screening panel.
 
 What it does **not** do: it never approves, denies or changes an application or WIOA status, does not
 change who may approve (admins only today), does not touch enrolment gating or dashboard progress

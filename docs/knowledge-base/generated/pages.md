@@ -494,7 +494,7 @@
 | [app/admin/weekly-recap/page.tsx](../../../app/admin/weekly-recap/page.tsx) | 313 | administration | generateMetadata:16, default:49 |
 | [app/admin/what-workforceap-does/page.tsx](../../../app/admin/what-workforceap-does/page.tsx) | 223 | administration | generateMetadata:10, default:65 |
 | [app/admin/wioa-screening/loading.tsx](../../../app/admin/wioa-screening/loading.tsx) | 6 | partners-funding | default:3 |
-| [app/admin/wioa-screening/page.tsx](../../../app/admin/wioa-screening/page.tsx) | 363 | partners-funding | generateMetadata:22, default:88 |
+| [app/admin/wioa-screening/page.tsx](../../../app/admin/wioa-screening/page.tsx) | 386 | partners-funding | generateMetadata:25, default:91 |
 | [app/api-docs/page.tsx](../../../app/api-docs/page.tsx) | 21 | pages | generateMetadata:7, default:15 |
 | [app/apply/ApplyEligibilityClient.tsx](../../../app/apply/ApplyEligibilityClient.tsx) | 1023 | applications-enrollment | default:102, APPLY_STORAGE_KEY:1023 |
 | [app/apply/ApplyPageSkeleton.tsx](../../../app/apply/ApplyPageSkeleton.tsx) | 21 | applications-enrollment | default:1 |

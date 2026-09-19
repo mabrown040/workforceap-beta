@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "71e06fd03cbc3d96ab77f3a4b6e6d73d6eb0e829b9c28991de4ba7274cff7fb0",
+  "inputTreeSha256": "fc1b504dbbd755e861189c4aae221b839a781c095fa541f6620e34db44bfd5b7",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -20992,19 +20992,19 @@
       "path": "app/admin/wioa-screening/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 13185,
-      "lines": 363,
-      "sha256": "1f918746caf0a0eb727430ce3af01555065c516760a4193f876196f45cf43269",
+      "bytes": 14355,
+      "lines": 386,
+      "sha256": "8ae0d742c2ce1a41b5d8a40dee14ecead52d3d2ad34ca882334f06cbe888f2fd",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 22,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 88,
+          "line": 91,
           "kind": "FunctionDeclaration",
           "localName": "AdminWioaScreeningQueuePage"
         }
@@ -21012,42 +21012,42 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 22,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PageProps",
-          "line": 30,
+          "line": 33,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WioaQueueRow",
-          "line": 34,
+          "line": 37,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeReviewParam",
-          "line": 44,
+          "line": 47,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "initialsFrom",
-          "line": 51,
+          "line": 54,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "categoryFrom",
-          "line": 59,
+          "line": 62,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "determinationFrom",
-          "line": 68,
+          "line": 71,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminWioaScreeningQueuePage",
-          "line": 88,
+          "line": 91,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -48194,14 +48194,14 @@
       "path": "components/admin/AdminCommandCenterClient.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 23162,
-      "lines": 483,
-      "sha256": "4652626a10ce93b7749bf2aaf4d62ae824386d778026fd07172ac30a8cca0274",
+      "bytes": 23477,
+      "lines": 489,
+      "sha256": "64ae15b6d7bde2d6f65d45705e4764858b10917371d7aab371474c015f9d3a9d",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 34,
+          "line": 35,
           "kind": "FunctionDeclaration",
           "localName": "AdminCommandCenterClient"
         }
@@ -48209,77 +48209,77 @@
       "declarations": [
         {
           "name": "ReviewStatus",
-          "line": 18,
+          "line": 19,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "REVIEW_ACTIONS",
-          "line": 20,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "BULK_LABEL",
-          "line": 26,
+          "line": 27,
           "kind": "Variable"
         },
         {
           "name": "UNCERTAIN_REVIEW",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "AdminCommandCenterClient",
-          "line": 34,
+          "line": 35,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "Metric",
-          "line": 290,
+          "line": 291,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "Bucket",
-          "line": 301,
+          "line": 302,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NeedsReplyCard",
-          "line": 326,
+          "line": 327,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtRiskCard",
-          "line": 339,
+          "line": 340,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InterviewingCard",
-          "line": 354,
+          "line": 355,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ApplicationCard",
-          "line": 366,
+          "line": 367,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ReviewButtons",
-          "line": 412,
+          "line": 418,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ActionCard",
-          "line": 460,
+          "line": 466,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatHours",
-          "line": 475,
+          "line": 481,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatDate",
-          "line": 481,
+          "line": 487,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75645,9 +75645,9 @@
       "path": "docs/ADMIN_PORTAL.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 13752,
-      "lines": 222,
-      "sha256": "a42f554470b14711ee69bc9cc2d65b88fdd1752702155a0059aed68dd371e471",
+      "bytes": 14015,
+      "lines": 224,
+      "sha256": "11223c817861545baa4445cdab12480777bfffebcb5b7e3074fd3078fe83abe8",
       "binary": false
     },
     {
@@ -84535,131 +84535,131 @@
       "path": "lib/admin/commandCenter.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 11838,
-      "lines": 279,
-      "sha256": "84a73f7ce2524124b229cce7c95965b6663911fbfd0d91ba4c563e898a81204c",
+      "bytes": 13119,
+      "lines": 302,
+      "sha256": "bd269e41cc6163c7bb7099d916efc82b1dec0d29628862d75a7d4b85a7b43c7e",
       "binary": false,
       "exports": [
         {
           "name": "buildApplicationEmailPacket",
-          "line": 20,
-          "kind": "ReExport"
-        },
-        {
-          "name": "bucketCommandCenterTotals",
-          "line": 20,
-          "kind": "ReExport"
-        },
-        {
-          "name": "AdminApplicationPendingRow",
           "line": 22,
           "kind": "ReExport"
         },
         {
-          "name": "AdminAtRiskRow",
-          "line": 23,
+          "name": "bucketCommandCenterTotals",
+          "line": 22,
           "kind": "ReExport"
         },
         {
-          "name": "AdminCommandCenter",
+          "name": "AdminApplicationPendingRow",
           "line": 24,
           "kind": "ReExport"
         },
         {
-          "name": "AdminCommandCenterBaseRow",
+          "name": "AdminAtRiskRow",
           "line": 25,
           "kind": "ReExport"
         },
         {
-          "name": "AdminCommandCenterTotals",
+          "name": "AdminCommandCenter",
           "line": 26,
           "kind": "ReExport"
         },
         {
-          "name": "AdminInterviewingRow",
+          "name": "AdminCommandCenterBaseRow",
           "line": 27,
           "kind": "ReExport"
         },
         {
-          "name": "AdminNeedsReplyRow",
+          "name": "AdminCommandCenterTotals",
           "line": 28,
           "kind": "ReExport"
         },
         {
-          "name": "AdminProgramHealthRow",
+          "name": "AdminInterviewingRow",
           "line": 29,
           "kind": "ReExport"
         },
         {
-          "name": "ApplicationEmailPacket",
+          "name": "AdminNeedsReplyRow",
           "line": 30,
           "kind": "ReExport"
         },
         {
+          "name": "AdminProgramHealthRow",
+          "line": 31,
+          "kind": "ReExport"
+        },
+        {
+          "name": "ApplicationEmailPacket",
+          "line": 32,
+          "kind": "ReExport"
+        },
+        {
           "name": "getAdminCommandCenter",
-          "line": 38,
+          "line": 40,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "DAY_MS",
-          "line": 33,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_LIMIT",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "AT_RISK_DAYS",
           "line": 35,
           "kind": "Variable"
         },
         {
-          "name": "PROGRAM_HEALTH_LIMIT",
+          "name": "DEFAULT_LIMIT",
           "line": 36,
           "kind": "Variable"
         },
         {
-          "name": "getAdminCommandCenter",
+          "name": "AT_RISK_DAYS",
+          "line": 37,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROGRAM_HEALTH_LIMIT",
           "line": 38,
+          "kind": "Variable"
+        },
+        {
+          "name": "getAdminCommandCenter",
+          "line": 40,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readQueue",
-          "line": 84,
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadNeedsReply",
-          "line": 95,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadAtRisk",
-          "line": 116,
+          "line": 118,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadInterviewing",
-          "line": 149,
+          "line": 151,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadApplicationsPending",
-          "line": 177,
+          "line": 179,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadProgramHealth",
-          "line": 242,
+          "line": 265,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "jobApplicationStatusLabel",
-          "line": 275,
+          "line": 298,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -84669,161 +84669,161 @@
       "path": "lib/admin/commandCenterHelpers.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 5328,
-      "lines": 154,
-      "sha256": "69112e01999ebc86d33cc93695b96c3ed700d6be172dd3d7ed08af76f37d5f24",
+      "bytes": 5602,
+      "lines": 158,
+      "sha256": "38dec8674f9d247faaea6ace2ab88d6f7ce2b8856f44205113b5f0e50418df1c",
       "binary": false,
       "exports": [
         {
           "name": "AdminCommandCenterBaseRow",
-          "line": 1,
+          "line": 3,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminNeedsReplyRow",
-          "line": 7,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminAtRiskRow",
-          "line": 14,
+          "line": 16,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminInterviewingRow",
-          "line": 20,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ApplicationEmailPacket",
-          "line": 27,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminApplicationPendingRow",
-          "line": 33,
+          "line": 35,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminCommandCenterTotals",
-          "line": 45,
+          "line": 49,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminProgramHealthRow",
-          "line": 60,
+          "line": 64,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ADMIN_QUEUE_KEYS",
-          "line": 67,
+          "line": 71,
           "kind": "Variable"
         },
         {
           "name": "AdminQueueKey",
-          "line": 68,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeAdminQueueRequest",
-          "line": 69,
+          "line": 73,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "adminQueueHref",
-          "line": 76,
+          "line": 80,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminCommandCenter",
-          "line": 80,
+          "line": 84,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "buildApplicationEmailPacket",
-          "line": 90,
+          "line": 94,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "bucketCommandCenterTotals",
-          "line": 139,
+          "line": 143,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "AdminCommandCenterBaseRow",
-          "line": 1,
+          "line": 3,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminNeedsReplyRow",
-          "line": 7,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminAtRiskRow",
-          "line": 14,
+          "line": 16,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminInterviewingRow",
-          "line": 20,
+          "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ApplicationEmailPacket",
-          "line": 27,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminApplicationPendingRow",
-          "line": 33,
+          "line": 35,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminCommandCenterTotals",
-          "line": 45,
+          "line": 49,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AdminProgramHealthRow",
-          "line": 60,
+          "line": 64,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ADMIN_QUEUE_KEYS",
-          "line": 67,
+          "line": 71,
           "kind": "Variable"
         },
         {
           "name": "AdminQueueKey",
-          "line": 68,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeAdminQueueRequest",
-          "line": 69,
+          "line": 73,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "adminQueueHref",
-          "line": 76,
+          "line": 80,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminCommandCenter",
-          "line": 80,
+          "line": 84,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "buildApplicationEmailPacket",
-          "line": 90,
+          "line": 94,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "bucketCommandCenterTotals",
-          "line": 139,
+          "line": 143,
           "kind": "FunctionDeclaration"
         }
       ],

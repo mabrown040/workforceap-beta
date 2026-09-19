@@ -1,3 +1,5 @@
+import type { ApplicantTriageBucket } from '@/lib/admin/applicantTriage';
+
 export type AdminCommandCenterBaseRow = {
   memberId: string;
   memberName: string;
@@ -40,6 +42,8 @@ export type AdminApplicationPendingRow = AdminCommandCenterBaseRow & {
   submittedDaysAgo: number | null;
   recommendedCareerTitle: string | null;
   emailPacket: ApplicationEmailPacket;
+  /** Read-only applicant intake triage (bucket + plain-language reasons); null when it could not be loaded. */
+  triage?: { bucket: ApplicantTriageBucket; label: string; reasons: string[] } | null;
 };
 
 export type AdminCommandCenterTotals = {

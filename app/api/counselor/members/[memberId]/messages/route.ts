@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
 import {
   getOrCreateMemberCounselorThread,
@@ -56,6 +57,13 @@ async function _GET(request: NextRequest, { params }: Props) {
     }),
   );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
+  // Authorize against the member BEFORE touching the thread: the thread-level
+  // check below needs a thread id, and creating one for a member this staff
+  // user may not message would leave a side effect behind a 403.
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const readOnlyAudit = isReadOnlyPortalAuditHeader(request.headers);
   const thread = readOnlyAudit
@@ -143,6 +151,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     }),
   );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
+  // Member-level gate first so a forbidden poster never creates the thread.
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const canPost = await assertStaffCanPost(user.id, thread.id);

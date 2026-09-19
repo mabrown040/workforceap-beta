@@ -42,7 +42,8 @@
 | [lib/admin/courseraSyncDrift.test.ts](../../../lib/admin/courseraSyncDrift.test.ts) | 61 | learning-coursera |  |
 | [lib/admin/courseraSyncDrift.ts](../../../lib/admin/courseraSyncDrift.ts) | 101 | learning-coursera | SyncDriftRawRow:12, SyncDriftRow:22, SyncDriftResult:31, SYNC_DRIFT_THRESHOLD_HOURS:35, SYNC_DRIFT_LIMIT:36, buildSyncDriftQuery:41, mapSyncDriftRows:71, loadSyncDriftPairs:87 |
 | [lib/admin/cronPreviewTypes.ts](../../../lib/admin/cronPreviewTypes.ts) | 10 | administration | CronPreviewRecipient:1, CronPreviewResponse:3 |
-| [lib/admin/cronRegistry.ts](../../../lib/admin/cronRegistry.ts) | 404 | administration | CronDef:8, CRON_REGISTRY:22, CRON_CATEGORY_COLOR:399 |
+| [lib/admin/cronRegistry.test.ts](../../../lib/admin/cronRegistry.test.ts) | 25 | administration |  |
+| [lib/admin/cronRegistry.ts](../../../lib/admin/cronRegistry.ts) | 391 | administration | CronDef:8, CRON_REGISTRY:22, CRON_CATEGORY_COLOR:386 |
 | [lib/admin/diagnoseMemberCoursera.ts](../../../lib/admin/diagnoseMemberCoursera.ts) | 395 | learning-coursera | CourseraDiagnoseReport:17, diagnoseMemberCoursera:91 |
 | [lib/admin/directoryEmptyState.test.ts](../../../lib/admin/directoryEmptyState.test.ts) | 71 | administration |  |
 | [lib/admin/directoryEmptyState.ts](../../../lib/admin/directoryEmptyState.ts) | 25 | administration | PARTNERS_DIRECTORY_EMPTY:6, EMPLOYERS_DIRECTORY_EMPTY:13, SUBGROUPS_DIRECTORY_EMPTY:20 |

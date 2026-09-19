@@ -43985,8 +43985,16 @@
   },
   {
     "from": "app/api/counselor/bulk-followup/route.ts",
-    "specifier": "@/lib/counselor/followUpTemplates",
+    "specifier": "@/lib/counselor/staffMemberAccess",
     "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/staffMemberAccess.ts"
+  },
+  {
+    "from": "app/api/counselor/bulk-followup/route.ts",
+    "specifier": "@/lib/counselor/followUpTemplates",
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/followUpTemplates.ts"
@@ -43994,7 +44002,7 @@
   {
     "from": "app/api/counselor/bulk-followup/route.ts",
     "specifier": "@/lib/content/programs",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -44002,7 +44010,7 @@
   {
     "from": "app/api/counselor/bulk-followup/route.ts",
     "specifier": "@/lib/content/programTitle",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/content/programTitle.ts"
@@ -44010,7 +44018,7 @@
   {
     "from": "app/api/counselor/bulk-followup/route.ts",
     "specifier": "@/lib/audit",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -44018,7 +44026,7 @@
   {
     "from": "app/api/counselor/bulk-followup/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -44729,8 +44737,16 @@
   },
   {
     "from": "app/api/counselor/members/[memberId]/messages/route.ts",
+    "specifier": "@/lib/counselor/staffMemberAccess",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/staffMemberAccess.ts"
+  },
+  {
+    "from": "app/api/counselor/members/[memberId]/messages/route.ts",
     "specifier": "@/lib/messages/counselorThread",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/messages/counselorThread.ts"
@@ -44738,7 +44754,7 @@
   {
     "from": "app/api/counselor/members/[memberId]/messages/route.ts",
     "specifier": "@/lib/messages/readCursor",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/messages/readCursor.ts"
@@ -44746,7 +44762,7 @@
   {
     "from": "app/api/counselor/members/[memberId]/messages/route.ts",
     "specifier": "@/lib/notifications/create",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/notifications/create.ts"
@@ -44754,7 +44770,7 @@
   {
     "from": "app/api/counselor/members/[memberId]/messages/route.ts",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -45390,6 +45406,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "app/api/counselor/nudge/route.ts",
+    "specifier": "@/lib/counselor/staffMemberAccess",
+    "line": 22,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/staffMemberAccess.ts"
   },
   {
     "from": "app/api/counselor/placements/route.ts",
@@ -90024,6 +90048,30 @@
     "package": "@prisma/client"
   },
   {
+    "from": "lib/admin/cronRegistry.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/admin/cronRegistry.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/admin/cronRegistry.test.ts",
+    "specifier": "./cronRegistry",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/cronRegistry.ts"
+  },
+  {
     "from": "lib/admin/diagnoseMemberCoursera.ts",
     "specifier": "@/lib/db/prisma",
     "line": 3,
@@ -115990,6 +116038,62 @@
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "vitest",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 50,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "@/lib/messages/counselorThread",
+    "line": 57,
+    "kind": "type",
+    "external": false,
+    "target": "lib/messages/counselorThread.ts"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "@/app/api/counselor/members/[memberId]/messages/route",
+    "line": 69,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/members/[memberId]/messages/route.ts"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "@/app/api/counselor/nudge/route",
+    "line": 70,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/nudge/route.ts"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "@/app/api/counselor/bulk-followup/route",
+    "line": 71,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/bulk-followup/route.ts"
+  },
+  {
+    "from": "tests/api/counselor-thread-access-gate.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 72,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
   },
   {
     "from": "tests/api/coursera-replay-email-pacing.spec.ts",

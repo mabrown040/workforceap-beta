@@ -79,7 +79,7 @@
 | [app/(portal)/counselor/students/\[memberId\]/error.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/students/\[memberId\]/loading.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/counselor/students/\[memberId\]/notesPanel.module.css](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/notesPanel.module.css) | 119 | member-counselor |  |
-| [app/(portal)/counselor/students/\[memberId\]/page.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/page.tsx) | 1427 | member-counselor | default:67 |
+| [app/(portal)/counselor/students/\[memberId\]/page.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/page.tsx) | 1458 | member-counselor | default:68 |
 | [app/(portal)/counselor/students/error.tsx](../../../app/%28portal%29/counselor/students/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/students/loading.tsx](../../../app/%28portal%29/counselor/students/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/counselor/students/page.tsx](../../../app/%28portal%29/counselor/students/page.tsx) | 473 | member-counselor | default:30 |
@@ -454,7 +454,7 @@
 | [app/admin/pipeline/StaleApplicationsBanner.tsx](../../../app/admin/pipeline/StaleApplicationsBanner.tsx) | 53 | administration | default:6 |
 | [app/admin/pipeline/loading.tsx](../../../app/admin/pipeline/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/pipeline/page.tsx](../../../app/admin/pipeline/page.tsx) | 179 | administration | dynamic:14, generateMetadata:16, default:27 |
-| [app/admin/pipeline/remindAction.ts](../../../app/admin/pipeline/remindAction.ts) | 82 | administration | remindStaleApplication:13 |
+| [app/admin/pipeline/remindAction.ts](../../../app/admin/pipeline/remindAction.ts) | 81 | administration | remindStaleApplication:13 |
 | [app/admin/placement-surveys/page.tsx](../../../app/admin/placement-surveys/page.tsx) | 307 | administration | generateMetadata:18, default:114 |
 | [app/admin/placements/loading.tsx](../../../app/admin/placements/loading.tsx) | 5 | jobs-employers | default:3 |
 | [app/admin/placements/new/loading.tsx](../../../app/admin/placements/new/loading.tsx) | 6 | jobs-employers | default:3 |

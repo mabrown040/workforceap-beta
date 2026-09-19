@@ -72,9 +72,12 @@ type MembersTableProps = {
 };
 
 function FitScoreBadge({ score }: { score: number }) {
-  const color = score >= 8 ? '#16a34a' : score >= 5 ? '#d97706' : '#dc2626';
-  const bg = score >= 8 ? '#f0fdf4' : score >= 5 ? '#fffbeb' : '#fef2f2';
-  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid ${color}20`, fontVariantNumeric: 'tabular-nums' }}>{score}/10</span>;
+  // Mid scores use the token layer's text-on-gold-tint pair (--wa-gold-dark on
+  // --wa-gold-soft, the .wa-kit-tag--warn pattern): the previous #d97706 on
+  // #fffbeb measured 3.07:1 for 12.8px text.
+  const color = score >= 8 ? '#16a34a' : score >= 5 ? 'var(--wa-gold-dark)' : '#dc2626';
+  const bg = score >= 8 ? '#f0fdf4' : score >= 5 ? 'var(--wa-gold-soft)' : '#fef2f2';
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid color-mix(in srgb, ${color} 12%, transparent)`, fontVariantNumeric: 'tabular-nums' }}>{score}/10</span>;
 }
 
 function HealthDot({ status }: { status: HealthStatus }) {

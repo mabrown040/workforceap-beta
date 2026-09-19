@@ -296,7 +296,7 @@ export async function getInboxZeroQueue(
         `SELECT t.member_id, MAX(m.created_at) AS staff_last_at
          FROM messages m
          JOIN message_threads t ON t.id = m.thread_id
-         WHERE t.member_id = ANY($1::uuid[])
+         WHERE t.member_id = ANY($1::text[])
            AND t.kind = 'member'
            AND m.author_id <> t.member_id
          GROUP BY t.member_id`,

@@ -26,6 +26,7 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+import { resolveMemberLastActivity } from '@/lib/counselor/lastActivity';
 
 import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
@@ -111,15 +112,21 @@ export type TriageQueue = {
 /**
  * True when a member is enrolled but their last activity event was more than
  * NO_ACTIVITY_DAYS ago. A member who has never logged any event also qualifies
- * (`lastEventAt = null`) — we treat "never logged in" as the strongest signal.
+ * (`lastEventAt = null`) — unless `accountCreatedAt` shows the account is
+ * younger than NO_ACTIVITY_DAYS: a member who joined this morning has not
+ * "gone quiet", they have simply not started yet.
  */
 export function isInactive(
   lastEventAt: Date | null,
   isEnrolled: boolean,
   now: Date = new Date(),
+  accountCreatedAt: Date | null = null,
 ): boolean {
   if (!isEnrolled) return false;
-  if (!lastEventAt) return true;
+  if (!lastEventAt) {
+    if (!accountCreatedAt) return true;
+    return now.getTime() - accountCreatedAt.getTime() > NO_ACTIVITY_DAYS * DAY_MS;
+  }
   const ageMs = now.getTime() - lastEventAt.getTime();
   return ageMs > NO_ACTIVITY_DAYS * DAY_MS;
 }
@@ -280,6 +287,7 @@ export async function getTriageQueue(
         email: true,
         enrolledProgram: true,
         enrolledAt: true,
+        createdAt: true,
         staleTrainingDetectedAt: true,
         needsComputerSupportFollowUp: true,
       },
@@ -400,12 +408,14 @@ export async function getTriageQueue(
     const context: TriageContext = {};
 
     const lastEventAt = lastEventMap.get(m.id) ?? null;
-    if (isInactive(lastEventAt, m.enrolledProgram !== null, now)) {
+    if (isInactive(lastEventAt, m.enrolledProgram !== null, now, m.createdAt)) {
       flags.push('no_activity_10d');
-      const fallback = lastEventAt ?? m.enrolledAt;
-      context.daysInactive = fallback
-        ? Math.max(NO_ACTIVITY_DAYS, Math.floor((now.getTime() - fallback.getTime()) / DAY_MS))
-        : NO_ACTIVITY_DAYS;
+      // Only a real MemberEvent yields a day count. With none recorded the
+      // context stays empty and the UI shows "—" / "No activity recorded"
+      // instead of a recency invented from enrolledAt (shared derivation
+      // with /counselor/students — lib/counselor/lastActivity.ts).
+      const { daysInactive } = resolveMemberLastActivity(lastEventAt, now);
+      if (daysInactive != null) context.daysInactive = daysInactive;
     }
 
     const sla = memberSlaContext.get(m.id);

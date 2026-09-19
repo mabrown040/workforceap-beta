@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AbstractIntlMessages } from 'next-intl';
 import {
+  ADMIN_DASHBOARD_CLIENT_KEYS,
   clientMessagesBytes,
   pickAdminClientMessages,
   pickApplyClientMessages,
@@ -67,11 +68,40 @@ test('admin / apply / auth slices stay on their own catalogs', () => {
   assert.equal(ns(admin, 'courseraProgress').title, 'Coursera progress');
   assert.equal(ns(admin, 'workspace').admin, 'Admin workspace');
   assert.equal(ns(admin, 'group').workflows, 'Workflows');
-  assert.equal((admin as Record<string, unknown>).dashboard, undefined);
+  // Only the MemberProgressStrip keys ride along — not the member dashboard catalog.
+  assert.equal(ns(admin, 'dashboard').welcome, undefined);
   assert.ok(ns(apply, 'apply'));
   assert.equal((apply as Record<string, unknown>).admin, undefined);
   assert.ok(ns(auth, 'auth'));
   assert.equal((auth as Record<string, unknown>).apply, undefined);
+});
+
+test('admin slice ships exactly the MemberProgressStrip dashboard keys', () => {
+  const admin = pickAdminClientMessages(catalog);
+  const dashboard = ns(admin, 'dashboard');
+  assert.deepEqual(Object.keys(dashboard).sort(), [...ADMIN_DASHBOARD_CLIENT_KEYS].sort());
+  assert.equal(dashboard.progressIntake, 'Intake');
+  assert.equal(dashboard.progressAssessment, 'Assessment');
+  assert.equal(dashboard.memberJourneyProgress, 'Member journey progress');
+  assert.equal(dashboard.stepComplete, '{label}: complete');
+  const fullDashboardBytes = clientMessagesBytes(
+    (catalog as Record<string, unknown>).dashboard as AbstractIntlMessages,
+  );
+  const sliceBytes = clientMessagesBytes(dashboard as AbstractIntlMessages);
+  assert.ok(sliceBytes < 600, `strip slice ${sliceBytes}B should stay tiny`);
+  assert.ok(sliceBytes < fullDashboardBytes / 20, `slice ${sliceBytes} vs full dashboard ${fullDashboardBytes}`);
+});
+
+test('admin slice dashboard keys resolve in every shipped locale', () => {
+  for (const locale of ['es', 'fr', 'pt']) {
+    const localeCatalog = JSON.parse(
+      readFileSync(join(root, `messages/${locale}.json`), 'utf8'),
+    ) as AbstractIntlMessages;
+    const dashboard = ns(pickAdminClientMessages(localeCatalog), 'dashboard');
+    for (const key of ADMIN_DASHBOARD_CLIENT_KEYS) {
+      assert.equal(typeof dashboard[key], 'string', `${locale}: dashboard.${key}`);
+    }
+  }
 });
 
 test('root payload is a fraction of the full catalog and of the legacy union', () => {

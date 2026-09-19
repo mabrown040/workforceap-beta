@@ -40,8 +40,15 @@ async function _GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Super admins may report on any organization via `?orgId=`; without it
+    // they fall back to their own tenant, like the sibling analytics routes
+    // (dashboard/programs/members) do. Everyone else is pinned to their own org.
     const superAdmin = await isSuperAdmin(user.id);
-    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+    const requestedOrgId = new URL(req.url).searchParams.get('orgId')?.trim() || null;
+    const orgId =
+      superAdmin && requestedOrgId
+        ? requestedOrgId
+        : await getActorOrganizationId(user.id).catch(() => null);
     if (!orgId) {
       return NextResponse.json({ error: 'Organization context required' }, { status: 400 });
     }

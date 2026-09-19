@@ -7,7 +7,7 @@
 | [app/api/(portal)/dashboard/jobs/\[id\]/apply/route.ts](../../../app/api/%28portal%29/dashboard/jobs/%5Bid%5D/apply/route.ts) | 211 | applications-enrollment | POST:211 |
 | [app/api/(portal)/dashboard/jobs/\[id\]/route.ts](../../../app/api/%28portal%29/dashboard/jobs/%5Bid%5D/route.ts) | 25 | jobs-employers | GET:25 |
 | [app/api/(portal)/dashboard/jobs/route.ts](../../../app/api/%28portal%29/dashboard/jobs/route.ts) | 151 | jobs-employers | GET:151 |
-| [app/api/admin/analytics/ai-efficacy/route.ts](../../../app/api/admin/analytics/ai-efficacy/route.ts) | 64 | administration | GET:64 |
+| [app/api/admin/analytics/ai-efficacy/route.ts](../../../app/api/admin/analytics/ai-efficacy/route.ts) | 71 | administration | GET:71 |
 | [app/api/admin/analytics/dashboard/route.ts](../../../app/api/admin/analytics/dashboard/route.ts) | 76 | member-counselor | GET:13 |
 | [app/api/admin/analytics/members/route.ts](../../../app/api/admin/analytics/members/route.ts) | 71 | administration | GET:8 |
 | [app/api/admin/analytics/placements/_placementsAnalytics.ts](../../../app/api/admin/analytics/placements/_placementsAnalytics.ts) | 44 | jobs-employers | fetchPlacementAnalytics:3 |

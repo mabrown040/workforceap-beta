@@ -104,6 +104,7 @@ export const VOICE_SESSION_LIMIT_MESSAGE =
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 let publicInviteValidateRateLimiter: Ratelimit | null = null;
 let publicOrgOutcomesRateLimiter: Ratelimit | null = null;
+let publicUnsubscribeRateLimiter: Ratelimit | null = null;
 let verifyMfaRateLimiter: Ratelimit | null = null;
 let publicHealthRateLimiter: Ratelimit | null = null;
 let xapiConfigGetRateLimiter: Ratelimit | null = null;
@@ -366,6 +367,15 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(120, '1 h'),
     prefix: 'ratelimit:public-org-outcomes',
   });
+  publicUnsubscribeRateLimiter = new Ratelimit({
+    redis,
+    // Unauthenticated HMAC-token unsubscribe (RFC 8058 one-click POST + footer
+    // GET). Each valid hit is a user lookup + update, so cap per IP. Mailbox
+    // providers POST from shared egress IPs, so keep headroom above what one
+    // person could ever click.
+    limiter: Ratelimit.slidingWindow(60, '1 h'),
+    prefix: 'ratelimit:public-unsubscribe',
+  });
   verifyMfaRateLimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(10, '15 m'),
@@ -610,6 +620,13 @@ export async function checkPublicInviteValidateRateLimit(ip: string): Promise<{ 
 export async function checkPublicOrgOutcomesRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicOrgOutcomesRateLimiter) return { success: true };
   const result = await publicOrgOutcomesRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** GET/POST /api/unsubscribe?token= — public HMAC-token unsubscribe; per IP, fail-open without Redis. */
+export async function checkPublicUnsubscribeRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicUnsubscribeRateLimiter) return { success: true };
+  const result = await publicUnsubscribeRateLimiter.limit(ip);
   return { success: result.success };
 }
 

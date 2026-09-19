@@ -7,7 +7,6 @@ import DataTable from '@/components/portal/ui/DataTable';
 
 const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
-const GREEN = '#4a9b4f';
 const GOLD = '#a47f38';
 
 interface PartnerQuarterlyReport {
@@ -438,7 +437,7 @@ export default function PartnerQuarterlyOutcomesClient({
                           fontWeight: 600,
                           background:
                             m.status === 'Placed'
-                              ? 'rgba(74,155,79,0.12)'
+                              ? 'var(--wa-success-soft)'
                               : m.status === 'Completed'
                               ? 'rgba(43,123,185,0.12)'
                               : m.status === 'Active'
@@ -446,7 +445,7 @@ export default function PartnerQuarterlyOutcomesClient({
                               : 'rgba(173,44,77,0.12)',
                           color:
                             m.status === 'Placed'
-                              ? GREEN
+                              ? 'var(--wa-success-dark)'
                               : m.status === 'Completed'
                               ? BLUE
                               : m.status === 'Active'

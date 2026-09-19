@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type Deployment = {
   id: string;
@@ -19,6 +21,8 @@ const OUTCOME_LABELS: Record<string, { label: string; color: string }> = {
   other: { label: 'Other outcome', color: 'var(--color-on-surface-variant)' },
 };
 
+const SUBMIT_FAILED = 'Something went wrong. Try again.';
+
 export default function ElevatorPitchDeploymentLogger() {
   const [deployments, setDeployments] = useState<Deployment[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -27,6 +31,7 @@ export default function ElevatorPitchDeploymentLogger() {
   const [form, setForm] = useState({ employer: '', usedAt: '', outcome: 'pending' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const tCommon = useTranslations('common');
 
   const fetchDeployments = useCallback(async () => {
     setLoading(true);
@@ -36,6 +41,10 @@ export default function ElevatorPitchDeploymentLogger() {
         const data = await res.json();
         setDeployments(data.deployments ?? []);
       }
+    } catch (err) {
+      // Read path: the list stays empty and the member can still log a use;
+      // keep the real error in the console instead of an unhandled rejection.
+      console.error('[pitch-deployments] load failed', err);
     } finally {
       setLoading(false);
     }
@@ -58,11 +67,17 @@ export default function ElevatorPitchDeploymentLogger() {
           outcome: form.outcome,
         }),
       });
-      if (!res.ok) { setError('Something went wrong. Try again.'); return; }
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+        setError(typeof data.error === 'string' && data.error.trim() ? data.error : SUBMIT_FAILED);
+        return;
+      }
       setSuccess(true);
       setForm({ employer: '', usedAt: '', outcome: 'pending' });
       await fetchDeployments();
       setTimeout(() => { setSuccess(false); setShowModal(false); }, 1200);
+    } catch (err) {
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: SUBMIT_FAILED }, 'pitch-deployment-log'));
     } finally {
       setSubmitting(false);
     }
@@ -261,7 +276,7 @@ export default function ElevatorPitchDeploymentLogger() {
                   </label>
 
                   {error && (
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-error, #dc2626)', margin: 0 }}>{error}</p>
+                    <p role="alert" style={{ fontSize: '0.8125rem', color: 'var(--color-error, #dc2626)', margin: 0 }}>{error}</p>
                   )}
 
                   <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>

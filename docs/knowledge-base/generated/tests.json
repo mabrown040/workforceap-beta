@@ -6268,6 +6268,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/i18n/esCopyDeckParity.test.ts",
+    "area": "libraries",
+    "domain": "public-experience",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/i18n/pickRootClientMessages.test.ts",
     "area": "libraries",
     "domain": "public-experience",

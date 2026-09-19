@@ -101024,6 +101024,38 @@
     "target": "lib/formatDate.ts"
   },
   {
+    "from": "lib/i18n/esCopyDeckParity.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/i18n/esCopyDeckParity.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/i18n/esCopyDeckParity.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/i18n/esCopyDeckParity.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
     "from": "lib/i18n/getT.ts",
     "specifier": "next-intl/server",
     "line": 1,

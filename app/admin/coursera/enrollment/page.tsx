@@ -6,7 +6,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraEnrollmentPipelineTable from '@/components/admin/CourseraEnrollmentPipelineTable';
 import { getUser } from '@/lib/auth/server';
-import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { loadCourseraEnrollmentPipeline } from '@/lib/admin/courseraEnrollmentPipeline';
 
@@ -23,9 +23,9 @@ export const dynamic = 'force-dynamic';
 
 const SUMMARY_TILES: Array<{ key: 'totalApproved' | 'approvedNotStarted' | 'activeLast30Days' | 'stalled'; label: string }> = [
   { key: 'totalApproved', label: 'Total approved' },
-  { key: 'approvedNotStarted', label: 'Approved — not started' },
+  { key: 'approvedNotStarted', label: 'Approved — no activity observed' },
   { key: 'activeLast30Days', label: 'Active (last 30d)' },
-  { key: 'stalled', label: 'Stalled' },
+  { key: 'stalled', label: 'No recent activity' },
 ];
 
 export default async function AdminCourseraEnrollmentPage() {
@@ -35,13 +35,13 @@ export default async function AdminCourseraEnrollmentPage() {
   if (!scope.ok) redirect('/dashboard');
 
   const organizationId = await getActorOrganizationId(user.id);
-  const { rows, summary, programs } = await loadCourseraEnrollmentPipeline(organizationId);
+  const { rows, summary, programs, truncated } = await loadCourseraEnrollmentPipeline(organizationId);
 
   return (
     <PortalPageFrame>
       <PageHeader
         title="Coursera enrollment command center"
-        subtitle="Every member with an assigned program: approval status, and whether they've actually started, stalled, or finished on Coursera."
+        subtitle="Operational cohort with an assignment, approval, or recorded course evidence. Approval and observed learning are separate facts."
         breadcrumbs={[
           { label: 'Admin', href: '/admin' },
           { label: 'Coursera', href: '/admin/coursera' },
@@ -79,8 +79,9 @@ export default async function AdminCourseraEnrollmentPage() {
       </div>
 
       <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-        {summary.totalMembers} member{summary.totalMembers === 1 ? '' : 's'} with an assigned program ·{' '}
-        {summary.notApproved} not yet approved.
+        {summary.totalMembers} member{summary.totalMembers === 1 ? '' : 's'} in this operational cohort ·{' '}
+        {summary.notApproved} not yet approved. Activity dates cover recorded courses across assignments; enrollment receipts alone do not prove learning or working provider access.
+        {truncated ? ' Showing the first 2,000 accounts; these totals cover only those rows.' : ''}
       </p>
 
       <CourseraEnrollmentPipelineTable initialRows={rows} programs={programs} />

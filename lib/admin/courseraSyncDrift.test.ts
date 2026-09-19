@@ -11,7 +11,7 @@ import {
 test('buildSyncDriftQuery: never applies ABS() to an interval (Postgres 42883)', () => {
   const sql = buildSyncDriftQuery().sql;
   assert.ok(!/ABS\s*\(/i.test(sql), `query still contains ABS(): ${sql}`);
-  assert.match(sql, /GREATEST\(ccp\.last_activity_time, cp\.last_updated_at\) - LEAST\(ccp\.last_activity_time, cp\.last_updated_at\)/);
+  assert.match(sql, /GREATEST\(ccp\.last_activity_time, cp\.last_activity_at\) - LEAST\(ccp\.last_activity_time, cp\.last_activity_at\)/);
   assert.match(sql, /EXTRACT\(EPOCH FROM \(GREATEST/);
 });
 
@@ -31,9 +31,10 @@ test('mapSyncDriftRows: rounds seconds to hours and labels a missing email', () 
       userId: 'u1',
       email: null,
       courseName: 'Intro',
+      localProgramSlug: 'assigned-program',
       courseraCourseId: 'c1',
       b4bLastActivity: new Date('2026-01-03T00:00:00Z'),
-      ourLastUpdated: new Date('2026-01-01T00:00:00Z'),
+      ourLastActivity: new Date('2026-01-01T00:00:00Z'),
       deltaSeconds: BigInt(172800),
     },
   ]);

@@ -1,5 +1,6 @@
 /** Library suites owned by Vitest, shared with the Node runner and its collection guard. */
 export const VITEST_LIBRARY_SPECS = Object.freeze([
+  'lib/admin/courseraDiagnosticsLoaders.test.ts',
   'lib/admin/funderProgramMetrics.test.ts',
   'lib/admin/memberMerge.test.ts',
   'lib/admin/metrics.test.ts',

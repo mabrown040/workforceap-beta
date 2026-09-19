@@ -134,6 +134,8 @@ export type UnmatchedLearner = {
 };
 
 export type LoadUnmatchedLearnersOptions = {
+  /** Diagnostics must distinguish unavailable evidence from an empty result. */
+  strict?: boolean;
   /** Default false. When true, emails matching `isLikelyTestAccount` are returned alongside real learners. */
   includeTestAccounts?: boolean;
 };
@@ -365,6 +367,7 @@ export async function loadUnmatchedLearners(
     });
   } catch (error) {
     console.error('[admin/coursera] failed to load unmatched learners:', error);
+    if (options.strict) throw error;
     return [];
   }
 }
@@ -380,7 +383,7 @@ export async function loadUnmatchedLearners(
  *
  * Scoped by `organizationId`, same posture as `loadUnmatchedLearners`.
  */
-export async function countHiddenTestAccountUnmatchedLearners(organizationId: string): Promise<number> {
+export async function countHiddenTestAccountUnmatchedLearners(organizationId: string, options: { strict?: boolean } = {}): Promise<number> {
   try {
     const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
       WITH unioned AS (
@@ -417,7 +420,8 @@ export async function countHiddenTestAccountUnmatchedLearners(organizationId: st
     `;
     const count = rows[0]?.count ?? 0;
     return typeof count === 'bigint' ? Number(count) : count;
-  } catch {
+  } catch (error) {
+    if (options.strict) throw error;
     return 0;
   }
 }
@@ -463,6 +467,7 @@ export async function countUnmatchedLearners(
     return typeof count === 'bigint' ? Number(count) : count;
   } catch (error) {
     console.error('[admin/coursera] failed to count unmatched learners:', error);
+    if (options.strict) throw error;
     return 0;
   }
 }

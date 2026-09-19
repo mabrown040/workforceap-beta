@@ -195,7 +195,9 @@ export function PlacementsKit({
         kicker="Outcomes"
         goal="Confirmed hires & wage data"
         action={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          // Wraps like UsersKit's action row: three nowrap buttons in a single
+          // flex line pushed the shell to 415px at a 390px viewport.
+          <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
             <AstryxLink href="/admin/placements/new" as={NextLink as never} isStandalone>
               <Button label="Record placement" variant="primary" size="sm" />
             </AstryxLink>

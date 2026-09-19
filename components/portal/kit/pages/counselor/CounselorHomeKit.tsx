@@ -61,6 +61,7 @@ export interface CounselorQueueRow {
   bucket: CounselorQueueBucket;
   /** Short human-readable primary blocker, e.g. "No activity 10+ days". */
   blockerReason?: string;
+  /** Display title of the member's program (already resolved from the stored slug). */
   enrolledProgram?: string | null;
   /** Days since the member's last logged activity, when known. */
   daysSinceLogin?: number | null;

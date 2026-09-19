@@ -6,6 +6,7 @@ const {
   updateManyUsers,
   findFirstAssignment,
   findUniqueUser,
+  findFirstPartnerReferral,
   assignMemberCounselor,
   createNotification,
   transaction,
@@ -15,6 +16,7 @@ const {
   updateManyUsers: vi.fn(),
   findFirstAssignment: vi.fn(),
   findUniqueUser: vi.fn(),
+  findFirstPartnerReferral: vi.fn(),
   assignMemberCounselor: vi.fn(),
   createNotification: vi.fn(),
   transaction: vi.fn(),
@@ -34,6 +36,7 @@ vi.mock('@/lib/db/prisma', () => ({
     counselor: { findMany: findManyCounselors },
     counselorAssignment: { groupBy: groupByAssignments, findFirst: findFirstAssignment },
     user: { updateMany: updateManyUsers, findUnique: findUniqueUser },
+    partnerReferral: { findFirst: findFirstPartnerReferral },
   },
 }));
 
@@ -110,6 +113,7 @@ describe('ensureSelfServeCounselorAssigned', () => {
       return { fullName: 'Casey Counselor' };
     });
     createNotification.mockResolvedValue(undefined);
+    findFirstPartnerReferral.mockResolvedValue(null);
   });
 
   it('returns already_assigned without writing when a counselor is active', async () => {
@@ -170,6 +174,48 @@ describe('ensureSelfServeCounselorAssigned', () => {
         data: expect.objectContaining({ link: '/counselor/students/member-1' }),
       }),
     );
+  });
+
+  it('leaves partner-referred members to their partner without writing', async () => {
+    findFirstAssignment.mockResolvedValue(null);
+    findFirstPartnerReferral.mockResolvedValue({ id: 'ref-1' });
+    findManyCounselors.mockResolvedValue([
+      { id: 'cns-1', userId: 'counselor-1', createdAt: new Date('2025-01-01') },
+    ]);
+    groupByAssignments.mockResolvedValue([]);
+
+    await expect(
+      ensureSelfServeCounselorAssigned({ memberId: 'member-1', organizationId: 'org-1' }),
+    ).resolves.toEqual({
+      assigned: false,
+      counselorUserId: null,
+      reason: 'partner_referred',
+    });
+    expect(findFirstPartnerReferral).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { memberId: 'member-1' } }),
+    );
+    // No pool lookup, no lock, no assignment, no notifications.
+    expect(findManyCounselors).not.toHaveBeenCalled();
+    expect(transaction).not.toHaveBeenCalled();
+    expect(updateManyUsers).not.toHaveBeenCalled();
+    expect(assignMemberCounselor).not.toHaveBeenCalled();
+    expect(createNotification).not.toHaveBeenCalled();
+  });
+
+  it('still honours an existing assignment for a partner-referred member', async () => {
+    findFirstAssignment.mockResolvedValue({
+      counselor: { userId: 'partner-counselor', active: true },
+    });
+    findFirstPartnerReferral.mockResolvedValue({ id: 'ref-1' });
+
+    await expect(
+      ensureSelfServeCounselorAssigned({ memberId: 'member-1', organizationId: 'org-1' }),
+    ).resolves.toEqual({
+      assigned: true,
+      counselorUserId: 'partner-counselor',
+      reason: 'already_assigned',
+    });
+    expect(transaction).not.toHaveBeenCalled();
   });
 
   it('returns no_counselors without writing when the WAP staff pool is empty', async () => {

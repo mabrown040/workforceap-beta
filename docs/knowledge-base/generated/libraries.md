@@ -344,7 +344,7 @@
 | [lib/counselor/ambassadorReferral.test.ts](../../../lib/counselor/ambassadorReferral.test.ts) | 55 | member-counselor |  |
 | [lib/counselor/ambassadorReferral.ts](../../../lib/counselor/ambassadorReferral.ts) | 88 | member-counselor | AmbassadorCandidate:18, AmbassadorMatch:25, pickAmbassadorReferralText:33, normalizePersonName:51, matchAmbassador:68 |
 | [lib/counselor/assignment.ts](../../../lib/counselor/assignment.ts) | 44 | member-counselor | assignMemberCounselor:8 |
-| [lib/counselor/autoAssign.ts](../../../lib/counselor/autoAssign.ts) | 192 | member-counselor | WAP_STAFF_COUNSELOR_AFFILIATION:6, EnsureSelfServeCounselorResult:8, pickLeastLoadedWapCounselor:25, ensureSelfServeCounselorAssigned:121 |
+| [lib/counselor/autoAssign.ts](../../../lib/counselor/autoAssign.ts) | 215 | member-counselor | WAP_STAFF_COUNSELOR_AFFILIATION:6, EnsureSelfServeCounselorResult:8, pickLeastLoadedWapCounselor:30, ensureSelfServeCounselorAssigned:140 |
 | [lib/counselor/autoAssign.wiring.test.ts](../../../lib/counselor/autoAssign.wiring.test.ts) | 42 | member-counselor |  |
 | [lib/counselor/commandCenter.ts](../../../lib/counselor/commandCenter.ts) | 263 | member-counselor | CommandCenterRow:23, NeedsReplyRow:29, AtRiskRow:36, InterviewingRow:42, CommandCenter:47, getCounselorCommandCenter:69 |
 | [lib/counselor/counselorLabels.ts](../../../lib/counselor/counselorLabels.ts) | 17 | member-counselor | counselorAffiliationLabel:2, counselorAffiliationDisplay:10 |

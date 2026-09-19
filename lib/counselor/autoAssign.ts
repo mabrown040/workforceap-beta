@@ -8,7 +8,12 @@ export const WAP_STAFF_COUNSELOR_AFFILIATION = 'wap_staff' as const;
 export type EnsureSelfServeCounselorResult = {
   assigned: boolean;
   counselorUserId: string | null;
-  reason: 'assigned' | 'already_assigned' | 'no_counselors' | 'member_unavailable';
+  reason:
+    | 'assigned'
+    | 'already_assigned'
+    | 'partner_referred'
+    | 'no_counselors'
+    | 'member_unavailable';
 };
 
 type CounselorPickClient = {
@@ -71,6 +76,20 @@ async function findActiveAssignment(
   return existing?.counselor?.active ? existing.counselor.userId : null;
 }
 
+/**
+ * A member who arrived through a partner (has a `PartnerReferral` row) is
+ * the partner's caseload, not the WorkforceAP self-serve pool. Owner decision
+ * 2026-09-19: "self service are just wap counselors" — partner-referred
+ * members are left for the partner (or an explicit admin assignment).
+ */
+async function hasPartnerReferral(memberId: string): Promise<boolean> {
+  const referral = await prisma.partnerReferral.findFirst({
+    where: { memberId },
+    select: { id: true },
+  });
+  return referral !== null;
+}
+
 async function notifyNewSelfServeAssignment(input: {
   memberId: string;
   counselorUserId: string;
@@ -113,10 +132,10 @@ async function notifyNewSelfServeAssignment(input: {
 }
 
 /**
- * Assign a member with no active counselor to an active WAP staff counselor.
- * Read-only when already assigned or the pool is empty — those paths must
- * not bump `users.updated_at`. The lock + assignMemberCounselor commit only
- * runs when there is someone to assign.
+ * Assign a self-serve member with no active counselor to an active WAP staff
+ * counselor. Read-only when already assigned, partner-referred, or the pool
+ * is empty — those paths must not bump `users.updated_at`. The lock +
+ * assignMemberCounselor commit only runs when there is someone to assign.
  */
 export async function ensureSelfServeCounselorAssigned(input: {
   memberId: string;
@@ -129,6 +148,10 @@ export async function ensureSelfServeCounselorAssigned(input: {
       counselorUserId: existingUserId,
       reason: 'already_assigned',
     };
+  }
+
+  if (await hasPartnerReferral(input.memberId)) {
+    return { assigned: false, counselorUserId: null, reason: 'partner_referred' };
   }
 
   const preview = await pickLeastLoadedWapCounselor(prisma, input.organizationId);

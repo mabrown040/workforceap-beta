@@ -52722,7 +52722,7 @@
   {
     "from": "app/api/member/enroll/route.ts",
     "specifier": "@/lib/counselor/autoAssign",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/autoAssign.ts"
@@ -54106,7 +54106,7 @@
   {
     "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/messages/unassignedNotify",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/messages/unassignedNotify.ts"
@@ -54114,7 +54114,7 @@
   {
     "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -54122,7 +54122,7 @@
   {
     "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/audit",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -54130,7 +54130,7 @@
   {
     "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -127194,7 +127194,7 @@
   {
     "from": "tests/lib/self-serve-counselor-assign.spec.ts",
     "specifier": "@/lib/counselor/autoAssign",
-    "line": 40,
+    "line": 43,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/autoAssign.ts"
@@ -127202,7 +127202,7 @@
   {
     "from": "tests/lib/self-serve-counselor-assign.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 44,
+    "line": 47,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"

@@ -2297,7 +2297,16 @@
     "memberDashboard": "Painel do membro",
     "workforceAPHome": "Página inicial da WorkforceAP",
     "loadingCharts": "Carregando gráficos…",
-    "memberCount": "{count} membro{count, plural, =1 {} other {s}}"
+    "memberCount": "{count} membro{count, plural, =1 {} other {s}}",
+    "courseraProvisioning": {
+      "lastActivity": "Última atividade",
+      "noActivityYet": "Nenhuma atividade ainda",
+      "lastSignIn": "Último acesso",
+      "lastSignInHint": "Nenhuma atividade de aprendizagem registrada ainda; este é o último acesso do membro ao portal.",
+      "sourceCoursera": "Última atividade informada pelo Coursera",
+      "sourceCourseProgress": "Última atividade em um registro de curso do portal",
+      "sourceXapi": "Última declaração xAPI recebida"
+    }
   },
   "employer": {
     "employerOverview": "Visão geral do empregador",

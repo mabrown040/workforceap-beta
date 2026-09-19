@@ -87,6 +87,7 @@
 | [components/admin/CourseraInspectByEmailCard.tsx](../../../components/admin/CourseraInspectByEmailCard.tsx) | 687 | learning-coursera | default:151 |
 | [components/admin/CourseraMappingsAdmin.tsx](../../../components/admin/CourseraMappingsAdmin.tsx) | 1091 | learning-coursera | default:142 |
 | [components/admin/CourseraPipelineFlow.tsx](../../../components/admin/CourseraPipelineFlow.tsx) | 44 | learning-coursera | default:12 |
+| [components/admin/CourseraProvisioningQueueTable.tsx](../../../components/admin/CourseraProvisioningQueueTable.tsx) | 329 | learning-coursera | default:65 |
 | [components/admin/CourseraReconcileCard.tsx](../../../components/admin/CourseraReconcileCard.tsx) | 448 | learning-coursera | default:107 |
 | [components/admin/CourseraSelfTest.tsx](../../../components/admin/CourseraSelfTest.tsx) | 320 | learning-coursera | default:98 |
 | [components/admin/CourseraSyncProgressButton.tsx](../../../components/admin/CourseraSyncProgressButton.tsx) | 94 | learning-coursera | default:21 |

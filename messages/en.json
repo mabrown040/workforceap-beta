@@ -2358,7 +2358,16 @@
     "retryAdminHome": "Retry admin home",
     "memberDashboard": "Member dashboard",
     "workforceAPHome": "WorkforceAP home",
-    "loadingCharts": "Loading charts…"
+    "loadingCharts": "Loading charts…",
+    "courseraProvisioning": {
+      "lastActivity": "Last activity",
+      "noActivityYet": "No activity yet",
+      "lastSignIn": "Last sign-in",
+      "lastSignInHint": "No learning activity recorded yet; this is the last time the member signed in to the portal.",
+      "sourceCoursera": "Latest activity reported by Coursera",
+      "sourceCourseProgress": "Latest activity on a portal course record",
+      "sourceXapi": "Latest xAPI statement received"
+    }
   },
   "employer": {
     "employerOverview": "Employer overview",

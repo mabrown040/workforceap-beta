@@ -207,7 +207,7 @@
 | [app/(portal)/dashboard/messages/page.tsx](../../../app/%28portal%29/dashboard/messages/page.tsx) | 224 | communications | generateMetadata:19, default:28 |
 | [app/(portal)/dashboard/missions/page.tsx](../../../app/%28portal%29/dashboard/missions/page.tsx) | 79 | member-counselor | generateMetadata:14, default:23 |
 | [app/(portal)/dashboard/not-found.tsx](../../../app/%28portal%29/dashboard/not-found.tsx) | 20 | member-counselor | default:3 |
-| [app/(portal)/dashboard/page.tsx](../../../app/%28portal%29/dashboard/page.tsx) | 1205 | member-counselor | maxDuration:97, generateMetadata:99, default:108 |
+| [app/(portal)/dashboard/page.tsx](../../../app/%28portal%29/dashboard/page.tsx) | 1206 | member-counselor | maxDuration:97, generateMetadata:99, default:108 |
 | [app/(portal)/dashboard/placementAction.ts](../../../app/%28portal%29/dashboard/placementAction.ts) | 77 | member-counselor | confirmPlacement:10 |
 | [app/(portal)/dashboard/points/ReferralShareCard.module.css](../../../app/%28portal%29/dashboard/points/ReferralShareCard.module.css) | 31 | applications-enrollment |  |
 | [app/(portal)/dashboard/points/ReferralShareCard.tsx](../../../app/%28portal%29/dashboard/points/ReferralShareCard.tsx) | 114 | applications-enrollment | default:14 |

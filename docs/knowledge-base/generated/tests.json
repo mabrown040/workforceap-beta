@@ -1329,6 +1329,35 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "area": "components",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 5
+      },
+      {
+        "file": "components/portal/kit/pages/member/MemberHomeKit.tsx",
+        "line": 6
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "components/portal/tools/CareerCounselor.test.tsx",
     "area": "components",
     "domain": "components",
@@ -6699,6 +6728,14 @@
       {
         "file": "lib/member/loadMemberDashboardHome.ts",
         "line": 7
+      },
+      {
+        "file": "lib/content/programs.ts",
+        "line": 17
+      },
+      {
+        "file": "lib/content/programSlug.ts",
+        "line": 18
       }
     ],
     "kind": "test-candidate",

@@ -33,6 +33,9 @@ import {
  * (the mockup calls out "wide table → stacked cards on mobile, no squish").
  * Names always include the full account email to distinguish same-name accounts
  * in both table rows and mobile cards; email text wraps instead of truncating.
+ * Last-active captions expose the learner-action source in their accessible
+ * label and tooltip; import and database-update timestamps are not activity.
+ * Unavailable program progress is a dash, not an observed zero percent.
  */
 export type StudentStatus = 'Job-Ready' | 'At Risk' | 'In Training' | 'Interviewing' | 'Placed';
 
@@ -45,6 +48,8 @@ export interface StudentRow {
   program: string;
   /** 0–100 course progress. */
   progress: number;
+  /** False when no assigned-program denominator or progress read is available. */
+  progressKnown?: boolean;
   /** Readiness score, 0–100. */
   readiness: number;
   counselor: string;
@@ -53,6 +58,8 @@ export interface StudentRow {
   lastActive: string;
   /** Sortable last-activity instant (epoch ms). Caption alone is not ordered. */
   lastActiveAt?: number | null;
+  /** Source of the displayed learner activity, also exposed on mobile. */
+  lastActiveSource?: string;
   /** Latest Coursera course grade 0–100; null when unknown. */
   courseraGrade?: number | null;
   /** False when the row is a Coursera identity with no WAP member. */
@@ -233,7 +240,9 @@ export function StudentsRosterKit({
     </div>
   );
 
-  const ProgressCell = ({ row }: { row: StudentRow }) => (
+  const ProgressCell = ({ row }: { row: StudentRow }) => row.progressKnown === false
+    ? <span title="Program progress unavailable">—</span>
+    : (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <div style={{ width: 72 }}>
         <ProgressBar
@@ -329,6 +338,8 @@ export function StudentsRosterKit({
       ariaSort: ariaSortForColumn('lastActive', sortKey, sortDirection),
       render: (row) => (
         <span
+          title={row.lastActiveSource}
+          aria-label={row.lastActiveSource ? `${row.lastActive} · ${row.lastActiveSource}` : undefined}
           style={{
             color: row.status === 'At Risk' ? 'var(--wa-accent)' : 'var(--wa-muted)',
             fontWeight: row.status === 'At Risk' ? 700 : 400,
@@ -391,14 +402,17 @@ export function StudentsRosterKit({
                 </b>
               </span>
             </div>
-            <ProgressBar
+            {row.progressKnown !== false && <ProgressBar
               value={row.progress}
               label={`${row.name} progress`}
               isLabelHidden
               variant={row.status === 'At Risk' ? 'accent' : 'success'}
-            />
+            />}
             <div style={{ fontSize: 10, color: 'var(--wa-muted)', marginTop: 6 }}>
-              {row.progress}% complete · Coursera grade {formatRosterGrade(row.courseraGrade)} · last active {row.lastActive}
+              {row.progressKnown === false ? 'Program progress unavailable' : `${row.progress}% complete`} · Coursera grade {formatRosterGrade(row.courseraGrade)} · last active{' '}
+              <span title={row.lastActiveSource} aria-label={row.lastActiveSource ? `${row.lastActive} · ${row.lastActiveSource}` : undefined}>
+                {row.lastActive}
+              </span>
             </div>
           </Card>
         )}

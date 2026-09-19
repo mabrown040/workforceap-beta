@@ -69,6 +69,13 @@ export function sortStudentRows<T extends StudentRow>(
 ): T[] {
   const sign = direction === 'asc' ? 1 : -1;
   return [...rows].sort((a, b) => {
+    if (key === 'progress') {
+      const aUnknown = a.progressKnown === false;
+      const bUnknown = b.progressKnown === false;
+      if (aUnknown && bUnknown) return a.id.localeCompare(b.id);
+      if (aUnknown) return 1;
+      if (bUnknown) return -1;
+    }
     if (key === 'courseraGrade') {
       const ga = gradeOf(a);
       const gb = gradeOf(b);

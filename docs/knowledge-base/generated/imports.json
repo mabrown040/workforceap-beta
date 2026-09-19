@@ -42960,6 +42960,14 @@
     "target": "lib/supabase/env.ts"
   },
   {
+    "from": "app/api/auth/setup-mfa/route.ts",
+    "specifier": "@/lib/api/readJsonBody",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/api/readJsonBody.ts"
+  },
+  {
     "from": "app/api/auth/verify-mfa/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -43054,6 +43062,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "app/api/auth/verify-mfa/route.ts",
+    "specifier": "@/lib/api/readJsonBody",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/api/readJsonBody.ts"
   },
   {
     "from": "app/api/billing-packets/[packetId]/pdf/route.ts",
@@ -58833,8 +58849,16 @@
   },
   {
     "from": "app/api/placement-survey/route.ts",
-    "specifier": "@/lib/member/counselorEscalation",
+    "specifier": "@/lib/api/readJsonBody",
     "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/api/readJsonBody.ts"
+  },
+  {
+    "from": "app/api/placement-survey/route.ts",
+    "specifier": "@/lib/member/counselorEscalation",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/member/counselorEscalation.ts"
@@ -58842,7 +58866,7 @@
   {
     "from": "app/api/placement-survey/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -58954,7 +58978,7 @@
   {
     "from": "app/api/public/career-quiz/score/route.ts",
     "specifier": "@/lib/career/careerQuizRules",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/career/careerQuizRules.ts"
@@ -58962,7 +58986,7 @@
   {
     "from": "app/api/public/career-quiz/score/route.ts",
     "specifier": "@/lib/career/careerQuizAreas",
-    "line": 11,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/career/careerQuizAreas.ts"
@@ -118454,6 +118478,86 @@
     "kind": "import",
     "external": true,
     "package": "next"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "vitest",
+    "line": 20,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 57,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/placement-survey/route",
+    "line": 130,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/placement-survey/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/auth/setup-mfa/route",
+    "line": 131,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/auth/setup-mfa/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/auth/verify-mfa/route",
+    "line": 132,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/auth/verify-mfa/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/webhook/route",
+    "line": 133,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/webhook/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/apply/confirmation-email/route",
+    "line": 134,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/apply/confirmation-email/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/public/interest-profiler/questions/route",
+    "line": 135,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/public/interest-profiler/questions/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/public/interest-profiler/score/route",
+    "line": 136,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/public/interest-profiler/score/route.ts"
+  },
+  {
+    "from": "tests/api/public-route-error-handling.spec.ts",
+    "specifier": "@/app/api/public/career-quiz/score/route",
+    "line": 137,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/public/career-quiz/score/route.ts"
   },
   {
     "from": "tests/api/public-wioa-qualification.spec.ts",

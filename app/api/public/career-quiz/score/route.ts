@@ -7,6 +7,8 @@ import { riasecFromResultRows } from '@/lib/content/quizIpMerge';
 import { mapIpCareerRowsToProgramSlugs } from '@/lib/onet/ipMapToPrograms';
 import { checkPublicInterestProfilerRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+
+const ONET_UNAVAILABLE = 'Career matching is temporarily unavailable. Please try again in a few minutes.';
 import { areaScoresToOnetAnswers } from '@/lib/career/careerQuizRules';
 import { getMiniIpAreaOrder } from '@/lib/career/careerQuizAreas';
 
@@ -76,8 +78,10 @@ export async function POST(request: NextRequest) {
         programSlugs,
       });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Scoring failed';
-      return NextResponse.json({ error: msg }, { status: 502 });
+      // O*NET failures carry the upstream status and a slice of its response
+      // body; keep that in the server log and answer with a stable message.
+      console.error('[public/career-quiz/score]', e instanceof Error ? e.message : 'Scoring failed');
+      return NextResponse.json({ error: ONET_UNAVAILABLE }, { status: 502 });
     }
   } catch (error) {
     console.error('/api/public/career-quiz/score:', error);

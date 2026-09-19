@@ -14535,6 +14535,62 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/public-route-error-handling.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 57
+      },
+      {
+        "file": "app/api/placement-survey/route.ts",
+        "line": 130
+      },
+      {
+        "file": "app/api/auth/setup-mfa/route.ts",
+        "line": 131
+      },
+      {
+        "file": "app/api/auth/verify-mfa/route.ts",
+        "line": 132
+      },
+      {
+        "file": "app/api/employer/webhook/route.ts",
+        "line": 133
+      },
+      {
+        "file": "app/api/apply/confirmation-email/route.ts",
+        "line": 134
+      },
+      {
+        "file": "app/api/public/interest-profiler/questions/route.ts",
+        "line": 135
+      },
+      {
+        "file": "app/api/public/interest-profiler/score/route.ts",
+        "line": 136
+      },
+      {
+        "file": "app/api/public/career-quiz/score/route.ts",
+        "line": 137
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/public-wioa-qualification.spec.ts",
     "area": "tests",
     "domain": "tests",

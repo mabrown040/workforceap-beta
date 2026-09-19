@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
@@ -128,6 +130,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   );
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const tCommon = useTranslations('common');
   const [hoveredBarrier, setHoveredBarrier] = useState<string | null>(null);
   const feedbackRef = useRef<HTMLSpanElement>(null);
 
@@ -186,7 +189,11 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
       } catch (err) {
         setFeedback({
           ok: false,
-          message: err instanceof Error ? err.message : 'Could not save your info right now.',
+          message: requestFailureMessage(
+            err,
+            { connection: tCommon('connectionError'), fallback: 'Could not save your info right now.' },
+            'member-eligibility',
+          ),
         });
       }
     });

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type Props = {
   portalEmail: string;
@@ -16,6 +18,7 @@ export default function CourseraAccountLinkCard({ portalEmail, initialCourseraEm
   const [savedEmail, setSavedEmail] = useState(initialCourseraEmail);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
   const [message, setMessage] = useState<string | null>(null);
 
   const normalizedEmail = normalizeEmail(email);
@@ -39,7 +42,13 @@ export default function CourseraAccountLinkCard({ portalEmail, initialCourseraEm
       setSavedEmail(payload.courseraEmail ?? normalizedEmail);
       setMessage('Saved. We will use this email to match your Coursera progress.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to save your Coursera email right now.');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Unable to save your Coursera email right now.' },
+          'coursera-account-link',
+        ),
+      );
     } finally {
       setSaving(false);
     }

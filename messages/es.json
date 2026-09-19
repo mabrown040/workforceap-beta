@@ -171,6 +171,7 @@
   },
   "common": {
     "error": "Algo salió mal",
+    "connectionError": "No pudimos conectarnos en este momento. Revisa tu conexión a internet e inténtalo de nuevo.",
     "retry": "Intentar de nuevo",
     "cancel": "Cancelar",
     "confirm": "Confirmar",

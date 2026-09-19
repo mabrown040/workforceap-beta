@@ -6465,8 +6465,24 @@
   },
   {
     "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
-    "specifier": "@/lib/apply/primaryBarrierOptions",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
+    "specifier": "@/lib/apply/primaryBarrierOptions",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/apply/primaryBarrierOptions.ts"
@@ -6474,7 +6490,7 @@
   {
     "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
     "specifier": "@/components/apply/HearAboutSelect",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/apply/HearAboutSelect.tsx"
@@ -6482,7 +6498,7 @@
   {
     "from": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
     "specifier": "@/lib/apply/eligibilityExtendedFields",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
@@ -10526,6 +10542,22 @@
     "kind": "import",
     "external": true,
     "package": "react"
+  },
+  {
+    "from": "app/(portal)/dashboard/survey/SurveyClient.tsx",
+    "specifier": "next-intl",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/dashboard/survey/SurveyClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "app/(portal)/dashboard/survey/page.tsx",
@@ -72465,8 +72497,24 @@
   },
   {
     "from": "components/portal/ApplicationAiFeedbackPrompt.tsx",
-    "specifier": "@prisma/client",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/ApplicationAiFeedbackPrompt.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/ApplicationAiFeedbackPrompt.tsx",
+    "specifier": "@prisma/client",
+    "line": 6,
     "kind": "type",
     "external": true,
     "package": "@prisma/client"
@@ -72474,7 +72522,7 @@
   {
     "from": "components/portal/ApplicationAiFeedbackPrompt.tsx",
     "specifier": "@/lib/member/applicationAiFeedback",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/member/applicationAiFeedback.ts"
@@ -73086,6 +73134,22 @@
     "kind": "import",
     "external": true,
     "package": "react"
+  },
+  {
+    "from": "components/portal/CourseraAccountLinkCard.tsx",
+    "specifier": "next-intl",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/CourseraAccountLinkCard.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "components/portal/CourseraProgressCard.test.tsx",
@@ -73905,8 +73969,24 @@
   },
   {
     "from": "components/portal/JobApplicationForm.tsx",
-    "specifier": "react",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/JobApplicationForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/JobApplicationForm.tsx",
+    "specifier": "react",
+    "line": 6,
     "kind": "type",
     "external": true,
     "package": "react"
@@ -73914,7 +73994,7 @@
   {
     "from": "components/portal/JobApplicationForm.tsx",
     "specifier": "@/lib/jobApplications/constants",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/jobApplications/constants.ts"
@@ -76673,8 +76753,24 @@
   },
   {
     "from": "components/portal/SkillMissionChallenge.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/SkillMissionChallenge.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/SkillMissionChallenge.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -76682,7 +76778,7 @@
   {
     "from": "components/portal/SkillMissionChallenge.tsx",
     "specifier": "lucide-react",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -84710,6 +84806,22 @@
     "kind": "import",
     "external": true,
     "package": "react"
+  },
+  {
+    "from": "components/portal/tools/SkillAssessmentForm.tsx",
+    "specifier": "next-intl",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/tools/SkillAssessmentForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "components/portal/tools/SkillMapperClient.tsx",
@@ -98838,6 +98950,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
+  },
+  {
+    "from": "lib/http/requestFailureCopy.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/http/requestFailureCopy.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/http/requestFailureCopy.test.ts",
+    "specifier": "./requestFailureCopy",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "lib/i18n/client.ts",
@@ -119848,6 +119984,70 @@
     "target": "lib/member/labWorkspaceTypes.ts"
   },
   {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "next-intl",
+    "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "vitest",
+    "line": 10,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "@/app/(portal)/dashboard/survey/SurveyClient",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/dashboard/survey/SurveyClient.tsx"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "@/components/portal/SkillMissionChallenge",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/SkillMissionChallenge.tsx"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "@/components/portal/CourseraAccountLinkCard",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/CourseraAccountLinkCard.tsx"
+  },
+  {
+    "from": "tests/components/member-form-connection-failure.spec.tsx",
+    "specifier": "@/components/portal/JobApplicationForm",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/JobApplicationForm.tsx"
+  },
+  {
     "from": "tests/components/member-lab-workspace.test.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -120225,11 +120425,27 @@
   },
   {
     "from": "tests/components/skill-mission-close-guard.test.tsx",
-    "specifier": "@/components/portal/SkillMissionChallenge",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/skill-mission-close-guard.test.tsx",
+    "specifier": "@/components/portal/SkillMissionChallenge",
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "components/portal/SkillMissionChallenge.tsx"
+  },
+  {
+    "from": "tests/components/skill-mission-close-guard.test.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
   },
   {
     "from": "tests/components/students-roster-identity.spec.tsx",

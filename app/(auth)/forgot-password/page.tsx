@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 function ForgotPasswordForm() {
   const tAuth = useTranslations('auth');
@@ -55,12 +56,16 @@ function ForgotPasswordForm() {
       setStatus('success');
     } catch (err) {
       setStatus('error');
-      const msg = err instanceof Error ? err.message : tAuth('forgotPassword.sendFailed');
-      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
-        setError(tAuth('forgotPassword.networkError'));
-      } else {
-        setError(tAuth('forgotPassword.sendFailed'));
-      }
+      // A dropped connection (fetch TypeError) or an HTML error page parsed as
+      // JSON (SyntaxError) both read as the connection copy — never the raw
+      // "Failed to fetch" / "Unexpected token '<'" sentence.
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tAuth('forgotPassword.networkError'), fallback: tAuth('forgotPassword.sendFailed') },
+          'forgot-password',
+        ),
+      );
       emailRef.current?.focus();
     }
   };

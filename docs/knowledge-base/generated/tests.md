@@ -168,6 +168,7 @@
 | [tests/components/admin-subgroup-members-table.test.tsx](../../../tests/components/admin-subgroup-members-table.test.tsx) | 86 | tests |  |
 | [tests/components/admin-training-progress-roster.test.tsx](../../../tests/components/admin-training-progress-roster.test.tsx) | 275 | tests |  |
 | [tests/components/agent-inbox-retry.spec.tsx](../../../tests/components/agent-inbox-retry.spec.tsx) | 79 | tests |  |
+| [tests/components/auth-connection-failure.spec.tsx](../../../tests/components/auth-connection-failure.spec.tsx) | 145 | tests |  |
 | [tests/components/auth-training-return.spec.tsx](../../../tests/components/auth-training-return.spec.tsx) | 218 | tests |  |
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
 | [tests/components/counselor-analytics.spec.tsx](../../../tests/components/counselor-analytics.spec.tsx) | 145 | tests |  |

@@ -176,6 +176,14 @@
     "target": "lib/auth/postLoginRedirect.ts"
   },
   {
+    "from": "app/(auth)/forgot-password/page.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
     "from": "app/(auth)/layout.tsx",
     "specifier": "next-intl",
     "line": 1,
@@ -566,6 +574,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/analytics/events.ts"
+  },
+  {
+    "from": "app/(auth)/setup-mfa/page.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "app/(auth)/signup/SignupForm.tsx",
@@ -106712,6 +106728,46 @@
     "target": "lib/ui/buttonClasses.ts"
   },
   {
+    "from": "lib/ui/statusColors.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/ui/statusColors.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/ui/statusColors.test.ts",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/ui/statusColors.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "lib/ui/statusColors.test.ts",
+    "specifier": "./statusColors",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ui/statusColors.ts"
+  },
+  {
     "from": "lib/validation/aiCoachResponses.ts",
     "specifier": "zod",
     "line": 1,
@@ -119630,6 +119686,70 @@
     "kind": "import",
     "external": false,
     "target": "app/admin/agent-inbox/AgentInboxClient.tsx"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "react",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "@/app/(auth)/forgot-password/page",
+    "line": 33,
+    "kind": "import",
+    "external": false,
+    "target": "app/(auth)/forgot-password/page.tsx"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "@/app/(auth)/reset-password/page",
+    "line": 34,
+    "kind": "import",
+    "external": false,
+    "target": "app/(auth)/reset-password/page.tsx"
+  },
+  {
+    "from": "tests/components/auth-connection-failure.spec.tsx",
+    "specifier": "@/app/(auth)/setup-mfa/page",
+    "line": 35,
+    "kind": "import",
+    "external": false,
+    "target": "app/(auth)/setup-mfa/page.tsx"
   },
   {
     "from": "tests/components/auth-training-return.spec.tsx",

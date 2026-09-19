@@ -10,6 +10,8 @@ import BulkEmailModal from './BulkEmailModal';
 import BulkUpdateModal from './BulkUpdateModal';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
+import { APPLICANT_TRIAGE_BUCKETS, type ApplicantTriageBucket } from '@/lib/admin/applicantTriage';
+import ApplicantTriageChip from './ApplicantTriageChip';
 import DataTable from '@/components/portal/ui/DataTable';
 import ConfirmDialog from './ConfirmDialog';
 import PortalPagination from '@/components/portal/PortalPagination';
@@ -50,6 +52,8 @@ type Member = {
   partnerId: string | null;
   fitScore?: number;
   healthStatus?: HealthStatus;
+  /** Applicant intake triage; only set while the member has an open application (PENDING / NEEDS_INFO). */
+  applicantTriage?: { bucket: ApplicantTriageBucket; label: string; reasons: string[] } | null;
   enrollmentProgramSlugs: string[];
   enrollmentProgramTitleBySlug: Record<string, string>;
 };
@@ -65,6 +69,8 @@ type MembersTableProps = {
   partnerFilter: string;
   startDateFilter: string;
   endDateFilter: string;
+  /** Translated copy for the applicant-triage filter; omitted = filter hidden. */
+  applicantTriageCopy?: { filterLabel: string; filterAll: string; buckets: Record<ApplicantTriageBucket, string> };
   /** Org-wide partner list so the dropdown is not limited to the loaded page. */
   allPartnerOptions: Array<{ id: string; name: string }>;
   /** Tenant-catalog program list for assignment, independent of this member page. */
@@ -280,6 +286,7 @@ export default function MembersTable({
   endDateFilter,
   allPartnerOptions,
   allAssignablePrograms,
+  applicantTriageCopy,
 }: MembersTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -290,6 +297,10 @@ export default function MembersTable({
   const [statusFilterState, setStatusFilterState] = useState(statusFilter);
   const [partnerFilter, setPartnerFilter] = useState(partnerFilterProp);
   const [healthFilter, setHealthFilter] = useState(() => searchParams?.get('health') ?? '');
+  const [triageFilter, setTriageFilter] = useState(() => {
+    const v = searchParams?.get('triage') ?? '';
+    return (APPLICANT_TRIAGE_BUCKETS as readonly string[]).includes(v) ? v : '';
+  });
   const [notInCourseFilter, setNotInCourseFilter] = useState(false);
   const [needsAttentionFilter, setNeedsAttentionFilter] = useState(() => searchParams?.get('attention') === '1');
   const [startDate, setStartDate] = useState(startDateFilter);
@@ -328,7 +339,8 @@ export default function MembersTable({
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
       const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);
       const matchAttention = !needsAttentionFilter || needsAttention(m);
-      return matchHealth && matchNotInCourse && matchAttention;
+      const matchTriage = !triageFilter || m.applicantTriage?.bucket === triageFilter;
+      return matchHealth && matchNotInCourse && matchAttention && matchTriage;
     });
     const dir = sortDir === 'asc' ? 1 : -1;
     // Stable sort with a fit-score tiebreaker so equal keys keep a sensible order.
@@ -344,6 +356,7 @@ export default function MembersTable({
   }, [
     members,
     healthFilter,
+    triageFilter,
     notInCourseFilter,
     needsAttentionFilter,
     sortKey,
@@ -385,6 +398,7 @@ export default function MembersTable({
     (statusFilterState ? 1 : 0) +
     (partnerFilter ? 1 : 0) +
     (healthFilter ? 1 : 0) +
+    (triageFilter ? 1 : 0) +
     (notInCourseFilter ? 1 : 0) +
     (needsAttentionFilter ? 1 : 0) +
     (startDate ? 1 : 0) +
@@ -655,6 +669,17 @@ export default function MembersTable({
               <option value="red">Inactive</option>
             </select>
           </label>
+          {applicantTriageCopy ? (
+            <label className="admin-members-filter-field">
+              <span>{applicantTriageCopy.filterLabel}</span>
+              <select value={triageFilter} onChange={(e) => setTriageFilter(e.target.value)} className="admin-members-filter-select">
+                <option value="">{applicantTriageCopy.filterAll}</option>
+                {APPLICANT_TRIAGE_BUCKETS.map((bucket) => (
+                  <option key={bucket} value={bucket}>{applicantTriageCopy.buckets[bucket]}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <label className="admin-members-filter-field admin-members-filter-field--check" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.4rem' }}>
             <input
               type="checkbox"
@@ -832,7 +857,12 @@ export default function MembersTable({
             {
               key: 'attn',
               header: 'Priority',
-              cell: (m) => <AttentionBadge reasons={attentionReasons(m)} />,
+              cell: (m) => (
+                <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: '0.25rem', alignItems: 'center' }}>
+                  <AttentionBadge reasons={attentionReasons(m)} />
+                  {m.applicantTriage ? <ApplicantTriageChip {...m.applicantTriage} /> : null}
+                </span>
+              ),
             },
             {
               key: 'memberStatus',
@@ -1020,6 +1050,11 @@ export default function MembersTable({
               {attentionReasons(m).length > 0 ? (
                 <p className="admin-portal-card__row" onClick={(e) => e.stopPropagation()}>
                   <span className="admin-portal-card__label">Priority</span> <AttentionBadge reasons={attentionReasons(m)} />
+                </p>
+              ) : null}
+              {m.applicantTriage && applicantTriageCopy ? (
+                <p className="admin-portal-card__row">
+                  <span className="admin-portal-card__label">{applicantTriageCopy.filterLabel}</span> <ApplicantTriageChip {...m.applicantTriage} />
                 </p>
               ) : null}
               <p className="admin-portal-card__row">

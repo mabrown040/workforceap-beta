@@ -282,6 +282,7 @@
 | [tests/lib/ai-coach-memory-read.spec.ts](../../../tests/lib/ai-coach-memory-read.spec.ts) | 65 | tests |  |
 | [tests/lib/ai-job-match-cache-scope.spec.ts](../../../tests/lib/ai-job-match-cache-scope.spec.ts) | 42 | tests |  |
 | [tests/lib/ambassador-auto-assign.spec.ts](../../../tests/lib/ambassador-auto-assign.spec.ts) | 144 | tests |  |
+| [tests/lib/applicant-triage.spec.ts](../../../tests/lib/applicant-triage.spec.ts) | 295 | tests |  |
 | [tests/lib/apply-metadata-image.spec.ts](../../../tests/lib/apply-metadata-image.spec.ts) | 24 | tests |  |
 | [tests/lib/at-risk-curriculum-assignment.spec.ts](../../../tests/lib/at-risk-curriculum-assignment.spec.ts) | 89 | tests |  |
 | [tests/lib/auth-server.test.ts](../../../tests/lib/auth-server.test.ts) | 292 | tests |  |

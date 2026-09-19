@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "58d7167ed4f3a000692d38505b5922911eebaa1b8c7c016a63c7fff6d3ce6ed2",
+  "inputTreeSha256": "b98fe6a3ae98d1acdc225350f93648a49fa3c9be6449849ea91825b16c2a0e17",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4708,
-    "sourceModules": 3382,
-    "importReferences": 16287,
-    "resolvedLocalReferences": 10862,
+    "files": 4713,
+    "sourceModules": 3387,
+    "importReferences": 16314,
+    "resolvedLocalReferences": 10885,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1053,
     "nextRouteFiles": 1020,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 761,
-    "testCandidates": 754,
+    "testFiles": 762,
+    "testCandidates": 755,
     "testHelpers": 7,
-    "staticallySelectedTests": 751,
+    "staticallySelectedTests": 752,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 669
+      "files": 671
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 981
+      "files": 983
     },
     {
       "area": "localization",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 402
+      "files": 403
     }
   ],
   "mostReferenced": [
@@ -132,7 +132,7 @@
     },
     {
       "file": "lib/content/programs.ts",
-      "references": 239
+      "references": 240
     },
     {
       "file": "lib/audit.ts",
@@ -357,20 +357,20 @@
       "lines": 1216
     },
     {
+      "file": "app/admin/members/[id]/page.tsx",
+      "lines": 1214
+    },
+    {
       "file": "app/(portal)/dashboard/page.tsx",
       "lines": 1207
     },
     {
+      "file": "components/admin/MembersTable.tsx",
+      "lines": 1206
+    },
+    {
       "file": "components/employer/EmployerJobsBoard.tsx",
       "lines": 1204
-    },
-    {
-      "file": "app/admin/members/[id]/page.tsx",
-      "lines": 1182
-    },
-    {
-      "file": "components/admin/MembersTable.tsx",
-      "lines": 1171
     },
     {
       "file": "app/apply/create-account/ApplyCreateAccountForm.tsx",

@@ -13,6 +13,9 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import DataTable from '@/components/portal/ui/DataTable';
 import WioaReviewFilterBar from '@/components/admin/WioaReviewFilterBar';
+import ApplicantTriageChip from '@/components/admin/ApplicantTriageChip';
+import { APPLICANT_TRIAGE_BUCKET_TEXT } from '@/lib/admin/applicantTriage';
+import { loadApplicantTriageByUserIds, type ApplicantTriageLoaded } from '@/lib/admin/applicantTriageLoad';
 import {
   WioaScreeningKit,
   type WioaScreeningRow,
@@ -145,15 +148,25 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
       throw error;
     }
 
+    // Read-only applicant intake triage for members with an open application (degrades to no chip).
+    const triageById = await withAdminPageScope(scope, (db) => loadApplicantTriageByUserIds(db, rows.map((r) => r.id))).catch(
+      (error: unknown) => {
+        console.error('[admin/wioa-screening] applicant triage load failed', error);
+        return new Map<string, ApplicantTriageLoaded>();
+      },
+    );
+
     const enriched = rows
       .map((r) => {
         const snap = parseWioaQualificationSnapshot(r.wioaQualificationJson);
+        const triage = triageById.get(r.id) ?? null;
         const submittedAt = snap?.submittedAt ? new Date(snap.submittedAt).getTime() : 0;
         return {
           ...r,
           snap,
           submittedAt,
           signal: snap?.signal ?? '—',
+          triage,
         };
       })
       .sort((a, b) => b.submittedAt - a.submittedAt);
@@ -214,6 +227,16 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
                   },
                   { key: 'signal', header: 'Signal', cell: (r) => r.signal },
                   { key: 'review', header: 'Review', cell: (r) => wioaReviewLabel(r.wioaReviewStatus) },
+                  {
+                    key: 'triage',
+                    header: 'Intake triage',
+                    cell: (r) =>
+                      r.triage ? (
+                        <ApplicantTriageChip bucket={r.triage.bucket} label={APPLICANT_TRIAGE_BUCKET_TEXT[r.triage.bucket]} reasons={r.triage.reasons} />
+                      ) : (
+                        '—'
+                      ),
+                  },
                   {
                     key: 'open',
                     header: '',

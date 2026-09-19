@@ -189,6 +189,7 @@ async function renderMemberDashboard(
         goals={home.goals}
         nextLesson={home.nextLesson}
         nextLessonDue={home.nextLessonDue}
+        nextLessonHref={home.nextLessonHref}
         nextBadgeName={home.nextBadgeName}
         nextBadgePercent={home.nextBadgePercent}
         nextBadgeRemaining={home.nextBadgeRemaining}

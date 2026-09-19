@@ -79,6 +79,7 @@
 | [tests/api/employer-jobs-bulk-delete-route.spec.ts](../../../tests/api/employer-jobs-bulk-delete-route.spec.ts) | 126 | tests |  |
 | [tests/api/employer-jobs-pending.spec.ts](../../../tests/api/employer-jobs-pending.spec.ts) | 176 | tests |  |
 | [tests/api/employer-jobs.spec.ts](../../../tests/api/employer-jobs.spec.ts) | 807 | tests |  |
+| [tests/api/employer-outcomes.spec.ts](../../../tests/api/employer-outcomes.spec.ts) | 223 | tests |  |
 | [tests/api/employer-signup.spec.ts](../../../tests/api/employer-signup.spec.ts) | 580 | tests |  |
 | [tests/api/employer-subscribe-pricing.spec.ts](../../../tests/api/employer-subscribe-pricing.spec.ts) | 196 | tests |  |
 | [tests/api/employers-page.spec.ts](../../../tests/api/employers-page.spec.ts) | 48 | tests |  |
@@ -323,7 +324,7 @@
 | [tests/lib/notification-triggers-survey.spec.ts](../../../tests/lib/notification-triggers-survey.spec.ts) | 142 | communications |  |
 | [tests/lib/notifications/create.spec.ts](../../../tests/lib/notifications/create.spec.ts) | 219 | communications |  |
 | [tests/lib/outcomesSocialProof.test.ts](../../../tests/lib/outcomesSocialProof.test.ts) | 129 | tests |  |
-| [tests/lib/partner-attention-queue.spec.ts](../../../tests/lib/partner-attention-queue.spec.ts) | 102 | tests |  |
+| [tests/lib/partner-attention-queue.spec.ts](../../../tests/lib/partner-attention-queue.spec.ts) | 119 | tests |  |
 | [tests/lib/partner-notify-reliability.spec.ts](../../../tests/lib/partner-notify-reliability.spec.ts) | 63 | tests |  |
 | [tests/lib/partner-retention-window.spec.ts](../../../tests/lib/partner-retention-window.spec.ts) | 24 | tests |  |
 | [tests/lib/partner-saved-chip-contrast.spec.ts](../../../tests/lib/partner-saved-chip-contrast.spec.ts) | 61 | tests |  |

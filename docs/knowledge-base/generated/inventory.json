@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "522d56690ccb3e9d8365c7322a1e1c05b836e7ea16d93305d2aacdcd3ad85ed7",
+  "inputTreeSha256": "b30a7719eda5fd86197f7a4d65cc5557bb193f58f14415c08f8c9233f3e86543",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -18965,31 +18965,6 @@
       "directive": "use client"
     },
     {
-      "path": "app/admin/partners/[id]/PartnerInviteButton.tsx",
-      "area": "pages",
-      "domain": "partners-funding",
-      "bytes": 1204,
-      "lines": 43,
-      "sha256": "bc517819d077ef536bd0012d423e7e4e620f080d54c937710bec7a99c16c5562",
-      "binary": false,
-      "exports": [
-        {
-          "name": "default",
-          "line": 5,
-          "kind": "FunctionDeclaration",
-          "localName": "PartnerInviteButton"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "PartnerInviteButton",
-          "line": 5,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": "use client"
-    },
-    {
       "path": "app/admin/partners/[id]/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
@@ -33607,26 +33582,36 @@
       "path": "app/api/employer/outcomes/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 4661,
-      "lines": 145,
-      "sha256": "0f8f2644ef596f11f307255f1eb09f1a982a11ac5711bdbd67a54d44f39a93f6",
+      "bytes": 5916,
+      "lines": 164,
+      "sha256": "cbcfe4400a50161dd1b9cd9586caac1c505af0501695fa2122fb7c24155b54d5",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 145,
+          "line": 164,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "JOB_ROW_LIMIT",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "ProgramRow",
+          "line": 13,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "_GET",
-          "line": 15,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 145,
+          "line": 164,
           "kind": "Variable"
         }
       ],
@@ -40858,14 +40843,14 @@
       "path": "app/apply/layout.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 742,
-      "lines": 12,
-      "sha256": "508942247321d035274b19fd597ce24c67cc6d85731ed9c1987f5df31bf4edb9",
+      "bytes": 517,
+      "lines": 9,
+      "sha256": "e98f0b14b108c23ffbca36f28acda3b367fd1d8a4fddf171b4cd1bc82784bfc4",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 9,
+          "line": 6,
           "kind": "FunctionDeclaration",
           "localName": "ApplyLayout"
         }
@@ -40873,7 +40858,7 @@
       "declarations": [
         {
           "name": "ApplyLayout",
-          "line": 9,
+          "line": 6,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -49408,9 +49393,9 @@
       "path": "components/admin/AdminSuperMessagesClient.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 29640,
-      "lines": 793,
-      "sha256": "2e9f739e046deb86fcccf7354e2c3301a50ad71b8fc1159edfa77b92d66b1ec8",
+      "bytes": 27814,
+      "lines": 743,
+      "sha256": "3e981dfbe55f5b96239b587841c22c763a8bbd290a236fa37edf3386adb615bc",
       "binary": false,
       "exports": [
         {
@@ -126737,9 +126722,9 @@
       "path": "lib/partner/attentionQueue.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 6719,
-      "lines": 169,
-      "sha256": "0436cfe213cb976aa57ab834ef6f24d1369f36a64ad354934849027513c7b2af",
+      "bytes": 6685,
+      "lines": 168,
+      "sha256": "dc2ff16b2bb07aa5e01b0f45acdd1f18580ceef09143e49356145679389ce5ed",
       "binary": false,
       "exports": [
         {
@@ -126774,7 +126759,7 @@
         },
         {
           "name": "countActionablePartnerAttention",
-          "line": 167,
+          "line": 166,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -126811,7 +126796,7 @@
         },
         {
           "name": "countActionablePartnerAttention",
-          "line": 167,
+          "line": 166,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152541,6 +152526,59 @@
       "directive": null
     },
     {
+      "path": "tests/api/employer-outcomes.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 10335,
+      "lines": 223,
+      "sha256": "9fb7e6d21216d588a20ec76f07c109791e2c577e73002bb70711badb36247a37",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "EMPLOYER_ID",
+          "line": 37,
+          "kind": "Variable"
+        },
+        {
+          "name": "fixture",
+          "line": 38,
+          "kind": "Variable"
+        },
+        {
+          "name": "Where",
+          "line": 63,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "db",
+          "line": 65,
+          "kind": "Variable"
+        },
+        {
+          "name": "jobsFor",
+          "line": 87,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "applicationsFor",
+          "line": 95,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "countBy",
+          "line": 109,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "EXPECTED_RESPONSE",
+          "line": 164,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/employer-signup.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -154616,69 +154654,6 @@
       "binary": false,
       "exports": [],
       "declarations": [],
-      "directive": null
-    },
-    {
-      "path": "tests/app/apply-funnel-token-scope.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 5327,
-      "lines": 125,
-      "sha256": "c8f515019a9b54c7bf2b6a0cf8cf7174e0de804d4a27bac72a32636e9f99a721",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "ROOT",
-          "line": 21,
-          "kind": "Variable"
-        },
-        {
-          "name": "APPLY_DIR",
-          "line": 22,
-          "kind": "Variable"
-        },
-        {
-          "name": "FUNNEL_CSS",
-          "line": 23,
-          "kind": "Variable"
-        },
-        {
-          "name": "resolveSpecifier",
-          "line": 25,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "cssImportsOf",
-          "line": 32,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "expandCss",
-          "line": 43,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "declaredTokens",
-          "line": 55,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "tokensReadWithoutFallback",
-          "line": 64,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "applyPageFiles",
-          "line": 69,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "routeStylesheets",
-          "line": 80,
-          "kind": "FunctionDeclaration"
-        }
-      ],
       "directive": null
     },
     {
@@ -158823,9 +158798,9 @@
       "path": "tests/lib/partner-attention-queue.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4591,
-      "lines": 102,
-      "sha256": "4c66d203f2decbb230ae2b6f1e5158ba1c48bf6a47983783d2a2701dccb4f011",
+      "bytes": 5550,
+      "lines": 119,
+      "sha256": "695f3a0e88cc184e63c0a311b3d5e34d71c74abbd9cb99cc2a9dbd922454aa1b",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -158836,17 +158811,17 @@
         },
         {
           "name": "programSlug",
-          "line": 14,
-          "kind": "Variable"
-        },
-        {
-          "name": "now",
           "line": 15,
           "kind": "Variable"
         },
         {
-          "name": "referral",
+          "name": "now",
           "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "referral",
+          "line": 17,
           "kind": "FunctionDeclaration"
         }
       ],

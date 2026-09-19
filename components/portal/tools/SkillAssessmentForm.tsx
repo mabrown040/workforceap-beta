@@ -1,6 +1,8 @@
 'use client';
 
 import { startTransition, useEffect, useId, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type OccupationResult = {
   code: string;
@@ -75,6 +77,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
   const [loadingResult, setLoadingResult] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   async function searchOccupations(event: React.FormEvent<HTMLFormElement>) {
@@ -98,7 +101,13 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
       }
     } catch (err) {
       setOccupationResults([]);
-      setError(err instanceof Error ? err.message : 'Could not search occupations right now.');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Could not search occupations right now.' },
+          'skill-assessment',
+        ),
+      );
     } finally {
       setSearching(false);
     }
@@ -119,7 +128,13 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
       setSkillResult(data);
     } catch (err) {
       setSkillResult(null);
-      setError(err instanceof Error ? err.message : 'Could not load this occupation profile.');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Could not load this occupation profile.' },
+          'skill-assessment',
+        ),
+      );
     } finally {
       setLoadingResult(false);
     }
@@ -164,7 +179,13 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
           : 'Saved to your profile.'
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save this skill snapshot.');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Could not save this skill snapshot.' },
+          'skill-assessment',
+        ),
+      );
     } finally {
       setSaving(false);
     }

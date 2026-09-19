@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import type { CSSProperties } from 'react';
 import { JobApplicationSourceMembers } from '@/lib/jobApplications/constants';
 
@@ -23,6 +25,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
 
   useEffect(() => {
     firstFieldRef.current?.focus();
@@ -57,7 +60,13 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
 
       await onSubmit(submitData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'An error occurred' },
+          'job-application',
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }

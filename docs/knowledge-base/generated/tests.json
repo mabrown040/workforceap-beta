@@ -2094,6 +2094,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/admin/cronRegistry.test.ts",
+    "area": "libraries",
+    "domain": "administration",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/cronRegistry.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/admin/directoryEmptyState.test.ts",
     "area": "libraries",
     "domain": "administration",
@@ -11924,6 +11948,50 @@
       {
         "file": "lib/content/programs.ts",
         "line": 247
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/counselor-thread-access-gate.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 50
+      },
+      {
+        "file": "lib/messages/counselorThread.ts",
+        "line": 57
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/messages/route.ts",
+        "line": 69
+      },
+      {
+        "file": "app/api/counselor/nudge/route.ts",
+        "line": 70
+      },
+      {
+        "file": "app/api/counselor/bulk-followup/route.ts",
+        "line": 71
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 72
       }
     ],
     "kind": "test-candidate",

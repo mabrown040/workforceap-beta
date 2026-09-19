@@ -171,6 +171,7 @@
   },
   "common": {
     "error": "Something went wrong",
+    "connectionError": "We couldn't connect right now. Check your internet connection and try again.",
     "retry": "Try again",
     "cancel": "Cancel",
     "confirm": "Confirm",

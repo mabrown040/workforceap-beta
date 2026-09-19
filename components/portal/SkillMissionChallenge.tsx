@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { useAnnounce, useFocusTrap } from '@/components/portal/kit';
 import {
   X,
@@ -628,6 +630,7 @@ function PhaseScenario({
   const [response, setResponse] = useState(initialResponse);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
 
   const wordCount = response.trim() ? response.trim().split(/\s+/).length : 0;
   const charCount = response.length;
@@ -640,7 +643,13 @@ function PhaseScenario({
     try {
       await onSubmit(response);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Something went wrong. Please try again.' },
+          'skill-mission',
+        ),
+      );
       setLoading(false);
     }
   }

@@ -265,7 +265,7 @@
 | [components/portal/AdminPortalShell.tsx](../../../components/portal/AdminPortalShell.tsx) | 40 | components | default:10 |
 | [components/portal/AiResultRenderer.tsx](../../../components/portal/AiResultRenderer.tsx) | 623 | components | AiResultRendererProps:502, default:542 |
 | [components/portal/AiToolsHubSection.tsx](../../../components/portal/AiToolsHubSection.tsx) | 82 | components | default:6 |
-| [components/portal/ApplicationAiFeedbackPrompt.tsx](../../../components/portal/ApplicationAiFeedbackPrompt.tsx) | 109 | components | RecentToolOption:7, default:16 |
+| [components/portal/ApplicationAiFeedbackPrompt.tsx](../../../components/portal/ApplicationAiFeedbackPrompt.tsx) | 118 | components | RecentToolOption:9, default:18 |
 | [components/portal/ApplicationTrackerTable.tsx](../../../components/portal/ApplicationTrackerTable.tsx) | 547 | components | default:42 |
 | [components/portal/AssessmentForm.module.css](../../../components/portal/AssessmentForm.module.css) | 380 | components |  |
 | [components/portal/AssessmentForm.test.tsx](../../../components/portal/AssessmentForm.test.tsx) | 47 | components |  |
@@ -288,7 +288,7 @@
 | [components/portal/CounselorMessagesInboxClient.tsx](../../../components/portal/CounselorMessagesInboxClient.tsx) | 429 | components | default:151 |
 | [components/portal/CounselorPortalShell.tsx](../../../components/portal/CounselorPortalShell.tsx) | 36 | components | default:9 |
 | [components/portal/CounselorPortalVoiceBlock.tsx](../../../components/portal/CounselorPortalVoiceBlock.tsx) | 27 | components | default:11 |
-| [components/portal/CourseraAccountLinkCard.tsx](../../../components/portal/CourseraAccountLinkCard.tsx) | 110 | learning-coursera | default:14 |
+| [components/portal/CourseraAccountLinkCard.tsx](../../../components/portal/CourseraAccountLinkCard.tsx) | 119 | learning-coursera | default:16 |
 | [components/portal/CourseraProgressCard.test.tsx](../../../components/portal/CourseraProgressCard.test.tsx) | 54 | learning-coursera |  |
 | [components/portal/CourseraProgressCard.tsx](../../../components/portal/CourseraProgressCard.tsx) | 231 | learning-coursera | default:61 |
 | [components/portal/CourseraProgressCardView.tsx](../../../components/portal/CourseraProgressCardView.tsx) | 346 | learning-coursera | CourseraProgressRow:6, CourseraProgressCardViewProps:33, default:110 |
@@ -314,7 +314,7 @@
 | [components/portal/InterestProfilerClient.tsx](../../../components/portal/InterestProfilerClient.tsx) | 536 | components | default:33 |
 | [components/portal/InterviewPrepBundle.tsx](../../../components/portal/InterviewPrepBundle.tsx) | 327 | components | PrepBundleItem:9, default:29 |
 | [components/portal/JobApplicationCard.tsx](../../../components/portal/JobApplicationCard.tsx) | 262 | components | default:38 |
-| [components/portal/JobApplicationForm.tsx](../../../components/portal/JobApplicationForm.tsx) | 238 | components | default:12 |
+| [components/portal/JobApplicationForm.tsx](../../../components/portal/JobApplicationForm.tsx) | 247 | components | default:14 |
 | [components/portal/JobApplicationKanban.tsx](../../../components/portal/JobApplicationKanban.tsx) | 283 | components | default:189 |
 | [components/portal/JobApplicationsTracker.tsx](../../../components/portal/JobApplicationsTracker.tsx) | 209 | components | default:19 |
 | [components/portal/JobReadinessScore.tsx](../../../components/portal/JobReadinessScore.tsx) | 67 | components | default:14 |
@@ -419,7 +419,7 @@
 | [components/portal/SettingsForm.tsx](../../../components/portal/SettingsForm.tsx) | 102 | components | default:12 |
 | [components/portal/SignOutButton.tsx](../../../components/portal/SignOutButton.tsx) | 59 | components | SignOutButton:14 |
 | [components/portal/SkillCheckpointsClient.tsx](../../../components/portal/SkillCheckpointsClient.tsx) | 482 | components | default:157 |
-| [components/portal/SkillMissionChallenge.tsx](../../../components/portal/SkillMissionChallenge.tsx) | 1226 | components | default:1067, SkillMissionChallengePreview:1207 |
+| [components/portal/SkillMissionChallenge.tsx](../../../components/portal/SkillMissionChallenge.tsx) | 1235 | components | default:1076, SkillMissionChallengePreview:1216 |
 | [components/portal/SkillMissionEmpty.tsx](../../../components/portal/SkillMissionEmpty.tsx) | 35 | components | SkillMissionEmpty:10 |
 | [components/portal/SkillMissionPanel.tsx](../../../components/portal/SkillMissionPanel.tsx) | 425 | components | SkillMissionSummary:46, default:298 |
 | [components/portal/SkillMissionTeaserCard.tsx](../../../components/portal/SkillMissionTeaserCard.tsx) | 156 | components | SkillMissionTeaserData:9, default:20 |
@@ -625,7 +625,7 @@
 | [components/portal/tools/ResumeScoreBreakdown.tsx](../../../components/portal/tools/ResumeScoreBreakdown.tsx) | 288 | components | SubscoreBreakdown:6, ResumeScorePayload:12, default:86 |
 | [components/portal/tools/ResumeStrengthForm.tsx](../../../components/portal/tools/ResumeStrengthForm.tsx) | 371 | components | default:125 |
 | [components/portal/tools/SalaryNegotiationForm.tsx](../../../components/portal/tools/SalaryNegotiationForm.tsx) | 289 | components | default:58 |
-| [components/portal/tools/SkillAssessmentForm.tsx](../../../components/portal/tools/SkillAssessmentForm.tsx) | 464 | components | default:66 |
+| [components/portal/tools/SkillAssessmentForm.tsx](../../../components/portal/tools/SkillAssessmentForm.tsx) | 485 | components | default:68 |
 | [components/portal/tools/SkillMapperClient.tsx](../../../components/portal/tools/SkillMapperClient.tsx) | 1296 | components | default:436 |
 | [components/portal/tools/SkillMapperRadar.tsx](../../../components/portal/tools/SkillMapperRadar.tsx) | 91 | components | default:5 |
 | [components/portal/tools/ToolFollowThrough.tsx](../../../components/portal/tools/ToolFollowThrough.tsx) | 70 | components | default:8 |

@@ -170,6 +170,7 @@
   },
   "common": {
     "error": "Algo deu errado",
+    "connectionError": "Não foi possível conectar agora. Verifique sua conexão com a internet e tente novamente.",
     "retry": "Tentar novamente",
     "cancel": "Cancelar",
     "confirm": "Confirmar",

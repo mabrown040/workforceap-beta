@@ -16265,7 +16265,11 @@
     "localReferences": [
       {
         "file": "components/portal/SkillMissionChallenge.tsx",
-        "line": 4
+        "line": 5
+      },
+      {
+        "file": "messages/en.json",
+        "line": 6
       }
     ],
     "kind": "test-candidate",

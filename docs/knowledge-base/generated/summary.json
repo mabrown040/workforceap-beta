@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "5420b0c386b5150c9352f31dbcb9f32565bf6fa4b0965cc473b43b7447e82703",
+  "inputTreeSha256": "61430152fe9b7a0db16764f344538b7eb777422d3059311f44c56e2dbd8e7f27",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -10,9 +10,9 @@
   "counts": {
     "files": 4608,
     "sourceModules": 3282,
-    "importReferences": 15520,
-    "resolvedLocalReferences": 10333,
-    "unresolvedLocalReferences": 0,
+    "importReferences": 15536,
+    "resolvedLocalReferences": 10334,
+    "unresolvedLocalReferences": 7,
     "routeFiles": 1052,
     "nextRouteFiles": 1019,
     "apiHandlers": 489,
@@ -350,7 +350,7 @@
     },
     {
       "file": "components/portal/SkillMissionChallenge.tsx",
-      "lines": 1226
+      "lines": 1235
     },
     {
       "file": "app/dev/astryx/table/page.tsx",

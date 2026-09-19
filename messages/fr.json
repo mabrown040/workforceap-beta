@@ -170,6 +170,7 @@
   },
   "common": {
     "error": "Une erreur s'est produite",
+    "connectionError": "Nous n'avons pas pu nous connecter pour le moment. Vérifiez votre connexion internet et réessayez.",
     "retry": "Réessayer",
     "cancel": "Annuler",
     "confirm": "Confirmer",

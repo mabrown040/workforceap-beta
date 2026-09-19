@@ -38,6 +38,8 @@ export async function completeMemberCourse(args: {
    *  item IDs. */
   courseraCourseId?: string | null;
   source: 'member' | 'coursera-webhook' | 'coursera-enterprise-sync';
+  /** Validated provider learner-event time; absence is not receipt-time activity. */
+  learnerActivityAt?: Date | null;
   /**
    * When false, skip milestone emails and career workflows (bulk Coursera API reconciliation).
    * Still writes CourseProgress; enterprise sync does not consume the first
@@ -130,6 +132,7 @@ export async function completeMemberCourse(args: {
     programSlug,
     courseSlug: matchedCourse.slug,
     courseId,
+    ...(args.source === 'member' ? {} : { learnerActivityAt: args.learnerActivityAt ?? null }),
   });
 
   const rowsAtObservation = completionWrite.previousRows;

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "2cf8e70ff900d631a520e7401d0e83ed39de5741123248a8a7a4f98f683d1ea3",
+  "inputTreeSha256": "c018e25972842c21a05a203ce2ec7d3b3d4842425ec267dc04e01c380354c955",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -10358,19 +10358,19 @@
       "path": "app/(portal)/dashboard/program/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 19914,
-      "lines": 424,
-      "sha256": "9fa99b7ab98acba3acd2ff0febf3c4c5a939827e5cce27f64ba40e0bd76b1187",
+      "bytes": 20181,
+      "lines": 427,
+      "sha256": "51075f4928886f13bda14cd79a425fc88e5c187a02e2ebc85492a2071f59eb0f",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 34,
+          "line": 35,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 43,
+          "line": 44,
           "kind": "FunctionDeclaration",
           "localName": "ProgramPage"
         }
@@ -10378,12 +10378,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 34,
+          "line": 35,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ProgramPage",
-          "line": 43,
+          "line": 44,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -15235,9 +15235,9 @@
       "path": "app/admin/coursera/enrollment/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 3942,
-      "lines": 89,
-      "sha256": "55f3dbeaeb9cd00e41cdba0f9f921e4bb2437713209320790231a6d4d6e5fd78",
+      "bytes": 4117,
+      "lines": 90,
+      "sha256": "9d7fb9d55ac07719be2c55d5a34008549b22af512bdc65c495a6301c380bc7aa",
       "binary": false,
       "exports": [
         {
@@ -15285,24 +15285,24 @@
       "path": "app/admin/coursera/health/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 49876,
-      "lines": 1436,
-      "sha256": "5b8666bdea717056099dfddd1649c37354a04e328de4a7b1e063c1ef9bfdebe9",
+      "bytes": 50185,
+      "lines": 1386,
+      "sha256": "79415a04ffaf4de9ae282a2bd3e1a321ecd2d32ee95903a7bb202f3f63a1c49a",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 581,
+          "line": 549,
           "kind": "FunctionDeclaration",
           "localName": "AdminCourseraHealthPage"
         }
@@ -15310,192 +15310,192 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 23,
+          "line": 24,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 32,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "COURSERA_CRON_WORKFLOW_KEYS",
-          "line": 36,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "CardSeverity",
-          "line": 42,
+          "line": 43,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SummaryCard",
-          "line": 44,
+          "line": 45,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CronRunRow",
-          "line": 52,
+          "line": 53,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "IgnoredSlugRow",
-          "line": 61,
+          "line": 62,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "UnmatchedActorRow",
-          "line": 66,
+          "line": 67,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DriftRow",
-          "line": 71,
+          "line": 72,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "OutOfCatalogRow",
-          "line": 81,
+          "line": 82,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WrongProgramRow",
-          "line": 88,
+          "line": 89,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "fmtDateTime",
-          "line": 97,
+          "line": 98,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "relativeAge",
-          "line": 102,
+          "line": 103,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityBackground",
-          "line": 115,
+          "line": 116,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityBorder",
-          "line": 127,
+          "line": 128,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityAccent",
-          "line": 139,
+          "line": 140,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pluralize",
-          "line": 151,
+          "line": 152,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCanonicalMappingCount",
-          "line": 155,
+          "line": 156,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadXapiTrafficSummary",
-          "line": 164,
+          "line": 165,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4bSummary",
-          "line": 184,
+          "line": 185,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadIgnoredRatio",
-          "line": 211,
+          "line": 214,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadRecentCronRuns",
-          "line": 235,
+          "line": 239,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadTopIgnoredSlugs",
-          "line": 264,
+          "line": 268,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadTopUnmatchedActors",
-          "line": 292,
+          "line": 297,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4BvsOursDrift",
-          "line": 327,
+          "line": 333,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadOutOfCatalogXapi",
-          "line": 375,
+          "line": 342,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadWrongProgramStudying",
-          "line": 419,
+          "line": 388,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4BProgramsSafe",
-          "line": 483,
+          "line": 448,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "cardStyle",
-          "line": 494,
+          "line": 462,
           "kind": "Variable"
         },
         {
           "name": "cardTitleStyle",
-          "line": 502,
+          "line": 470,
           "kind": "Variable"
         },
         {
           "name": "cardPrimaryStyle",
-          "line": 510,
+          "line": 478,
           "kind": "Variable"
         },
         {
           "name": "cardSecondaryStyle",
-          "line": 517,
+          "line": 485,
           "kind": "Variable"
         },
         {
           "name": "cardHintStyle",
-          "line": 522,
+          "line": 490,
           "kind": "Variable"
         },
         {
           "name": "sectionHeadingStyle",
-          "line": 528,
+          "line": 496,
           "kind": "Variable"
         },
         {
           "name": "sectionStyle",
-          "line": 534,
+          "line": 502,
           "kind": "Variable"
         },
         {
           "name": "pickStatusColor",
-          "line": 539,
+          "line": 507,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "summarizeMetadataCounts",
-          "line": 548,
+          "line": 516,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminCourseraHealthPage",
-          "line": 581,
+          "line": 549,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -15690,24 +15690,24 @@
       "path": "app/admin/coursera/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 67800,
-      "lines": 1650,
-      "sha256": "65b58648e2fa8798f0f5bf9bcd4242b544d41c3b13b51edfc5cc34390a689873",
+      "bytes": 67890,
+      "lines": 1636,
+      "sha256": "7428f821380778d668f907ce94044502737f8eb71c4b806e7fc5ef1d320990be",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 487,
+          "line": 493,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 495,
+          "line": 501,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 510,
+          "line": 516,
           "kind": "FunctionDeclaration",
           "localName": "AdminCourseraPage"
         }
@@ -15740,57 +15740,57 @@
         },
         {
           "name": "fmtDateTime",
-          "line": 297,
+          "line": 303,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CatalogIssueList",
-          "line": 302,
+          "line": 308,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraCatalogHealthSection",
-          "line": 322,
+          "line": 328,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "collapsibleSectionStyle",
-          "line": 460,
+          "line": 466,
           "kind": "Variable"
         },
         {
           "name": "collapsibleSummaryStyle",
-          "line": 464,
+          "line": 470,
           "kind": "Variable"
         },
         {
           "name": "collapsibleBodyStyle",
-          "line": 475,
-          "kind": "Variable"
-        },
-        {
-          "name": "collapsibleCountStyle",
           "line": 481,
           "kind": "Variable"
         },
         {
-          "name": "generateMetadata",
+          "name": "collapsibleCountStyle",
           "line": 487,
+          "kind": "Variable"
+        },
+        {
+          "name": "generateMetadata",
+          "line": 493,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 495,
+          "line": 501,
           "kind": "Variable"
         },
         {
           "name": "fmtRelative",
-          "line": 497,
+          "line": 503,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminCourseraPage",
-          "line": 510,
+          "line": 516,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -20257,9 +20257,9 @@
       "path": "app/admin/students/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 13216,
-      "lines": 348,
-      "sha256": "bf7c45a53214427ce40ffc79a41d78e93cfee4cded346040241856c7a76cb9e9",
+      "bytes": 12877,
+      "lines": 336,
+      "sha256": "ad025de1e267f0a6ebb7ce8d6dfd51a238464ed1c93d6c01a519a67a65d94597",
       "binary": false,
       "exports": [
         {
@@ -31604,19 +31604,19 @@
       "path": "app/api/cron/coursera-b4b-sync/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 3345,
-      "lines": 84,
-      "sha256": "7b5d621d3afdb437ca269e558963ce47cc1264c982a3f6c5a867701de2aa44d2",
+      "bytes": 3555,
+      "lines": 88,
+      "sha256": "7e8d83a8f21f23a55d463344a74571f4323df55194daa6ef9b83ea7960bc8899",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 83,
+          "line": 87,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 84,
+          "line": 88,
           "kind": "Variable"
         }
       ],
@@ -31633,12 +31633,12 @@
         },
         {
           "name": "GET",
-          "line": 83,
+          "line": 87,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 84,
+          "line": 88,
           "kind": "Variable"
         }
       ],
@@ -35328,9 +35328,9 @@
       "path": "app/api/member/coursera/refresh-progress/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 1835,
-      "lines": 49,
-      "sha256": "f80e856fb2ba0825eb770ace250e4fec5a0b3927f6faf1bb2dff65a37a234e92",
+      "bytes": 2424,
+      "lines": 62,
+      "sha256": "38b903b8e6049727988776caf1186be80fb86c373ebe8d784ce0ef17e6ea3177",
       "binary": false,
       "exports": [
         {
@@ -40445,51 +40445,51 @@
       "path": "app/api/xapi/statements/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 9814,
-      "lines": 256,
-      "sha256": "f2fd0d394769cb1cba8c641d3a2faafd172e471f68f7483a988723e6bfb763a4",
+      "bytes": 10008,
+      "lines": 261,
+      "sha256": "3dbbd7df3b1781d5205ebdf3b220bfe3535c1ba6c14247ff2fb2cb15b377566c",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 92,
+          "line": 93,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 243,
+          "line": 248,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "tailFromObjectId",
-          "line": 29,
+          "line": 30,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "itemIdFromObjectId",
-          "line": 50,
+          "line": 51,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "UNPARSED_VERB",
-          "line": 56,
+          "line": 57,
           "kind": "Variable"
         },
         {
           "name": "extractRawStatementActorFields",
-          "line": 59,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 92,
+          "line": 93,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 243,
+          "line": 248,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -50253,14 +50253,14 @@
       "path": "components/admin/CourseraEnrollmentPipelineTable.tsx",
       "area": "components",
       "domain": "learning-coursera",
-      "bytes": 20051,
-      "lines": 509,
-      "sha256": "d3dc0db87c40d6b4f082b61387c99076706ae664da24dd0b2dd1ab7a1c07d1fc",
+      "bytes": 20624,
+      "lines": 516,
+      "sha256": "979f16d87d2acda3343b9fc3fcdf8ba56009f4291cc4caa4ee16b47c1e8226e2",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 26,
+          "line": 28,
           "kind": "FunctionDeclaration",
           "localName": "CourseraEnrollmentPipelineTable"
         }
@@ -50268,22 +50268,22 @@
       "declarations": [
         {
           "name": "SIGNAL_CONFIG",
-          "line": 11,
+          "line": 12,
           "kind": "Variable"
         },
         {
           "name": "fmtDateTime",
-          "line": 19,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EnrollResult",
-          "line": 24,
+          "line": 26,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraEnrollmentPipelineTable",
-          "line": 26,
+          "line": 28,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -58754,6 +58754,31 @@
       "directive": "use client"
     },
     {
+      "path": "components/portal/CourseraProgressCoverageNotice.tsx",
+      "area": "components",
+      "domain": "learning-coursera",
+      "bytes": 584,
+      "lines": 17,
+      "sha256": "9cce8997ee0b6737566010bfd2dd71afa682721f81538c7fa1f4284880e65420",
+      "binary": false,
+      "exports": [
+        {
+          "name": "default",
+          "line": 2,
+          "kind": "FunctionDeclaration",
+          "localName": "CourseraProgressCoverageNotice"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CourseraProgressCoverageNotice",
+          "line": 2,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/DashboardFooter.tsx",
       "area": "components",
       "domain": "components",
@@ -62479,9 +62504,9 @@
       "path": "components/portal/RefreshCourseraProgressButton.tsx",
       "area": "components",
       "domain": "learning-coursera",
-      "bytes": 2559,
-      "lines": 77,
-      "sha256": "00777dae7b588a77c3dfcd74b1ab4c788f4e23af0cc9be413e513ea07389cd5d",
+      "bytes": 2973,
+      "lines": 89,
+      "sha256": "96736249ff93b08d2e2f78a7422eeb04d672bfbfcba85aed4d9e30faf64a9262",
       "binary": false,
       "exports": [
         {
@@ -68543,24 +68568,24 @@
       "path": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
       "area": "components",
       "domain": "learning-coursera",
-      "bytes": 12783,
-      "lines": 365,
-      "sha256": "08a96e8fd10167193a320b1902bae34920a216bf178d7fdd4c1df329b177a103",
+      "bytes": 13531,
+      "lines": 378,
+      "sha256": "51132375477ba6ed49647aa4a4f408a1045bc572cc007760f45ab9a6fa140bd5",
       "binary": false,
       "exports": [
         {
           "name": "SyncHealth",
-          "line": 39,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "UnmatchedLearnerRow",
-          "line": 41,
+          "line": 40,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CourseraSyncKitProps",
-          "line": 54,
+          "line": 53,
           "kind": "InterfaceDeclaration"
         },
         {
@@ -68572,17 +68597,17 @@
       "declarations": [
         {
           "name": "SyncHealth",
-          "line": 39,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "UnmatchedLearnerRow",
-          "line": 41,
+          "line": 40,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CourseraSyncKitProps",
-          "line": 54,
+          "line": 53,
           "kind": "InterfaceDeclaration"
         },
         {
@@ -70113,96 +70138,96 @@
       "path": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 13483,
-      "lines": 414,
-      "sha256": "74c537e49ac67762be12920ead31021b87790184df4d3a801f2e3379baa7d790",
+      "bytes": 14452,
+      "lines": 428,
+      "sha256": "debcbd1b297f1ed3ed6f20f09b9d26a0ddea75e057dacced2262b17fb9e7ee9e",
       "binary": false,
       "exports": [
         {
           "name": "StudentStatus",
-          "line": 37,
+          "line": 40,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentRow",
-          "line": 39,
+          "line": 42,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StudentFilter",
-          "line": 67,
+          "line": 74,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentsRosterKitProps",
-          "line": 69,
+          "line": 76,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StudentsRosterKit",
-          "line": 165,
+          "line": 172,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "StudentStatus",
-          "line": 37,
+          "line": 40,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentRow",
-          "line": 39,
+          "line": 42,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "StudentFilter",
-          "line": 67,
+          "line": 74,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StudentsRosterKitProps",
-          "line": 69,
+          "line": 76,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "DEFAULT_STUDENTS",
-          "line": 75,
+          "line": 82,
           "kind": "Variable"
         },
         {
           "name": "FILTERS",
-          "line": 130,
+          "line": 137,
           "kind": "Variable"
         },
         {
           "name": "STATUS_TOKEN_COLOR",
-          "line": 133,
+          "line": 140,
           "kind": "Variable"
         },
         {
           "name": "matchesFilter",
-          "line": 141,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "formatRosterGrade",
           "line": 148,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "readinessColor",
-          "line": 154,
+          "name": "formatRosterGrade",
+          "line": 155,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "readinessVar",
+          "name": "readinessColor",
           "line": 161,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "readinessVar",
+          "line": 168,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "StudentsRosterKit",
-          "line": 165,
+          "line": 172,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -76074,9 +76099,9 @@
       "path": "docs/KIT_GUIDE.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 27698,
-      "lines": 397,
-      "sha256": "30f2961ab67b46cb7a2942d688f84d781166f4069feb8feb0fe25c78f287991d",
+      "bytes": 28075,
+      "lines": 398,
+      "sha256": "cd48800283dfc9046547497e05bfc43132ed9e986c4e90048aaab42c69519a01",
       "binary": false
     },
     {
@@ -78072,9 +78097,9 @@
       "path": "docs/knowledge-base/integrations.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 33270,
-      "lines": 133,
-      "sha256": "71d2e8c12dfb32a7a16a5b657ea4453cf0b4c7a11c569e7d655e99c6636e3bff",
+      "bytes": 35589,
+      "lines": 139,
+      "sha256": "da70082f10185e1c2fc16be28c1455f5ce3f0c8190273235ffdacd9f341b8fe0",
       "binary": false
     },
     {
@@ -85062,6 +85087,136 @@
       "directive": null
     },
     {
+      "path": "lib/admin/courseraDiagnostics.test.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 4268,
+      "lines": 65,
+      "sha256": "3e3a5ab4ab0292d74334ac38126ce9d4693973ec65892652322976c8072fe881",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "now",
+          "line": 7,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/courseraDiagnostics.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 4407,
+      "lines": 104,
+      "sha256": "751133ab002bd751d85b015daa61870e0401a6affaa59969c0eb7b77b1c02855",
+      "binary": false,
+      "exports": [
+        {
+          "name": "MATCHED_COURSE_PROGRESS",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "diagnosticTenantFilter",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "LATEST_B4B_COURSE_PROGRESS",
+          "line": 36,
+          "kind": "Variable"
+        },
+        {
+          "name": "buildCompletionDriftQuery",
+          "line": 44,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "DiagnosticProgram",
+          "line": 62,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildCourseProgramIndex",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "courseMatchesAssignedProgram",
+          "line": 82,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "deriveCourseraOverviewHealth",
+          "line": 91,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "MATCHED_COURSE_PROGRESS",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "diagnosticTenantFilter",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "LATEST_B4B_COURSE_PROGRESS",
+          "line": 36,
+          "kind": "Variable"
+        },
+        {
+          "name": "buildCompletionDriftQuery",
+          "line": 44,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "DiagnosticProgram",
+          "line": 62,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildCourseProgramIndex",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "courseMatchesAssignedProgram",
+          "line": 82,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "deriveCourseraOverviewHealth",
+          "line": 91,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/courseraDiagnosticsLoaders.test.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 6022,
+      "lines": 101,
+      "sha256": "a817722359ea564fb3c2bca467fd514ed9f89c15810daf4317ef5f05798e399e",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "db",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/courseraEnrollmentApproval.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -85096,84 +85251,118 @@
       "directive": null
     },
     {
-      "path": "lib/admin/courseraEnrollmentPipeline.ts",
+      "path": "lib/admin/courseraEnrollmentEvidence.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 8396,
-      "lines": 230,
-      "sha256": "3c3a7c08bf04d7aaddc382d0bcc310b0459b58047d0c7f0b82e48c370473e8f5",
+      "bytes": 1111,
+      "lines": 25,
+      "sha256": "0a238698c0f65f7e5a70f14d0b73bcfad12fe2096ab9c9560a53e8c39c5bc05e",
       "binary": false,
       "exports": [
         {
           "name": "EnrollmentSignal",
-          "line": 33,
+          "line": 1,
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "ENROLLMENT_SIGNAL_LABELS",
-          "line": 35,
-          "kind": "Variable"
+          "name": "hasRecentCourseraActivity",
+          "line": 3,
+          "kind": "FunctionDeclaration"
         },
         {
-          "name": "EnrollmentPipelineRow",
-          "line": 43,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "EnrollmentPipelineSummary",
-          "line": 56,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "EnrollmentPipelineData",
-          "line": 66,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "loadCourseraEnrollmentPipeline",
-          "line": 86,
+          "name": "deriveEnrollmentSignal",
+          "line": 11,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "EnrollmentSignal",
-          "line": 33,
+          "line": 1,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "hasRecentCourseraActivity",
+          "line": 3,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "deriveEnrollmentSignal",
+          "line": 11,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/courseraEnrollmentPipeline.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 9229,
+      "lines": 246,
+      "sha256": "18d7d691a120c5de6ef12a0259e310916f1553efd044a74a880078792af4694e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "EnrollmentSignal",
+          "line": 8,
+          "kind": "ReExport"
+        },
+        {
           "name": "ENROLLMENT_SIGNAL_LABELS",
-          "line": 35,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "EnrollmentPipelineRow",
-          "line": 43,
+          "line": 24,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EnrollmentPipelineSummary",
-          "line": 56,
+          "line": 38,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "EnrollmentPipelineData",
-          "line": 66,
+          "line": 48,
           "kind": "TypeAliasDeclaration"
         },
         {
-          "name": "THIRTY_DAYS_MS",
-          "line": 72,
+          "name": "loadCourseraEnrollmentPipeline",
+          "line": 67,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "ENROLLMENT_SIGNAL_LABELS",
+          "line": 15,
           "kind": "Variable"
         },
         {
+          "name": "EnrollmentPipelineRow",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EnrollmentPipelineSummary",
+          "line": 38,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EnrollmentPipelineData",
+          "line": 48,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "emptySummary",
-          "line": 74,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCourseraEnrollmentPipeline",
-          "line": 86,
+          "line": 67,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -85346,9 +85535,9 @@
       "path": "lib/admin/courseraSyncDrift.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 2394,
-      "lines": 61,
-      "sha256": "6fe9219b7cbdb16328aac13112a061fee9fb23d0fd700c0a780ceedebfead9f0",
+      "bytes": 2441,
+      "lines": 62,
+      "sha256": "2e710a79dd3ddb3ddc09a31ea494125c4f49f3e914cbb761e697567680ce8eba",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -85358,96 +85547,96 @@
       "path": "lib/admin/courseraSyncDrift.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 3614,
-      "lines": 101,
-      "sha256": "8a04b1d02fd1f44c5221e12a99719a3a8ef331a4628e04b7ac4a1647e802788e",
+      "bytes": 4154,
+      "lines": 110,
+      "sha256": "c8f4e90f6e8b314dc7903f15c82b6d52488619cb746871922296a6843d80d30a",
       "binary": false,
       "exports": [
         {
           "name": "SyncDriftRawRow",
-          "line": 12,
+          "line": 13,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncDriftRow",
-          "line": 22,
+          "line": 25,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncDriftResult",
-          "line": 31,
+          "line": 35,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SYNC_DRIFT_THRESHOLD_HOURS",
-          "line": 35,
+          "line": 39,
           "kind": "Variable"
         },
         {
           "name": "SYNC_DRIFT_LIMIT",
-          "line": 36,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "buildSyncDriftQuery",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapSyncDriftRows",
-          "line": 71,
+          "line": 79,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadSyncDriftPairs",
-          "line": 87,
+          "line": 96,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "SyncDriftRawRow",
-          "line": 12,
+          "line": 13,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncDriftRow",
-          "line": 22,
+          "line": 25,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SyncDriftResult",
-          "line": 31,
+          "line": 35,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SYNC_DRIFT_THRESHOLD_HOURS",
-          "line": 35,
-          "kind": "Variable"
-        },
-        {
-          "name": "SYNC_DRIFT_LIMIT",
-          "line": 36,
-          "kind": "Variable"
-        },
-        {
-          "name": "GAP",
           "line": 39,
           "kind": "Variable"
         },
         {
+          "name": "SYNC_DRIFT_LIMIT",
+          "line": 40,
+          "kind": "Variable"
+        },
+        {
+          "name": "GAP",
+          "line": 43,
+          "kind": "Variable"
+        },
+        {
           "name": "buildSyncDriftQuery",
-          "line": 41,
+          "line": 45,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapSyncDriftRows",
-          "line": 71,
+          "line": 79,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadSyncDriftPairs",
-          "line": 87,
+          "line": 96,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -87184,56 +87373,144 @@
       "path": "lib/admin/studentsRosterEnrichment.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 8572,
-      "lines": 233,
-      "sha256": "1f5f9f040f551e0656421e736939894e59bdf0c5a27911edbeddb527de5a527d",
+      "bytes": 4102,
+      "lines": 99,
+      "sha256": "49bad2912be55861aa85106127e11d5ef5095c3510f176480b13647c4e0aea30",
       "binary": false,
       "exports": [
         {
           "name": "StudentRosterEnrichmentRow",
-          "line": 16,
+          "line": 17,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadStudentRosterEnrichment",
-          "line": 78,
+          "line": 46,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "StudentRosterEnrichmentRow",
-          "line": 16,
+          "line": 17,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RawStudentRosterEnrichmentRow",
-          "line": 24,
+          "line": 28,
           "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "SqlCourseFact",
-          "line": 30,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "CANONICAL_READ_GROUPS",
-          "line": 37,
-          "kind": "Variable"
-        },
-        {
-          "name": "canonicalProgramSlugSql",
-          "line": 44,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "parseCourseFacts",
-          "line": 56,
-          "kind": "FunctionDeclaration"
         },
         {
           "name": "loadStudentRosterEnrichment",
-          "line": 78,
+          "line": 46,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/studentsRosterEnrichmentQuery.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 3023,
+      "lines": 76,
+      "sha256": "e565cdce1b93483ee94274265ed714bff4a713afbe6171b459670c7ade517b13",
+      "binary": false,
+      "exports": [
+        {
+          "name": "StudentRosterQueryScope",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildStudentRosterEnrichmentQuery",
+          "line": 10,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "StudentRosterQueryScope",
+          "line": 3,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildStudentRosterEnrichmentQuery",
+          "line": 10,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/studentsRosterFacts.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 2693,
+      "lines": 59,
+      "sha256": "dbdb10a54cf3ac74ca306bbbc40f7ba22ec52b56f809ac02f0b81d0930e10810",
+      "binary": false,
+      "exports": [
+        {
+          "name": "StudentRosterAssignmentSource",
+          "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "StudentRosterActivitySource",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "StudentRosterCourseFact",
+          "line": 10,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolveStudentRosterAssignment",
+          "line": 13,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "STUDENT_ROSTER_ACTIVITY_LABELS",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "resolveStudentRosterActivity",
+          "line": 41,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "StudentRosterAssignmentSource",
+          "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "StudentRosterActivitySource",
+          "line": 9,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "StudentRosterCourseFact",
+          "line": 10,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolveStudentRosterAssignment",
+          "line": 13,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "STUDENT_ROSTER_ACTIVITY_LABELS",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "resolveStudentRosterActivity",
+          "line": 41,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -87243,9 +87520,9 @@
       "path": "lib/admin/studentsRosterSort.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 2887,
-      "lines": 98,
-      "sha256": "5f01449ab5f05249cb2f182e02823833e92ba13929c20991e8b18f4aaf5e1b69",
+      "bytes": 3149,
+      "lines": 105,
+      "sha256": "98dfaa20af4a6b508fb44fc06eb9abbfd9258f910494b59ff0c7ebf66272e53f",
       "binary": false,
       "exports": [
         {
@@ -87280,7 +87557,7 @@
         },
         {
           "name": "isStudentSortKey",
-          "line": 96,
+          "line": 103,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -87337,7 +87614,7 @@
         },
         {
           "name": "isStudentSortKey",
-          "line": 96,
+          "line": 103,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105361,9 +105638,9 @@
       "path": "lib/coursera/b4bClient.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 20831,
-      "lines": 614,
-      "sha256": "9b906a99227f0e842e0eadf00a5757513fac067dc91f73fd0b32a3742ec54366",
+      "bytes": 21686,
+      "lines": 632,
+      "sha256": "1ab57594cf2b7e6bf737bf038c6fe4dde2b72e6eaffeeb39ab9b120f9cd19dd3",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -105414,431 +105691,431 @@
       "path": "lib/coursera/b4bClient.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 29245,
-      "lines": 822,
-      "sha256": "b2b57fc5244eba70c4bbeda46882781e1bc8ee20d5a54639b7e149abf256703d",
+      "bytes": 29824,
+      "lines": 833,
+      "sha256": "6e34d3191ce0532292aaac1762e496d3cde650a46e65c4f57e04458adcbd36c1",
       "binary": false,
       "exports": [
         {
           "name": "B4BPaging",
-          "line": 62,
+          "line": 64,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BUser",
-          "line": 67,
+          "line": 70,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BProgram",
-          "line": 78,
+          "line": 81,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BContent",
-          "line": 90,
+          "line": 93,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BEnrollmentReport",
-          "line": 98,
+          "line": 101,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BGradebookReport",
-          "line": 121,
+          "line": 127,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BOrgInfo",
-          "line": 148,
+          "line": 154,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BPageEnvelope",
-          "line": 155,
+          "line": 161,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BApiError",
-          "line": 166,
+          "line": 172,
           "kind": "ClassDeclaration"
         },
         {
           "name": "getB4BOrgId",
-          "line": 221,
+          "line": 227,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchCourseraWithTransientRetry",
-          "line": 316,
+          "line": 322,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_setFetchForTesting",
-          "line": 324,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "_getCachedTokenForTesting",
           "line": 330,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "_getCachedTokenForTesting",
+          "line": 336,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "_resetTokenCacheForTesting",
-          "line": 335,
+          "line": 341,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchB4B",
-          "line": 407,
+          "line": 413,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getOrgInfo",
-          "line": 496,
+          "line": 507,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listUsers",
-          "line": 500,
+          "line": 511,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listPrograms",
-          "line": 510,
+          "line": 521,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listContents",
-          "line": 523,
+          "line": 534,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getEnrollmentReports",
-          "line": 548,
+          "line": 559,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCourseGradebookReports",
-          "line": 580,
+          "line": 591,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BInvitation",
-          "line": 611,
+          "line": 622,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BMembership",
-          "line": 619,
+          "line": 630,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BEnrollment",
-          "line": 628,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "B4BWriteResult",
           "line": 639,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "B4BWriteResult",
+          "line": 650,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "inviteUserToProgram",
-          "line": 706,
+          "line": 717,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createProgramMembership",
-          "line": 737,
+          "line": 748,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "enrollUserInCourse",
-          "line": 769,
+          "line": 780,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listAllUsers",
-          "line": 803,
+          "line": 814,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "DEFAULT_OAUTH_URL",
-          "line": 45,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_API_BASE",
-          "line": 46,
-          "kind": "Variable"
-        },
-        {
-          "name": "DEFAULT_ORG_ID",
           "line": 47,
           "kind": "Variable"
         },
         {
-          "name": "TOKEN_REFRESH_SAFETY_MS",
+          "name": "DEFAULT_API_BASE",
+          "line": 48,
+          "kind": "Variable"
+        },
+        {
+          "name": "DEFAULT_ORG_ID",
           "line": 49,
           "kind": "Variable"
         },
         {
+          "name": "TOKEN_REFRESH_SAFETY_MS",
+          "line": 51,
+          "kind": "Variable"
+        },
+        {
           "name": "FetchLike",
-          "line": 52,
+          "line": 54,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "cachedToken",
-          "line": 54,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "injectedFetch",
-          "line": 55,
+          "line": 57,
           "kind": "Variable"
         },
         {
           "name": "B4BPaging",
-          "line": 62,
+          "line": 64,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BUser",
-          "line": 67,
+          "line": 70,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BProgram",
-          "line": 78,
+          "line": 81,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BContent",
-          "line": 90,
+          "line": 93,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BEnrollmentReport",
-          "line": 98,
+          "line": 101,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BGradebookReport",
-          "line": 121,
+          "line": 127,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BOrgInfo",
-          "line": 148,
+          "line": 154,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BPageEnvelope",
-          "line": 155,
+          "line": 161,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BApiError",
-          "line": 166,
+          "line": 172,
           "kind": "ClassDeclaration"
         },
         {
           "name": "getCredentials",
-          "line": 194,
+          "line": 200,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getApiBase",
-          "line": 205,
+          "line": 211,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getOauthUrl",
-          "line": 217,
+          "line": 223,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getB4BOrgId",
-          "line": 221,
+          "line": 227,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchImpl",
-          "line": 225,
+          "line": 231,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "TRANSIENT_B4B_STATUSES",
-          "line": 231,
+          "line": 237,
           "kind": "Variable"
         },
         {
           "name": "B4B_FETCH_MAX_ATTEMPTS",
-          "line": 232,
+          "line": 238,
           "kind": "Variable"
         },
         {
           "name": "B4B_FETCH_BASE_DELAY_MS",
-          "line": 233,
+          "line": 239,
           "kind": "Variable"
         },
         {
           "name": "B4B_ATTEMPT_TIMEOUT_DEFAULT_MS",
-          "line": 242,
+          "line": 248,
           "kind": "Variable"
         },
         {
           "name": "b4bAttemptTimeoutMs",
-          "line": 244,
+          "line": 250,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BTimeoutError",
-          "line": 249,
+          "line": 255,
           "kind": "ClassDeclaration"
         },
         {
           "name": "isTransientHttpStatus",
-          "line": 256,
+          "line": 262,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "withAttemptTimeout",
-          "line": 263,
+          "line": 269,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchWithTransientRetry",
-          "line": 284,
+          "line": 290,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchCourseraWithTransientRetry",
-          "line": 316,
+          "line": 322,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_setFetchForTesting",
-          "line": 324,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "_getCachedTokenForTesting",
           "line": 330,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "_getCachedTokenForTesting",
+          "line": 336,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "_resetTokenCacheForTesting",
-          "line": 335,
+          "line": 341,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAccessToken",
-          "line": 339,
+          "line": 345,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchB4B",
-          "line": 407,
+          "line": 413,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getJsonOrThrow",
-          "line": 443,
+          "line": 449,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "appendPagination",
-          "line": 462,
+          "line": 468,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildOrgPath",
-          "line": 474,
+          "line": 480,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "envelopeFrom",
-          "line": 479,
+          "line": 485,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getOrgInfo",
-          "line": 496,
+          "line": 507,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listUsers",
-          "line": 500,
+          "line": 511,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listPrograms",
-          "line": 510,
+          "line": 521,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listContents",
-          "line": 523,
+          "line": 534,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getEnrollmentReports",
-          "line": 548,
+          "line": 559,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getCourseGradebookReports",
-          "line": 580,
+          "line": 591,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BInvitation",
-          "line": 611,
+          "line": 622,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BMembership",
-          "line": 619,
+          "line": 630,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BEnrollment",
-          "line": 628,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "B4BWriteResult",
           "line": 639,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "B4BWriteResult",
+          "line": 650,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "postJson",
-          "line": 643,
+          "line": 654,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "inviteUserToProgram",
-          "line": 706,
+          "line": 717,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "createProgramMembership",
-          "line": 737,
+          "line": 748,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "enrollUserInCourse",
-          "line": 769,
+          "line": 780,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "listAllUsers",
-          "line": 803,
+          "line": 814,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -105848,20 +106125,20 @@
       "path": "lib/coursera/b4bSync.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 13440,
-      "lines": 374,
-      "sha256": "a0d5e42dee859d2995e5344555bdad185a1858057e7b20c6821af66bf76d59d2",
+      "bytes": 14607,
+      "lines": 389,
+      "sha256": "67858e82bd0be77e0b3efdbb7381e0fc831a9f8af2e23a376e400fb1cf5f5c8f",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "baseReport",
-          "line": 120,
+          "line": 135,
           "kind": "Variable"
         },
         {
           "name": "UNKNOWN_COURSE",
-          "line": 281,
+          "line": 296,
           "kind": "Variable"
         }
       ],
@@ -105871,236 +106148,231 @@
       "path": "lib/coursera/b4bSync.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 43325,
-      "lines": 1121,
-      "sha256": "94e2ec577bcab6bbe3bd84b6634566c4ce82f16483a5a53313b2ef3b91dafd21",
+      "bytes": 43282,
+      "lines": 1116,
+      "sha256": "e696fac0cf6efd04d3d49eae81bb38ca82216523d88aad3ba3d8e80b8467fdec",
       "binary": false,
       "exports": [
         {
+          "name": "nextEnrollmentReportStart",
+          "line": 35,
+          "kind": "ReExport"
+        },
+        {
           "name": "B4BEnrollmentReport",
-          "line": 53,
+          "line": 58,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RawB4BEnrollmentReport",
-          "line": 75,
+          "line": 80,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BUnknownCourseDetail",
-          "line": 79,
+          "line": 84,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BProgressRowAccounting",
-          "line": 89,
+          "line": 94,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "accountB4BProgressRow",
-          "line": 112,
+          "line": 117,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BSyncResult",
-          "line": 174,
+          "line": 179,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeB4BEnrollmentReport",
-          "line": 214,
+          "line": 220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "planB4BRowWrite",
-          "line": 241,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "nextEnrollmentReportStart",
-          "line": 306,
+          "line": 247,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "selectCanonicalB4BMapping",
-          "line": 388,
+          "line": 382,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BProgressInput",
-          "line": 421,
+          "line": 415,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BSignalSources",
-          "line": 435,
+          "line": 429,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "mergeB4BProgressSignals",
-          "line": 471,
+          "line": 465,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ExistingCourseProgress",
-          "line": 503,
+          "line": 497,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MergedCourseProgress",
-          "line": 509,
+          "line": 503,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "computeCourseProgressUpdate",
-          "line": 540,
+          "line": 534,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EnrolledProgramSyncDecision",
-          "line": 612,
+          "line": 606,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "decideEnrolledProgramSync",
-          "line": 634,
+          "line": 628,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncCourseraB4BEnrollmentReports",
-          "line": 656,
+          "line": 650,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "B4B_OAUTH_URL",
-          "line": 46,
+          "line": 51,
           "kind": "Variable"
         },
         {
           "name": "B4B_API_BASE",
-          "line": 47,
+          "line": 52,
           "kind": "Variable"
         },
         {
           "name": "B4BEnrollmentReport",
-          "line": 53,
+          "line": 58,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RawB4BEnrollmentReport",
-          "line": 75,
+          "line": 80,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BUnknownCourseDetail",
-          "line": 79,
+          "line": 84,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BProgressRowAccounting",
-          "line": 89,
+          "line": 94,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "accountB4BProgressRow",
-          "line": 112,
+          "line": 117,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BSyncResult",
-          "line": 174,
+          "line": 179,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "finiteNumber",
-          "line": 209,
+          "line": 215,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "normalizeB4BEnrollmentReport",
-          "line": 214,
+          "line": 220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "planB4BRowWrite",
-          "line": 241,
+          "line": 247,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getB4BToken",
-          "line": 267,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "nextEnrollmentReportStart",
-          "line": 306,
+          "line": 273,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readB4BResumeStart",
-          "line": 319,
+          "line": 304,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchEnrollmentReports",
-          "line": 340,
+          "line": 331,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "selectCanonicalB4BMapping",
-          "line": 388,
+          "line": 382,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "B4BProgressInput",
-          "line": 421,
+          "line": 415,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "B4BSignalSources",
-          "line": 435,
+          "line": 429,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "mergeB4BProgressSignals",
-          "line": 471,
+          "line": 465,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ExistingCourseProgress",
-          "line": 503,
+          "line": 497,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MergedCourseProgress",
-          "line": 509,
+          "line": 503,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "computeCourseProgressUpdate",
-          "line": 540,
+          "line": 534,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EnrolledProgramSyncDecision",
-          "line": 612,
+          "line": 606,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "decideEnrolledProgramSync",
-          "line": 634,
+          "line": 628,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "syncCourseraB4BEnrollmentReports",
-          "line": 656,
+          "line": 650,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "updateRollups",
-          "line": 1084,
+          "line": 1079,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107487,6 +107759,50 @@
       "directive": null
     },
     {
+      "path": "lib/coursera/enrollmentReportFields.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 2198,
+      "lines": 53,
+      "sha256": "bddf913e2f3fa28ed9b724844fd8e754e940bf26fd04ebcf14bae8a98ff843fb",
+      "binary": false,
+      "exports": [
+        {
+          "name": "enrollmentActivityMilliseconds",
+          "line": 2,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeCourseraPageOffset",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "nextEnrollmentReportStart",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "enrollmentActivityMilliseconds",
+          "line": 2,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeCourseraPageOffset",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "nextEnrollmentReportStart",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/coursera/isLikelyTestAccount.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -107631,9 +107947,9 @@
       "path": "lib/coursera/learnerProgress.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 10959,
-      "lines": 346,
-      "sha256": "616eb8090d78b437c95abc12ef42aafc013ec5ed3d43f81f2205041aef7aa41f",
+      "bytes": 20428,
+      "lines": 509,
+      "sha256": "226f3cabf4a1ec26441f7a6e8ca20c694ff4f6685b179c0300d9274de53f57d9",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -107679,151 +107995,176 @@
       "path": "lib/coursera/learnerProgress.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 11576,
-      "lines": 306,
-      "sha256": "336d8808105842a4eb98b75da0c1f6fdaabc3d4d498db6d1ba048034e4519212",
+      "bytes": 15055,
+      "lines": 371,
+      "sha256": "7c073c71499173a8c5fbe7f7d6a816b9c94ee95c09385e89bf45982c0a74c864",
       "binary": false,
       "exports": [
         {
           "name": "LearnerProgressEntry",
-          "line": 32,
+          "line": 54,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerProgressByContent",
-          "line": 42,
+          "line": 64,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "_resetLearnerProgressCachesForTesting",
-          "line": 75,
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_getLearnerCacheEntryForTesting",
-          "line": 80,
+          "line": 116,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "invalidateLearnerProgressCacheForEmail",
-          "line": 94,
+          "line": 130,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchLearnerProgressFromB4B",
-          "line": 171,
+          "line": 217,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getLearnerProgressLastActivity",
-          "line": 258,
+          "line": 322,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "filterRecognizedCourseraCourseIds",
-          "line": 276,
+          "line": 340,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "averageProgramProgressFromB4B",
-          "line": 292,
+          "line": 356,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "PROGRAM_LIST_TTL_SECONDS",
-          "line": 29,
+          "line": 31,
           "kind": "Variable"
         },
         {
           "name": "LEARNER_PROGRESS_TTL_SECONDS",
-          "line": 30,
+          "line": 32,
           "kind": "Variable"
         },
         {
+          "name": "MAX_PROVIDER_PAGES",
+          "line": 33,
+          "kind": "Variable"
+        },
+        {
+          "name": "LEARNER_REQUEST_BUDGET_MS",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "LearnerProgressDeadline",
+          "line": 36,
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "withinLearnerDeadline",
+          "line": 38,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "LearnerProgressEntry",
-          "line": 32,
+          "line": 54,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerProgressByContent",
-          "line": 42,
+          "line": 64,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "markLearnerCoverageCapped",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "serializeProgress",
-          "line": 45,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "deserializeProgress",
-          "line": 50,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "learnerCacheKey",
-          "line": 66,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "_resetLearnerProgressCachesForTesting",
           "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "_getLearnerCacheEntryForTesting",
+          "name": "deserializeProgress",
           "line": 80,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "invalidateLearnerProgressCacheForEmail",
-          "line": 94,
+          "name": "learnerCacheKey",
+          "line": 102,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "normalizeContentType",
-          "line": 104,
+          "name": "_resetLearnerProgressCachesForTesting",
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "clampPercent",
-          "line": 109,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "reportToEntry",
+          "name": "_getLearnerCacheEntryForTesting",
           "line": 116,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "invalidateLearnerProgressCacheForEmail",
+          "line": 130,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeContentType",
+          "line": 140,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "clampPercent",
+          "line": 145,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "reportToEntry",
+          "line": 152,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "resolveProgramIds",
-          "line": 136,
+          "line": 172,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchLearnerProgressFromB4B",
-          "line": 171,
+          "line": 217,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_fetchLearnerProgressFromB4BUncached",
-          "line": 195,
+          "line": 243,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getLearnerProgressLastActivity",
-          "line": 258,
+          "line": 322,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "filterRecognizedCourseraCourseIds",
-          "line": 276,
+          "line": 340,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "averageProgramProgressFromB4B",
-          "line": 292,
+          "line": 356,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -108826,9 +109167,9 @@
       "path": "lib/coursera/progressQueries.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 38694,
-      "lines": 1050,
-      "sha256": "b5e789e00c3f1e33b70c5ee5195815fc9bd9a509d88fe7e33f2136a097127f75",
+      "bytes": 38950,
+      "lines": 1055,
+      "sha256": "9ee257f39ee5ffcf05ae1ac4bcca2e6391e5634d3502bef0753654148f7cc25a",
       "binary": false,
       "exports": [
         {
@@ -108858,72 +109199,72 @@
         },
         {
           "name": "loadUnmatchedLearners",
-          "line": 183,
+          "line": 185,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countHiddenTestAccountUnmatchedLearners",
-          "line": 383,
+          "line": 386,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedLearners",
-          "line": 430,
+          "line": 434,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LearnerCourseRow",
-          "line": 470,
+          "line": 475,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerBadgeRow",
-          "line": 488,
+          "line": 493,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerProgressDetail",
-          "line": 503,
+          "line": 508,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadLearnerProgressByUserId",
-          "line": 511,
+          "line": 516,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadLearnerProgressByExternalEmail",
-          "line": 653,
+          "line": 658,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "UnmatchedXapiEventRow",
-          "line": 747,
+          "line": 752,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmail",
-          "line": 780,
+          "line": 785,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedXapiEventsByExternalEmail",
-          "line": 828,
+          "line": 833,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmailPaginated",
-          "line": 863,
+          "line": 868,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SuggestedUserMatch",
-          "line": 908,
+          "line": 913,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "suggestUserMatchesForExternalEmail",
-          "line": 943,
+          "line": 948,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -108950,107 +109291,107 @@
         },
         {
           "name": "TEST_ACCOUNT_EXCLUSION_HAVING",
-          "line": 149,
+          "line": 151,
           "kind": "Variable"
         },
         {
           "name": "TEST_ACCOUNT_EXCLUSION_WHERE",
-          "line": 159,
+          "line": 161,
           "kind": "Variable"
         },
         {
           "name": "loadUnmatchedLearners",
-          "line": 183,
+          "line": 185,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countHiddenTestAccountUnmatchedLearners",
-          "line": 383,
+          "line": 386,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedLearners",
-          "line": 430,
+          "line": 434,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LearnerCourseRow",
-          "line": 470,
+          "line": 475,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerBadgeRow",
-          "line": 488,
+          "line": 493,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LearnerProgressDetail",
-          "line": 503,
+          "line": 508,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadLearnerProgressByUserId",
-          "line": 511,
+          "line": 516,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseProgressBaseRow",
-          "line": 535,
+          "line": 540,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "COURSE_PROGRESS_SELECT_COLUMNS",
-          "line": 553,
+          "line": 558,
           "kind": "Variable"
         },
         {
           "name": "mapCourseProgressRow",
-          "line": 571,
+          "line": 576,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCoursesForUserId",
-          "line": 591,
+          "line": 596,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadBadgesForUserId",
-          "line": 601,
+          "line": 606,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadLearnerProgressByExternalEmail",
-          "line": 653,
+          "line": 658,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "UnmatchedXapiEventRow",
-          "line": 747,
+          "line": 752,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmail",
-          "line": 780,
+          "line": 785,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "countUnmatchedXapiEventsByExternalEmail",
-          "line": 828,
+          "line": 833,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadUnmatchedXapiEventsByExternalEmailPaginated",
-          "line": 863,
+          "line": 868,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SuggestedUserMatch",
-          "line": 908,
+          "line": 913,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "suggestUserMatchesForExternalEmail",
-          "line": 943,
+          "line": 948,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -109060,15 +109401,15 @@
       "path": "lib/coursera/progressReconciliation.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 3938,
-      "lines": 128,
-      "sha256": "9197b8d9846079b202ce02bba594fdfa54665183f9cf207a4c2791846869228e",
+      "bytes": 5028,
+      "lines": 147,
+      "sha256": "e652c8425af3531b69511bc5c940076843c340d7df35fe35d069fcfda7d87094",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "courses",
-          "line": 7,
+          "line": 8,
           "kind": "Variable"
         }
       ],
@@ -109078,9 +109419,9 @@
       "path": "lib/coursera/progressReconciliation.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 4876,
-      "lines": 151,
-      "sha256": "6305ff4432f56da0d91eb6e8f2005a04e58402ecca13f73c021cc2f733abdaae",
+      "bytes": 5537,
+      "lines": 163,
+      "sha256": "2f1c0406196f8ffa35c27bcf81b13b7e87940c25bdc9c8b9b41ff21121efdf68",
       "binary": false,
       "exports": [
         {
@@ -109105,7 +109446,7 @@
         },
         {
           "name": "reconcileProgramProgress",
-          "line": 70,
+          "line": 73,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -109132,22 +109473,22 @@
         },
         {
           "name": "LOCAL_STATUS_RANK",
-          "line": 41,
+          "line": 44,
           "kind": "Variable"
         },
         {
           "name": "clampPercent",
-          "line": 47,
+          "line": 50,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mergeLocalFacts",
-          "line": 52,
+          "line": 55,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "reconcileProgramProgress",
-          "line": 70,
+          "line": 73,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -109535,9 +109876,9 @@
       "path": "lib/coursera/restWebhookStatement.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 1584,
-      "lines": 42,
-      "sha256": "e19558f850f2430d0c21a2772c988f4ffb5726c9345b2a406584ff85fb2e5cef",
+      "bytes": 1612,
+      "lines": 43,
+      "sha256": "23e31f118511a6a680717d356742e0a8d52a24a6a7a93e62c32722f67cad3f93",
       "binary": false,
       "exports": [
         {
@@ -118991,9 +119332,9 @@
       "path": "lib/member/courseCompletion.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 12014,
-      "lines": 315,
-      "sha256": "f4adaf759f65fed3c8a03a828fb53323a466c72615e9b19425f5f73db9871e1f",
+      "bytes": 12231,
+      "lines": 318,
+      "sha256": "3c3cfc0b69e8dc344e0d2ec99b98616e26b9a0dd9e2ff6a84ec49dd7f9ed75c8",
       "binary": false,
       "exports": [
         {
@@ -119094,86 +119435,86 @@
       "path": "lib/member/courseProgress.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 18258,
-      "lines": 518,
-      "sha256": "b1d2fb4149adc40d63a1b5043ef9d0ceac8c0f8f8de57000806bdf39e23739e1",
+      "bytes": 19289,
+      "lines": 537,
+      "sha256": "682fb945c5ec51739d6b91b7dd628508e06c5fade8921e77b4f1e49a8d00fcec",
       "binary": false,
       "exports": [
         {
           "name": "CanonicalProgramCourse",
-          "line": 49,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "resolveCanonicalProgramCourseFromCourseraId",
-          "line": 59,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "refreshMemberProgramProgressRollup",
-          "line": 94,
+          "line": 95,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "markCourseProgressCompleted",
-          "line": 190,
+          "line": 191,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "claimLiveCourseCompletionEvent",
-          "line": 295,
+          "line": 314,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "upsertCourseProgressFromXapiStatement",
-          "line": 355,
+          "line": 374,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "discoveredMetaForSlug",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "matchCourseSlugFromObjectId",
-          "line": 31,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mergePercent",
-          "line": 43,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CanonicalProgramCourse",
-          "line": 49,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "resolveCanonicalProgramCourseFromCourseraId",
-          "line": 59,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "refreshMemberProgramProgressRollup",
-          "line": 94,
+          "line": 95,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "markCourseProgressCompleted",
-          "line": 190,
+          "line": 191,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "claimLiveCourseCompletionEvent",
-          "line": 295,
+          "line": 314,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "upsertCourseProgressFromXapiStatement",
-          "line": 355,
+          "line": 374,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -121644,9 +121985,9 @@
       "path": "lib/member/memberProgramTrainingView.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 8598,
-      "lines": 221,
-      "sha256": "00a2a179d4c89c10438cc14d784719982735b02361d3e4a79da3132dc155d328",
+      "bytes": 8917,
+      "lines": 226,
+      "sha256": "ceee5bf912b1e60247aded49647fed257dd9f736073d1847b8fff44db715f9ad",
       "binary": false,
       "exports": [
         {
@@ -121661,12 +122002,12 @@
         },
         {
           "name": "loadMemberProgramTrainingView",
-          "line": 49,
+          "line": 52,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isTrainingStaleForCounselorEscalation",
-          "line": 205,
+          "line": 210,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -121683,12 +122024,12 @@
         },
         {
           "name": "loadMemberProgramTrainingView",
-          "line": 49,
+          "line": 52,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isTrainingStaleForCounselorEscalation",
-          "line": 205,
+          "line": 210,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -138267,6 +138608,35 @@
       "directive": null
     },
     {
+      "path": "lib/xapi/activityTimestamp.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 588,
+      "lines": 13,
+      "sha256": "fa02e52c503894a8337b733640a259d7cd837bfc13c20fb29f5cc36cfaeb2a7e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "xapiLearnerActivityAt",
+          "line": 6,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "statementTimestamp",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "xapiLearnerActivityAt",
+          "line": 6,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/xapi/config.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -138319,31 +138689,31 @@
       "path": "lib/xapi/inboundStatementPipeline.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 10963,
-      "lines": 292,
-      "sha256": "d19954aaefb146bb89d3bbde0577dd13ca28d80e5471bdfe1643789613de852b",
+      "bytes": 11101,
+      "lines": 294,
+      "sha256": "156b5fbfe86795cba6cd58bf1ea403010438d139373a9ca04b2b8eedc4f284b1",
       "binary": false,
       "exports": [
         {
           "name": "InboundStatementRunResult",
-          "line": 18,
+          "line": 19,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "handleInboundParsedStatement",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "InboundStatementRunResult",
-          "line": 18,
+          "line": 19,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "handleInboundParsedStatement",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -138861,9 +139231,9 @@
       "path": "lib/xapi/statementModel.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 11258,
-      "lines": 267,
-      "sha256": "e22c3bfc3a347fdc766675a6f2aabc7a1eab4a9ce3d1d7bcb45be0fc83b31b1c",
+      "bytes": 10974,
+      "lines": 261,
+      "sha256": "e366b139e01076246655ea845aac3aa3380b887538372b3eb3c06059ff7b02c7",
       "binary": false,
       "exports": [
         {
@@ -138878,32 +139248,32 @@
         },
         {
           "name": "ParsedCompletionStatement",
-          "line": 74,
+          "line": 76,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "flattenXapiStatementPayload",
-          "line": 76,
+          "line": 78,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseXapiStatement",
-          "line": 106,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isXapiCompletionVerb",
-          "line": 228,
+          "line": 222,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isXapiCourseProgressVerb",
-          "line": 251,
+          "line": 245,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseCompletionStatements",
-          "line": 262,
+          "line": 256,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -138935,47 +139305,47 @@
         },
         {
           "name": "ParsedCompletionStatement",
-          "line": 74,
+          "line": 76,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "flattenXapiStatementPayload",
-          "line": 76,
+          "line": 78,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readScore",
-          "line": 84,
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readProgressPercent",
-          "line": 97,
+          "line": 99,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseXapiStatement",
-          "line": 106,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readNonEmptyString",
-          "line": 215,
+          "line": 209,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isXapiCompletionVerb",
-          "line": 228,
+          "line": 222,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isXapiCourseProgressVerb",
-          "line": 251,
+          "line": 245,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseCompletionStatements",
-          "line": 262,
+          "line": 256,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -138985,9 +139355,9 @@
       "path": "lib/xapi/statements.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 2785,
-      "lines": 73,
-      "sha256": "130d752d091e85a529394d7576724a972c7d81b70aaf04d1f918b7b4322e40c3",
+      "bytes": 3384,
+      "lines": 86,
+      "sha256": "5d3617f00e30eaf58ddc5a15eb9457475bd9139507cc7e667eb625e5f17bf717",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -139096,34 +139466,34 @@
       "path": "lib/xapi/token.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 3857,
-      "lines": 115,
-      "sha256": "6b45688bffd78a20b3d73edaff69373620de097c01d477dee67bbdd69b06a5e8",
+      "bytes": 4070,
+      "lines": 123,
+      "sha256": "e24f361a1c16fdf04ee39f34ce099e52d72d094adee85dcc09f2e05c1e450f33",
       "binary": false,
       "exports": [
         {
           "name": "issueXapiAccessToken",
-          "line": 33,
+          "line": 41,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "verifyXapiAccessToken",
-          "line": 56,
+          "line": 64,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseBearerToken",
-          "line": 79,
+          "line": 87,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "secureCredentialEqual",
-          "line": 93,
+          "line": 101,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseBasicAuth",
-          "line": 100,
+          "line": 108,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -139149,28 +139519,33 @@
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "issueXapiAccessToken",
+          "name": "getSigningConfig",
           "line": 33,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "issueXapiAccessToken",
+          "line": 41,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "verifyXapiAccessToken",
-          "line": 56,
+          "line": 64,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseBearerToken",
-          "line": 79,
+          "line": 87,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "secureCredentialEqual",
-          "line": 93,
+          "line": 101,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseBasicAuth",
-          "line": 100,
+          "line": 108,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -150751,9 +151126,9 @@
       "path": "scripts/vitest-library-specs.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 1265,
-      "lines": 32,
-      "sha256": "51cfda59cbdce94e3d969cf85737aa5e6069543436fc5aaa30d39f843715d5e7",
+      "bytes": 1315,
+      "lines": 33,
+      "sha256": "43c4cb0bc1b1af1f3fae20323d0e012622a29a51ed00caef0a12a5d5076db5f2",
       "binary": false,
       "exports": [
         {
@@ -153493,6 +153868,72 @@
       "directive": null
     },
     {
+      "path": "tests/api/coursera-b4b-continuation.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 6715,
+      "lines": 125,
+      "sha256": "6d9162017b0a964c2fe753c6fb6ab16f0183b8420e6f2a09870b281f0d978caf",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 4,
+          "kind": "Variable"
+        },
+        {
+          "name": "Diagnostic",
+          "line": 29,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "diagnostics",
+          "line": 30,
+          "kind": "Variable"
+        },
+        {
+          "name": "starts",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
+          "name": "rejectNextPage",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "response",
+          "line": 33,
+          "kind": "Variable"
+        },
+        {
+          "name": "run",
+          "line": 34,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/coursera-refresh-coverage.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 1861,
+      "lines": 29,
+      "sha256": "07544fc6e4bbab4a166c32ff9b209ec7dc9461372509ee5581c55b8be9eff836",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/coursera-replay-email-pacing.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
@@ -155767,30 +156208,30 @@
       "path": "tests/api/xapi-persistence.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 16204,
-      "lines": 403,
-      "sha256": "3be4a9b18b0fe959052d9ed002a6f36c4ea7b6c68ac7874c0f253533161c0c93",
+      "bytes": 17666,
+      "lines": 437,
+      "sha256": "3ecf0a632fef8ebb9c0b3999c4956e41c07dcf63b516c63b405c03fb2b8e2da8",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "validToken",
-          "line": 78,
+          "line": 84,
           "kind": "Variable"
         },
         {
           "name": "makeRequest",
-          "line": 80,
+          "line": 86,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sampleStatement",
-          "line": 91,
+          "line": 97,
           "kind": "Variable"
         },
         {
           "name": "progressedStatement",
-          "line": 102,
+          "line": 108,
           "kind": "Variable"
         }
       ],
@@ -156956,6 +157397,47 @@
       "directive": null
     },
     {
+      "path": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 3107,
+      "lines": 50,
+      "sha256": "abf96d6285e2d9cab5785f6fd829ee9e0ea840dd0c9a2fc12b24828d4c5611d6",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "overview",
+          "line": 10,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/coursera-progress-coverage.spec.tsx",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 3578,
+      "lines": 65,
+      "sha256": "124bcb21ea55cb7d0d9819ffcc4ae92553d6e759e690f130e84da403d57099d0",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "refresh",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 9,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
       "area": "tests",
       "domain": "learning-coursera",
@@ -157798,9 +158280,9 @@
       "path": "tests/components/students-roster-identity.spec.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2345,
-      "lines": 53,
-      "sha256": "b5a2493dc87e8acc216f12bff9edb252f879931d5fc9a67e07aab6991ca18f9c",
+      "bytes": 3182,
+      "lines": 66,
+      "sha256": "46259f375a35b1e693851bf13ad11e191d9db19d0a3885aee43b6ffdba4c4d17",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -157813,6 +158295,39 @@
           "name": "students",
           "line": 9,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/students-roster-page.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4723,
+      "lines": 84,
+      "sha256": "4c619b5320f7634c62e2d3a59f48e2f8d7ce9dd1d854939025a77a88d0880ec7",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "member",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
+          "name": "enrichment",
+          "line": 37,
+          "kind": "Variable"
+        },
+        {
+          "name": "displayedStudent",
+          "line": 42,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -159355,9 +159870,9 @@
       "path": "tests/lib/course-progress-completion-lock.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4282,
-      "lines": 126,
-      "sha256": "912f39e8883e6c9f84e48ab7cbed0a2bf5559cbdbc6148357d388acb5a66bcf8",
+      "bytes": 6025,
+      "lines": 158,
+      "sha256": "c463a1af659082cdfc1102cdda4b4d63d85608808d0490746664af3838d03430",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -159373,9 +159888,9 @@
       "path": "tests/lib/course-progress-xapi.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5351,
-      "lines": 160,
-      "sha256": "16acfa8e389e6fa3ae6d6a70ee016819e77fbd1113645cdd1c1a5f833bf80d6c",
+      "bytes": 10404,
+      "lines": 244,
+      "sha256": "3a830dda36bd6123acebbe0304840a5ec43fc6b79e2ab66c2bbf4b2898b66fc8",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -159853,9 +160368,9 @@
       "path": "tests/lib/curriculum-versioned-read-surfaces.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 6028,
-      "lines": 129,
-      "sha256": "10ebf2021cccc15606a57ec30fc75953a70814e71bc39e93cfd9ae613b31d8e4",
+      "bytes": 6374,
+      "lines": 133,
+      "sha256": "04d1b5a5743e849255b72da8cc9370cda1e82505ddc1d9f241d4011a867d2d99",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -160192,9 +160707,9 @@
       "path": "tests/lib/member-program-training-view.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 6268,
-      "lines": 171,
-      "sha256": "41fef7d1bdbf9467e54f2cc526d9d94def0325cb0abf83909810ff27f89ead7a",
+      "bytes": 7112,
+      "lines": 195,
+      "sha256": "461458fd45795c83c281a5a6c5beeaabb68ffceed32441a011004efed38f6352",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -160527,9 +161042,9 @@
       "path": "tests/lib/notification-triggers-course.spec.ts",
       "area": "tests",
       "domain": "communications",
-      "bytes": 13987,
-      "lines": 411,
-      "sha256": "72dc118e807191943ed594c090fe336cb1f2633a49e4c41ae7ec207ed0dfeddc",
+      "bytes": 14018,
+      "lines": 412,
+      "sha256": "a3f57deb18e22fabd68ba5a92203f23e32bab81b272a74bac6a414328d439bd7",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -161199,9 +161714,9 @@
       "path": "tests/lib/students-roster-enrichment.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2788,
-      "lines": 89,
-      "sha256": "9bf723218b84151954c0dfb4999840bc7e92203c3ca7fba17c794444c1230072",
+      "bytes": 6669,
+      "lines": 156,
+      "sha256": "5468fb96ea2342b4254f489e9c87a6beb4fe43e19e748839b2c3d4cc86ab29a3",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -161219,12 +161734,24 @@
       "directive": null
     },
     {
+      "path": "tests/lib/students-roster-facts.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3083,
+      "lines": 55,
+      "sha256": "0c963bab3c6678cf6e60e6d082998082d8c4979d32bbab68c2204e80c3d4f77f",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
       "path": "tests/lib/students-roster-sort.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 2159,
-      "lines": 56,
-      "sha256": "d749898257aa0869ea24db9fedf6012136c68c183b4749973df2e2ab56c649ae",
+      "bytes": 2571,
+      "lines": 62,
+      "sha256": "f925a274b9cbff79c1ca3cd09474a26fe470ba71f581b9e02ca5d3a52deeebd5",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -161671,9 +162198,9 @@
       "path": "tests/lib/xapi-first-completion-side-effects.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 9752,
-      "lines": 263,
-      "sha256": "0844287980203be0713125fc57a5c2db7c7d72e6f98ecfd480d81b63ad8dddbf",
+      "bytes": 10445,
+      "lines": 274,
+      "sha256": "86572e1589ef5bc6d66a1385e748a96cedd48f97c0f224891e530bf2d0651e87",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -161731,6 +162258,29 @@
         {
           "name": "event",
           "line": 44,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/xapi-token-configuration.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3193,
+      "lines": 65,
+      "sha256": "cb8310482283f2b81f72d8e3991ef9fcb92acefb6a5cd9fd261ddef62c8080ae",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "secretKeys",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "options",
+          "line": 6,
           "kind": "Variable"
         }
       ],

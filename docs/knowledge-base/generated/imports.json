@@ -9897,8 +9897,16 @@
   },
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
-    "specifier": "@/lib/i18n/date",
+    "specifier": "@/components/portal/CourseraProgressCoverageNotice",
     "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/CourseraProgressCoverageNotice.tsx"
+  },
+  {
+    "from": "app/(portal)/dashboard/program/page.tsx",
+    "specifier": "@/lib/i18n/date",
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/i18n/date.ts"
@@ -9906,7 +9914,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -9914,7 +9922,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/components/portal/kit/pages/member/MemberProgramKit",
-    "line": 27,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/member/MemberProgramKit.tsx"
@@ -9922,7 +9930,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 28,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -9930,7 +9938,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 29,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -9938,7 +9946,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/loadTrainingWorkspace",
-    "line": 30,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/member/loadTrainingWorkspace.ts"
@@ -9946,7 +9954,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/trainingWorkspace",
-    "line": 31,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingWorkspace.ts"
@@ -9954,7 +9962,7 @@
   {
     "from": "app/(portal)/dashboard/program/page.tsx",
     "specifier": "@/lib/member/trainingCoursePractice",
-    "line": 32,
+    "line": 33,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingCoursePractice.ts"
@@ -17617,8 +17625,16 @@
   },
   {
     "from": "app/admin/coursera/health/page.tsx",
-    "specifier": "@/components/admin/IgnoredXapiSummaryCard",
+    "specifier": "@/lib/admin/courseraDiagnostics",
     "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraDiagnostics.ts"
+  },
+  {
+    "from": "app/admin/coursera/health/page.tsx",
+    "specifier": "@/components/admin/IgnoredXapiSummaryCard",
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "components/admin/IgnoredXapiSummaryCard.tsx"
@@ -17626,7 +17642,7 @@
   {
     "from": "app/admin/coursera/health/page.tsx",
     "specifier": "@/lib/coursera/linkHealth",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/linkHealth.ts"
@@ -17634,7 +17650,7 @@
   {
     "from": "app/admin/coursera/health/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -17642,7 +17658,7 @@
   {
     "from": "app/admin/coursera/health/page.tsx",
     "specifier": "@/lib/content/coursera/catalogCoverage",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/content/coursera/catalogCoverage.ts"
@@ -18193,8 +18209,16 @@
   },
   {
     "from": "app/admin/coursera/page.tsx",
-    "specifier": "@/lib/db/queryCaps",
+    "specifier": "@/lib/admin/courseraDiagnostics",
     "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraDiagnostics.ts"
+  },
+  {
+    "from": "app/admin/coursera/page.tsx",
+    "specifier": "@/lib/db/queryCaps",
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/db/queryCaps.ts"
@@ -18202,7 +18226,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -18210,7 +18234,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/tenant/organization",
-    "line": 28,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -18218,7 +18242,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 29,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -18226,7 +18250,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/content/programTitle",
-    "line": 30,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/content/programTitle.ts"
@@ -18234,7 +18258,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 31,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -18242,7 +18266,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/admin/courseraOps",
-    "line": 35,
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "lib/admin/courseraOps.ts"
@@ -18250,7 +18274,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/xapi/mappings",
-    "line": 40,
+    "line": 41,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/mappings.ts"
@@ -18258,7 +18282,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/lib/coursera/progressQueries",
-    "line": 45,
+    "line": 46,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressQueries.ts"
@@ -18266,7 +18290,7 @@
   {
     "from": "app/admin/coursera/page.tsx",
     "specifier": "@/components/portal/kit/pages/admin-subviews/CourseraSyncKit",
-    "line": 51,
+    "line": 52,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx"
@@ -25145,16 +25169,8 @@
   },
   {
     "from": "app/admin/students/page.tsx",
-    "specifier": "@/lib/content/programSlug",
-    "line": 13,
-    "kind": "import",
-    "external": false,
-    "target": "lib/content/programSlug.ts"
-  },
-  {
-    "from": "app/admin/students/page.tsx",
     "specifier": "@/lib/admin/healthScore",
-    "line": 14,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/admin/healthScore.ts"
@@ -25162,7 +25178,7 @@
   {
     "from": "app/admin/students/page.tsx",
     "specifier": "@/lib/admin/memberOnlyWhere",
-    "line": 15,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/admin/memberOnlyWhere.ts"
@@ -25170,7 +25186,7 @@
   {
     "from": "app/admin/students/page.tsx",
     "specifier": "@/components/portal/kit/pages/admin-subviews/StudentsRosterKit",
-    "line": 16,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
@@ -25178,7 +25194,7 @@
   {
     "from": "app/admin/students/page.tsx",
     "specifier": "@/lib/coursera/progressQueries",
-    "line": 21,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressQueries.ts"
@@ -25186,7 +25202,7 @@
   {
     "from": "app/admin/students/page.tsx",
     "specifier": "@/lib/coursera/courseGradeDisplay",
-    "line": 25,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/courseGradeDisplay.ts"
@@ -25194,10 +25210,18 @@
   {
     "from": "app/admin/students/page.tsx",
     "specifier": "@/lib/admin/studentsRosterEnrichment",
-    "line": 26,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/admin/studentsRosterEnrichment.ts"
+  },
+  {
+    "from": "app/admin/students/page.tsx",
+    "specifier": "@/lib/admin/studentsRosterFacts",
+    "line": 26,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/studentsRosterFacts.ts"
   },
   {
     "from": "app/admin/subgroups/[id]/edit/page.tsx",
@@ -61169,8 +61193,16 @@
   },
   {
     "from": "app/api/xapi/statements/route.ts",
-    "specifier": "@/lib/observability/captureApiError",
+    "specifier": "@/lib/xapi/config",
     "line": 23,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/config.ts"
+  },
+  {
+    "from": "app/api/xapi/statements/route.ts",
+    "specifier": "@/lib/observability/captureApiError",
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -61178,7 +61210,7 @@
   {
     "from": "app/api/xapi/statements/route.ts",
     "specifier": "@/lib/diagnostics",
-    "line": 24,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/diagnostics.ts"
@@ -61186,7 +61218,7 @@
   {
     "from": "app/api/xapi/statements/route.ts",
     "specifier": "@/lib/cache",
-    "line": 25,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/cache.ts"
@@ -61194,7 +61226,7 @@
   {
     "from": "app/api/xapi/statements/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -61202,7 +61234,7 @@
   {
     "from": "app/api/xapi/statements/route.ts",
     "specifier": "@/lib/tenant/resolveOrgFromRequest",
-    "line": 27,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/resolveOrgFromRequest.ts"
@@ -68998,6 +69030,14 @@
     "kind": "type",
     "external": false,
     "target": "lib/admin/courseraEnrollmentPipeline.ts"
+  },
+  {
+    "from": "components/admin/CourseraEnrollmentPipelineTable.tsx",
+    "specifier": "@/lib/admin/courseraEnrollmentEvidence",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentEvidence.ts"
   },
   {
     "from": "components/admin/CourseraInspectByEmailCard.tsx",
@@ -82274,14 +82314,6 @@
   {
     "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
     "specifier": "@astryxdesign/core/Card",
-    "line": 14,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
-    "specifier": "@astryxdesign/core/Button",
     "line": 15,
     "kind": "import",
     "external": true,
@@ -82289,7 +82321,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
-    "specifier": "@astryxdesign/core/Token",
+    "specifier": "@astryxdesign/core/Button",
     "line": 16,
     "kind": "import",
     "external": true,
@@ -82297,7 +82329,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
-    "specifier": "@astryxdesign/core/Link",
+    "specifier": "@astryxdesign/core/Token",
     "line": 17,
     "kind": "import",
     "external": true,
@@ -82305,7 +82337,7 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
-    "specifier": "@astryxdesign/core/EmptyState",
+    "specifier": "@astryxdesign/core/Link",
     "line": 18,
     "kind": "import",
     "external": true,
@@ -82313,8 +82345,16 @@
   },
   {
     "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/EmptyState",
     "line": 19,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -90104,6 +90144,86 @@
     "target": "lib/admin/courseraConsentGate.ts"
   },
   {
+    "from": "lib/admin/courseraDiagnostics.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/admin/courseraDiagnostics.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/admin/courseraDiagnostics.test.ts",
+    "specifier": "./courseraDiagnostics",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraDiagnostics.ts"
+  },
+  {
+    "from": "lib/admin/courseraDiagnostics.test.ts",
+    "specifier": "./courseraEnrollmentEvidence",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentEvidence.ts"
+  },
+  {
+    "from": "lib/admin/courseraDiagnostics.test.ts",
+    "specifier": "./courseraSyncDrift",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraSyncDrift.ts"
+  },
+  {
+    "from": "lib/admin/courseraDiagnostics.ts",
+    "specifier": "@prisma/client",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@prisma/client"
+  },
+  {
+    "from": "lib/admin/courseraDiagnostics.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "lib/admin/courseraDiagnosticsLoaders.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "lib/admin/courseraDiagnosticsLoaders.test.ts",
+    "specifier": "./courseraEnrollmentPipeline",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentPipeline.ts"
+  },
+  {
+    "from": "lib/admin/courseraDiagnosticsLoaders.test.ts",
+    "specifier": "@/lib/coursera/progressQueries",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/progressQueries.ts"
+  },
+  {
     "from": "lib/admin/courseraEnrollmentApproval.ts",
     "specifier": "server-only",
     "line": 1,
@@ -90190,6 +90310,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingProgress.ts"
+  },
+  {
+    "from": "lib/admin/courseraEnrollmentPipeline.ts",
+    "specifier": "./courseraEnrollmentEvidence",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentEvidence.ts"
+  },
+  {
+    "from": "lib/admin/courseraEnrollmentPipeline.ts",
+    "specifier": "./courseraEnrollmentEvidence",
+    "line": 8,
+    "kind": "re-export",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentEvidence.ts"
   },
   {
     "from": "lib/admin/courseraOps.ts",
@@ -90334,6 +90470,14 @@
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
+  },
+  {
+    "from": "lib/admin/courseraSyncDrift.ts",
+    "specifier": "./courseraDiagnostics",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraDiagnostics.ts"
   },
   {
     "from": "lib/admin/cronRegistry.test.ts",
@@ -91177,32 +91321,16 @@
   },
   {
     "from": "lib/admin/studentsRosterEnrichment.ts",
-    "specifier": "@prisma/client",
-    "line": 3,
-    "kind": "import",
-    "external": true,
-    "package": "@prisma/client"
-  },
-  {
-    "from": "lib/admin/studentsRosterEnrichment.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 4,
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
   },
   {
     "from": "lib/admin/studentsRosterEnrichment.ts",
-    "specifier": "@/lib/content/programSlug",
-    "line": 5,
-    "kind": "import",
-    "external": false,
-    "target": "lib/content/programSlug.ts"
-  },
-  {
-    "from": "lib/admin/studentsRosterEnrichment.ts",
     "specifier": "@/lib/content/programs",
-    "line": 10,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -91210,7 +91338,7 @@
   {
     "from": "lib/admin/studentsRosterEnrichment.ts",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 11,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -91218,7 +91346,7 @@
   {
     "from": "lib/admin/studentsRosterEnrichment.ts",
     "specifier": "@/lib/coursera/progressReconciliation",
-    "line": 12,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressReconciliation.ts"
@@ -91226,18 +91354,74 @@
   {
     "from": "lib/admin/studentsRosterEnrichment.ts",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 13,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
   },
   {
     "from": "lib/admin/studentsRosterEnrichment.ts",
+    "specifier": "@/lib/member/trainingProgress",
+    "line": 8,
+    "kind": "type",
+    "external": false,
+    "target": "lib/member/trainingProgress.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterEnrichment.ts",
     "specifier": "@/lib/tenant/withTenantScope",
-    "line": 14,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/withTenantScope.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterEnrichment.ts",
+    "specifier": "./studentsRosterEnrichmentQuery",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/studentsRosterEnrichmentQuery.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterEnrichment.ts",
+    "specifier": "./studentsRosterFacts",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/studentsRosterFacts.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterEnrichmentQuery.ts",
+    "specifier": "@prisma/client",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@prisma/client"
+  },
+  {
+    "from": "lib/admin/studentsRosterFacts.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterFacts.ts",
+    "specifier": "@/lib/member/trainingProgress",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/trainingProgress.ts"
+  },
+  {
+    "from": "lib/admin/studentsRosterFacts.ts",
+    "specifier": "@/lib/coursera/progressReconciliation",
+    "line": 6,
+    "kind": "type",
+    "external": false,
+    "target": "lib/coursera/progressReconciliation.ts"
   },
   {
     "from": "lib/admin/studentsRosterSort.ts",
@@ -97168,6 +97352,14 @@
     "target": "lib/coursera/b4bClient.ts"
   },
   {
+    "from": "lib/coursera/b4bClient.ts",
+    "specifier": "./enrollmentReportFields",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/enrollmentReportFields.ts"
+  },
+  {
     "from": "lib/coursera/b4bSync.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -97281,8 +97473,24 @@
   },
   {
     "from": "lib/coursera/b4bSync.ts",
-    "specifier": "@/lib/coursera/resolveUserIdByEmail",
+    "specifier": "@/lib/coursera/enrollmentReportFields",
     "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/enrollmentReportFields.ts"
+  },
+  {
+    "from": "lib/coursera/b4bSync.ts",
+    "specifier": "@/lib/coursera/enrollmentReportFields",
+    "line": 35,
+    "kind": "re-export",
+    "external": false,
+    "target": "lib/coursera/enrollmentReportFields.ts"
+  },
+  {
+    "from": "lib/coursera/b4bSync.ts",
+    "specifier": "@/lib/coursera/resolveUserIdByEmail",
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/resolveUserIdByEmail.ts"
@@ -97290,7 +97498,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/upsertCourseraCourseProgress",
-    "line": 32,
+    "line": 37,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/upsertCourseraCourseProgress.ts"
@@ -97298,7 +97506,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 33,
+    "line": 38,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -97306,7 +97514,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/milestones",
-    "line": 34,
+    "line": 39,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/milestones.ts"
@@ -97314,7 +97522,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 38,
+    "line": 43,
     "kind": "type",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -97322,7 +97530,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/learningPathAttribution",
-    "line": 39,
+    "line": 44,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/learningPathAttribution.ts"
@@ -97330,7 +97538,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 963,
+    "line": 958,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -97338,7 +97546,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/coursera/milestones",
-    "line": 966,
+    "line": 961,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/coursera/milestones.ts"
@@ -97346,7 +97554,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/milestoneCascade/detectCompletionMilestone",
-    "line": 969,
+    "line": 964,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/milestoneCascade/detectCompletionMilestone.ts"
@@ -97354,7 +97562,7 @@
   {
     "from": "lib/coursera/b4bSync.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 1088,
+    "line": 1083,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
@@ -98058,10 +98266,18 @@
   {
     "from": "lib/coursera/learnerProgress.ts",
     "specifier": "@/lib/cache",
-    "line": 27,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "lib/cache.ts"
+  },
+  {
+    "from": "lib/coursera/learnerProgress.ts",
+    "specifier": "./enrollmentReportFields",
+    "line": 29,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/enrollmentReportFields.ts"
   },
   {
     "from": "lib/coursera/learningPathAttribution.test.ts",
@@ -98564,6 +98780,14 @@
     "specifier": "./progressReconciliation",
     "line": 5,
     "kind": "import",
+    "external": false,
+    "target": "lib/coursera/progressReconciliation.ts"
+  },
+  {
+    "from": "lib/coursera/progressReconciliation.test.ts",
+    "specifier": "./progressReconciliation",
+    "line": 6,
+    "kind": "type",
     "external": false,
     "target": "lib/coursera/progressReconciliation.ts"
   },
@@ -102761,8 +102985,16 @@
   },
   {
     "from": "lib/member/courseProgress.ts",
-    "specifier": "@/lib/member/xapiVerbProgress",
+    "specifier": "@/lib/xapi/activityTimestamp",
     "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/activityTimestamp.ts"
+  },
+  {
+    "from": "lib/member/courseProgress.ts",
+    "specifier": "@/lib/member/xapiVerbProgress",
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/member/xapiVerbProgress.ts"
@@ -102770,7 +103002,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/member/programCourseMatch",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/member/programCourseMatch.ts"
@@ -102778,7 +103010,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/coursera/programCourseList",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/programCourseList.ts"
@@ -102786,7 +103018,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/coursera/progressReconciliation",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressReconciliation.ts"
@@ -102794,7 +103026,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/coursera/milestones",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/milestones.ts"
@@ -102802,7 +103034,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/coursera/upsertMergedCourseProgress",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/upsertMergedCourseProgress.ts"
@@ -102810,7 +103042,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/coursera/curriculumMapping",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/curriculumMapping.ts"
@@ -102818,7 +103050,7 @@
   {
     "from": "lib/member/courseProgress.ts",
     "specifier": "@/lib/content/programCurriculumManifest",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/content/programCurriculumManifest.ts"
@@ -109872,6 +110104,14 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "lib/xapi/activityTimestamp.ts",
+    "specifier": "zod",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "zod"
+  },
+  {
     "from": "lib/xapi/config.ts",
     "specifier": "server-only",
     "line": 1,
@@ -109998,6 +110238,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/xapi/resolveInboundCourseScopes.ts"
+  },
+  {
+    "from": "lib/xapi/inboundStatementPipeline.ts",
+    "specifier": "@/lib/xapi/activityTimestamp",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/activityTimestamp.ts"
   },
   {
     "from": "lib/xapi/mappings.ts",
@@ -116768,6 +117016,54 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "tests/api/coursera-b4b-continuation.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/coursera-b4b-continuation.spec.ts",
+    "specifier": "next/server",
+    "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/coursera-b4b-continuation.spec.ts",
+    "specifier": "@/lib/coursera/b4bClient",
+    "line": 26,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/b4bClient.ts"
+  },
+  {
+    "from": "tests/api/coursera-b4b-continuation.spec.ts",
+    "specifier": "@/app/api/cron/coursera-b4b-sync/route",
+    "line": 27,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/cron/coursera-b4b-sync/route.ts"
+  },
+  {
+    "from": "tests/api/coursera-refresh-coverage.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/coursera-refresh-coverage.spec.ts",
+    "specifier": "@/app/api/member/coursera/refresh-progress/route",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/member/coursera/refresh-progress/route.ts"
+  },
+  {
     "from": "tests/api/coursera-replay-email-pacing.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -122570,7 +122866,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/app/api/xapi/statements/route",
-    "line": 69,
+    "line": 73,
     "kind": "import",
     "external": false,
     "target": "app/api/xapi/statements/route.ts"
@@ -122578,7 +122874,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 70,
+    "line": 74,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -122586,7 +122882,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/rate-limit",
-    "line": 71,
+    "line": 75,
     "kind": "import",
     "external": false,
     "target": "lib/rate-limit.ts"
@@ -122594,7 +122890,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/xapi/inboundStatementPipeline",
-    "line": 72,
+    "line": 76,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/inboundStatementPipeline.ts"
@@ -122602,15 +122898,31 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/xapi/token",
-    "line": 73,
+    "line": 77,
     "kind": "import",
     "external": false,
     "target": "lib/xapi/token.ts"
   },
   {
     "from": "tests/api/xapi-persistence.spec.ts",
+    "specifier": "@/lib/xapi/config",
+    "line": 78,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/config.ts"
+  },
+  {
+    "from": "tests/api/xapi-persistence.spec.ts",
+    "specifier": "@/lib/db/withRequestGuc",
+    "line": 79,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/withRequestGuc.ts"
+  },
+  {
+    "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/analytics/track",
-    "line": 74,
+    "line": 80,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/track.ts"
@@ -122618,7 +122930,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/observability/captureApiError",
-    "line": 75,
+    "line": 81,
     "kind": "import",
     "external": false,
     "target": "lib/observability/captureApiError.ts"
@@ -122626,7 +122938,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@/lib/tenant/resolveOrgFromRequest",
-    "line": 76,
+    "line": 82,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/resolveOrgFromRequest.ts"
@@ -122634,7 +122946,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@prisma/client",
-    "line": 222,
+    "line": 256,
     "kind": "dynamic-import",
     "external": true,
     "package": "@prisma/client"
@@ -122642,7 +122954,7 @@
   {
     "from": "tests/api/xapi-persistence.spec.ts",
     "specifier": "@prisma/client",
-    "line": 239,
+    "line": 273,
     "kind": "dynamic-import",
     "external": true,
     "package": "@prisma/client"
@@ -124640,6 +124952,86 @@
     "target": "lib/fetchWithTimeout.ts"
   },
   {
+    "from": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/CourseraSyncKit",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx"
+  },
+  {
+    "from": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "specifier": "@/components/admin/CourseraEnrollmentPipelineTable",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/CourseraEnrollmentPipelineTable.tsx"
+  },
+  {
+    "from": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "specifier": "@/lib/admin/courseraEnrollmentPipeline",
+    "line": 6,
+    "kind": "type",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentPipeline.ts"
+  },
+  {
+    "from": "tests/components/coursera-progress-coverage.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/coursera-progress-coverage.spec.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/coursera-progress-coverage.spec.tsx",
+    "specifier": "@/components/portal/CourseraProgressCoverageNotice",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/CourseraProgressCoverageNotice.tsx"
+  },
+  {
+    "from": "tests/components/coursera-progress-coverage.spec.tsx",
+    "specifier": "@/components/portal/RefreshCourseraProgressButton",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/RefreshCourseraProgressButton.tsx"
+  },
+  {
     "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -125822,6 +126214,38 @@
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
+    "from": "tests/components/students-roster-page.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/students-roster-page.spec.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/students-roster-page.spec.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/StudentsRosterKit",
+    "line": 3,
+    "kind": "type",
+    "external": false,
+    "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
+    "from": "tests/components/students-roster-page.spec.tsx",
+    "specifier": "@/app/admin/students/page",
+    "line": 29,
+    "kind": "import",
+    "external": false,
+    "target": "app/admin/students/page.tsx"
   },
   {
     "from": "tests/components/students-roster-sort.spec.tsx",
@@ -127178,7 +127602,7 @@
   {
     "from": "tests/lib/course-progress-completion-lock.spec.ts",
     "specifier": "@/lib/member/courseProgress",
-    "line": 16,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
@@ -127214,6 +127638,38 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/courseProgress.ts"
+  },
+  {
+    "from": "tests/lib/course-progress-xapi.spec.ts",
+    "specifier": "@/lib/coursera/restWebhookStatement",
+    "line": 78,
+    "kind": "import",
+    "external": false,
+    "target": "lib/coursera/restWebhookStatement.ts"
+  },
+  {
+    "from": "tests/lib/course-progress-xapi.spec.ts",
+    "specifier": "@/lib/xapi/statementModel",
+    "line": 79,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/statementModel.ts"
+  },
+  {
+    "from": "tests/lib/course-progress-xapi.spec.ts",
+    "specifier": "@/lib/xapi/activityTimestamp",
+    "line": 80,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/activityTimestamp.ts"
+  },
+  {
+    "from": "tests/lib/course-progress-xapi.spec.ts",
+    "specifier": "@/lib/admin/courseraEnrollmentEvidence",
+    "line": 81,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/courseraEnrollmentEvidence.ts"
   },
   {
     "from": "tests/lib/coursera-atomic-progress-upsert.spec.ts",
@@ -128070,6 +128526,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/memberProgramTrainingView.ts"
+  },
+  {
+    "from": "tests/lib/member-program-training-view.spec.ts",
+    "specifier": "@/lib/coursera/learnerProgress",
+    "line": 30,
+    "kind": "type",
+    "external": false,
+    "target": "lib/coursera/learnerProgress.ts"
   },
   {
     "from": "tests/lib/member-resources.spec.ts",
@@ -129168,6 +129632,22 @@
     "target": "lib/admin/studentsRosterEnrichment.ts"
   },
   {
+    "from": "tests/lib/students-roster-facts.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/students-roster-facts.spec.ts",
+    "specifier": "@/lib/admin/studentsRosterFacts",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/studentsRosterFacts.ts"
+  },
+  {
     "from": "tests/lib/students-roster-sort.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -129638,6 +130118,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/xapi/reprocess.ts"
+  },
+  {
+    "from": "tests/lib/xapi-token-configuration.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/xapi-token-configuration.spec.ts",
+    "specifier": "@/lib/xapi/token",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/token.ts"
   },
   {
     "from": "tests/migrations/placement-survey-sent-state.mjs",

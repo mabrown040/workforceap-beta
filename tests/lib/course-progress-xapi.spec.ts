@@ -75,6 +75,10 @@ vi.mock('@/lib/db/prisma', () => ({
 import { findCanonicalMappingForCourseraCourse } from '@/lib/coursera/canonicalMapping';
 import { prisma } from '@/lib/db/prisma';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
+import { buildCourseraRestSyntheticStatement } from '@/lib/coursera/restWebhookStatement';
+import { parseXapiStatement } from '@/lib/xapi/statementModel';
+import { xapiLearnerActivityAt } from '@/lib/xapi/activityTimestamp';
+import { deriveEnrollmentSignal } from '@/lib/admin/courseraEnrollmentEvidence';
 
 describe('xAPI canonical progress without enrollment', () => {
   beforeEach(() => {
@@ -156,5 +160,85 @@ describe('xAPI canonical progress without enrollment', () => {
         },
       }),
     );
+  });
+
+  it('carries a validated REST 37% course fact through the real progress writer', async () => {
+    const parsed = buildCourseraRestSyntheticStatement({
+      contentId: 'coursera-course-1', progressPercent: 37,
+    }, 'learner@example.com', {});
+    await upsertCourseProgressFromXapiStatement({ userId: 'user-1', enrolledProgramSlug: null, parsed });
+    const write = mocks.queryRaw.mock.calls
+      .map(([statement]) => statement as { sql?: string; values?: unknown[] })
+      .find((statement) => statement.sql?.includes('INSERT INTO course_progress'));
+    expect(write?.values).toContain(37);
+    expect(write?.values).not.toContain('COMPLETED');
+  });
+
+  it.each(['course', 'item'])('does not promote a %s grade into course progress', async (activityType) => {
+    const parsed = parseXapiStatement({
+      id: 'grade-only', actor: { mbox: 'mailto:learner@example.com' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
+      object: { definition: { type: `http://adlnet.gov/expapi/activities/${activityType}` } },
+      context: { extensions: { 'http://coursera.org/xapi/extensions/courseId': 'coursera-course-1' } },
+      result: { score: { scaled: 0.9 }, ...(activityType === 'item' ? { progress: 0.95 } : {}) },
+    });
+    await upsertCourseProgressFromXapiStatement({
+      userId: 'user-1', enrolledProgramSlug: null, parsed: parsed!,
+    });
+    const write = mocks.queryRaw.mock.calls
+      .map(([statement]) => statement as { sql?: string; values?: unknown[] })
+      .find((statement) => statement.sql?.includes('INSERT INTO course_progress'));
+    expect(write).toBeDefined();
+    expect(write?.values).not.toContain(90);
+    expect(write?.values).not.toContain(95);
+    if (activityType === 'item') expect(write?.values).not.toContain(0.9);
+    else expect(write?.values).toContain(0.9);
+  });
+
+  it.each([
+    ['old replay', '2020-01-01T12:00:00Z', 'stalled'],
+    ['undated event', undefined, 'activity_unknown'],
+    ['invalid timestamp', 'not-a-date', 'activity_unknown'],
+    ['future timestamp', '2099-01-01T12:00:00Z', 'activity_unknown'],
+    ['recent event', new Date(Date.now() - 60_000).toISOString(), 'active'],
+  ])('writes learner time for %s without inventing recent activity', async (_label, timestamp, signal) => {
+    const parsed = parseXapiStatement({
+      id: 'timestamp-fixture', timestamp, stored: new Date().toISOString(),
+      actor: { mbox: 'mailto:learner@example.com' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
+      object: { definition: { type: 'http://adlnet.gov/expapi/activities/course' } },
+      context: { extensions: { 'http://coursera.org/xapi/extensions/courseId': 'coursera-course-1' } },
+    })!;
+    await upsertCourseProgressFromXapiStatement({ userId: 'user-1', enrolledProgramSlug: null, parsed });
+    const write = mocks.queryRaw.mock.calls
+      .map(([statement]) => statement as { sql?: string; values: unknown[] })
+      .find((statement) => statement.sql?.includes('INSERT INTO course_progress'))!;
+    // The real shared SQL binds last_activity_at after started_at/completed_at.
+    const lastActivityAt = write.values[11] as Date | null;
+    expect(lastActivityAt).toEqual(xapiLearnerActivityAt(timestamp));
+    expect(deriveEnrollmentSignal({ approved: true, completed: false, observedActivity: true,
+      lastActivityAt, now: new Date() })).toBe(signal);
+    expect(write.sql).toContain('WHEN EXCLUDED.last_activity_at IS NULL THEN course_progress.last_activity_at');
+    expect(write.sql).toContain('GREATEST(course_progress.last_activity_at, EXCLUDED.last_activity_at)');
+  });
+
+  it('does not treat an unvalidated REST audit timestamp as learner activity', async () => {
+    const parsed = buildCourseraRestSyntheticStatement({ contentId: 'coursera-course-1', progressPercent: 37 },
+      'learner@example.com', { timestamp: new Date().toISOString() });
+    await upsertCourseProgressFromXapiStatement({ userId: 'user-1', enrolledProgramSlug: null, parsed });
+    const write = mocks.queryRaw.mock.calls
+      .map(([statement]) => statement as { sql?: string; values: unknown[] })
+      .find((statement) => statement.sql?.includes('INSERT INTO course_progress'))!;
+    expect(write.values[11]).toBeNull();
+  });
+});
+
+describe('xAPI event timestamp validation', () => {
+  it.each([undefined, null, 1_700_000_000_000, '', '2026-02-30T12:00:00Z', '2026-01-01',
+    '2026-01-01T12:00:00', '1999-01-01T12:00:00Z', '2099-01-01T12:00:00Z'])('rejects %s', (value) => {
+    expect(xapiLearnerActivityAt(value)).toBeNull();
+  });
+  it('accepts timezone-qualified event times without changing the instant', () => {
+    expect(xapiLearnerActivityAt('2026-01-01T12:00:00-05:00')).toEqual(new Date('2026-01-01T17:00:00Z'));
   });
 });

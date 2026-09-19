@@ -11,6 +11,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
+import { xapiLearnerActivityAt } from '@/lib/xapi/activityTimestamp';
 import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
 import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
@@ -192,8 +193,14 @@ export async function markCourseProgressCompleted(args: {
   programSlug: string;
   courseSlug: string;
   courseId?: string | null;
+  /** Undefined is a current member action; null means provider event time is unknown. */
+  learnerActivityAt?: Date | null;
 }) {
   const now = new Date();
+  const candidateActivity = args.learnerActivityAt;
+  const learnerActivityAt = candidateActivity === undefined ? now
+    : candidateActivity && Number.isFinite(candidateActivity.getTime())
+      && candidateActivity.getTime() <= now.getTime() ? candidateActivity : null;
   const programSlug = canonicalizeProgramSlug(args.programSlug);
   const programSlugCandidates = programSlugReadCandidates(programSlug);
   const meta = discoveredMetaForSlug(programSlug, args.courseSlug);
@@ -257,7 +264,7 @@ export async function markCourseProgressCompleted(args: {
         scoreRaw: null,
         startedAt: now,
         completedAt: now,
-        lastActivityAt: now,
+        lastActivityAt: learnerActivityAt,
         statementCount: 1,
         progressPct: 100,
       },
@@ -267,10 +274,22 @@ export async function markCourseProgressCompleted(args: {
         percentComplete: 100,
         progressPct: 100,
         completedAt: now,
-        lastActivityAt: now,
         statementCount: { increment: 1 },
       },
     });
+
+    // The completion and detail writers use different locks. Preserve newer
+    // activity even if another writer created the row after our initial read.
+    if (learnerActivityAt) {
+      await tx.$executeRaw(Prisma.sql`
+        UPDATE course_progress
+        SET last_activity_at = ${learnerActivityAt}
+        WHERE user_id = ${args.userId}
+          AND program_slug = ${programSlug}
+          AND course_slug = ${args.courseSlug}
+          AND (last_activity_at IS NULL OR last_activity_at < ${learnerActivityAt})
+      `);
+    }
 
     return { newlyCompleted: true, previousRows: existingRows };
   });
@@ -491,7 +510,7 @@ export async function upsertCourseProgressFromXapiStatement(args: {
     merged: {
       status,
       percentComplete,
-      lastActivityAt: now,
+      lastActivityAt: xapiLearnerActivityAt(parsed.timestamp, now),
     },
     existing: existing
       ? {

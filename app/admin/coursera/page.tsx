@@ -22,6 +22,7 @@ import { StatusTag } from '@/components/portal/kit';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
+import { deriveCourseraOverviewHealth } from '@/lib/admin/courseraDiagnostics';
 import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
@@ -50,7 +51,6 @@ import {
 } from '@/lib/coursera/progressQueries';
 import {
   CourseraSyncKit,
-  type SyncHealth,
   type UnmatchedLearnerRow,
 } from '@/components/portal/kit/pages/admin-subviews/CourseraSyncKit';
 
@@ -63,8 +63,8 @@ type CourseProgressSummary = {
     externalName: string | null;
     courseName: string;
     courseraCourseId: string;
-    overallProgress: number;
-    learningHours: number;
+    overallProgress: number | null;
+    learningHours: number | null;
     isCompleted: boolean;
     lastActivityTime: Date | null;
     user: { fullName: string; email: string } | null;
@@ -246,6 +246,7 @@ async function loadCourseProgressSummary(organizationId: string): Promise<Course
       courseraCourseId: string;
       overallProgress: string | number;
       learningHours: string | number;
+      source: string;
       isCompleted: boolean;
       lastActivityTime: Date | null;
       userFullName: string | null;
@@ -259,6 +260,7 @@ async function loadCourseProgressSummary(organizationId: string): Promise<Course
         ccp.coursera_course_id AS "courseraCourseId",
         ccp.overall_progress AS "overallProgress",
         ccp.learning_hours AS "learningHours",
+        ccp.source,
         ccp.is_completed AS "isCompleted",
         ccp.last_activity_time AS "lastActivityTime",
         u.full_name AS "userFullName",
@@ -279,8 +281,12 @@ async function loadCourseProgressSummary(organizationId: string): Promise<Course
         externalName: row.externalName,
         courseName: row.courseName,
         courseraCourseId: row.courseraCourseId,
-        overallProgress: Number(row.overallProgress) || 0,
-        learningHours: Number(row.learningHours) || 0,
+        // B4B omitted values were historically persisted as zero. Until the
+        // storage carries presence, zero from that source must stay unknown.
+        overallProgress: row.source === 'b4b_sync' && Number(row.overallProgress) === 0 && !row.isCompleted
+          ? null : Number(row.overallProgress) || 0,
+        learningHours: row.source === 'b4b_sync' && Number(row.learningHours) === 0
+          ? null : Number(row.learningHours) || 0,
         isCompleted: row.isCompleted,
         lastActivityTime: row.lastActivityTime,
         user: row.userFullName && row.userEmail
@@ -566,37 +572,30 @@ export default async function AdminCourseraPage({
       console.error('[admin/coursera] kit sync status failed:', error);
     }
 
-    const kitUnmatched = await loadUnmatchedLearners(organizationId, 500, { includeTestAccounts: false });
-    const kitHiddenTest = await countHiddenTestAccountUnmatchedLearners(organizationId).catch(() => 0);
-    const kitUnmatchedTotal = await countUnmatchedLearners(organizationId, { includeTestAccounts: false }).catch(
-      () => kitUnmatched.length,
-    );
-
-    // Enrollment seats-vs-budget: how many members are approved to enroll, and
-    // how many are actually generating Coursera activity. "Approved" is honest
-    // (a real DB flag); "active" is a distinct-actor count over the last 30
-    // days rather than a fabricated capacity number.
-    let kitApprovedForEnrollment = 0;
-    let kitActiveLast30Days = 0;
-    try {
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const [approvedCount, activeRows] = await Promise.all([
-        withAdminPageScope(scope, (db) => db.user.count({
-          where: { organizationId, deletedAt: null, courseraEnrollmentApproved: true },
-        })),
-        prisma.$queryRaw<Array<{ count: bigint }>>`
-          SELECT COUNT(DISTINCT actor_user.id)::bigint AS count
-          FROM xapi_statements xs
-          JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
-          WHERE xs.created_at >= ${thirtyDaysAgo}
-            AND actor_user.organization_id = ${organizationId}
-            AND actor_user.deleted_at IS NULL
-        `,
-      ]);
-      kitApprovedForEnrollment = approvedCount;
-      kitActiveLast30Days = Number(activeRows[0]?.count ?? 0);
-    } catch (error) {
-      console.error('[admin/coursera] kit enrollment stats failed:', error);
+    const [unmatchedResult, hiddenTestResult, unmatchedCountResult, approvedResult, activityResult] = await Promise.allSettled([
+      loadUnmatchedLearners(organizationId, 500, { includeTestAccounts: false, strict: true }),
+      countHiddenTestAccountUnmatchedLearners(organizationId, { strict: true }),
+      countUnmatchedLearners(organizationId, { includeTestAccounts: false, strict: true }),
+      withAdminPageScope(scope, (db) => db.user.count({
+        where: { organizationId, deletedAt: null, courseraEnrollmentApproved: true },
+      })),
+      prisma.$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(DISTINCT u.id)::bigint AS count
+        FROM coursera_xapi_events cxe
+        JOIN users u ON u.id = cxe.matched_user_id
+        WHERE cxe.received_at >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+          AND cxe.organization_id = ${organizationId}
+          AND u.organization_id = ${organizationId} AND u.deleted_at IS NULL
+      `,
+    ]);
+    const kitUnmatched = unmatchedResult.status === 'fulfilled' ? unmatchedResult.value : [];
+    const kitHiddenTest = hiddenTestResult.status === 'fulfilled' ? hiddenTestResult.value : null;
+    const kitUnmatchedTotal = unmatchedCountResult.status === 'fulfilled' ? unmatchedCountResult.value : null;
+    const kitUnmatchedLoaded = unmatchedResult.status === 'fulfilled' && unmatchedCountResult.status === 'fulfilled';
+    const kitApprovedForEnrollment = approvedResult.status === 'fulfilled' ? String(approvedResult.value) : '—';
+    const kitActiveLast30Days = activityResult.status === 'fulfilled' ? String(activityResult.value[0]?.count ?? 0) : '—';
+    for (const result of [unmatchedResult, hiddenTestResult, unmatchedCountResult, approvedResult, activityResult]) {
+      if (result.status === 'rejected') console.error('[admin/coursera] overview evidence unavailable:', result.reason);
     }
 
     const unmatchedRows: UnmatchedLearnerRow[] = kitUnmatched.map((learner) => {
@@ -628,35 +627,20 @@ export default async function AdminCourseraPage({
       };
     });
 
-    // Health: a read failure → unavailable; statements needing attention, an
-    // unmatched-learner backlog, or no xAPI in a week → attention; no xAPI
-    // ever received → idle; otherwise healthy.
-    //
-    // The 7-day staleness window (vs. the 12h threshold used for the B4B cron
-    // on /admin/coursera/health) is deliberately looser: lastXapiReceivedAt is
-    // driven by Coursera's webhook firing on real learner activity, not a
-    // fixed cron cadence, so a quiet day or two across a small cohort is
-    // normal. A full week of silence is a much stronger signal that the
-    // webhook subscription itself has broken.
-    const unmatchedTotal = kitUnmatchedTotal + kitHiddenTest;
-    const STALE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
-    const isStale = kitSyncStatus.lastXapiReceivedAt
-      ? Date.now() - kitSyncStatus.lastXapiReceivedAt.getTime() > STALE_THRESHOLD_MS
-      : false;
-    const health: SyncHealth = !kitSyncOk
-      ? 'unavailable'
-      : kitSyncStatus.attentionStatementCount > 0 || unmatchedTotal > 0 || isStale
-        ? 'attention'
-        : kitSyncStatus.lastXapiReceivedAt === null
-          ? 'idle'
-          : 'healthy';
-    const healthLabel = !kitSyncOk
-      ? 'Unavailable'
+    const health = deriveCourseraOverviewHealth({
+      loaded: kitSyncOk && kitUnmatchedLoaded && approvedResult.status === 'fulfilled' && activityResult.status === 'fulfilled',
+      unmatchedTotal: kitUnmatchedTotal,
+      attentionStatements: kitSyncStatus.attentionStatementCount,
+      lastXapiReceivedAt: kitSyncStatus.lastXapiReceivedAt,
+      now: new Date(),
+    });
+    const healthLabel = health === 'unavailable'
+      ? 'Evidence unavailable'
       : health === 'attention'
-        ? 'Needs attention'
+        ? 'Review needed'
         : health === 'idle'
           ? 'Awaiting events'
-          : 'Healthy';
+          : 'Recent events received';
     const catalogHealth = await catalogHealthPromise;
 
     return (
@@ -671,9 +655,11 @@ export default async function AdminCourseraPage({
           b4bLatency={null}
           errors={kitSyncOk ? String(kitSyncStatus.attentionStatementCount) : '—'}
           unmatched={unmatchedRows}
-          unmatchedTotal={unmatchedTotal}
-          approvedForEnrollment={String(kitApprovedForEnrollment)}
-          activeLast30Days={String(kitActiveLast30Days)}
+          unmatchedTotal={kitUnmatchedTotal}
+          unmatchedLoaded={kitUnmatchedLoaded}
+          hiddenTestCount={kitHiddenTest}
+          approvedForEnrollment={kitApprovedForEnrollment}
+          activeLast30Days={kitActiveLast30Days}
           forceSyncHref="/admin/coursera?ui=legacy"
           headerAction={
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -1139,7 +1125,7 @@ export default async function AdminCourseraPage({
                     header: 'Progress',
                     align: 'right',
                     cell: (learner) => (
-                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.overallProgress.toFixed(2)}%</span>
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.overallProgress === null ? 'Not reported' : `${learner.overallProgress.toFixed(2)}%`}</span>
                     ),
                   },
                   {
@@ -1147,7 +1133,7 @@ export default async function AdminCourseraPage({
                     header: 'Hours',
                     align: 'right',
                     cell: (learner) => (
-                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.learningHours.toFixed(2)}</span>
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.learningHours === null ? 'Not reported' : learner.learningHours.toFixed(2)}</span>
                     ),
                   },
                   {

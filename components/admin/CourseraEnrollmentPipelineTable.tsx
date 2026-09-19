@@ -7,12 +7,14 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import type { BadgeVariant } from '@/components/portal/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import type { EnrollmentPipelineRow, EnrollmentSignal } from '@/lib/admin/courseraEnrollmentPipeline';
+import { hasRecentCourseraActivity } from '@/lib/admin/courseraEnrollmentEvidence';
 
 const SIGNAL_CONFIG: Record<EnrollmentSignal, { label: string; variant: BadgeVariant }> = {
   not_approved: { label: 'Not approved', variant: 'neutral' },
-  approved_not_started: { label: 'Approved — not started', variant: 'warning' },
+  approved_not_started: { label: 'Approved — no activity observed', variant: 'warning' },
   active: { label: 'Active', variant: 'success' },
-  stalled: { label: 'Stalled', variant: 'error' },
+  stalled: { label: 'No recent activity', variant: 'error' },
+  activity_unknown: { label: 'Activity date unknown', variant: 'neutral' },
   completed: { label: 'Completed', variant: 'accent' },
 };
 
@@ -146,8 +148,12 @@ export default function CourseraEnrollmentPipelineTable({
 
   const filteredRows = useMemo(() => {
     let list = rows;
-    if (programFilter !== 'all') list = list.filter((r) => r.programSlug === programFilter);
-    if (signalFilter !== 'all') list = list.filter((r) => r.signal === signalFilter);
+    if (programFilter !== 'all') list = list.filter((r) => r.programSlug === (programFilter === '__unassigned__' ? '' : programFilter));
+    if (signalFilter !== 'all') list = list.filter((r) => {
+      if (signalFilter === 'not_approved') return !r.approved;
+      if (signalFilter === 'active') return hasRecentCourseraActivity(r.lastActivityAt, new Date());
+      return r.signal === signalFilter;
+    });
     const q = search.trim().toLowerCase();
     if (q) {
       list = list.filter(
@@ -254,7 +260,7 @@ export default function CourseraEnrollmentPipelineTable({
         >
           <option value="all">All programs</option>
           {programs.map((p) => (
-            <option key={p.slug} value={p.slug}>
+            <option key={p.slug} value={p.slug || '__unassigned__'}>
               {p.title}
             </option>
           ))}
@@ -387,10 +393,11 @@ export default function CourseraEnrollmentPipelineTable({
           },
           {
             key: 'signal',
-            header: 'Enrollment signal',
+            header: 'Observed learning',
             cell: (row) => (
               <div>
                 <StatusBadge label={SIGNAL_CONFIG[row.signal].label} variant={SIGNAL_CONFIG[row.signal].variant} />
+                {row.hasEnrollmentReceipt ? <div style={{ fontSize: '0.75rem' }}>Enrollment receipt recorded</div> : null}
                 {row.lastActivityAt ? (
                   <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.2rem' }}>
                     last activity {fmtDateTime(row.lastActivityAt)}
@@ -423,7 +430,7 @@ export default function CourseraEnrollmentPipelineTable({
                       <button
                         type="button"
                         className="btn btn-primary btn-sm"
-                        disabled={isEnrolling}
+                        disabled={isEnrolling || !row.programSlug}
                         onClick={() => setConfirmEnrollRow(row)}
                         style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
                       >

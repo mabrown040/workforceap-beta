@@ -10,6 +10,7 @@ import {
   Gauge,
   CircleSlash,
   Activity,
+  CircleHelp,
 } from 'lucide-react';
 import { Card } from '@astryxdesign/core/Card';
 import { Button } from '@astryxdesign/core/Button';
@@ -30,10 +31,8 @@ import { DesignSurface, SectionHeader } from '@/components/portal/kit';
  * which this kit links out to. That keeps the kit a server component and avoids
  * mounting the heavy admin client tooling on the default path.
  *
- * HONEST DATA NOTE: Coursera B4B is off in preview (creds are prod-only), so
- * "B4B API latency" has no live value here — the page passes `b4bLatency: null`
- * and we render "unavailable in preview" rather than the mockup's fabricated
- * "240ms". Likewise learner-sync coverage is "—" when unknown.
+ * Event receipts, local progress rows, approval flags, and provider access are
+ * separate facts. Unmeasured latency and failed evidence reads stay unknown.
  */
 
 export type SyncHealth = 'healthy' | 'attention' | 'idle' | 'unavailable';
@@ -56,13 +55,12 @@ export interface CourseraSyncKitProps {
   health: SyncHealth;
   /** Human status label, e.g. "Healthy", "Needs attention", "Unavailable in preview". */
   healthLabel: string;
-  /** "Last sync" caption (e.g. "3 min ago", or "—"). */
+  /** Last xAPI receipt, not the last successful synchronization. */
   lastSync: string;
-  /** "Learners synced" caption (e.g. "812", "812 / 847", or "—"). */
+  /** Members with local CourseProgress rows, regardless of their source. */
   learnersSynced: string;
   /**
-   * "B4B API latency" caption. Pass null when unavailable (preview): the card
-   * then shows "unavailable in preview" instead of a fabricated number.
+   * Measured B4B API latency. Null means not measured in any environment.
    */
   b4bLatency: string | null;
   /**
@@ -73,14 +71,16 @@ export interface CourseraSyncKitProps {
   /** Unmatched learners (Coursera identities with no bound WAP member). */
   unmatched: UnmatchedLearnerRow[];
   /** Total distinct unmatched count for the "N to link" chip (may exceed shown rows). */
-  unmatchedTotal: number;
+  unmatchedTotal: number | null;
+  unmatchedLoaded?: boolean;
+  hiddenTestCount?: number | null;
   /** Force Sync target — the legacy interactive view that hosts the real button. */
   forceSyncHref: string;
   /** Header action (e.g. a link to Coursera health diagnostics). */
   headerAction?: ReactNode;
-  /** Count of members with `courseraEnrollmentApproved = true` (seats used against budget). */
+  /** Local approval flags; not purchased seats or verified provider memberships. */
   approvedForEnrollment: string;
-  /** Distinct members with an xAPI statement in the last 30 days (actively syncing). */
+  /** Distinct resolved members with an xAPI receipt in 30 days; not learner activity time. */
   activeLast30Days: string;
 }
 
@@ -143,21 +143,23 @@ export function CourseraSyncKit({
   errors,
   unmatched,
   unmatchedTotal,
+  unmatchedLoaded = true,
+  hiddenTestCount = null,
   forceSyncHref,
   headerAction,
   approvedForEnrollment,
   activeLast30Days,
 }: CourseraSyncKitProps) {
   const color = healthColorVar(health);
-  const HealthIcon = health === 'attention' ? TriangleAlert : CircleCheck;
+  const HealthIcon = health === 'attention' ? TriangleAlert : health === 'healthy' ? CircleCheck : CircleHelp;
 
   const rows: StatRow[] = [
-    { icon: <Clock size={14} />, label: 'Last sync', value: lastSync },
-    { icon: <Users size={14} />, label: 'Learners synced', value: learnersSynced },
+    { icon: <Clock size={14} />, label: 'Last xAPI received', value: lastSync },
+    { icon: <Users size={14} />, label: 'Members with local progress', value: learnersSynced },
     {
       icon: <Gauge size={14} />,
       label: 'B4B API latency',
-      value: b4bLatency ?? 'unavailable in preview',
+      value: b4bLatency ?? 'Not measured',
       muted: b4bLatency === null,
     },
     {
@@ -167,7 +169,7 @@ export function CourseraSyncKit({
       alert: errors !== '0' && errors !== '—',
     },
     { icon: <CircleCheck size={14} />, label: 'Approved for enrollment', value: approvedForEnrollment },
-    { icon: <Activity size={14} />, label: 'Active in last 30 days', value: activeLast30Days },
+    { icon: <Activity size={14} />, label: 'Members with xAPI received (30d)', value: activeLast30Days },
   ];
 
   return (
@@ -251,7 +253,7 @@ export function CourseraSyncKit({
 
           <AstryxLink href={forceSyncHref} as={NextLink as never} isStandalone style={{ display: 'block', marginTop: 18 }}>
             <Button
-              label="Force Sync"
+              label="Open sync tools"
               variant="primary"
               size="sm"
               icon={<RefreshCw size={14} />}
@@ -266,7 +268,7 @@ export function CourseraSyncKit({
               textAlign: 'center',
             }}
           >
-            Opens the sync &amp; mapping tools
+            Event receipt does not verify a complete sync or provider access.
           </p>
         </Card>
 
@@ -284,20 +286,28 @@ export function CourseraSyncKit({
             <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>
               Unmatched Learners
             </h3>
-            {unmatchedTotal > 0 ? (
+            {!unmatchedLoaded || unmatchedTotal === null ? (
+              <Token label="Unavailable" size="sm" color="gray" />
+            ) : unmatchedTotal > 0 ? (
               <Token label={`${unmatchedTotal} to link`} size="sm" color="pink" />
             ) : (
-              <Token label="All linked" size="sm" color="green" />
+              <Token label="No unmatched records" size="sm" color="gray" />
             )}
           </div>
           <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '0 0 14px' }}>
-            Coursera emails with no matching member. Link one so its progress flows into the portal.
+            Recorded Coursera identities with no matching member. This is an activity backlog, not a provider membership roster.
           </p>
 
-          {unmatched.length === 0 ? (
+          {!unmatchedLoaded ? (
+            <EmptyState
+              title="Unmatched records unavailable"
+              description="The evidence could not be loaded. No matching verdict is available."
+              isCompact
+            />
+          ) : unmatched.length === 0 ? (
             <EmptyState
               title="No unmatched learners"
-              description="Every Coursera identity with activity is bound to a WorkforceAP member — or no Coursera activity has arrived yet."
+              description="No unmatched records were found in this organization’s recorded activity. Provider membership coverage has not been verified."
               isCompact
             />
           ) : (
@@ -353,11 +363,14 @@ export function CourseraSyncKit({
             </div>
           )}
 
-          {unmatchedTotal > unmatched.length ? (
+          {unmatchedLoaded && unmatchedTotal !== null && unmatchedTotal > unmatched.length ? (
             <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 14 }}>
               Showing {unmatched.length} of {unmatchedTotal}
             </p>
           ) : null}
+          <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 14 }}>
+            {hiddenTestCount === null ? 'Hidden test-account count unavailable.' : `${hiddenTestCount} likely test accounts excluded from this list and its total.`}
+          </p>
         </Card>
       </div>
     </DesignSurface>

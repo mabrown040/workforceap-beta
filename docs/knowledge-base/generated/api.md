@@ -286,7 +286,7 @@
 | [app/api/cron/at-risk-check/route.ts](../../../app/api/cron/at-risk-check/route.ts) | 147 | communications | runtime:18, maxDuration:19, GET:146, POST:147 |
 | [app/api/cron/course-accountability/route.ts](../../../app/api/cron/course-accountability/route.ts) | 159 | communications | maxDuration:14, GET:158, POST:159 |
 | [app/api/cron/coursera-auto-heal/route.ts](../../../app/api/cron/coursera-auto-heal/route.ts) | 136 | learning-coursera | maxDuration:16, GET:135, POST:136 |
-| [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 84 | learning-coursera | GET:83, POST:84 |
+| [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 88 | learning-coursera | GET:87, POST:88 |
 | [app/api/cron/coursera-sync/route.ts](../../../app/api/cron/coursera-sync/route.ts) | 171 | learning-coursera | GET:170, POST:171 |
 | [app/api/cron/coursera-training-sync/route.ts](../../../app/api/cron/coursera-training-sync/route.ts) | 38 | learning-coursera | maxDuration:10, GET:38 |
 | [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 34 | communications | GET:33, POST:34 |
@@ -376,7 +376,7 @@
 | [app/api/member/coursera/enroll-in-course/route.ts](../../../app/api/member/coursera/enroll-in-course/route.ts) | 323 | learning-coursera | POST:323 |
 | [app/api/member/coursera/identity/route.ts](../../../app/api/member/coursera/identity/route.ts) | 163 | learning-coursera | POST:24 |
 | [app/api/member/coursera/launch/route.ts](../../../app/api/member/coursera/launch/route.ts) | 89 | learning-coursera | GET:82 |
-| [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | 49 | learning-coursera | POST:9 |
+| [app/api/member/coursera/refresh-progress/route.ts](../../../app/api/member/coursera/refresh-progress/route.ts) | 62 | learning-coursera | POST:9 |
 | [app/api/member/coursera/route.ts](../../../app/api/member/coursera/route.ts) | 105 | learning-coursera | GET:11 |
 | [app/api/member/courses/complete/route.ts](../../../app/api/member/courses/complete/route.ts) | 75 | learning-coursera | POST:75 |
 | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | 142 | member-counselor | PATCH:56 |
@@ -522,4 +522,4 @@
 | [app/api/xapi/config/route.ts](../../../app/api/xapi/config/route.ts) | 43 | learning-coursera | GET:6, POST:31 |
 | [app/api/xapi/oauth/token/route.ts](../../../app/api/xapi/oauth/token/route.ts) | 74 | learning-coursera | GET:7, POST:21 |
 | [app/api/xapi/route.ts](../../../app/api/xapi/route.ts) | 4 | learning-coursera | POST:4 |
-| [app/api/xapi/statements/route.ts](../../../app/api/xapi/statements/route.ts) | 256 | learning-coursera | POST:92, GET:243 |
+| [app/api/xapi/statements/route.ts](../../../app/api/xapi/statements/route.ts) | 261 | learning-coursera | POST:93, GET:248 |

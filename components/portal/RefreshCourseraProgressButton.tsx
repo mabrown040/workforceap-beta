@@ -17,20 +17,27 @@ export default function RefreshCourseraProgressButton() {
   const tCommon = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [partial, setPartial] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const onClick = async () => {
     setBusy(true);
     setError(null);
+    setPartial(false);
     try {
       const res = await fetch('/api/member/coursera/refresh-progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        coverage?: string;
+        complete?: boolean;
+      };
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(data.error ?? 'Refresh failed');
       }
+      setPartial(data.coverage === 'capped' || data.coverage === 'unavailable' || data.complete === false);
       startTransition(() => router.refresh());
     } catch (err) {
       setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Refresh failed' }, 'coursera-refresh-progress'));
@@ -44,6 +51,11 @@ export default function RefreshCourseraProgressButton() {
       {error && (
         <span role="alert" style={{ fontSize: '0.75rem', color: 'var(--color-error, #c83232)' }}>
           {error}
+        </span>
+      )}
+      {partial && (
+        <span role="status">
+          Coursera returned a partial update. Progress shown uses available course records.
         </span>
       )}
       <button

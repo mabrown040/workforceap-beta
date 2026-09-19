@@ -85,7 +85,7 @@
 | [components/admin/BulkUpdateModal.tsx](../../../components/admin/BulkUpdateModal.tsx) | 291 | administration | default:35 |
 | [components/admin/ConfirmDialog.tsx](../../../components/admin/ConfirmDialog.tsx) | 80 | administration | default:37 |
 | [components/admin/CourseraCsvImportClient.tsx](../../../components/admin/CourseraCsvImportClient.tsx) | 310 | learning-coursera | default:107 |
-| [components/admin/CourseraEnrollmentPipelineTable.tsx](../../../components/admin/CourseraEnrollmentPipelineTable.tsx) | 509 | learning-coursera | default:26 |
+| [components/admin/CourseraEnrollmentPipelineTable.tsx](../../../components/admin/CourseraEnrollmentPipelineTable.tsx) | 516 | learning-coursera | default:28 |
 | [components/admin/CourseraInspectByEmailCard.tsx](../../../components/admin/CourseraInspectByEmailCard.tsx) | 687 | learning-coursera | default:151 |
 | [components/admin/CourseraMappingsAdmin.tsx](../../../components/admin/CourseraMappingsAdmin.tsx) | 1091 | learning-coursera | default:142 |
 | [components/admin/CourseraPipelineFlow.tsx](../../../components/admin/CourseraPipelineFlow.tsx) | 44 | learning-coursera | default:12 |
@@ -297,6 +297,7 @@
 | [components/portal/CourseraProgressCard.test.tsx](../../../components/portal/CourseraProgressCard.test.tsx) | 54 | learning-coursera |  |
 | [components/portal/CourseraProgressCard.tsx](../../../components/portal/CourseraProgressCard.tsx) | 231 | learning-coursera | default:61 |
 | [components/portal/CourseraProgressCardView.tsx](../../../components/portal/CourseraProgressCardView.tsx) | 346 | learning-coursera | CourseraProgressRow:6, CourseraProgressCardViewProps:33, default:110 |
+| [components/portal/CourseraProgressCoverageNotice.tsx](../../../components/portal/CourseraProgressCoverageNotice.tsx) | 17 | learning-coursera | default:2 |
 | [components/portal/DashboardFooter.tsx](../../../components/portal/DashboardFooter.tsx) | 30 | components | default:9 |
 | [components/portal/DashboardHomeClient.tsx](../../../components/portal/DashboardHomeClient.tsx) | 803 | components | DashboardApplicationStatusProps:25, default:81 |
 | [components/portal/DashboardPageErrorBoundary.tsx](../../../components/portal/DashboardPageErrorBoundary.tsx) | 54 | components | default:15 |
@@ -407,7 +408,7 @@
 | [components/portal/ReadinessMobileScoreCard.tsx](../../../components/portal/ReadinessMobileScoreCard.tsx) | 109 | components | default:20 |
 | [components/portal/ReadinessProgress.tsx](../../../components/portal/ReadinessProgress.tsx) | 43 | components | default:9 |
 | [components/portal/ReadinessProgressSummary.tsx](../../../components/portal/ReadinessProgressSummary.tsx) | 146 | components | ReadinessProgressSummary:51 |
-| [components/portal/RefreshCourseraProgressButton.tsx](../../../components/portal/RefreshCourseraProgressButton.tsx) | 77 | learning-coursera | default:15 |
+| [components/portal/RefreshCourseraProgressButton.tsx](../../../components/portal/RefreshCourseraProgressButton.tsx) | 89 | learning-coursera | default:15 |
 | [components/portal/RequestHelpButton.tsx](../../../components/portal/RequestHelpButton.tsx) | 56 | components | default:5 |
 | [components/portal/ResourceCard.tsx](../../../components/portal/ResourceCard.tsx) | 134 | components | default:13 |
 | [components/portal/ResourceDownloadButton.tsx](../../../components/portal/ResourceDownloadButton.tsx) | 64 | components | default:11 |
@@ -534,7 +535,7 @@
 | [components/portal/kit/pages/admin-subviews/CareerMappingsKit.tsx](../../../components/portal/kit/pages/admin-subviews/CareerMappingsKit.tsx) | 193 | components | CareerPathCard:39, CareerMappingsKitProps:56, CareerMappingsKit:142 |
 | [components/portal/kit/pages/admin-subviews/CertificationsQueueKit.tsx](../../../components/portal/kit/pages/admin-subviews/CertificationsQueueKit.tsx) | 344 | components | CertSubmission:26, CertificationsQueueKitProps:38, CertificationsQueueKit:78 |
 | [components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx](../../../components/portal/kit/pages/admin-subviews/CounselorsRosterKit.tsx) | 277 | components | CounselorRow:33, CounselorsRosterKitProps:51, CounselorsRosterKit:69 |
-| [components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx](../../../components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx) | 365 | learning-coursera | SyncHealth:39, UnmatchedLearnerRow:41, CourseraSyncKitProps:54, CourseraSyncKit:137 |
+| [components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx](../../../components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx) | 378 | learning-coursera | SyncHealth:38, UnmatchedLearnerRow:40, CourseraSyncKitProps:53, CourseraSyncKit:137 |
 | [components/portal/kit/pages/admin-subviews/CronsMonitorKit.tsx](../../../components/portal/kit/pages/admin-subviews/CronsMonitorKit.tsx) | 208 | components | CronDisplayStatus:32, CronJobRow:34, CronsMonitorKitProps:47, CronsMonitorKit:67 |
 | [components/portal/kit/pages/admin-subviews/DataRetentionKit.tsx](../../../components/portal/kit/pages/admin-subviews/DataRetentionKit.tsx) | 361 | components | StorageRow:23, PolicyRow:30, RunRow:38, DataRetentionKitProps:48, DataRetentionKit:73 |
 | [components/portal/kit/pages/admin-subviews/DiagnosticsKit.tsx](../../../components/portal/kit/pages/admin-subviews/DiagnosticsKit.tsx) | 140 | components | DiagnosticTone:17, DiagnosticTile:19, DiagnosticsKitProps:31, DiagnosticsKit:56 |
@@ -559,7 +560,7 @@
 | [components/portal/kit/pages/admin-subviews/ProgramsCatalogKit.tsx](../../../components/portal/kit/pages/admin-subviews/ProgramsCatalogKit.tsx) | 257 | components | ProgramCard:45, ProgramsCatalogKitProps:63, ProgramsCatalogKit:184 |
 | [components/portal/kit/pages/admin-subviews/ScreeningPacksKit.tsx](../../../components/portal/kit/pages/admin-subviews/ScreeningPacksKit.tsx) | 185 | components | ScreeningPackRow:27, ScreeningPacksKitProps:40, ScreeningPacksKit:67 |
 | [components/portal/kit/pages/admin-subviews/SessionsKit.tsx](../../../components/portal/kit/pages/admin-subviews/SessionsKit.tsx) | 228 | components | SessionDisplayStatus:30, SessionKitRow:32, SessionsKitProps:48, SessionsKit:85 |
-| [components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx](../../../components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx) | 414 | components | StudentStatus:37, StudentRow:39, StudentFilter:67, StudentsRosterKitProps:69, StudentsRosterKit:165 |
+| [components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx](../../../components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx) | 428 | components | StudentStatus:40, StudentRow:42, StudentFilter:74, StudentsRosterKitProps:76, StudentsRosterKit:172 |
 | [components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx](../../../components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit.tsx) | 190 | components | SubgroupKind:38, SubgroupCard:40, SubgroupsDirectoryKitProps:51, SubgroupsDirectoryKit:127 |
 | [components/portal/kit/pages/admin-subviews/SystemHealthKit.tsx](../../../components/portal/kit/pages/admin-subviews/SystemHealthKit.tsx) | 201 | components | TileStatus:33, HealthTile:35, SystemHealthKitProps:46, SystemHealthKit:113, statusToKitColor:199 |
 | [components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx](../../../components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx) | 390 | components | Pace:33, TrainingRow:35, TrainingProgressKitProps:61, TrainingProgressKit:102, TRAINING_PROGRESS_SORT_COLUMNS:390 |

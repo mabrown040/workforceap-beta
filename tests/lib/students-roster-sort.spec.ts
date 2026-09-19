@@ -28,6 +28,12 @@ const C = row({ id: 'c', name: 'Casey', progress: 20, readiness: 60, courseraGra
 const ALL = [A, B, C];
 
 describe('students roster sorting', () => {
+  it('keeps unavailable program progress after observed values in both directions', () => {
+    const rows = [row({ id: 'unknown', progressKnown: false }), row({ id: 'zero', progress: 0 }), A];
+    expect(sortStudentRows(rows, 'progress', 'asc').map((r) => r.id)).toEqual(['zero', 'a', 'unknown']);
+    expect(sortStudentRows(rows, 'progress', 'desc').map((r) => r.id)).toEqual(['a', 'zero', 'unknown']);
+  });
+
   it('defaults to most recently active first', () => {
     expect(sortStudentRows(ALL, DEFAULT_STUDENT_SORT_KEY, DEFAULT_STUDENT_SORT_DIRECTION).map((r) => r.id))
       .toEqual(['a', 'b', 'c']);

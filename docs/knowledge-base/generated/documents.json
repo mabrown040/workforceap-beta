@@ -28822,32 +28822,32 @@
       {
         "level": 2,
         "title": "Stripe and donation links",
-        "line": 83
+        "line": 89
       },
       {
         "level": 2,
         "title": "Turnstile and Upstash",
-        "line": 93
+        "line": 99
       },
       {
         "level": 2,
         "title": "Career data, search and enrichment",
-        "line": 102
+        "line": 108
       },
       {
         "level": 2,
         "title": "GitHub, Vercel, Sentry and analytics",
-        "line": 113
+        "line": 119
       },
       {
         "level": 2,
         "title": "Stubs, hosted content and historical material",
-        "line": 123
+        "line": 129
       },
       {
         "level": 2,
         "title": "Verify a provider change",
-        "line": 131
+        "line": 137
       }
     ],
     "datedFilename": false,

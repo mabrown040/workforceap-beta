@@ -28,6 +28,11 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 import { fetchCourseraWithTransientRetry } from '@/lib/coursera/b4bClient';
+import {
+  enrollmentActivityMilliseconds,
+  nextEnrollmentReportStart,
+} from '@/lib/coursera/enrollmentReportFields';
+export { nextEnrollmentReportStart } from '@/lib/coursera/enrollmentReportFields';
 import { resolveUserIdsByCourseraEmails } from '@/lib/coursera/resolveUserIdByEmail';
 import { upsertCourseraCourseProgress } from '@/lib/coursera/upsertCourseraCourseProgress';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -204,6 +209,7 @@ export type B4BSyncResult = {
    */
   nextStart: number | null;
   capped: boolean;
+  continuationScope: { providerOrgId: string; organizationId: string };
 };
 
 function finiteNumber(value: unknown, fallback = 0): number {
@@ -222,7 +228,7 @@ export function normalizeB4BEnrollmentReport(
     contentId: raw.contentId?.trim() || '',
     contentType: raw.contentType?.trim() || '',
     isCompleted: raw.isCompleted === true,
-    lastActivityAt: finiteNumber(raw.lastActivity, finiteNumber(raw.lastActivityAt)),
+    lastActivityAt: enrollmentActivityMilliseconds(raw) ?? 0,
     enrolledAt: finiteNumber(raw.enrolledAt),
     overallProgress: finiteNumber(raw.overallProgress),
     membershipState: raw.membershipState?.trim() || '',
@@ -294,38 +300,23 @@ async function getB4BToken(): Promise<string> {
 /*  Enrollment report fetch (paginated)                                */
 /* ------------------------------------------------------------------ */
 
-/**
- * Next `start` offset for the enrollmentReports pager, or `null` when done.
- * Pure + exported for unit tests because both failure modes were silent:
- *   - Coursera doesn't always send `paging.total`; treating missing total as
- *     0 ended the loop after ONE page (org-wide progress truncation);
- *   - advancing by `limit` instead of by what actually arrived skipped
- *     records whenever a page came back short but more remained.
- * Full page + no total ⇒ assume more; short page ⇒ done.
- */
-export function nextEnrollmentReportStart(args: {
-  start: number;
-  batchLength: number;
-  limit: number;
-  total: number | undefined;
-}): number | null {
-  const { start, batchLength, limit, total } = args;
-  if (batchLength === 0) return null;
-  if (typeof total === 'number' && start + batchLength >= total) return null;
-  if (typeof total !== 'number' && batchLength < limit) return null;
-  return start + batchLength;
-}
-
-async function readB4BResumeStart(): Promise<number> {
+/** Failed runs never advance the cursor; unscoped legacy logs restart at zero. */
+async function readB4BResumeStart(scope: B4BSyncResult['continuationScope']): Promise<number> {
   const last = await prisma.workflowDiagnostic.findFirst({
-    where: { workflow: 'cron_coursera_b4b_sync', status: 'ok' },
+    where: {
+      workflow: 'cron_coursera_b4b_sync', status: 'ok',
+      AND: [
+        { metadata: { path: ['continuationScope', 'providerOrgId'], equals: scope.providerOrgId } },
+        { metadata: { path: ['continuationScope', 'organizationId'], equals: scope.organizationId } },
+      ],
+    },
     orderBy: { createdAt: 'desc' },
     select: { metadata: true },
   });
   const meta = last?.metadata;
   if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return 0;
   const raw = (meta as Record<string, unknown>).nextStart;
-  return typeof raw === 'number' && Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0;
+  return typeof raw === 'number' && Number.isSafeInteger(raw) && raw > 0 ? raw : 0;
 }
 
 /**
@@ -345,8 +336,10 @@ async function fetchEnrollmentReports(
   const results: B4BEnrollmentReport[] = [];
   let start = startAt;
   const limit = Math.min(1000, COURSERA_B4B_REPORT_CAP);
+  let pagesFetched = 0;
 
   while (results.length < COURSERA_B4B_REPORT_CAP) {
+    if (pagesFetched++ >= 10) return { reports: results, nextStart: start, capped: true };
     const pageLimit = Math.min(limit, COURSERA_B4B_REPORT_CAP - results.length);
     const url = `${B4B_API_BASE}/api/businesses.v1/${orgId}/enrollmentReports?start=${start}&limit=${pageLimit}`;
     const resp = await fetchCourseraWithTransientRetry(url, {
@@ -360,7 +353,7 @@ async function fetchEnrollmentReports(
 
     const json = (await resp.json()) as {
       elements?: RawB4BEnrollmentReport[];
-      paging?: { next?: number; total?: number };
+      paging?: { next?: number | string; total?: number };
     };
 
     const batch = (json.elements ?? []).map(normalizeB4BEnrollmentReport);
@@ -371,6 +364,7 @@ async function fetchEnrollmentReports(
       batchLength: batch.length,
       limit: pageLimit,
       total: json.paging?.total,
+      next: json.paging?.next,
     });
     if (next === null) {
       return { reports: results, nextStart: startAt > 0 ? 0 : null, capped: false };
@@ -658,10 +652,10 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   if (!orgId) throw new Error('Missing COURSERA_ORG_ID');
 
   const token = await getB4BToken();
-  const resumeStart = await readB4BResumeStart();
-  const { reports, nextStart, capped } = await fetchEnrollmentReports(token, orgId, resumeStart);
-
   const defaultOrganizationId = await getDefaultOrganizationId();
+  const continuationScope = { providerOrgId: orgId, organizationId: defaultOrganizationId };
+  const resumeStart = await readB4BResumeStart(continuationScope);
+  const { reports, nextStart, capped } = await fetchEnrollmentReports(token, orgId, resumeStart);
 
   // Resolve only emails in this incremental window. Direct portal email first,
   // then coursera_identity_mappings — otherwise alt-email learners stay
@@ -707,6 +701,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     byUser: {},
     nextStart,
     capped,
+    continuationScope,
   };
 
   // Deduplicate by (email, contentId) — keep most recent updatedAt

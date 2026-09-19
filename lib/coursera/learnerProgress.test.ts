@@ -261,8 +261,8 @@ describe('learnerProgress', () => {
 
     // Second learner: program list should be cached in Redis
     mockCache.getCacheOrFetch.mockImplementation(async (key, fetcher) => {
-      if (key === 'coursera:program-ids') {
-        return ['PRG-A', 'PRG-B'];
+      if (key === 'coursera:program-ids:v2:TEST_ORG_ID') {
+        return { ids: ['PRG-A', 'PRG-B'], capped: false };
       }
       return fetcher();
     });
@@ -293,6 +293,169 @@ describe('learnerProgress', () => {
     expect(averageProgramProgressFromB4B({ progress: map, courseraCourseIds: ['C1', 'C2'] })).toBe(75);
     expect(averageProgramProgressFromB4B({ progress: map, courseraCourseIds: ['C1', 'C2', 'C3'] })).toBeNull();
     expect(averageProgramProgressFromB4B({ progress: map, courseraCourseIds: [] })).toBeNull();
+  });
+
+  it('drains program and learner pages using provider cursors and documented activity dates', async () => {
+    const starts: Array<[string, string | null]> = [];
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      const parsedUrl = new URL(url);
+      const start = parsedUrl.searchParams.get('start');
+      starts.push([parsedUrl.pathname, start]);
+      if (url.includes('/programs')) return jsonResponse({
+        elements: [{ id: start === '0' ? 'P1' : 'P2' }],
+        paging: start === '0' ? { next: 100 } : {},
+      });
+      const programId = parsedUrl.searchParams.get('programId');
+      return jsonResponse({
+        elements: [{ programId, contentId: `${programId}-${start}`, isCompleted: start !== '0',
+          overallProgress: start === '0' ? 37 : 78,
+          lastActivityAt: 1_700_000_500_000, lastActivity: 1_700_000_000_000 }],
+        paging: start === '0' ? { next: '200' } : {},
+      });
+    });
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+    const result = await fetchLearnerProgressFromB4B('learner@example.com');
+    expect(result.coverage).toBe('complete');
+    expect(result.size).toBe(4);
+    expect(starts.map(([, start]) => start)).toEqual(['0', '100', '0', '200', '0', '200']);
+    expect(result.get('P1-0')?.lastActivityAt?.getTime()).toBe(1_700_000_500_000);
+    expect(result.get('P1-200')).toMatchObject({ isCompleted: true, overallProgress: 78 });
+  });
+
+  it('continues a full page without paging metadata instead of truncating at 200 rows', async () => {
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      const start = Number(new URL(url).searchParams.get('start'));
+      return jsonResponse({ elements: Array.from({ length: start === 0 ? 200 : 1 }, (_, index) => ({
+        programId: 'P1', contentId: `C${start + index}`, isCompleted: false, overallProgress: 37,
+      })), paging: {} });
+    });
+    const result = await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1', skipCache: true });
+    expect(result.size).toBe(201);
+    expect(result.coverage).toBe('complete');
+  });
+
+  it('keeps capped coverage through the cache and refuses an authoritative average', async () => {
+    let pages = 0;
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      pages++;
+      return jsonResponse({ elements: [{ programId: 'P1', contentId: `C${pages}`, isCompleted: false, overallProgress: 37 }],
+        paging: { next: pages * 200 } });
+    });
+    let cached: unknown;
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => cached ?? (cached = await fetcher()));
+    const result = await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1' });
+    expect(result.coverage).toBe('capped');
+    expect(pages).toBe(10);
+    expect(averageProgramProgressFromB4B({ progress: result, courseraCourseIds: ['C1'] })).toBeNull();
+    const cachedResult = await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1' });
+    expect(cachedResult.coverage).toBe('capped');
+    expect(pages).toBe(10);
+  });
+
+  it('marks a failed later page unavailable while retaining earlier facts', async () => {
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      if (new URL(url).searchParams.get('start') !== '0') return new Response('denied', { status: 403 });
+      return jsonResponse({ elements: [{ programId: 'P1', contentId: 'C1', isCompleted: false, overallProgress: 37 }],
+        paging: { next: 200 } });
+    });
+    const result = await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1', skipCache: true });
+    expect(result.coverage).toBe('unavailable');
+    expect(result.get('C1')?.overallProgress).toBe(37);
+    expect(averageProgramProgressFromB4B({ progress: result, courseraCourseIds: ['C1'] })).toBeNull();
+  });
+
+  it('marks an opaque or repeated cursor incomplete rather than declaring the first page complete', async () => {
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      return jsonResponse({ elements: [{ programId: 'P1', contentId: 'C1', overallProgress: 37, isCompleted: false }],
+        paging: { next: new URL(url).searchParams.get('start') === '0' ? '200' : 'opaque:next' } });
+    });
+    const result = await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1', skipCache: true });
+    expect(result.coverage).toBe('unavailable');
+    expect(result.size).toBe(1);
+    expect(averageProgramProgressFromB4B({ progress: result, courseraCourseIds: ['C1'] })).toBeNull();
+  });
+
+  it('merges newer activity even when the duplicate progress percentage does not increase', async () => {
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      return jsonResponse({ elements: [
+        { programId: 'P1', contentId: 'C1', overallProgress: 78, isCompleted: true, lastActivityAt: 1_700_000_000_000 },
+        { programId: 'P1', contentId: 'C1', overallProgress: 78, isCompleted: false, lastActivityAt: 1_700_000_500_000 },
+      ], paging: { total: 2 } });
+    });
+    const result = await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1', skipCache: true });
+    expect(result.get('C1')).toMatchObject({ isCompleted: true, overallProgress: 78 });
+    expect(result.get('C1')?.lastActivityAt?.getTime()).toBe(1_700_000_500_000);
+    expect(mockCache.invalidateCache).toHaveBeenCalledWith('coursera:learner:learner@example.com::P1:v2:TEST_ORG_ID');
+  });
+
+  it('separates cached learner snapshots by configured provider organization', async () => {
+    _setFetchForTesting(async (url) => url.includes('/oauth2/')
+      ? jsonResponse({ access_token: 'tok', expires_in: 1799 }) : jsonResponse({ elements: [], paging: {} }));
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+    await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1' });
+    process.env.COURSERA_ORG_ID = 'SECOND_ORG';
+    await fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1' });
+    const keys = mockCache.getCacheOrFetch.mock.calls.map(([key]) => key);
+    expect(keys).toContain('coursera:learner:learner@example.com::P1:v2:TEST_ORG_ID');
+    expect(keys).toContain('coursera:learner:learner@example.com::P1:v2:SECOND_ORG');
+  });
+
+  it('stops a slow multipage request at its whole-read deadline and retains observed facts', async () => {
+    vi.useFakeTimers();
+    try {
+      let reportCalls = 0;
+      _setFetchForTesting(async (url) => {
+        if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+        const page = ++reportCalls;
+        await new Promise((resolve) => setTimeout(resolve, 3_000));
+        return jsonResponse({ elements: [{ programId: 'P1', contentId: `C${page}`, overallProgress: 37, isCompleted: false }],
+          paging: { next: String(page * 200) } });
+      });
+      const pending = fetchLearnerProgressFromB4B('learner@example.com', { programId: 'P1', skipCache: true });
+      await vi.advanceTimersByTimeAsync(8_000);
+      const result = await pending;
+      expect(result.coverage).toBe('capped');
+      expect([...result.keys()]).toEqual(['C1', 'C2']);
+      expect(reportCalls).toBe(3);
+      await vi.advanceTimersByTimeAsync(4_000);
+      expect(reportCalls).toBe(3); // no subsequent page after the deadline
+    } finally {
+      vi.clearAllTimers();
+      vi.useRealTimers();
+    }
+  });
+
+  it.each(['deadline', 'page-cap'])('preserves an earlier program failure when a later program reaches its %s', async (limit) => {
+    vi.useFakeTimers();
+    try {
+      let successfulProgramCalls = 0;
+      _setFetchForTesting(async (url) => {
+        if (url.includes('/oauth2/')) return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+        if (url.includes('/programs')) return jsonResponse({ elements: [{ id: 'P1' }, { id: 'P2' }], paging: {} });
+        if (new URL(url).searchParams.get('programId') === 'P1') return new Response('denied', { status: 403 });
+        const page = ++successfulProgramCalls;
+        if (limit === 'deadline') await new Promise((resolve) => setTimeout(resolve, 3_000));
+        return jsonResponse({ elements: [{ programId: 'P2', contentId: `C${page}`, overallProgress: 37, isCompleted: false }],
+          paging: { next: String(page * 200) } });
+      });
+      mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+      const pending = fetchLearnerProgressFromB4B('learner@example.com', { skipCache: true });
+      await vi.advanceTimersByTimeAsync(8_000);
+      const result = await pending;
+      expect(result.coverage).toBe('unavailable');
+      expect(result.size).toBe(limit === 'deadline' ? 2 : 9);
+      expect(result.get('C1')?.overallProgress).toBe(37);
+      expect(averageProgramProgressFromB4B({ progress: result, courseraCourseIds: ['C1'] })).toBeNull();
+    } finally {
+      vi.clearAllTimers();
+      vi.useRealTimers();
+    }
   });
 
   it('getLearnerProgressLastActivity returns the latest timestamp', () => {

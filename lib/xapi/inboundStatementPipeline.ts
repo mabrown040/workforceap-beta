@@ -14,6 +14,7 @@ import { markXapiStatementProcessed } from '@/lib/xapi/storage';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { detectTrainingMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
 import { resolveInboundCourseScopes } from '@/lib/xapi/resolveInboundCourseScopes';
+import { xapiLearnerActivityAt } from '@/lib/xapi/activityTimestamp';
 
 export type InboundStatementRunResult = {
   completions: Array<Record<string, unknown>>;
@@ -215,6 +216,7 @@ export async function handleInboundParsedStatement(
         courseName: parsed.courseName,
         courseraCourseId: parsed.courseraCourseId ?? null,
         source: 'coursera-webhook',
+        learnerActivityAt: xapiLearnerActivityAt(parsed.timestamp),
         notify: scope.assignmentMatched ? undefined : false,
       });
 

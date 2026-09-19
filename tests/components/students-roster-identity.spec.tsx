@@ -23,6 +23,19 @@ beforeEach(() => { vi.clearAllMocks(); });
 afterEach(cleanup);
 
 describe('student account identity', () => {
+  it('does not present unknown assigned-program progress as an observed zero', () => {
+    render(<StudentsRosterKit students={[{ ...students[0], progressKnown: false }]} total={1} />);
+    expect(screen.getByTitle('Program progress unavailable')).toHaveTextContent('—');
+    expect(screen.getByText(/Program progress unavailable · Coursera grade/)).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('exposes the activity source on both desktop and mobile captions', () => {
+    render(<StudentsRosterKit students={[{ ...students[0], lastActiveSource: 'Coursera learning activity' }]} total={1} />);
+    expect(screen.getAllByLabelText('Today · Coursera learning activity')).toHaveLength(2);
+    expect(screen.getAllByTitle('Coursera learning activity')).toHaveLength(2);
+  });
+
   it('shows different full emails in desktop rows for students with the same name', () => {
     render(<StudentsRosterKit students={students} total={students.length} />);
     const tbody = screen.getByRole('table').querySelector('tbody');

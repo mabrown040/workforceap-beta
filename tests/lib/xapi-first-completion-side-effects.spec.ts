@@ -221,6 +221,17 @@ describe('first xAPI course completion orchestration', () => {
   });
 
   it.each([
+    ['2020-01-01T12:00:00Z', new Date('2020-01-01T12:00:00Z')],
+    [undefined, null],
+    ['2099-01-01T12:00:00Z', null],
+  ])('passes event time %s through initial completion before detail persistence', async (timestamp, expected) => {
+    await handleInboundParsedStatement({ ...completionStatement('dated-completion'), timestamp: timestamp as string | undefined },
+      { organizationId: 'org-1', statementHash: 'hash-dated' });
+    expect(mocks.markCompleted).toHaveBeenCalledWith(expect.objectContaining({ learnerActivityAt: expected }));
+    expect(mocks.markCompleted.mock.invocationCallOrder[0]).toBeLessThan(mocks.upsertXapiProgress.mock.invocationCallOrder[0]);
+  });
+
+  it.each([
     ['partner', mocks.sendPartnerMilestoneEmail],
     ['member', mocks.sendCourseCompletedEmail],
   ])('keeps local completion effects and processed replay state when %s email rejects', async (_label, rejectedSender) => {

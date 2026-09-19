@@ -30,11 +30,19 @@ function sign(data: string, secret: string) {
   return createHmac('sha256', secret).update(data).digest('base64url');
 }
 
+function getSigningConfig(options: { request?: Request }) {
+  const config = getXapiConfig(options);
+  if (!config.clientSecret) {
+    throw new Error('xAPI auth is not configured');
+  }
+  return config;
+}
+
 export function issueXapiAccessToken(
   scope = 'statements:write',
   options: { request?: Request } = {}
 ) {
-  const config = getXapiConfig(options);
+  const config = getSigningConfig(options);
   const now = Math.floor(Date.now() / 1000);
   const payload: TokenPayload = {
     sub: config.clientId,
@@ -54,7 +62,7 @@ export function issueXapiAccessToken(
 }
 
 export function verifyXapiAccessToken(token: string, options: { request?: Request } = {}) {
-  const config = getXapiConfig(options);
+  const config = getSigningConfig(options);
   const [headerPart, payloadPart, signaturePart] = token.split('.');
   if (!headerPart || !payloadPart || !signaturePart) {
     throw new Error('Malformed access token');

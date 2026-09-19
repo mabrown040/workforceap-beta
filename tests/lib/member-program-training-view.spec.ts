@@ -27,6 +27,7 @@ vi.mock('@/lib/coursera/programCourseList', () => ({
 }));
 
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
+import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
 
 describe('loadMemberProgramTrainingView canonical reads', () => {
   beforeEach(() => {
@@ -145,6 +146,29 @@ describe('loadMemberProgramTrainingView canonical reads', () => {
     expect(result?.completedCount).toBe(1);
     expect(result?.totalCourses).toBe(2);
     expect(result?.progressPercentDisplay).toBe(50);
+  });
+
+  it('carries partial provider coverage to the view while keeping local and observed course facts', async () => {
+    const b4bProgress: LearnerProgressByContent = new Map([
+      ['id-2', {
+        contentId: 'id-2', contentType: 'Course', programId: 'P1',
+        isCompleted: false, overallProgress: 37, lastActivityAt: null,
+      }],
+    ]);
+    b4bProgress.coverage = 'capped';
+    const result = await loadMemberProgramTrainingView({
+      userId: 'member-1',
+      programSlug: 'comptia-a-professional-certificate',
+      b4bProgress,
+      readOnlyAudit: true,
+    });
+
+    expect(result).toMatchObject({
+      providerCoverage: 'capped',
+      authoritativeProviderPercent: null,
+      completedCount: 1,
+      progressPercentDisplay: 69,
+    });
   });
 
   it('does not infer legacy when unrelated non-primary enrollment rows exist', async () => {

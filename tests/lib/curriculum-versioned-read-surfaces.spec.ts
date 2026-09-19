@@ -40,8 +40,12 @@ describe('curriculum-versioned portal reads', () => {
       '`${m.organizationId}:${enrolledProgram}:${curriculumVersion}`',
     );
     expect(roster).toContain(
-      '`${row.organizationId}:${canonicalProgramSlug}:${curriculumVersion}`',
+      '`${row.organizationId}:${programSlug}:${curriculumVersion}`',
     );
+    expect(roster).toContain('const { programSlug, curriculumVersion } = assignment');
+    const rosterFacts = readRepo('lib/admin/studentsRosterFacts.ts');
+    expect(rosterFacts).toContain('resolveTrainingProgressAssignment(args.enrolledProgram, args.enrollments)');
+    expect(rosterFacts).toContain('canonicalizeProgramSlug(assignment.programSlug)');
     expect(progress).toContain('`${program.slug}:${curriculumVersion}`');
     expect(progress).toContain('`${programSlug}:${curriculumVersion}`');
   });

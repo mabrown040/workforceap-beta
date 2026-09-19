@@ -315,7 +315,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/coursera/learners/\[userId\] | page |  | [app/admin/coursera/learners/\[userId\]/page.tsx](../../../app/admin/coursera/learners/%5BuserId%5D/page.tsx) | @/lib/tenant/organization:5, @/lib/auth/roles:6, @/lib/auth/server:7, @/lib/tenant/adminPageScope:8, @/lib/auth/roles:9 |
 | /admin/coursera/learners/unmatched/\[externalEmail\]/events | page |  | [app/admin/coursera/learners/unmatched/\[externalEmail\]/events/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/events/page.tsx) | @/lib/auth/server:8, @/lib/tenant/adminPageScope:9, @/lib/tenant/organization:10 |
 | /admin/coursera/learners/unmatched/\[externalEmail\] | page |  | [app/admin/coursera/learners/unmatched/\[externalEmail\]/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/page.tsx) | @/lib/auth/server:11, @/lib/tenant/adminPageScope:12, @/lib/tenant/organization:13 |
-| /admin/coursera | page |  | [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | @/lib/auth/server:22, @/lib/tenant/adminPageScope:23, @/lib/tenant/organization:28 |
+| /admin/coursera | page |  | [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | @/lib/auth/server:22, @/lib/tenant/adminPageScope:23, @/lib/tenant/organization:29 |
 | /admin/coursera/provisioning | page |  | [app/admin/coursera/provisioning/page.tsx](../../../app/admin/coursera/provisioning/page.tsx) | @/lib/auth/server:8, @/lib/tenant/adminPageScope:9, @/lib/tenant/organization:10 |
 | /admin/crons | loading |  | [app/admin/crons/loading.tsx](../../../app/admin/crons/loading.tsx) |  |
 | /admin/crons | page |  | [app/admin/crons/page.tsx](../../../app/admin/crons/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
@@ -907,7 +907,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/xapi/config | route | GET, POST | [app/api/xapi/config/route.ts](../../../app/api/xapi/config/route.ts) | @/lib/rate-limit:4 |
 | /api/xapi/oauth/token | route | GET, POST | [app/api/xapi/oauth/token/route.ts](../../../app/api/xapi/oauth/token/route.ts) | @/lib/rate-limit:4 |
 | /api/xapi | route | POST | [app/api/xapi/route.ts](../../../app/api/xapi/route.ts) |  |
-| /api/xapi/statements | route | POST, GET | [app/api/xapi/statements/route.ts](../../../app/api/xapi/statements/route.ts) | @/lib/rate-limit:15, @/lib/db/withRequestGuc:26, @/lib/tenant/resolveOrgFromRequest:27 |
+| /api/xapi/statements | route | POST, GET | [app/api/xapi/statements/route.ts](../../../app/api/xapi/statements/route.ts) | @/lib/rate-limit:15, @/lib/db/withRequestGuc:27, @/lib/tenant/resolveOrgFromRequest:28 |
 | /apply/confirmation | loading |  | [app/apply/confirmation/loading.tsx](../../../app/apply/confirmation/loading.tsx) |  |
 | /apply/confirmation | page |  | [app/apply/confirmation/page.tsx](../../../app/apply/confirmation/page.tsx) | @/lib/auth/server:12 |
 | /apply/create-account | error |  | [app/apply/create-account/error.tsx](../../../app/apply/create-account/error.tsx) |  |

@@ -45,6 +45,10 @@ vi.mock('@/lib/xapi/token', () => ({
   verifyXapiAccessToken: vi.fn(),
 }));
 
+vi.mock('@/lib/xapi/config', () => ({
+  getXapiReadiness: vi.fn(),
+}));
+
 vi.mock('@/lib/analytics/track', () => ({
   trackXapiBatchProcessed: vi.fn(),
 }));
@@ -71,6 +75,8 @@ import { prisma } from '@/lib/db/prisma';
 import { checkXapiStatementsPostRateLimit } from '@/lib/rate-limit';
 import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
+import { getXapiReadiness } from '@/lib/xapi/config';
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
 import { trackXapiBatchProcessed } from '@/lib/analytics/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
@@ -119,6 +125,12 @@ const progressedStatement = {
 describe('POST /api/xapi/statements', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getXapiReadiness).mockReturnValue({
+      ready: true, missing: [], actorMode: 'mbox',
+      oauthServerUrl: 'http://localhost:3000/api/xapi/oauth/token',
+      tenantServerUrl: 'http://localhost:3000/api/xapi',
+      clientId: 'test-client',
+    });
     vi.mocked(checkXapiStatementsPostRateLimit).mockResolvedValue({ success: true });
     vi.mocked(parseBearerToken).mockImplementation((h) => {
       if (!h) return null;
@@ -138,6 +150,28 @@ describe('POST /api/xapi/statements', () => {
     vi.mocked(prisma.xapiStatement.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.xapiStatement.updateMany).mockResolvedValue({ count: 1 } as any);
     vi.mocked(resolveOrgFromRequest).mockResolvedValue('org-default');
+  });
+
+  it('returns 503 before database scope or payload processing when auth is unconfigured', async () => {
+    vi.mocked(getXapiReadiness).mockReturnValue({
+      ready: false, missing: ['XAPI client secret'], actorMode: 'mbox',
+      oauthServerUrl: 'http://localhost:3000/api/xapi/oauth/token',
+      tenantServerUrl: 'http://localhost:3000/api/xapi',
+      clientId: 'test-client',
+    });
+    const request = makeRequest(sampleStatement, { token: validToken });
+    const parseBody = vi.spyOn(request, 'json');
+
+    const res = await POST(request);
+
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: 'xAPI auth is not configured' });
+    expect(withSystemGuc).not.toHaveBeenCalled();
+    expect(verifyXapiAccessToken).not.toHaveBeenCalled();
+    expect(parseBody).not.toHaveBeenCalled();
+    expect(resolveOrgFromRequest).not.toHaveBeenCalled();
+    expect(prisma.xapiStatement.create).not.toHaveBeenCalled();
+    expect(handleInboundParsedStatement).not.toHaveBeenCalled();
   });
 
   it('returns 401 when authorization header is missing', async () => {

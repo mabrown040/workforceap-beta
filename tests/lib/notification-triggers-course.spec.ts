@@ -388,6 +388,7 @@ describe('Trigger: course_complete', () => {
       programSlug: 'comptia-a-professional-certificate',
       courseSlug: 'technical-support-fundamentals',
       courseId: 'coursera-123',
+      learnerActivityAt: null,
     });
     expect(result).toEqual(expect.objectContaining({
       ok: true,

@@ -2070,6 +2070,72 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/admin/courseraDiagnostics.test.ts",
+    "area": "libraries",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/courseraDiagnostics.ts",
+        "line": 3
+      },
+      {
+        "file": "lib/admin/courseraEnrollmentEvidence.ts",
+        "line": 4
+      },
+      {
+        "file": "lib/admin/courseraSyncDrift.ts",
+        "line": 5
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/admin/courseraDiagnosticsLoaders.test.ts",
+    "area": "libraries",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/courseraEnrollmentPipeline.ts",
+        "line": 13
+      },
+      {
+        "file": "lib/coursera/progressQueries.ts",
+        "line": 14
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "delegated",
+        "reason": "owned by npm run test:vitest (shared manifest; collection guarded)"
+      },
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/admin/courseraSyncDrift.test.ts",
     "area": "libraries",
     "domain": "learning-coursera",
@@ -5132,6 +5198,10 @@
       {
         "file": "lib/coursera/progressReconciliation.ts",
         "line": 5
+      },
+      {
+        "file": "lib/coursera/progressReconciliation.ts",
+        "line": 6
       }
     ],
     "kind": "test-candidate",
@@ -12153,6 +12223,58 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/coursera-b4b-continuation.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/coursera/b4bClient.ts",
+        "line": 26
+      },
+      {
+        "file": "app/api/cron/coursera-b4b-sync/route.ts",
+        "line": 27
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/coursera-refresh-coverage.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/member/coursera/refresh-progress/route.ts",
+        "line": 8
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/coursera-replay-email-pacing.spec.ts",
     "area": "tests",
     "domain": "learning-coursera",
@@ -16282,35 +16404,43 @@
       },
       {
         "file": "app/api/xapi/statements/route.ts",
-        "line": 69
-      },
-      {
-        "file": "lib/db/prisma.ts",
-        "line": 70
-      },
-      {
-        "file": "lib/rate-limit.ts",
-        "line": 71
-      },
-      {
-        "file": "lib/xapi/inboundStatementPipeline.ts",
-        "line": 72
-      },
-      {
-        "file": "lib/xapi/token.ts",
         "line": 73
       },
       {
-        "file": "lib/analytics/track.ts",
+        "file": "lib/db/prisma.ts",
         "line": 74
       },
       {
-        "file": "lib/observability/captureApiError.ts",
+        "file": "lib/rate-limit.ts",
         "line": 75
       },
       {
-        "file": "lib/tenant/resolveOrgFromRequest.ts",
+        "file": "lib/xapi/inboundStatementPipeline.ts",
         "line": 76
+      },
+      {
+        "file": "lib/xapi/token.ts",
+        "line": 77
+      },
+      {
+        "file": "lib/xapi/config.ts",
+        "line": 78
+      },
+      {
+        "file": "lib/db/withRequestGuc.ts",
+        "line": 79
+      },
+      {
+        "file": "lib/analytics/track.ts",
+        "line": 80
+      },
+      {
+        "file": "lib/observability/captureApiError.ts",
+        "line": 81
+      },
+      {
+        "file": "lib/tenant/resolveOrgFromRequest.ts",
+        "line": 82
       }
     ],
     "kind": "test-candidate",
@@ -17863,6 +17993,69 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/coursera-diagnostics-evidence.spec.tsx",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "@testing-library/react",
+      "@testing-library/user-event",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/portal/kit/pages/admin-subviews/CourseraSyncKit.tsx",
+        "line": 4
+      },
+      {
+        "file": "components/admin/CourseraEnrollmentPipelineTable.tsx",
+        "line": 5
+      },
+      {
+        "file": "lib/admin/courseraEnrollmentPipeline.ts",
+        "line": 6
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/coursera-progress-coverage.spec.tsx",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/portal/CourseraProgressCoverageNotice.tsx",
+        "line": 3
+      },
+      {
+        "file": "components/portal/RefreshCourseraProgressButton.tsx",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
     "area": "tests",
     "domain": "learning-coursera",
@@ -18655,6 +18848,35 @@
       {
         "file": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx",
         "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/students-roster-page.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx",
+        "line": 3
+      },
+      {
+        "file": "app/admin/students/page.tsx",
+        "line": 29
       }
     ],
     "kind": "test-candidate",
@@ -20349,7 +20571,7 @@
     "localReferences": [
       {
         "file": "lib/member/courseProgress.ts",
-        "line": 16
+        "line": 21
       }
     ],
     "kind": "test-candidate",
@@ -20382,6 +20604,22 @@
       {
         "file": "lib/member/courseProgress.ts",
         "line": 77
+      },
+      {
+        "file": "lib/coursera/restWebhookStatement.ts",
+        "line": 78
+      },
+      {
+        "file": "lib/xapi/statementModel.ts",
+        "line": 79
+      },
+      {
+        "file": "lib/xapi/activityTimestamp.ts",
+        "line": 80
+      },
+      {
+        "file": "lib/admin/courseraEnrollmentEvidence.ts",
+        "line": 81
       }
     ],
     "kind": "test-candidate",
@@ -21268,6 +21506,10 @@
       {
         "file": "lib/member/memberProgramTrainingView.ts",
         "line": 29
+      },
+      {
+        "file": "lib/coursera/learnerProgress.ts",
+        "line": 30
       }
     ],
     "kind": "test-candidate",
@@ -22365,6 +22607,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/students-roster-facts.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/studentsRosterFacts.ts",
+        "line": 2
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/students-roster-sort.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -22816,6 +23082,30 @@
       {
         "file": "lib/xapi/reprocess.ts",
         "line": 32
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/xapi-token-configuration.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/xapi/token.ts",
+        "line": 3
       }
     ],
     "kind": "test-candidate",

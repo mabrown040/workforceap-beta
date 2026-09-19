@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import type { ProgramCourse } from '@/lib/content/programs';
 import { reconcileProgramProgress } from './progressReconciliation';
+import type { B4BCourseProgressFact } from './progressReconciliation';
 
 const courses: ProgramCourse[] = [
   { slug: 'course-1', name: 'Course 1', estimatedHours: 10, courseraCourseId: 'id-1' },
@@ -10,6 +11,24 @@ const courses: ProgramCourse[] = [
   { slug: 'course-3', name: 'Course 3', estimatedHours: 10, courseraCourseId: 'id-3' },
   { slug: 'course-4', name: 'Course 4', estimatedHours: 10, courseraCourseId: 'id-4' },
 ];
+
+test('partial provider reads retain course facts without claiming a provider program average', () => {
+  const b4bProgress = Object.assign(new Map<string, B4BCourseProgressFact>([
+    ['id-1', { overallProgress: 78, isCompleted: true }],
+    ['id-2', { overallProgress: 37, isCompleted: false }],
+  ]), { coverage: 'capped' as const });
+  const result = reconcileProgramProgress({ validatedCourses: courses.slice(0, 2), b4bProgress, localRows: [] });
+  assert.equal(result.rows[0]?.displayCompleted, true);
+  assert.equal(result.rows[1]?.displayPercent, 37);
+  assert.equal(result.programPercent, 69); // explicitly the existing blended estimate
+  assert.equal(result.providerCoverage, 'capped');
+  assert.equal(result.authoritativeProviderPercent, null);
+  const complete = reconcileProgramProgress({
+    validatedCourses: courses.slice(0, 2),
+    b4bProgress: Object.assign(new Map(b4bProgress), { coverage: 'complete' as const }), localRows: [],
+  });
+  assert.equal(complete.authoritativeProviderPercent, 69);
+});
 
 test('uses one validated X/Y/percent formula and never completes a 40 percent course', () => {
   const result = reconcileProgramProgress({

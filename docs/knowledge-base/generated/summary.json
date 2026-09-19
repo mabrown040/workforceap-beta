@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "2cf8e70ff900d631a520e7401d0e83ed39de5741123248a8a7a4f98f683d1ea3",
+  "inputTreeSha256": "c018e25972842c21a05a203ce2ec7d3b3d4842425ec267dc04e01c380354c955",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4702,
-    "sourceModules": 3376,
-    "importReferences": 16283,
-    "resolvedLocalReferences": 10866,
+    "files": 4718,
+    "sourceModules": 3392,
+    "importReferences": 16345,
+    "resolvedLocalReferences": 10911,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1053,
     "nextRouteFiles": 1020,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 756,
-    "testCandidates": 749,
+    "testFiles": 765,
+    "testCandidates": 758,
     "testHelpers": 7,
-    "staticallySelectedTests": 746,
+    "staticallySelectedTests": 755,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 671
+      "files": 672
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 976
+      "files": 984
     },
     {
       "area": "localization",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 399
+      "files": 406
     }
   ],
   "mostReferenced": [
@@ -120,7 +120,7 @@
     },
     {
       "file": "lib/db/withRequestGuc.ts",
-      "references": 429
+      "references": 430
     },
     {
       "file": "lib/auth/roles.ts",
@@ -290,7 +290,7 @@
     },
     {
       "file": "app/admin/coursera/page.tsx",
-      "lines": 1650
+      "lines": 1636
     },
     {
       "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
@@ -305,16 +305,16 @@
       "lines": 1458
     },
     {
-      "file": "app/admin/coursera/health/page.tsx",
-      "lines": 1436
-    },
-    {
       "file": "tests/api/placement-survey.spec.ts",
       "lines": 1396
     },
     {
       "file": "app/(portal)/partner/page.tsx",
       "lines": 1389
+    },
+    {
+      "file": "app/admin/coursera/health/page.tsx",
+      "lines": 1386
     },
     {
       "file": "components/portal/sessions/SessionRunClient.tsx",
@@ -382,15 +382,15 @@
     },
     {
       "file": "lib/coursera/b4bSync.ts",
-      "lines": 1121
+      "lines": 1116
     },
     {
       "file": "components/admin/CourseraMappingsAdmin.tsx",
       "lines": 1091
     },
     {
-      "file": "components/portal/counselor/AtRiskDashboard.tsx",
-      "lines": 1052
+      "file": "lib/coursera/progressQueries.ts",
+      "lines": 1055
     }
   ]
 }

@@ -10,7 +10,6 @@ import {
   withAdminPageScope,
 } from '@/lib/tenant/adminPageScope';
 import { programDisplayTitle } from '@/lib/content/programTitle';
-import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import {
@@ -24,6 +23,7 @@ import {
 } from '@/lib/coursera/progressQueries';
 import { parseCourseGradeString } from '@/lib/coursera/courseGradeDisplay';
 import { loadStudentRosterEnrichment } from '@/lib/admin/studentsRosterEnrichment';
+import { resolveStudentRosterActivity, STUDENT_ROSTER_ACTIVITY_LABELS } from '@/lib/admin/studentsRosterFacts';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -134,14 +134,12 @@ export default async function AdminStudentsPage({
             id: true,
             fullName: true,
             email: true,
-            enrolledProgram: true,
             enrolledAt: true,
             assessmentScorePct: true,
             memberStatus: true,
             interviewRequestedAt: true,
             interviewCompletedAt: true,
             lastLoginAt: true,
-            updatedAt: true,
             profile: { select: { city: true, state: true } },
           },
         }),
@@ -195,20 +193,7 @@ export default async function AdminStudentsPage({
     return [];
   });
 
-  const programProgressMap = new Map<string, number>();
-  const inferredProgramByUserId = new Map<string, string>();
-  const trainingActivityByUserId = new Map<string, Date>();
-  const gradeByUserId = new Map<string, number>();
-  for (const row of rosterEnrichmentRows) {
-    if (row.programSlug && row.averagePercent != null) {
-      const canonicalProgramSlug = canonicalizeProgramSlug(row.programSlug);
-      programProgressMap.set(`${row.userId}:${canonicalProgramSlug}`, row.averagePercent);
-      inferredProgramByUserId.set(row.userId, canonicalProgramSlug);
-    }
-    if (row.lastActivityTime) trainingActivityByUserId.set(row.userId, row.lastActivityTime);
-    const grade = parseCourseGradeString(row.courseGrade);
-    if (grade != null) gradeByUserId.set(row.userId, grade);
-  }
+  const enrichmentByUserId = new Map(rosterEnrichmentRows.map((row) => [row.userId, row]));
 
   // One extra query over the already-loaded page of members: resolve each
   // member's active counselor. The counselor's display name lives on the
@@ -250,18 +235,15 @@ export default async function AdminStudentsPage({
   ]);
 
   const students: StudentRow[] = members.map((m) => {
-    const storedProgramSlug = m.enrolledProgram
-      ? canonicalizeProgramSlug(m.enrolledProgram)
-      : null;
-    const inferredProgramSlug = inferredProgramByUserId.get(m.id) ?? null;
-    const displayProgramSlug = storedProgramSlug ?? inferredProgramSlug;
+    const enrichment = enrichmentByUserId.get(m.id);
+    const displayProgramSlug = enrichment?.programSlug ?? null;
     const programTitle = displayProgramSlug
-      ? programDisplayTitle(displayProgramSlug)
-      : 'Unassigned';
+      ? `${programDisplayTitle(displayProgramSlug)}${enrichment?.assignmentSource === 'legacy' ? ' (legacy assignment)' : ''}`
+      : !enrichment ? 'Program unavailable'
+        : enrichment.assignmentSource === 'unresolved' ? 'Assignment needs review'
+          : 'Unassigned';
 
-    const progress = displayProgramSlug
-      ? Math.round(programProgressMap.get(`${m.id}:${displayProgramSlug}`) ?? 0)
-      : 0;
+    const progress = Math.round(enrichment?.averagePercent ?? 0);
 
     const readiness = m.assessmentScorePct ?? 0;
 
@@ -288,8 +270,11 @@ export default async function AdminStudentsPage({
     const state = m.profile?.state?.trim();
     const location = city && state ? `${city}, ${state}` : city || state || '—';
 
-    const lastActivity =
-      trainingActivityByUserId.get(m.id) ?? m.lastLoginAt ?? m.updatedAt ?? null;
+    const activity = resolveStudentRosterActivity({
+      courseraActivityAt: enrichment?.courseraActivityAt,
+      courseActivityAt: enrichment?.courseActivityAt,
+      portalLoginAt: m.lastLoginAt,
+    });
 
     return {
       id: m.id,
@@ -299,16 +284,18 @@ export default async function AdminStudentsPage({
       location,
       program: programTitle,
       progress,
+      progressKnown: enrichment?.averagePercent != null,
       readiness,
       // Real counselor from the active CounselorAssignment (name via the
       // counselor's linked User); no active assignment → "Unassigned".
       counselor: counselorNameMap.get(m.id) ?? 'Unassigned',
       status,
-      lastActive: relativeTime(lastActivity),
-      lastActiveAt: lastActivity?.getTime() ?? null,
+      lastActive: relativeTime(activity.at),
+      lastActiveAt: activity.at?.getTime() ?? null,
+      lastActiveSource: activity.source ? STUDENT_ROSTER_ACTIVITY_LABELS[activity.source] : undefined,
       inWap: true,
-      noProgram: !storedProgramSlug && Boolean(inferredProgramSlug),
-      courseraGrade: gradeByUserId.get(m.id) ?? null,
+      noProgram: !displayProgramSlug && Boolean(enrichment?.hasLearningEvidence),
+      courseraGrade: parseCourseGradeString(enrichment?.courseGrade),
       href: `/admin/members/${m.id}`,
     };
   });
@@ -333,6 +320,7 @@ export default async function AdminStudentsPage({
       status: 'In Training',
       lastActive: relativeTime(lastActivity),
       lastActiveAt: lastActivity?.getTime() ?? null,
+      lastActiveSource: lastActivity ? STUDENT_ROSTER_ACTIVITY_LABELS.coursera : undefined,
       inWap: false,
       courseraGrade: learner.latestGradePercent,
       href: `/admin/coursera/learners/unmatched/${encodeURIComponent(learner.externalEmail)}`,

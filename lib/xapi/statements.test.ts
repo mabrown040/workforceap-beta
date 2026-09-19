@@ -7,6 +7,19 @@ import {
 } from './statementModel';
 
 describe('xapi statement model', () => {
+  test.each(['course', 'item'])('keeps a %s score as grade without inventing progress', (activityType) => {
+    const parsed = parseXapiStatement({
+      id: 'grade-only',
+      actor: { mbox: 'mailto:learner@example.com' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
+      object: { definition: { type: `http://adlnet.gov/expapi/activities/${activityType}` } },
+      result: { score: { scaled: 0.9, raw: 90 } },
+    });
+    expect(parsed?.resultScoreScaled).toBe(0.9);
+    expect(parsed?.resultScoreRaw).toBe(90);
+    expect(parsed?.resultProgressPercent).toBeNull();
+  });
+
   test('flattenXapiStatementPayload: single object and array', () => {
     const one = { id: 'a' };
     expect(flattenXapiStatementPayload(one).length).toBe(1);

@@ -22,6 +22,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 import ProgramChangeRequestModal from '@/components/portal/ProgramChangeRequestModal';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
+import CourseraProgressCoverageNotice from '@/components/portal/CourseraProgressCoverageNotice';
 import { formatDate } from '@/lib/i18n/date';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
@@ -244,6 +245,7 @@ export default async function ProgramPage({
           A counselor still needs to enroll you in a WorkforceAP program.
         </div>
       ) : null}
+      <CourseraProgressCoverageNotice coverage={trainingView?.providerCoverage} />
       <MemberProgramKit
         trainingWorkspace={workspaceResult.workspace ? {
           workspace: workspaceResult.workspace,
@@ -299,6 +301,7 @@ export default async function ProgramPage({
         />
 
         <PortalCard>
+          <CourseraProgressCoverageNotice coverage={trainingView?.providerCoverage} />
           <div style={{ marginBottom: '1rem', padding: '0.9rem 1rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
             <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
               Coursera & training email

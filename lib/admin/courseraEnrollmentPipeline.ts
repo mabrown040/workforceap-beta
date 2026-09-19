@@ -4,39 +4,20 @@ import { prisma } from '@/lib/db/prisma';
 import { programDisplayTitle } from '@/lib/content/programTitle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
+import { deriveEnrollmentSignal, hasRecentCourseraActivity, type EnrollmentSignal } from './courseraEnrollmentEvidence';
+export type { EnrollmentSignal } from './courseraEnrollmentEvidence';
 
-/**
- * Admin Coursera Enrollment Command Center (`/admin/coursera/enrollment`).
- *
- * This module is the single source of truth for the enrollment pipeline
- * rows so the initial server-rendered page and the client-side refresh
- * route (`GET /api/admin/coursera/enrollment-pipeline`) can't drift.
- *
- * Signal precedence (checked top to bottom):
- *   1. `completed`             — lib/partner/memberProgress.ts::memberProgramCompleted
- *      (the canonical "did they finish the program" definition used
- *      elsewhere, e.g. admin subgroup pages). Wins regardless of the
- *      approval flag — a finished program is a finished program.
- *   2. `not_approved`          — courseraEnrollmentApproved is false.
- *   3. `approved_not_started`  — approved, but zero CourseProgress rows,
- *      no `coursera_course_enrolled` audit log entry, and no xAPI
- *      statement from this member's email.
- *   4. `active`                — a CourseProgress row updated, or an xAPI
- *      statement received, in the last 30 days.
- *   5. `stalled`               — started (one of the signals above exists)
- *      but nothing in the last 30+ days.
- *
- * All three underlying signals (CourseProgress, xAPI, audit log) are
- * fetched with a single grouped query each — no per-member queries.
+/** Read-only account evidence for the enrollment pipeline. Durable assignments,
+ * approval, provider/local learning evidence and enrollment receipts remain
+ * separate facts. Receipt/update times never establish recent learner activity.
  */
-
-export type EnrollmentSignal = 'not_approved' | 'approved_not_started' | 'active' | 'stalled' | 'completed';
 
 export const ENROLLMENT_SIGNAL_LABELS: Record<EnrollmentSignal, string> = {
   not_approved: 'Not approved',
-  approved_not_started: 'Approved — not started',
+  approved_not_started: 'Approved — no activity observed',
   active: 'Active',
-  stalled: 'Stalled',
+  stalled: 'No recent activity',
+  activity_unknown: 'Activity date unknown',
   completed: 'Completed',
 };
 
@@ -51,6 +32,7 @@ export type EnrollmentPipelineRow = {
   approvedByName: string | null;
   signal: EnrollmentSignal;
   lastActivityAt: string | null;
+  hasEnrollmentReceipt?: boolean;
 };
 
 export type EnrollmentPipelineSummary = {
@@ -67,9 +49,8 @@ export type EnrollmentPipelineData = {
   rows: EnrollmentPipelineRow[];
   summary: EnrollmentPipelineSummary;
   programs: Array<{ slug: string; title: string }>;
+  truncated?: boolean;
 };
-
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 function emptySummary(): EnrollmentPipelineSummary {
   return {
@@ -84,16 +65,41 @@ function emptySummary(): EnrollmentPipelineSummary {
 }
 
 export async function loadCourseraEnrollmentPipeline(organizationId: string): Promise<EnrollmentPipelineData> {
-  const members = await prisma.user.findMany({
-    where: { organizationId, deletedAt: null, enrolledProgram: { not: null } },
-    orderBy: [{ fullName: 'asc' }],
-    take: 2000,
+  // Match the final user ordering and bound IDs before moving them into Prisma.
+  // The earliest 2,001 xAPI candidates are sufficient for the first 2,001 of
+  // the union, even when the other cohort branches admit additional users.
+  const xapiCandidates = await prisma.$queryRaw<Array<{ userId: string }>>`
+    SELECT u.id AS "userId"
+    FROM users u
+    WHERE u.organization_id = ${organizationId} AND u.deleted_at IS NULL
+      AND EXISTS (
+        SELECT 1 FROM coursera_xapi_events cxe
+        WHERE cxe.matched_user_id = u.id AND cxe.organization_id = ${organizationId}
+      )
+    ORDER BY u.full_name ASC, u.id ASC
+    LIMIT 2001
+  `;
+  const matchingMembers = await prisma.user.findMany({
+    where: {
+      organizationId, deletedAt: null,
+      OR: [
+        { enrolledProgram: { not: null } },
+        { courseEnrollments: { some: { organizationId } } },
+        { courseraEnrollmentApproved: true },
+        { courseProgress: { some: {} } },
+        { courseraCourseProgress: { some: { organizationId } } },
+        { id: { in: xapiCandidates.map((candidate) => candidate.userId) } },
+      ],
+    },
+    orderBy: [{ fullName: 'asc' }, { id: 'asc' }],
+    take: 2001,
     select: {
       id: true,
       fullName: true,
       email: true,
       enrolledProgram: true,
       courseEnrollments: {
+        where: { organizationId },
         orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
         select: { programSlug: true, curriculumVersion: true, isPrimary: true },
       },
@@ -107,6 +113,9 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
     },
   });
 
+  const truncated = matchingMembers.length > 2000;
+  const members = matchingMembers.slice(0, 2000);
+
   if (members.length === 0) {
     return { rows: [], summary: emptySummary(), programs: [] };
   }
@@ -114,37 +123,48 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
   const memberIds = members.map((m) => m.id);
   const approverIds = [...new Set(members.map((m) => m.courseraEnrollmentApprovedById).filter((v): v is string => Boolean(v)))];
 
-  const [courseProgressAgg, xapiAgg, auditAgg, approvers] = await Promise.all([
+  const [courseProgressAgg, xapiAgg, providerProgressAgg, auditAgg, approvers] = await Promise.all([
     prisma.courseProgress.groupBy({
       by: ['userId'],
-      where: { userId: { in: memberIds } },
+      where: { userId: { in: memberIds }, OR: [
+        { status: { not: 'NOT_STARTED' } }, { lastActivityAt: { not: null } }, { completedAt: { not: null } },
+      ] },
       _count: { _all: true },
       _max: { lastActivityAt: true },
     }),
-    prisma.$queryRaw<Array<{ userId: string; count: bigint; lastActivityAt: Date | null }>>`
-      SELECT actor_user.id AS "userId", COUNT(*)::bigint AS count, MAX(xs.created_at) AS "lastActivityAt"
-      FROM xapi_statements xs
-      JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
-      WHERE actor_user.id = ANY(${memberIds}::text[]) AND actor_user.organization_id = ${organizationId}
-      GROUP BY actor_user.id
+    prisma.$queryRaw<Array<{ userId: string; count: bigint }>>`
+      SELECT cxe.matched_user_id AS "userId", COUNT(*)::bigint AS count
+      FROM coursera_xapi_events cxe
+      JOIN users u ON u.id = cxe.matched_user_id
+      WHERE cxe.matched_user_id = ANY(${memberIds}::text[])
+        AND cxe.organization_id = ${organizationId} AND u.organization_id = ${organizationId}
+      GROUP BY cxe.matched_user_id
     `,
+    prisma.courseraCourseProgress.groupBy({
+      by: ['userId'],
+      where: { userId: { in: memberIds }, organizationId, OR: [
+        { lastActivityTime: { not: null } }, { completionTime: { not: null } }, { isCompleted: true },
+      ] },
+      _count: { _all: true },
+      _max: { lastActivityTime: true },
+    }),
     prisma.auditLog.groupBy({
       by: ['targetId'],
       where: { targetType: 'User', targetId: { in: memberIds }, action: 'coursera_course_enrolled' },
       _count: { _all: true },
     }),
     approverIds.length > 0
-      ? prisma.user.findMany({ where: { id: { in: approverIds } }, select: { id: true, fullName: true } })
+      ? prisma.user.findMany({ where: { id: { in: approverIds }, organizationId }, select: { id: true, fullName: true } })
       : Promise.resolve([]),
   ]);
 
   const courseProgressByUser = new Map(courseProgressAgg.map((r) => [r.userId, r]));
   const xapiByUser = new Map(xapiAgg.map((r) => [r.userId, r]));
+  const providerProgressByUser = new Map(providerProgressAgg.map((r) => [r.userId, r]));
   const auditByUser = new Map(auditAgg.map((r) => [r.targetId, r]));
   const approverNameById = new Map(approvers.map((a) => [a.id, a.fullName]));
 
-  const now = Date.now();
-  const cutoff = now - THIRTY_DAYS_MS;
+  const now = new Date();
   const programSet = new Map<string, string>();
 
   const rows: EnrollmentPipelineRow[] = members.map((m) => {
@@ -152,19 +172,22 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
       m.enrolledProgram,
       m.courseEnrollments,
     );
-    const programSlug = assignment.programSlug ?? (m.enrolledProgram as string);
-    const programTitle = programDisplayTitle(programSlug);
+    const programSlug = assignment.programSlug ?? '';
+    const programTitle = programSlug ? programDisplayTitle(programSlug) : 'No active program assignment';
     programSet.set(programSlug, programTitle);
 
     const cp = courseProgressByUser.get(m.id);
     const xapi = xapiByUser.get(m.id);
     const audit = auditByUser.get(m.id);
+    const providerProgress = providerProgressByUser.get(m.id);
 
     const courseProgressCount = cp?._count._all ?? 0;
     const xapiCount = Number(xapi?.count ?? 0);
     const auditCount = audit?._count._all ?? 0;
 
-    const lastActivityCandidates = [cp?._max.lastActivityAt ?? null, xapi?.lastActivityAt ?? null].filter(
+    // Completion can be stamped at ingestion time. Only dedicated learner
+    // activity fields establish freshness; undated completion remains evidence.
+    const lastActivityCandidates = [cp?._max.lastActivityAt, providerProgress?._max.lastActivityTime].filter(
       (d): d is Date => d != null,
     );
     const lastActivityAt =
@@ -179,21 +202,13 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
       liveProgress: m.memberProgramProgress,
     });
 
-    let signal: EnrollmentSignal;
-    if (completed) {
-      signal = 'completed';
-    } else if (!m.courseraEnrollmentApproved) {
-      signal = 'not_approved';
-    } else {
-      const started = courseProgressCount > 0 || xapiCount > 0 || auditCount > 0;
-      if (!started) {
-        signal = 'approved_not_started';
-      } else if (lastActivityAt && lastActivityAt.getTime() >= cutoff) {
-        signal = 'active';
-      } else {
-        signal = 'stalled';
-      }
-    }
+    const signal = deriveEnrollmentSignal({
+      approved: m.courseraEnrollmentApproved,
+      completed,
+      observedActivity: courseProgressCount > 0 || xapiCount > 0 || (providerProgress?._count._all ?? 0) > 0,
+      lastActivityAt,
+      now,
+    });
 
     return {
       memberId: m.id,
@@ -207,6 +222,7 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
         ? (approverNameById.get(m.courseraEnrollmentApprovedById) ?? null)
         : null,
       signal,
+      hasEnrollmentReceipt: auditCount > 0,
       lastActivityAt: lastActivityAt ? lastActivityAt.toISOString() : null,
     };
   });
@@ -214,9 +230,9 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
   const summary = rows.reduce<EnrollmentPipelineSummary>((acc, row) => {
     acc.totalMembers += 1;
     if (row.approved) acc.totalApproved += 1;
-    if (row.signal === 'not_approved') acc.notApproved += 1;
+    if (!row.approved) acc.notApproved += 1;
     if (row.signal === 'approved_not_started') acc.approvedNotStarted += 1;
-    if (row.signal === 'active') acc.activeLast30Days += 1;
+    if (hasRecentCourseraActivity(row.lastActivityAt, now)) acc.activeLast30Days += 1;
     if (row.signal === 'stalled') acc.stalled += 1;
     if (row.signal === 'completed') acc.completed += 1;
     return acc;
@@ -226,5 +242,5 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
     .map(([slug, title]) => ({ slug, title }))
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  return { rows, summary, programs };
+  return { rows, summary, programs, truncated };
 }

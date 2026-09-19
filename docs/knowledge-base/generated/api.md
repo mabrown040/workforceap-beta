@@ -331,7 +331,7 @@
 | [app/api/employer/loi/route.ts](../../../app/api/employer/loi/route.ts) | 153 | jobs-employers | POST:152, GET:153 |
 | [app/api/employer/messages/route.ts](../../../app/api/employer/messages/route.ts) | 143 | communications | GET:47, POST:117, PATCH:142 |
 | [app/api/employer/onboarding-profile/route.ts](../../../app/api/employer/onboarding-profile/route.ts) | 70 | jobs-employers | PATCH:16 |
-| [app/api/employer/outcomes/route.ts](../../../app/api/employer/outcomes/route.ts) | 145 | jobs-employers | GET:145 |
+| [app/api/employer/outcomes/route.ts](../../../app/api/employer/outcomes/route.ts) | 164 | jobs-employers | GET:164 |
 | [app/api/employer/settings/route.ts](../../../app/api/employer/settings/route.ts) | 69 | jobs-employers | PATCH:11 |
 | [app/api/employer/signup/_signupCleanup.ts](../../../app/api/employer/signup/_signupCleanup.ts) | 15 | applications-enrollment | cleanupCreatedEmployerSignupAuthUser:3 |
 | [app/api/employer/signup/route.test.ts](../../../app/api/employer/signup/route.test.ts) | 50 | applications-enrollment |  |

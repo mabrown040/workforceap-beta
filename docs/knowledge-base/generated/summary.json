@@ -1,10 +1,6 @@
 {
   "schemaVersion": 1,
-<<<<<<< HEAD
-  "inputTreeSha256": "4e24758fad877d21730a68c5aa338571cc2a1dac9422f428c1b0cee8ad4865db",
-=======
-  "inputTreeSha256": "380ca4d01188f0597e5d9ee4e9dde21fe582306e06a468ccbc0216be95b8eaf8",
->>>>>>> origin/master
+  "inputTreeSha256": "0c74876a03d5ea1cd878ce57b30081974a5ad8e66ed08897ed275d913b4c79b6",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -12,17 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-<<<<<<< HEAD
-    "files": 4615,
-    "sourceModules": 3289,
-    "importReferences": 15629,
-    "resolvedLocalReferences": 10385,
-=======
-    "files": 4616,
-    "sourceModules": 3290,
-    "importReferences": 15574,
-    "resolvedLocalReferences": 10357,
->>>>>>> origin/master
+    "files": 4617,
+    "sourceModules": 3291,
+    "importReferences": 15644,
+    "resolvedLocalReferences": 10392,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1052,
     "nextRouteFiles": 1019,
@@ -33,17 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-<<<<<<< HEAD
-    "testFiles": 687,
-    "testCandidates": 680,
+    "testFiles": 689,
+    "testCandidates": 682,
     "testHelpers": 7,
-    "staticallySelectedTests": 677,
-=======
-    "testFiles": 688,
-    "testCandidates": 681,
-    "testHelpers": 7,
-    "staticallySelectedTests": 678,
->>>>>>> origin/master
+    "staticallySelectedTests": 679,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -124,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 345
+      "files": 346
     }
   ],
   "mostReferenced": [
@@ -262,7 +244,7 @@
     },
     {
       "file": "lib/http/requestFailureCopy.ts",
-      "references": 33
+      "references": 35
     },
     {
       "file": "lib/member/points.ts",

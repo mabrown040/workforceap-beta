@@ -7,11 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-<<<<<<< HEAD
-  "inputTreeSha256": "4e24758fad877d21730a68c5aa338571cc2a1dac9422f428c1b0cee8ad4865db",
-=======
-  "inputTreeSha256": "380ca4d01188f0597e5d9ee4e9dde21fe582306e06a468ccbc0216be95b8eaf8",
->>>>>>> origin/master
+  "inputTreeSha256": "0c74876a03d5ea1cd878ce57b30081974a5ad8e66ed08897ed275d913b4c79b6",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",

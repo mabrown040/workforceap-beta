@@ -17,8 +17,8 @@ import type { KpiItem, RankDatum } from '@/components/portal/kit';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
   return buildPageMetadataAsync({
-    title: t('analytics.title') || 'Analytics Overview',
-    description: t('analytics.description') || 'Enrollment, progress, and outcomes at a glance.',
+    title: t('analyticsPageTitle'),
+    description: t('analyticsPageDescription'),
     path: '/admin/analytics',
   });
 }

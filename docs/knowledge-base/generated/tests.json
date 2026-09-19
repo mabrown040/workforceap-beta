@@ -16902,6 +16902,39 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/admin/pipeline/PipelineLegacyView.tsx",
+        "line": 4
+      },
+      {
+        "file": "lib/i18n/pickRootClientMessages.ts",
+        "line": 5
+      },
+      {
+        "file": "messages/en.json",
+        "line": 6
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/admin-subgroup-members-table.test.tsx",
     "area": "tests",
     "domain": "tests",
@@ -20045,6 +20078,38 @@
     "localReferences": [
       {
         "file": "lib/marketing/googleItSupportLanding.ts",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/i18n-page-message-keys.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 2
+      },
+      {
+        "file": "messages/fr.json",
+        "line": 3
+      },
+      {
+        "file": "messages/pt.json",
         "line": 4
       }
     ],

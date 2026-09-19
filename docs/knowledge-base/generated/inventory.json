@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "153de116e9f977573a154c16f228b39110a254c5326d10a327ec547052e21079",
+  "inputTreeSha256": "09c2f282570c39d9f138861a1a18998e59258051029977587bf71be0aab4b7f3",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9980,9 +9980,9 @@
       "path": "app/(portal)/dashboard/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 50509,
-      "lines": 1205,
-      "sha256": "25885d943e9c185034c2a6f351eda64de999ae4e8fcfdaa5dfa92d534d8f8b8b",
+      "bytes": 50554,
+      "lines": 1206,
+      "sha256": "328991b9ec820b190288a7eeda5d90d9f1480cba8778966e56d27c31baeefc95",
       "binary": false,
       "exports": [
         {
@@ -71053,12 +71053,35 @@
       "directive": null
     },
     {
+      "path": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+      "area": "components",
+      "domain": "member-counselor",
+      "bytes": 2587,
+      "lines": 70,
+      "sha256": "d2b9f96291f0d6b66147e24ff9f8ac323e5914b692863efd7249e240254adbe9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "renderKit",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "base",
+          "line": 19,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/kit/pages/member/MemberHomeKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 35497,
-      "lines": 907,
-      "sha256": "cfb5cfb12cf64f03731d606efad7a4f9246416ab9be7d5ff55ab04b47e9aa7bb",
+      "bytes": 36097,
+      "lines": 921,
+      "sha256": "b3483f569ee0ba8fb9e55498ad0db4ef7f37274f5f77b4e408bc2ff447cd513b",
       "binary": false,
       "exports": [
         {
@@ -71083,7 +71106,7 @@
         },
         {
           "name": "MemberHomeKit",
-          "line": 545,
+          "line": 547,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -71125,82 +71148,82 @@
         },
         {
           "name": "clampPct",
-          "line": 169,
+          "line": 171,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "defaultStageIndex",
-          "line": 173,
+          "line": 175,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "stageTrackColor",
-          "line": 179,
+          "line": 181,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LOGO_COLORS",
-          "line": 186,
+          "line": 188,
           "kind": "Variable"
         },
         {
           "name": "logoColorFor",
-          "line": 187,
+          "line": 189,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "sparklinePoints",
-          "line": 193,
+          "line": 195,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "HOME_TEXT_LINK",
-          "line": 214,
+          "line": 216,
           "kind": "Variable"
         },
         {
           "name": "KitCardHead",
-          "line": 227,
+          "line": 229,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DeltaChip",
-          "line": 244,
+          "line": 246,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "StatSparkTile",
-          "line": 268,
+          "line": 270,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PipelineStageTrack",
-          "line": 337,
+          "line": 339,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SegmentedProgress",
-          "line": 353,
+          "line": 355,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "WeeklyActivityChart",
-          "line": 387,
+          "line": 389,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pipelineColumns",
-          "line": 444,
+          "line": 446,
           "kind": "Variable"
         },
         {
           "name": "pipelineCard",
-          "line": 500,
+          "line": 502,
           "kind": "Variable"
         },
         {
           "name": "MemberHomeKit",
-          "line": 545,
+          "line": 547,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119361,25 +119384,35 @@
       "path": "lib/member/loadMemberDashboardHome.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 15950,
-      "lines": 449,
-      "sha256": "4d9310d5ac1b4078beb319c8f0e2b11dbb7f5f77f28b6e543e722f552a63b820",
+      "bytes": 19676,
+      "lines": 540,
+      "sha256": "5a52320cd5a43d7b7891a89d24e33db22b440ac41ca0cea2e3cc8704434a35dd",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "ROOT",
-          "line": 17,
+          "line": 20,
           "kind": "Variable"
         },
         {
+          "name": "FIXTURE_PROGRAM_SLUG",
+          "line": 22,
+          "kind": "Variable"
+        },
+        {
+          "name": "fixtureModuleNames",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "makeRow",
-          "line": 19,
+          "line": 31,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mockDb",
-          "line": 65,
+          "line": 77,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119389,201 +119422,201 @@
       "path": "lib/member/loadMemberDashboardHome.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 21575,
-      "lines": 667,
-      "sha256": "d59e82a15c9b31858af5df53d888566c7fc99646a72037faa726e36477be387a",
+      "bytes": 22648,
+      "lines": 691,
+      "sha256": "ff8ae018fc8d445cb013775def929c227639ab2f2c3c413c188967a2c0a2b9b6",
       "binary": false,
       "exports": [
         {
           "name": "MEMBER_DASHBOARD_HOME_PRISMA_BUDGET",
-          "line": 36,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "DashboardPipelineRow",
-          "line": 41,
+          "line": 45,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardGoalSummary",
-          "line": 51,
+          "line": 55,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardPointsLedgerEntry",
-          "line": 56,
+          "line": 60,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberDashboardHomeView",
-          "line": 62,
+          "line": 66,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LoadMemberDashboardHomeArgs",
-          "line": 99,
+          "line": 111,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "mapPipelineRows",
-          "line": 190,
+          "line": 202,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pointsLedgerColor",
-          "line": 207,
+          "line": 219,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapPointsLedger",
-          "line": 217,
+          "line": 229,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapGoalSummaries",
-          "line": 227,
+          "line": 239,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveNextBadge",
-          "line": 249,
+          "line": 261,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberDashboardHome",
-          "line": 645,
+          "line": 669,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "MEMBER_DASHBOARD_HOME_PRISMA_BUDGET",
-          "line": 36,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "WEEK_MS",
-          "line": 38,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "ACTIVE_JOB_STATUSES_EXCLUDED",
-          "line": 39,
+          "line": 43,
           "kind": "Variable"
         },
         {
           "name": "DashboardPipelineRow",
-          "line": 41,
+          "line": 45,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardGoalSummary",
-          "line": 51,
+          "line": 55,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardPointsLedgerEntry",
-          "line": 56,
+          "line": 60,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MemberDashboardHomeView",
-          "line": 62,
+          "line": 66,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LoadMemberDashboardHomeArgs",
-          "line": 99,
+          "line": 111,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardHomeTx",
-          "line": 106,
+          "line": 118,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardHomeDb",
-          "line": 112,
+          "line": 124,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardUserRow",
-          "line": 116,
+          "line": 128,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "STAGE_TONE_BY_STATUS",
-          "line": 179,
+          "line": 191,
           "kind": "Variable"
         },
         {
           "name": "mapPipelineRows",
-          "line": 190,
+          "line": 202,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pointsLedgerColor",
-          "line": 207,
+          "line": 219,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapPointsLedger",
-          "line": 217,
+          "line": 229,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapGoalSummaries",
-          "line": 227,
+          "line": 239,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveNextBadge",
-          "line": 249,
+          "line": 261,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "displayFirstName",
-          "line": 278,
+          "line": 290,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dashboardHomeStateLetter",
-          "line": 291,
+          "line": 303,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fallbackDashboardHomeAction",
-          "line": 302,
+          "line": 314,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveDashboardHomeNextAction",
-          "line": 333,
+          "line": 345,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "emptyHome",
-          "line": 359,
+          "line": 371,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "shapeHome",
-          "line": 400,
+          "line": 412,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "userSelect",
-          "line": 517,
+          "line": 541,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchHomeRow",
-          "line": 614,
+          "line": 638,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberDashboardHome",
-          "line": 645,
+          "line": 669,
           "kind": "FunctionDeclaration"
         }
       ],

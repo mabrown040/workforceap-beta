@@ -82416,6 +82416,54 @@
     "target": "components/portal/kit/index.ts"
   },
   {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "specifier": "react",
+    "line": 4,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "components/portal/kit/pages/member/MemberHomeKit.test.tsx",
+    "specifier": "./MemberHomeKit",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/kit/pages/member/MemberHomeKit.tsx"
+  },
+  {
     "from": "components/portal/kit/pages/member/MemberHomeKit.tsx",
     "specifier": "react",
     "line": 3,
@@ -100966,6 +101014,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/loadMemberDashboardHome.ts"
+  },
+  {
+    "from": "lib/member/loadMemberDashboardHome.test.ts",
+    "specifier": "@/lib/content/programs",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/member/loadMemberDashboardHome.test.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
   },
   {
     "from": "lib/member/loadMemberDashboardHome.ts",

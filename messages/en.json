@@ -2400,6 +2400,15 @@
         "partner_referral": "Partner or ambassador referral noted",
         "wioa_staff_review": "Staff WIOA review recorded as verified"
       }
+    },
+    "courseraProvisioning": {
+      "lastActivity": "Last activity",
+      "noActivityYet": "No activity yet",
+      "lastSignIn": "Last sign-in",
+      "lastSignInHint": "No learning activity recorded yet; this is the last time the member signed in to the portal.",
+      "sourceCoursera": "Latest activity reported by Coursera",
+      "sourceCourseProgress": "Latest activity on a portal course record",
+      "sourceXapi": "Latest xAPI statement received"
     }
   },
   "employer": {

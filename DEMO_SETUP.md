@@ -131,8 +131,8 @@ In the **demo** Supabase project → **Authentication → Users → Invite user*
 ## What the demo shows
 
 ### Member Portal (`demo-member@workforceap.org`)
-- Jordan Williams — enrolled in IBM AI Developer Certificate
-- 3 of 10 courses completed, 84% assessment score
+- Jordan Williams — enrolled in the AI and Software Developer Professional Certificate (IBM)
+- 3 of 17 courses completed (live `CourseProgress` rows), 84% assessment score
 - AI job match pending for Junior ML Engineer role
 
 ### Employer Portal (`demo-employer@workforceap.org`)

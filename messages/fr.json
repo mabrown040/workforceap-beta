@@ -2339,7 +2339,16 @@
         "wioa_staff_review": "Examen WIOA du personnel enregistré comme vérifié"
       }
     },
-    "memberCount": "{count} membre{count, plural, =1 {} other {s}}"
+    "memberCount": "{count} membre{count, plural, =1 {} other {s}}",
+    "courseraProvisioning": {
+      "lastActivity": "Dernière activité",
+      "noActivityYet": "Aucune activité pour l'instant",
+      "lastSignIn": "Dernière connexion",
+      "lastSignInHint": "Aucune activité d'apprentissage enregistrée pour l'instant ; il s'agit de la dernière connexion du membre au portail.",
+      "sourceCoursera": "Dernière activité signalée par Coursera",
+      "sourceCourseProgress": "Dernière activité sur une fiche de cours du portail",
+      "sourceXapi": "Dernière déclaration xAPI reçue"
+    }
   },
   "employer": {
     "employerOverview": "Aperçu employeur",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "3c9411be425c9524ae6924789ffc53af635cc2975efbfc0ea0a0478614a9d166",
+  "inputTreeSha256": "3c14fb0bae5377156bd560bf9c2f36ba8a11f4084afdc642068c48ac3d344b4d",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,24 +8,24 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4686,
-    "sourceModules": 3360,
-    "importReferences": 16195,
-    "resolvedLocalReferences": 10805,
+    "files": 4697,
+    "sourceModules": 3371,
+    "importReferences": 16252,
+    "resolvedLocalReferences": 10840,
     "unresolvedLocalReferences": 0,
-    "routeFiles": 1052,
-    "nextRouteFiles": 1019,
+    "routeFiles": 1053,
+    "nextRouteFiles": 1020,
     "apiHandlers": 489,
-    "pageFiles": 312,
+    "pageFiles": 313,
     "astroPageFiles": 33,
     "configuredCrons": 30,
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 747,
-    "testCandidates": 740,
+    "testFiles": 753,
+    "testCandidates": 746,
     "testHelpers": 7,
-    "staticallySelectedTests": 737,
+    "staticallySelectedTests": 743,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 669
+      "files": 670
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 970
+      "files": 975
     },
     {
       "area": "localization",
@@ -90,7 +90,7 @@
     },
     {
       "area": "pages",
-      "files": 633
+      "files": 634
     },
     {
       "area": "root",
@@ -106,17 +106,17 @@
     },
     {
       "area": "tests",
-      "files": 392
+      "files": 396
     }
   ],
   "mostReferenced": [
     {
       "file": "lib/db/prisma.ts",
-      "references": 876
+      "references": 877
     },
     {
       "file": "lib/auth/server.ts",
-      "references": 717
+      "references": 718
     },
     {
       "file": "lib/db/withRequestGuc.ts",
@@ -128,11 +128,11 @@
     },
     {
       "file": "lib/tenant/organization.ts",
-      "references": 240
+      "references": 241
     },
     {
       "file": "lib/content/programs.ts",
-      "references": 239
+      "references": 240
     },
     {
       "file": "lib/audit.ts",
@@ -140,7 +140,7 @@
     },
     {
       "file": "app/seo.ts",
-      "references": 205
+      "references": 206
     },
     {
       "file": "components/portal/kit/index.ts",
@@ -152,7 +152,7 @@
     },
     {
       "file": "components/portal/PageHeader.tsx",
-      "references": 151
+      "references": 152
     },
     {
       "file": "components/portal/PortalRouteLoading.tsx",
@@ -168,7 +168,7 @@
     },
     {
       "file": "lib/tenant/adminPageScope.ts",
-      "references": 95
+      "references": 96
     },
     {
       "file": "lib/observability/captureApiError.ts",
@@ -180,15 +180,15 @@
     },
     {
       "file": "lib/content/programTitle.ts",
-      "references": 82
+      "references": 83
     },
     {
       "file": "components/portal/PortalPageFrame.tsx",
-      "references": 70
+      "references": 71
     },
     {
       "file": "lib/content/programSlug.ts",
-      "references": 64
+      "references": 66
     },
     {
       "file": "lib/email/escapeHtml.ts",
@@ -199,12 +199,12 @@
       "references": 59
     },
     {
-      "file": "lib/supabase-admin.ts",
+      "file": "components/portal/ui/DataTable.tsx",
       "references": 54
     },
     {
-      "file": "components/portal/ui/DataTable.tsx",
-      "references": 53
+      "file": "lib/supabase-admin.ts",
+      "references": 54
     },
     {
       "file": "lib/analytics/events.ts",
@@ -212,7 +212,7 @@
     },
     {
       "file": "lib/content/programCurriculumManifest.ts",
-      "references": 50
+      "references": 51
     },
     {
       "file": "lib/events/track.ts",
@@ -289,12 +289,12 @@
       "lines": 1679
     },
     {
-      "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
-      "lines": 1629
+      "file": "app/admin/coursera/page.tsx",
+      "lines": 1650
     },
     {
-      "file": "app/admin/coursera/page.tsx",
-      "lines": 1620
+      "file": "components/portal/kit/pages/VoiceStudioKit.tsx",
+      "lines": 1629
     },
     {
       "file": "scripts/audit-portal-routes.mjs",

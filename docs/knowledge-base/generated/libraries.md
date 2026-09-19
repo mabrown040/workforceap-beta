@@ -39,6 +39,7 @@
 | [lib/admin/courseraEnrollmentApproval.ts](../../../lib/admin/courseraEnrollmentApproval.ts) | 95 | learning-coursera | CourseraApprovalResult:20, setCourseraEnrollmentApproval:24 |
 | [lib/admin/courseraEnrollmentPipeline.ts](../../../lib/admin/courseraEnrollmentPipeline.ts) | 230 | learning-coursera | EnrollmentSignal:33, ENROLLMENT_SIGNAL_LABELS:35, EnrollmentPipelineRow:43, EnrollmentPipelineSummary:56, EnrollmentPipelineData:66, loadCourseraEnrollmentPipeline:86 |
 | [lib/admin/courseraOps.ts](../../../lib/admin/courseraOps.ts) | 348 | learning-coursera | XapiStatementAttentionRow:15, listXapiStatementsNeedingAttention:41, countXapiStatementsNeedingAttention:91, CourseraSyncStatus:121, getCourseraSyncStatus:127, CourseProgressAuditRow:159, ProgramProgressAuditRollup:169, MemberProgressAuditResult:179, loadMemberProgressAuditByEmail:217 |
+| [lib/admin/courseraProvisioningQueue.ts](../../../lib/admin/courseraProvisioningQueue.ts) | 221 | learning-coursera | CourseraProvisioningQueueData:38, loadCourseraProvisioningQueue:48 |
 | [lib/admin/courseraSyncDrift.test.ts](../../../lib/admin/courseraSyncDrift.test.ts) | 61 | learning-coursera |  |
 | [lib/admin/courseraSyncDrift.ts](../../../lib/admin/courseraSyncDrift.ts) | 101 | learning-coursera | SyncDriftRawRow:12, SyncDriftRow:22, SyncDriftResult:31, SYNC_DRIFT_THRESHOLD_HOURS:35, SYNC_DRIFT_LIMIT:36, buildSyncDriftQuery:41, mapSyncDriftRows:71, loadSyncDriftPairs:87 |
 | [lib/admin/cronPreviewTypes.ts](../../../lib/admin/cronPreviewTypes.ts) | 10 | administration | CronPreviewRecipient:1, CronPreviewResponse:3 |
@@ -426,6 +427,7 @@
 | [lib/coursera/progressQueries.ts](../../../lib/coursera/progressQueries.ts) | 1050 | learning-coursera | isLikelyTestAccount:11, BadgeProgressSummary:13, loadBadgeProgressSummary:40, UnmatchedLearner:112, LoadUnmatchedLearnersOptions:136, loadUnmatchedLearners:183, countHiddenTestAccountUnmatchedLearners:383, countUnmatchedLearners:430, LearnerCourseRow:470, LearnerBadgeRow:488, LearnerProgressDetail:503, loadLearnerProgressByUserId:511, loadLearnerProgressByExternalEmail:653, UnmatchedXapiEventRow:747, loadUnmatchedXapiEventsByExternalEmail:780, countUnmatchedXapiEventsByExternalEmail:828, loadUnmatchedXapiEventsByExternalEmailPaginated:863, SuggestedUserMatch:908, suggestUserMatchesForExternalEmail:943 |
 | [lib/coursera/progressReconciliation.test.ts](../../../lib/coursera/progressReconciliation.test.ts) | 128 | learning-coursera |  |
 | [lib/coursera/progressReconciliation.ts](../../../lib/coursera/progressReconciliation.ts) | 151 | learning-coursera | CourseProgressReconcileRow:3, LocalCourseProgressFact:21, B4BCourseProgressFact:28, ProgramProgressReconciliation:33, reconcileProgramProgress:70 |
+| [lib/coursera/provisioningState.ts](../../../lib/coursera/provisioningState.ts) | 351 | learning-coursera | CourseraProvisioningState:44, PROVISIONING_STATES:55, PROVISIONING_STATE_LABELS:66, PROVISIONING_STATE_HINTS:77, CourseraProvisioningSignals:88, CourseraProvisioningDerived:111, ACTIVE_WINDOW_DAYS:126, INVITE_ATTENTION_DAYS:128, deriveCourseraProvisioningState:134, ProvisioningSummary:200, summarizeProvisioningStates:206, LearnerLastActivitySource:232, LearnerActivityTimestamps:234, LearnerLastActivity:245, resolveLearnerLastActivity:267, CourseraProvisioningRow:279, buildProvisioningCsv:315 |
 | [lib/coursera/rawProgressTenantKeys.ts](../../../lib/coursera/rawProgressTenantKeys.ts) | 130 | learning-coursera | ensureCourseProgressTenantKeys:17, ensureBadgeProgressTenantKeys:75 |
 | [lib/coursera/replayPendingXapi.ts](../../../lib/coursera/replayPendingXapi.ts) | 252 | learning-coursera | ReplayPendingXapiResult:10, replayPendingXapiStatements:38, replayPendingXapiStatementsForEmail:57, replayUnresolvedXapiStatementsForIdentity:79, reconcileUnresolvedXapiOrganizations:136 |
 | [lib/coursera/resolveUserIdByEmail.merge.test.ts](../../../lib/coursera/resolveUserIdByEmail.merge.test.ts) | 31 | learning-coursera |  |
@@ -484,6 +486,8 @@
 | [lib/db/withDbRetry.ts](../../../lib/db/withDbRetry.ts) | 142 | libraries | isRetryableDbError:76, isConnectionAcquisitionError:89, DbRetryOptions:99, withDbRetry:120 |
 | [lib/db/withRequestGuc.test.ts](../../../lib/db/withRequestGuc.test.ts) | 66 | libraries |  |
 | [lib/db/withRequestGuc.ts](../../../lib/db/withRequestGuc.ts) | 150 | libraries | buildGucContextFromUser:21, withUserGuc:43, withSystemGuc:66, withAnonymousGuc:76, withApiGuc:97, withApiGuc:102, withApiGuc:105, withAuthenticatedApiGuc:128, withAuthenticatedApiGuc:131, withAuthenticatedApiGuc:134 |
+| [lib/demo/demoProgressPlan.test.ts](../../../lib/demo/demoProgressPlan.test.ts) | 101 | libraries |  |
+| [lib/demo/demoProgressPlan.ts](../../../lib/demo/demoProgressPlan.ts) | 160 | libraries | DemoMemberProgressInput:5, DemoPointsEvent:12, DemoProgressPlan:18, matchCompletedCatalogCourses:42, planDemoMemberPoints:69, planDemoMemberProgress:129 |
 | [lib/diagnostics.ts](../../../lib/diagnostics.ts) | 37 | libraries | WorkflowDiagnosticParams:3, recordWorkflowDiagnostic:17 |
 | [lib/elevenlabs-agent-dynamic-defaults.test.ts](../../../lib/elevenlabs-agent-dynamic-defaults.test.ts) | 188 | ai-voice |  |
 | [lib/elevenlabs-agent-patch-runner.test.ts](../../../lib/elevenlabs-agent-patch-runner.test.ts) | 864 | ai-voice |  |
@@ -565,6 +569,7 @@
 | [lib/i18n/config.ts](../../../lib/i18n/config.ts) | 168 | public-experience | APP_LOCALES:1, AppLocale:2, DEFAULT_LOCALE:4, REVIEWED_LOCALES:15, isReviewedLocale:17, WAP_LOCALE_COOKIE:22, WAP_LOCALE_HEADER:25, isAppLocale:27, RTL_LOCALES:32, isRtlLocale:34, LOCALEABLE_PATH_PREFIXES:45, isLocaleableMarketingPath:57, isAstroMarketingPath:104, isLocaleBypassPath:113, splitLocalePrefix:128, pickLocaleFromAcceptLanguage:142, withLocalePrefix:165 |
 | [lib/i18n/cookieLocale.ts](../../../lib/i18n/cookieLocale.ts) | 12 | public-experience | getAppLocaleFromCookieStore:6 |
 | [lib/i18n/date.ts](../../../lib/i18n/date.ts) | 83 | public-experience | formatDate:37, formatDateTime:47, formatLocalizedDate:71 |
+| [lib/i18n/esCopyDeckParity.test.ts](../../../lib/i18n/esCopyDeckParity.test.ts) | 136 | public-experience |  |
 | [lib/i18n/getT.ts](../../../lib/i18n/getT.ts) | 4 | public-experience | getTranslations:4 |
 | [lib/i18n/localizeHref.ts](../../../lib/i18n/localizeHref.ts) | 31 | public-experience | LocalizedHrefResolution:4, localizeHref:10, resolveLocalizedHref:22 |
 | [lib/i18n/pickRootClientMessages.test.ts](../../../lib/i18n/pickRootClientMessages.test.ts) | 115 | public-experience |  |

@@ -6907,12 +6907,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 59,
+        "line": 60,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 70,
+        "line": 71,
         "kind": "FunctionDeclaration",
         "localName": "PartnerDashboardPage"
       }
@@ -6937,7 +6937,7 @@
       },
       {
         "specifier": "@/lib/auth/roles",
-        "line": 22,
+        "line": 23,
         "kind": "import"
       }
     ]

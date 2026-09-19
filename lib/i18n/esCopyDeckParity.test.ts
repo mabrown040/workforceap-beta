@@ -89,8 +89,48 @@ test('messages/es.json: counselor, about, and employer UI copy is not leftover E
     'marketing.about.description',
     'employer.employerMessagesSubtitleMobile',
     'employer.employerMessagesSubtitleDesktop',
+    // Counselor placement form / triage / session page metadata (WAP-152 leftovers).
+    'counselor.cancel',
+    'counselor.memberId',
+    'counselor.employer',
+    'counselor.jobTitle',
+    'counselor.startDate',
+    'counselor.program',
+    'counselor.notes',
+    'counselor.recording',
+    'counselor.salary',
+    'counselor.placed',
+    'counselor.failed',
+    'counselor.triage',
+    'counselor.inOfficeSessionsMetaTitle',
+    'counselor.inOfficeSessionsMetaDesc',
+    'counselor.sessionRunMetaTitle',
+    'counselor.sessionRunMetaDesc',
+    'counselor.walkInSessionMetaTitle',
+    'counselor.walkInSessionMetaDesc',
   ];
   for (const key of keys) {
     assert.notEqual(at(es, key), at(en, key), key);
   }
+});
+
+test('messages/es.json: admin analytics and employer LOI/outcomes keys exist and are translated', () => {
+  const es = loadJson('messages/es.json');
+  const en = loadJson('messages/en.json');
+  const keys = [
+    'admin.memberCount',
+    'admin.analyticsPageTitle',
+    'admin.analyticsPageDescription',
+    'employer.loiTitle',
+    'employer.loiDescription',
+    'employer.outcomes.title',
+    'employer.outcomes.description',
+  ];
+  for (const key of keys) {
+    const value = at(es, key);
+    assert.notEqual(value, at(en, key), key);
+    assert.notEqual(value.trim(), '', key);
+  }
+  // ICU plural arms must survive translation.
+  assert.match(at(es, 'admin.memberCount'), /^\{count, plural, one \{[^}]+\} other \{[^}]+\}\}$/);
 });

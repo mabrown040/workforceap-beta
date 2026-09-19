@@ -160,8 +160,8 @@ export default function EmployerSignupPage() {
 
             <form onSubmit={handleSubmit} className="mdx-card wa-p-8 wa-space-y-6">
               {error && (
-                <div className="sd-error wa-flex wa-items-start wa-gap-3 wa-p-4 wa-text-sm">
-                  <AlertCircle className="wa-w-5 wa-h-5 wa-shrink-0 wa-mt-0.5" />
+                <div role="alert" className="sd-error wa-flex wa-items-start wa-gap-3 wa-p-4 wa-text-sm">
+                  <AlertCircle className="wa-w-5 wa-h-5 wa-shrink-0 wa-mt-0.5" aria-hidden="true" />
                   <span>{error}</span>
                 </div>
               )}
@@ -285,6 +285,8 @@ export default function EmployerSignupPage() {
                       }}
                       className="sd-field wa-pr-12"
                       placeholder="Create a strong password"
+                      aria-invalid={passwordErrors.length > 0}
+                      aria-describedby={passwordErrors.length > 0 ? 'password-errors' : undefined}
                     />
                     <button
                       type="button"
@@ -301,7 +303,7 @@ export default function EmployerSignupPage() {
                     </button>
                   </div>
                   {passwordErrors.length > 0 && (
-                    <ul className="wa-mt-2 wa-space-y-1">
+                    <ul id="password-errors" role="alert" className="wa-mt-2 wa-space-y-1">
                       {passwordErrors.map((err) => (
                         <li key={err} className="wa-text-xs wa-flex wa-items-center wa-gap-1" style={{ color: '#8c0f37' }}>
                           <span className="sd-pw-dot" />

@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import PlacementSurveyForm from '@/components/forms/PlacementSurveyForm';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
@@ -102,7 +103,7 @@ export default async function PlacementSurveyTokenPage(props: {
         {waveSubtitle}
         {survey.user.fullName ? ` Thanks, ${survey.user.fullName.split(/\s+/)[0]}.` : ''}
       </p>
-      <PlacementSurveyForm token={token} programName={survey.user.enrolledProgram} />
+      <PlacementSurveyForm token={token} programName={survey.user.enrolledProgram ? programDisplayTitle(survey.user.enrolledProgram) : null} />
     </main>
   );
 }

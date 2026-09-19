@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin, getProfileRole } from '@/lib/auth/roles';
+import { isAdmin, getProfileRole } from '@/lib/auth/roles';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
@@ -17,7 +17,7 @@ export const POST = withApiGuc(async (
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    await requireAdmin(user.id);
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
 
     const { id } = await params;
     const orgId = await getActorOrganizationId(user.id);

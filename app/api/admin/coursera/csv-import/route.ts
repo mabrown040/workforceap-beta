@@ -15,6 +15,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
+/** Ingest failures (Prisma, mapping helpers) keep their text in the server log. */
+const INGEST_FAILED = 'Unable to import the Coursera CSV right now. Please try again in a few minutes.';
+
 export const runtime = 'nodejs';
 
 async function requireAdminUser() {
@@ -114,8 +117,8 @@ async function _POST(request: NextRequest) {
           ...result,
         });
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Ingest failed';
-        return NextResponse.json({ error: message }, { status: 500 });
+        console.error('[admin/coursera/csv-import] course-activity ingest failed:', error);
+        return NextResponse.json({ error: INGEST_FAILED }, { status: 500 });
       }
     }
   
@@ -148,8 +151,8 @@ async function _POST(request: NextRequest) {
         ...result,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Ingest failed';
-      return NextResponse.json({ error: message }, { status: 500 });
+      console.error('[admin/coursera/csv-import] learning-path ingest failed:', error);
+      return NextResponse.json({ error: INGEST_FAILED }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/coursera/csv-import:', error);

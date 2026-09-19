@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { AlertTriangle, MessageSquare, Sparkles } from 'lucide-react';
 import type { CommandCenter } from '@/lib/counselor/commandCenter';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { describeInactivity, isUrgentInactivity } from '@/lib/counselor/lastActivity';
 
 /**
@@ -96,7 +96,7 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
               key={row.memberId}
               name={row.memberName}
               meta={describeInactivity(row.daysInactive)}
-              preview={row.enrolledProgram ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram : null}
+              preview={row.enrolledProgram ? programDisplayTitle(row.enrolledProgram) : null}
               actionLabel="Check in"
               actionHref={`/counselor/students/${row.memberId}`}
               urgent={isUrgentInactivity(row.daysInactive, 14)}

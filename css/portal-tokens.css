@@ -41,6 +41,11 @@
   --wa-gold-dark: light-dark(#7d5f26, #e0b062);
   --wa-info: light-dark(#2b7bb9, #77ade6);
   --wa-success: light-dark(#4a9b4f, #6fc99a);
+  /* Text-on-success-tint (green status pills, "/10" fit scores). --wa-success
+     itself measures 3.1:1 on --wa-success-soft and 3.5:1 on white, so it is a
+     fill/icon colour, not a text colour. Pair this with --wa-success-soft:
+     4.8:1 light, 7.7:1 dark. */
+  --wa-success-dark: light-dark(#357a3a, #8fd9b0);
   --wa-danger: light-dark(#dc2626, #f0708a);
   --wa-danger-soft: rgba(220, 38, 38, 0.12); /* alpha tint — reads fine on both modes */
   --wa-violet: #7c3aed;

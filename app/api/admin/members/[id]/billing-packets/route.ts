@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { canAdminActInSubjectOrganization } from '@/lib/tenant/adminSubjectAccess';
@@ -39,7 +39,7 @@ export const GET = withApiGuc(async (_request: Request, { params }: { params: Pr
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    await requireAdmin(user.id);
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     const { id } = await params;
     const member = await resolveAdminSubject(user.id, id);
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
@@ -60,7 +60,7 @@ export const POST = withApiGuc(async (request: Request, { params }: { params: Pr
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    await requireAdmin(user.id);
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     const { id } = await params;
     const member = await resolveAdminSubject(user.id, id);
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });

@@ -38,10 +38,7 @@ async function _POST() {
       return NextResponse.json({ ok: true, result });
     } catch (err) {
       captureApiError(err, { route: 'admin/coursera/sync-b4b' });
-      return NextResponse.json(
-        { error: err instanceof Error ? err.message : 'Sync failed' },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: 'Unable to sync Coursera enrollment reports.' }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/coursera/sync-b4b:', error);

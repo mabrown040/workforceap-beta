@@ -2,6 +2,7 @@ import { ApplicationStatus, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_COHORT_DETAIL_CAP, LOOKUP_CATALOG_CAP, REPORT_SAMPLE_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 const VOICE_TOOL_TYPES = [
   'readiness_voice_session',
@@ -15,7 +16,7 @@ const NONE_KEY = '__none__';
 export function cohortLabel(enrolledProgram: string | null): string {
   if (!enrolledProgram) return 'Not enrolled';
   const p = getProgramBySlug(enrolledProgram);
-  return p?.title ?? enrolledProgram;
+  return p?.title ?? programDisplayTitle(enrolledProgram);
 }
 
 function userIdsByCohort(

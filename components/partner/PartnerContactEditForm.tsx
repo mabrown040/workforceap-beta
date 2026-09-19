@@ -85,7 +85,7 @@ export default function PartnerContactEditForm({
             padding: '8px 10px',
             background: 'color-mix(in srgb, var(--wa-success) 12%, transparent)',
             borderRadius: 'var(--wa-radius-sm)',
-            color: 'var(--wa-success)',
+            color: 'var(--wa-success-dark)',
             fontSize: 13,
           }}
         >

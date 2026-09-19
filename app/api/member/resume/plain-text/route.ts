@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 import { prisma } from '@/lib/db/prisma';
 import {
@@ -30,7 +31,10 @@ const MAX_CHARS = 120_000;export const POST = withApiGuc(async (request: Request
       );
     }
 
-    const body = (await request.json()) as { plainText?: unknown; resumeRevision?: unknown };
+    const body = await readJsonObjectBody<{ plainText?: unknown; resumeRevision?: unknown }>(request);
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
     const raw = typeof body.plainText === 'string' ? body.plainText : '';
     const safeText = sanitizeResumePlainText(raw);
     const plainText = safeText.length > MAX_CHARS ? safeText.slice(0, MAX_CHARS) : safeText;

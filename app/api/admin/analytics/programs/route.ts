@@ -36,8 +36,8 @@ export const GET = withApiGuc(async () => {
     const completions = await prisma.$transaction((tx) => tx.$queryRaw<{ program: string; count: number }[]>`
       SELECT ce.program as program, COUNT(DISTINCT ce.user_id)::int as count
       FROM course_enrollments ce
-      INNER JOIN users u ON u.id = ce.user_id AND u.organization_id = ${orgId}::uuid AND u.deleted_at IS NULL
-      WHERE ce.completed_at IS NOT NULL AND ce.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = ce.user_id AND u.organization_id = ${orgId} AND u.deleted_at IS NULL
+      WHERE ce.completed_at IS NOT NULL AND ce.organization_id = ${orgId}
       GROUP BY ce.program
     `);
 

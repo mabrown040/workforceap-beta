@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
@@ -153,7 +153,7 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
       m.courseEnrollments,
     );
     const programSlug = assignment.programSlug ?? (m.enrolledProgram as string);
-    const programTitle = getProgramBySlug(programSlug)?.title ?? programSlug;
+    const programTitle = programDisplayTitle(programSlug);
     programSet.set(programSlug, programTitle);
 
     const cp = courseProgressByUser.get(m.id);

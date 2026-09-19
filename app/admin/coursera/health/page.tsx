@@ -11,6 +11,7 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
 import { prisma } from '@/lib/db/prisma';
+import { loadSyncDriftPairs } from '@/lib/admin/courseraSyncDrift';
 import IgnoredXapiSummaryCard from '@/components/admin/IgnoredXapiSummaryCard';
 import { auditCourseraLinkHealth } from '@/lib/coursera/linkHealth';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
@@ -82,15 +83,6 @@ type OutOfCatalogRow = {
   eventCount: number;
   distinctLearners: number;
   lastSeen: Date | null;
-};
-
-type SyncDriftRow = {
-  key: string;
-  email: string;
-  courseName: string;
-  b4bLastActivity: Date | null;
-  ourLastUpdated: Date | null;
-  deltaHours: number;
 };
 
 type WrongProgramRow = {
@@ -424,53 +416,6 @@ async function loadOutOfCatalogXapi(
   }
 }
 
-async function loadSyncDriftPairs(): Promise<SyncDriftRow[]> {
-  try {
-    const rows = await prisma.$queryRaw<
-      Array<{
-        userId: string;
-        email: string | null;
-        courseName: string;
-        courseraCourseId: string;
-        b4bLastActivity: Date | null;
-        ourLastUpdated: Date | null;
-        deltaSeconds: number | null;
-      }>
-    >`
-      SELECT
-        ccp.user_id AS "userId",
-        u.email AS "email",
-        ccp.course_name AS "courseName",
-        ccp.coursera_course_id AS "courseraCourseId",
-        ccp.last_activity_time AS "b4bLastActivity",
-        cp.last_updated_at AS "ourLastUpdated",
-        EXTRACT(EPOCH FROM ABS(ccp.last_activity_time - cp.last_updated_at))::int AS "deltaSeconds"
-      FROM coursera_course_progress ccp
-      JOIN course_progress cp
-        ON cp.user_id = ccp.user_id
-        AND cp.course_id = ccp.coursera_course_id
-      JOIN users u ON u.id = ccp.user_id
-      WHERE ccp.user_id IS NOT NULL
-        AND ccp.last_activity_time IS NOT NULL
-        AND cp.last_updated_at IS NOT NULL
-        AND ABS(ccp.last_activity_time - cp.last_updated_at) > INTERVAL '24 hours'
-      ORDER BY ABS(ccp.last_activity_time - cp.last_updated_at) DESC
-      LIMIT 20
-    `;
-    return rows.map((r) => ({
-      key: `${r.userId}::${r.courseraCourseId}`,
-      email: r.email ?? '(unknown)',
-      courseName: r.courseName,
-      b4bLastActivity: r.b4bLastActivity,
-      ourLastUpdated: r.ourLastUpdated,
-      deltaHours: r.deltaSeconds == null ? 0 : Math.round(Number(r.deltaSeconds) / 3600),
-    }));
-  } catch (error) {
-    console.error('[admin/coursera/health] sync drift pairs failed:', error);
-    return [];
-  }
-}
-
 async function loadWrongProgramStudying(
   now: Date,
   slugToProgram: Map<string, { slug: string | null; name: string }>,
@@ -671,7 +616,7 @@ export default async function AdminCourseraHealthPage() {
     topUnmatchedActors,
     b4bPrograms,
     driftRows,
-    syncDriftRows,
+    syncDrift,
     linkHealth,
   ] = await Promise.all([
     loadCanonicalMappingCount(),
@@ -683,7 +628,7 @@ export default async function AdminCourseraHealthPage() {
     loadTopUnmatchedActors(now),
     readOnlyAudit ? Promise.resolve([]) : loadB4BProgramsSafe(),
     loadB4BvsOursDrift(),
-    loadSyncDriftPairs(),
+    loadSyncDriftPairs((sql) => prisma.$queryRaw(sql)),
     readOnlyAudit
       ? Promise.resolve(null)
       : auditCourseraLinkHealth().catch((error) => {
@@ -978,7 +923,7 @@ export default async function AdminCourseraHealthPage() {
                     </div>
                     {!row.learningPathId ? (
                       <div style={{ color: 'var(--color-warn, #b45309)', marginTop: '0.15rem' }}>
-                        learningPathId: null
+                        No Learning Path ID registered
                       </div>
                     ) : null}
                   </>
@@ -1365,14 +1310,19 @@ export default async function AdminCourseraHealthPage() {
           for the same (userId, courseraCourseId). Big gap = sync staleness signal —
           one feed is ahead of the other.
         </p>
-        {syncDriftRows.length === 0 ? (
+        {syncDrift.status === 'error' ? (
+          <p role="alert" style={{ ...cardSecondaryStyle, color: 'var(--color-error, #dc2626)', margin: 0 }}>
+            Couldn&apos;t run the sync-drift check, so no drift verdict is available.{' '}
+            <code style={{ fontSize: '0.8rem' }}>{syncDrift.message}</code>
+          </p>
+        ) : syncDrift.rows.length === 0 ? (
           <span style={cardSecondaryStyle}>
             B4B and our internal lastActivity are within 24h on every matched pair.
           </span>
         ) : (
           <DataTable
             density="compact"
-            rows={syncDriftRows}
+            rows={syncDrift.rows}
             rowKey={(row) => row.key}
             columns={[
               {

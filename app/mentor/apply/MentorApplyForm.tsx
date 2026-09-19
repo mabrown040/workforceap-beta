@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import LocalizedLink from '@/components/LocalizedLink';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import styles from './mentor-apply.module.css';
 
 const INDUSTRIES = [
@@ -18,9 +20,13 @@ const INDUSTRIES = [
   'Other',
 ];
 
+const SUBMIT_FAILED = 'We could not send your application. Please try again.';
+
 export default function MentorApplyForm() {
+  const tCommon = useTranslations('common');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     fullName: '',
     title: '',
@@ -34,13 +40,25 @@ export default function MentorApplyForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/mentors/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      if (res.ok) setSubmitted(true);
+      if (res.ok) {
+        setSubmitted(true);
+        return;
+      }
+      // A server rejection is JSON `{ error }`; a non-JSON answer falls through
+      // to the generic sentence.
+      const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+      setError(typeof data.error === 'string' && data.error.trim() ? data.error : SUBMIT_FAILED);
+    } catch (err) {
+      setError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: SUBMIT_FAILED }, 'mentor-apply'),
+      );
     } finally {
       setLoading(false);
     }
@@ -151,6 +169,11 @@ export default function MentorApplyForm() {
           />
         </div>
 
+        {error && (
+          <p role="alert" style={{ color: 'var(--wa-danger, #dc2626)', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
+            {error}
+          </p>
+        )}
         <button
           type="submit"
           disabled={loading}

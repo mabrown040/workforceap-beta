@@ -28,6 +28,7 @@ const CERT_SUGGESTIONS = [
 export default function CertificationAddForm() {
   const idPrefix = useId();
   const certNameId = `${idPrefix}-certificate-name`;
+  const certNameLabelId = `${certNameId}-label`;
   const earnedDateId = `${idPrefix}-date-earned`;
   const certificateFileId = `${idPrefix}-certificate-file`;
   const [open, setOpen] = useState(false);
@@ -144,12 +145,12 @@ export default function CertificationAddForm() {
       </div>
 
       {error && (
-        <p style={{ fontSize: '0.875rem', color: 'var(--color-accent)', margin: 0, padding: '0.5rem 0.75rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.5rem' }}>{error}</p>
+        <p role="alert" style={{ fontSize: '0.875rem', color: 'var(--color-accent)', margin: 0, padding: '0.5rem 0.75rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.5rem' }}>{error}</p>
       )}
 
       {/* Certificate name */}
       <div>
-        <label htmlFor={certNameId} style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+        <label id={certNameLabelId} htmlFor={certNameId} style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
           Certificate Name
         </label>
         <select id={certNameId}
@@ -165,6 +166,7 @@ export default function CertificationAddForm() {
             type="text"
             value={customName}
             onChange={(e) => setCustomName(e.target.value)}
+            aria-labelledby={certNameLabelId}
             placeholder="Type the certificate name…"
             style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', boxSizing: 'border-box' as const }}
           />

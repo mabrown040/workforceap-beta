@@ -67,20 +67,60 @@ const outlinePillStyle = {
   minHeight: 44,
 } as const;
 
-function persistCheckpoint(payload: {
+/**
+ * Records the answer without blocking the quiz. A failed save is retried once
+ * and then reported to the caller, so the member is told when a checkpoint
+ * did not reach their record instead of discovering it missing later.
+ */
+async function persistCheckpoint(payload: {
   checkpointId: string;
   programSlug: string;
   courseSlug: string;
   passed: boolean;
-}) {
-  // Fire-and-forget — we don't block UX on this
-  fetch('/api/member/skill-checkpoints', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  }).catch(() => {
-    // Silently swallow — non-critical persistence
-  });
+}): Promise<boolean> {
+  const attempt = async () => {
+    const res = await fetch('/api/member/skill-checkpoints', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  };
+  try {
+    if (await attempt()) return true;
+  } catch {
+    // dropped connection — retried below
+  }
+  try {
+    return await attempt();
+  } catch {
+    return false;
+  }
+}
+
+const SAVE_WARNING_COPY =
+  "We couldn't save your latest answer to your record. You can keep going here; if it does not show in your progress later, retake this course's checkpoints.";
+
+function SaveWarning() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      data-testid="checkpoint-save-warning"
+      style={{
+        padding: '0.7rem 0.9rem',
+        borderRadius: 'var(--wa-radius-sm)',
+        background: 'var(--wa-gold-soft)',
+        border: '1px solid var(--wa-gold)',
+        color: 'var(--wa-gold-dark)',
+        fontSize: '0.82rem',
+        lineHeight: 1.5,
+        marginBottom: '1rem',
+      }}
+    >
+      {SAVE_WARNING_COPY}
+    </div>
+  );
 }
 
 function ProofCard({
@@ -156,6 +196,7 @@ function ProofCard({
 
 export default function SkillCheckpointsClient({ userId: _userId }: { userId: string }) {
   const [step, setStep] = useState<Step>({ kind: 'program' });
+  const [saveFailed, setSaveFailed] = useState(false);
 
   // ─── Step 0: Program picker ───────────────────────────────────────────────
   const renderProgramPicker = () => (
@@ -210,8 +251,10 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
           <button
             key={course.courseSlug}
             className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
-            onClick={() =>
-              setStep({ kind: 'quiz', pack, course, index: 0, answers: {}, revealed: false })
+            onClick={() => {
+              setSaveFailed(false);
+              setStep({ kind: 'quiz', pack, course, index: 0, answers: {}, revealed: false });
+            }
             }
             aria-label={`Select ${course.courseName}`}
             style={{
@@ -252,12 +295,15 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
         if (revealed) return;
         const newAnswers = { ...answers, [cp.id]: optId };
         setStep({ ...state, answers: newAnswers, revealed: true });
-        // Persist immediately on answer (fire-and-forget)
-        persistCheckpoint({
+        // Persist immediately on answer; the quiz does not wait, but a save
+        // that fails twice is surfaced so the member knows.
+        void persistCheckpoint({
           checkpointId: cp.id,
           programSlug: pack.programSlug,
           courseSlug: course.courseSlug,
           passed: optId === cp.correctOptionId,
+        }).then((saved) => {
+          if (!saved) setSaveFailed(true);
         });
       };
 
@@ -296,6 +342,8 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
           <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)', marginBottom: '1rem', fontVariantNumeric: 'tabular-nums' }}>
             Checkpoint {index + 1} of {course.checkpoints.length}
           </div>
+
+          {saveFailed && <SaveWarning />}
 
           {/* Scenario card */}
           <div
@@ -440,7 +488,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
         </div>
       );
     },
-    []
+    [saveFailed]
   );
 
   // ─── Step 3: Done / completion card ───────────────────────────────────────
@@ -457,6 +505,8 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
             You answered {correct} of {total} correctly.
           </div>
         </div>
+
+        {saveFailed && <SaveWarning />}
 
         <ProofCard course={course} pack={pack} correct={correct} total={total} />
 

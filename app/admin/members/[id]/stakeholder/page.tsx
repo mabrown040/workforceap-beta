@@ -248,7 +248,10 @@ export default async function AdminMemberStakeholderPage({
         }
       />
 
-      <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '900px' }}>
+      {/* `minmax(0, 1fr)`: the auto track otherwise grows to the widest
+          card's min-content (long untranslated labels once pushed it to
+          1649px at a 1280px viewport). */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '1.5rem', maxWidth: '900px' }}>
         {/* Hero card */}
         <section className="content-card" style={heroStyle}>
           <p

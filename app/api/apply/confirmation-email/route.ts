@@ -66,7 +66,10 @@ async function _POST(request: NextRequest) {
       take: 1,
     });
     if (!recentApplication) {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+      // Same body and status as the sent path so the response does not reveal
+      // whether an application exists for this address. Nothing is sent; the
+      // client only uses `ok` to stop retrying, which is the right outcome here.
+      return NextResponse.json({ ok: true });
     }
 
     const result = await sendApplicationConfirmationEmail({
@@ -75,7 +78,12 @@ async function _POST(request: NextRequest) {
       applicationId: recentApplication.id,
     });
     if (!result.ok) {
-      return NextResponse.json({ error: result.error ?? 'Send failed' }, { status: 502 });
+      // `result.error` is the provider's raw exception text; log it, never echo it.
+      console.error('[app/api/apply/confirmation-email] send failed:', result.error ?? 'unknown');
+      return NextResponse.json(
+        { error: 'We could not send the confirmation email right now. Please try again later.' },
+        { status: 502 },
+      );
     }
     return NextResponse.json({ ok: true });
   } catch (err) {

@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState, useCallback } from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { DataTable, Avatar, type Column, type KitColor } from '@/components/portal/kit';
@@ -60,6 +62,8 @@ function FitBadge({ pct }: { pct: number }) {
   );
 }
 
+const STATUS_UPDATE_FAILED = 'Could not update this candidate\u2019s status. Please try again.';
+
 function StatusSelect({
   value,
   disabled,
@@ -101,6 +105,8 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
   const [rows, setRows] = useState(initialRows);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
+  const connectionCopy = tCommon('connectionError');
 
   const patchStatus = useCallback(async (jobId: string, studentId: string, matchId: string, status: string) => {
     setBusyId(matchId);
@@ -111,9 +117,11 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
-      const data = await r.json().catch(() => ({}));
+      // A server rejection is JSON `{ error }`; a non-JSON answer falls
+      // through to the stable sentence.
+      const data = (await r.json().catch(() => ({}))) as { error?: unknown; status?: string; statusUpdatedAt?: string };
       if (!r.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Update failed');
+        setError(typeof data.error === 'string' && data.error.trim() ? data.error : STATUS_UPDATE_FAILED);
         return;
       }
       setRows((prev) =>
@@ -127,10 +135,14 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
             : row
         )
       );
+    } catch (err) {
+      // Before this catch a dropped connection escaped as an unhandled
+      // rejection: the select re-enabled and the employer read nothing.
+      setError(requestFailureMessage(err, { connection: connectionCopy, fallback: STATUS_UPDATE_FAILED }, 'employer-match-status'));
     } finally {
       setBusyId(null);
     }
-  }, []);
+  }, [connectionCopy]);
 
   if (rows.length === 0) {
     return (

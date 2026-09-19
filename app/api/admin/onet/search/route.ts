@@ -23,9 +23,12 @@ async function _GET(request: NextRequest) {
       const occupations = await searchOccupations(q);
       return NextResponse.json({ occupations });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error('/admin/onet/search O*NET error:', msg);
-      return NextResponse.json({ error: `O*NET search unavailable: ${msg}`, occupations: [] }, { status: 503 });
+      // Keep the O*NET error text (URL, credentials hint) in the server log.
+      console.error('/admin/onet/search O*NET error:', e);
+      return NextResponse.json(
+        { error: 'O*NET search is unavailable right now. Please try again in a few minutes.', occupations: [] },
+        { status: 503 },
+      );
     }
   } catch (error) {
     console.error('/admin/onet/search:', error);

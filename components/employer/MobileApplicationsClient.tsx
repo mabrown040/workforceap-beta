@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import type { AppMsg, EmployerApplicationRow } from './EmployerApplicationsClient';
 
@@ -60,6 +62,7 @@ export default function MobileApplicationsClient({
 }: {
   initialRows: EmployerApplicationRow[];
 }) {
+  const tCommon = useTranslations('common');
   const [rows, setRows] = useState(initialRows);
   const [filter, setFilter] = useState('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -88,10 +91,14 @@ export default function MobileApplicationsClient({
           row.id === id ? { ...row, status: data.status ?? status } : row
         )
       );
+    } catch (err) {
+      setError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Update failed' }, 'employer-application-status'),
+      );
     } finally {
       setBusyId(null);
     }
-  }, []);
+  }, [tCommon]);
 
   const toggleChat = useCallback(async (applicationId: string) => {
     if (openChatId === applicationId) {
@@ -151,7 +158,7 @@ export default function MobileApplicationsClient({
       </div>
 
       {error && (
-        <p className="mx-4 mb-2 text-xs text-red-600 font-semibold">{error}</p>
+        <p role="alert" className="mx-4 mb-2 text-xs text-red-600 font-semibold">{error}</p>
       )}
 
       {/* Applicant cards */}

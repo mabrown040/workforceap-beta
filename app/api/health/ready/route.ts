@@ -62,11 +62,14 @@ async function checkDefaultOrganization(): Promise<CheckResult> {
     }
     return { status: 'ok', responseTimeMs, slug: DEFAULT_ORG_SLUG };
   } catch (error) {
+    // Keep the driver/connection error server-side; the probe is public and
+    // Prisma messages can carry hostnames, ports and statement text.
+    console.error('/health/ready database check failed:', error);
     return {
       status: 'fail',
       responseTimeMs: Date.now() - started,
       slug: DEFAULT_ORG_SLUG,
-      reason: error instanceof Error ? error.message : 'Prisma unreachable',
+      reason: 'Database unavailable',
     };
   }
 }

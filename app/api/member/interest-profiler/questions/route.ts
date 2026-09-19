@@ -20,8 +20,12 @@ export async function GET() {
       }
       return NextResponse.json({ questions });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to load questions';
-      return NextResponse.json({ error: msg }, { status: 502 });
+      // Keep the O*NET error text (URL, credentials hint) in the server log.
+      console.error('[member/interest-profiler/questions] O*NET request failed:', e);
+      return NextResponse.json(
+        { error: 'Unable to load the interest profiler questions right now. Please try again in a few minutes.' },
+        { status: 502 },
+      );
     }
   } catch (error) {
     console.error('/member/interest-profiler/questions:', error);

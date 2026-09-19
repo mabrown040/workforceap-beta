@@ -10,7 +10,7 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_COHORT_DETAIL_CAP } from '@/lib/db/scanCaps';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   memberProgramCompleted,
   memberProgramProgressPct,
@@ -433,7 +433,7 @@ export async function generatePartnerQuarterlyOutcomes(
       email: m.email,
       enrolledAt: m.enrolledAt ? formatDate(m.enrolledAt) : null,
       program: assignment.programSlug
-        ? getProgramBySlug(assignment.programSlug)?.title ?? assignment.programSlug
+        ? programDisplayTitle(assignment.programSlug)
         : null,
       status: stageLabel,
       progress,

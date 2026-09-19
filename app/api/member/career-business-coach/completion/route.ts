@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
@@ -36,10 +37,8 @@ function buildHistoryOutput(transcript: TranscriptTurn[]) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    let body: { transcript?: unknown; sessionId?: string };
-    try {
-      body = await req.json() as { transcript?: unknown; sessionId?: string };
-    } catch {
+    const body = await readJsonObjectBody<{ transcript?: unknown; sessionId?: string }>(req);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   

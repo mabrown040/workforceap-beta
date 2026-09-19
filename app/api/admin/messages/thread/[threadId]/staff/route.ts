@@ -22,6 +22,9 @@ type Props = { params: Promise<{ threadId: string }> };async function _POST(requ
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
 
   const text = typeof (body as { body?: unknown }).body === 'string' ? (body as { body: string }).body : '';
   const normalized = normalizeMessageBody(text);

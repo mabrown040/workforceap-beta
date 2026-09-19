@@ -13,6 +13,7 @@ import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThrea
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
@@ -350,7 +351,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       courseraEnrollmentApproved={member.courseraEnrollmentApproved}
       enrollments={member.courseEnrollments.map((enrollment) => ({
         programSlug: enrollment.programSlug,
-        programTitle: getProgramBySlug(enrollment.programSlug)?.title ?? enrollment.programSlug,
+        programTitle: programDisplayTitle(enrollment.programSlug),
         isPrimary: enrollment.isPrimary,
         fundingSource: enrollment.fundingSource,
       }))}
@@ -358,7 +359,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   );
 
   const initials = getInitials(member.fullName ?? 'U');
-  const program = member.enrolledProgram ?? member.programInterest ?? '—';
+  const storedProgram = member.enrolledProgram ?? member.programInterest;
+  // Header/subtitle print a title (alias-resolved, or humanised when the
+  // catalog has no entry), never the raw stored slug.
+  const program = storedProgram ? programDisplayTitle(storedProgram) : '—';
   const enrollmentBadge = counselorStudentStatusBadge({
     enrolledProgram: member.enrolledProgram,
     assessmentScorePct: member.assessmentScorePct,
@@ -420,7 +424,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     )
     .map((row) => ({
       programSlug: row.programSlug,
-      programTitle: getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+      programTitle: programDisplayTitle(row.programSlug),
       enrolledAt: row.enrolledAt,
     }));
 
@@ -1008,7 +1012,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 Other programs this student is in
               </h2>
               <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                Secondary enrollments outside the primary program ({programMeta?.title ?? activeProgramSlug ?? '—'}).
+                Secondary enrollments outside the primary program ({activeProgramSlug ? programDisplayTitle(activeProgramSlug) : '—'}).
               </p>
               <div className="portal-card portal-card--flat" style={{ padding: '1rem', border: '1px solid var(--outline-variant)' }}>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

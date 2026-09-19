@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { isAdmin } from '@/lib/auth/roles';
 import {
   listCourseraIdentityMappings,
@@ -52,8 +53,8 @@ async function _GET(request: Request) {
         unmatchedEvents,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to load Coursera mapping data';
-      return NextResponse.json({ error: message }, { status: 500 });
+      console.error('[admin/coursera/mappings] load failed:', error);
+      return NextResponse.json({ error: 'Unable to load Coursera mapping data.' }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/coursera/mappings:', error);
@@ -68,17 +69,14 @@ async function _POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   
-    let body: {
+    const body = await readJsonObjectBody<{
       userId?: string;
       courseraEmail?: string;
       actorIdentifier?: string;
       actorHomePage?: string;
       notes?: string;
-    };
-  
-    try {
-      body = await request.json();
-    } catch {
+    }>(request);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   

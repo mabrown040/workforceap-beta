@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
@@ -28,7 +28,7 @@ export const POST = withApiGuc(async (
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    await requireAdmin(user.id);
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
 
     const { id } = await params;
     if (id === user.id) return NextResponse.json({ error: 'You cannot delete your own administrator account.' }, { status: 403 });

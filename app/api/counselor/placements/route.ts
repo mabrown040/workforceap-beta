@@ -197,7 +197,8 @@ async function _POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await request.json().catch(() => ({}));
+    const raw: unknown = await request.json().catch(() => null);
+    const body = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}) as Record<string, unknown>;
 
     const userId = typeof body.userId === 'string' ? body.userId : '';
     const employerName = typeof body.employerName === 'string' ? body.employerName.trim() : '';

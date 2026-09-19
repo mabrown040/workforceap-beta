@@ -47,7 +47,7 @@ export const GET = withApiGuc(async () => {
           prisma.$queryRaw<{ avg: number | null }[]>`
             SELECT AVG(pr.salary_offered)::float as avg
             FROM placement_records pr
-            INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid AND u.deleted_at IS NULL
+            INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId} AND u.deleted_at IS NULL
             WHERE pr.salary_offered IS NOT NULL
           `,
         ]);

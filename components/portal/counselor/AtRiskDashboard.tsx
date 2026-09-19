@@ -26,7 +26,7 @@ import {
   type KitColor,
   type KitTone} from '@/components/portal/kit';
 import AtRiskDetailModal from './AtRiskDetailModal';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 /**
  * Counselor "At-risk members" — Command Center redesign.
@@ -838,14 +838,17 @@ function FilterChip({
 }) {
   // Severity chips carry an explicit KitColor; status chips reuse the
   // StatusTag tone→color mapping so "Open" reads the same everywhere.
+  // `ok` reads the text-on-success-tint token: --wa-success itself is a fill
+  // colour (3.1:1 on its own tint), not a text colour.
   const TONE_COLOR: Record<KitTone, string> = {
-    ok: 'var(--wa-success)',
+    ok: 'var(--wa-success-dark)',
     warn: 'var(--wa-gold)',
     alert: 'var(--wa-accent)',
     danger: '#b91c1c',
     info: 'var(--wa-info)',
     muted: 'var(--wa-muted)'};
   const c = color ? colorVar(color) : tone ? TONE_COLOR[tone] : 'var(--wa-text)';
+  const activeBg = tone === 'ok' ? 'var(--wa-success-soft)' : `color-mix(in srgb, ${c} 14%, transparent)`;
   return (
     <button
       type="button"
@@ -863,7 +866,7 @@ function FilterChip({
         fontWeight: 700,
         cursor: 'pointer',
         border: `1.5px solid ${active ? c : 'transparent'}`,
-        background: active ? `color-mix(in srgb, ${c} 14%, transparent)` : 'var(--wa-bg)',
+        background: active ? activeBg : 'var(--wa-bg)',
         color: c}}
     >
       {Icon ? <Icon size={13} /> : null}
@@ -994,7 +997,7 @@ function RiskRow({
             {row.phone ? ` · ${row.phone}` : ''}
           </div>
           <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 4 }}>
-            {row.enrolledProgram ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram : 'Not enrolled'} · last activity {formatDate(row.lastActivityAt ?? row.memberSince)}
+            {row.enrolledProgram ? programDisplayTitle(row.enrolledProgram) : 'Not enrolled'} · last activity {formatDate(row.lastActivityAt ?? row.memberSince)}
           </div>
           <FactorChips factors={row.factors} />
         </div>

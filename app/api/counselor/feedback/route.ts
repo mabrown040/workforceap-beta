@@ -100,6 +100,9 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
     } catch {
       return NextResponse.json({ saved: false, error: 'Invalid JSON' }, { status: 400 });
     }
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ saved: false, error: 'Invalid JSON' }, { status: 400 });
+    }
   
     const transcript = normalizeTranscript(Array.isArray(body.transcript) ? body.transcript : []);
   

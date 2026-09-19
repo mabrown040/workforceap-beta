@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 export default function MentorSessionForm({ mentorId }: { mentorId: string }) {
+  const idPrefix = useId();
+  const scheduledAtId = `${idPrefix}-scheduled-at`;
+  const topicId = `${idPrefix}-topic`;
   const [scheduledAt, setScheduledAt] = useState('');
   const [topic, setTopic] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -33,18 +36,23 @@ export default function MentorSessionForm({ mentorId }: { mentorId: string }) {
   return (
     <form onSubmit={handleSubmit} style={{ marginTop: '1rem', display: 'grid', gap: '0.6rem' }}>
       <h2 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 0, color: 'var(--color-on-surface)' }}>Request a Session</h2>
+      {/* Visually-hidden labels: the layout stays the same, screen readers get a name for each control. */}
+      <label htmlFor={scheduledAtId} className="wa-sr-only">Preferred date and time</label>
       <input
+        id={scheduledAtId}
         type="datetime-local" required value={scheduledAt}
         onChange={(e) => setScheduledAt(e.target.value)}
         style={{ border: '1px solid var(--surface-container-high)', borderRadius: '0.5rem', padding: '0.55rem', background: 'var(--color-surface)', color: 'var(--color-on-surface)', boxSizing: 'border-box' as const }}
       />
+      <label htmlFor={topicId} className="wa-sr-only">Topic or questions you&apos;d like to cover</label>
       <textarea
+        id={topicId}
         placeholder="Topic or questions you'd like to cover" rows={3} required value={topic}
         onChange={(e) => setTopic(e.target.value)}
         style={{ border: '1px solid var(--surface-container-high)', borderRadius: '0.5rem', padding: '0.55rem', background: 'var(--color-surface)', color: 'var(--color-on-surface)', resize: 'vertical' as const }}
       />
       {status === 'error' && (
-        <p style={{ color: 'var(--color-accent)', fontSize: '0.85rem' }}>Something went wrong. Please try again.</p>
+        <p role="alert" style={{ color: 'var(--color-accent)', fontSize: '0.85rem' }}>Something went wrong. Please try again.</p>
       )}
       <button
         type="submit" disabled={status === 'loading'}

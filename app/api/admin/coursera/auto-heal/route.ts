@@ -27,8 +27,8 @@ async function _POST() {
       logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraAutoHeal', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true, result });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Auto-heal failed';
-      return NextResponse.json({ error: message }, { status: 500 });
+      console.error('[admin/coursera/auto-heal] heal failed:', error);
+      return NextResponse.json({ error: 'Unable to auto-heal unmatched xAPI events.' }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/coursera/auto-heal:', error);

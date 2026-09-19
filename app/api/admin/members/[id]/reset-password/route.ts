@@ -64,8 +64,12 @@ async function _POST(
   
       return NextResponse.json({ success: true, message: `Password reset email sent to ${member.email}` });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to send reset email';
-      return NextResponse.json({ error: msg }, { status: 500 });
+      // Keep the auth provider's text in the server log.
+      console.error('[admin/members/[id]/reset-password] reset email failed:', e);
+      return NextResponse.json(
+        { error: 'Unable to send the password reset email. Please try again in a few minutes.' },
+        { status: 500 },
+      );
     }
   } catch (error) {
     console.error('/admin/members/[id]/reset-password:', error);

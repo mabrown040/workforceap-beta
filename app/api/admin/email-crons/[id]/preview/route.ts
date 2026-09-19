@@ -34,7 +34,8 @@ export const GET = withApiGuc(async (
       const result = await getPreviewRecipients(id, orgId);
       return NextResponse.json(result);
     } catch (e) {
-      return NextResponse.json({ error: e instanceof Error ? e.message : 'Preview failed' }, { status: 500 });
+      console.error('[admin/email-crons/[id]/preview] recipient lookup failed:', e);
+      return NextResponse.json({ error: 'Unable to load the preview recipients for this email cron.' }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/email-crons/[id]/preview:', error);

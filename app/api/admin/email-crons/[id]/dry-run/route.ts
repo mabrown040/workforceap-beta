@@ -39,7 +39,8 @@ export const POST = withApiGuc(async (
       const result = await simulateCron(id, orgId);
       return NextResponse.json(result);
     } catch (e) {
-      return NextResponse.json({ error: e instanceof Error ? e.message : 'Dry-run failed' }, { status: 500 });
+      console.error('[admin/email-crons/[id]/dry-run] simulation failed:', e);
+      return NextResponse.json({ error: 'Unable to run the dry run for this email cron.' }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/email-crons/[id]/dry-run:', error);

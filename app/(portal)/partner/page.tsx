@@ -7,10 +7,12 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDateTime } from '@/lib/formatDate';
 import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
+import { formatPortalDate } from '@/lib/formatDate';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerReferralShare from '@/components/partner/PartnerReferralShare';
 import { buildPartnerReferralLink } from '@/lib/partner/referralLink';
@@ -250,7 +252,7 @@ export default async function PartnerDashboardPage({
           id: m.id,
           name: m.fullName ?? t('memberFallback'),
           status: m.enrolledAt ? t('membersEnrolled') : t('membersReferred'),
-          referred: r.referredAt.toLocaleDateString('en-US'),
+          referred: formatPortalDate(r.referredAt),
         };
       })
       .filter((row): row is ReferralKitRow => row !== null);
@@ -296,7 +298,7 @@ export default async function PartnerDashboardPage({
                   amountCents / 100,
                 )
               : '—',
-          dateLabel: ev.createdAt.toLocaleDateString('en-US'),
+          dateLabel: formatPortalDate(ev.createdAt),
         };
       });
 
@@ -438,7 +440,7 @@ export default async function PartnerDashboardPage({
                     key={ev.id}
                     tone="yellow"
                     title={label}
-                    meta={ev.createdAt.toLocaleDateString('en-US')}
+                    meta={formatPortalDate(ev.createdAt)}
                     flag={t('pendingVerification')}
                     action={
                       <Link
@@ -622,8 +624,8 @@ export default async function PartnerDashboardPage({
   const pendingUserIds = new Set(pendingPlacements.map((p) => p.userId));
   const referralTableRows = pipelineMembers.map((p) => {
     const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
-    const enrollmentDate = p.member.enrolledAt ? p.member.enrolledAt.toLocaleDateString('en-US') : '—';
-    const placementDate = p.member.placementRecord?.placedAt ? p.member.placementRecord.placedAt.toLocaleDateString('en-US') : '—';
+    const enrollmentDate = p.member.enrolledAt ? formatPortalDate(p.member.enrolledAt) : '—';
+    const placementDate = p.member.placementRecord?.placedAt ? formatPortalDate(p.member.placementRecord.placedAt) : '—';
     let payoutStatus = t('notPlaced');
     if (p.member.placementRecord) payoutStatus = t('includedInEstimate');
     else if (pendingUserIds.has(p.member.id)) payoutStatus = t('pendingVerification');
@@ -1371,7 +1373,7 @@ export default async function PartnerDashboardPage({
                       {ev.metadata && typeof ev.metadata === 'object' && ev.metadata !== null && 'label' in ev.metadata && (
                         <span> — {String((ev.metadata as { label?: string }).label)}</span>
                       )}
-                      <span className="partner-activity-date">{ev.createdAt.toLocaleString()}</span>
+                      <span className="partner-activity-date">{formatPortalDateTime(ev.createdAt)}</span>
                     </li>
                   ))}
                 </ul>

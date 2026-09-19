@@ -19,6 +19,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -65,6 +66,12 @@ const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'mile
   );
   if (!member || member.deletedAt) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
+
+  // Authorize against the member first: a staff user who may not message
+  // this member must not leave a freshly created thread behind a 403.
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   // Get or create the counselor thread so the staff-can-post check has

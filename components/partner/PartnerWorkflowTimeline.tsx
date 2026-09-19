@@ -1,3 +1,5 @@
+import { formatPortalDateTime } from '@/lib/formatDate';
+
 type Ev = {
   id: string;
   createdAt: string;
@@ -32,7 +34,7 @@ export default function PartnerWorkflowTimeline({ events }: { events: Ev[] }) {
               {e.detail ? <div className="employer-workflow-timeline-detail">{e.detail}</div> : null}
               <div className="employer-workflow-timeline-meta">
                 {e.actorName ? <span>{e.actorName} · </span> : null}
-                {new Date(e.createdAt).toLocaleString()}
+                {formatPortalDateTime(e.createdAt)}
               </div>
             </div>
           </li>

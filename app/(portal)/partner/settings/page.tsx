@@ -6,6 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDate } from '@/lib/formatDate';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
@@ -54,8 +55,10 @@ function fmtBool(v: boolean): string {
   return v ? 'Active' : 'Inactive';
 }
 
+// Pinned to PORTAL_TIMEZONE so a late-evening Central completion is not
+// shown as the next day by the UTC server.
 function fmtDate(v: Date | null): string {
-  return v ? v.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+  return v ? formatPortalDate(v) || '—' : '—';
 }
 
 export default async function PartnerSettingsPage() {

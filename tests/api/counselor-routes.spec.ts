@@ -589,6 +589,10 @@ describe('GET /api/counselor/members/[memberId]', () => {
 describe('GET /api/counselor/members/[memberId]/messages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The route now authorizes against the member before it touches the
+    // thread; these cases exercise the thread-level gate, so the member-level
+    // gate passes by default and the forbidden cases still flip the thread one.
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
   });
 
   it('returns thread and messages for authorized counselor', async () => {
@@ -782,6 +786,10 @@ describe('GET /api/counselor/members/[memberId]/messages', () => {
 describe('POST /api/counselor/members/[memberId]/messages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The route now authorizes against the member before it touches the
+    // thread; these cases exercise the thread-level gate, so the member-level
+    // gate passes by default and the forbidden cases still flip the thread one.
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
   });
 
   it('creates a message in the member thread', async () => {
@@ -1083,6 +1091,10 @@ describe('PATCH /api/counselor/members/[memberId]/messages', () => {
 describe('POST /api/counselor/nudge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The route now authorizes against the member before it touches the
+    // thread; these cases exercise the thread-level gate, so the member-level
+    // gate passes by default and the forbidden cases still flip the thread one.
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
   });
 
   it('sends a templated nudge to a member', async () => {

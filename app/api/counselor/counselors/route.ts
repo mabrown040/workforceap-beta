@@ -5,6 +5,9 @@ import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+/** Upper bound on the reassignment picker; one org never has more active counselors than this. */
+const COUNSELOR_OPTION_LIMIT = 200;
+
 /** Active counselors in the actor's org (for inbox-zero bulk reassignment). */
 export const GET = withApiGuc(async () => {
   try {
@@ -28,6 +31,7 @@ export const GET = withApiGuc(async () => {
         user: { select: { id: true, fullName: true, email: true } },
       },
       orderBy: { user: { fullName: 'asc' } },
+      take: COUNSELOR_OPTION_LIMIT,
     }));
 
     return NextResponse.json({

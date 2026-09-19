@@ -7,6 +7,13 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
+/**
+ * Upper bound on saved-job ids returned per member. The jobs board only
+ * needs the ids to mark cards as saved; a member cannot meaningfully track
+ * more than this, and without a cap the query grows with every POST.
+ */
+const SAVED_JOBS_LIMIT = 500;
+
 async function _GET() {
   try {
     const user = await getUser();
@@ -16,6 +23,7 @@ async function _GET() {
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       select: { jobId: true },
+      take: SAVED_JOBS_LIMIT,
     }));
 
     return NextResponse.json({ jobIds: saved.map((s) => s.jobId) });

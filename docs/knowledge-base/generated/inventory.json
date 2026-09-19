@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "70d6de47767efbb074114651a4e721c189003df0c88788bd2bae8b4383c9159c",
+  "inputTreeSha256": "85af9fe9e3141b3889bd2fde15f188bf42aaced3b2b9f84ff23726f8552b9abc",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -151521,9 +151521,9 @@
       "path": "tests/api/gdpr-delete-route.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 4320,
-      "lines": 131,
-      "sha256": "f62ffad902a1814e3e988bb1d97f2f74ef4e76c2b8aaf295469df71ce96059b8",
+      "bytes": 4827,
+      "lines": 142,
+      "sha256": "43a295d59458aa09c6eb96cae0fca13472cef2fcef23f9dab0998b3b11e6a2d8",
       "binary": false,
       "exports": [],
       "declarations": [

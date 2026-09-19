@@ -114450,7 +114450,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/app/api/gdpr/delete/route",
-    "line": 68,
+    "line": 69,
     "kind": "import",
     "external": false,
     "target": "app/api/gdpr/delete/route.ts"
@@ -114458,7 +114458,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 69,
+    "line": 70,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -114466,7 +114466,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 70,
+    "line": 71,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -114474,7 +114474,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/gdpr/deleteAuthUser",
-    "line": 71,
+    "line": 72,
     "kind": "import",
     "external": false,
     "target": "lib/gdpr/deleteAuthUser.ts"
@@ -114482,7 +114482,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/gdpr/deleteUserStorage",
-    "line": 72,
+    "line": 73,
     "kind": "import",
     "external": false,
     "target": "lib/gdpr/deleteUserStorage.ts"

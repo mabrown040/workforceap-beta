@@ -78,7 +78,7 @@
 | [tests/api/employer-subscribe-pricing.spec.ts](../../../tests/api/employer-subscribe-pricing.spec.ts) | 196 | tests |  |
 | [tests/api/employers-page.spec.ts](../../../tests/api/employers-page.spec.ts) | 48 | tests |  |
 | [tests/api/extract-resume-text.spec.ts](../../../tests/api/extract-resume-text.spec.ts) | 62 | tests |  |
-| [tests/api/gdpr-delete-route.spec.ts](../../../tests/api/gdpr-delete-route.spec.ts) | 131 | tests |  |
+| [tests/api/gdpr-delete-route.spec.ts](../../../tests/api/gdpr-delete-route.spec.ts) | 142 | tests |  |
 | [tests/api/get-member-resume-plain-text.spec.ts](../../../tests/api/get-member-resume-plain-text.spec.ts) | 99 | tests |  |
 | [tests/api/guardian-consent.spec.ts](../../../tests/api/guardian-consent.spec.ts) | 295 | tests |  |
 | [tests/api/health-check.spec.ts](../../../tests/api/health-check.spec.ts) | 232 | tests |  |

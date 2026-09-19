@@ -24,6 +24,7 @@ import { logAuditEvent } from '@/lib/audit/log';
 import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
+import { ensureSelfServeCounselorAssigned } from '@/lib/counselor/autoAssign';
 export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
@@ -192,6 +193,19 @@ export const POST = withApiGuc(async (request: Request) => {
       fullName: updatedUser.user.fullName,
     }).catch(() => { /* already logged inside */ })
   );
+
+  // Self-serve members get a real WAP counselor on first enroll so
+  // "message your counselor" notifies someone. No-op if already assigned
+  // or if the org has no active WAP counselors.
+  const enrolledOrganizationId = updatedUser.user.organizationId;
+  if (enrolledOrganizationId) {
+    after(() =>
+      ensureSelfServeCounselorAssigned({
+        memberId: user.id,
+        organizationId: enrolledOrganizationId,
+      }).catch(() => {})
+    );
+  }
 
   // Invalidate cached member state so dashboard reflects enrollment immediately
   await invalidateMemberState(user.id);

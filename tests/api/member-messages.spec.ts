@@ -69,6 +69,9 @@ vi.mock('@/lib/db/prisma', () => {
     counselorAssignment: {
       findFirst: vi.fn(),
     },
+    counselor: {
+      findMany: vi.fn(),
+    },
   };
   prisma.$transaction = vi.fn(async (arg: any) =>
     typeof arg === 'function' ? arg(prisma) : Promise.all(arg)
@@ -112,6 +115,13 @@ vi.mock('@/lib/notifications/create', () => ({
   createBulkNotifications: vi.fn(),
 }));
 
+vi.mock('@/lib/messages/unassignedNotify', () => ({
+  notifyUnassignedMemberMessage: vi.fn(async () => ({
+    notifiedUserIds: ['counselor-1'],
+    fallback: 'counselors',
+  })),
+}));
+
 // ─── Imports after mocks ───
 import { GET, POST, PATCH } from '@/app/api/member/messages/route';
 import { getUser } from '@/lib/auth/server';
@@ -122,6 +132,7 @@ import {
 } from '@/lib/messages/counselorThread';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 import { createNotification } from '@/lib/notifications/create';
+import { notifyUnassignedMemberMessage } from '@/lib/messages/unassignedNotify';
 
 const makeRequest = (body?: Record<string, unknown>) =>
   new Request('http://localhost:3000/api/member/messages', {
@@ -278,7 +289,7 @@ describe('POST /api/member/messages', () => {
     );
   });
 
-  it('notifies org admins when the member has no assigned counselor', async () => {
+  it('notifies the counselor pool when the member has no assigned counselor', async () => {
     vi.mocked(getUser).mockResolvedValue({
       id: 'user-123',
       fullName: 'Jane Doe',
@@ -301,10 +312,10 @@ describe('POST /api/member/messages', () => {
 
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
     vi.mocked(assertMemberCanAccessThread).mockResolvedValue(true as any);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ fullName: 'Jane Doe' } as any);
-    vi.mocked(prisma.profile.findMany).mockResolvedValue([{ userId: 'admin-1' }] as any);
-    vi.mocked(prisma.userRole.findMany).mockResolvedValue([{ userId: 'admin-2' }] as any);
-    vi.mocked(prisma.user.findMany).mockResolvedValue([{ id: 'admin-1' }, { id: 'admin-2' }] as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      fullName: 'Jane Doe',
+      organizationId: 'org-1',
+    } as any);
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       return fn({
         message: { create: vi.fn().mockResolvedValue(createdMsg) },
@@ -315,23 +326,14 @@ describe('POST /api/member/messages', () => {
     const res = await POST(makeRequest({ body: 'I am stuck and nobody is assigned' }) as any);
 
     expect(res.status).toBe(200);
-    expect(createNotification).toHaveBeenCalledTimes(2);
-    expect(createNotification).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: 'admin-1',
-        type: 'message',
-        title: 'Unassigned member message from Jane Doe',
-        data: expect.objectContaining({
-          threadId: 'thread-1',
-          memberId: 'user-123',
-          link: '/admin/messages',
-          unassigned: true,
-        }),
-      })
-    );
-    expect(createNotification).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 'admin-2', type: 'message' })
-    );
+    expect(createNotification).not.toHaveBeenCalled();
+    expect(notifyUnassignedMemberMessage).toHaveBeenCalledWith({
+      memberId: 'user-123',
+      organizationId: 'org-1',
+      threadId: 'thread-1',
+      senderLabel: 'Jane Doe',
+      messagePreview: 'I am stuck and nobody is assigned',
+    });
   });
 
   it('returns 400 for empty message', async () => {

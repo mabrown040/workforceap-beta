@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "cdfc8e611a1f17e2014660d7ea33d84885e497fd203c4d46d12d5a72419aa886",
+  "inputTreeSha256": "ee335bb8f22c8b021488f7bd5542256d6e36395695a91db81b18cad4c425cbb2",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -21833,9 +21833,9 @@
       "path": "app/api/admin/coursera/auto-heal/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 1674,
+      "bytes": 1699,
       "lines": 47,
-      "sha256": "bcfcdc398eb89f0e77b3f06a285a2c13c75d625dbc8390ced151fd4e5ab4f02f",
+      "sha256": "8052d6793fe1e0cbc70945a479976f92335bf1ecf458394c46e6a24c72ea9e9e",
       "binary": false,
       "exports": [
         {
@@ -21950,9 +21950,9 @@
       "path": "app/api/admin/coursera/backfill-orphans/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 2275,
-      "lines": 55,
-      "sha256": "26e90573e18593cef8dea186d5708496cf7feb01ba62c9687630d2bd60075528",
+      "bytes": 2241,
+      "lines": 52,
+      "sha256": "cd2d78468e7206208b9254385735a6bd615113e55092bbbc05a7f32f706488be",
       "binary": false,
       "exports": [
         {
@@ -21999,51 +21999,51 @@
       "path": "app/api/admin/coursera/backfill-xapi/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 6929,
-      "lines": 191,
-      "sha256": "bed7712430ea6bf76015b8738a27b51df46e7b0a695136b4b2a59d4f56078bfb",
+      "bytes": 6986,
+      "lines": 190,
+      "sha256": "864efaed0959602d4c8c677031d7494f1c5591c2c09db1dbd9c0d9bef12fc830",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 39,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 64,
+          "line": 63,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "requireAdminUser",
-          "line": 14,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 20,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 39,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 39,
+          "line": 40,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 64,
+          "line": 63,
           "kind": "Variable"
         },
         {
           "name": "runBackfill",
-          "line": 66,
+          "line": 65,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -22317,9 +22317,9 @@
       "path": "app/api/admin/coursera/link-health/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 1050,
-      "lines": 31,
-      "sha256": "c75ec4aacc27cd735802bbbc7fb1900a31bdc9487769de4dd56ae3655cea2707",
+      "bytes": 1005,
+      "lines": 28,
+      "sha256": "002be7777f315f5290548264b8a4a91b44a5faa054f34842f74aff511e033543",
       "binary": false,
       "exports": [
         {
@@ -22351,26 +22351,26 @@
       "path": "app/api/admin/coursera/map-unmatched/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 3665,
-      "lines": 84,
-      "sha256": "9974e0bed1cde92a3d2d27d528cbb2a619a1a1b65ec8f186067f9bb347ef39a8",
+      "bytes": 3751,
+      "lines": 88,
+      "sha256": "9d20209ad8f12d6a5b0dc4c009388baa347e1e04c03d4f9c1d8188d9bfdd1a12",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 84,
+          "line": 88,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_POST",
-          "line": 20,
+          "line": 21,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 84,
+          "line": 88,
           "kind": "Variable"
         }
       ],
@@ -22380,51 +22380,51 @@
       "path": "app/api/admin/coursera/mappings/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 4590,
-      "lines": 130,
-      "sha256": "e6ad151dda988218cfb8b5b33f7953f3ac06f37cfcafb3d4a6e1ae5f375e47b5",
+      "bytes": 4643,
+      "lines": 128,
+      "sha256": "21c9233e1c0ea9aaa25653c1bf8ebeeac8ef855f009ecc62a77f1e20a643a84b",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 129,
+          "line": 127,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 130,
+          "line": 128,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "requireAdminUser",
-          "line": 14,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "requireAdminContext",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 31,
+          "line": 32,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_POST",
-          "line": 64,
+          "line": 65,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 129,
+          "line": 127,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 130,
+          "line": 128,
           "kind": "Variable"
         }
       ],
@@ -22733,14 +22733,14 @@
       "path": "app/api/admin/coursera/sync-b4b/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 1922,
-      "lines": 52,
-      "sha256": "9415306df673e9dd1d16b2ea819fcdb60668bc9d48dd48eb1f426b055ed0f4d3",
+      "bytes": 1892,
+      "lines": 49,
+      "sha256": "5eb98c9f21ae73e718181f1bed38d10eace73057762b95f222aa61663fb972b2",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 52,
+          "line": 49,
           "kind": "Variable"
         }
       ],
@@ -22757,7 +22757,7 @@
         },
         {
           "name": "POST",
-          "line": 52,
+          "line": 49,
           "kind": "Variable"
         }
       ],
@@ -23123,9 +23123,9 @@
       "path": "app/api/admin/email-crons/[id]/dry-run/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 11552,
-      "lines": 249,
-      "sha256": "82daf57bf82da17a1ec40c50d51b37ac6cdcf1eec19e84535ab3b0d282920da5",
+      "bytes": 11630,
+      "lines": 250,
+      "sha256": "8471d4dab03b9fbdc8566e22c173349a3f4cdedb67a4df5b4486b8b80f3b6b11",
       "binary": false,
       "exports": [
         {
@@ -23142,12 +23142,12 @@
         },
         {
           "name": "DryRunResult",
-          "line": 50,
+          "line": 51,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "simulateCron",
-          "line": 60,
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -23157,9 +23157,9 @@
       "path": "app/api/admin/email-crons/[id]/preview/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 8023,
-      "lines": 191,
-      "sha256": "326aeb7d1f8cfabef73d8320bfe929bcbe6b78765693ef4390bbecf00f531681",
+      "bytes": 8119,
+      "lines": 192,
+      "sha256": "a9d62560df4f1483ec8719e7808edbc22bb4795418b7f5bf62a92b5f7cf7fbd8",
       "binary": false,
       "exports": [
         {
@@ -23191,7 +23191,7 @@
         },
         {
           "name": "getPreviewRecipients",
-          "line": 45,
+          "line": 46,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -25258,9 +25258,9 @@
       "path": "app/api/admin/members/[id]/partner/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 3605,
-      "lines": 94,
-      "sha256": "8718728e21584a6c2c7ee395e2b97afe542e578dd848bc607cd1b29077c2bac2",
+      "bytes": 3553,
+      "lines": 88,
+      "sha256": "f232ec520cdc8e6a4def855cf75e58845f7b801147454162f0238f72c66ebcdf",
       "binary": false,
       "exports": [
         {
@@ -25452,14 +25452,14 @@
       "path": "app/api/admin/members/[id]/reset-password/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2918,
-      "lines": 75,
-      "sha256": "c4a4ffc35128aa2ed65d558f4099dba8ef47c8d54b1d6dbc8c1fea8a9fc1dbd0",
+      "bytes": 3077,
+      "lines": 79,
+      "sha256": "d6f2db5c6ab7212f7464584a40610f9971e2a105aca13ddd87bae8c4fd9841f0",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 75,
+          "line": 79,
           "kind": "Variable"
         }
       ],
@@ -25471,7 +25471,7 @@
         },
         {
           "name": "POST",
-          "line": 75,
+          "line": 79,
           "kind": "Variable"
         }
       ],
@@ -26798,14 +26798,14 @@
       "path": "app/api/admin/onet/search/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 1295,
-      "lines": 36,
-      "sha256": "22c06ba0393c4024644814e765418709bb5ea1ee073c82259cde1d8ff880d71b",
+      "bytes": 1375,
+      "lines": 39,
+      "sha256": "3eb81841868301b00e006d104a835b2005e94dd0c5ba41641d999ba1f7830735",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 36,
+          "line": 39,
           "kind": "Variable"
         }
       ],
@@ -26817,7 +26817,7 @@
         },
         {
           "name": "GET",
-          "line": 36,
+          "line": 39,
           "kind": "Variable"
         }
       ],
@@ -27013,14 +27013,14 @@
       "path": "app/api/admin/outcomes/snapshot/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3568,
-      "lines": 80,
-      "sha256": "9568fab4f4fb0841ceb65f015f0f90fa12a084138656d800d9e8a293b98332f8",
+      "bytes": 3634,
+      "lines": 83,
+      "sha256": "35581b7765f6bd4166939d1fc4d7bfdaeabbda33392906b97c09f94437720188",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 80,
+          "line": 83,
           "kind": "Variable"
         }
       ],
@@ -27032,7 +27032,7 @@
         },
         {
           "name": "GET",
-          "line": 80,
+          "line": 83,
           "kind": "Variable"
         }
       ],
@@ -28376,14 +28376,14 @@
       "path": "app/api/admin/users/[id]/reset-password/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2960,
-      "lines": 74,
-      "sha256": "b24af66e092829d8bf3bcf2b0b8cd4dea32b0004f0cd1b6fc7dd81ebf836c397",
+      "bytes": 3096,
+      "lines": 78,
+      "sha256": "f303ceeab89fb6e75add8f54191640d14f8463c89a30d2e1594a49901daa9320",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 74,
+          "line": 78,
           "kind": "Variable"
         }
       ],
@@ -28395,7 +28395,7 @@
         },
         {
           "name": "POST",
-          "line": 74,
+          "line": 78,
           "kind": "Variable"
         }
       ],
@@ -35268,9 +35268,9 @@
       "path": "app/api/member/coursera/refresh-progress/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 1657,
-      "lines": 45,
-      "sha256": "9f6adc8eb26d4db610d0ab840de592f9f9b4edaa8dae6aa6404069e9faa602ae",
+      "bytes": 1835,
+      "lines": 49,
+      "sha256": "f80e856fb2ba0825eb770ace250e4fec5a0b3927f6faf1bb2dff65a37a234e92",
       "binary": false,
       "exports": [
         {
@@ -35813,9 +35813,9 @@
       "path": "app/api/member/interest-profiler/questions/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 1182,
-      "lines": 30,
-      "sha256": "0a99d061153f01caea234633f60740b6e38369c7ac52de0f2c3958f1eca7d58b",
+      "bytes": 1383,
+      "lines": 34,
+      "sha256": "1254b3f9dcc2269fe9f9dc9a07810b6e4f00482285129beb3cd957c624e7df7d",
       "binary": false,
       "exports": [
         {
@@ -35837,9 +35837,9 @@
       "path": "app/api/member/interest-profiler/score/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3891,
-      "lines": 100,
-      "sha256": "37e8b64e374410d7f06e04731a0cfaef03f2c882f7da7ccbbd06f977dd2177a8",
+      "bytes": 4089,
+      "lines": 104,
+      "sha256": "6336d1b717d770c6ce7019253a0fdfc979ab7a993f927e84a6783391511df003",
       "binary": false,
       "exports": [
         {
@@ -36734,21 +36734,21 @@
       "path": "app/api/member/prep-bundle/send/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2592,
-      "lines": 71,
-      "sha256": "883fbf0f9420bf35218b5a04fbd93f6b41b18c4875dfbd37d7784615447a77be",
+      "bytes": 3398,
+      "lines": 91,
+      "sha256": "6a1d12f492804ec22eda9b54daeb5abda54519a8c9f4fb39ded6e82e460b445a",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "POST",
-          "line": 15,
+          "line": 16,
           "kind": "Variable"
         }
       ],
@@ -150485,9 +150485,9 @@
       "path": "tests/api/admin-coursera-mappings.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
-      "bytes": 10324,
+      "bytes": 10353,
       "lines": 283,
-      "sha256": "556c4171c413dd0eb9e931b387f7df9edb58ea97bb71200d195ba1c192d0de29",
+      "sha256": "b9c149311f298aad9aea9c75f7ce88a83731afadfb91514974c59bcb8741fa54",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -151458,6 +151458,59 @@
           "name": "makeGetRequest",
           "line": 81,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/api-error-echo-sweep.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 21452,
+      "lines": 411,
+      "sha256": "4c70b381e30b53e9ede09999c1f67ae70c0ba2f82c6886d251c53f75206cdfbc",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "h",
+          "line": 31,
+          "kind": "Variable"
+        },
+        {
+          "name": "Handler",
+          "line": 196,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "UPSTREAM",
+          "line": 198,
+          "kind": "Variable"
+        },
+        {
+          "name": "req",
+          "line": 200,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "params",
+          "line": 207,
+          "kind": "Variable"
+        },
+        {
+          "name": "expectGeneric",
+          "line": 209,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "consoleError",
+          "line": 222,
+          "kind": "Variable"
+        },
+        {
+          "name": "NON_OBJECT_BODIES",
+          "line": 356,
+          "kind": "Variable"
         }
       ],
       "directive": null

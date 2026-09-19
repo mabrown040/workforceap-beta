@@ -127,7 +127,7 @@ describe('GET /api/admin/coursera/mappings', () => {
 
     const res = await GET(new Request('http://localhost:3000/api/admin/coursera/mappings'));
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'DB error' });
+    expect(await res.json()).toEqual({ error: 'Unable to load Coursera mapping data.' });
   });
 
   it('returns 500 on unexpected outer error', async () => {

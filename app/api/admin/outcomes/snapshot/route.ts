@@ -73,8 +73,11 @@ async function _GET(request: NextRequest) {
 
     return NextResponse.json({ snapshot });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('/admin/outcomes/snapshot:', err);
+    return NextResponse.json(
+      { error: 'Unable to build the outcomes snapshot. Please try again in a few minutes.' },
+      { status: 500 },
+    );
   }
 }
 export const GET = withApiGuc(_GET);

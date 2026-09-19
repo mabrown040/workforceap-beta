@@ -241,6 +241,7 @@
 | [tests/e2e/cross-portal-routes.spec.ts](../../../tests/e2e/cross-portal-routes.spec.ts) | 212 | tests |  |
 | [tests/e2e/desktop-layout-guardrails.spec.ts](../../../tests/e2e/desktop-layout-guardrails.spec.ts) | 430 | tests |  |
 | [tests/e2e/employer-partner-portal-auth.spec.ts](../../../tests/e2e/employer-partner-portal-auth.spec.ts) | 49 | tests |  |
+| [tests/e2e/learning-hub-course-card-tablet.spec.ts](../../../tests/e2e/learning-hub-course-card-tablet.spec.ts) | 55 | tests |  |
 | [tests/e2e/member-all-routes.spec.ts](../../../tests/e2e/member-all-routes.spec.ts) | 82 | tests |  |
 | [tests/e2e/member-counselor-visual.spec.ts](../../../tests/e2e/member-counselor-visual.spec.ts) | 23 | tests |  |
 | [tests/e2e/member-login-dashboard.spec.ts](../../../tests/e2e/member-login-dashboard.spec.ts) | 42 | tests |  |

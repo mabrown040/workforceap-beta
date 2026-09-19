@@ -125384,6 +125384,22 @@
     "target": "tests/e2e/auth-helpers.ts"
   },
   {
+    "from": "tests/e2e/learning-hub-course-card-tablet.spec.ts",
+    "specifier": "@playwright/test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@playwright/test"
+  },
+  {
+    "from": "tests/e2e/learning-hub-course-card-tablet.spec.ts",
+    "specifier": "./auth-helpers",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "tests/e2e/auth-helpers.ts"
+  },
+  {
     "from": "tests/e2e/member-all-routes.spec.ts",
     "specifier": "@playwright/test",
     "line": 6,

@@ -30,7 +30,7 @@ export const POST = withApiGuc(async (req: NextRequest) => {
     const superAdmin = await isSuperAdmin(user.id);
     const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
 
-    const body = await req.json().catch(() => ({}));
+    const body = (await req.json().catch(() => ({}))) ?? {};
     const { placementId } = body;
     if (!placementId) {
       return NextResponse.json({ error: 'Missing placementId' }, { status: 400 });

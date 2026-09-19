@@ -47,6 +47,9 @@ const ETHNICITY_OPTIONS = [
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
   
     const o = body as Record<string, unknown>;
   

@@ -21,6 +21,7 @@ export const POST = withApiGuc(async (request: Request) => {
     let body: unknown;
     try {
       body = await request.json();
+      if (!body || typeof body !== 'object') throw new Error('Body must be a JSON object');
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }

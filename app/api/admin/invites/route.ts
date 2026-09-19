@@ -118,6 +118,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       return respondError('Invalid request body', 400);
     }
   }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return respondError('Invalid request body', 400);
+  }
 
   const o = body as Record<string, unknown>;
   const email = typeof o.email === 'string' ? o.email.toLowerCase().trim() : '';

@@ -305,6 +305,9 @@ function mapThreadRow(
     try { body = await request.json(); } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
   
     const memberId = typeof (body as { memberId?: unknown }).memberId === 'string'
       ? (body as { memberId: string }).memberId

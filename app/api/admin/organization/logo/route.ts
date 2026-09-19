@@ -21,7 +21,10 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     // own logo, AND would never be able to update their own tenant's logo.
     const organizationId = await getActorOrganizationId(user.id);
 
-    const formData = await request.formData();
+    const formData = await request.formData().catch(() => null);
+    if (!formData) {
+      return NextResponse.json({ error: 'Expected a multipart form upload with a `file` field' }, { status: 400 });
+    }
     const file = formData.get('file') as File | null;
     if (!file || file.size === 0) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });

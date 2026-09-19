@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { logCronRun } from '@/lib/admin/logCronRun';
@@ -37,12 +37,12 @@ export const POST = withApiGuc(async (
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    await requireAdmin(user.id);
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
 
     const { id } = await params;
     if (id === user.id) return NextResponse.json({ error: 'You cannot erase your own administrator account.' }, { status: 403 });
-    const body = await request.json().catch(() => ({}));
-    const force = body.force === true;
+    const body: unknown = await request.json().catch(() => null);
+    const force = !!body && typeof body === 'object' && (body as { force?: unknown }).force === true;
     
     // Force erase is only allowed for super-admins
     if (force && !(await isSuperAdmin(user.id))) {

@@ -9701,27 +9701,27 @@
     "localReferences": [
       {
         "file": "app/api/admin/members/[id]/delete/route.ts",
-        "line": 73
-      },
-      {
-        "file": "lib/auth/server.ts",
         "line": 74
       },
       {
-        "file": "lib/auth/roles.ts",
+        "file": "lib/auth/server.ts",
         "line": 75
       },
       {
-        "file": "lib/tenant/organization.ts",
+        "file": "lib/auth/roles.ts",
         "line": 76
       },
       {
-        "file": "lib/gdpr/deleteUserStorage.ts",
+        "file": "lib/tenant/organization.ts",
         "line": 77
       },
       {
-        "file": "lib/supabase-admin.ts",
+        "file": "lib/gdpr/deleteUserStorage.ts",
         "line": 78
+      },
+      {
+        "file": "lib/supabase-admin.ts",
+        "line": 79
       }
     ],
     "kind": "test-candidate",
@@ -14608,6 +14608,198 @@
       {
         "file": "lib/content/programSlug.ts",
         "line": 50
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/staff-route-error-handling.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/auth/server.ts",
+        "line": 282
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 283
+      },
+      {
+        "file": "app/api/admin/analytics/dashboard/route.ts",
+        "line": 284
+      },
+      {
+        "file": "app/api/admin/analytics/placements/route.ts",
+        "line": 285
+      },
+      {
+        "file": "app/api/counselor/dashboard/route.ts",
+        "line": 286
+      },
+      {
+        "file": "app/api/counselor/inbox-zero/route.ts",
+        "line": 287
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/messages/route.ts",
+        "line": 288
+      },
+      {
+        "file": "app/api/counselor/nudge/route.ts",
+        "line": 289
+      },
+      {
+        "file": "app/api/admin/members/at-risk/route.ts",
+        "line": 290
+      },
+      {
+        "file": "app/api/admin/feature-flags/route.ts",
+        "line": 291
+      },
+      {
+        "file": "app/api/admin/feature-flags/[id]/route.ts",
+        "line": 292
+      },
+      {
+        "file": "app/api/admin/chapters/route.ts",
+        "line": 293
+      },
+      {
+        "file": "app/api/admin/certifications/review/route.ts",
+        "line": 294
+      },
+      {
+        "file": "app/api/admin/blog/route.ts",
+        "line": 295
+      },
+      {
+        "file": "app/api/admin/blog/[id]/route.ts",
+        "line": 296
+      },
+      {
+        "file": "app/api/admin/invites/route.ts",
+        "line": 297
+      },
+      {
+        "file": "app/api/admin/employer-screening-packs/[id]/route.ts",
+        "line": 298
+      },
+      {
+        "file": "app/api/admin/partners/[id]/quarterly-outcomes/route.ts",
+        "line": 299
+      },
+      {
+        "file": "app/api/admin/members/[id]/billing-packets/route.ts",
+        "line": 300
+      },
+      {
+        "file": "app/api/admin/members/[id]/reset-assessment/route.ts",
+        "line": 301
+      },
+      {
+        "file": "app/api/admin/members/[id]/erase/route.ts",
+        "line": 302
+      },
+      {
+        "file": "app/api/admin/members/[id]/edit-profile/route.ts",
+        "line": 303
+      },
+      {
+        "file": "app/api/admin/members/create/route.ts",
+        "line": 304
+      },
+      {
+        "file": "app/api/admin/messages/thread/[threadId]/staff/route.ts",
+        "line": 305
+      },
+      {
+        "file": "app/api/admin/messages/threads/route.ts",
+        "line": 306
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/messages/route.ts",
+        "line": 307
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/award-points/route.ts",
+        "line": 308
+      },
+      {
+        "file": "app/api/admin/members/[id]/award-points/route.ts",
+        "line": 309
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/notes/route.ts",
+        "line": 310
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/session-notes/route.ts",
+        "line": 311
+      },
+      {
+        "file": "app/api/counselor/bulk-followup/route.ts",
+        "line": 312
+      },
+      {
+        "file": "app/api/counselor/feedback/route.ts",
+        "line": 313
+      },
+      {
+        "file": "app/api/counselor/placements/route.ts",
+        "line": 314
+      },
+      {
+        "file": "app/api/counselor/remind-member/route.ts",
+        "line": 315
+      },
+      {
+        "file": "app/api/admin/placements/route.ts",
+        "line": 316
+      },
+      {
+        "file": "app/api/admin/placement-surveys/resend/route.ts",
+        "line": 317
+      },
+      {
+        "file": "app/api/admin/email-crons/[id]/toggle/route.ts",
+        "line": 318
+      },
+      {
+        "file": "app/api/admin/members/[id]/messages/route.ts",
+        "line": 319
+      },
+      {
+        "file": "app/api/employer/checkout/route.ts",
+        "line": 320
+      },
+      {
+        "file": "app/api/employer/messages/route.ts",
+        "line": 321
+      },
+      {
+        "file": "app/api/partner/messages/route.ts",
+        "line": 322
+      },
+      {
+        "file": "app/api/admin/organization/logo/route.ts",
+        "line": 323
+      },
+      {
+        "file": "app/api/employer/logo/route.ts",
+        "line": 324
       }
     ],
     "kind": "test-candidate",

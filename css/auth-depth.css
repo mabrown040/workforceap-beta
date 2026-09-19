@@ -13,7 +13,7 @@
    therefore NO dark→light flash.
 
    GOAL 2 — crimson depth feel: light form surface (#fff / #1a1414
-   text), crimson accents, gold primary button — matching the
+   text), crimson accents, crimson primary button — matching the
    marketing .mdx-stage / .mdx-btn--primary language.
 
    VISUAL ONLY. No selector here changes layout structure, focus
@@ -175,17 +175,19 @@ html.dark .auth-depth,
   font-weight: 600;
 }
 
-/* Gold primary button — matches marketing .mdx-btn--primary energy
-   (crimson) but uses the gold treatment requested for the auth CTA;
-   crimson hero CTAs (.btn on the page-hero) read as glass on crimson. */
+/* Crimson primary button — the kit's primary-action treatment, matching
+   marketing .mdx-btn--primary. The gold gradient it replaced put white
+   text at 2.6:1 on its lightest stop; white on --ad-grad's lightest stop
+   (#ad2c4d) is 6.5:1. Crimson hero CTAs (.btn on the page-hero) still
+   read as glass on crimson below. */
 .auth-depth .btn-primary {
-  background: var(--ad-gold-grad);
+  background: var(--ad-grad);
   color: #fff;
   border: none;
-  box-shadow: 0 12px 30px -12px rgba(124, 92, 38, 0.5);
+  box-shadow: 0 12px 30px -12px rgba(173, 44, 77, 0.5);
 }
 .auth-depth .btn-primary:hover {
-  background: linear-gradient(135deg, #d2a64c 0%, #b08a3e 55%, #8a692b 100%);
+  background: linear-gradient(135deg, var(--ad-accent-dark) 0%, var(--ad-plum) 100%);
 }
 /* CTAs that sit ON the crimson hero get the glass/solid-light read */
 .auth-depth .page-hero .btn-primary {

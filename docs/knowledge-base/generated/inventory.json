@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "b30a7719eda5fd86197f7a4d65cc5557bb193f58f14415c08f8c9233f3e86543",
+  "inputTreeSha256": "5842edb60c605115c8fcaf1b082a6c69c6055d1fb4858d27a8d6b16da4991b3e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -5801,14 +5801,14 @@
       "path": "app/(portal)/counselor/students/[memberId]/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 64034,
-      "lines": 1413,
-      "sha256": "f200640a3be5954bc763715528b9260eb1c7323bedfe7bfa2953911074a0af85",
+      "bytes": 64522,
+      "lines": 1427,
+      "sha256": "664eed8aea8e81c15bb3314f43739dbb2ed4c30d54c2798b7ebd4cf7721bc543",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 66,
+          "line": 67,
           "kind": "FunctionDeclaration",
           "localName": "CounselorStudentDetailPage"
         }
@@ -5816,52 +5816,62 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 54,
+          "line": 55,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getInitials",
-          "line": 56,
+          "line": 57,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorStudentDetailPage",
-          "line": 66,
+          "line": 67,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtRiskAlertDisplay",
-          "line": 1266,
+          "line": 1267,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "NextBestActionRow",
-          "line": 1273,
+          "line": 1274,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Counselor360Signals",
-          "line": 1283,
+          "line": 1284,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CARD_STYLE",
-          "line": 1301,
+          "line": 1302,
           "kind": "Variable"
         },
         {
+          "name": "AT_RISK_ALERT_STATUS_LABEL",
+          "line": 1306,
+          "kind": "Variable"
+        },
+        {
+          "name": "atRiskAlertStatusLabel",
+          "line": 1313,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "AtRiskSignalCard",
-          "line": 1303,
+          "line": 1317,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CareerQuizRecommendationCard",
-          "line": 1361,
+          "line": 1375,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NextBestActionsCard",
-          "line": 1387,
+          "line": 1401,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -6105,14 +6115,14 @@
       "path": "app/(portal)/dashboard/LogCertificationModal.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 4825,
-      "lines": 133,
-      "sha256": "948756f1c5cb4652be883d9dba4688972fdcabd4e483960664287331c55105f0",
+      "bytes": 4885,
+      "lines": 134,
+      "sha256": "6677c169c4485c37a29f35a62f6271b8b3eb63ccfbdb26a6e620ca8684738269",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration",
           "localName": "LogCertificationModal"
         }
@@ -6120,12 +6130,12 @@
       "declarations": [
         {
           "name": "inputStyle",
-          "line": 6,
+          "line": 7,
           "kind": "Variable"
         },
         {
           "name": "LogCertificationModal",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -11218,19 +11228,19 @@
       "path": "app/(portal)/employer/applications/[id]/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 10130,
-      "lines": 235,
-      "sha256": "cdca5a26a743c0cbbd56c651cda96803259a37ccb9c384462e3583450af4c8be",
+      "bytes": 10163,
+      "lines": 236,
+      "sha256": "883501955083cd0765bcf27c2205f66712a84b75892707d4362e5d4808dd9879",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration",
           "localName": "EmployerApplicationPage"
         }
@@ -11238,12 +11248,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 17,
+          "line": 18,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerApplicationPage",
-          "line": 26,
+          "line": 27,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -12288,19 +12298,19 @@
       "path": "app/(portal)/employer/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 37588,
-      "lines": 740,
-      "sha256": "ec55be31c1df470aab27d0f25c96184ccc6c1399655712fd44af50d07bc5d3f2",
+      "bytes": 37549,
+      "lines": 739,
+      "sha256": "543667e694622b5b2400498cd6b0f8398c2d200f5a672c55f8fb3ff0c77f9b4d",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 35,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 44,
+          "line": 45,
           "kind": "FunctionDeclaration",
           "localName": "EmployerDashboardPage"
         }
@@ -12308,12 +12318,12 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 35,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerDashboardPage",
-          "line": 44,
+          "line": 45,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13233,19 +13243,19 @@
       "path": "app/(portal)/partner/outcomes/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 6016,
-      "lines": 162,
-      "sha256": "a669f3dc50234eee867f63a8ae141f72483fe2088f53edb3d6ac09ab0703b299",
+      "bytes": 6059,
+      "lines": 163,
+      "sha256": "43012528193b4a06592d3943d66a42c2ed88d9cbaef743bbace3c4c15a52b194",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 52,
+          "line": 53,
           "kind": "FunctionDeclaration",
           "localName": "PartnerOutcomesPage"
         }
@@ -13253,22 +13263,22 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 24,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "overviewLinkStyle",
-          "line": 33,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "PendingReviewRow",
-          "line": 46,
+          "line": 47,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "PartnerOutcomesPage",
-          "line": 52,
+          "line": 53,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13278,19 +13288,19 @@
       "path": "app/(portal)/partner/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 61969,
-      "lines": 1387,
-      "sha256": "5cac5d1e29dc0381ab0a33ceb9c365d641e263d3cbbe8f3a842320b371648494",
+      "bytes": 61972,
+      "lines": 1388,
+      "sha256": "43d47247b4aa5298774fad766e5f16e7a7a241afaa3e56fa1ccd9e3bdb0420fc",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 58,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration",
           "localName": "PartnerDashboardPage"
         }
@@ -13298,17 +13308,17 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 58,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "JOURNEY_STAGES",
-          "line": 67,
+          "line": 68,
           "kind": "Variable"
         },
         {
           "name": "PartnerDashboardPage",
-          "line": 69,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -13528,19 +13538,19 @@
       "path": "app/(portal)/partner/settings/page.tsx",
       "area": "pages",
       "domain": "partners-funding",
-      "bytes": 5039,
-      "lines": 142,
-      "sha256": "7b3c6da64d6d5a92f6ef7ddbe08362e058c143ca4305ba64e9250af683c0cb27",
+      "bytes": 5156,
+      "lines": 145,
+      "sha256": "63b229c7c6253b28ca4e768b280406de58375b2e02152ae751f16ca4f65dc285",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 61,
+          "line": 64,
           "kind": "FunctionDeclaration",
           "localName": "PartnerSettingsPage"
         }
@@ -13548,27 +13558,27 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InfoRow",
-          "line": 25,
+          "line": 26,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fmtBool",
-          "line": 53,
+          "line": 54,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fmtDate",
-          "line": 57,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PartnerSettingsPage",
-          "line": 61,
+          "line": 64,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54947,14 +54957,14 @@
       "path": "components/forms/ParentalConsentForm.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 10211,
-      "lines": 285,
-      "sha256": "6215cd4fbfba099ec18283939a2b9bf4f44ae56c0144ab02d567a255df41760b",
+      "bytes": 10270,
+      "lines": 286,
+      "sha256": "fa6d259ed549a8fc970cfecc8320028e8201f63bdb1880ab653ecca47a99c0c9",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 21,
+          "line": 22,
           "kind": "FunctionDeclaration",
           "localName": "ParentalConsentForm"
         }
@@ -54962,12 +54972,12 @@
       "declarations": [
         {
           "name": "ParentalConsentData",
-          "line": 7,
+          "line": 8,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ParentalConsentForm",
-          "line": 21,
+          "line": 22,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -60089,36 +60099,6 @@
       "directive": "use client"
     },
     {
-      "path": "components/portal/MemberJobPostingTransparency.tsx",
-      "area": "components",
-      "domain": "components",
-      "bytes": 2282,
-      "lines": 52,
-      "sha256": "98ebc684d47f6c46e0c740f9859732a0a52167cae0a23a106b6af58f7fbe7e9f",
-      "binary": false,
-      "exports": [
-        {
-          "name": "default",
-          "line": 14,
-          "kind": "FunctionDeclaration",
-          "localName": "MemberJobPostingTransparency"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "STATUS_NEXT",
-          "line": 4,
-          "kind": "Variable"
-        },
-        {
-          "name": "MemberJobPostingTransparency",
-          "line": 14,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "components/portal/MemberLabWorkspace.module.css",
       "area": "components",
       "domain": "components",
@@ -60531,76 +60511,6 @@
         }
       ],
       "directive": "use client"
-    },
-    {
-      "path": "components/portal/MilestoneBadge.tsx",
-      "area": "components",
-      "domain": "member-counselor",
-      "bytes": 4753,
-      "lines": 151,
-      "sha256": "88bc4013ddeed28945bd8b8a6051556d55bb2c1a1043b58da29ae35a164bf012",
-      "binary": false,
-      "exports": [
-        {
-          "name": "Milestone",
-          "line": 21,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "default",
-          "line": 88,
-          "kind": "FunctionDeclaration",
-          "localName": "MilestoneBadge"
-        },
-        {
-          "name": "MILESTONE_DISPLAY_ORDER",
-          "line": 146,
-          "kind": "Variable"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "MilestoneType",
-          "line": 15,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "Milestone",
-          "line": 21,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "MilestoneBadgeProps",
-          "line": 26,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "COPY",
-          "line": 31,
-          "kind": "Variable"
-        },
-        {
-          "name": "toneStyles",
-          "line": 54,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "formatEarned",
-          "line": 82,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "MilestoneBadge",
-          "line": 88,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "MILESTONE_DISPLAY_ORDER",
-          "line": 146,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
     },
     {
       "path": "components/portal/MobileProfileSkillsResume.tsx",
@@ -74078,60 +73988,6 @@
         {
           "name": "DataTable",
           "line": 133,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "components/portal/ui/DefinitionList.tsx",
-      "area": "components",
-      "domain": "components",
-      "bytes": 1637,
-      "lines": 60,
-      "sha256": "658552a087b032bcfeefdb792307c0ed581cab4b7b6744106bd386990a20490e",
-      "binary": false,
-      "exports": [
-        {
-          "name": "DefinitionList",
-          "line": 59,
-          "kind": "ReExport"
-        },
-        {
-          "name": "DefinitionRow",
-          "line": 59,
-          "kind": "ReExport"
-        },
-        {
-          "name": "DefinitionRowProps",
-          "line": 60,
-          "kind": "ReExport"
-        },
-        {
-          "name": "DefinitionListProps",
-          "line": 60,
-          "kind": "ReExport"
-        }
-      ],
-      "declarations": [
-        {
-          "name": "DefinitionRowProps",
-          "line": 3,
-          "kind": "InterfaceDeclaration"
-        },
-        {
-          "name": "DefinitionRow",
-          "line": 9,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "DefinitionListProps",
-          "line": 51,
-          "kind": "InterfaceDeclaration"
-        },
-        {
-          "name": "DefinitionList",
-          "line": 55,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -110233,6 +110089,30 @@
         {
           "name": "getStaleApplications",
           "line": 4,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/date/todayInPortalTimezone.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 855,
+      "lines": 21,
+      "sha256": "d918a43722a904a3a81278205b7dde9f8fb1b1c384795945cd02f923a520cbb4",
+      "binary": false,
+      "exports": [
+        {
+          "name": "todayInPortalTimezone",
+          "line": 12,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "todayInPortalTimezone",
+          "line": 12,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154710,6 +154590,29 @@
       "directive": null
     },
     {
+      "path": "tests/app/counselor-student-detail-dates.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 6077,
+      "lines": 114,
+      "sha256": "3f82161c769bf0c1dfee463b6050270c71f228061f8bba650d681171dfaa5ca2",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "db",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "INSTANT",
+          "line": 63,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/dashboard-training-redirect.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -154756,6 +154659,24 @@
       "directive": null
     },
     {
+      "path": "tests/app/employer-application-detail-dates.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2692,
+      "lines": 54,
+      "sha256": "f34045a8a7549e793ed33915e5183f1c5ac33243337284970a5d65ec2c390f27",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "INSTANT",
+          "line": 29,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/employer-applications-pageheader.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -154791,6 +154712,24 @@
         {
           "name": "pricingState",
           "line": 4,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/employer-dashboard-dates.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3528,
+      "lines": 73,
+      "sha256": "71e7caad4ecf310c3ec1c8894d087078d8602982f5bb124db9fd331c45196683",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "INSTANT",
+          "line": 46,
           "kind": "Variable"
         }
       ],
@@ -154890,6 +154829,47 @@
       "directive": null
     },
     {
+      "path": "tests/app/partner-dashboard-dates.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 4551,
+      "lines": 79,
+      "sha256": "13b21f232bb9cfd94c2694ded6b69f758f8c3361801c7473d07fa735a4e12536",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 6,
+          "kind": "Variable"
+        },
+        {
+          "name": "INSTANT",
+          "line": 47,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/partner-outcomes-dates.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2745,
+      "lines": 52,
+      "sha256": "b80099d8554bd4cdd5a755603838da7b2bdf2c038ec5a32a5e07914e0f60a5ba",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "INSTANT",
+          "line": 31,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/partner-pageheader-kit.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -154930,6 +154910,24 @@
         {
           "name": "mocks",
           "line": 4,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/app/partner-settings-dates.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2671,
+      "lines": 48,
+      "sha256": "649d26e99e8f99be60a52932202358690d3eb62640a0890f86ad6aea8d0c6336",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "INSTANT",
+          "line": 27,
           "kind": "Variable"
         }
       ],
@@ -155895,6 +155893,18 @@
           "kind": "Variable"
         }
       ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/portal-date-inputs-today.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2030,
+      "lines": 44,
+      "sha256": "69a2eef4eac9776d63ae0a99324e74aca64b36c720cbce9227b9aa5bf3f9a538",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
       "directive": null
     },
     {
@@ -159491,6 +159501,18 @@
           "kind": "FunctionDeclaration"
         }
       ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/today-in-portal-timezone.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 822,
+      "lines": 22,
+      "sha256": "64b0e4253f439263e67fbf3cb5a5eecfafa402607d8033fe70fc16aa35e96046",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
       "directive": null
     },
     {

@@ -4,6 +4,9 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
+/** Upper bound on chapters returned per leader; the dashboard renders them all inline. */
+const LEADER_CHAPTERS_LIMIT = 50;
+
 /** List chapters the current user leads (with members, meetings, curriculum) */
 async function _GET(request: NextRequest) {
   try {
@@ -18,6 +21,8 @@ async function _GET(request: NextRequest) {
           organizationId: orgId,
           leaderId: user.id,
         },
+        orderBy: { createdAt: 'desc' },
+        take: LEADER_CHAPTERS_LIMIT,
         include: {
           members: {
             include: {

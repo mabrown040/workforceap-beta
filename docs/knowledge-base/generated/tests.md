@@ -195,6 +195,7 @@
 | [tests/components/employer-action-connection-failure.spec.tsx](../../../tests/components/employer-action-connection-failure.spec.tsx) | 154 | tests |  |
 | [tests/components/employer-outcomes-status-labels.spec.tsx](../../../tests/components/employer-outcomes-status-labels.spec.tsx) | 43 | tests |  |
 | [tests/components/employer-signup-password-toggle.spec.tsx](../../../tests/components/employer-signup-password-toggle.spec.tsx) | 51 | tests |  |
+| [tests/components/form-a11y-sweep.spec.tsx](../../../tests/components/form-a11y-sweep.spec.tsx) | 281 | tests |  |
 | [tests/components/inbox-zero-reassignment-receipt.spec.tsx](../../../tests/components/inbox-zero-reassignment-receipt.spec.tsx) | 68 | tests |  |
 | [tests/components/job-form-expiry.spec.tsx](../../../tests/components/job-form-expiry.spec.tsx) | 59 | tests |  |
 | [tests/components/lab-evidence-review.test.tsx](../../../tests/components/lab-evidence-review.test.tsx) | 118 | tests |  |

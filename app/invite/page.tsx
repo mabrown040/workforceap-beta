@@ -321,6 +321,7 @@ function InviteContent() {
         <form onSubmit={handleSubmit}>
           {error && (
             <div
+              role="alert"
               style={{
                 padding: '0.75rem',
                 marginBottom: '1rem',

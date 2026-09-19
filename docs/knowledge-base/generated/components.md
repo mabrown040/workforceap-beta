@@ -175,7 +175,7 @@
 | [components/employer/EmployerJobQuickActions.tsx](../../../components/employer/EmployerJobQuickActions.tsx) | 138 | jobs-employers | default:9 |
 | [components/employer/EmployerJobsBoard.tsx](../../../components/employer/EmployerJobsBoard.tsx) | 1204 | jobs-employers | EmployerJobBoardItem:37, default:221 |
 | [components/employer/EmployerKanban.tsx](../../../components/employer/EmployerKanban.tsx) | 284 | jobs-employers | default:60 |
-| [components/employer/EmployerLoiForm.tsx](../../../components/employer/EmployerLoiForm.tsx) | 224 | jobs-employers | default:11 |
+| [components/employer/EmployerLoiForm.tsx](../../../components/employer/EmployerLoiForm.tsx) | 229 | jobs-employers | default:11 |
 | [components/employer/EmployerMatchHistoryClient.tsx](../../../components/employer/EmployerMatchHistoryClient.tsx) | 303 | jobs-employers | EmployerMatchHistoryRow:12, default:104 |
 | [components/employer/EmployerMatchStatusSelect.tsx](../../../components/employer/EmployerMatchStatusSelect.tsx) | 96 | jobs-employers | default:15 |
 | [components/employer/EmployerOutcomesDashboard.tsx](../../../components/employer/EmployerOutcomesDashboard.tsx) | 230 | jobs-employers | default:45 |
@@ -196,7 +196,7 @@
 | [components/error/RouteErrorFallback.tsx](../../../components/error/RouteErrorFallback.tsx) | 333 | components | ErrorContext:7, default:112 |
 | [components/forms/MemberSignupForm.tsx](../../../components/forms/MemberSignupForm.tsx) | 307 | components | default:27 |
 | [components/forms/ParentalConsentForm.tsx](../../../components/forms/ParentalConsentForm.tsx) | 285 | components | default:21 |
-| [components/forms/PlacementSurveyForm.tsx](../../../components/forms/PlacementSurveyForm.tsx) | 257 | components | default:88 |
+| [components/forms/PlacementSurveyForm.tsx](../../../components/forms/PlacementSurveyForm.tsx) | 258 | components | default:89 |
 | [components/graphics/DataLandingEmptyArt.tsx](../../../components/graphics/DataLandingEmptyArt.tsx) | 22 | components | DataLandingEmptyArt:4 |
 | [components/marketing/ConversionThankYouPage.tsx](../../../components/marketing/ConversionThankYouPage.tsx) | 171 | public-experience | default:26 |
 | [components/marketing/EmployerCaseStudyCard.tsx](../../../components/marketing/EmployerCaseStudyCard.tsx) | 167 | public-experience | default:19 |
@@ -256,7 +256,7 @@
 | [components/partner/PartnerReferralShare.module.css](../../../components/partner/PartnerReferralShare.module.css) | 29 | partners-funding |  |
 | [components/partner/PartnerReferralShare.tsx](../../../components/partner/PartnerReferralShare.tsx) | 31 | partners-funding | default:9 |
 | [components/partner/PartnerReferredMembersMobile.tsx](../../../components/partner/PartnerReferredMembersMobile.tsx) | 171 | partners-funding | PartnerMemberRow:9, default:41 |
-| [components/partner/PartnerSettingsEditRequest.tsx](../../../components/partner/PartnerSettingsEditRequest.tsx) | 141 | partners-funding | default:13 |
+| [components/partner/PartnerSettingsEditRequest.tsx](../../../components/partner/PartnerSettingsEditRequest.tsx) | 143 | partners-funding | default:13 |
 | [components/partner/PartnerSignupForm.tsx](../../../components/partner/PartnerSignupForm.tsx) | 261 | partners-funding | default:34 |
 | [components/partner/PartnerWorkflowTimeline.tsx](../../../components/partner/PartnerWorkflowTimeline.tsx) | 43 | partners-funding | default:10 |
 | [components/partner/PendingApprovalBanner.tsx](../../../components/partner/PendingApprovalBanner.tsx) | 34 | partners-funding | default:3 |
@@ -277,7 +277,7 @@
 | [components/portal/BenefitsCliffClient.tsx](../../../components/portal/BenefitsCliffClient.tsx) | 429 | components | default:51 |
 | [components/portal/CareerBriefForYou.tsx](../../../components/portal/CareerBriefForYou.tsx) | 146 | components | default:8 |
 | [components/portal/CareerBriefList.tsx](../../../components/portal/CareerBriefList.tsx) | 38 | components | default:11 |
-| [components/portal/CertificationAddForm.tsx](../../../components/portal/CertificationAddForm.tsx) | 222 | components | default:28 |
+| [components/portal/CertificationAddForm.tsx](../../../components/portal/CertificationAddForm.tsx) | 224 | components | default:28 |
 | [components/portal/CertificationReferenceSection.tsx](../../../components/portal/CertificationReferenceSection.tsx) | 49 | components | default:4 |
 | [components/portal/CertificationRoadmap.tsx](../../../components/portal/CertificationRoadmap.tsx) | 165 | components | default:50 |
 | [components/portal/CertificationVaultActions.tsx](../../../components/portal/CertificationVaultActions.tsx) | 283 | components | CertRow:7, CertificationViewButton:20, CertificationDownloadOneButton:121, CertificationEarnedRowMobile:171, DownloadAllCertificatesButton:232 |
@@ -353,7 +353,7 @@
 | [components/portal/MemberStuckCounselorStrip.tsx](../../../components/portal/MemberStuckCounselorStrip.tsx) | 54 | components | default:12 |
 | [components/portal/MemberTodayNextStep.test.tsx](../../../components/portal/MemberTodayNextStep.test.tsx) | 141 | components |  |
 | [components/portal/MemberWorkspaceShell.tsx](../../../components/portal/MemberWorkspaceShell.tsx) | 62 | components | default:13 |
-| [components/portal/MentorSessionForm.tsx](../../../components/portal/MentorSessionForm.tsx) | 60 | components | default:5 |
+| [components/portal/MentorSessionForm.tsx](../../../components/portal/MentorSessionForm.tsx) | 68 | components | default:5 |
 | [components/portal/MilestoneBadge.tsx](../../../components/portal/MilestoneBadge.tsx) | 151 | member-counselor | Milestone:21, default:88, MILESTONE_DISPLAY_ORDER:146 |
 | [components/portal/MobileProfileSkillsResume.tsx](../../../components/portal/MobileProfileSkillsResume.tsx) | 346 | components | default:50 |
 | [components/portal/NotificationBell.tsx](../../../components/portal/NotificationBell.tsx) | 408 | communications | default:107 |

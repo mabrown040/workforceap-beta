@@ -17313,6 +17313,75 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/form-a11y-sweep.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 15
+      },
+      {
+        "file": "components/portal/MentorSessionForm.tsx",
+        "line": 38
+      },
+      {
+        "file": "app/employers/EmployerContactForm.tsx",
+        "line": 39
+      },
+      {
+        "file": "components/employer/EmployerLoiForm.tsx",
+        "line": 40
+      },
+      {
+        "file": "app/employers/signup/page.tsx",
+        "line": 41
+      },
+      {
+        "file": "components/portal/CertificationAddForm.tsx",
+        "line": 42
+      },
+      {
+        "file": "components/forms/PlacementSurveyForm.tsx",
+        "line": 43
+      },
+      {
+        "file": "app/invite/page.tsx",
+        "line": 44
+      },
+      {
+        "file": "components/employer/EmployerSettingsForm.tsx",
+        "line": 45
+      },
+      {
+        "file": "app/(portal)/account/privacy/page.tsx",
+        "line": 46
+      },
+      {
+        "file": "components/partner/PartnerSettingsEditRequest.tsx",
+        "line": 47
+      },
+      {
+        "file": "app/(auth)/signup/SignupForm.tsx",
+        "line": 48
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/inbox-zero-reassignment-receipt.spec.tsx",
     "area": "tests",
     "domain": "tests",

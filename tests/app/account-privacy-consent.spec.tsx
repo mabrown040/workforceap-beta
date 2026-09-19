@@ -71,7 +71,7 @@ describe('privacy settings — marketing consent toggle', () => {
 
     // The stored consent record is unchanged, so the control must go back to it.
     await waitFor(() => expect(consentCheckbox().checked).toBe(true));
-    const banner = await screen.findByRole('status');
+    const banner = await screen.findByRole('alert');
     expect(banner).toHaveTextContent('consentError');
     expect(banner).not.toHaveTextContent('consentSuccess');
   });
@@ -84,6 +84,6 @@ describe('privacy settings — marketing consent toggle', () => {
     await user.click(consentCheckbox());
 
     await waitFor(() => expect(consentCheckbox().checked).toBe(true));
-    expect(await screen.findByRole('status')).toHaveTextContent('consentError');
+    expect(await screen.findByRole('alert')).toHaveTextContent('consentError');
   });
 });

@@ -10,7 +10,7 @@ flowchart LR
   database["database: 201 files"]
   delivery["delivery: 9 files"]
   documentation["documentation: 356 files"]
-  libraries["libraries: 949 files"]
+  libraries["libraries: 950 files"]
   localization["localization: 6 files"]
   operations["operations: 122 files"]
   pages["pages: 634 files"]
@@ -45,7 +45,11 @@ flowchart LR
   operations -->|"1 static references"| tests
   pages -->|"2 static references"| api
   pages -->|"1089 static references"| components
+<<<<<<< HEAD
   pages -->|"1251 static references"| libraries
+=======
+  pages -->|"1243 static references"| libraries
+>>>>>>> origin/master
   pages -->|"37 static references"| styles
   root -->|"22 static references"| libraries
   root -->|"2 static references"| operations
@@ -53,9 +57,17 @@ flowchart LR
   tests -->|"222 static references"| api
   tests -->|"5 static references"| astro_marketing
   tests -->|"4 static references"| communications
+<<<<<<< HEAD
   tests -->|"47 static references"| components
   tests -->|"797 static references"| libraries
   tests -->|"10 static references"| localization
   tests -->|"28 static references"| operations
   tests -->|"34 static references"| pages
+=======
+  tests -->|"45 static references"| components
+  tests -->|"796 static references"| libraries
+  tests -->|"7 static references"| localization
+  tests -->|"28 static references"| operations
+  tests -->|"35 static references"| pages
+>>>>>>> origin/master
   tests -->|"6 static references"| root

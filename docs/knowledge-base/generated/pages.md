@@ -6,7 +6,7 @@
 | --- | ---: | --- | --- |
 | [app/(auth)/error.tsx](../../../app/%28auth%29/error.tsx) | 20 | pages | default:6 |
 | [app/(auth)/forgot-password/layout.tsx](../../../app/%28auth%29/forgot-password/layout.tsx) | 17 | pages | generateMetadata:5, default:15 |
-| [app/(auth)/forgot-password/page.tsx](../../../app/%28auth%29/forgot-password/page.tsx) | 161 | pages | default:155 |
+| [app/(auth)/forgot-password/page.tsx](../../../app/%28auth%29/forgot-password/page.tsx) | 166 | pages | default:160 |
 | [app/(auth)/layout.tsx](../../../app/%28auth%29/layout.tsx) | 34 | pages | default:21 |
 | [app/(auth)/loading.tsx](../../../app/%28auth%29/loading.tsx) | 5 | pages | default:3 |
 | [app/(auth)/login/LoginForm.tsx](../../../app/%28auth%29/login/LoginForm.tsx) | 751 | pages | default:315 |
@@ -14,10 +14,10 @@
 | [app/(auth)/login/page.tsx](../../../app/%28auth%29/login/page.tsx) | 70 | pages | generateMetadata:14, default:24 |
 | [app/(auth)/not-found.tsx](../../../app/%28auth%29/not-found.tsx) | 20 | pages | default:3 |
 | [app/(auth)/reset-password/layout.tsx](../../../app/%28auth%29/reset-password/layout.tsx) | 17 | pages | generateMetadata:5, default:15 |
-| [app/(auth)/reset-password/page.tsx](../../../app/%28auth%29/reset-password/page.tsx) | 326 | pages | default:320 |
+| [app/(auth)/reset-password/page.tsx](../../../app/%28auth%29/reset-password/page.tsx) | 334 | pages | default:328 |
 | [app/(auth)/setup-mfa/layout.tsx](../../../app/%28auth%29/setup-mfa/layout.tsx) | 17 | pages | generateMetadata:5, default:15 |
 | [app/(auth)/setup-mfa/loading.tsx](../../../app/%28auth%29/setup-mfa/loading.tsx) | 5 | pages | default:3 |
-| [app/(auth)/setup-mfa/page.tsx](../../../app/%28auth%29/setup-mfa/page.tsx) | 313 | pages | default:16 |
+| [app/(auth)/setup-mfa/page.tsx](../../../app/%28auth%29/setup-mfa/page.tsx) | 323 | pages | default:17 |
 | [app/(auth)/signup/SignupForm.tsx](../../../app/%28auth%29/signup/SignupForm.tsx) | 637 | applications-enrollment | default:251 |
 | [app/(auth)/signup/loading.tsx](../../../app/%28auth%29/signup/loading.tsx) | 5 | applications-enrollment | default:3 |
 | [app/(auth)/signup/page.tsx](../../../app/%28auth%29/signup/page.tsx) | 41 | applications-enrollment | generateMetadata:11, default:20 |

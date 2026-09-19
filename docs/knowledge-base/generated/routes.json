@@ -55,7 +55,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 155,
+        "line": 160,
         "kind": "FunctionDeclaration",
         "localName": "ForgotPasswordPage"
       }
@@ -233,7 +233,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 320,
+        "line": 328,
         "kind": "FunctionDeclaration",
         "localName": "ResetPasswordPage"
       }
@@ -309,7 +309,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 16,
+        "line": 17,
         "kind": "FunctionDeclaration",
         "localName": "SetupMfaPage"
       }

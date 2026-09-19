@@ -21,6 +21,50 @@ stopped there; **there may be additional blockers later in the history**. The
 duplicate-only resolution was an investigation step, not a provisioning recipe.
 The audit database was dropped afterward; other databases were preserved.
 
+## Follow-up replay, 2026-09-18: there are at least seven blockers
+
+A second disposable-database replay (PostgreSQL 16.13, Prisma 5.22.0, 178
+migrations at this checkout) reproduced both failures above unchanged, then
+continued past each one **in a scratch copy of `prisma/migrations/`** to
+enumerate what else is broken. No repository migration file was modified and no
+production database was touched. The scratch workarounds are diagnostic only —
+they are not a provisioning recipe and were not committed.
+
+| # | Migration | Error | Root cause |
+| --- | --- | --- | --- |
+| 1 | `20260320000000_add_partner_users` | `42P07` `relation "partner_users" already exists` | Exact duplicate of `20260319100000_add_partner_users`. The later file is a strict **subset** of the earlier one (the earlier also adds four `partners.notify_*` columns), so the earlier migration alone produces the correct schema. |
+| 2 | `20260320000002_add_invitations` | `42P01` `relation "subgroups" does not exist` | FK at line 51 references `subgroups`, first created by the later `20260320100000_add_member_subgroups`. |
+| 3 | `20260326120000_portal_message_threads_kind` | `42P01` `relation "message_threads" does not exist` | The whole migration `ALTER`s `message_threads`, which is first created by the later `20260329120000_member_counselor_chat`. |
+| 4 | `20260427001500_add_course_coursera_links` | `42P01` `relation "Organization" does not exist` | FK references `"Organization"`; **no migration ever creates that relation**. The real table is `"organizations"` (`20260331120000_sprint7_organization_catalog_intake`). Casing bug. |
+| 5 | `20260504130000_coursera_skillset_progress` | `42601` `syntax error at or near "CONSTRAINT"` | **The file is truncated.** It begins mid-statement; the `CREATE TABLE` header and every column definition are missing. |
+| 6 | `20260513000000_add_webhook_events` | `42601` `syntax error at or near "CONSTRAINT"` | **The file is truncated** the same way. |
+| 7 | `20260519050000_xapi_organization_id` | `42P01` `relation "coursera_xapi_events" does not exist` | `coursera_xapi_events` is created by **application runtime code** (`lib/xapi/mappings.ts`), not by any migration, and is not in `schema.prisma`. Three migrations (`20260519050000`, `20260615040400`, `20260710120000`) depend on it, so migrations cannot be replayed without first running the app. |
+
+A separate, silent defect: **`prisma/migrations/20260404120000_onboarding_tour_completed/migration.sql` is a zero-byte file.** It raises no error, so a replay that got this far would still silently diverge from `schema.prisma`.
+
+The enumeration stopped after blocker 7, at roughly migration 110 of 178. The
+remaining ~70 migrations have still never been exercised against an empty
+database, so **seven is a lower bound, not a total.**
+
+Consequences to note:
+
+- Blockers 4, 5, 6 and 7 mean several migrations have **never** applied cleanly to
+  any database built from migrations alone. Production's schema was therefore not
+  produced solely by this migration history.
+- Blockers 5 and 6 cannot be repaired from git history in a shallow checkout; the
+  original SQL is not recoverable from the repository and must be reconstructed
+  from `schema.prisma` or read off a live database.
+- None of this is fixable by editing the historical files: that is forbidden
+  above and fails `npm run check-migrations`. The versioned-baseline path in
+  "What is still needed for reproducible recovery" remains the only sanctioned
+  route, and it is still unbuilt.
+
+For local and disposable test databases, use `npm run db:push` followed by
+`npm run db:seed` (and `npm run db:seed:demo` for demo fixtures). That sequence
+was verified end to end against an empty PostgreSQL 16.13 database on
+2026-09-18. It remains subject to the `db:push` limitation stated throughout this
+document: it omits migration-only DDL such as RLS policies and triggers.
+
 Raw output: [pristine replay](../graph/evidence/deps-recovery-01-pristine-replay.txt),
 [duplicate postconditions](../graph/evidence/deps-recovery-02-duplicate-postconditions.txt),
 [isolated resolve](../graph/evidence/deps-recovery-03-isolated-duplicate-resolve.txt),

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "e02706b3668f3670b69f074e62fd2a5cb1ec12b726ebcb6710ff9c11be1f5769",
+  "inputTreeSha256": "573b128958bf051a9a21f0f1fb92465d963d8bcfae4a50e13b1885eae5f26c0e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3283,9 +3283,9 @@
       "path": "DEMO_SETUP.md",
       "area": "root",
       "domain": "root",
-      "bytes": 4060,
-      "lines": 136,
-      "sha256": "8cda3d68ac212964b845d6490c1eed0dd6f3c164f402f36201cec6bfb3de5c07",
+      "bytes": 6186,
+      "lines": 167,
+      "sha256": "a64ce27079e7f2aec7aaf7490731019f5c7f95bcc804d92a6df056837fd6a06c",
       "binary": false
     },
     {
@@ -75440,9 +75440,9 @@
       "path": "docs/DATABASE-RECOVERY.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10206,
-      "lines": 155,
-      "sha256": "105c59f9eb5a5e14c866b6c0c59fbf71bed30678fae660a8cfed60d6c5ce3bd0",
+      "bytes": 14115,
+      "lines": 199,
+      "sha256": "23b5fe0f7f4b30bebc09f81726865b0c1c0fff76a3854a7bea114e7996c2a7de",
       "binary": false
     },
     {
@@ -140934,9 +140934,9 @@
       "path": "prisma/seed-demo.ts",
       "area": "database",
       "domain": "database",
-      "bytes": 17787,
+      "bytes": 17832,
       "lines": 546,
-      "sha256": "89e36bc51a613af27c95326736d1aecf0d2ed3b688937c5167e9fa46090282c6",
+      "sha256": "5075e0b9db9d33c8731434d8e3b5f598a0ea18271042730b7a768d31812ed4a6",
       "binary": false,
       "exports": [],
       "declarations": [

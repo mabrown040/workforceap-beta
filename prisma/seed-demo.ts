@@ -58,31 +58,31 @@ async function seedDemoPartners(orgId: string) {
       name: 'Workforce Solutions Capital Area',
       slug: 'workforce-solutions-austin',
       referralCode: 'workforce-solutions-austin',
-      orgType: 'Workforce Center',
+      organizationType: 'Workforce Center',
     },
     {
       name: 'Austin Area Urban League',
       slug: 'austin-urban-league',
       referralCode: 'austin-urban-league',
-      orgType: 'Nonprofit',
+      organizationType: 'Nonprofit',
     },
     {
       name: 'St. John Regular Baptist Church',
       slug: 'st-john-baptist',
       referralCode: 'st-john-baptist',
-      orgType: 'Faith Organization',
+      organizationType: 'Faith Organization',
     },
     {
       name: 'Capital IDEA',
       slug: 'capital-idea',
       referralCode: 'capital-idea',
-      orgType: 'Workforce Center',
+      organizationType: 'Workforce Center',
     },
     {
       name: 'Texas Workforce Commission',
       slug: 'twc',
       referralCode: 'twc',
-      orgType: 'Government Agency',
+      organizationType: 'Government Agency',
     },
   ];
 

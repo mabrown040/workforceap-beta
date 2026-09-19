@@ -199,6 +199,7 @@
 | [tests/components/portal-team-chat-read-cursor.spec.tsx](../../../tests/components/portal-team-chat-read-cursor.spec.tsx) | 123 | tests |  |
 | [tests/components/public-staff-form-connection-failure.spec.tsx](../../../tests/components/public-staff-form-connection-failure.spec.tsx) | 160 | tests |  |
 | [tests/components/referral-share-toolkit.spec.tsx](../../../tests/components/referral-share-toolkit.spec.tsx) | 146 | applications-enrollment |  |
+| [tests/components/silent-failure-sweep-connection-failure.spec.tsx](../../../tests/components/silent-failure-sweep-connection-failure.spec.tsx) | 386 | tests |  |
 | [tests/components/skill-mission-close-guard.test.tsx](../../../tests/components/skill-mission-close-guard.test.tsx) | 103 | tests |  |
 | [tests/components/students-roster-identity.spec.tsx](../../../tests/components/students-roster-identity.spec.tsx) | 53 | tests |  |
 | [tests/components/students-roster-sort.spec.tsx](../../../tests/components/students-roster-sort.spec.tsx) | 92 | tests |  |
@@ -334,6 +335,7 @@
 | [tests/lib/start-member-agent-session.spec.ts](../../../tests/lib/start-member-agent-session.spec.ts) | 149 | tests |  |
 | [tests/lib/students-roster-enrichment.spec.ts](../../../tests/lib/students-roster-enrichment.spec.ts) | 89 | tests |  |
 | [tests/lib/students-roster-sort.spec.ts](../../../tests/lib/students-roster-sort.spec.ts) | 56 | tests |  |
+| [tests/lib/success-chip-text-token-sweep.spec.ts](../../../tests/lib/success-chip-text-token-sweep.spec.ts) | 88 | tests |  |
 | [tests/lib/success-text-token-contrast.spec.ts](../../../tests/lib/success-text-token-contrast.spec.ts) | 76 | tests |  |
 | [tests/lib/training-course-practice.spec.ts](../../../tests/lib/training-course-practice.spec.ts) | 47 | tests |  |
 | [tests/lib/training-dashboard-curriculum-cache.spec.ts](../../../tests/lib/training-dashboard-curriculum-cache.spec.ts) | 90 | tests |  |

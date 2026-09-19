@@ -65905,8 +65905,16 @@
   },
   {
     "from": "app/mentor/apply/MentorApplyForm.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/mentor/apply/MentorApplyForm.tsx",
+    "specifier": "lucide-react",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -65914,15 +65922,23 @@
   {
     "from": "app/mentor/apply/MentorApplyForm.tsx",
     "specifier": "@/components/LocalizedLink",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/LocalizedLink.tsx"
   },
   {
     "from": "app/mentor/apply/MentorApplyForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/mentor/apply/MentorApplyForm.tsx",
     "specifier": "./mentor-apply.module.css",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "app/mentor/apply/mentor-apply.module.css"
@@ -70721,8 +70737,24 @@
   },
   {
     "from": "components/employer/EmployerApplicationsClient.tsx",
-    "specifier": "@prisma/client",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerApplicationsClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerApplicationsClient.tsx",
+    "specifier": "@prisma/client",
+    "line": 7,
     "kind": "type",
     "external": true,
     "package": "@prisma/client"
@@ -70730,7 +70762,7 @@
   {
     "from": "components/employer/EmployerApplicationsClient.tsx",
     "specifier": "@/components/portal/EmployerApplicationChatClient",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/EmployerApplicationChatClient.tsx"
@@ -70738,7 +70770,7 @@
   {
     "from": "components/employer/EmployerApplicationsClient.tsx",
     "specifier": "@/components/portal/PortalEmptyState",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalEmptyState.tsx"
@@ -70746,7 +70778,7 @@
   {
     "from": "components/employer/EmployerApplicationsClient.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -70754,7 +70786,7 @@
   {
     "from": "components/employer/EmployerApplicationsClient.tsx",
     "specifier": "@/lib/employer/employerApplicationsListQuery",
-    "line": 9,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/employer/employerApplicationsListQuery.ts"
@@ -70762,7 +70794,7 @@
   {
     "from": "components/employer/EmployerApplicationsClient.tsx",
     "specifier": "@/lib/employer/jobPostingApplicationStatus",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/employer/jobPostingApplicationStatus.ts"
@@ -70913,8 +70945,24 @@
   },
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerJobsBoard.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerJobsBoard.tsx",
+    "specifier": "lucide-react",
+    "line": 9,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -70922,7 +70970,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/lib/analytics/events",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/events.ts"
@@ -70930,7 +70978,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/hooks/useFocusTrap",
-    "line": 9,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "hooks/useFocusTrap.ts"
@@ -70938,7 +70986,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/lib/employer/jobReadiness",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/employer/jobReadiness.ts"
@@ -70946,7 +70994,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/lib/employer/employerJobsBulk",
-    "line": 11,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/employer/employerJobsBulk.ts"
@@ -70954,7 +71002,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/lib/employer/employerJobsListQuery",
-    "line": 12,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/employer/employerJobsListQuery.ts"
@@ -70962,7 +71010,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/lib/employer/employerJobFormFlash",
-    "line": 17,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/employer/employerJobFormFlash.ts"
@@ -70970,7 +71018,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/lib/employer/jobStatusDisplay",
-    "line": 18,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/employer/jobStatusDisplay.ts"
@@ -70978,7 +71026,7 @@
   {
     "from": "components/employer/EmployerJobsBoard.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 19,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -71193,8 +71241,24 @@
   },
   {
     "from": "components/employer/EmployerPipelineClient.tsx",
-    "specifier": "@/lib/employer/matchScoreDisplay",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerPipelineClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerPipelineClient.tsx",
+    "specifier": "@/lib/employer/matchScoreDisplay",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/employer/matchScoreDisplay.ts"
@@ -71202,7 +71266,7 @@
   {
     "from": "components/employer/EmployerPipelineClient.tsx",
     "specifier": "@/lib/employer/aiMatchPipelineLabels",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/employer/aiMatchPipelineLabels.ts"
@@ -71210,7 +71274,7 @@
   {
     "from": "components/employer/EmployerPipelineClient.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -71433,8 +71497,24 @@
   },
   {
     "from": "components/employer/MobileApplicationsClient.tsx",
-    "specifier": "@/components/portal/EmployerApplicationChatClient",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/MobileApplicationsClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/MobileApplicationsClient.tsx",
+    "specifier": "@/components/portal/EmployerApplicationChatClient",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/portal/EmployerApplicationChatClient.tsx"
@@ -71442,7 +71522,7 @@
   {
     "from": "components/employer/MobileApplicationsClient.tsx",
     "specifier": "./EmployerApplicationsClient",
-    "line": 5,
+    "line": 7,
     "kind": "type",
     "external": false,
     "target": "components/employer/EmployerApplicationsClient.tsx"
@@ -72856,6 +72936,14 @@
     "package": "next-intl"
   },
   {
+    "from": "components/partner/PartnerAttentionClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
     "from": "components/partner/PartnerConnectPayoutButton.tsx",
     "specifier": "react",
     "line": 3,
@@ -73273,16 +73361,32 @@
   },
   {
     "from": "components/portal/AiResultRenderer.tsx",
-    "specifier": "react-markdown",
+    "specifier": "next-intl",
     "line": 21,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/AiResultRenderer.tsx",
+    "specifier": "react-markdown",
+    "line": 22,
     "kind": "import",
     "external": true,
     "package": "react-markdown"
   },
   {
     "from": "components/portal/AiResultRenderer.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 23,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/AiResultRenderer.tsx",
     "specifier": "remark-gfm",
-    "line": 22,
+    "line": 24,
     "kind": "import",
     "external": true,
     "package": "remark-gfm"
@@ -73290,7 +73394,7 @@
   {
     "from": "components/portal/AiResultRenderer.tsx",
     "specifier": "@/components/portal/tools/SkillMapperRadar",
-    "line": 23,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "components/portal/tools/SkillMapperRadar.tsx"
@@ -85022,6 +85126,22 @@
     "kind": "import",
     "external": true,
     "package": "react"
+  },
+  {
+    "from": "components/portal/tools/ElevatorPitchDeploymentLogger.tsx",
+    "specifier": "next-intl",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/tools/ElevatorPitchDeploymentLogger.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "components/portal/tools/ExportPdfButton.tsx",
@@ -123072,6 +123192,110 @@
     "target": "app/(portal)/dashboard/points/ReferralShareCard.tsx"
   },
   {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "react",
+    "line": 15,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 16,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "next-intl",
+    "line": 17,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "vitest",
+    "line": 18,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/app/mentor/apply/MentorApplyForm",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "app/mentor/apply/MentorApplyForm.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/employer/EmployerPipelineClient",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerPipelineClient.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/employer/EmployerApplicationsClient",
+    "line": 22,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerApplicationsClient.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/employer/MobileApplicationsClient",
+    "line": 23,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/MobileApplicationsClient.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/employer/EmployerJobsBoard",
+    "line": 24,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerJobsBoard.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/partner/PartnerAttentionClient",
+    "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "components/partner/PartnerAttentionClient.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/portal/tools/ElevatorPitchDeploymentLogger",
+    "line": 26,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/tools/ElevatorPitchDeploymentLogger.tsx"
+  },
+  {
+    "from": "tests/components/silent-failure-sweep-connection-failure.spec.tsx",
+    "specifier": "@/components/portal/AiResultRenderer",
+    "line": 27,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/AiResultRenderer.tsx"
+  },
+  {
     "from": "tests/components/skill-mission-close-guard.test.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -126270,6 +126494,30 @@
     "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
+    "from": "tests/lib/success-chip-text-token-sweep.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/success-chip-text-token-sweep.spec.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/lib/success-chip-text-token-sweep.spec.ts",
+    "specifier": "node:path",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
   },
   {
     "from": "tests/lib/success-text-token-contrast.spec.ts",

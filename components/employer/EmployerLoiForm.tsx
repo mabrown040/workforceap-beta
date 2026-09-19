@@ -81,7 +81,7 @@ export default function EmployerLoiForm() {
   return (
     <form onSubmit={handleSubmit} className="wa-space-y-8">
       {error && (
-        <div className="wa-rounded-lg wa-bg-red-50 wa-border wa-border-red-200 wa-p-4 wa-text-red-700">
+        <div role="alert" className="wa-rounded-lg wa-bg-red-50 wa-border wa-border-red-200 wa-p-4 wa-text-red-700">
           {error}
         </div>
       )}
@@ -171,11 +171,16 @@ export default function EmployerLoiForm() {
         </div>
 
         <div className="wa-space-y-3">
-          <label className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
+          <span id="preferredPrograms-label" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
             Preferred Programs *
-          </label>
-          <p className="wa-text-sm wa-text-slate-500">Select the programs you&apos;re most interested in hiring from</p>
-          <div className="wa-grid wa-gap-3 md:wa-grid-cols-2">
+          </span>
+          <p id="preferredPrograms-hint" className="wa-text-sm wa-text-slate-500">Select the programs you&apos;re most interested in hiring from</p>
+          <div
+            role="group"
+            aria-labelledby="preferredPrograms-label"
+            aria-describedby="preferredPrograms-hint"
+            className="wa-grid wa-gap-3 md:wa-grid-cols-2"
+          >
             {PROGRAMS.map((program) => (
               <div key={program.slug} className="wa-flex wa-items-start wa-gap-3">
                 <input

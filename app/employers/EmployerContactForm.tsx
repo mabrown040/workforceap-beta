@@ -164,6 +164,7 @@ export default function EmployerContactForm() {
       </div>
       {status === 'error' && errorMsg && (
         <div
+          role="alert"
           style={{
             padding: '0.75rem',
             marginBottom: '1rem',

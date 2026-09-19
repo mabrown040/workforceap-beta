@@ -116,7 +116,7 @@ export default function PrivacySettingsPage() {
       />
 
       {message && (
-        <div role="status" style={{
+        <div role={message.kind === 'success' ? 'status' : 'alert'} style={{
           padding: '0.875rem 1rem',
           borderRadius: 'var(--radius-md)',
           background: message.kind === 'success'

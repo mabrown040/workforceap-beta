@@ -123072,6 +123072,134 @@
     "target": "app/employers/signup/page.tsx"
   },
   {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "react",
+    "line": 11,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 12,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "next-intl",
+    "line": 13,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "vitest",
+    "line": 14,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/components/portal/MentorSessionForm",
+    "line": 38,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/MentorSessionForm.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/app/employers/EmployerContactForm",
+    "line": 39,
+    "kind": "import",
+    "external": false,
+    "target": "app/employers/EmployerContactForm.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/components/employer/EmployerLoiForm",
+    "line": 40,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerLoiForm.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/app/employers/signup/page",
+    "line": 41,
+    "kind": "import",
+    "external": false,
+    "target": "app/employers/signup/page.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/components/portal/CertificationAddForm",
+    "line": 42,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/CertificationAddForm.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/components/forms/PlacementSurveyForm",
+    "line": 43,
+    "kind": "import",
+    "external": false,
+    "target": "components/forms/PlacementSurveyForm.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/app/invite/page",
+    "line": 44,
+    "kind": "import",
+    "external": false,
+    "target": "app/invite/page.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/components/employer/EmployerSettingsForm",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerSettingsForm.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/app/(portal)/account/privacy/page",
+    "line": 46,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/account/privacy/page.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/components/partner/PartnerSettingsEditRequest",
+    "line": 47,
+    "kind": "import",
+    "external": false,
+    "target": "components/partner/PartnerSettingsEditRequest.tsx"
+  },
+  {
+    "from": "tests/components/form-a11y-sweep.spec.tsx",
+    "specifier": "@/app/(auth)/signup/SignupForm",
+    "line": 48,
+    "kind": "import",
+    "external": false,
+    "target": "app/(auth)/signup/SignupForm.tsx"
+  },
+  {
     "from": "tests/components/inbox-zero-reassignment-receipt.spec.tsx",
     "specifier": "@testing-library/react",
     "line": 1,

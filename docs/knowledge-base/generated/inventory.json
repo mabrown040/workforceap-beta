@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "c0e9bed1bf20333f11bb547515304ff5811a5a86733d4ad9fb1b0205ba999770",
+  "inputTreeSha256": "077cfd2f1d4ec302b309d1270d6a055c123c6e46ec00d5862ba107d6fe229b1d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3895,9 +3895,9 @@
       "path": "app/(auth)/signup/SignupForm.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 25492,
-      "lines": 637,
-      "sha256": "2ec7fcfee02b56b8141290fd8c020b5246995057420770dcc83abcbc7f3211ce",
+      "bytes": 25681,
+      "lines": 642,
+      "sha256": "86d1be3b33453024b3c68eae1a8b7ec4ca2710dcb4db563770e3cbdc27c1dcf4",
       "binary": false,
       "exports": [
         {
@@ -4365,9 +4365,9 @@
       "path": "app/(portal)/account/privacy/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 12166,
+      "bytes": 12207,
       "lines": 306,
-      "sha256": "e4c84f22ffe0aa50365d5d71ae9d28da5f3a8f83abbe36ef17147c5f5c20b083",
+      "sha256": "2225a4909d74414cd04e98d2a7e6de2fce28f77af6a840175f5db9a3ffa116cc",
       "binary": false,
       "exports": [
         {
@@ -18959,6 +18959,31 @@
         {
           "name": "OpenPartnerPortalButton",
           "line": 6,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
+    },
+    {
+      "path": "app/admin/partners/[id]/PartnerInviteButton.tsx",
+      "area": "pages",
+      "domain": "partners-funding",
+      "bytes": 1204,
+      "lines": 43,
+      "sha256": "bc517819d077ef536bd0012d423e7e4e620f080d54c937710bec7a99c16c5562",
+      "binary": false,
+      "exports": [
+        {
+          "name": "default",
+          "line": 5,
+          "kind": "FunctionDeclaration",
+          "localName": "PartnerInviteButton"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "PartnerInviteButton",
+          "line": 5,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -33577,36 +33602,26 @@
       "path": "app/api/employer/outcomes/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 5916,
-      "lines": 164,
-      "sha256": "cbcfe4400a50161dd1b9cd9586caac1c505af0501695fa2122fb7c24155b54d5",
+      "bytes": 4661,
+      "lines": 145,
+      "sha256": "0f8f2644ef596f11f307255f1eb09f1a982a11ac5711bdbd67a54d44f39a93f6",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 164,
+          "line": 145,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
-          "name": "JOB_ROW_LIMIT",
-          "line": 11,
-          "kind": "Variable"
-        },
-        {
-          "name": "ProgramRow",
-          "line": 13,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
           "name": "_GET",
-          "line": 20,
+          "line": 15,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 164,
+          "line": 145,
           "kind": "Variable"
         }
       ],
@@ -45002,9 +45017,9 @@
       "path": "app/employers/EmployerContactForm.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 10547,
-      "lines": 265,
-      "sha256": "f77ea9fd015115c7fb2152180f4fd9479acad001541f58ace1783d56e81d8ac5",
+      "bytes": 10570,
+      "lines": 266,
+      "sha256": "9c27c053c213f72269e63682b0ce3b65f61c293d95530f55435e597ce24de6b3",
       "binary": false,
       "exports": [
         {
@@ -45122,9 +45137,9 @@
       "path": "app/employers/signup/page.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 16156,
-      "lines": 402,
-      "sha256": "125c61e357f2a6728403dd2626bf2fda3ee04761f8f1890170d81019c725a058",
+      "bytes": 16384,
+      "lines": 404,
+      "sha256": "100ff9faeed658eaef818023df46954f11579f70addc7c4ec5166f5356c39684",
       "binary": false,
       "exports": [
         {
@@ -45315,14 +45330,14 @@
       "path": "app/invite/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 14892,
-      "lines": 412,
-      "sha256": "5ffd3d5ce42ad4caf053dc12342673225217e5832108cb166213bb475beec355",
+      "bytes": 14919,
+      "lines": 413,
+      "sha256": "4daeb8d6d3399596cb567df89d263d7735ade01223f76f208ce5c95bd9f4a3af",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 406,
+          "line": 407,
           "kind": "FunctionDeclaration",
           "localName": "InvitePage"
         }
@@ -45340,7 +45355,7 @@
         },
         {
           "name": "InvitePage",
-          "line": 406,
+          "line": 407,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -49373,9 +49388,9 @@
       "path": "components/admin/AdminSuperMessagesClient.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 27814,
-      "lines": 743,
-      "sha256": "3e981dfbe55f5b96239b587841c22c763a8bbd290a236fa37edf3386adb615bc",
+      "bytes": 29640,
+      "lines": 793,
+      "sha256": "2e9f739e046deb86fcccf7354e2c3301a50ad71b8fc1159edfa77b92d66b1ec8",
       "binary": false,
       "exports": [
         {
@@ -54086,9 +54101,9 @@
       "path": "components/employer/EmployerLoiForm.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 9443,
-      "lines": 224,
-      "sha256": "7b426103b4aa66ae1dee0df81b3364d24a95ac81d63518db9965ba943a19569a",
+      "bytes": 9667,
+      "lines": 229,
+      "sha256": "3ca64e2b2fa721bbc1b5e0cb1bbb00e6d423f32b3faebad7ac89d497ce9d9975",
       "binary": false,
       "exports": [
         {
@@ -54306,9 +54321,9 @@
       "path": "components/employer/EmployerSettingsForm.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 11064,
+      "bytes": 11100,
       "lines": 296,
-      "sha256": "6ab18a345b523a3ad669c81bd30332cb32cd1bf837334d42e4d07cbe84b44d06",
+      "sha256": "cf330e1ac6414cba12b2adee5b1cee8b3f5013d86ecefe6a4a794d7cf3a79b84",
       "binary": false,
       "exports": [
         {
@@ -54957,14 +54972,14 @@
       "path": "components/forms/PlacementSurveyForm.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8200,
-      "lines": 257,
-      "sha256": "f7a7722f11198f982ff696e72025f63ca4d513221cbd4edac58e09c38a766fc9",
+      "bytes": 8395,
+      "lines": 258,
+      "sha256": "103ce7f83ba1a98b1aed054a45f97d0e84ad131ae1e43be3200450f576e95527",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 88,
+          "line": 89,
           "kind": "FunctionDeclaration",
           "localName": "PlacementSurveyForm"
         }
@@ -55012,7 +55027,7 @@
         },
         {
           "name": "PlacementSurveyForm",
-          "line": 88,
+          "line": 89,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -57077,9 +57092,9 @@
       "path": "components/partner/PartnerSettingsEditRequest.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 6065,
-      "lines": 141,
-      "sha256": "2aedcc00e20b817ad0ab56a4af0c750770391553095d64f52ac6ac63486878ae",
+      "bytes": 6256,
+      "lines": 143,
+      "sha256": "81a194ba147a3ba8967fb7e48519b5997ef017790bc56519e64a2845dbe7ff61",
       "binary": false,
       "exports": [
         {
@@ -57874,9 +57889,9 @@
       "path": "components/portal/CertificationAddForm.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 10106,
-      "lines": 222,
-      "sha256": "4fbede2ea542e044b383d3ef07a4b54e6b5e05ff1791b879d1d7429ab5cf08c7",
+      "bytes": 10235,
+      "lines": 224,
+      "sha256": "ddb3cee37833ac0bbd63fe855d6b4c7ed106f63a08b464bc1efc8fc4c9a4b239",
       "binary": false,
       "exports": [
         {
@@ -60491,9 +60506,9 @@
       "path": "components/portal/MentorSessionForm.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 2686,
-      "lines": 60,
-      "sha256": "8ff1b0d7b0cf34811eb9670d567b961ca9ca1d3740ec12478dead9b3fc571857",
+      "bytes": 3180,
+      "lines": 68,
+      "sha256": "3275e5ed5944170f9ac16e429983383e70eb212ccecba7748220645b44192200",
       "binary": false,
       "exports": [
         {
@@ -126702,9 +126717,9 @@
       "path": "lib/partner/attentionQueue.ts",
       "area": "libraries",
       "domain": "partners-funding",
-      "bytes": 6685,
-      "lines": 168,
-      "sha256": "dc2ff16b2bb07aa5e01b0f45acdd1f18580ceef09143e49356145679389ce5ed",
+      "bytes": 6719,
+      "lines": 169,
+      "sha256": "0436cfe213cb976aa57ab834ef6f24d1369f36a64ad354934849027513c7b2af",
       "binary": false,
       "exports": [
         {
@@ -126739,7 +126754,7 @@
         },
         {
           "name": "countActionablePartnerAttention",
-          "line": 166,
+          "line": 167,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -126776,7 +126791,7 @@
         },
         {
           "name": "countActionablePartnerAttention",
-          "line": 166,
+          "line": 167,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152491,59 +152506,6 @@
       "directive": null
     },
     {
-      "path": "tests/api/employer-outcomes.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 10335,
-      "lines": 223,
-      "sha256": "9fb7e6d21216d588a20ec76f07c109791e2c577e73002bb70711badb36247a37",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "EMPLOYER_ID",
-          "line": 37,
-          "kind": "Variable"
-        },
-        {
-          "name": "fixture",
-          "line": 38,
-          "kind": "Variable"
-        },
-        {
-          "name": "Where",
-          "line": 63,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "db",
-          "line": 65,
-          "kind": "Variable"
-        },
-        {
-          "name": "jobsFor",
-          "line": 87,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "applicationsFor",
-          "line": 95,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "countBy",
-          "line": 109,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "EXPECTED_RESPONSE",
-          "line": 164,
-          "kind": "Variable"
-        }
-      ],
-      "directive": null
-    },
-    {
       "path": "tests/api/employer-signup.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -154403,9 +154365,9 @@
       "path": "tests/app/account-privacy-consent.spec.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3521,
+      "bytes": 3519,
       "lines": 89,
-      "sha256": "98d3b1bb8927ca0b9ae98ee85bf5b48c15f00681301efe6d7bfffe8ecd97cf87",
+      "sha256": "c55c4c154c4534f936345c3d874ee832b4d989e72cc1fe2130a3e8e0c82c4250",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -155384,6 +155346,54 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/components/form-a11y-sweep.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 11412,
+      "lines": 281,
+      "sha256": "6998651370a48dc797c48bb774422b239a244131780815395c242085a71c0c7a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "navigation",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 50,
+          "kind": "Variable"
+        },
+        {
+          "name": "droppedConnection",
+          "line": 51,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonResponse",
+          "line": 52,
+          "kind": "Variable"
+        },
+        {
+          "name": "withMessages",
+          "line": 55,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "submitFormOf",
+          "line": 64,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "describedBy",
+          "line": 71,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {
@@ -158682,9 +158692,9 @@
       "path": "tests/lib/partner-attention-queue.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5550,
-      "lines": 119,
-      "sha256": "695f3a0e88cc184e63c0a311b3d5e34d71c74abbd9cb99cc2a9dbd922454aa1b",
+      "bytes": 4591,
+      "lines": 102,
+      "sha256": "4c66d203f2decbb230ae2b6f1e5158ba1c48bf6a47983783d2a2701dccb4f011",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -158695,17 +158705,17 @@
         },
         {
           "name": "programSlug",
-          "line": 15,
+          "line": 14,
           "kind": "Variable"
         },
         {
           "name": "now",
-          "line": 16,
+          "line": 15,
           "kind": "Variable"
         },
         {
           "name": "referral",
-          "line": 17,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],

@@ -38,7 +38,10 @@ export default function MobileStateANextStepCard({
                   ? t('careerTrainingNoCost')
                   : t('pickCareerTrack')}
               </p>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem', maxWidth: '100%', boxSizing: 'border-box' }}>
+              {/* The pill stays white in both modes, so its label is pinned to the
+                  light-mode crimson (6.5:1 on white). `var(--color-accent)` flips to
+                  #e0658a in dark mode, which measured 3.28:1 on this white pill. */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: '#ad2c4d', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{noApplicationOnFile ? t('startApplication') : t('chooseProgramBtn')}</span>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem', flexShrink: 0 }} aria-hidden="true">arrow_forward</span>
               </div>

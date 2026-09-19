@@ -99,7 +99,7 @@
 | [app/(portal)/dashboard/_components/MobileProgramTrainingCard.tsx](../../../app/%28portal%29/dashboard/_components/MobileProgramTrainingCard.tsx) | 144 | member-counselor | default:11 |
 | [app/(portal)/dashboard/_components/MobileQuickActions.tsx](../../../app/%28portal%29/dashboard/_components/MobileQuickActions.tsx) | 33 | member-counselor | default:6 |
 | [app/(portal)/dashboard/_components/MobileRecentActivity.tsx](../../../app/%28portal%29/dashboard/_components/MobileRecentActivity.tsx) | 71 | member-counselor | default:8 |
-| [app/(portal)/dashboard/_components/MobileStateANextStepCard.tsx](../../../app/%28portal%29/dashboard/_components/MobileStateANextStepCard.tsx) | 48 | member-counselor | default:7 |
+| [app/(portal)/dashboard/_components/MobileStateANextStepCard.tsx](../../../app/%28portal%29/dashboard/_components/MobileStateANextStepCard.tsx) | 51 | member-counselor | default:7 |
 | [app/(portal)/dashboard/_components/types.ts](../../../app/%28portal%29/dashboard/_components/types.ts) | 141 | member-counselor | DashboardTranslator:11, DashboardStateLetter:14, ApplicationStatusSummary:17, ProgramSelectorOption:28, PointsSummary:35, PointsTransactionSummary:40, RecentToolSummary:48, DesktopDashboardProps:56 |
 | [app/(portal)/dashboard/account/loading.tsx](../../../app/%28portal%29/dashboard/account/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/account/page.tsx](../../../app/%28portal%29/dashboard/account/page.tsx) | 116 | member-counselor | generateMetadata:10, default:19 |
@@ -160,7 +160,7 @@
 | [app/(portal)/dashboard/career-library/loading.tsx](../../../app/%28portal%29/dashboard/career-library/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/career-library/page.tsx](../../../app/%28portal%29/dashboard/career-library/page.tsx) | 82 | member-counselor | generateMetadata:15, default:24 |
 | [app/(portal)/dashboard/certifications/loading.tsx](../../../app/%28portal%29/dashboard/certifications/loading.tsx) | 6 | member-counselor | default:3 |
-| [app/(portal)/dashboard/certifications/page.tsx](../../../app/%28portal%29/dashboard/certifications/page.tsx) | 805 | member-counselor | generateMetadata:25, default:33 |
+| [app/(portal)/dashboard/certifications/page.tsx](../../../app/%28portal%29/dashboard/certifications/page.tsx) | 807 | member-counselor | generateMetadata:25, default:33 |
 | [app/(portal)/dashboard/counselor/\[id\]/page.tsx](../../../app/%28portal%29/dashboard/counselor/%5Bid%5D/page.tsx) | 65 | member-counselor | metadata:10, default:17 |
 | [app/(portal)/dashboard/counselor/loading.tsx](../../../app/%28portal%29/dashboard/counselor/loading.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/dashboard/counselor/page.tsx](../../../app/%28portal%29/dashboard/counselor/page.tsx) | 81 | member-counselor | generateMetadata:36, default:45 |
@@ -459,7 +459,7 @@
 | [app/admin/placement-surveys/page.tsx](../../../app/admin/placement-surveys/page.tsx) | 306 | administration | generateMetadata:17, default:113 |
 | [app/admin/placements/loading.tsx](../../../app/admin/placements/loading.tsx) | 5 | jobs-employers | default:3 |
 | [app/admin/placements/new/loading.tsx](../../../app/admin/placements/new/loading.tsx) | 6 | jobs-employers | default:3 |
-| [app/admin/placements/new/page.tsx](../../../app/admin/placements/new/page.tsx) | 342 | jobs-employers | default:10 |
+| [app/admin/placements/new/page.tsx](../../../app/admin/placements/new/page.tsx) | 353 | jobs-employers | default:12 |
 | [app/admin/placements/page.tsx](../../../app/admin/placements/page.tsx) | 185 | jobs-employers | generateMetadata:17, default:57 |
 | [app/admin/placements/retention/page.tsx](../../../app/admin/placements/retention/page.tsx) | 227 | jobs-employers | generateMetadata:13, default:47 |
 | [app/admin/program-change-requests/ProgramChangeRequestsAdminClient.tsx](../../../app/admin/program-change-requests/ProgramChangeRequestsAdminClient.tsx) | 135 | administration | default:17 |

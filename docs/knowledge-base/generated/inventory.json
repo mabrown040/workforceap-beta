@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "f602c97127c4870592dff54673f9bcb4fe4bade09e4888514510601e96abc23d",
+  "inputTreeSha256": "54726b929359595f33e19a5f7a0e06ee00706d2266ad33ef844f4d227c02bf7e",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -6444,9 +6444,9 @@
       "path": "app/(portal)/dashboard/_components/MobileStateANextStepCard.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 2494,
-      "lines": 48,
-      "sha256": "f284e966888091f78d6ba78bc6215707ee19beb81ceb150ad578e8740831d28e",
+      "bytes": 2738,
+      "lines": 51,
+      "sha256": "424b0cdb15f8fea663a3d609042f8d55acb0e954961b2d13f4aa3efd57b66fcf",
       "binary": false,
       "exports": [
         {
@@ -8403,9 +8403,9 @@
       "path": "app/(portal)/dashboard/certifications/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 35787,
-      "lines": 805,
-      "sha256": "b673ddcb289263b6bec6e7a9fd41f9c5469fdeaedde97093330fdc8ea769ad12",
+      "bytes": 35947,
+      "lines": 807,
+      "sha256": "d50f2b255fbba992d58b697656cc3f22dfd7fcb2f7a559904c72fd89f3d648c2",
       "binary": false,
       "exports": [
         {
@@ -19592,14 +19592,14 @@
       "path": "app/admin/placements/new/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 13633,
-      "lines": 342,
-      "sha256": "32dc5ba944905466ca5bdea91fc8110bf5c7f3854354c495ac06ac32f330471c",
+      "bytes": 14144,
+      "lines": 353,
+      "sha256": "0e1021e1f577db2293024401a06ab799948f40b117b430befd797bb09d39f115",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration",
           "localName": "RecordPlacementPage"
         }
@@ -19607,12 +19607,12 @@
       "declarations": [
         {
           "name": "MemberHit",
-          "line": 8,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RecordPlacementPage",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -51639,14 +51639,14 @@
       "path": "components/admin/MembersTable.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 49521,
-      "lines": 1169,
-      "sha256": "944784222d1bd659cee28bd4e97a5d80d2f555611b230b3919bf99b335b5db2c",
+      "bytes": 49747,
+      "lines": 1171,
+      "sha256": "cf2ba1523b19c7bbe02de474d86a86aa4c420c6063861db02d6d7e7e1ad81673",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 269,
+          "line": 270,
           "kind": "FunctionDeclaration",
           "localName": "MembersTable"
         }
@@ -51674,82 +51674,82 @@
         },
         {
           "name": "HealthDot",
-          "line": 83,
+          "line": 84,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatTraining",
-          "line": 93,
+          "line": 94,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NEW_MEMBER_WINDOW_MS",
-          "line": 107,
+          "line": 108,
           "kind": "Variable"
         },
         {
           "name": "toTime",
-          "line": 109,
+          "line": 110,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isNotInCourse",
-          "line": 117,
+          "line": 118,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isNewMember",
-          "line": 121,
+          "line": 122,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "attentionReasons",
-          "line": 131,
+          "line": 132,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "needsAttention",
-          "line": 140,
+          "line": 141,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AttentionBadge",
-          "line": 144,
+          "line": 145,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SortKey",
-          "line": 172,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "SortDir",
           "line": 173,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "SortDir",
+          "line": 174,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "HEALTH_RANK",
-          "line": 175,
+          "line": 176,
           "kind": "Variable"
         },
         {
           "name": "compareMembers",
-          "line": 177,
+          "line": 178,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SortHeader",
-          "line": 198,
+          "line": 199,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "HeaderSelectAll",
-          "line": 238,
+          "line": 239,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MembersTable",
-          "line": 269,
+          "line": 270,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -60154,12 +60154,30 @@
       "directive": "use client"
     },
     {
+      "path": "components/portal/MemberNextStepsStrip.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 3179,
+      "lines": 79,
+      "sha256": "1ab9fe247eed221feedae9645ea7ddf5ff6cb9b4ee9aaab6ab53de29efa26405",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "action",
+          "line": 23,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/MemberNextStepsStrip.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 9423,
-      "lines": 266,
-      "sha256": "d32880bb5917d33fb9a497d95556ed256e77b2f526ad26c1ce44d2a0f7cc1330",
+      "bytes": 9910,
+      "lines": 279,
+      "sha256": "e3ffa2a620ecd1ca18c6566a948117b256bc7b097c80f8912e094e6fafcdda63",
       "binary": false,
       "exports": [
         {
@@ -62729,17 +62747,60 @@
       "directive": "use client"
     },
     {
+      "path": "components/portal/SkillCheckpointsClient.test.tsx",
+      "area": "components",
+      "domain": "components",
+      "bytes": 2769,
+      "lines": 75,
+      "sha256": "acb1c38d7ce167513956b62193263dbacfbc0b3b6f000840c600118bb64e63ad",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "pack",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "course",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "firstCheckpoint",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "ok",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "serverError",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "answerFirstCheckpoint",
+          "line": 22,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "components/portal/SkillCheckpointsClient.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 18372,
-      "lines": 482,
-      "sha256": "ef14765493e7c5ea00d9a5fc03d0a1478cb3d6f76d604e8cc6972fc433cfcc34",
+      "bytes": 19809,
+      "lines": 532,
+      "sha256": "f68fe9ea8b8d164e1d263f5cf18d2437deb660d783eb3ce88d76f7398c3c321a",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 157,
+          "line": 197,
           "kind": "FunctionDeclaration",
           "localName": "SkillCheckpointsClient"
         }
@@ -62767,17 +62828,27 @@
         },
         {
           "name": "persistCheckpoint",
-          "line": 70,
+          "line": 75,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "SAVE_WARNING_COPY",
+          "line": 101,
+          "kind": "Variable"
+        },
+        {
+          "name": "SaveWarning",
+          "line": 104,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ProofCard",
-          "line": 86,
+          "line": 126,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillCheckpointsClient",
-          "line": 157,
+          "line": 197,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -63234,9 +63305,9 @@
       "path": "components/portal/StatusBadge.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 1929,
-      "lines": 46,
-      "sha256": "ea924192ee49465b59fdb5ea79f6ed459f246b6ee0c8840c68d403bc317b23d5",
+      "bytes": 2063,
+      "lines": 48,
+      "sha256": "01a66c406838245312cdbf8ef207a9fadfb253a00e3dcfd5fa92a4207485d991",
       "binary": false,
       "exports": [
         {
@@ -63246,7 +63317,7 @@
         },
         {
           "name": "default",
-          "line": 27,
+          "line": 29,
           "kind": "FunctionDeclaration",
           "localName": "StatusBadge"
         }
@@ -63264,7 +63335,7 @@
         },
         {
           "name": "StatusBadge",
-          "line": 27,
+          "line": 29,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -75334,9 +75405,9 @@
       "path": "css/portal-tokens.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 11337,
-      "lines": 248,
-      "sha256": "43df064dcf05fcc642676775746c0983af132cabf1b087ff22c000439b78df66",
+      "bytes": 11655,
+      "lines": 253,
+      "sha256": "bdbc282b3423c62be9687658636aca68bdc2a546e3c4196d252307177ef663e6",
       "binary": false
     },
     {
@@ -134826,9 +134897,9 @@
       "path": "lib/ui/statusColors.test.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 3108,
-      "lines": 78,
-      "sha256": "98466f226d25902e70e90351af957d4630789d0f3e986cdba1bfb0e481f2b205",
+      "bytes": 3762,
+      "lines": 94,
+      "sha256": "39482edc72a25f181d7ab7c8e133e4d0fa8e2f22c19f93a8d9fc7794b5f3f7e6",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -134879,9 +134950,9 @@
       "path": "lib/ui/statusColors.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 3120,
-      "lines": 72,
-      "sha256": "47244401b5a94cb54b94d21c140b6924c1be79471242443c1cfc2ca9dfeea82b",
+      "bytes": 3244,
+      "lines": 74,
+      "sha256": "edd5c0403a482b9dea093e996c5ab3bf0e53b969f2a4c565ef17d834307ecd2c",
       "binary": false,
       "exports": [
         {
@@ -134901,7 +134972,7 @@
         },
         {
           "name": "statusColor",
-          "line": 70,
+          "line": 72,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -134923,7 +134994,7 @@
         },
         {
           "name": "statusColor",
-          "line": 70,
+          "line": 72,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154366,6 +154437,29 @@
       "directive": null
     },
     {
+      "path": "tests/app/record-placement-connection-copy.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2687,
+      "lines": 71,
+      "sha256": "6dc05cd629209d5f980e716c0d7148a536e682fba79e669705cdd9a97441fbf4",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "push",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "fillRequiredFieldsAndSubmit",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/root-auth-bootstrap.spec.tsx",
       "area": "tests",
       "domain": "tests",
@@ -157254,6 +157348,44 @@
       "directive": null
     },
     {
+      "path": "tests/lib/dashboard-white-pill-contrast.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3036,
+      "lines": 64,
+      "sha256": "07f625b9ab58ad393b77c732197388c7c9e60e6790650dc0b98255aeacad7fa7",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "luminance",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "cssColorToHex",
+          "line": 30,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "t",
+          "line": 37,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/diagnose-member-coursera-tenant.spec.ts",
       "area": "tests",
       "domain": "learning-coursera",
@@ -158449,6 +158581,59 @@
           "name": "ALL",
           "line": 28,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/success-text-token-contrast.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3406,
+      "lines": 76,
+      "sha256": "322006148c1539af82920669b7a1a7fac4d2e908ab6c3e168484b1d9bc7f2230",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "tokensCss",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "lightDark",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hexToRgb",
+          "line": 23,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "parseColor",
+          "line": 26,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "over",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "luminance",
+          "line": 36,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 43,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

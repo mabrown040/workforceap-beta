@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
@@ -10,6 +12,7 @@ type MemberHit = { id: string; fullName: string; email: string };
 export default function RecordPlacementPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tCommon = useTranslations('common');
   const initialMemberId = searchParams?.get('memberId') ?? '';
 
   const [memberId, setMemberId] = useState(initialMemberId);
@@ -121,7 +124,15 @@ export default function RecordPlacementPage() {
       if (employerName) toastParams.set('employer', employerName);
       router.push(`/admin/pipeline?${toastParams.toString()}`);
     } catch (err) {
-      setError(String(err));
+      // `String(err)` rendered "TypeError: Failed to fetch" to staff when the
+      // connection dropped; map it to the shared plain copy instead.
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Could not save the placement. Please try again.' },
+          'admin-placement-new',
+        ),
+      );
     } finally {
       setLoading(false);
     }

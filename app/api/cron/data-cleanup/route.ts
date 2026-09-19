@@ -25,6 +25,7 @@ async function handle(_request: Request) {
     ok: true,
     totalDeleted: report.totalDeleted,
     deletedAccounts: report.deletedAccounts,
+    blockedAccounts: report.blockedAccounts ?? [],
     results: report.results,
   });
 }

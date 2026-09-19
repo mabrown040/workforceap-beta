@@ -105714,7 +105714,7 @@
   {
     "from": "lib/retention/cleanup.test.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 18,
+    "line": 27,
     "kind": "dynamic-import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -114490,7 +114490,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/app/api/gdpr/delete/route",
-    "line": 68,
+    "line": 69,
     "kind": "import",
     "external": false,
     "target": "app/api/gdpr/delete/route.ts"
@@ -114498,7 +114498,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 69,
+    "line": 70,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -114506,7 +114506,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 70,
+    "line": 71,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -114514,7 +114514,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/gdpr/deleteAuthUser",
-    "line": 71,
+    "line": 72,
     "kind": "import",
     "external": false,
     "target": "lib/gdpr/deleteAuthUser.ts"
@@ -114522,7 +114522,7 @@
   {
     "from": "tests/api/gdpr-delete-route.spec.ts",
     "specifier": "@/lib/gdpr/deleteUserStorage",
-    "line": 72,
+    "line": 73,
     "kind": "import",
     "external": false,
     "target": "lib/gdpr/deleteUserStorage.ts"
@@ -118307,6 +118307,30 @@
     "from": "tests/app/account-privacy-consent.spec.tsx",
     "specifier": "@/app/(portal)/account/privacy/page",
     "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/account/privacy/page.tsx"
+  },
+  {
+    "from": "tests/app/account-privacy-delete.spec.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/account-privacy-delete.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/app/account-privacy-delete.spec.tsx",
+    "specifier": "@/app/(portal)/account/privacy/page",
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/account/privacy/page.tsx"

@@ -11,6 +11,7 @@ export default function PrivacySettingsPage() {
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
   const [message, setMessage] = useState<StatusMessage | null>(null);
   const [consentMarketing, setConsentMarketing] = useState(false);
   const [consentLoaded, setConsentLoaded] = useState(false);
@@ -54,19 +55,36 @@ export default function PrivacySettingsPage() {
   };
 
   const handleDelete = async () => {
+    // POST /api/gdpr/delete re-authenticates before it erases anything, so it
+    // needs the member's current password as a JSON body. Without it the
+    // route answers 400 and this page can only ever show an error.
+    const password = deletePassword;
+    if (!password) return;
     setDeleting(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/gdpr/delete', { method: 'POST' });
-      if (!res.ok) throw new Error('Delete failed');
+      const res = await fetch('/api/gdpr/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) {
+        const data: { error?: unknown } = await res.json().catch(() => ({}));
+        throw new Error(typeof data.error === 'string' && data.error ? data.error : t('deleteError'));
+      }
       setMessage({ kind: 'success', text: t('deleteSuccess') });
       setTimeout(() => {
         window.location.href = '/';
       }, 2000);
-    } catch {
-      setMessage({ kind: 'error', text: t('deleteError') });
+    } catch (err) {
+      setMessage({ kind: 'error', text: err instanceof Error && err.message ? err.message : t('deleteError') });
       setDeleting(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setDeletePassword('');
   };
 
   const updateConsent = async (value: boolean) => {
@@ -212,10 +230,31 @@ export default function PrivacySettingsPage() {
             <p style={{ color: 'var(--color-error)', fontWeight: 700, margin: '0 0 0.75rem', fontSize: '0.9rem' }}>
               {t('deleteConfirmPrompt')}
             </p>
+            <label htmlFor="delete-account-password" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, margin: '0 0 0.35rem' }}>
+              {t('deletePasswordLabel')}
+            </label>
+            <input
+              id="delete-account-password"
+              type="password"
+              autoComplete="current-password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              disabled={deleting}
+              style={{
+                width: '100%',
+                padding: '0.6rem 0.75rem',
+                marginBottom: '0.75rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--outline-variant)',
+                background: 'var(--surface-container)',
+                color: 'var(--color-on-surface)',
+                fontSize: '0.9rem',
+              }}
+            />
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button type="button"
                 onClick={handleDelete}
-                disabled={deleting}
+                disabled={deleting || deletePassword.length === 0}
                 style={{
                   padding: '0.75rem 1.25rem',
                   background: 'var(--color-error)',
@@ -224,8 +263,8 @@ export default function PrivacySettingsPage() {
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 700,
                   fontSize: '0.9rem',
-                  cursor: deleting ? 'not-allowed' : 'pointer',
-                  opacity: deleting ? 0.7 : 1,
+                  cursor: deleting || deletePassword.length === 0 ? 'not-allowed' : 'pointer',
+                  opacity: deleting || deletePassword.length === 0 ? 0.7 : 1,
                   transition: 'background-color 150ms ease',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -247,7 +286,7 @@ export default function PrivacySettingsPage() {
               </button>
               <button type="button"
                 className="btn btn-muted"
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={cancelDelete}
                 disabled={deleting}
               >
                 {t('deleteCancel')}

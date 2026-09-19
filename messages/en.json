@@ -233,6 +233,7 @@
       "deleteBody": "Permanently delete your account and anonymize your personal data. This action cannot be undone. Your anonymous activity data may be kept for program improvement purposes.",
       "deleteButton": "Delete My Account",
       "deleteConfirmPrompt": "Are you sure? This will permanently delete your account.",
+      "deletePasswordLabel": "Enter your password to confirm",
       "deleteConfirmYes": "Yes, Delete",
       "deleteDeleting": "Deleting…",
       "deleteCancel": "Cancel",

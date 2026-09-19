@@ -289,7 +289,7 @@
 | [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 84 | learning-coursera | GET:83, POST:84 |
 | [app/api/cron/coursera-sync/route.ts](../../../app/api/cron/coursera-sync/route.ts) | 171 | learning-coursera | GET:170, POST:171 |
 | [app/api/cron/coursera-training-sync/route.ts](../../../app/api/cron/coursera-training-sync/route.ts) | 38 | learning-coursera | maxDuration:10, GET:38 |
-| [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 33 | communications | GET:32, POST:33 |
+| [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 34 | communications | GET:33, POST:34 |
 | [app/api/cron/deploy-health/route.ts](../../../app/api/cron/deploy-health/route.ts) | 77 | communications | GET:76, POST:77 |
 | [app/api/cron/employer-pending-applicants/route.ts](../../../app/api/cron/employer-pending-applicants/route.ts) | 172 | communications | maxDuration:12, GET:171, POST:172 |
 | [app/api/cron/inactive-nudge/route.ts](../../../app/api/cron/inactive-nudge/route.ts) | 105 | communications | maxDuration:14, GET:104, POST:105 |
@@ -342,7 +342,7 @@
 | [app/api/events/route.ts](../../../app/api/events/route.ts) | 49 | api | POST:15 |
 | [app/api/feature-flags/route.ts](../../../app/api/feature-flags/route.ts) | 45 | api | GET:10 |
 | [app/api/gdpr/consent/route.ts](../../../app/api/gdpr/consent/route.ts) | 71 | learning-coursera | GET:29, PATCH:70 |
-| [app/api/gdpr/delete/route.ts](../../../app/api/gdpr/delete/route.ts) | 161 | api | POST:18 |
+| [app/api/gdpr/delete/route.ts](../../../app/api/gdpr/delete/route.ts) | 160 | api | POST:18 |
 | [app/api/gdpr/export/route.ts](../../../app/api/gdpr/export/route.ts) | 81 | api | GET:6 |
 | [app/api/health/ready/_readyCache.ts](../../../app/api/health/ready/_readyCache.ts) | 20 | api | CACHE_TTL_MS:6, ReadyCacheEntry:8, readyCache:15, __resetReadyCache:18 |
 | [app/api/health/ready/route.ts](../../../app/api/health/ready/route.ts) | 136 | api | dynamic:12, OPTIONS:74, GET:83 |

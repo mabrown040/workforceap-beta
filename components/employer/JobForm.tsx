@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import SuggestedProgramsRanked from '@/components/employer/SuggestedProgramsRanked';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH } from '@/lib/employer/employerJobFormFlash';
+import { jobExpiryDateInput, jobExpiryInstant } from '@/lib/employer/jobExpiryInstant';
 
 type JobProvenance = {
   sourceUrl?: string | null;
@@ -121,7 +122,9 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
     const salaryMin = formData.get('salaryMin') ? parseInt(String(formData.get('salaryMin')), 10) : null;
     const salaryMax = formData.get('salaryMax') ? parseInt(String(formData.get('salaryMax')), 10) : null;
     const expiresAtRaw = formData.get('expiresAt') as string;
-    const expiresAt = expiresAtRaw ? new Date(expiresAtRaw).toISOString() : null;
+    // End of the chosen day in Central time, so the board hides the job
+    // *after* that date (as the hint promises) rather than the evening before.
+    const expiresAt = jobExpiryInstant(expiresAtRaw);
     const payload = {
       title: String(formData.get('title') || '').trim(),
       location: String(formData.get('location') || '').trim() || undefined,
@@ -345,7 +348,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
           id="job-expires-at"
           type="date"
           name="expiresAt"
-          defaultValue={prefill?.expiresAt ? new Date(prefill.expiresAt).toISOString().split('T')[0] : ''}
+          defaultValue={jobExpiryDateInput(prefill?.expiresAt)}
           disabled={status === 'saving'}
         />
         <p className="form-hint">If set, the job will be hidden from the public board after this date.</p>

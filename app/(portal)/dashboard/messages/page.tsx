@@ -5,6 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalTime } from '@/lib/formatDate';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
@@ -112,9 +113,7 @@ export default async function MemberMessagesPage({
   const messages = [...latestMessages].reverse();
   const lastMsg = messages[messages.length - 1];
   const lastMsgText = lastMsg ? (lastMsg.body ?? '').slice(0, 60) : t('noMessagesYet');
-  const lastMsgTime = lastMsg
-    ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    : '';
+  const lastMsgTime = lastMsg ? formatPortalTime(lastMsg.createdAt) : '';
 
   const counselorName = counselor?.fullName ?? null;
   const counselorInitials = counselorName

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "408098d0b5934d66b8fd3c0acee98ed0a58f693c4e6bc1f51a2b2536dddc4924",
+  "inputTreeSha256": "379243338cd177e7e79b17d21d6725b00d1d807a255c70d9242d52b6ceccf977",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -152142,9 +152142,9 @@
       "path": "tests/api/counselor-routes.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 65221,
-      "lines": 1739,
-      "sha256": "87f0107e81ebb4cb3c89eef79fd696bcc71cf458a1bf6989d89e1022823cd132",
+      "bytes": 66139,
+      "lines": 1751,
+      "sha256": "908ed655346b45a98bb46b7b245a3424737a75bf69e1fb530e35332a6b318450",
       "binary": false,
       "exports": [],
       "declarations": [

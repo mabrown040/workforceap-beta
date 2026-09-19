@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "408098d0b5934d66b8fd3c0acee98ed0a58f693c4e6bc1f51a2b2536dddc4924",
+  "inputTreeSha256": "379243338cd177e7e79b17d21d6725b00d1d807a255c70d9242d52b6ceccf977",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -274,7 +274,7 @@
     },
     {
       "file": "tests/api/counselor-routes.spec.ts",
-      "lines": 1739
+      "lines": 1751
     },
     {
       "file": "lib/content/checkpoints/tradesAndHealth.ts",

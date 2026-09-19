@@ -1,7 +1,9 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import SkillMissionChallenge from '@/components/portal/SkillMissionChallenge';
+import messages from '@/messages/en.json';
 
 const mission = {
   key: 'fixture:mission:1', courseSlug: 'fixture-course', programSlug: 'fixture-program', programTitle: 'Fixture program',
@@ -10,6 +12,9 @@ const mission = {
   quizQuestions: [{ text: 'How do you start?', options: ['Ask questions', 'Guess', 'Ignore', 'Delete'] as [string, string, string, string] }],
   estimatedMinutes: 15, status: 'ready' as const, completedAt: null, latestResult: null, aiToolResultId: null,
 };
+// The scenario phase reads `common.connectionError`, so mount the real portal message catalog.
+const renderChallenge = (ui: React.ReactElement) =>
+  render(<NextIntlClientProvider locale="en" messages={messages} timeZone="America/New_York">{ui}</NextIntlClientProvider>);
 beforeEach(() => { vi.stubGlobal('fetch', vi.fn()); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
@@ -17,7 +22,7 @@ describe('native practice close protection', () => {
   it('locks background scroll and restores each existing scroll-root style on unmount', () => {
     document.documentElement.style.overflowY = 'scroll';
     document.body.style.overflowY = 'hidden';
-    const { unmount } = render(<SkillMissionChallenge mission={mission} onClose={vi.fn()} onComplete={vi.fn()} />);
+    const { unmount } = renderChallenge(<SkillMissionChallenge mission={mission} onClose={vi.fn()} onComplete={vi.fn()} />);
     expect(document.documentElement.style.overflowY).toBe('hidden');
     expect(document.body.style.overflowY).toBe('hidden');
     unmount();
@@ -29,7 +34,7 @@ describe('native practice close protection', () => {
 
   it('allows a clean intro to close without confirmation', async () => {
     const onClose = vi.fn(); const confirm = vi.spyOn(window, 'confirm');
-    render(<SkillMissionChallenge mission={mission} onClose={onClose} onComplete={vi.fn()} />);
+    renderChallenge(<SkillMissionChallenge mission={mission} onClose={onClose} onComplete={vi.fn()} />);
     await userEvent.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalledOnce(); expect(confirm).not.toHaveBeenCalled();
   });
@@ -37,7 +42,7 @@ describe('native practice close protection', () => {
   it('guards answered quiz work on Escape, close button and backdrop', async () => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ correct: true, correctIndex: 0, explanation: 'Clarify the issue first.' }), { status: 200 }));
     const onClose = vi.fn(); const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    render(<SkillMissionChallenge mission={mission} onClose={onClose} onComplete={vi.fn()} />);
+    renderChallenge(<SkillMissionChallenge mission={mission} onClose={onClose} onComplete={vi.fn()} />);
     await userEvent.click(screen.getByRole('button', { name: 'Accept mission' }));
     await userEvent.click(screen.getByRole('button', { name: /Ask questions/ }));
     await waitFor(() => expect(screen.getByText('Clarify the issue first.', { exact: false })).toBeInTheDocument());
@@ -53,7 +58,7 @@ describe('native practice close protection', () => {
 
   it('preserves a written response when the member declines any close path', async () => {
     const onClose = vi.fn(); vi.spyOn(window, 'confirm').mockReturnValue(false);
-    render(<SkillMissionChallenge mission={mission} initialPhase={2} onClose={onClose} onComplete={vi.fn()} />);
+    renderChallenge(<SkillMissionChallenge mission={mission} initialPhase={2} onClose={onClose} onComplete={vi.fn()} />);
     const response = screen.getByRole('textbox', { name: 'Your scenario response' });
     fireEvent.change(response, { target: { value: 'I asked questions and checked the logs before proposing a change.' } });
     await userEvent.keyboard('{Escape}');
@@ -67,7 +72,7 @@ describe('native practice close protection', () => {
     let resolve!: (response: Response) => void;
     vi.mocked(fetch).mockImplementation(() => new Promise<Response>((done) => { resolve = done; }));
     const onClose = vi.fn(); const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    render(<SkillMissionChallenge mission={mission} initialPhase={2} onClose={onClose} onComplete={vi.fn()} />);
+    renderChallenge(<SkillMissionChallenge mission={mission} initialPhase={2} onClose={onClose} onComplete={vi.fn()} />);
     const response = screen.getByRole('textbox', { name: 'Your scenario response' });
     fireEvent.change(response, { target: { value: 'I gathered the facts and documented my diagnostic sequence.' } });
     await userEvent.click(screen.getByRole('button', { name: 'Submit for coaching' }));
@@ -88,7 +93,7 @@ describe('native practice close protection', () => {
   it('allows a successfully saved result to close without a discard prompt', async () => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ ok: true, verdict: 'passed', coachingNote: 'Clear reasoning.', starStory: 'A practice example.', resumeBullet: 'Documented a sample investigation.', skillsUnlocked: ['Troubleshooting'], quizCorrectCount: 3, aiToolResultId: 'fixture-result' }), { status: 200 }));
     const onClose = vi.fn(); const confirm = vi.spyOn(window, 'confirm');
-    render(<SkillMissionChallenge mission={mission} initialPhase={2} onClose={onClose} onComplete={vi.fn()} />);
+    renderChallenge(<SkillMissionChallenge mission={mission} initialPhase={2} onClose={onClose} onComplete={vi.fn()} />);
     fireEvent.change(screen.getByRole('textbox', { name: 'Your scenario response' }), { target: { value: 'I reviewed the logs and documented a diagnostic sequence.' } });
     await userEvent.click(screen.getByRole('button', { name: 'Submit for coaching' }));
     await waitFor(() => expect(screen.getByText('Clear reasoning.')).toBeInTheDocument());

@@ -167,7 +167,7 @@
 | [app/(portal)/dashboard/coursera/loading.tsx](../../../app/%28portal%29/dashboard/coursera/loading.tsx) | 6 | learning-coursera | default:3 |
 | [app/(portal)/dashboard/coursera/page.tsx](../../../app/%28portal%29/dashboard/coursera/page.tsx) | 21 | learning-coursera | default:4 |
 | [app/(portal)/dashboard/documents/page.tsx](../../../app/%28portal%29/dashboard/documents/page.tsx) | 41 | member-counselor | generateMetadata:9, default:22 |
-| [app/(portal)/dashboard/eligibility/EligibilityForm.tsx](../../../app/%28portal%29/dashboard/eligibility/EligibilityForm.tsx) | 396 | member-counselor | EligibilityInitial:23, default:104 |
+| [app/(portal)/dashboard/eligibility/EligibilityForm.tsx](../../../app/%28portal%29/dashboard/eligibility/EligibilityForm.tsx) | 403 | member-counselor | EligibilityInitial:25, default:106 |
 | [app/(portal)/dashboard/eligibility/loading.tsx](../../../app/%28portal%29/dashboard/eligibility/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/eligibility/page.tsx](../../../app/%28portal%29/dashboard/eligibility/page.tsx) | 118 | member-counselor | generateMetadata:8, default:19 |
 | [app/(portal)/dashboard/error.tsx](../../../app/%28portal%29/dashboard/error.tsx) | 13 | member-counselor | default:5 |
@@ -234,7 +234,7 @@
 | [app/(portal)/dashboard/settings/page.tsx](../../../app/%28portal%29/dashboard/settings/page.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/skills-assessment/loading.tsx](../../../app/%28portal%29/dashboard/skills-assessment/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/skills-assessment/page.tsx](../../../app/%28portal%29/dashboard/skills-assessment/page.tsx) | 17 | member-counselor | generateMetadata:6, default:15 |
-| [app/(portal)/dashboard/survey/SurveyClient.tsx](../../../app/%28portal%29/dashboard/survey/SurveyClient.tsx) | 571 | member-counselor | default:226 |
+| [app/(portal)/dashboard/survey/SurveyClient.tsx](../../../app/%28portal%29/dashboard/survey/SurveyClient.tsx) | 580 | member-counselor | default:228 |
 | [app/(portal)/dashboard/survey/page.tsx](../../../app/%28portal%29/dashboard/survey/page.tsx) | 112 | member-counselor | generateMetadata:9, default:17 |
 | [app/(portal)/dashboard/toolkit/loading.tsx](../../../app/%28portal%29/dashboard/toolkit/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/toolkit/page.tsx](../../../app/%28portal%29/dashboard/toolkit/page.tsx) | 6 | member-counselor | default:4 |

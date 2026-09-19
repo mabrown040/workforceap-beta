@@ -16131,6 +16131,47 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/member-form-connection-failure.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 11
+      },
+      {
+        "file": "app/(portal)/dashboard/survey/SurveyClient.tsx",
+        "line": 12
+      },
+      {
+        "file": "components/portal/SkillMissionChallenge.tsx",
+        "line": 13
+      },
+      {
+        "file": "components/portal/CourseraAccountLinkCard.tsx",
+        "line": 14
+      },
+      {
+        "file": "components/portal/JobApplicationForm.tsx",
+        "line": 15
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/member-lab-workspace.test.tsx",
     "area": "tests",
     "domain": "tests",
@@ -16426,7 +16467,11 @@
     "localReferences": [
       {
         "file": "components/portal/SkillMissionChallenge.tsx",
-        "line": 4
+        "line": 5
+      },
+      {
+        "file": "messages/en.json",
+        "line": 6
       }
     ],
     "kind": "test-candidate",

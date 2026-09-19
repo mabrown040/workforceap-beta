@@ -22,6 +22,7 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc, withSystemGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { autoAssignAmbassadorFromReferral } from '@/lib/counselor/ambassadorAutoAssign';
+import { ensureSelfServeCounselorAssigned } from '@/lib/counselor/autoAssign';
 import {
   normalizePartnerRef,
   PARTNER_REF_COOKIE,
@@ -972,6 +973,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     // Community Ambassador auto-assignment (9/3/26): if the applicant named an
     // ambassador, put them on that ambassador's caseload. Runs after the
     // response; matching is strict and never overrides an existing assignment.
+    // If no ambassador match, round-robin onto an active WAP counselor so
+    // self-serve members are not left in an unowned queue.
     after(() =>
       autoAssignAmbassadorFromReferral({
         memberId: user.id,
@@ -979,9 +982,17 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         hearAbout: hearAboutNormalized,
         hearAboutOther: hearAboutOtherNormalized,
         partnerAmbassadorReferral: partnerAmbassadorNormalized,
-      }).catch((err) => {
-        logger.warn('apply/signup: ambassador auto-assign failed', { userId: user.id, err });
-      }),
+      })
+        .then(async (result) => {
+          if (result.assigned) return;
+          await ensureSelfServeCounselorAssigned({
+            memberId: user.id,
+            organizationId,
+          });
+        })
+        .catch((err) => {
+          logger.warn('apply/signup: counselor auto-assign failed', { userId: user.id, err });
+        }),
     );
 
     // Consume the partner ref cookie exactly once. School computer labs,

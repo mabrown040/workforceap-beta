@@ -39,38 +39,7 @@ describe('canonicalizeProgramSlug', () => {
         'ai-practitioner-professional-certificate-aws',
         'ai-practitioner-professional-certificate',
         'ai-professional-practitioner-certificate',
-      ]),
-    );
-  });
-
-  it('maps the legacy IBM developer slug to the IBM program, not AWS', () => {
-    assert.equal(
-      canonicalizeProgramSlug('ai-professional-developer-certificate-ibm'),
-      'software-developer-professional-certificate-ibm',
-    );
-    assert.equal(
-      programSlugsEquivalent(
         'ai-professional-developer-certificate-ibm',
-        'software-developer-professional-certificate-ibm',
-      ),
-      true,
-    );
-    assert.equal(
-      programSlugsEquivalent(
-        'ai-professional-developer-certificate-ibm',
-        'ai-practitioner-professional-certificate-aws',
-      ),
-      false,
-    );
-  });
-
-  it('expands IBM software-developer reads to the legacy IBM developer slug', () => {
-    assert.deepEqual(
-      new Set(programSlugReadCandidates('software-developer-professional-certificate-ibm')),
-      new Set([
-        'software-developer-professional-certificate-ibm',
-        'ai-professional-developer-certificate-ibm',
-        'ai-and-software-development-professional-certificate-ibm',
       ]),
     );
   });

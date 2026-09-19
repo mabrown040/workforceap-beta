@@ -9,9 +9,9 @@ import {
 } from './demoProgressPlan';
 
 describe('planDemoMemberProgress', () => {
-  it('maps the IBM demo slug onto IBM catalog courses and live progress counts', () => {
+  it('maps the IBM software-developer demo member onto IBM catalog courses and live progress counts', () => {
     const plan = planDemoMemberProgress({
-      program: 'ai-professional-developer-certificate-ibm',
+      program: 'software-developer-professional-certificate-ibm',
       coursesCompleted: ['Module 1: Python Basics', 'Module 2: Data Structures', 'Module 3: ML Fundamentals'],
       assessmentScore: 84,
       status: 'enrolled',
@@ -26,6 +26,30 @@ describe('planDemoMemberProgress', () => {
     assert.equal(plan.completedCourses.length, 3);
     assert.ok(plan.totalPoints > 0);
     assert.equal(plan.awardCertificate, false);
+  });
+
+  it('canonicalizes legacy aliases before resolving the catalog program', () => {
+    const plan = planDemoMemberProgress({
+      program: 'comptia-a-plus',
+      coursesCompleted: [],
+      assessmentScore: null,
+      status: 'enrolled',
+    });
+    assert.ok(plan);
+    assert.equal(plan.programSlug, 'comptia-a-professional-certificate');
+    assert.equal(plan.coursesCompletedCount, 0);
+  });
+
+  it('returns null for a slug that is neither canonical nor aliased', () => {
+    assert.equal(
+      planDemoMemberProgress({
+        program: 'google-it-support-certificate',
+        coursesCompleted: [],
+        assessmentScore: null,
+        status: 'enrolled',
+      }),
+      null,
+    );
   });
 
   it('falls back to the first N catalog courses when seed names are stale', () => {

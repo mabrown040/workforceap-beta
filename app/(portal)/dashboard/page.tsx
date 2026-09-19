@@ -199,7 +199,6 @@ async function renderMemberDashboard(
         certModulesTotal={home.certModulesTotal}
         pointsLedger={home.pointsLedger}
         pointsThisWeek={home.pointsThisWeek}
-        weeklyActivity={home.weeklyActivity}
         programHref={home.programHref}
         resumeHref={home.resumeHref}
         coursesHref={home.coursesHref}

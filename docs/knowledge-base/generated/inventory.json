@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "077cfd2f1d4ec302b309d1270d6a055c123c6e46ec00d5862ba107d6fe229b1d",
+  "inputTreeSha256": "0b5519fdfb82b5ef17e2a038888da81b0dfb6c37cdc0b7f4eb6964d2691278fb",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3283,9 +3283,9 @@
       "path": "DEMO_SETUP.md",
       "area": "root",
       "domain": "root",
-      "bytes": 6186,
+      "bytes": 6247,
       "lines": 167,
-      "sha256": "a64ce27079e7f2aec7aaf7490731019f5c7f95bcc804d92a6df056837fd6a06c",
+      "sha256": "ae762f4ba8c2503ad545aa5228b9e317522ae2158916a8d528a47e94dc44da1d",
       "binary": false
     },
     {
@@ -75453,9 +75453,9 @@
       "path": "css/main.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 237642,
+      "bytes": 237643,
       "lines": 8752,
-      "sha256": "e7bf4030075bcc30b754048594040ee428a3568bcc74be073d93e2429c2b26f5",
+      "sha256": "3c7ddd20c13d67f28cf2cbcfed08f32b693c5b830936855ba6fa0138284be47b",
       "binary": false
     },
     {
@@ -75516,9 +75516,9 @@
       "path": "css/portal-main-extracted.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 270957,
-      "lines": 10043,
-      "sha256": "3903d07e8880f83b324370bca5ee61ebd16d7cda57f1f28cb4c2bf05803774bd",
+      "bytes": 271345,
+      "lines": 10048,
+      "sha256": "6050f1dbc92c2094e46162e6bda9c41373f5324c82bdc4fa37f3864b4877fa08",
       "binary": false
     },
     {
@@ -75813,9 +75813,9 @@
       "path": "docs/DEVELOPER-ONBOARDING.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 14666,
-      "lines": 416,
-      "sha256": "76238e9a246505b66ab22335cdd1c2c5e41c75533ef444ef83de32fd6656501c",
+      "bytes": 14777,
+      "lines": 417,
+      "sha256": "9233c81746c4f5ff1cd5856db94ff26583253ce551386f913a1dd2ace97cd100",
       "binary": false
     },
     {
@@ -77928,9 +77928,9 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 7077,
+      "bytes": 7256,
       "lines": 62,
-      "sha256": "42ab99e1a9f2e3f7b1c79d0aa42ac783cb3bd1dbb854960394b7685c965a5732",
+      "sha256": "b1f633f35356509efe128e737a55ba3edcab1528900ca38a2c63791201c80486",
       "binary": false
     },
     {
@@ -111233,6 +111233,97 @@
       "directive": null
     },
     {
+      "path": "lib/demo/demoProgressPlan.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 3490,
+      "lines": 101,
+      "sha256": "1a116827c661cdf3a3ef1b68d8f4cc724c642522615b211435eea55ffa0ea559",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/demo/demoProgressPlan.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 4890,
+      "lines": 160,
+      "sha256": "9d97eb2560f1ea4f9a4f244cf4bb5234e82bea7695a9ab73ec472d8cd413548e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "DemoMemberProgressInput",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoPointsEvent",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoProgressPlan",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "matchCompletedCatalogCourses",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberPoints",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberProgress",
+          "line": 129,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "DemoMemberProgressInput",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoPointsEvent",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoProgressPlan",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "normalizeCourseLabel",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "matchCompletedCatalogCourses",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberPoints",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberProgress",
+          "line": 129,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/diagnostics.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -141985,60 +142076,60 @@
       "path": "prisma/seed-demo.ts",
       "area": "database",
       "domain": "database",
-      "bytes": 17832,
-      "lines": 546,
-      "sha256": "5075e0b9db9d33c8731434d8e3b5f598a0ea18271042730b7a768d31812ed4a6",
+      "bytes": 23006,
+      "lines": 697,
+      "sha256": "640e2c50f8b976a0782530609fddddae277288d7a19b81b506fccc030878ecfb",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "prisma",
-          "line": 17,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "DEMO_ORG_SLUG",
-          "line": 26,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "getOrgId",
-          "line": 28,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedRoles",
-          "line": 48,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoPartners",
-          "line": 55,
+          "line": 63,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoMembers",
-          "line": 103,
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoEmployerPortal",
-          "line": 343,
+          "line": 494,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoPartnerUser",
-          "line": 439,
+          "line": 590,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoAdminUser",
-          "line": 474,
+          "line": 625,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "main",
-          "line": 506,
+          "line": 657,
           "kind": "FunctionDeclaration"
         }
       ],

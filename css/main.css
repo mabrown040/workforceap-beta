@@ -967,9 +967,9 @@ html.dark .training-course-card__title {
     min-width: 0;
 }
 .training-course-card__title {
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
     word-break: normal;
-    hyphens: manual;
+    hyphens: auto;
 }
 @media (max-width: 1100px) {
     .training-course-card {

@@ -4920,9 +4920,11 @@ html.dark .admin-super-messages-bubble.is-staff {
 .training-course-card {
     background: var(--color-white);
     display: grid;
-    /* Keep the title column wide enough that long course names wrap on
-       word boundaries. `minmax(0, 1fr)` + `overflow-wrap: anywhere` was
-       collapsing this to one character on tablet (sidebar + actions). */
+    /* Floor the title column and cap the actions column. With
+       `minmax(0, 1fr) auto` the auto track sized to the single-line
+       max-content of chip + notice + button (~600px) and the title track
+       computed to 0px on tablet (sidebar + actions), so titles rendered one
+       character per line. The wrap rules on the title are not the cause. */
     grid-template-columns: minmax(12rem, 1fr) minmax(0, 18rem);
     gap: var(--space-4);
     align-items: start;
@@ -5088,9 +5090,9 @@ html.dark .admin-super-messages-bubble.is-staff {
     min-width: 0;
 }
 .training-course-card__title {
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
     word-break: normal;
-    hyphens: manual;
+    hyphens: auto;
 }
 .training-course-card__actions {
     display: flex;

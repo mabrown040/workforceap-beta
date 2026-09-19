@@ -83,7 +83,7 @@
 | [tests/api/gdpr-delete-route.spec.ts](../../../tests/api/gdpr-delete-route.spec.ts) | 142 | tests |  |
 | [tests/api/get-member-resume-plain-text.spec.ts](../../../tests/api/get-member-resume-plain-text.spec.ts) | 99 | tests |  |
 | [tests/api/guardian-consent.spec.ts](../../../tests/api/guardian-consent.spec.ts) | 295 | tests |  |
-| [tests/api/health-check.spec.ts](../../../tests/api/health-check.spec.ts) | 232 | tests |  |
+| [tests/api/health-check.spec.ts](../../../tests/api/health-check.spec.ts) | 233 | tests |  |
 | [tests/api/impact-page.spec.ts](../../../tests/api/impact-page.spec.ts) | 485 | tests |  |
 | [tests/api/invite-validate.spec.ts](../../../tests/api/invite-validate.spec.ts) | 138 | tests |  |
 | [tests/api/job-application-resume-snapshot.spec.ts](../../../tests/api/job-application-resume-snapshot.spec.ts) | 451 | tests |  |
@@ -128,6 +128,7 @@
 | [tests/api/points-routes.spec.ts](../../../tests/api/points-routes.spec.ts) | 451 | tests |  |
 | [tests/api/portal-nav-badges.spec.ts](../../../tests/api/portal-nav-badges.spec.ts) | 69 | tests |  |
 | [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 409 | tests |  |
+| [tests/api/public-api-hardening-batch4.spec.ts](../../../tests/api/public-api-hardening-batch4.spec.ts) | 310 | tests |  |
 | [tests/api/public-wioa-qualification.spec.ts](../../../tests/api/public-wioa-qualification.spec.ts) | 180 | tests |  |
 | [tests/api/quarterly-outcomes.spec.ts](../../../tests/api/quarterly-outcomes.spec.ts) | 207 | tests |  |
 | [tests/api/resume-builder.spec.ts](../../../tests/api/resume-builder.spec.ts) | 767 | tests |  |

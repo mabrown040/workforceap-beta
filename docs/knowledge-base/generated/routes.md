@@ -855,7 +855,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/onboarding/reset | route | POST | [app/api/onboarding/reset/route.ts](../../../app/api/onboarding/reset/route.ts) | @/lib/auth/server:3, @/lib/auth/roles:4, @/lib/db/withRequestGuc:7 |
 | /api/onboarding/step | route | POST | [app/api/onboarding/step/route.ts](../../../app/api/onboarding/step/route.ts) | @/lib/auth/server:3, @/lib/auth/roles:4, @/lib/db/withRequestGuc:6 |
 | /api/onboarding/tour-complete | route | POST | [app/api/onboarding/tour-complete/route.ts](../../../app/api/onboarding/tour-complete/route.ts) | @/lib/auth/server:3, @/lib/auth/roles:4, @/lib/db/withRequestGuc:7 |
-| /api/org/\[slug\]/outcomes | route | GET | [app/api/org/\[slug\]/outcomes/route.ts](../../../app/api/org/%5Bslug%5D/outcomes/route.ts) | @/lib/db/withRequestGuc:3 |
+| /api/org/\[slug\]/outcomes | route | GET | [app/api/org/\[slug\]/outcomes/route.ts](../../../app/api/org/%5Bslug%5D/outcomes/route.ts) | @/lib/db/withRequestGuc:3, @/lib/rate-limit:5 |
 | /api/org/\[slug\]/settings | route | GET, PUT | [app/api/org/\[slug\]/settings/route.ts](../../../app/api/org/%5Bslug%5D/settings/route.ts) | @/lib/tenant/organizationBranding:5, @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/db/withRequestGuc:9 |
 | /api/org/onboard | route | POST | [app/api/org/onboard/route.ts](../../../app/api/org/onboard/route.ts) | @/lib/db/withRequestGuc:2 |
 | /api/partner/connect | route | POST | [app/api/partner/connect/route.ts](../../../app/api/partner/connect/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/tenant/withTenantScope:6, @/lib/db/withRequestGuc:10 |

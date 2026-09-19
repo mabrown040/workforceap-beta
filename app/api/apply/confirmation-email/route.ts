@@ -66,7 +66,10 @@ async function _POST(request: NextRequest) {
       take: 1,
     });
     if (!recentApplication) {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+      // Same body and status as the sent path so the response does not reveal
+      // whether an application exists for this address. Nothing is sent; the
+      // client only uses `ok` to stop retrying, which is the right outcome here.
+      return NextResponse.json({ ok: true });
     }
 
     const result = await sendApplicationConfirmationEmail({

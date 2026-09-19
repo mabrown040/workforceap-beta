@@ -7,6 +7,8 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDateTime } from '@/lib/formatDate';
+import { mentorSessionStatusLabel } from '@/lib/mentor/sessionStatusLabel';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -50,7 +52,7 @@ export default async function MentorDashboardPage() {
         >
           <div>
             <div style={{ fontWeight: 600 }}>{s.member.fullName}</div>
-            <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{new Date(s.scheduledAt).toLocaleString()} · {s.status}</div>
+            <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatPortalDateTime(s.scheduledAt)} · {mentorSessionStatusLabel(s.status)}</div>
           </div>
           <div
             style={{

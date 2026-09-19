@@ -69,7 +69,7 @@
 | [components/admin/AdminPipelineKanban.tsx](../../../components/admin/AdminPipelineKanban.tsx) | 262 | administration | PipelineKanbanMember:14, default:46 |
 | [components/admin/AdminProgramCatalogClient.tsx](../../../components/admin/AdminProgramCatalogClient.tsx) | 323 | administration | default:28 |
 | [components/admin/AdminResumeUpload.tsx](../../../components/admin/AdminResumeUpload.tsx) | 102 | administration | default:11 |
-| [components/admin/AdminSuperMessagesClient.tsx](../../../components/admin/AdminSuperMessagesClient.tsx) | 793 | administration | default:177 |
+| [components/admin/AdminSuperMessagesClient.tsx](../../../components/admin/AdminSuperMessagesClient.tsx) | 743 | administration | default:177 |
 | [components/admin/AdminTrainingDashboardTable.tsx](../../../components/admin/AdminTrainingDashboardTable.tsx) | 246 | administration | default:42 |
 | [components/admin/AdminUsersManager.tsx](../../../components/admin/AdminUsersManager.tsx) | 528 | administration | default:33 |
 | [components/admin/AnalyticsDashboard.tsx](../../../components/admin/AnalyticsDashboard.tsx) | 352 | administration | default:113 |
@@ -178,24 +178,24 @@
 | [components/employer/EmployerLoiForm.tsx](../../../components/employer/EmployerLoiForm.tsx) | 229 | jobs-employers | default:11 |
 | [components/employer/EmployerMatchHistoryClient.tsx](../../../components/employer/EmployerMatchHistoryClient.tsx) | 303 | jobs-employers | EmployerMatchHistoryRow:12, default:104 |
 | [components/employer/EmployerMatchStatusSelect.tsx](../../../components/employer/EmployerMatchStatusSelect.tsx) | 96 | jobs-employers | default:15 |
-| [components/employer/EmployerOutcomesDashboard.tsx](../../../components/employer/EmployerOutcomesDashboard.tsx) | 230 | jobs-employers | default:45 |
+| [components/employer/EmployerOutcomesDashboard.tsx](../../../components/employer/EmployerOutcomesDashboard.tsx) | 231 | jobs-employers | default:46 |
 | [components/employer/EmployerPipelineClient.tsx](../../../components/employer/EmployerPipelineClient.tsx) | 157 | jobs-employers | default:45 |
 | [components/employer/EmployerSettingsForm.tsx](../../../components/employer/EmployerSettingsForm.tsx) | 296 | jobs-employers | EmployerSettingsInitial:29, default:41 |
 | [components/employer/EmployerUiActions.test.tsx](../../../components/employer/EmployerUiActions.test.tsx) | 229 | jobs-employers |  |
-| [components/employer/EmployerWorkQueueClient.tsx](../../../components/employer/EmployerWorkQueueClient.tsx) | 326 | jobs-employers | WqApp:10, WqJob:20, default:122 |
-| [components/employer/EmployerWorkflowTimeline.tsx](../../../components/employer/EmployerWorkflowTimeline.tsx) | 41 | jobs-employers | default:10 |
+| [components/employer/EmployerWorkQueueClient.tsx](../../../components/employer/EmployerWorkQueueClient.tsx) | 321 | jobs-employers | WqApp:11, WqJob:21, default:117 |
+| [components/employer/EmployerWorkflowTimeline.tsx](../../../components/employer/EmployerWorkflowTimeline.tsx) | 43 | jobs-employers | default:12 |
 | [components/employer/InterviewScheduler.tsx](../../../components/employer/InterviewScheduler.tsx) | 161 | jobs-employers | default:13 |
 | [components/employer/JobApplicantsClient.tsx](../../../components/employer/JobApplicantsClient.tsx) | 237 | jobs-employers | default:29 |
-| [components/employer/JobForm.tsx](../../../components/employer/JobForm.tsx) | 469 | jobs-employers | default:65 |
+| [components/employer/JobForm.tsx](../../../components/employer/JobForm.tsx) | 472 | jobs-employers | default:66 |
 | [components/employer/JobReadinessIssueList.tsx](../../../components/employer/JobReadinessIssueList.tsx) | 45 | jobs-employers | default:22 |
-| [components/employer/MobileApplicationsClient.tsx](../../../components/employer/MobileApplicationsClient.tsx) | 305 | jobs-employers | default:60 |
+| [components/employer/MobileApplicationsClient.tsx](../../../components/employer/MobileApplicationsClient.tsx) | 306 | jobs-employers | default:61 |
 | [components/employer/SuggestedProgramsRanked.tsx](../../../components/employer/SuggestedProgramsRanked.tsx) | 221 | jobs-employers | default:39 |
 | [components/error/DashboardErrorFallback.tsx](../../../components/error/DashboardErrorFallback.tsx) | 124 | components | default:34 |
 | [components/error/ErrorBoundary.test.tsx](../../../components/error/ErrorBoundary.test.tsx) | 99 | components |  |
 | [components/error/ErrorBoundary.tsx](../../../components/error/ErrorBoundary.tsx) | 166 | components | default:21 |
 | [components/error/RouteErrorFallback.tsx](../../../components/error/RouteErrorFallback.tsx) | 333 | components | ErrorContext:7, default:112 |
 | [components/forms/MemberSignupForm.tsx](../../../components/forms/MemberSignupForm.tsx) | 307 | components | default:27 |
-| [components/forms/ParentalConsentForm.tsx](../../../components/forms/ParentalConsentForm.tsx) | 285 | components | default:21 |
+| [components/forms/ParentalConsentForm.tsx](../../../components/forms/ParentalConsentForm.tsx) | 286 | components | default:22 |
 | [components/forms/PlacementSurveyForm.tsx](../../../components/forms/PlacementSurveyForm.tsx) | 258 | components | default:89 |
 | [components/graphics/DataLandingEmptyArt.tsx](../../../components/graphics/DataLandingEmptyArt.tsx) | 22 | components | DataLandingEmptyArt:4 |
 | [components/marketing/ConversionThankYouPage.tsx](../../../components/marketing/ConversionThankYouPage.tsx) | 171 | public-experience | default:26 |
@@ -258,7 +258,7 @@
 | [components/partner/PartnerReferredMembersMobile.tsx](../../../components/partner/PartnerReferredMembersMobile.tsx) | 171 | partners-funding | PartnerMemberRow:9, default:41 |
 | [components/partner/PartnerSettingsEditRequest.tsx](../../../components/partner/PartnerSettingsEditRequest.tsx) | 143 | partners-funding | default:13 |
 | [components/partner/PartnerSignupForm.tsx](../../../components/partner/PartnerSignupForm.tsx) | 261 | partners-funding | default:34 |
-| [components/partner/PartnerWorkflowTimeline.tsx](../../../components/partner/PartnerWorkflowTimeline.tsx) | 43 | partners-funding | default:10 |
+| [components/partner/PartnerWorkflowTimeline.tsx](../../../components/partner/PartnerWorkflowTimeline.tsx) | 45 | partners-funding | default:12 |
 | [components/partner/PendingApprovalBanner.tsx](../../../components/partner/PendingApprovalBanner.tsx) | 34 | partners-funding | default:3 |
 | [components/platform/OrgBrandingBar.tsx](../../../components/platform/OrgBrandingBar.tsx) | 20 | administration | default:5 |
 | [components/platform/OrgBrandingStyle.tsx](../../../components/platform/OrgBrandingStyle.tsx) | 18 | administration | default:7 |
@@ -340,7 +340,6 @@
 | [components/portal/MemberFirstCertProgressBar.tsx](../../../components/portal/MemberFirstCertProgressBar.tsx) | 133 | components | FirstCertProgress:5, default:24 |
 | [components/portal/MemberFirstValuePanel.tsx](../../../components/portal/MemberFirstValuePanel.tsx) | 149 | components | default:10 |
 | [components/portal/MemberInterviewRequestButton.tsx](../../../components/portal/MemberInterviewRequestButton.tsx) | 71 | components | default:6 |
-| [components/portal/MemberJobPostingTransparency.tsx](../../../components/portal/MemberJobPostingTransparency.tsx) | 52 | components | default:14 |
 | [components/portal/MemberLabWorkspace.module.css](../../../components/portal/MemberLabWorkspace.module.css) | 84 | components |  |
 | [components/portal/MemberLabWorkspace.tsx](../../../components/portal/MemberLabWorkspace.tsx) | 184 | components | MemberLabWorkspace:58 |
 | [components/portal/MemberMessagesMobileClient.tsx](../../../components/portal/MemberMessagesMobileClient.tsx) | 404 | components | default:57 |
@@ -354,7 +353,6 @@
 | [components/portal/MemberTodayNextStep.test.tsx](../../../components/portal/MemberTodayNextStep.test.tsx) | 141 | components |  |
 | [components/portal/MemberWorkspaceShell.tsx](../../../components/portal/MemberWorkspaceShell.tsx) | 62 | components | default:13 |
 | [components/portal/MentorSessionForm.tsx](../../../components/portal/MentorSessionForm.tsx) | 68 | components | default:5 |
-| [components/portal/MilestoneBadge.tsx](../../../components/portal/MilestoneBadge.tsx) | 151 | member-counselor | Milestone:21, default:88, MILESTONE_DISPLAY_ORDER:146 |
 | [components/portal/MobileProfileSkillsResume.tsx](../../../components/portal/MobileProfileSkillsResume.tsx) | 346 | components | default:50 |
 | [components/portal/NotificationBell.tsx](../../../components/portal/NotificationBell.tsx) | 408 | communications | default:107 |
 | [components/portal/OtherProgramsList.tsx](../../../components/portal/OtherProgramsList.tsx) | 143 | components | OtherProgram:21, default:28 |
@@ -638,7 +636,6 @@
 | [components/portal/tools/VoiceInterviewScaffold.tsx](../../../components/portal/tools/VoiceInterviewScaffold.tsx) | 394 | components | default:70 |
 | [components/portal/tools/VoiceSessionIntroStrip.tsx](../../../components/portal/tools/VoiceSessionIntroStrip.tsx) | 38 | components | default:5 |
 | [components/portal/ui/DataTable.tsx](../../../components/portal/ui/DataTable.tsx) | 326 | components | DataTableColumn:35, DataTableProps:67, default:133 |
-| [components/portal/ui/DefinitionList.tsx](../../../components/portal/ui/DefinitionList.tsx) | 60 | components | DefinitionList:59, DefinitionRow:59, DefinitionRowProps:60, DefinitionListProps:60 |
 | [components/portal/ui/FormField.tsx](../../../components/portal/ui/FormField.tsx) | 139 | components | FormField:13, TextInput:79, SelectField:99, TextArea:119 |
 | [components/portal/ui/PortalActionCard.tsx](../../../components/portal/ui/PortalActionCard.tsx) | 88 | components | PortalActionCardProps:4, default:19 |
 | [components/portal/ui/PortalCard.tsx](../../../components/portal/ui/PortalCard.tsx) | 37 | components | PortalCardProps:3, default:12 |

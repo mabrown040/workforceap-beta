@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "85af9fe9e3141b3889bd2fde15f188bf42aaced3b2b9f84ff23726f8552b9abc",
+  "inputTreeSha256": "51192bc3774072b1c699f844e00525a48090f16d938c5ed458a536b4b0d38dc8",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4610,
-    "sourceModules": 3284,
-    "importReferences": 15527,
-    "resolvedLocalReferences": 10335,
+    "files": 4613,
+    "sourceModules": 3287,
+    "importReferences": 15554,
+    "resolvedLocalReferences": 10349,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1052,
     "nextRouteFiles": 1019,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 683,
-    "testCandidates": 676,
+    "testFiles": 685,
+    "testCandidates": 678,
     "testHelpers": 7,
-    "staticallySelectedTests": 673,
+    "staticallySelectedTests": 675,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 947
+      "files": 949
     },
     {
       "area": "localization",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 343
+      "files": 344
     }
   ],
   "mostReferenced": [
@@ -350,7 +350,7 @@
     },
     {
       "file": "components/portal/SkillMissionChallenge.tsx",
-      "lines": 1226
+      "lines": 1235
     },
     {
       "file": "app/dev/astryx/table/page.tsx",

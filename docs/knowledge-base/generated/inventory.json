@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "85af9fe9e3141b3889bd2fde15f188bf42aaced3b2b9f84ff23726f8552b9abc",
+  "inputTreeSha256": "51192bc3774072b1c699f844e00525a48090f16d938c5ed458a536b4b0d38dc8",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -8628,19 +8628,19 @@
       "path": "app/(portal)/dashboard/eligibility/EligibilityForm.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 14017,
-      "lines": 396,
-      "sha256": "4ba8d7264f34291cc18b382523cb0ea93c0bf31d0bdd32865eb1182a32613593",
+      "bytes": 14294,
+      "lines": 403,
+      "sha256": "b31535781342cec3083ab6b1ed43d4c723d5a1771ffce4f1cbc9d53f468afba2",
       "binary": false,
       "exports": [
         {
           "name": "EligibilityInitial",
-          "line": 23,
+          "line": 25,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 104,
+          "line": 106,
           "kind": "FunctionDeclaration",
           "localName": "EligibilityForm"
         }
@@ -8648,37 +8648,37 @@
       "declarations": [
         {
           "name": "AGE_GROUPS",
-          "line": 15,
+          "line": 17,
           "kind": "Variable"
         },
         {
           "name": "AgeGroupValue",
-          "line": 21,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "EligibilityInitial",
           "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "EligibilityInitial",
+          "line": 25,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "labelStyle",
-          "line": 42,
+          "line": 44,
           "kind": "Variable"
         },
         {
           "name": "inputStyle",
-          "line": 50,
+          "line": 52,
           "kind": "Variable"
         },
         {
           "name": "YesNoRow",
-          "line": 60,
+          "line": 62,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EligibilityForm",
-          "line": 104,
+          "line": 106,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -10868,14 +10868,14 @@
       "path": "app/(portal)/dashboard/survey/SurveyClient.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 16153,
-      "lines": 571,
-      "sha256": "c1a4f6ad683c5b6dac9628b1949386d1b5366912c517c15da24ffe67e1b4d8f9",
+      "bytes": 16437,
+      "lines": 580,
+      "sha256": "b1d244e7ad349cc8b9b358b69af9d2b59ae6aa2d3ec2617ac7843966cc9a62a8",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 226,
+          "line": 228,
           "kind": "FunctionDeclaration",
           "localName": "SurveyClient"
         }
@@ -10883,32 +10883,32 @@
       "declarations": [
         {
           "name": "SurveyClientProps",
-          "line": 5,
+          "line": 7,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SurveyForm",
-          "line": 10,
+          "line": 12,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "StarRating",
-          "line": 21,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "TextAreaField",
-          "line": 108,
+          "line": 110,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ToggleGroup",
-          "line": 163,
+          "line": 165,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SurveyClient",
-          "line": 226,
+          "line": 228,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -57399,19 +57399,19 @@
       "path": "components/portal/ApplicationAiFeedbackPrompt.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 4047,
-      "lines": 109,
-      "sha256": "4b643d7c07956a1194093068873df9a4b9455b84b6860a94bec042d55b583cbb",
+      "bytes": 4340,
+      "lines": 118,
+      "sha256": "c3a0013e67405ed3d599d2974ae41385cf298108003d33e40196451c6f759055",
       "binary": false,
       "exports": [
         {
           "name": "RecentToolOption",
-          "line": 7,
+          "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 16,
+          "line": 18,
           "kind": "FunctionDeclaration",
           "localName": "ApplicationAiFeedbackPrompt"
         }
@@ -57419,17 +57419,17 @@
       "declarations": [
         {
           "name": "RecentToolOption",
-          "line": 7,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "Props",
           "line": 9,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "Props",
+          "line": 11,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "ApplicationAiFeedbackPrompt",
-          "line": 16,
+          "line": 18,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -58201,14 +58201,14 @@
       "path": "components/portal/CourseraAccountLinkCard.tsx",
       "area": "components",
       "domain": "learning-coursera",
-      "bytes": 4865,
-      "lines": 110,
-      "sha256": "1900a90d88aa316443a7192b3d4a00c84b14a5189f1aab5d96ff9007e19a8c97",
+      "bytes": 5154,
+      "lines": 119,
+      "sha256": "e61a73ce79315ff1731a18f04b131205c82543934519412a63011a2784ebc987",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration",
           "localName": "CourseraAccountLinkCard"
         }
@@ -58216,17 +58216,17 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 5,
+          "line": 7,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "normalizeEmail",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CourseraAccountLinkCard",
-          "line": 14,
+          "line": 16,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -59133,14 +59133,14 @@
       "path": "components/portal/JobApplicationForm.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 8887,
-      "lines": 238,
-      "sha256": "2a188a0f925577ea747fac4882093412693777fb4767d5fd27879e0a77e96658",
+      "bytes": 9170,
+      "lines": 247,
+      "sha256": "50fd19e5e68ca9b98655f94dd996782c6c2e90dd3924a5fce7483ac22c86e9e5",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 12,
+          "line": 14,
           "kind": "FunctionDeclaration",
           "localName": "JobApplicationForm"
         }
@@ -59148,12 +59148,12 @@
       "declarations": [
         {
           "name": "JobApplicationFormProps",
-          "line": 7,
+          "line": 9,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "JobApplicationForm",
-          "line": 12,
+          "line": 14,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -62737,127 +62737,127 @@
       "path": "components/portal/SkillMissionChallenge.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 41615,
-      "lines": 1226,
-      "sha256": "a9aed41e29a77c0102df6704c580ec5d309ce9e3e8bbdc644a655f0adf0004d0",
+      "bytes": 41896,
+      "lines": 1235,
+      "sha256": "e59cd7f43e79873b6c051644104a79183e040b0db201e9896a3c78a061e6e088",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 1067,
+          "line": 1076,
           "kind": "FunctionDeclaration",
           "localName": "SkillMissionChallenge"
         },
         {
           "name": "SkillMissionChallengePreview",
-          "line": 1207,
+          "line": 1216,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "MissionStatus",
-          "line": 20,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "MissionResult",
           "line": 22,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "MissionResult",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "QuizQuestion",
-          "line": 32,
+          "line": 34,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "QuizCheckResponse",
-          "line": 37,
+          "line": 39,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SkillMissionSummaryItem",
-          "line": 43,
+          "line": 45,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "MissionEvalResponse",
-          "line": 63,
+          "line": 65,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "QuizAnswer",
-          "line": 78,
+          "line": 80,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Props",
-          "line": 86,
+          "line": 88,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CARD_STYLE",
-          "line": 99,
+          "line": 101,
           "kind": "Variable"
         },
         {
           "name": "OVERLAY_STYLE",
-          "line": 111,
+          "line": 113,
           "kind": "Variable"
         },
         {
           "name": "previewPassResult",
-          "line": 123,
+          "line": 125,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CloseButton",
-          "line": 143,
+          "line": 145,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillChip",
-          "line": 174,
+          "line": 176,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CopyButton",
-          "line": 196,
+          "line": 198,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PhaseIntro",
-          "line": 233,
+          "line": 235,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PhaseQuiz",
-          "line": 357,
+          "line": 359,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PhaseScenario",
-          "line": 609,
+          "line": 611,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PhaseResult",
-          "line": 831,
+          "line": 840,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PhaseCelebration",
-          "line": 987,
+          "line": 996,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillMissionChallenge",
-          "line": 1067,
+          "line": 1076,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillMissionChallengePreview",
-          "line": 1207,
+          "line": 1216,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -73385,14 +73385,14 @@
       "path": "components/portal/tools/SkillAssessmentForm.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 18289,
-      "lines": 464,
-      "sha256": "83089e066765cf950504922cd7cd31ce40430f93446718d7fd5b7a2caaf1c663",
+      "bytes": 18819,
+      "lines": 485,
+      "sha256": "a4febf8d25c7d7bde5c862e73a7ac72437e995588ded43b488fdf6d472115435",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 66,
+          "line": 68,
           "kind": "FunctionDeclaration",
           "localName": "SkillAssessmentForm"
         }
@@ -73400,62 +73400,62 @@
       "declarations": [
         {
           "name": "OccupationResult",
-          "line": 5,
+          "line": 7,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RadarAxis",
-          "line": 11,
+          "line": 13,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SkillResult",
-          "line": 18,
+          "line": 20,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Props",
-          "line": 30,
+          "line": 32,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CHART_SIZE",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "CHART_CENTER",
-          "line": 35,
-          "kind": "Variable"
-        },
-        {
-          "name": "CHART_RADIUS",
           "line": 36,
           "kind": "Variable"
         },
         {
-          "name": "MOBILE_BREAKPOINT_PX",
+          "name": "CHART_CENTER",
           "line": 37,
           "kind": "Variable"
         },
         {
-          "name": "polarToCartesian",
+          "name": "CHART_RADIUS",
+          "line": 38,
+          "kind": "Variable"
+        },
+        {
+          "name": "MOBILE_BREAKPOINT_PX",
           "line": 39,
+          "kind": "Variable"
+        },
+        {
+          "name": "polarToCartesian",
+          "line": 41,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildRadarPolygon",
-          "line": 46,
+          "line": 48,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "buildGridPolygon",
-          "line": 58,
+          "line": 60,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SkillAssessmentForm",
-          "line": 66,
+          "line": 68,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -114670,6 +114670,73 @@
       "directive": null
     },
     {
+      "path": "lib/http/requestFailureCopy.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 2511,
+      "lines": 63,
+      "sha256": "27a63c9903baad9f00ec5f76208001915e2272e99ba767985f7f556b92e83463",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "copy",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "withSilentConsole",
+          "line": 7,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/http/requestFailureCopy.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 1768,
+      "lines": 40,
+      "sha256": "19e1e2c3fdf1fd28c8e55d1f78ee450caa50485e9e2c1f2afbcabad318f16128",
+      "binary": false,
+      "exports": [
+        {
+          "name": "isConnectionFailure",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RequestFailureCopy",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "requestFailureMessage",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "isConnectionFailure",
+          "line": 18,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "RequestFailureCopy",
+          "line": 24,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "requestFailureMessage",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/http/safeFetchJson.ts",
       "area": "libraries",
       "domain": "libraries",
@@ -139019,27 +139086,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192632,
-      "lines": 3145,
-      "sha256": "0b911ce07a0fbbde8195c1f05c5ab816adbdca1b6b0dec77cf7077dc51599f50",
+      "bytes": 192735,
+      "lines": 3146,
+      "sha256": "df8985f0fb11cb68a42ed9f4815b5345c538f2ab452e10fac415d99d8923be7b",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211354,
-      "lines": 3132,
-      "sha256": "0ae00c42904885976a276cb2b39f6e2506855ad2c4cbb15f30eb4d8c3090d713",
+      "bytes": 211474,
+      "lines": 3133,
+      "sha256": "a3a98c6f042023335b7ac34268cdbebb53b3b2c7d12c6d4e8257eb913443e08b",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212615,
-      "lines": 3085,
-      "sha256": "474062d5d19e9e16647360cc1758e7d1bdd1262d626418a8a14e1da941651d0a",
+      "bytes": 212742,
+      "lines": 3086,
+      "sha256": "21dce60bd2cc2fb223c3095068736b573c94effc6c4f5322da35335d1690086f",
       "binary": false
     },
     {
@@ -139055,9 +139122,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204420,
-      "lines": 3085,
-      "sha256": "ffeab3b5d28e0e194b8edca3320e2f2fc178c056c6336f34a37823cd21a63aa2",
+      "bytes": 204538,
+      "lines": 3086,
+      "sha256": "34f6110d91c8bce803b666c620f4a4e44d15f1a868b9b16300be48dfcb7d2421",
       "binary": false
     },
     {
@@ -153850,6 +153917,59 @@
       "directive": null
     },
     {
+      "path": "tests/components/member-form-connection-failure.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 7771,
+      "lines": 153,
+      "sha256": "6ffe03d9d779b7d8940ac513afa00f388066ae54bb0b0b00b70ebb971249fccb",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "CONNECTION_COPY",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "RAW_BROWSER_TEXT",
+          "line": 18,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "consoleError",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "droppedConnection",
+          "line": 24,
+          "kind": "Variable"
+        },
+        {
+          "name": "htmlErrorPage",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "withMessages",
+          "line": 32,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expectAlert",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/member-lab-workspace.test.tsx",
       "area": "tests",
       "domain": "tests",
@@ -154185,15 +154305,20 @@
       "path": "tests/components/skill-mission-close-guard.test.tsx",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7175,
-      "lines": 98,
-      "sha256": "210e3e380dfa5a01fd6b970faeb0667558546b318c2a41d420369be54e803cd5",
+      "bytes": 7597,
+      "lines": 103,
+      "sha256": "0684380897139034674d86f882f57b98710ce64e2aa0cb8a5fd768a23eef87bb",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "mission",
-          "line": 6,
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "renderChallenge",
+          "line": 16,
           "kind": "Variable"
         }
       ],

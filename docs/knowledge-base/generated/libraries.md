@@ -538,6 +538,8 @@
 | [lib/http/clientIp.ts](../../../lib/http/clientIp.ts) | 80 | libraries | getClientIpFromRequest:23 |
 | [lib/http/errorResponse.ts](../../../lib/http/errorResponse.ts) | 53 | libraries | apiError:21, safeBadRequest:45 |
 | [lib/http/publicApiCors.ts](../../../lib/http/publicApiCors.ts) | 12 | libraries | publicApiCorsHeaders:5 |
+| [lib/http/requestFailureCopy.test.ts](../../../lib/http/requestFailureCopy.test.ts) | 63 | libraries |  |
+| [lib/http/requestFailureCopy.ts](../../../lib/http/requestFailureCopy.ts) | 40 | libraries | isConnectionFailure:18, RequestFailureCopy:24, requestFailureMessage:35 |
 | [lib/http/safeFetchJson.ts](../../../lib/http/safeFetchJson.ts) | 18 | libraries | safeParseResponseJson:4 |
 | [lib/http/safeOutboundFetch.ts](../../../lib/http/safeOutboundFetch.ts) | 200 | libraries | UnsafeUrlError:74, AssertPublicHttpUrlOptions:81, assertPublicHttpUrl:92, SafeFetchInit:139, safeFetch:155 |
 | [lib/i18n/client.ts](../../../lib/i18n/client.ts) | 55 | public-experience | useLocaleFromPath:20, useLocalizedHref:37, localizeHref:42, parseLocaleFromPathname:44, setLocaleCookie:49, isAppLocale:55, withLocalePrefix:55, splitLocalePrefix:55 |
@@ -641,8 +643,8 @@
 | [lib/member/mentorsEmptyState.ts](../../../lib/member/mentorsEmptyState.ts) | 24 | member-counselor | MENTORS_MEMBER_EMPTY:6, MENTORS_ADMIN_EMPTY:19 |
 | [lib/member/missionCourseUnlock.test.ts](../../../lib/member/missionCourseUnlock.test.ts) | 33 | member-counselor |  |
 | [lib/member/missionCourseUnlock.ts](../../../lib/member/missionCourseUnlock.ts) | 44 | member-counselor | MissionUnlockCourse:8, normalizeCourseName:13, resolveMissionUnlockSlugs:22, isMissionCourseComplete:37 |
-| [lib/member/nextBestActions.test.ts](../../../lib/member/nextBestActions.test.ts) | 174 | member-counselor |  |
-| [lib/member/nextBestActions.ts](../../../lib/member/nextBestActions.ts) | 324 | member-counselor | NextBestAction:6, NextBestActionsContext:17, buildNextBestActions:43 |
+| [lib/member/nextBestActions.test.ts](../../../lib/member/nextBestActions.test.ts) | 210 | member-counselor |  |
+| [lib/member/nextBestActions.ts](../../../lib/member/nextBestActions.ts) | 328 | member-counselor | NextBestAction:6, NextBestActionsContext:17, buildNextBestActions:43 |
 | [lib/member/parseCourseSlugList.ts](../../../lib/member/parseCourseSlugList.ts) | 11 | member-counselor | parseCourseSlugList:5 |
 | [lib/member/points.ts](../../../lib/member/points.ts) | 72 | member-counselor | LevelName:6, getLevelForPoints:7, getNextLevel:7, LEVELS:7, awardPoints:13, getMemberPoints:56, getStreak:72 |
 | [lib/member/pointsConfig.ts](../../../lib/member/pointsConfig.ts) | 59 | member-counselor | POINT_VALUES:3, LEVELS:26, LevelName:33, getLevelForPoints:35, getNextLevel:39, EVENT_LABELS:44 |
@@ -892,7 +894,8 @@
 | [lib/turnstile/verifyTurnstile.ts](../../../lib/turnstile/verifyTurnstile.ts) | 20 | libraries | verifyTurnstileResponse:2 |
 | [lib/ui/buttonClasses.test.ts](../../../lib/ui/buttonClasses.test.ts) | 33 | libraries |  |
 | [lib/ui/buttonClasses.ts](../../../lib/ui/buttonClasses.ts) | 166 | libraries | BUTTON_VARIANT_CLASS:14, BUTTON_RADIUS_CLASS:20, button:27, ButtonVariant:41, ButtonRadius:42, ButtonClassOptions:44, buttonClasses:57, primaryButtonClasses:77, secondaryButtonClasses:81, ghostButtonClasses:85, numPillClasses:90, buttonPresets:102 |
-| [lib/ui/statusColors.ts](../../../lib/ui/statusColors.ts) | 68 | libraries | StatusTone:24, StatusColorSet:26, STATUS_COLORS:35, statusColor:66 |
+| [lib/ui/statusColors.test.ts](../../../lib/ui/statusColors.test.ts) | 78 | libraries |  |
+| [lib/ui/statusColors.ts](../../../lib/ui/statusColors.ts) | 72 | libraries | StatusTone:24, StatusColorSet:26, STATUS_COLORS:35, statusColor:70 |
 | [lib/util/ageCalculation.ts](../../../lib/util/ageCalculation.ts) | 82 | libraries | calculateAge:5, isMinorAge:18, isYouthAge:23, meetsMinimumAge:29, AgeGroup:35, getAgeGroup:37, getAgeGroupLabel:45, isJobAgeAppropriate:59 |
 | [lib/validation/aiCoachResponses.ts](../../../lib/validation/aiCoachResponses.ts) | 125 | libraries | aiTextOutputResponseSchema:4, AiTextOutputResponse:8, elevatorPitchResponseSchema:11, ElevatorPitchResponse:17, interviewPracticeResponseSchema:20, InterviewPracticeResponse:24, linkedinHeadlinesResponseSchema:27, LinkedinHeadlinesResponse:31, jobMatchScorerParsedSchema:34, jobMatchScorerResponseSchema:41, JobMatchScorerResponse:48, skillMapperOccupationResultSchema:51, skillMapperDetailSchema:61, SkillMapperOccupationResult:85, SkillMapperDetail:86, coachChatResponseSchema:89, CoachChatResponse:93, careerBusinessCoachCompletionResponseSchema:96, CareerBusinessCoachCompletionResponse:101, careerBusinessCoachVoiceSessionResponseSchema:104, CareerBusinessCoachVoiceSessionResponse:109, resumeCoachLiveSuggestionsResponseSchema:112, ResumeCoachLiveSuggestionsResponse:116, resumeCoachSessionResponseSchema:119, ResumeCoachSessionResponse:125 |
 | [lib/validation/aiInterview.ts](../../../lib/validation/aiInterview.ts) | 28 | libraries | interviewResponseSchema:3, interviewStartResponseSchema:9, interviewResultsResponseSchema:22 |

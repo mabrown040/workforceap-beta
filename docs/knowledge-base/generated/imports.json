@@ -56817,8 +56817,16 @@
   },
   {
     "from": "app/api/mentors/[id]/sessions/route.ts",
-    "specifier": "@/lib/db/prisma",
+    "specifier": "zod",
     "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "zod"
+  },
+  {
+    "from": "app/api/mentors/[id]/sessions/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -56826,7 +56834,7 @@
   {
     "from": "app/api/mentors/[id]/sessions/route.ts",
     "specifier": "@/lib/auth/server",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -56834,7 +56842,7 @@
   {
     "from": "app/api/mentors/[id]/sessions/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -56849,8 +56857,16 @@
   },
   {
     "from": "app/api/mentors/apply/route.ts",
-    "specifier": "@/lib/db/prisma",
+    "specifier": "zod",
     "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "zod"
+  },
+  {
+    "from": "app/api/mentors/apply/route.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -56858,7 +56874,7 @@
   {
     "from": "app/api/mentors/apply/route.ts",
     "specifier": "@/lib/auth/server",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -56866,7 +56882,7 @@
   {
     "from": "app/api/mentors/apply/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -116606,6 +116622,94 @@
     "kind": "import",
     "external": false,
     "target": "lib/counselor/staffMemberAccess.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "vitest",
+    "line": 17,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 52,
+    "kind": "dynamic-import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/app/api/gdpr/export/route",
+    "line": 75,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/gdpr/export/route.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/app/api/mentors/[id]/sessions/route",
+    "line": 76,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/mentors/[id]/sessions/route.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/app/api/mentors/apply/route",
+    "line": 77,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/mentors/apply/route.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/app/api/member/job-applications/route",
+    "line": 78,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/member/job-applications/route.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/app/api/ai/export-pdf/route",
+    "line": 79,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/ai/export-pdf/route.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/app/api/ai/interview-voice/route",
+    "line": 80,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/ai/interview-voice/route.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 81,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 82,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/api/member-route-malformed-input.spec.ts",
+    "specifier": "@/lib/ai/elevenlabs",
+    "line": 83,
+    "kind": "import",
+    "external": false,
+    "target": "lib/ai/elevenlabs.ts"
   },
   {
     "from": "tests/api/member-settings.spec.ts",

@@ -103,6 +103,7 @@
 | [tests/api/member-readiness-summary.spec.ts](../../../tests/api/member-readiness-summary.spec.ts) | 123 | tests |  |
 | [tests/api/member-referral-privacy.spec.ts](../../../tests/api/member-referral-privacy.spec.ts) | 29 | tests |  |
 | [tests/api/member-resume.spec.ts](../../../tests/api/member-resume.spec.ts) | 276 | tests |  |
+| [tests/api/member-route-malformed-input.spec.ts](../../../tests/api/member-route-malformed-input.spec.ts) | 230 | tests |  |
 | [tests/api/member-settings.spec.ts](../../../tests/api/member-settings.spec.ts) | 154 | tests |  |
 | [tests/api/member-signup.spec.ts](../../../tests/api/member-signup.spec.ts) | 161 | tests |  |
 | [tests/api/member-training-workspace.spec.ts](../../../tests/api/member-training-workspace.spec.ts) | 198 | tests |  |

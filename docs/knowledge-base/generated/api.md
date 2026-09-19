@@ -214,12 +214,12 @@
 | [app/api/agent-tools/v1/\[tool\]/route.ts](../../../app/api/agent-tools/v1/%5Btool%5D/route.ts) | 114 | api | runtime:15, dynamic:16, POST:67 |
 | [app/api/ai/cover-letter/route.ts](../../../app/api/ai/cover-letter/route.ts) | 162 | ai-voice | POST:15 |
 | [app/api/ai/elevator-pitch/route.ts](../../../app/api/ai/elevator-pitch/route.ts) | 228 | ai-voice | POST:28 |
-| [app/api/ai/export-pdf/route.ts](../../../app/api/ai/export-pdf/route.ts) | 595 | ai-voice | POST:388 |
+| [app/api/ai/export-pdf/route.ts](../../../app/api/ai/export-pdf/route.ts) | 598 | ai-voice | POST:388 |
 | [app/api/ai/extract-resume-skills/route.ts](../../../app/api/ai/extract-resume-skills/route.ts) | 219 | ai-voice | POST:79 |
 | [app/api/ai/extract-resume-text/route.ts](../../../app/api/ai/extract-resume-text/route.ts) | 50 | ai-voice | POST:9 |
 | [app/api/ai/gap-analyzer/route.ts](../../../app/api/ai/gap-analyzer/route.ts) | 121 | ai-voice | POST:15 |
 | [app/api/ai/interview-practice/route.ts](../../../app/api/ai/interview-practice/route.ts) | 184 | ai-voice | POST:21 |
-| [app/api/ai/interview-voice/route.ts](../../../app/api/ai/interview-voice/route.ts) | 62 | ai-voice | POST:15 |
+| [app/api/ai/interview-voice/route.ts](../../../app/api/ai/interview-voice/route.ts) | 67 | ai-voice | POST:15 |
 | [app/api/ai/interview/_sessionStore.ts](../../../app/api/ai/interview/_sessionStore.ts) | 11 | ai-voice | interviewSessions:2 |
 | [app/api/ai/interview/response/route.ts](../../../app/api/ai/interview/response/route.ts) | 135 | ai-voice | POST:135 |
 | [app/api/ai/interview/results/route.ts](../../../app/api/ai/interview/results/route.ts) | 136 | ai-voice | GET:136 |
@@ -457,8 +457,8 @@
 | [app/api/member/wioa-qualification/route.ts](../../../app/api/member/wioa-qualification/route.ts) | 102 | partners-funding | GET:28, POST:101 |
 | [app/api/member/wioa-qualification/voice-session/route.ts](../../../app/api/member/wioa-qualification/voice-session/route.ts) | 75 | partners-funding | POST:10 |
 | [app/api/mentor/letter/route.ts](../../../app/api/mentor/letter/route.ts) | 114 | api | GET:24 |
-| [app/api/mentors/\[id\]/sessions/route.ts](../../../app/api/mentors/%5Bid%5D/sessions/route.ts) | 50 | api | GET:24, POST:49 |
-| [app/api/mentors/apply/route.ts](../../../app/api/mentors/apply/route.ts) | 56 | applications-enrollment | POST:6 |
+| [app/api/mentors/\[id\]/sessions/route.ts](../../../app/api/mentors/%5Bid%5D/sessions/route.ts) | 87 | api | GET:25, POST:86 |
+| [app/api/mentors/apply/route.ts](../../../app/api/mentors/apply/route.ts) | 68 | applications-enrollment | POST:25 |
 | [app/api/mentors/route.ts](../../../app/api/mentors/route.ts) | 37 | api | GET:5 |
 | [app/api/og/career-quiz/route.tsx](../../../app/api/og/career-quiz/route.tsx) | 63 | api | runtime:4, GET:13 |
 | [app/api/og/dynamic-card/route.tsx](../../../app/api/og/dynamic-card/route.tsx) | 134 | api | runtime:4, GET:126 |

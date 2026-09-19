@@ -42777,8 +42777,16 @@
   },
   {
     "from": "app/api/apply/signup/route.ts",
-    "specifier": "@/lib/apply/applyReferralCapture",
+    "specifier": "@/lib/counselor/autoAssign",
     "line": 25,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/autoAssign.ts"
+  },
+  {
+    "from": "app/api/apply/signup/route.ts",
+    "specifier": "@/lib/apply/applyReferralCapture",
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/apply/applyReferralCapture.ts"
@@ -42786,7 +42794,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/partners/sponsorship",
-    "line": 30,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/partners/sponsorship.ts"
@@ -42794,7 +42802,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/schoolCollection",
-    "line": 39,
+    "line": 40,
     "kind": "import",
     "external": false,
     "target": "lib/apply/schoolCollection.ts"
@@ -42802,7 +42810,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/apply/eligibilityExtendedFields",
-    "line": 44,
+    "line": 45,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
@@ -42810,7 +42818,7 @@
   {
     "from": "app/api/apply/signup/route.ts",
     "specifier": "@/lib/email",
-    "line": 45,
+    "line": 46,
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
@@ -52832,6 +52840,14 @@
     "target": "lib/member/courseEnrollmentAssignment.ts"
   },
   {
+    "from": "app/api/member/enroll/route.ts",
+    "specifier": "@/lib/counselor/autoAssign",
+    "line": 27,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/autoAssign.ts"
+  },
+  {
     "from": "app/api/member/enrollments/[id]/route.ts",
     "specifier": "next/server",
     "line": 1,
@@ -54209,8 +54225,16 @@
   },
   {
     "from": "app/api/member/messages/route.ts",
+    "specifier": "@/lib/messages/unassignedNotify",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/messages/unassignedNotify.ts"
+  },
+  {
+    "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -54218,7 +54242,7 @@
   {
     "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/audit",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -54226,7 +54250,7 @@
   {
     "from": "app/api/member/messages/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -96024,6 +96048,70 @@
     "package": "@prisma/client"
   },
   {
+    "from": "lib/counselor/autoAssign.ts",
+    "specifier": "@prisma/client",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "@prisma/client"
+  },
+  {
+    "from": "lib/counselor/autoAssign.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/counselor/autoAssign.ts",
+    "specifier": "@/lib/counselor/assignment",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/assignment.ts"
+  },
+  {
+    "from": "lib/counselor/autoAssign.ts",
+    "specifier": "@/lib/notifications/create",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/notifications/create.ts"
+  },
+  {
+    "from": "lib/counselor/autoAssign.wiring.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/counselor/autoAssign.wiring.test.ts",
+    "specifier": "node:fs",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "lib/counselor/autoAssign.wiring.test.ts",
+    "specifier": "node:test",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/counselor/autoAssign.wiring.test.ts",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
     "from": "lib/counselor/commandCenter.ts",
     "specifier": "@/lib/db/prisma",
     "line": 1,
@@ -104632,6 +104720,14 @@
     "target": "lib/auth/roles.ts"
   },
   {
+    "from": "lib/messages/counselorThread.ts",
+    "specifier": "@/lib/counselor/autoAssign",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/autoAssign.ts"
+  },
+  {
     "from": "lib/messages/employerInbox.ts",
     "specifier": "@/lib/db/prisma",
     "line": 1,
@@ -104686,6 +104782,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/messages/unassignedNotify.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "lib/messages/unassignedNotify.ts",
+    "specifier": "@/lib/notifications/create",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/notifications/create.ts"
+  },
+  {
+    "from": "lib/messages/unassignedNotify.ts",
+    "specifier": "@/lib/counselor/autoAssign",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/autoAssign.ts"
   },
   {
     "from": "lib/milestoneCascade/buildCascadeFromCompletion.test.ts",
@@ -118106,7 +118226,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/app/api/member/messages/route",
-    "line": 116,
+    "line": 126,
     "kind": "import",
     "external": false,
     "target": "app/api/member/messages/route.ts"
@@ -118114,7 +118234,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 117,
+    "line": 127,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -118122,7 +118242,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 118,
+    "line": 128,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -118130,7 +118250,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/messages/counselorThread",
-    "line": 119,
+    "line": 129,
     "kind": "import",
     "external": false,
     "target": "lib/messages/counselorThread.ts"
@@ -118138,7 +118258,7 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/messages/rateLimit",
-    "line": 123,
+    "line": 133,
     "kind": "import",
     "external": false,
     "target": "lib/messages/rateLimit.ts"
@@ -118146,10 +118266,18 @@
   {
     "from": "tests/api/member-messages.spec.ts",
     "specifier": "@/lib/notifications/create",
-    "line": 124,
+    "line": 134,
     "kind": "import",
     "external": false,
     "target": "lib/notifications/create.ts"
+  },
+  {
+    "from": "tests/api/member-messages.spec.ts",
+    "specifier": "@/lib/messages/unassignedNotify",
+    "line": 135,
+    "kind": "import",
+    "external": false,
+    "target": "lib/messages/unassignedNotify.ts"
   },
   {
     "from": "tests/api/member-onboard.spec.ts",
@@ -126152,6 +126280,22 @@
     "target": "lib/messages/contextSelection.ts"
   },
   {
+    "from": "tests/lib/counselor-thread-assign-flag.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/counselor-thread-assign-flag.spec.ts",
+    "specifier": "@/lib/messages/counselorThread",
+    "line": 35,
+    "kind": "import",
+    "external": false,
+    "target": "lib/messages/counselorThread.ts"
+  },
+  {
     "from": "tests/lib/counselor-thread-authorization.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -128056,6 +128200,30 @@
     "target": "lib/analytics/retentionOutcome.ts"
   },
   {
+    "from": "tests/lib/self-serve-counselor-assign.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/self-serve-counselor-assign.spec.ts",
+    "specifier": "@/lib/counselor/autoAssign",
+    "line": 43,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/autoAssign.ts"
+  },
+  {
+    "from": "tests/lib/self-serve-counselor-assign.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 47,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
     "from": "tests/lib/skill-mission-kit-tokens.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -128510,6 +128678,22 @@
     "kind": "import",
     "external": false,
     "target": "marketing/src/data/programComparison.ts"
+  },
+  {
+    "from": "tests/lib/unassigned-notify.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/unassigned-notify.spec.ts",
+    "specifier": "@/lib/messages/unassignedNotify",
+    "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "lib/messages/unassignedNotify.ts"
   },
   {
     "from": "tests/lib/voice-studio-card-contrast.spec.ts",

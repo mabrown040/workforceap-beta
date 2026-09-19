@@ -10,7 +10,12 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/db/prisma', () => ({
-  prisma: { $transaction: mocks.transaction },
+  prisma: {
+    $transaction: mocks.transaction,
+    user: { findUnique: vi.fn(async () => ({ coursesCompleted: [] })), update: vi.fn() },
+    courseProgress: { findMany: vi.fn(async () => []) },
+    memberProgramProgress: { upsert: vi.fn() },
+  },
 }));
 
 import {
@@ -107,6 +112,33 @@ describe('markCourseProgressCompleted atomic transition', () => {
     );
     expect(claimed).toBe(true);
   });
+
+  it.each([null, new Date('2020-01-01T12:00:00Z'), undefined])(
+    'separates known/unknown provider activity %s from the completion write time', async (learnerActivityAt) => {
+      mocks.queryRaw.mockResolvedValueOnce([{
+        courseSlug: 'technical-support-fundamentals', status: 'IN_PROGRESS', percentComplete: 40,
+        lastActivityAt: new Date('2026-09-01T12:00:00Z'),
+      }]);
+      const before = new Date();
+      await markCourseProgressCompleted({
+        userId: 'user-1', programSlug: 'comptia-a-professional-certificate',
+        courseSlug: 'technical-support-fundamentals', learnerActivityAt,
+      });
+      const { create, update } = mocks.upsert.mock.calls[0][0];
+      expect(update).not.toHaveProperty('lastActivityAt');
+      expect(create.completedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(update.completedAt).toEqual(create.completedAt);
+      if (learnerActivityAt === undefined) expect(create.lastActivityAt).toEqual(create.completedAt);
+      else expect(create.lastActivityAt).toEqual(learnerActivityAt);
+      const activityUpdate = mocks.executeRaw.mock.calls.map(([query]) => query as { sql: string; values: unknown[] })
+        .find((query) => query.sql.includes('UPDATE course_progress'));
+      if (learnerActivityAt === null) expect(activityUpdate).toBeUndefined();
+      else {
+        expect(activityUpdate?.sql).toContain('last_activity_at IS NULL OR last_activity_at <');
+        expect(activityUpdate?.values[0]).toEqual(create.lastActivityAt);
+      }
+    },
+  );
 
   it('does not claim or recreate an existing canonical completion event', async () => {
     mocks.queryRaw.mockResolvedValueOnce([{ id: 'event-existing' }]);

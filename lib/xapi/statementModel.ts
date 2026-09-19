@@ -48,6 +48,8 @@ export type ParsedXapiStatement = {
   courseName?: string;
   courseSlug?: string;
   statementId?: string;
+  /** Provider learner-event timestamp, populated by the xAPI parser only. */
+  timestamp?: string | null;
   verbId?: string;
   courseObjectId?: string | null;
   /** Coursera's canonical course identifier from
@@ -129,11 +131,9 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
   const { scaled, raw } = readScore(result);
   const resultCompletion = typeof result?.completion === 'boolean' ? result.completion : null;
   const resultSuccess = typeof result?.success === 'boolean' ? result.success : null;
-  // Coursera course-level "progressed" events carry the rolled-up % in
-  // result.score.scaled (e.g. 0.32 == 32%) and never set result.progress.
-  // Fall back to the scaled score so we don't write 0% when we have a real
-  // signal. We compute this AFTER classifying activityType below.
-  const baseProgressPercent = readProgressPercent(result);
+  // A score is a grade, including on course-level events. Missing progress
+  // stays unknown; only an explicit progress field supplies a percentage.
+  const resultProgressPercent = readProgressPercent(result);
 
   const object = statement.object && typeof statement.object === 'object'
     ? (statement.object as Record<string, unknown>)
@@ -183,13 +183,6 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
       ? extractCourseSlugFromObjectId(objectId) || (courseName ? toSlug(courseName) : undefined)
       : courseName ? toSlug(courseName) : undefined;
 
-  // Final progress percent: course-level events with a scaled score should
-  // report that score as the rolled-up progress, since Coursera doesn't fill
-  // result.progress for course events.
-  const resultProgressPercent =
-    baseProgressPercent
-    ?? (activityType === 'course' && scaled != null ? Math.round(scaled * 100) : null);
-
   return {
     email: email || undefined,
     actorIdentifier: actorIdentifier || undefined,
@@ -197,6 +190,7 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
     courseName,
     courseSlug,
     statementId,
+    timestamp: typeof statement.timestamp === 'string' ? statement.timestamp : null,
     verbId: verbId,
     courseObjectId: objectId,
     courseraCourseId,

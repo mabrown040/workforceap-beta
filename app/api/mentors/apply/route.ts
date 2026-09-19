@@ -1,26 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+const requiredText = (label: string, max: number) =>
+  z.string({ invalid_type_error: `${label} is required` }).trim().min(1, `${label} is required`).max(max);
+
+/**
+ * Body sent by app/mentor/apply/MentorApplyForm. Wrong types or oversized
+ * strings used to reach Prisma and surface as a 500.
+ */
+const mentorApplicationSchema = z.object({
+  fullName: requiredText('Full name', 200),
+  title: requiredText('Title', 200),
+  company: requiredText('Company', 200),
+  industry: requiredText('Industry', 100),
+  bio: requiredText('Bio', 5000),
+  linkedinUrl: z.string().trim().max(500).optional().nullable(),
+  availableHours: z.number().int().min(1).max(160).optional().nullable(),
+});
+
 export const POST = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
-  const body = await req.json() as {
-    fullName: string;
-    title: string;
-    company: string;
-    industry: string;
-    bio: string;
-    linkedinUrl?: string;
-    availableHours?: number;
-  };
-
-  const { fullName, title, company, industry, bio, linkedinUrl, availableHours } = body;
-
-  if (!fullName || !title || !company || !industry || !bio) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  const parsed = mentorApplicationSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.errors[0]?.message ?? 'Missing required fields' },
+      { status: 400 },
+    );
   }
+  const { fullName, title, company, industry, bio, linkedinUrl, availableHours } = parsed.data;
 
   // If logged in, create mentor record linked to user; otherwise store anonymous application
   if (!user) {
@@ -40,7 +52,7 @@ export const POST = withApiGuc(async (req: NextRequest) => {
       company,
       industry,
       bio,
-      linkedinUrl: linkedinUrl ?? null,
+      linkedinUrl: linkedinUrl || null,
       availableHours: availableHours ?? 2,
       isActive: false, // pending admin approval
     },

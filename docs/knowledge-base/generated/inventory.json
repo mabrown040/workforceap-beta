@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "e5f91f36f335b9ae31fd4a84f372dcbf1c67bbd06f838f0e44423ccca64c9cfc",
+  "inputTreeSha256": "a11c5dcf055810de274fa6603b474e5857f86862464988639dcdde4ec249412c",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -28925,9 +28925,9 @@
       "path": "app/api/ai/export-pdf/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 22681,
-      "lines": 595,
-      "sha256": "86f50a7e529439bd232aa04b99fafe5daf84e31da451a8ea58e7736f62b937af",
+      "bytes": 22858,
+      "lines": 598,
+      "sha256": "897e9d15d6fb38218bc40d3f63c44911cd6faeaf8cbf3a9565b2ceb8d09867e3",
       "binary": false,
       "exports": [
         {
@@ -29175,9 +29175,9 @@
       "path": "app/api/ai/interview-voice/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 1760,
-      "lines": 62,
-      "sha256": "c6a90157efa10873060951e7a9da3219be005c01c1dadbd341198b0564b7861b",
+      "bytes": 2007,
+      "lines": 67,
+      "sha256": "84c93397a0c52da2b219c74281e62118caa54d2b2804cbae5908ec02e3dc5e7b",
       "binary": false,
       "exports": [
         {
@@ -33918,9 +33918,9 @@
       "path": "app/api/gdpr/export/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 2992,
+      "bytes": 2995,
       "lines": 81,
-      "sha256": "918eb475208b0301b9345020013aa493ad5f83682adb83acbc3700b2f790424c",
+      "sha256": "541411f964b28937d0023b3657c818dba8b0229959d8ebf1edcae263c2bbe484",
       "binary": false,
       "exports": [
         {
@@ -35968,9 +35968,9 @@
       "path": "app/api/member/job-applications/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 4696,
+      "bytes": 4714,
       "lines": 126,
-      "sha256": "46fec8a602af31d52f03771c3310076c796ef7b6bcef9362dcff9fced665feef",
+      "sha256": "b599fc3bbdfe6862c93fb8434399ce2a09df1ff50886f12afc758d4326402c42",
       "binary": false,
       "exports": [
         {
@@ -38115,41 +38115,51 @@
       "path": "app/api/mentors/[id]/sessions/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 1800,
-      "lines": 50,
-      "sha256": "a6fe57f348bfaf1c320b6adb22af81933ae08fe6831e294e64b615c013c35081",
+      "bytes": 3132,
+      "lines": 87,
+      "sha256": "bc0f74cb93f8b3f5d756380c3082cdaa2921b43f07ee221b2c538982f8457022",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 24,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 49,
+          "line": 86,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "_GET",
-          "line": 5,
+          "line": 6,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 24,
+          "line": 25,
+          "kind": "Variable"
+        },
+        {
+          "name": "MAX_TOPIC_CHARS",
+          "line": 27,
+          "kind": "Variable"
+        },
+        {
+          "name": "createSessionSchema",
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 24,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 49,
+          "line": 86,
           "kind": "Variable"
         }
       ],
@@ -38159,21 +38169,31 @@
       "path": "app/api/mentors/apply/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 1756,
-      "lines": 56,
-      "sha256": "3ba56bc22a593ecb79b5d09a8b70c1fba3c153f28c430bc91422f50f4f1380d4",
+      "bytes": 2378,
+      "lines": 68,
+      "sha256": "967b6b3a1f3c7507c611af5265756e84fdb717da6623800600bc3c90b0dbf3bf",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 6,
+          "line": 25,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
+          "name": "requiredText",
+          "line": 8,
+          "kind": "Variable"
+        },
+        {
+          "name": "mentorApplicationSchema",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
           "name": "POST",
-          "line": 6,
+          "line": 25,
           "kind": "Variable"
         }
       ],
@@ -152277,6 +152297,44 @@
           "name": "makeReq",
           "line": 65,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/member-route-malformed-input.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 11062,
+      "lines": 230,
+      "sha256": "f4a5d2d4bbbb17eca941897168705e5a4438975438987b250f276b017d62ef15",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "MEMBER",
+          "line": 85,
+          "kind": "Variable"
+        },
+        {
+          "name": "MENTOR_ID",
+          "line": 86,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonRequest",
+          "line": 88,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readJson",
+          "line": 92,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mentorParams",
+          "line": 97,
+          "kind": "Variable"
         }
       ],
       "directive": null

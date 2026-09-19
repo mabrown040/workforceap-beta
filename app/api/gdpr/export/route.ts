@@ -38,7 +38,7 @@ export const GET = withApiGuc(async () => {
     prisma.$queryRaw`SELECT * FROM mentor_sessions WHERE member_id = ${userId} ORDER BY created_at DESC`,
     prisma.$queryRaw`SELECT * FROM job_applications WHERE user_id = ${userId} ORDER BY created_at DESC`,
     prisma.$queryRaw`SELECT * FROM ai_tool_results WHERE user_id = ${userId} ORDER BY created_at DESC`,
-    prisma.$queryRaw`SELECT * FROM ai_job_matches WHERE user_id = ${userId} ORDER BY created_at DESC`,
+    prisma.$queryRaw`SELECT * FROM ai_job_matches WHERE student_id = ${userId} ORDER BY created_at DESC`,
     prisma.$queryRaw`SELECT * FROM learning_progress WHERE user_id = ${userId} ORDER BY created_at DESC`,
     prisma.$queryRaw`SELECT * FROM readiness_checklist WHERE user_id = ${userId} ORDER BY created_at DESC`,
     prisma.$queryRaw`SELECT * FROM goals WHERE user_id = ${userId} ORDER BY created_at DESC`,

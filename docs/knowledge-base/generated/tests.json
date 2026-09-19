@@ -14981,6 +14981,50 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/public-abuse-hardening.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 61
+      },
+      {
+        "file": "app/api/unsubscribe/route.ts",
+        "line": 71
+      },
+      {
+        "file": "app/api/member/saved-jobs/route.ts",
+        "line": 72
+      },
+      {
+        "file": "app/api/leader/chapters/route.ts",
+        "line": 73
+      },
+      {
+        "file": "app/api/counselor/counselors/route.ts",
+        "line": 74
+      },
+      {
+        "file": "lib/email/unsubscribeToken.ts",
+        "line": 75
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/public-api-hardening-batch4.spec.ts",
     "area": "tests",
     "domain": "tests",

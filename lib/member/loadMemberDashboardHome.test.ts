@@ -11,6 +11,7 @@ import {
   mapGoalSummaries,
   mapPipelineRows,
   mapPointsLedger,
+  mapWeeklyStudyActivity,
   pointsLedgerColor,
 } from './loadMemberDashboardHome';
 
@@ -303,6 +304,8 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   );
   assert.equal(view.firstName, 'Jamie');
   assert.equal(view.points, 0);
+  assert.equal(view.weeklyActivity.length, 7);
+  assert.equal(view.weeklyActivity.every((day) => day.minutes === 0), true);
   assert.equal(view.doThisNext?.id, 'choose_program');
   assert.equal(view.doThisNext?.href, '/dashboard/program');
   assert.equal(view.programHref, '/dashboard/program');
@@ -434,6 +437,23 @@ test('loadMemberDashboardHome names the next incomplete course when NBA rows are
   assert.ok(view.nextLesson && view.nextLesson.length > 0);
 });
 
+test('mapWeeklyStudyActivity buckets recent course activity into seven local days', () => {
+  const now = new Date('2026-09-19T15:00:00');
+  const twoDaysAgo = new Date('2026-09-17T18:00:00');
+  const today = new Date('2026-09-19T09:00:00');
+  const series = mapWeeklyStudyActivity(
+    [
+      { lastActivityAt: twoDaysAgo, status: 'COMPLETED' },
+      { lastActivityAt: today, status: 'IN_PROGRESS' },
+    ],
+    now,
+  );
+  assert.equal(series.length, 7);
+  assert.equal(series[4]?.minutes, 45);
+  assert.equal(series[6]?.minutes, 25);
+  assert.equal(series.reduce((sum, day) => sum + day.minutes, 0), 70);
+});
+
 test('kit-default dashboard page calls the loader and has no prisma. on that branch', () => {
   const src = readFileSync(path.join(ROOT, 'app/(portal)/dashboard/page.tsx'), 'utf8');
   const kitStart = src.indexOf("if (args.requestedUi !== 'legacy')");
@@ -442,6 +462,7 @@ test('kit-default dashboard page calls the loader and has no prisma. on that bra
   assert.ok(legacyStart > kitStart, 'legacy branch missing');
   const kitBlock = src.slice(kitStart, legacyStart);
   assert.match(kitBlock, /loadMemberDashboardHome/);
+  assert.match(kitBlock, /weeklyActivity=\{home\.weeklyActivity\}/);
   assert.doesNotMatch(kitBlock, /prisma\./);
   assert.doesNotMatch(kitBlock, /maybeAutoSyncCourseraOnDashboard/);
   assert.doesNotMatch(kitBlock, /fetchLearnerProgressFromB4B/);

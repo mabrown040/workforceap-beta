@@ -967,11 +967,11 @@ html.dark .training-course-card__title {
     min-width: 0;
 }
 .training-course-card__title {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     word-break: normal;
-    hyphens: auto;
+    hyphens: manual;
 }
-@media (max-width: 720px) {
+@media (max-width: 1100px) {
     .training-course-card {
         padding: 1rem !important;
     }

@@ -4920,7 +4920,10 @@ html.dark .admin-super-messages-bubble.is-staff {
 .training-course-card {
     background: var(--color-white);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    /* Keep the title column wide enough that long course names wrap on
+       word boundaries. `minmax(0, 1fr)` + `overflow-wrap: anywhere` was
+       collapsing this to one character on tablet (sidebar + actions). */
+    grid-template-columns: minmax(12rem, 1fr) minmax(0, 18rem);
     gap: var(--space-4);
     align-items: start;
     min-width: 0;
@@ -5085,9 +5088,9 @@ html.dark .admin-super-messages-bubble.is-staff {
     min-width: 0;
 }
 .training-course-card__title {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     word-break: normal;
-    hyphens: auto;
+    hyphens: manual;
 }
 .training-course-card__actions {
     display: flex;
@@ -5150,9 +5153,9 @@ html.dark .admin-super-messages-bubble.is-staff {
     color: var(--color-on-surface-variant);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1100px) {
     .training-course-card {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         padding: 1rem !important;
     }
     .training-course-card__actions {

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "c4891c1a5797d9b89493298ea6e054e439db691a030466968945527e039ad7eb",
+  "inputTreeSha256": "bfdc69e048d8e98fc812025363bb9e5a1b72e38e2d280369945791404b960115",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -9980,9 +9980,9 @@
       "path": "app/(portal)/dashboard/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 50509,
-      "lines": 1205,
-      "sha256": "25885d943e9c185034c2a6f351eda64de999ae4e8fcfdaa5dfa92d534d8f8b8b",
+      "bytes": 50554,
+      "lines": 1206,
+      "sha256": "b962f4a4e7447310305fb332e0211990ecc0802a86a13ba4417228e00de862e4",
       "binary": false,
       "exports": [
         {
@@ -75116,9 +75116,9 @@
       "path": "css/main.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 237642,
+      "bytes": 237647,
       "lines": 8752,
-      "sha256": "e7bf4030075bcc30b754048594040ee428a3568bcc74be073d93e2429c2b26f5",
+      "sha256": "b6134395fd0b533e2c33c0e5eae5f2c72d3ba6ce81c79290d30189d7f738ec2c",
       "binary": false
     },
     {
@@ -75179,9 +75179,9 @@
       "path": "css/portal-main-extracted.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 268618,
-      "lines": 9996,
-      "sha256": "eeab015b01b5fe1cf27445c86f80d96d46b9a7f6fb35464d71aeae77538530a6",
+      "bytes": 268869,
+      "lines": 9999,
+      "sha256": "63fae785d41a165574ccea548bb6cb9c5d946de79e6d73bbf4e6a5c4d62e0a49",
       "binary": false
     },
     {
@@ -75476,9 +75476,9 @@
       "path": "docs/DEVELOPER-ONBOARDING.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 14666,
-      "lines": 416,
-      "sha256": "76238e9a246505b66ab22335cdd1c2c5e41c75533ef444ef83de32fd6656501c",
+      "bytes": 14777,
+      "lines": 417,
+      "sha256": "9233c81746c4f5ff1cd5856db94ff26583253ce551386f913a1dd2ace97cd100",
       "binary": false
     },
     {
@@ -77591,9 +77591,9 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 7077,
+      "bytes": 7256,
       "lines": 62,
-      "sha256": "42ab99e1a9f2e3f7b1c79d0aa42ac783cb3bd1dbb854960394b7685c965a5732",
+      "sha256": "b1f633f35356509efe128e737a55ba3edcab1528900ca38a2c63791201c80486",
       "binary": false
     },
     {
@@ -99648,29 +99648,29 @@
       "path": "lib/content/courseraDiscoveredCatalog.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 38429,
-      "lines": 369,
-      "sha256": "ab4db45359b6ecacd2532aba7471ac39ac99d0d4a8512240d9054a33c8f45fe8",
+      "bytes": 35918,
+      "lines": 349,
+      "sha256": "98c8458abe0d44a2c3fad8d5e84ffd33c1bec558f8219036573411b04ca8e8c3",
       "binary": false,
       "exports": [
         {
           "name": "CourseraProgramSlug",
-          "line": 327,
+          "line": 304,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredProgram",
-          "line": 332,
+          "line": 309,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredCourse",
-          "line": 344,
+          "line": 321,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DISCOVERED_COURSERA_PROGRAMS",
-          "line": 368,
+          "line": 348,
           "kind": "Variable"
         }
       ],
@@ -99682,42 +99682,42 @@
         },
         {
           "name": "CourseraProgramSlug",
-          "line": 327,
+          "line": 304,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredProgramInner",
-          "line": 328,
+          "line": 305,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredCourseInner",
-          "line": 329,
+          "line": 306,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredProgram",
-          "line": 332,
+          "line": 309,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CourseraDiscoveredCourse",
-          "line": 344,
+          "line": 321,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WAP_PROGRAM_DISCOVERED_ALIASES",
-          "line": 347,
+          "line": 324,
           "kind": "Variable"
         },
         {
           "name": "mergeDiscoveredWithWapAliases",
-          "line": 357,
+          "line": 337,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DISCOVERED_COURSERA_PROGRAMS",
-          "line": 368,
+          "line": 348,
           "kind": "Variable"
         }
       ],
@@ -101145,9 +101145,9 @@
       "path": "lib/content/programSlug.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 1601,
-      "lines": 53,
-      "sha256": "9f980794982b0d30afdf0829165316ee6aab83117a58203872eea88163eb22d0",
+      "bytes": 2587,
+      "lines": 84,
+      "sha256": "d0ce98aca8d2a47b91c9646f636ef036aeed4816873ba4ddb5455a194e8a3b2d",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -101157,9 +101157,9 @@
       "path": "lib/content/programSlug.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 2860,
-      "lines": 64,
-      "sha256": "b25929899064568f86a472aa9c97ea5d714cd5e20531c5373f4761a9797fcf9b",
+      "bytes": 3254,
+      "lines": 70,
+      "sha256": "0535c4c07a2427dc1aba2b630c67d52c6f47365264c21b425263c6d49f5e01d3",
       "binary": false,
       "exports": [
         {
@@ -101169,17 +101169,17 @@
         },
         {
           "name": "canonicalizeProgramSlug",
-          "line": 37,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "programSlugsEquivalent",
-          "line": 42,
+          "line": 48,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "programSlugReadCandidates",
-          "line": 54,
+          "line": 60,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -101191,22 +101191,22 @@
         },
         {
           "name": "PROGRAM_SLUG_ALIASES_BY_CANONICAL",
-          "line": 27,
+          "line": 33,
           "kind": "Variable"
         },
         {
           "name": "canonicalizeProgramSlug",
-          "line": 37,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "programSlugsEquivalent",
-          "line": 42,
+          "line": 48,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "programSlugReadCandidates",
-          "line": 54,
+          "line": 60,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -107288,9 +107288,9 @@
       "path": "lib/coursera/programCourseList.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 15008,
-      "lines": 450,
-      "sha256": "6b2d8bbbe0dad800a255c48e699c203a41e6ba335c915ca9f60f2a0cc329e028",
+      "bytes": 14959,
+      "lines": 449,
+      "sha256": "c956643c7aedd729c0fdf4714de02fabc3c73df5f3375d3349ff360861f2d7aa",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -110523,6 +110523,97 @@
         {
           "name": "withAuthenticatedApiGuc",
           "line": 134,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/demo/demoProgressPlan.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 2762,
+      "lines": 77,
+      "sha256": "6f81cc61c5be6b7174cac802e5728c401684e5bc94e0e077f2da0f0b9a232673",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/demo/demoProgressPlan.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 4890,
+      "lines": 160,
+      "sha256": "9d97eb2560f1ea4f9a4f244cf4bb5234e82bea7695a9ab73ec472d8cd413548e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "DemoMemberProgressInput",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoPointsEvent",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoProgressPlan",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "matchCompletedCatalogCourses",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberPoints",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberProgress",
+          "line": 129,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "DemoMemberProgressInput",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoPointsEvent",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DemoProgressPlan",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "normalizeCourseLabel",
+          "line": 33,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "matchCompletedCatalogCourses",
+          "line": 42,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberPoints",
+          "line": 69,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "planDemoMemberProgress",
+          "line": 129,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119293,25 +119384,25 @@
       "path": "lib/member/loadMemberDashboardHome.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 15950,
-      "lines": 449,
-      "sha256": "4d9310d5ac1b4078beb319c8f0e2b11dbb7f5f77f28b6e543e722f552a63b820",
+      "bytes": 16784,
+      "lines": 470,
+      "sha256": "4d0f11c1ab91eea6be4539612b642b518cbc22e90018c9ccc8343dfcf38d6bd3",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "ROOT",
-          "line": 17,
+          "line": 18,
           "kind": "Variable"
         },
         {
           "name": "makeRow",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mockDb",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119321,9 +119412,9 @@
       "path": "lib/member/loadMemberDashboardHome.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 21575,
-      "lines": 667,
-      "sha256": "d59e82a15c9b31858af5df53d888566c7fc99646a72037faa726e36477be387a",
+      "bytes": 23132,
+      "lines": 706,
+      "sha256": "714dd6d79fc1dd697fddee291bc5c037c497a4940cb9f2c333901d18d4fdb587",
       "binary": false,
       "exports": [
         {
@@ -119353,37 +119444,42 @@
         },
         {
           "name": "LoadMemberDashboardHomeArgs",
-          "line": 99,
+          "line": 100,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "mapPipelineRows",
-          "line": 190,
+          "line": 192,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pointsLedgerColor",
-          "line": 207,
+          "line": 209,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mapWeeklyStudyActivity",
+          "line": 226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapPointsLedger",
-          "line": 217,
+          "line": 253,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapGoalSummaries",
-          "line": 227,
+          "line": 263,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveNextBadge",
-          "line": 249,
+          "line": 285,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberDashboardHome",
-          "line": 645,
+          "line": 684,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -119425,97 +119521,112 @@
         },
         {
           "name": "LoadMemberDashboardHomeArgs",
-          "line": 99,
+          "line": 100,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardHomeTx",
-          "line": 106,
+          "line": 107,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardHomeDb",
-          "line": 112,
+          "line": 113,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DashboardUserRow",
-          "line": 116,
+          "line": 117,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "STAGE_TONE_BY_STATUS",
-          "line": 179,
+          "line": 181,
           "kind": "Variable"
         },
         {
           "name": "mapPipelineRows",
-          "line": 190,
+          "line": 192,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pointsLedgerColor",
-          "line": 207,
+          "line": 209,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "WEEKDAY_LABELS",
+          "line": 219,
+          "kind": "Variable"
+        },
+        {
+          "name": "localDateKey",
+          "line": 221,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mapWeeklyStudyActivity",
+          "line": 226,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapPointsLedger",
-          "line": 217,
+          "line": 253,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "mapGoalSummaries",
-          "line": 227,
+          "line": 263,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveNextBadge",
-          "line": 249,
+          "line": 285,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "displayFirstName",
-          "line": 278,
+          "line": 314,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dashboardHomeStateLetter",
-          "line": 291,
+          "line": 327,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fallbackDashboardHomeAction",
-          "line": 302,
+          "line": 338,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "resolveDashboardHomeNextAction",
-          "line": 333,
+          "line": 369,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "emptyHome",
-          "line": 359,
+          "line": 395,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "shapeHome",
-          "line": 400,
+          "line": 437,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "userSelect",
-          "line": 517,
+          "line": 555,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fetchHomeRow",
-          "line": 614,
+          "line": 653,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadMemberDashboardHome",
-          "line": 645,
+          "line": 684,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -140934,60 +141045,60 @@
       "path": "prisma/seed-demo.ts",
       "area": "database",
       "domain": "database",
-      "bytes": 17832,
-      "lines": 546,
-      "sha256": "5075e0b9db9d33c8731434d8e3b5f598a0ea18271042730b7a768d31812ed4a6",
+      "bytes": 22940,
+      "lines": 697,
+      "sha256": "c480f9037cdc7c82d9379e4ef130937685dbb4a81d1134b85bebde97043874f9",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "prisma",
-          "line": 17,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "DEMO_ORG_SLUG",
-          "line": 26,
+          "line": 34,
           "kind": "Variable"
         },
         {
           "name": "getOrgId",
-          "line": 28,
+          "line": 36,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedRoles",
-          "line": 48,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoPartners",
-          "line": 55,
+          "line": 63,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoMembers",
-          "line": 103,
+          "line": 111,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoEmployerPortal",
-          "line": 343,
+          "line": 494,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoPartnerUser",
-          "line": 439,
+          "line": 590,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "seedDemoAdminUser",
-          "line": 474,
+          "line": 625,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "main",
-          "line": 506,
+          "line": 657,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -156807,9 +156918,9 @@
       "path": "tests/lib/program-slug-compatibility.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 1048,
-      "lines": 22,
-      "sha256": "276b4cc60b08a241803a325875c342cc55eae6ade9e9e99a9c2efc0bdec37af8",
+      "bytes": 1679,
+      "lines": 33,
+      "sha256": "92061ac64725a29f925146fe9be6e43332ffd830bd795cf657b66eb982709c9d",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -156937,6 +157048,24 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/seed-demo-live-progress.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 848,
+      "lines": 18,
+      "sha256": "379a9fed872e7bb56c3a2f5e68820dac77260b6a14abb9514ec4198a7d75685d",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "seed",
+          "line": 5,
+          "kind": "Variable"
+        }
+      ],
       "directive": null
     },
     {
@@ -157107,6 +157236,29 @@
         {
           "name": "ALL",
           "line": 28,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/training-course-card-wrap.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1119,
+      "lines": 21,
+      "sha256": "2b12ca34231f5a808c4836a47a570a61f973f9fa1c1e2382dcce50ec883ae805",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "extracted",
+          "line": 5,
+          "kind": "Variable"
+        },
+        {
+          "name": "main",
+          "line": 6,
           "kind": "Variable"
         }
       ],

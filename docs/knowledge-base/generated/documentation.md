@@ -32,7 +32,7 @@
 | [docs/DEEP-TECH-AUDIT-2026-05-12.md](../../../docs/DEEP-TECH-AUDIT-2026-05-12.md) | 231 | documentation |  |
 | [docs/DEMO-PATH-AUDIT.md](../../../docs/DEMO-PATH-AUDIT.md) | 128 | documentation |  |
 | [docs/DEPLOYMENT-CHECKLIST.md](../../../docs/DEPLOYMENT-CHECKLIST.md) | 176 | documentation |  |
-| [docs/DEVELOPER-ONBOARDING.md](../../../docs/DEVELOPER-ONBOARDING.md) | 416 | documentation |  |
+| [docs/DEVELOPER-ONBOARDING.md](../../../docs/DEVELOPER-ONBOARDING.md) | 417 | documentation |  |
 | [docs/DIGITAL-LITERACY-COURSE.md](../../../docs/DIGITAL-LITERACY-COURSE.md) | 78 | documentation |  |
 | [docs/EMAIL-PDF-VOICE-AUDIT.md](../../../docs/EMAIL-PDF-VOICE-AUDIT.md) | 136 | communications |  |
 | [docs/EMAIL_SETUP.md](../../../docs/EMAIL_SETUP.md) | 67 | communications |  |

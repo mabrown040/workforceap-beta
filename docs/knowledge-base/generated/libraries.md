@@ -288,7 +288,7 @@
 | [lib/content/coursera/learningPaths.test.ts](../../../lib/content/coursera/learningPaths.test.ts) | 120 | learning-coursera |  |
 | [lib/content/coursera/learningPaths.ts](../../../lib/content/coursera/learningPaths.ts) | 303 | learning-coursera | CourseraLearningPath:33, COURSERA_LEARNING_PATHS:55, LEARNING_PATH_CONTENT_TYPES:208, isLearningPathContentType:216, normalizeLearningPathName:222, LearningPathIndex:226, buildLearningPathIndex:232, addLearningPathToIndex:244, cloneLearningPathIndex:256, findLearningPathById:265, findLearningPathByCollection:274, learningPathProgramSlug:288, KNOWN_LEARNING_PATH_IDS:294, KNOWN_LEARNING_PATH_COLLECTION_IDS:299 |
 | [lib/content/coursera/lp_mapping.json](../../../lib/content/coursera/lp_mapping.json) | 754 | learning-coursera |  |
-| [lib/content/courseraDiscoveredCatalog.ts](../../../lib/content/courseraDiscoveredCatalog.ts) | 369 | learning-coursera | CourseraProgramSlug:327, CourseraDiscoveredProgram:332, CourseraDiscoveredCourse:344, DISCOVERED_COURSERA_PROGRAMS:368 |
+| [lib/content/courseraDiscoveredCatalog.ts](../../../lib/content/courseraDiscoveredCatalog.ts) | 349 | learning-coursera | CourseraProgramSlug:304, CourseraDiscoveredProgram:309, CourseraDiscoveredCourse:321, DISCOVERED_COURSERA_PROGRAMS:348 |
 | [lib/content/digitalLiteracyUiTruth.test.ts](../../../lib/content/digitalLiteracyUiTruth.test.ts) | 61 | public-experience |  |
 | [lib/content/employer-case-studies-real.ts](../../../lib/content/employer-case-studies-real.ts) | 136 | public-experience | RealEmployerCaseStudy:8, loadRealEmployerCaseStudies:27 |
 | [lib/content/employer-case-studies.ts](../../../lib/content/employer-case-studies.ts) | 54 | public-experience | EmployerCaseStudy:7, EMPLOYER_CASE_STUDIES:20 |
@@ -314,8 +314,8 @@
 | [lib/content/programOccupationAlignment.ts](../../../lib/content/programOccupationAlignment.ts) | 52 | public-experience | ProgramOccupationAlignment:10, REVISED_PROGRAM_OCCUPATION_ALIGNMENT:23 |
 | [lib/content/programResources.ts](../../../lib/content/programResources.ts) | 55 | public-experience | ProgramResource:4, PROGRAM_RESOURCES:10, getResourcesForCategory:53 |
 | [lib/content/programSalaryOutcomes.ts](../../../lib/content/programSalaryOutcomes.ts) | 106 | public-experience | SalaryRangeK:10, parseProgramSalaryRange:13, formatSalaryRangeK:19, salaryRangeDisplay:23, salaryMidpointK:28, SalaryGuideRow:55, buildSalaryGuideRows:66, salaryGuideSummaryStats:86 |
-| [lib/content/programSlug.test.ts](../../../lib/content/programSlug.test.ts) | 53 | public-experience |  |
-| [lib/content/programSlug.ts](../../../lib/content/programSlug.ts) | 64 | public-experience | PROGRAM_SLUG_ALIASES:6, canonicalizeProgramSlug:37, programSlugsEquivalent:42, programSlugReadCandidates:54 |
+| [lib/content/programSlug.test.ts](../../../lib/content/programSlug.test.ts) | 84 | public-experience |  |
+| [lib/content/programSlug.ts](../../../lib/content/programSlug.ts) | 70 | public-experience | PROGRAM_SLUG_ALIASES:6, canonicalizeProgramSlug:43, programSlugsEquivalent:48, programSlugReadCandidates:60 |
 | [lib/content/programSubgroup.test.ts](../../../lib/content/programSubgroup.test.ts) | 15 | public-experience |  |
 | [lib/content/programSubgroup.ts](../../../lib/content/programSubgroup.ts) | 155 | public-experience | ProgramSubgroupId:4, ProgramSubgroup:16, PROGRAM_SUBGROUPS:23, subgroupForProgram:99, programsBySubgroup:140, orderedSubgroupIdsWithPrograms:152 |
 | [lib/content/programs.test.ts](../../../lib/content/programs.test.ts) | 48 | public-experience |  |
@@ -404,7 +404,7 @@
 | [lib/coursera/oauth.ts](../../../lib/coursera/oauth.ts) | 64 | learning-coursera | getCourseraAccessToken:16 |
 | [lib/coursera/orgScopedUrls.ts](../../../lib/coursera/orgScopedUrls.ts) | 298 | learning-coursera | getOrgScopedProgramUrl:161, getOrgScopedCourseUrl:210, localFallbackUrl:278, _resetOrgScopedUrlCacheForTesting:295 |
 | [lib/coursera/programContentsCache.ts](../../../lib/coursera/programContentsCache.ts) | 241 | learning-coursera | B4BProgramWithContents:25, loadB4BPrograms:94, findB4BProgramBy:115, loadProgramCoursesFromB4B:145, B4BContentEntry:174, loadB4BContents:217, _resetB4BProgramContentsCacheForTesting:234 |
-| [lib/coursera/programCourseList.test.ts](../../../lib/coursera/programCourseList.test.ts) | 450 | learning-coursera |  |
+| [lib/coursera/programCourseList.test.ts](../../../lib/coursera/programCourseList.test.ts) | 449 | learning-coursera |  |
 | [lib/coursera/programCourseList.ts](../../../lib/coursera/programCourseList.ts) | 441 | learning-coursera | COURSERA_UMBRELLA_PROGRAM_ID:13, isUmbrellaB4BProgramId:15, CourseraContentFact:40, CourseraContentCatalogResult:47, ProgramCatalogHealth:51, ValidatedProgramCourseList:63, ValidatedProgramCatalogEntry:71, ProgramCourseListDependencies:76, loadValidatedProgramCourses:336, loadValidatedProgramCatalog:382 |
 | [lib/coursera/progressPromotion.test.ts](../../../lib/coursera/progressPromotion.test.ts) | 47 | learning-coursera |  |
 | [lib/coursera/progressPromotion.ts](../../../lib/coursera/progressPromotion.ts) | 89 | learning-coursera | CanonicalCourseProgressMapping:10, CourseraProgressPromotionRow:15, PlannedCourseraProgressPromotion:26, parseCourseraGradeScore:39, planCourseraProgressPromotion:53 |
@@ -468,6 +468,8 @@
 | [lib/db/withDbRetry.ts](../../../lib/db/withDbRetry.ts) | 142 | libraries | isRetryableDbError:76, isConnectionAcquisitionError:89, DbRetryOptions:99, withDbRetry:120 |
 | [lib/db/withRequestGuc.test.ts](../../../lib/db/withRequestGuc.test.ts) | 66 | libraries |  |
 | [lib/db/withRequestGuc.ts](../../../lib/db/withRequestGuc.ts) | 150 | libraries | buildGucContextFromUser:21, withUserGuc:43, withSystemGuc:66, withAnonymousGuc:76, withApiGuc:97, withApiGuc:102, withApiGuc:105, withAuthenticatedApiGuc:128, withAuthenticatedApiGuc:131, withAuthenticatedApiGuc:134 |
+| [lib/demo/demoProgressPlan.test.ts](../../../lib/demo/demoProgressPlan.test.ts) | 77 | libraries |  |
+| [lib/demo/demoProgressPlan.ts](../../../lib/demo/demoProgressPlan.ts) | 160 | libraries | DemoMemberProgressInput:5, DemoPointsEvent:12, DemoProgressPlan:18, matchCompletedCatalogCourses:42, planDemoMemberPoints:69, planDemoMemberProgress:129 |
 | [lib/diagnostics.ts](../../../lib/diagnostics.ts) | 37 | libraries | WorkflowDiagnosticParams:3, recordWorkflowDiagnostic:17 |
 | [lib/elevenlabs-agent-dynamic-defaults.test.ts](../../../lib/elevenlabs-agent-dynamic-defaults.test.ts) | 188 | ai-voice |  |
 | [lib/elevenlabs-agent-patch-runner.test.ts](../../../lib/elevenlabs-agent-patch-runner.test.ts) | 864 | ai-voice |  |
@@ -627,8 +629,8 @@
 | [lib/member/labApi.ts](../../../lib/member/labApi.ts) | 38 | member-counselor | LAB_PRIVATE_HEADERS:5, labJson:17, labFailure:18, requireLabMutationOrigin:23, readLabJson:31 |
 | [lib/member/labWorkspace.ts](../../../lib/member/labWorkspace.ts) | 261 | member-counselor | LabWorkspaceError:15, loadLabWorkspace:110, saveLabDraft:169, submitLabEvidence:170, loadLabReviewQueue:201, loadLabReview:233, reviewLabEvidence:237 |
 | [lib/member/labWorkspaceTypes.ts](../../../lib/member/labWorkspaceTypes.ts) | 103 | member-counselor | LAB_MAX_ANSWER_LENGTH:4, LAB_MAX_ARTIFACT_URL_LENGTH:5, LAB_MAX_FEEDBACK_LENGTH:6, LAB_MAX_CRITERION_FEEDBACK_LENGTH:7, LAB_MAX_REQUEST_LENGTH:8, labDraftInputSchema:27, labSubmitInputSchema:28, LabDraftInput:29, LabSubmitInput:30, labReviewInputSchema:31, LabReviewInput:41, LabReviewStatus:42, labReviewStatusSchema:43, LabEvidenceReview:45, LabEvidenceSubmission:55, LabReviewRouting:69, LabWorkspace:74, LabReviewQueueItem:82, LabReviewQueue:95, LabStaffReviewWorkspace:96, LabApiError:103 |
-| [lib/member/loadMemberDashboardHome.test.ts](../../../lib/member/loadMemberDashboardHome.test.ts) | 449 | member-counselor |  |
-| [lib/member/loadMemberDashboardHome.ts](../../../lib/member/loadMemberDashboardHome.ts) | 667 | member-counselor | MEMBER_DASHBOARD_HOME_PRISMA_BUDGET:36, DashboardPipelineRow:41, DashboardGoalSummary:51, DashboardPointsLedgerEntry:56, MemberDashboardHomeView:62, LoadMemberDashboardHomeArgs:99, mapPipelineRows:190, pointsLedgerColor:207, mapPointsLedger:217, mapGoalSummaries:227, deriveNextBadge:249, loadMemberDashboardHome:645 |
+| [lib/member/loadMemberDashboardHome.test.ts](../../../lib/member/loadMemberDashboardHome.test.ts) | 470 | member-counselor |  |
+| [lib/member/loadMemberDashboardHome.ts](../../../lib/member/loadMemberDashboardHome.ts) | 706 | member-counselor | MEMBER_DASHBOARD_HOME_PRISMA_BUDGET:36, DashboardPipelineRow:41, DashboardGoalSummary:51, DashboardPointsLedgerEntry:56, MemberDashboardHomeView:62, LoadMemberDashboardHomeArgs:100, mapPipelineRows:192, pointsLedgerColor:209, mapWeeklyStudyActivity:226, mapPointsLedger:253, mapGoalSummaries:263, deriveNextBadge:285, loadMemberDashboardHome:684 |
 | [lib/member/loadProgramCourses.ts](../../../lib/member/loadProgramCourses.ts) | 101 | member-counselor | loadProgramCourses:25, loadProgramCourseCount:91 |
 | [lib/member/loadTrainingWorkspace.ts](../../../lib/member/loadTrainingWorkspace.ts) | 112 | member-counselor | TrainingWorkspaceError:14, loadTrainingWorkspace:81, saveTrainingWorkspace:85 |
 | [lib/member/memberApplicationStatus.test.ts](../../../lib/member/memberApplicationStatus.test.ts) | 98 | member-counselor |  |

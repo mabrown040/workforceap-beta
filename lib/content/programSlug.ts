@@ -6,7 +6,10 @@
 export const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
   'ai-practitioner-professional-certificate': 'ai-practitioner-professional-certificate-aws',
   'ai-professional-practitioner-certificate': 'ai-practitioner-professional-certificate-aws',
-  'ai-professional-developer-certificate-ibm': 'ai-practitioner-professional-certificate-aws',
+  // IBM AI Professional Developer is the IBM software-developer path, not AWS
+  // AI Practitioner. Mapping it to AWS made IBM enrolments render as Amazon.
+  'ai-professional-developer-certificate-ibm':
+    'software-developer-professional-certificate-ibm',
   'ai-and-software-development-professional-certificate-ibm':
     'software-developer-professional-certificate-ibm',
   'construction-readiness-certificate-osha-10': 'core-construction-training-certificate',
@@ -18,6 +21,9 @@ export const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
   'it-automation-with-python-professional-certificate-google':
     'it-automation-with-python-google',
   'comptia-a-plus': 'comptia-a-professional-certificate',
+  'google-it-support-certificate': 'it-support-professional-certificate-ibm',
+  'data-analytics-google': 'data-analytics-professional-certificate-google',
+  'cybersecurity-google': 'cybersecurity-professional-certificate-google',
   'management-and-data-analyst-professional-certificate-google-ibm':
     'data-analytics-professional-certificate-google',
   'data-science-and-database-administrator-dba-professional-certificate-ibm':

@@ -84,6 +84,7 @@ export type MemberDashboardHomeView = {
   certModulesTotal: number;
   pointsLedger: DashboardPointsLedgerEntry[];
   pointsThisWeek?: number;
+  weeklyActivity: Array<{ day: string; minutes: number }>;
   programHref: string;
   resumeHref: string;
   coursesHref: string;
@@ -134,6 +135,7 @@ type DashboardUserRow = {
     courseId: string | null;
     percentComplete: number;
     status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+    lastActivityAt: Date | null;
   }>;
   memberProgramProgress: Array<{
     programSlug: string;
@@ -212,6 +214,40 @@ export function pointsLedgerColor(event: string): DashboardPointsLedgerEntry['co
     return 'gold';
   }
   return 'accent';
+}
+
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+
+function localDateKey(value: Date): string {
+  return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+}
+
+/** Build the home "Study minutes / day" series from recent course activity. */
+export function mapWeeklyStudyActivity(
+  rows: Array<{ lastActivityAt?: Date | null; status?: string }>,
+  now = new Date(),
+): Array<{ day: string; minutes: number }> {
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const buckets = Array.from({ length: 7 }, (_, offset) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - offset));
+    return {
+      key: localDateKey(date),
+      day: WEEKDAY_LABELS[date.getDay()] ?? 'Sun',
+      minutes: 0,
+    };
+  });
+  const index = new Map(buckets.map((bucket, i) => [bucket.key, i]));
+  for (const row of rows) {
+    if (!row.lastActivityAt) continue;
+    const activityDay = new Date(row.lastActivityAt);
+    activityDay.setHours(0, 0, 0, 0);
+    const bucketIndex = index.get(localDateKey(activityDay));
+    if (bucketIndex == null) continue;
+    buckets[bucketIndex]!.minutes += row.status === 'COMPLETED' ? 45 : 25;
+  }
+  return buckets.map(({ day, minutes }) => ({ day, minutes }));
 }
 
 export function mapPointsLedger(
@@ -386,6 +422,7 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     certModulesDone: 0,
     certModulesTotal: 0,
     pointsLedger: [],
+    weeklyActivity: mapWeeklyStudyActivity([]),
     programHref: MEMBER_PROGRAM_HREF,
     resumeHref: MEMBER_PROGRAM_HREF,
     coursesHref: '/dashboard/learning',
@@ -503,6 +540,7 @@ function shapeHome(args: {
     certModulesTotal: totalCourses,
     pointsLedger: mapPointsLedger(recentLedger),
     pointsThisWeek: pointsThisWeek > 0 ? pointsThisWeek : undefined,
+    weeklyActivity: mapWeeklyStudyActivity(matchingCourseProgress),
     programHref,
     resumeHref,
     coursesHref: '/dashboard/learning',
@@ -549,6 +587,7 @@ function userSelect() {
         courseId: true,
         percentComplete: true,
         status: true,
+        lastActivityAt: true,
       },
     },
     memberProgramProgress: {

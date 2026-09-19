@@ -294,7 +294,6 @@ test('canonical program reads query every reverse alias for Course DB and mappin
     'ai-practitioner-professional-certificate-aws',
     'ai-practitioner-professional-certificate',
     'ai-professional-practitioner-certificate',
-    'ai-professional-developer-certificate-ibm',
   ];
   assert.deepEqual(new Set(courseDbSlugs), new Set(expected));
   assert.deepEqual(new Set(mappingSlugs), new Set(expected));

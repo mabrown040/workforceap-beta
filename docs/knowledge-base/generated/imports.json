@@ -97408,6 +97408,62 @@
     "target": "lib/auth/server.ts"
   },
   {
+    "from": "lib/demo/demoProgressPlan.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/demo/demoProgressPlan.test.ts",
+    "specifier": "node:test",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/demo/demoProgressPlan.test.ts",
+    "specifier": "@/lib/member/pointsConfig",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/pointsConfig.ts"
+  },
+  {
+    "from": "lib/demo/demoProgressPlan.test.ts",
+    "specifier": "./demoProgressPlan",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/demo/demoProgressPlan.ts"
+  },
+  {
+    "from": "lib/demo/demoProgressPlan.ts",
+    "specifier": "@/lib/content/programs",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/demo/demoProgressPlan.ts",
+    "specifier": "@/lib/content/programSlug",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "lib/demo/demoProgressPlan.ts",
+    "specifier": "@/lib/member/pointsConfig",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/member/pointsConfig.ts"
+  },
+  {
     "from": "lib/diagnostics.ts",
     "specifier": "@/lib/db/prisma",
     "line": 1,
@@ -107850,7 +107906,7 @@
   {
     "from": "prisma/seed-demo.ts",
     "specifier": "crypto",
-    "line": 11,
+    "line": 16,
     "kind": "import",
     "external": true,
     "package": "crypto"
@@ -107858,7 +107914,7 @@
   {
     "from": "prisma/seed-demo.ts",
     "specifier": "@prisma/client",
-    "line": 12,
+    "line": 17,
     "kind": "import",
     "external": true,
     "package": "@prisma/client"
@@ -107866,7 +107922,7 @@
   {
     "from": "prisma/seed-demo.ts",
     "specifier": "../lib/platform/seedProgramCatalog",
-    "line": 13,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/platform/seedProgramCatalog.ts"
@@ -107874,7 +107930,7 @@
   {
     "from": "prisma/seed-demo.ts",
     "specifier": "./fixtures/demo-employer-data",
-    "line": 14,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "prisma/fixtures/demo-employer-data.ts"
@@ -107882,10 +107938,34 @@
   {
     "from": "prisma/seed-demo.ts",
     "specifier": "../lib/platform/brandColors",
-    "line": 15,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/platform/brandColors.ts"
+  },
+  {
+    "from": "prisma/seed-demo.ts",
+    "specifier": "../lib/content/programCurriculumManifest",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programCurriculumManifest.ts"
+  },
+  {
+    "from": "prisma/seed-demo.ts",
+    "specifier": "../lib/content/programSlug",
+    "line": 22,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "prisma/seed-demo.ts",
+    "specifier": "../lib/demo/demoProgressPlan",
+    "line": 23,
+    "kind": "import",
+    "external": false,
+    "target": "lib/demo/demoProgressPlan.ts"
   },
   {
     "from": "prisma/seed-email-templates.ts",
@@ -122968,6 +123048,30 @@
     "target": "lib/analytics/retentionOutcome.ts"
   },
   {
+    "from": "tests/lib/seed-demo-live-progress.spec.ts",
+    "specifier": "node:fs",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/lib/seed-demo-live-progress.spec.ts",
+    "specifier": "node:path",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/lib/seed-demo-live-progress.spec.ts",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
     "from": "tests/lib/skill-mission-kit-tokens.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -123110,6 +123214,30 @@
     "kind": "type",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx"
+  },
+  {
+    "from": "tests/lib/training-course-card-wrap.spec.ts",
+    "specifier": "node:fs",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "tests/lib/training-course-card-wrap.spec.ts",
+    "specifier": "node:path",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "tests/lib/training-course-card-wrap.spec.ts",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
   },
   {
     "from": "tests/lib/training-course-practice.spec.ts",

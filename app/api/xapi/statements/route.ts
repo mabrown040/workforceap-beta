@@ -20,6 +20,7 @@ import {
 } from '@/lib/xapi/statements';
 import { persistXapiStatement } from '@/lib/xapi/storage';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
+import { getXapiReadiness } from '@/lib/xapi/config';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { invalidateCache } from '@/lib/cache';
@@ -90,6 +91,10 @@ function extractRawStatementActorFields(raw: Record<string, unknown>): {
 }
 
 export async function POST(request: Request) {
+  if (!getXapiReadiness({ request }).ready) {
+    return NextResponse.json({ error: 'xAPI auth is not configured' }, { status: 503 });
+  }
+
   return withSystemGuc(async () => {
   try {
     const ip = getClientIpFromRequest(request);

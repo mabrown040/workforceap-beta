@@ -163,6 +163,7 @@
 | [tests/app/admin-directory-search.spec.tsx](../../../tests/app/admin-directory-search.spec.tsx) | 212 | tests |  |
 | [tests/app/admin-partners-page.spec.tsx](../../../tests/app/admin-partners-page.spec.tsx) | 108 | tests |  |
 | [tests/app/admin-weekly-recap-page.spec.tsx](../../../tests/app/admin-weekly-recap-page.spec.tsx) | 109 | tests |  |
+| [tests/app/apply-funnel-token-scope.spec.ts](../../../tests/app/apply-funnel-token-scope.spec.ts) | 125 | tests |  |
 | [tests/app/counselor-contextual-messages.spec.tsx](../../../tests/app/counselor-contextual-messages.spec.tsx) | 97 | tests |  |
 | [tests/app/counselor-handoff-access.spec.tsx](../../../tests/app/counselor-handoff-access.spec.tsx) | 74 | tests |  |
 | [tests/app/counselor-member-pageheader.spec.ts](../../../tests/app/counselor-member-pageheader.spec.ts) | 30 | tests |  |
@@ -203,6 +204,7 @@
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
 | [tests/components/counselor-analytics.spec.tsx](../../../tests/components/counselor-analytics.spec.tsx) | 145 | tests |  |
 | [tests/components/counselor-note-saves.spec.tsx](../../../tests/components/counselor-note-saves.spec.tsx) | 87 | tests |  |
+| [tests/components/coursera-provisioning-queue-last-activity.spec.tsx](../../../tests/components/coursera-provisioning-queue-last-activity.spec.tsx) | 134 | learning-coursera |  |
 | [tests/components/employer-action-connection-failure.spec.tsx](../../../tests/components/employer-action-connection-failure.spec.tsx) | 154 | tests |  |
 | [tests/components/employer-outcomes-status-labels.spec.tsx](../../../tests/components/employer-outcomes-status-labels.spec.tsx) | 43 | tests |  |
 | [tests/components/employer-signup-password-toggle.spec.tsx](../../../tests/components/employer-signup-password-toggle.spec.tsx) | 51 | tests |  |
@@ -243,6 +245,7 @@
 | [tests/e2e/cross-portal-routes.spec.ts](../../../tests/e2e/cross-portal-routes.spec.ts) | 212 | tests |  |
 | [tests/e2e/desktop-layout-guardrails.spec.ts](../../../tests/e2e/desktop-layout-guardrails.spec.ts) | 430 | tests |  |
 | [tests/e2e/employer-partner-portal-auth.spec.ts](../../../tests/e2e/employer-partner-portal-auth.spec.ts) | 49 | tests |  |
+| [tests/e2e/learning-hub-course-card-tablet.spec.ts](../../../tests/e2e/learning-hub-course-card-tablet.spec.ts) | 55 | tests |  |
 | [tests/e2e/member-all-routes.spec.ts](../../../tests/e2e/member-all-routes.spec.ts) | 82 | tests |  |
 | [tests/e2e/member-counselor-visual.spec.ts](../../../tests/e2e/member-counselor-visual.spec.ts) | 23 | tests |  |
 | [tests/e2e/member-login-dashboard.spec.ts](../../../tests/e2e/member-login-dashboard.spec.ts) | 42 | tests |  |
@@ -277,6 +280,7 @@
 | [tests/lib/ai-job-match-cache-scope.spec.ts](../../../tests/lib/ai-job-match-cache-scope.spec.ts) | 42 | tests |  |
 | [tests/lib/ambassador-auto-assign.spec.ts](../../../tests/lib/ambassador-auto-assign.spec.ts) | 144 | tests |  |
 | [tests/lib/applicant-followup-email.spec.ts](../../../tests/lib/applicant-followup-email.spec.ts) | 84 | tests |  |
+| [tests/lib/applicant-triage.spec.ts](../../../tests/lib/applicant-triage.spec.ts) | 295 | tests |  |
 | [tests/lib/apply-metadata-image.spec.ts](../../../tests/lib/apply-metadata-image.spec.ts) | 24 | tests |  |
 | [tests/lib/at-risk-curriculum-assignment.spec.ts](../../../tests/lib/at-risk-curriculum-assignment.spec.ts) | 89 | tests |  |
 | [tests/lib/auth-server.test.ts](../../../tests/lib/auth-server.test.ts) | 292 | tests |  |
@@ -300,6 +304,7 @@
 | [tests/lib/coursera-map-identity-atomic.spec.ts](../../../tests/lib/coursera-map-identity-atomic.spec.ts) | 135 | learning-coursera |  |
 | [tests/lib/coursera-org-scoped-urls.spec.ts](../../../tests/lib/coursera-org-scoped-urls.spec.ts) | 128 | learning-coursera |  |
 | [tests/lib/coursera-progress-promotion.spec.ts](../../../tests/lib/coursera-progress-promotion.spec.ts) | 292 | learning-coursera |  |
+| [tests/lib/coursera-provisioning-state.spec.ts](../../../tests/lib/coursera-provisioning-state.spec.ts) | 250 | learning-coursera |  |
 | [tests/lib/coursera-raw-insert-guard.spec.ts](../../../tests/lib/coursera-raw-insert-guard.spec.ts) | 66 | learning-coursera |  |
 | [tests/lib/coursera-raw-progress-keys.spec.ts](../../../tests/lib/coursera-raw-progress-keys.spec.ts) | 40 | learning-coursera |  |
 | [tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts](../../../tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts) | 76 | learning-coursera |  |

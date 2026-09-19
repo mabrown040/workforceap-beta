@@ -161,7 +161,8 @@ npm run db:migrate
 # Seed with test data
 npm run db:seed
 
-# (Optional) Seed demo data
+# (Optional) Seed demo data — also writes CourseProgress / MemberPoints /
+# CourseEnrollment so the logged-in dashboard is not all zeros
 npm run db:seed:demo
 ```
 

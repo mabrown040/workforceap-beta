@@ -14279,6 +14279,11 @@
         "level": 2,
         "title": "9. Status (as of this branch)",
         "line": 183
+      },
+      {
+        "level": 2,
+        "title": "10. Applicant intake triage (auto-review aid)",
+        "line": 195
       }
     ],
     "datedFilename": false,
@@ -16283,158 +16288,163 @@
       },
       {
         "level": 1,
-        "title": "(Optional) Seed demo data",
+        "title": "(Optional) Seed demo data — also writes CourseProgress / MemberPoints /",
         "line": 164
+      },
+      {
+        "level": 1,
+        "title": "CourseEnrollment so the logged-in dashboard is not all zeros",
+        "line": 165
       },
       {
         "level": 3,
         "title": "3.4 Start Dev Server",
-        "line": 168
+        "line": 169
       },
       {
         "level": 3,
         "title": "3.5 Run Tests",
-        "line": 176
+        "line": 177
       },
       {
         "level": 1,
         "title": "Unit tests (Vitest)",
-        "line": 179
+        "line": 180
       },
       {
         "level": 1,
         "title": "Type check",
-        "line": 182
+        "line": 183
       },
       {
         "level": 1,
         "title": "Lint",
-        "line": 185
+        "line": 186
       },
       {
         "level": 1,
         "title": "E2E tests (requires dev server running or set PLAYWRIGHT_BASE_URL)",
-        "line": 188
+        "line": 189
       },
       {
         "level": 1,
         "title": "E2E with UI",
-        "line": 191
+        "line": 192
       },
       {
         "level": 1,
         "title": "Full preflight (typecheck + local build)",
-        "line": 194
+        "line": 195
       },
       {
         "level": 3,
         "title": "3.6 Preview Email Templates",
-        "line": 198
+        "line": 199
       },
       {
         "level": 1,
         "title": "Opens at http://localhost:3001",
-        "line": 202
+        "line": 203
       },
       {
         "level": 2,
         "title": "4. Key Conventions",
-        "line": 207
+        "line": 208
       },
       {
         "level": 3,
         "title": "4.1 Auth Patterns",
-        "line": 209
+        "line": 210
       },
       {
         "level": 3,
         "title": "4.2 API Route Patterns",
-        "line": 240
+        "line": 241
       },
       {
         "level": 3,
         "title": "4.3 Component Organization",
-        "line": 267
+        "line": 268
       },
       {
         "level": 3,
         "title": "4.4 i18n Approach",
-        "line": 281
+        "line": 282
       },
       {
         "level": 3,
         "title": "4.5 Styling Approach",
-        "line": 292
+        "line": 293
       },
       {
         "level": 3,
         "title": "4.6 Database & Prisma",
-        "line": 301
+        "line": 302
       },
       {
         "level": 2,
         "title": "5. Common Tasks",
-        "line": 310
+        "line": 311
       },
       {
         "level": 3,
         "title": "5.1 Adding a New API Route",
-        "line": 312
+        "line": 313
       },
       {
         "level": 1,
         "title": "Create file",
-        "line": 315
+        "line": 316
       },
       {
         "level": 3,
         "title": "5.2 Adding a New Page",
-        "line": 336
+        "line": 337
       },
       {
         "level": 1,
         "title": "Marketing page (auto-locale-prefixed)",
-        "line": 339
+        "line": 340
       },
       {
         "level": 1,
         "title": "Portal page (under dashboard)",
-        "line": 343
+        "line": 344
       },
       {
         "level": 3,
         "title": "5.3 Adding a Prisma Model",
-        "line": 353
+        "line": 354
       },
       {
         "level": 3,
         "title": "5.4 Running Cron Jobs Locally",
-        "line": 362
+        "line": 363
       },
       {
         "level": 1,
         "title": "Via the local runner script",
-        "line": 365
+        "line": 366
       },
       {
         "level": 1,
         "title": "Or hit the API route directly (with CRON_SECRET)",
-        "line": 368
+        "line": 369
       },
       {
         "level": 3,
         "title": "5.5 Debugging Common Issues",
-        "line": 378
+        "line": 379
       },
       {
         "level": 2,
         "title": "6. Scripts Reference",
-        "line": 384
+        "line": 385
       },
       {
         "level": 2,
         "title": "7. Further Reading",
-        "line": 407
+        "line": 408
       }
     ],
     "datedFilename": false,

@@ -8338,6 +8338,52 @@
     ]
   },
   {
+    "file": "app/admin/coursera/provisioning/page.tsx",
+    "kind": "page",
+    "path": "/admin/coursera/provisioning",
+    "groups": [],
+    "routing": "filesystem",
+    "exports": [
+      {
+        "name": "generateMetadata",
+        "line": 17,
+        "kind": "FunctionDeclaration"
+      },
+      {
+        "name": "dynamic",
+        "line": 26,
+        "kind": "Variable"
+      },
+      {
+        "name": "default",
+        "line": 37,
+        "kind": "FunctionDeclaration",
+        "localName": "AdminCourseraProvisioningPage"
+      }
+    ],
+    "methods": [],
+    "configuration": {
+      "dynamic": "force-dynamic"
+    },
+    "boundaryReferences": [
+      {
+        "specifier": "@/lib/auth/server",
+        "line": 8,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/tenant/adminPageScope",
+        "line": 9,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/tenant/organization",
+        "line": 10,
+        "kind": "import"
+      }
+    ]
+  },
+  {
     "file": "app/admin/crons/loading.tsx",
     "kind": "loading",
     "path": "/admin/crons",
@@ -9315,12 +9361,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 80,
+        "line": 84,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 88,
+        "line": 92,
         "kind": "FunctionDeclaration",
         "localName": "AdminMemberDetailPage"
       }
@@ -9668,12 +9714,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 29,
+        "line": 31,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 38,
+        "line": 40,
         "kind": "FunctionDeclaration",
         "localName": "AdminMembersPage"
       }
@@ -11442,12 +11488,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 22,
+        "line": 25,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 88,
+        "line": 91,
         "kind": "FunctionDeclaration",
         "localName": "AdminWioaScreeningQueuePage"
       }
@@ -30053,7 +30099,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 6,
+        "line": 9,
         "kind": "FunctionDeclaration",
         "localName": "ApplyLayout"
       }

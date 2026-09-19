@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { programDisplayTitle } from '@/lib/content/programTitle';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { APPLICANT_TRIAGE_BUCKET_RANK, APPLICANT_TRIAGE_BUCKET_TEXT } from '@/lib/admin/applicantTriage';
+import { loadApplicantTriageByUserIds, type ApplicantTriageLoaded } from '@/lib/admin/applicantTriageLoad';
 import {
   buildApplicationEmailPacket,
   normalizeAdminQueueRequest,
@@ -203,8 +205,16 @@ async function loadApplicationsPending(
   `)],
     { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead });
 
-  return { total, oldestDays: oldest[0]?.oldest ? Math.max(0, Math.floor((now.getTime() - oldest[0]?.oldest.getTime()) / DAY_MS)) : null,
-    rows: rows.map((row): AdminApplicationPendingRow => {
+  // Applicant intake triage (read-only pre-sort). A failure here must not hide
+  // the queue, so it degrades to "no chip" rather than throwing.
+  let triageByUserId = new Map<string, ApplicantTriageLoaded>();
+  try {
+    triageByUserId = await loadApplicantTriageByUserIds(prisma, rows.map((row) => row.user.id));
+  } catch (error) {
+    console.error('[command-center] applicant triage load failed', error);
+  }
+
+  const mapped = rows.map((row): AdminApplicationPendingRow => {
     const submittedAt = row.submittedAt ?? row.createdAt;
     const submittedDaysAgo = submittedAt ? Math.max(0, Math.floor((now.getTime() - submittedAt.getTime()) / DAY_MS)) : null;
     const programLabel = getProgramBySlug(row.programInterest)?.title ?? row.programInterest;
@@ -228,8 +238,21 @@ async function loadApplicationsPending(
         submittedDaysAgo,
         recommendedCareerTitle: row.recommendedCareerTitle,
       }),
+      triage: (() => {
+        const t = triageByUserId.get(row.user.id);
+        return t ? { bucket: t.bucket, label: APPLICANT_TRIAGE_BUCKET_TEXT[t.bucket], reasons: t.reasons } : null;
+      })(),
     };
-  }) };
+  });
+
+  // Within the loaded page: ready first, then missing info, judgement calls,
+  // concerns; oldest-first order is preserved inside each bucket (stable sort).
+  const rank = (row: AdminApplicationPendingRow) => (row.triage ? APPLICANT_TRIAGE_BUCKET_RANK[row.triage.bucket] : 99);
+  const sorted = mapped.map((row, i) => [row, i] as const)
+    .sort(([a, ia], [b, ib]) => rank(a) - rank(b) || ia - ib)
+    .map(([row]) => row);
+
+  return { total, oldestDays: oldest[0]?.oldest ? Math.max(0, Math.floor((now.getTime() - oldest[0]?.oldest.getTime()) / DAY_MS)) : null, rows: sorted };
 }
 
 /**

@@ -41,6 +41,10 @@ import { AlertTriangle, ClipboardList, CheckCircle } from 'lucide-react';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
+import ApplicantTriageChecklist from '@/components/admin/ApplicantTriageChecklist';
+import { localizeApplicantTriage } from '@/lib/admin/applicantTriage';
+import { loadApplicantTriageByUserIds, type ApplicantTriageLoaded } from '@/lib/admin/applicantTriageLoad';
+import { getTranslations } from 'next-intl/server';
 import { loadWioaReviewSnapshots } from '@/lib/wioa/reviewSnapshot';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
@@ -489,6 +493,17 @@ export default async function AdminMemberDetailPage({
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
   const wioaDecisionHistory = await loadWioaReviewSnapshots(member.id, organizationId);
 
+  // Applicant intake triage (read-only aid; shown only while an application is open).
+  const applicantTriageLoaded = await withAdminPageScope(scope, (db) => loadApplicantTriageByUserIds(db, [member.id])).catch(
+    (error: unknown) => {
+      console.error('[admin/members/[id]] applicant triage load failed', error);
+      return new Map<string, ApplicantTriageLoaded>();
+    },
+  );
+  const applicantTriage = applicantTriageLoaded.get(member.id) ?? null;
+  const tAdmin = await getTranslations('admin');
+  const applicantTriageDisplay = applicantTriage ? localizeApplicantTriage(applicantTriage, (key) => tAdmin(key)) : null;
+
   // Coursera B4B / xAPI learner detail — surfaces CSV-imported course
   // progress, specialization badges, and last activity timestamps on the
   // main member detail so admins do not have to context-switch to
@@ -668,6 +683,23 @@ export default async function AdminMemberDetailPage({
             </div>
           )}
         </section>
+
+        {applicantTriage && applicantTriageDisplay && (
+          <ApplicantTriageChecklist
+            triage={applicantTriageDisplay}
+            copy={{
+              title: tAdmin('applicantTriage.title'),
+              description: tAdmin('applicantTriage.description'),
+              reasonsHeading: tAdmin('applicantTriage.reasonsHeading'),
+              checklistHeading: tAdmin('applicantTriage.checklistHeading'),
+              applicationStatusLabel: tAdmin(
+                applicantTriage.applicationStatus === 'NEEDS_INFO'
+                  ? 'applicantTriage.applicationNeedsInfo'
+                  : 'applicantTriage.applicationPending',
+              ),
+            }}
+          />
+        )}
 
         {wioaSnap && (
           <AdminMemberWioaReviewPanel

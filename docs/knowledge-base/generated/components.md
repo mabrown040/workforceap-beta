@@ -39,7 +39,7 @@
 | [components/admin/AdminAnalyticsCharts.tsx](../../../components/admin/AdminAnalyticsCharts.tsx) | 267 | administration | default:102 |
 | [components/admin/AdminAnalyticsChartsLazy.tsx](../../../components/admin/AdminAnalyticsChartsLazy.tsx) | 14 | administration | default:14 |
 | [components/admin/AdminChartsLoading.tsx](../../../components/admin/AdminChartsLoading.tsx) | 13 | administration | default:6 |
-| [components/admin/AdminCommandCenterClient.tsx](../../../components/admin/AdminCommandCenterClient.tsx) | 483 | administration | default:34 |
+| [components/admin/AdminCommandCenterClient.tsx](../../../components/admin/AdminCommandCenterClient.tsx) | 489 | administration | default:35 |
 | [components/admin/AdminCounselorsClient.tsx](../../../components/admin/AdminCounselorsClient.tsx) | 186 | administration | default:27 |
 | [components/admin/AdminCronsClient.test.tsx](../../../components/admin/AdminCronsClient.test.tsx) | 113 | administration |  |
 | [components/admin/AdminCronsClient.tsx](../../../components/admin/AdminCronsClient.tsx) | 269 | administration | CronExecutionRow:7, default:41 |
@@ -73,6 +73,8 @@
 | [components/admin/AdminTrainingDashboardTable.tsx](../../../components/admin/AdminTrainingDashboardTable.tsx) | 246 | administration | default:42 |
 | [components/admin/AdminUsersManager.tsx](../../../components/admin/AdminUsersManager.tsx) | 528 | administration | default:33 |
 | [components/admin/AnalyticsDashboard.tsx](../../../components/admin/AnalyticsDashboard.tsx) | 352 | administration | default:113 |
+| [components/admin/ApplicantTriageChecklist.tsx](../../../components/admin/ApplicantTriageChecklist.tsx) | 79 | administration | ApplicantTriageChecklistProps:10, default:21 |
+| [components/admin/ApplicantTriageChip.tsx](../../../components/admin/ApplicantTriageChip.tsx) | 50 | administration | ApplicantTriageChipProps:10, default:24 |
 | [components/admin/AssessmentAnswersReadonly.tsx](../../../components/admin/AssessmentAnswersReadonly.tsx) | 59 | administration | default:18 |
 | [components/admin/AssessmentsTable.tsx](../../../components/admin/AssessmentsTable.tsx) | 416 | administration | default:42 |
 | [components/admin/B4BBindingsSuggestionsCard.tsx](../../../components/admin/B4BBindingsSuggestionsCard.tsx) | 229 | administration | default:56 |
@@ -87,6 +89,7 @@
 | [components/admin/CourseraInspectByEmailCard.tsx](../../../components/admin/CourseraInspectByEmailCard.tsx) | 687 | learning-coursera | default:151 |
 | [components/admin/CourseraMappingsAdmin.tsx](../../../components/admin/CourseraMappingsAdmin.tsx) | 1091 | learning-coursera | default:142 |
 | [components/admin/CourseraPipelineFlow.tsx](../../../components/admin/CourseraPipelineFlow.tsx) | 44 | learning-coursera | default:12 |
+| [components/admin/CourseraProvisioningQueueTable.tsx](../../../components/admin/CourseraProvisioningQueueTable.tsx) | 329 | learning-coursera | default:65 |
 | [components/admin/CourseraReconcileCard.tsx](../../../components/admin/CourseraReconcileCard.tsx) | 448 | learning-coursera | default:107 |
 | [components/admin/CourseraSelfTest.tsx](../../../components/admin/CourseraSelfTest.tsx) | 320 | learning-coursera | default:98 |
 | [components/admin/CourseraSyncProgressButton.tsx](../../../components/admin/CourseraSyncProgressButton.tsx) | 94 | learning-coursera | default:21 |
@@ -117,7 +120,7 @@
 | [components/admin/MemberReviewTable.tsx](../../../components/admin/MemberReviewTable.tsx) | 271 | administration | MemberReviewTable:34 |
 | [components/admin/MemberSubgroupSection.tsx](../../../components/admin/MemberSubgroupSection.tsx) | 143 | administration | default:8 |
 | [components/admin/MembersListNav.tsx](../../../components/admin/MembersListNav.tsx) | 85 | administration | default:53 |
-| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1171 | administration | default:270 |
+| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1206 | administration | default:276 |
 | [components/admin/MentorStatusButtons.tsx](../../../components/admin/MentorStatusButtons.tsx) | 95 | administration | default:12 |
 | [components/admin/MfaStatusBanner.tsx](../../../components/admin/MfaStatusBanner.tsx) | 67 | administration | default:5 |
 | [components/admin/OutcomesDashboard.tsx](../../../components/admin/OutcomesDashboard.tsx) | 558 | administration | default:198 |

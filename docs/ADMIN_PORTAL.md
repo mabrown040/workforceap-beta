@@ -189,3 +189,36 @@ Local `tsc --noEmit` is **not** enough — it misses two Vercel-only failures:
 - Command rail matches `admin-full.html`: branded header, in-rail search, flat groups, crimson active, pills.
 - **Out of scope:** member top-nav flatten (#2069). Footer user-identity block (mockup's "Dad (Owner)")
   needs a user-name prop threaded into WorkspaceShell — not yet wired.
+
+---
+
+## 10. Applicant intake triage (auto-review aid)
+
+`lib/admin/applicantTriage.ts` pre-sorts open applications (`PENDING` / `NEEDS_INFO`) into four
+buckets from data the applicant already gave us — apply-funnel quick screen
+(`apply_eligibility_screenings`), portal WIOA self-screening (`users.wioa_qualification_json`),
+profile work-authorization / minor flags, program choice, partner referral, and the staff WIOA
+review status. `lib/admin/applicantTriageLoad.ts` is the read-only loader (one `findMany` over the
+page's member ids); nothing is written and no columns were added.
+
+| Bucket | Meaning |
+| --- | --- |
+| **Ready to review** | Contact, program, intake screening and work authorization ("yes") are all on file and the intake answers indicate a funding fit. Reason reads "Intake complete", never "eligible". |
+| **Missing information** | Staff already requested info, or name/phone, program, screening answers or the work-authorization answer are missing. |
+| **Needs a human look** | Ambiguous: only work authorization was "yes" on the quick screen (the apply screen marks `qualifies` on any one of three yeses, which is not a fit signal), conflicting work-auth answers, program not in catalog, unclear WIOA signal, under-18 applicant, or a staff WIOA review still in progress. |
+| **Concern flagged** | Applicant explicitly answered "no" to work authorization, or staff already marked the WIOA review not eligible. |
+
+Precedence: concern > missing > human > ready. Every bucket carries plain-language reasons and a
+seven-item checklist (`{key, label, ok}`), all resolved through `admin.applicantTriage.*` in
+`messages/{en,fr,pt}.json`.
+
+Where it shows: the Command Center "Applications Pending" queue (chip on each card; the loaded page is
+sorted ready → missing info → needs a human → concern, oldest-first inside each bucket), a chip (reasons in
+the tooltip) in the **Priority** column of `/admin/members` plus an "Intake triage" page-scoped filter, an
+"Intake triage" column on the legacy `/admin/wioa-screening?ui=legacy` table, and a pre-filled checklist
+panel on `/admin/members/[id]` above the WIOA self-screening panel.
+
+What it does **not** do: it never approves, denies or changes an application or WIOA status, does not
+change who may approve (admins only today), does not touch enrolment gating or dashboard progress
+semantics, and does not look for duplicate accounts (use `/admin/members/duplicates`). Tests:
+`tests/lib/applicant-triage.spec.ts`.

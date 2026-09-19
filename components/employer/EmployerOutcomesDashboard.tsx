@@ -3,6 +3,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
+import { statusLabel } from '@/lib/employer/statusLabel';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -178,7 +179,7 @@ export default function EmployerOutcomesDashboard() {
                   job.status === 'filled' ? 'wa-bg-blue-100 wa-text-blue-700' :
                   'wa-bg-slate-100 wa-text-slate-700'
                 }`}>
-                  {job.status}
+                  {statusLabel(job.status)}
                 </span>
               ),
             },

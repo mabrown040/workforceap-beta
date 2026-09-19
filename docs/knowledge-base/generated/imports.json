@@ -8168,6 +8168,22 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "app/(portal)/dashboard/mentor/page.tsx",
+    "specifier": "@/lib/formatDate",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/mentor/page.tsx",
+    "specifier": "@/lib/mentor/sessionStatusLabel",
+    "line": 11,
+    "kind": "import",
+    "external": false,
+    "target": "lib/mentor/sessionStatusLabel.ts"
+  },
+  {
     "from": "app/(portal)/dashboard/mentors/[mentorId]/page.tsx",
     "specifier": "next/navigation",
     "line": 1,
@@ -8329,8 +8345,16 @@
   },
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
-    "specifier": "@/lib/messages/counselorThread",
+    "specifier": "@/lib/formatDate",
     "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/messages/page.tsx",
+    "specifier": "@/lib/messages/counselorThread",
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/messages/counselorThread.ts"
@@ -8338,7 +8362,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -8346,7 +8370,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/components/portal/MemberCounselorChatClient",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/MemberCounselorChatClient.tsx"
@@ -8354,7 +8378,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/components/portal/MemberMessagesMobileClient",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "components/portal/MemberMessagesMobileClient.tsx"
@@ -8362,7 +8386,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "next-intl/server",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -8370,7 +8394,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/components/portal/kit/pages/member/MemberMessagesEmpty",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/member/MemberMessagesEmpty.tsx"
@@ -8378,7 +8402,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/components/portal/kit/pages/member/MemberMessagesKit",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/member/MemberMessagesKit.tsx"
@@ -8386,7 +8410,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 15,
+    "line": 16,
     "kind": "type",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -8394,7 +8418,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/lib/member/loadTrainingWorkspace",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/member/loadTrainingWorkspace.ts"
@@ -8402,7 +8426,7 @@
   {
     "from": "app/(portal)/dashboard/messages/page.tsx",
     "specifier": "@/lib/member/trainingFeedbackDraft",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingFeedbackDraft.ts"
@@ -11417,8 +11441,16 @@
   },
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
-    "specifier": "@/lib/db/queryCaps",
+    "specifier": "@/lib/formatDate",
     "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
+    "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
+    "specifier": "@/lib/db/queryCaps",
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/db/queryCaps.ts"
@@ -11426,7 +11458,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -11434,7 +11466,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/employer/matchScoreDisplay",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/employer/matchScoreDisplay.ts"
@@ -11442,7 +11474,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -11450,7 +11482,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/content/programTitle",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/content/programTitle.ts"
@@ -11458,7 +11490,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/content/programSlug",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
@@ -11466,7 +11498,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/components/portal/StatusBadge",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "components/portal/StatusBadge.tsx"
@@ -11474,7 +11506,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/employer/aiMatchPipelineLabels",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/employer/aiMatchPipelineLabels.ts"
@@ -11482,7 +11514,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/employer/jobPostingApplicationStatus",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/employer/jobPostingApplicationStatus.ts"
@@ -11490,7 +11522,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 24,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -11498,7 +11530,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 25,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -11506,7 +11538,7 @@
   {
     "from": "app/(portal)/employer/candidates/[studentId]/page.tsx",
     "specifier": "@/lib/coursera/progressReconciliation",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressReconciliation.ts"
@@ -14561,8 +14593,16 @@
   },
   {
     "from": "app/(portal)/partner/page.tsx",
-    "specifier": "@/lib/db/queryCaps",
+    "specifier": "@/lib/formatDate",
     "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
+    "from": "app/(portal)/partner/page.tsx",
+    "specifier": "@/lib/db/queryCaps",
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/db/queryCaps.ts"
@@ -14570,7 +14610,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/partner/referralBundle",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/partner/referralBundle.ts"
@@ -14578,7 +14618,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/pipeline/stage",
-    "line": 13,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "lib/pipeline/stage.ts"
@@ -14586,7 +14626,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/partner/CopyReferralLink",
-    "line": 14,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "components/partner/CopyReferralLink.tsx"
@@ -14594,7 +14634,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/partner/PartnerReferralShare",
-    "line": 15,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "components/partner/PartnerReferralShare.tsx"
@@ -14602,7 +14642,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/partner/referralLink",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/partner/referralLink.ts"
@@ -14610,7 +14650,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/PartnerMembersList",
-    "line": 17,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "components/portal/PartnerMembersList.tsx"
@@ -14618,7 +14658,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -14626,7 +14666,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/PortalEmptyState",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalEmptyState.tsx"
@@ -14634,7 +14674,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/onboarding/PortalEntryClient",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/onboarding/PortalEntryClient.tsx"
@@ -14642,7 +14682,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/auth/roles",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -14650,7 +14690,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/onboarding/portalTourSteps",
-    "line": 22,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "lib/onboarding/portalTourSteps.ts"
@@ -14658,7 +14698,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/PortalVoiceSessionLazy",
-    "line": 23,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalVoiceSessionLazy.tsx"
@@ -14666,7 +14706,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/VoiceAgentSurface",
-    "line": 24,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "components/portal/VoiceAgentSurface.tsx"
@@ -14674,7 +14714,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/portal/voice",
-    "line": 25,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/portal/voice/index.ts"
@@ -14682,7 +14722,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "next-intl/server",
-    "line": 26,
+    "line": 27,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -14690,7 +14730,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "lucide-react",
-    "line": 27,
+    "line": 28,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -14698,7 +14738,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 28,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -14706,7 +14746,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/StatusBadge",
-    "line": 29,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "components/portal/StatusBadge.tsx"
@@ -14714,7 +14754,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/PortalKpiCard",
-    "line": 30,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalKpiCard.tsx"
@@ -14722,7 +14762,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/ui/PortalCard",
-    "line": 31,
+    "line": 32,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/PortalCard.tsx"
@@ -14730,7 +14770,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 32,
+    "line": 33,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -14738,7 +14778,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 33,
+    "line": 34,
     "kind": "type",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -14746,7 +14786,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/partner/PartnerReferralResourcesSection",
-    "line": 34,
+    "line": 35,
     "kind": "import",
     "external": false,
     "target": "components/partner/PartnerReferralResourcesSection.tsx"
@@ -14754,7 +14794,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/partner/PendingApprovalBanner",
-    "line": 35,
+    "line": 36,
     "kind": "import",
     "external": false,
     "target": "components/partner/PendingApprovalBanner.tsx"
@@ -14762,7 +14802,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/partner/PartnerConnectPayoutButton",
-    "line": 36,
+    "line": 37,
     "kind": "import",
     "external": false,
     "target": "components/partner/PartnerConnectPayoutButton.tsx"
@@ -14770,7 +14810,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/partner/partnerPayout",
-    "line": 37,
+    "line": 38,
     "kind": "import",
     "external": false,
     "target": "lib/partner/partnerPayout.ts"
@@ -14778,7 +14818,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/partner/partnerType",
-    "line": 38,
+    "line": 39,
     "kind": "import",
     "external": false,
     "target": "lib/partner/partnerType.ts"
@@ -14786,7 +14826,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/outcomes/socialProof",
-    "line": 39,
+    "line": 40,
     "kind": "import",
     "external": false,
     "target": "lib/outcomes/socialProof.ts"
@@ -14794,7 +14834,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/admin/memberOnlyWhere",
-    "line": 40,
+    "line": 41,
     "kind": "import",
     "external": false,
     "target": "lib/admin/memberOnlyWhere.ts"
@@ -14802,7 +14842,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 41,
+    "line": 42,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -14810,7 +14850,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/components/portal/kit/pages/PartnerOverviewKit",
-    "line": 47,
+    "line": 48,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/PartnerOverviewKit.tsx"
@@ -14818,7 +14858,7 @@
   {
     "from": "app/(portal)/partner/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 56,
+    "line": 57,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -14945,8 +14985,16 @@
   },
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
-    "specifier": "@/lib/coursera/learnerProgress",
+    "specifier": "@/lib/formatDate",
     "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
+    "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
+    "specifier": "@/lib/coursera/learnerProgress",
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/learnerProgress.ts"
@@ -14954,7 +15002,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/audit/readOnlyPortalAudit",
-    "line": 18,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "lib/audit/readOnlyPortalAudit.ts"
@@ -14962,7 +15010,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/member/memberProgramTrainingView",
-    "line": 19,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "lib/member/memberProgramTrainingView.ts"
@@ -14970,7 +15018,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/partner/memberProgress",
-    "line": 20,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "lib/partner/memberProgress.ts"
@@ -14978,7 +15026,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/coursera/memberSkillsetProgress",
-    "line": 21,
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/memberSkillsetProgress.ts"
@@ -14986,7 +15034,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/components/portal/SkillsetProgressList",
-    "line": 22,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "components/portal/SkillsetProgressList.tsx"
@@ -14994,7 +15042,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 23,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -15002,7 +15050,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/member/trainingProgress",
-    "line": 24,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingProgress.ts"
@@ -15010,7 +15058,7 @@
   {
     "from": "app/(portal)/partner/referred-members/[memberId]/page.tsx",
     "specifier": "@/lib/admin/memberOnlyWhere",
-    "line": 25,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "lib/admin/memberOnlyWhere.ts"
@@ -71321,8 +71369,16 @@
   },
   {
     "from": "components/employer/EmployerOutcomesDashboard.tsx",
-    "specifier": "@/components/ui/Card",
+    "specifier": "@/lib/employer/statusLabel",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/employer/statusLabel.ts"
+  },
+  {
+    "from": "components/employer/EmployerOutcomesDashboard.tsx",
+    "specifier": "@/components/ui/Card",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/ui/Card.tsx"
@@ -71330,7 +71386,7 @@
   {
     "from": "components/employer/EmployerOutcomesDashboard.tsx",
     "specifier": "@/components/ui/Button",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/ui/Button.tsx"
@@ -71338,7 +71394,7 @@
   {
     "from": "components/employer/EmployerOutcomesDashboard.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -71521,11 +71577,27 @@
   },
   {
     "from": "components/employer/EmployerWorkQueueClient.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@/lib/employer/statusLabel",
     "line": 8,
     "kind": "import",
     "external": false,
+    "target": "lib/employer/statusLabel.ts"
+  },
+  {
+    "from": "components/employer/EmployerWorkQueueClient.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 9,
+    "kind": "import",
+    "external": false,
     "target": "components/portal/kit/index.ts"
+  },
+  {
+    "from": "components/employer/EmployerWorkflowTimeline.tsx",
+    "specifier": "@/lib/formatDate",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
   },
   {
     "from": "components/employer/InterviewScheduler.tsx",
@@ -71616,6 +71688,14 @@
     "target": "lib/employer/employerJobFormFlash.ts"
   },
   {
+    "from": "components/employer/JobForm.tsx",
+    "specifier": "@/lib/employer/jobExpiryInstant",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/employer/jobExpiryInstant.ts"
+  },
+  {
     "from": "components/employer/JobReadinessIssueList.tsx",
     "specifier": "@/lib/employer/jobReadiness",
     "line": 3,
@@ -71657,8 +71737,16 @@
   },
   {
     "from": "components/employer/MobileApplicationsClient.tsx",
-    "specifier": "@/components/portal/EmployerApplicationChatClient",
+    "specifier": "@/lib/employer/statusLabel",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/employer/statusLabel.ts"
+  },
+  {
+    "from": "components/employer/MobileApplicationsClient.tsx",
+    "specifier": "@/components/portal/EmployerApplicationChatClient",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/EmployerApplicationChatClient.tsx"
@@ -71666,7 +71754,7 @@
   {
     "from": "components/employer/MobileApplicationsClient.tsx",
     "specifier": "./EmployerApplicationsClient",
-    "line": 7,
+    "line": 8,
     "kind": "type",
     "external": false,
     "target": "components/employer/EmployerApplicationsClient.tsx"
@@ -73382,6 +73470,14 @@
     "kind": "dynamic-import",
     "external": true,
     "package": "@marsidev/react-turnstile"
+  },
+  {
+    "from": "components/partner/PartnerWorkflowTimeline.tsx",
+    "specifier": "@/lib/formatDate",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
   },
   {
     "from": "components/platform/OrgBrandingBar.tsx",
@@ -100032,6 +100128,14 @@
     "package": "@prisma/client"
   },
   {
+    "from": "lib/employer/jobExpiryInstant.ts",
+    "specifier": "@/lib/formatDate",
+    "line": 1,
+    "kind": "import",
+    "external": false,
+    "target": "lib/formatDate.ts"
+  },
+  {
     "from": "lib/employer/jobImportBulk.ts",
     "specifier": "@/lib/ai/parseJob",
     "line": 1,
@@ -104302,6 +104406,14 @@
     "kind": "type",
     "external": false,
     "target": "lib/xapi/statementModel.ts"
+  },
+  {
+    "from": "lib/mentor/sessionStatusLabel.ts",
+    "specifier": "@prisma/client",
+    "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "@prisma/client"
   },
   {
     "from": "lib/messages/contextSelection.ts",
@@ -122104,6 +122216,54 @@
     "target": "lib/db/prisma.ts"
   },
   {
+    "from": "tests/app/employer-candidate-times.spec.tsx",
+    "specifier": "react-dom/server",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react-dom"
+  },
+  {
+    "from": "tests/app/employer-candidate-times.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/employer-candidate-times.spec.tsx",
+    "specifier": "@/app/(portal)/employer/candidates/[studentId]/page",
+    "line": 33,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/employer/candidates/[studentId]/page.tsx"
+  },
+  {
+    "from": "tests/app/employer-candidate-times.spec.tsx",
+    "specifier": "@/lib/auth/server",
+    "line": 34,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/app/employer-candidate-times.spec.tsx",
+    "specifier": "@/lib/auth/roles",
+    "line": 35,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/app/employer-candidate-times.spec.tsx",
+    "specifier": "@/lib/db/prisma",
+    "line": 36,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
     "from": "tests/app/employer-remaining-pageheader.spec.ts",
     "specifier": "node:fs",
     "line": 1,
@@ -122182,6 +122342,54 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/app/member-messages-inbox-time.spec.tsx",
+    "specifier": "react-dom/server",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react-dom"
+  },
+  {
+    "from": "tests/app/member-messages-inbox-time.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/member-messages-inbox-time.spec.tsx",
+    "specifier": "@/app/(portal)/dashboard/messages/page",
+    "line": 29,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/dashboard/messages/page.tsx"
+  },
+  {
+    "from": "tests/app/member-messages-inbox-time.spec.tsx",
+    "specifier": "@/lib/auth/server",
+    "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/app/member-messages-inbox-time.spec.tsx",
+    "specifier": "@/lib/db/prisma",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
+  },
+  {
+    "from": "tests/app/member-messages-inbox-time.spec.tsx",
+    "specifier": "@/lib/messages/counselorThread",
+    "line": 32,
+    "kind": "import",
+    "external": false,
+    "target": "lib/messages/counselorThread.ts"
   },
   {
     "from": "tests/app/member-referrals-page.spec.tsx",
@@ -122270,6 +122478,46 @@
     "kind": "import",
     "external": false,
     "target": "lib/member/loadTrainingWorkspace.ts"
+  },
+  {
+    "from": "tests/app/mentor-dashboard-page.spec.tsx",
+    "specifier": "react-dom/server",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react-dom"
+  },
+  {
+    "from": "tests/app/mentor-dashboard-page.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/mentor-dashboard-page.spec.tsx",
+    "specifier": "@/app/(portal)/dashboard/mentor/page",
+    "line": 19,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/dashboard/mentor/page.tsx"
+  },
+  {
+    "from": "tests/app/mentor-dashboard-page.spec.tsx",
+    "specifier": "@/lib/auth/server",
+    "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/app/mentor-dashboard-page.spec.tsx",
+    "specifier": "@/lib/db/prisma",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
   },
   {
     "from": "tests/app/partner-contextual-messages.spec.tsx",
@@ -122382,6 +122630,54 @@
     "kind": "import",
     "external": false,
     "target": "app/(portal)/partner/guide/page.tsx"
+  },
+  {
+    "from": "tests/app/partner-referred-member-times.spec.tsx",
+    "specifier": "react-dom/server",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react-dom"
+  },
+  {
+    "from": "tests/app/partner-referred-member-times.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/partner-referred-member-times.spec.tsx",
+    "specifier": "@/app/(portal)/partner/referred-members/[memberId]/page",
+    "line": 36,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/partner/referred-members/[memberId]/page.tsx"
+  },
+  {
+    "from": "tests/app/partner-referred-member-times.spec.tsx",
+    "specifier": "@/lib/auth/server",
+    "line": 37,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/app/partner-referred-member-times.spec.tsx",
+    "specifier": "@/lib/auth/roles",
+    "line": 38,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/app/partner-referred-member-times.spec.tsx",
+    "specifier": "@/lib/db/prisma",
+    "line": 39,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
   },
   {
     "from": "tests/app/record-placement-connection-copy.spec.tsx",
@@ -123144,6 +123440,38 @@
     "target": "components/employer/EmployerJobQuickActions.tsx"
   },
   {
+    "from": "tests/components/employer-outcomes-status-labels.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/employer-outcomes-status-labels.spec.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/employer-outcomes-status-labels.spec.tsx",
+    "specifier": "@/components/employer/EmployerOutcomesDashboard",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerOutcomesDashboard.tsx"
+  },
+  {
+    "from": "tests/components/employer-outcomes-status-labels.spec.tsx",
+    "specifier": "@/lib/employer/statusLabel",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/employer/statusLabel.ts"
+  },
+  {
     "from": "tests/components/employer-signup-password-toggle.spec.tsx",
     "specifier": "react",
     "line": 1,
@@ -123342,6 +123670,30 @@
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/InboxZeroClient.tsx"
+  },
+  {
+    "from": "tests/components/job-form-expiry.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/job-form-expiry.spec.tsx",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/job-form-expiry.spec.tsx",
+    "specifier": "@/components/employer/JobForm",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/JobForm.tsx"
   },
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
@@ -124206,6 +124558,38 @@
     "kind": "type",
     "external": false,
     "target": "lib/member/trainingWorkspace.ts"
+  },
+  {
+    "from": "tests/components/workflow-timelines-portal-time.spec.tsx",
+    "specifier": "react-dom/server",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "react-dom"
+  },
+  {
+    "from": "tests/components/workflow-timelines-portal-time.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/workflow-timelines-portal-time.spec.tsx",
+    "specifier": "@/components/employer/EmployerWorkflowTimeline",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerWorkflowTimeline.tsx"
+  },
+  {
+    "from": "tests/components/workflow-timelines-portal-time.spec.tsx",
+    "specifier": "@/components/partner/PartnerWorkflowTimeline",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "components/partner/PartnerWorkflowTimeline.tsx"
   },
   {
     "from": "tests/components/workforce-ap-module-lessons.test.tsx",
@@ -125998,6 +126382,22 @@
     "kind": "import",
     "external": false,
     "target": "messages/pt.json"
+  },
+  {
+    "from": "tests/lib/job-expiry-instant.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/job-expiry-instant.spec.ts",
+    "specifier": "@/lib/employer/jobExpiryInstant",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/employer/jobExpiryInstant.ts"
   },
   {
     "from": "tests/lib/lab-workspace-access.spec.ts",

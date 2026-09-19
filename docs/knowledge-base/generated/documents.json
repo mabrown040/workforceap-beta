@@ -6109,58 +6109,63 @@
       },
       {
         "level": 2,
-        "title": "Step 5: Run migrations on demo DB",
+        "title": "Step 5: Create the demo schema",
         "line": 70
       },
       {
         "level": 1,
         "title": "Set env vars locally pointing to demo Supabase",
-        "line": 73
+        "line": 87
       },
       {
         "level": 2,
         "title": "Step 6: Seed demo data",
-        "line": 81
+        "line": 103
       },
       {
         "level": 2,
         "title": "Step 7: Create portal login accounts in Supabase",
-        "line": 93
+        "line": 118
       },
       {
         "level": 2,
         "title": "What the demo shows",
-        "line": 106
+        "line": 131
       },
       {
         "level": 3,
         "title": "Member Portal (`demo-member@workforceap.org`)",
-        "line": 108
+        "line": 133
       },
       {
         "level": 3,
         "title": "Employer Portal (`demo-employer@workforceap.org`)",
-        "line": 113
+        "line": 138
       },
       {
         "level": 3,
         "title": "Partner Portal (`demo-partner@workforceap.org`)",
-        "line": 118
+        "line": 143
       },
       {
         "level": 3,
         "title": "Admin Portal (`demo-admin@workforceap.org`)",
-        "line": 123
+        "line": 148
       },
       {
         "level": 2,
         "title": "Resetting demo data",
-        "line": 130
+        "line": 155
       },
       {
         "level": 1,
-        "title": "Wipe and re-seed anytime:",
-        "line": 133
+        "title": "Drop + recreate the database (local example; on Supabase use the dashboard's",
+        "line": 162
+      },
+      {
+        "level": 1,
+        "title": "\"Reset database\" or drop and recreate the public schema), then:",
+        "line": 163
       }
     ],
     "datedFilename": false,
@@ -15981,28 +15986,33 @@
       },
       {
         "level": 2,
+        "title": "Follow-up replay, 2026-09-18: there are at least seven blockers",
+        "line": 24
+      },
+      {
+        "level": 2,
         "title": "Repository migration collision gate",
-        "line": 30
+        "line": 74
       },
       {
         "level": 2,
         "title": "Preflight for an existing database",
-        "line": 60
+        "line": 104
       },
       {
         "level": 2,
         "title": "What is still needed for reproducible recovery",
-        "line": 99
+        "line": 143
       },
       {
         "level": 2,
         "title": "Backup evidence and limits",
-        "line": 130
+        "line": 174
       },
       {
         "level": 2,
         "title": "Existing production migration-history differences",
-        "line": 140
+        "line": 184
       }
     ],
     "datedFilename": false,

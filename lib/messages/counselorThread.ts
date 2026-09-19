@@ -2,6 +2,14 @@ import { prisma } from '@/lib/db/prisma';
 import { isAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { ensureSelfServeCounselorAssigned } from '@/lib/counselor/autoAssign';
 
+export type GetOrCreateMemberCounselorThreadOptions = {
+  /**
+   * Member-initiated paths only (inbox page, member messages API).
+   * Staff/admin renders must omit this so a page view cannot assign.
+   */
+  assignIfUnassigned?: boolean;
+};
+
 const MAX_BODY = 8000;
 
 export type ThreadMessageRow = {
@@ -30,37 +38,37 @@ export async function resolveAssignedCounselorUserId(memberId: string): Promise<
   return row.counselor.userId;
 }
 
-export async function getOrCreateMemberCounselorThread(memberId: string) {
+export async function getOrCreateMemberCounselorThread(
+  memberId: string,
+  options?: GetOrCreateMemberCounselorThreadOptions,
+) {
+  if (options?.assignIfUnassigned) {
+    const member = await prisma.user.findFirst({
+      where: { id: memberId, deletedAt: null },
+      select: { organizationId: true },
+    });
+    if (member?.organizationId) {
+      await ensureSelfServeCounselorAssigned({
+        memberId,
+        organizationId: member.organizationId,
+      });
+    }
+  }
+
   const existing = await prisma.messageThread.findUnique({
     where: { memberId },
   });
-  if (existing?.counselorUserId) return existing;
-
-  const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
-    select: { organizationId: true },
-  });
-  if (member?.organizationId) {
-    await ensureSelfServeCounselorAssigned({
-      memberId,
-      organizationId: member.organizationId,
-    });
-  }
-
-  const thread = existing ?? await prisma.messageThread.findUnique({
-    where: { memberId },
-  });
-  if (thread) {
-    if (!thread.counselorUserId) {
+  if (existing) {
+    if (!existing.counselorUserId) {
       const cid = await resolveAssignedCounselorUserId(memberId);
       if (cid) {
         return prisma.messageThread.update({
-          where: { id: thread.id },
+          where: { id: existing.id },
           data: { counselorUserId: cid },
         });
       }
     }
-    return thread;
+    return existing;
   }
 
   const counselorUserId = await resolveAssignedCounselorUserId(memberId);

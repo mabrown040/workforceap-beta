@@ -59,7 +59,7 @@ describe('notifyUnassignedMemberMessage', () => {
         data: expect.objectContaining({
           threadId: 'thread-1',
           memberId: 'member-1',
-          link: '/counselor/messages',
+          link: '/counselor',
           unassigned: true,
         }),
       }),

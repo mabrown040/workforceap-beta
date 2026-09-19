@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "9cc2187177ea9390dfef31272bc3c514be4f7cb177b40d9b85175bba7f116e6b",
+  "inputTreeSha256": "f29aba94dc6d94ab5e8fe48a04299d426b2a9341a8921a14e769921eb0339bac",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -4365,9 +4365,9 @@
       "path": "app/(portal)/account/privacy/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 9922,
-      "lines": 259,
-      "sha256": "97ef1323fa5dc4b39947b70074b25a53d32fe878b88c4370f82de61b773dbf4e",
+      "bytes": 10418,
+      "lines": 267,
+      "sha256": "3e5d47c144f87c3817bb6041cbcde33b448e6b56eca6af3f7cf797f7e22fb300",
       "binary": false,
       "exports": [
         {
@@ -9885,9 +9885,9 @@
       "path": "app/(portal)/dashboard/messages/page.tsx",
       "area": "pages",
       "domain": "communications",
-      "bytes": 8891,
+      "bytes": 8921,
       "lines": 224,
-      "sha256": "e3b3cb7d26bd6a5b2a602e37c167cd2eee51f643cc6561c73e7d3ee6169b6592",
+      "sha256": "e557614a971f86b1fa155db6657147acfd5031818f4f5e902375dca0d0d40081",
       "binary": false,
       "exports": [
         {
@@ -36262,24 +36262,24 @@
       "path": "app/api/member/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 6084,
-      "lines": 163,
-      "sha256": "4462e3bc68533c42842e6d1f67c81077d93bd1a16c09acd70367549c074d1b36",
+      "bytes": 6158,
+      "lines": 167,
+      "sha256": "adb63c408a205a1e2d8b48765d388582c92273d4bb637657a8e32d10227d2c56",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 56,
+          "line": 58,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 138,
+          "line": 142,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 162,
+          "line": 166,
           "kind": "Variable"
         }
       ],
@@ -36291,27 +36291,27 @@
         },
         {
           "name": "GET",
-          "line": 56,
+          "line": 58,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 56,
+          "line": 58,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 138,
+          "line": 142,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 138,
+          "line": 142,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 162,
+          "line": 166,
           "kind": "Variable"
         }
       ],
@@ -45117,9 +45117,9 @@
       "path": "app/employers/signup/signup-depth.css",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 4225,
-      "lines": 161,
-      "sha256": "6384375d66c4fdec8916c93f8a1935ae99a96128c067d8abfdbd9d7adca88fef",
+      "bytes": 4535,
+      "lines": 167,
+      "sha256": "d64d6468e2eee3c124644796ac286242d214153321e39519a4eaa417835927ee",
       "binary": false
     },
     {
@@ -75080,9 +75080,9 @@
       "path": "css/auth-depth.css",
       "area": "styles",
       "domain": "styles",
-      "bytes": 7135,
-      "lines": 206,
-      "sha256": "1c757622064e354815b204ec8f00a3148b36209df67c6421af25004d8969dce9",
+      "bytes": 7610,
+      "lines": 215,
+      "sha256": "942828842a7760989b3444c7fdd47a9540502def09d1817189a5cec95c2ac6fd",
       "binary": false
     },
     {
@@ -102532,51 +102532,66 @@
       "path": "lib/counselor/autoAssign.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 3419,
-      "lines": 103,
-      "sha256": "080d83f1d90c36b924035e612ea2afca338b76e3c31c4b20bca054f9df6be137",
+      "bytes": 6079,
+      "lines": 192,
+      "sha256": "2a7363124e82cf5ce4e58d7b75c6844a3e68c82813c3a0630568d76a0280c8c6",
       "binary": false,
       "exports": [
         {
           "name": "WAP_STAFF_COUNSELOR_AFFILIATION",
-          "line": 5,
+          "line": 6,
           "kind": "Variable"
         },
         {
           "name": "EnsureSelfServeCounselorResult",
-          "line": 7,
+          "line": 8,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "pickLeastLoadedWapCounselor",
-          "line": 19,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureSelfServeCounselorAssigned",
-          "line": 61,
+          "line": 121,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "WAP_STAFF_COUNSELOR_AFFILIATION",
-          "line": 5,
+          "line": 6,
           "kind": "Variable"
         },
         {
           "name": "EnsureSelfServeCounselorResult",
-          "line": 7,
+          "line": 8,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CounselorPickClient",
+          "line": 14,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "pickLeastLoadedWapCounselor",
-          "line": 19,
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "findActiveAssignment",
+          "line": 62,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "notifyNewSelfServeAssignment",
+          "line": 74,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ensureSelfServeCounselorAssigned",
-          "line": 61,
+          "line": 121,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -102586,9 +102601,9 @@
       "path": "lib/counselor/autoAssign.wiring.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 1549,
-      "lines": 33,
-      "sha256": "7366816ac6aeb06d3f739547e3f613a9ccbc5f210146fc7bf18c2cbd028111ae",
+      "bytes": 2090,
+      "lines": 42,
+      "sha256": "15054d0177555ee2819c8cc6f0f0095d5aeb352ae3ff32761a20d8c5f1ab2782",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -122005,126 +122020,136 @@
       "path": "lib/messages/counselorThread.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 4712,
-      "lines": 148,
-      "sha256": "4fb4d493fb8d379726ccf1cc80241ed91bbba7728548f2b731b1008e9bf8d1d9",
+      "bytes": 4930,
+      "lines": 156,
+      "sha256": "01c99e773d64720bf318debc0b6a337af1188c27bb37385a6bdf827d95d1a1e3",
       "binary": false,
       "exports": [
         {
+          "name": "GetOrCreateMemberCounselorThreadOptions",
+          "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
           "name": "ThreadMessageRow",
-          "line": 7,
+          "line": 15,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "compactStringIds",
-          "line": 15,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getMessageAuthorName",
-          "line": 19,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "resolveAssignedCounselorUserId",
           "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "getMessageAuthorName",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolveAssignedCounselorUserId",
+          "line": 31,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "getOrCreateMemberCounselorThread",
-          "line": 33,
+          "line": 41,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertMemberCanAccessThread",
-          "line": 77,
+          "line": 85,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertStaffCanAccessThread",
-          "line": 84,
+          "line": 92,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertMemberCanPost",
-          "line": 125,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "assertStaffCanPost",
-          "line": 129,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "normalizeMessageBody",
           "line": 133,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "assertStaffCanPost",
+          "line": 137,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeMessageBody",
+          "line": 141,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "serializeMessage",
-          "line": 140,
+          "line": 148,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
-          "name": "MAX_BODY",
+          "name": "GetOrCreateMemberCounselorThreadOptions",
           "line": 5,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "MAX_BODY",
+          "line": 13,
           "kind": "Variable"
         },
         {
           "name": "ThreadMessageRow",
-          "line": 7,
+          "line": 15,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "compactStringIds",
-          "line": 15,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "getMessageAuthorName",
-          "line": 19,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "resolveAssignedCounselorUserId",
           "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "getMessageAuthorName",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolveAssignedCounselorUserId",
+          "line": 31,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "getOrCreateMemberCounselorThread",
-          "line": 33,
+          "line": 41,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertMemberCanAccessThread",
-          "line": 77,
+          "line": 85,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertStaffCanAccessThread",
-          "line": 84,
+          "line": 92,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "assertMemberCanPost",
-          "line": 125,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "assertStaffCanPost",
-          "line": 129,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "normalizeMessageBody",
           "line": 133,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "assertStaffCanPost",
+          "line": 137,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "normalizeMessageBody",
+          "line": 141,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "serializeMessage",
-          "line": 140,
+          "line": 148,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -122369,9 +122394,9 @@
       "path": "lib/messages/unassignedNotify.ts",
       "area": "libraries",
       "domain": "communications",
-      "bytes": 3132,
+      "bytes": 3123,
       "lines": 101,
-      "sha256": "aa372e12b3d5756e448f069ec865d32b93429ab3168064a8326cee29cb706613",
+      "sha256": "d8cf7fdd733fe828eb940f7a859a6b563a3d4a2a5ac14658565b73a99aa372e6",
       "binary": false,
       "exports": [
         {
@@ -139080,27 +139105,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192451,
-      "lines": 3142,
-      "sha256": "f93df36ef729f0f34319318c41feda5ee315575fa31d1f6d1ad02725bea19b7e",
+      "bytes": 192594,
+      "lines": 3144,
+      "sha256": "d8309890a51c97ab0bb5b9909ae3f42a84db7030899981c405fb89b4869ac2b2",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211110,
-      "lines": 3129,
-      "sha256": "c6eadd2ab18d1227e84a70ce4b289381fea5c1957f123a640ae57a787ebb4378",
+      "bytes": 211282,
+      "lines": 3131,
+      "sha256": "13ab193c6c164562ab780628dc09a8333d527c618bde635af8c77606e16bf123",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212368,
-      "lines": 3082,
-      "sha256": "e7e817ae7b7bafa9e7d6d596a78ad8ba793db68ca429ae7e12615dc2e8364b5f",
+      "bytes": 212539,
+      "lines": 3084,
+      "sha256": "ae96e08d705211daa403a68fd29885139f4dd578c74ce03476bddf5b19f8c6ad",
       "binary": false
     },
     {
@@ -139116,9 +139141,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204185,
-      "lines": 3082,
-      "sha256": "c15317578f7b144764dc71b15499ab6726580f5e53595a4a1fc0543747cbf687",
+      "bytes": 204356,
+      "lines": 3084,
+      "sha256": "c4a5781199cc94b85773226ad3b324ba541488b06a52240b5879c211ec3f8145",
       "binary": false
     },
     {
@@ -153005,6 +153030,29 @@
       "directive": null
     },
     {
+      "path": "tests/app/account-privacy-consent.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3521,
+      "lines": 89,
+      "sha256": "98d3b1bb8927ca0b9ae98ee85bf5b48c15f00681301efe6d7bfffe8ecd97cf87",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "consentCheckbox",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "renderLoaded",
+          "line": 15,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/app/add-member-wizard.spec.tsx",
       "area": "tests",
       "domain": "tests",
@@ -155607,6 +155655,49 @@
       "directive": null
     },
     {
+      "path": "tests/lib/counselor-thread-assign-flag.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2011,
+      "lines": 65,
+      "sha256": "d6aa69dbfec4386d74dbc01c9fab1782b66b2221bce605319695589b342cb3a7",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "findUniqueThread",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "createThread",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "updateThread",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "findFirstUser",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "findFirstAssignment",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "ensureSelfServeCounselorAssigned",
+          "line": 3,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/lib/counselor-thread-authorization.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -157166,9 +157257,9 @@
       "path": "tests/lib/self-serve-counselor-assign.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 5270,
-      "lines": 167,
-      "sha256": "36b17acf9861c1b18e77ae2f9192304cca514f22817ac7f61384134439d2c744",
+      "bytes": 6961,
+      "lines": 209,
+      "sha256": "f627ac14cd978aeaaf111aa0a5d2b85572a238057e773480f7786775e89e849a",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -157193,7 +157284,17 @@
           "kind": "Variable"
         },
         {
+          "name": "findUniqueUser",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
           "name": "assignMemberCounselor",
+          "line": 3,
+          "kind": "Variable"
+        },
+        {
+          "name": "createNotification",
           "line": 3,
           "kind": "Variable"
         },
@@ -157204,7 +157305,7 @@
         },
         {
           "name": "fakeTx",
-          "line": 34,
+          "line": 46,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -157544,9 +157645,9 @@
       "path": "tests/lib/unassigned-notify.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 3041,
+      "bytes": 3032,
       "lines": 99,
-      "sha256": "fd197941efb39c2b02c7ec4b092b4bf31174dafee8a22d9107fdc4f4058a48be",
+      "sha256": "47e5f167c9cbcbe53b25646abd84be7ef6315e8ac2448177733c935033aa5f7f",
       "binary": false,
       "exports": [],
       "declarations": [

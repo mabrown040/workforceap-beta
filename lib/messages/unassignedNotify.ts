@@ -43,7 +43,7 @@ export async function notifyUnassignedMemberMessage(input: {
             data: {
               threadId,
               memberId,
-              link: '/counselor/messages',
+              link: '/counselor',
               unassigned: true,
             },
           }),

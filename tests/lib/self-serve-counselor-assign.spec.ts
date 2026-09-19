@@ -5,14 +5,18 @@ const {
   groupByAssignments,
   updateManyUsers,
   findFirstAssignment,
+  findUniqueUser,
   assignMemberCounselor,
+  createNotification,
   transaction,
 } = vi.hoisted(() => ({
   findManyCounselors: vi.fn(),
   groupByAssignments: vi.fn(),
   updateManyUsers: vi.fn(),
   findFirstAssignment: vi.fn(),
+  findUniqueUser: vi.fn(),
   assignMemberCounselor: vi.fn(),
+  createNotification: vi.fn(),
   transaction: vi.fn(),
 }));
 
@@ -20,9 +24,16 @@ vi.mock('@/lib/counselor/assignment', () => ({
   assignMemberCounselor,
 }));
 
+vi.mock('@/lib/notifications/create', () => ({
+  createNotification,
+}));
+
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: transaction,
+    counselor: { findMany: findManyCounselors },
+    counselorAssignment: { groupBy: groupByAssignments, findFirst: findFirstAssignment },
+    user: { updateMany: updateManyUsers, findUnique: findUniqueUser },
   },
 }));
 
@@ -30,12 +41,13 @@ import {
   ensureSelfServeCounselorAssigned,
   pickLeastLoadedWapCounselor,
 } from '@/lib/counselor/autoAssign';
+import { prisma } from '@/lib/db/prisma';
 
 function fakeTx() {
   return {
     counselor: { findMany: findManyCounselors },
     counselorAssignment: { groupBy: groupByAssignments, findFirst: findFirstAssignment },
-    user: { updateMany: updateManyUsers },
+    user: { updateMany: updateManyUsers, findUnique: findUniqueUser },
   };
 }
 
@@ -93,10 +105,14 @@ describe('ensureSelfServeCounselorAssigned', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn(fakeTx()));
+    findUniqueUser.mockImplementation(async ({ where }: { where: { id: string } }) => {
+      if (where.id === 'member-1') return { fullName: 'Sam Student', email: 'sam@example.org' };
+      return { fullName: 'Casey Counselor' };
+    });
+    createNotification.mockResolvedValue(undefined);
   });
 
-  it('returns already_assigned without picking when a counselor is active', async () => {
-    updateManyUsers.mockResolvedValue({ count: 1 });
+  it('returns already_assigned without writing when a counselor is active', async () => {
     findFirstAssignment.mockResolvedValue({
       counselor: { userId: 'counselor-1', active: true },
     });
@@ -108,18 +124,23 @@ describe('ensureSelfServeCounselorAssigned', () => {
       counselorUserId: 'counselor-1',
       reason: 'already_assigned',
     });
-    expect(findManyCounselors).not.toHaveBeenCalled();
+    expect(transaction).not.toHaveBeenCalled();
+    expect(updateManyUsers).not.toHaveBeenCalled();
     expect(assignMemberCounselor).not.toHaveBeenCalled();
+    expect(createNotification).not.toHaveBeenCalled();
   });
 
-  it('assigns the least-loaded WAP counselor', async () => {
-    updateManyUsers.mockResolvedValue({ count: 1 });
+  it('assigns the least-loaded WAP counselor and notifies both sides', async () => {
     findFirstAssignment.mockResolvedValue(null);
     findManyCounselors.mockResolvedValue([
       { id: 'cns-1', userId: 'counselor-1', createdAt: new Date('2025-01-01') },
     ]);
     groupByAssignments.mockResolvedValue([]);
-    assignMemberCounselor.mockResolvedValue({ counselor: { userId: 'counselor-1' }, thread: { id: 't1' } });
+    updateManyUsers.mockResolvedValue({ count: 1 });
+    assignMemberCounselor.mockResolvedValue({
+      counselor: { userId: 'counselor-1' },
+      thread: { id: 't1' },
+    });
 
     await expect(
       ensureSelfServeCounselorAssigned({ memberId: 'member-1', organizationId: 'org-1' }),
@@ -136,10 +157,22 @@ describe('ensureSelfServeCounselorAssigned', () => {
         counselorUserId: 'counselor-1',
       },
     );
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'member-1',
+        title: 'You have a new advisor',
+      }),
+    );
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'counselor-1',
+        title: 'A new member is on your caseload',
+        data: expect.objectContaining({ link: '/counselor/students/member-1' }),
+      }),
+    );
   });
 
-  it('returns no_counselors when the WAP staff pool is empty', async () => {
-    updateManyUsers.mockResolvedValue({ count: 1 });
+  it('returns no_counselors without writing when the WAP staff pool is empty', async () => {
     findFirstAssignment.mockResolvedValue(null);
     findManyCounselors.mockResolvedValue([]);
 
@@ -150,10 +183,18 @@ describe('ensureSelfServeCounselorAssigned', () => {
       counselorUserId: null,
       reason: 'no_counselors',
     });
+    expect(transaction).not.toHaveBeenCalled();
+    expect(updateManyUsers).not.toHaveBeenCalled();
     expect(assignMemberCounselor).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it('returns member_unavailable when the lock misses', async () => {
+  it('returns member_unavailable when the lock misses after a live pick', async () => {
+    findFirstAssignment.mockResolvedValue(null);
+    findManyCounselors.mockResolvedValue([
+      { id: 'cns-1', userId: 'counselor-1', createdAt: new Date('2025-01-01') },
+    ]);
+    groupByAssignments.mockResolvedValue([]);
     updateManyUsers.mockResolvedValue({ count: 0 });
 
     await expect(
@@ -163,5 +204,6 @@ describe('ensureSelfServeCounselorAssigned', () => {
       counselorUserId: null,
       reason: 'member_unavailable',
     });
+    expect(assignMemberCounselor).not.toHaveBeenCalled();
   });
 });

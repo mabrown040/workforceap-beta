@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { assignMemberCounselor } from '@/lib/counselor/assignment';
+import { createNotification } from '@/lib/notifications/create';
 
 export const WAP_STAFF_COUNSELOR_AFFILIATION = 'wap_staff' as const;
 
@@ -10,6 +11,11 @@ export type EnsureSelfServeCounselorResult = {
   reason: 'assigned' | 'already_assigned' | 'no_counselors' | 'member_unavailable';
 };
 
+type CounselorPickClient = {
+  counselor: Pick<Prisma.TransactionClient['counselor'], 'findMany'>;
+  counselorAssignment: Pick<Prisma.TransactionClient['counselorAssignment'], 'groupBy' | 'findFirst'>;
+};
+
 /**
  * Least-loaded active WorkforceAP staff counselor in the org.
  * Ties go to the oldest counselor row so the pick is deterministic.
@@ -17,7 +23,7 @@ export type EnsureSelfServeCounselorResult = {
  * the self-serve pool.
  */
 export async function pickLeastLoadedWapCounselor(
-  tx: Prisma.TransactionClient,
+  tx: CounselorPickClient,
   organizationId: string,
 ): Promise<{ counselorId: string; userId: string } | null> {
   const counselors = await tx.counselor.findMany({
@@ -53,16 +59,84 @@ export async function pickLeastLoadedWapCounselor(
   return { counselorId: best.id, userId: best.userId };
 }
 
+async function findActiveAssignment(
+  tx: Pick<CounselorPickClient, 'counselorAssignment'>,
+  memberId: string,
+): Promise<string | null> {
+  const existing = await tx.counselorAssignment.findFirst({
+    where: { memberId, active: true },
+    orderBy: { assignedAt: 'desc' },
+    select: { counselor: { select: { userId: true, active: true } } },
+  });
+  return existing?.counselor?.active ? existing.counselor.userId : null;
+}
+
+async function notifyNewSelfServeAssignment(input: {
+  memberId: string;
+  counselorUserId: string;
+  threadId: string | null;
+}) {
+  const [member, counselor] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: input.memberId },
+      select: { fullName: true, email: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: input.counselorUserId },
+      select: { fullName: true },
+    }),
+  ]);
+  const counselorName = counselor?.fullName?.trim() || 'your counselor';
+  const memberLabel = member?.fullName?.trim() || member?.email || 'A member';
+  await Promise.all([
+    createNotification({
+      userId: input.memberId,
+      type: 'task_assigned',
+      title: 'You have a new advisor',
+      body: `${counselorName} has been assigned as your career advisor.`,
+      data: {
+        counselorUserId: input.counselorUserId,
+        threadId: input.threadId,
+      },
+    }),
+    createNotification({
+      userId: input.counselorUserId,
+      type: 'task_assigned',
+      title: 'A new member is on your caseload',
+      body: `${memberLabel} was assigned to you.`,
+      data: {
+        memberId: input.memberId,
+        link: `/counselor/students/${input.memberId}`,
+      },
+    }),
+  ]);
+}
+
 /**
- * Assign a self-serve member to an active WAP counselor when they have none.
- * Uses assignMemberCounselor so lock / dedupe / thread upsert stay in one commit.
- * Does not invent a named fallback account when the pool is empty.
+ * Assign a member with no active counselor to an active WAP staff counselor.
+ * Read-only when already assigned or the pool is empty — those paths must
+ * not bump `users.updated_at`. The lock + assignMemberCounselor commit only
+ * runs when there is someone to assign.
  */
 export async function ensureSelfServeCounselorAssigned(input: {
   memberId: string;
   organizationId: string;
 }): Promise<EnsureSelfServeCounselorResult> {
-  return prisma.$transaction(async (tx) => {
+  const existingUserId = await findActiveAssignment(prisma, input.memberId);
+  if (existingUserId) {
+    return {
+      assigned: true,
+      counselorUserId: existingUserId,
+      reason: 'already_assigned',
+    };
+  }
+
+  const preview = await pickLeastLoadedWapCounselor(prisma, input.organizationId);
+  if (!preview) {
+    return { assigned: false, counselorUserId: null, reason: 'no_counselors' };
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
     const locked = await tx.user.updateMany({
       where: {
         id: input.memberId,
@@ -72,32 +146,47 @@ export async function ensureSelfServeCounselorAssigned(input: {
       data: { updatedAt: new Date() },
     });
     if (locked.count !== 1) {
-      return { assigned: false, counselorUserId: null, reason: 'member_unavailable' };
+      return { assigned: false, counselorUserId: null, reason: 'member_unavailable' } as const;
     }
 
-    const existing = await tx.counselorAssignment.findFirst({
-      where: { memberId: input.memberId, active: true },
-      orderBy: { assignedAt: 'desc' },
-      select: { counselor: { select: { userId: true, active: true } } },
-    });
-    if (existing?.counselor?.active) {
+    const again = await findActiveAssignment(tx, input.memberId);
+    if (again) {
       return {
         assigned: true,
-        counselorUserId: existing.counselor.userId,
+        counselorUserId: again,
         reason: 'already_assigned',
-      };
+      } as const;
     }
 
     const pick = await pickLeastLoadedWapCounselor(tx, input.organizationId);
     if (!pick) {
-      return { assigned: false, counselorUserId: null, reason: 'no_counselors' };
+      return { assigned: false, counselorUserId: null, reason: 'no_counselors' } as const;
     }
 
-    await assignMemberCounselor(tx, {
+    const assigned = await assignMemberCounselor(tx, {
       memberId: input.memberId,
       organizationId: input.organizationId,
       counselorUserId: pick.userId,
     });
-    return { assigned: true, counselorUserId: pick.userId, reason: 'assigned' };
+    return {
+      assigned: true,
+      counselorUserId: pick.userId,
+      reason: 'assigned',
+      threadId: assigned.thread.id,
+    } as const;
   });
+
+  if (result.reason === 'assigned' && result.counselorUserId) {
+    await notifyNewSelfServeAssignment({
+      memberId: input.memberId,
+      counselorUserId: result.counselorUserId,
+      threadId: result.threadId ?? null,
+    }).catch(() => {});
+  }
+
+  return {
+    assigned: result.assigned,
+    counselorUserId: result.counselorUserId,
+    reason: result.reason,
+  };
 }

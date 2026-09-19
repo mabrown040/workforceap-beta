@@ -138,6 +138,7 @@
 | [tests/api/wioa-report.spec.ts](../../../tests/api/wioa-report.spec.ts) | 487 | partners-funding |  |
 | [tests/api/xapi-inbound-program.spec.ts](../../../tests/api/xapi-inbound-program.spec.ts) | 457 | tests |  |
 | [tests/api/xapi-persistence.spec.ts](../../../tests/api/xapi-persistence.spec.ts) | 403 | tests |  |
+| [tests/app/account-privacy-consent.spec.tsx](../../../tests/app/account-privacy-consent.spec.tsx) | 89 | tests |  |
 | [tests/app/add-member-wizard.spec.tsx](../../../tests/app/add-member-wizard.spec.tsx) | 249 | tests |  |
 | [tests/app/admin-command-center-pagination.spec.tsx](../../../tests/app/admin-command-center-pagination.spec.tsx) | 83 | tests |  |
 | [tests/app/admin-directory-search.spec.tsx](../../../tests/app/admin-directory-search.spec.tsx) | 212 | tests |  |
@@ -244,6 +245,7 @@
 | [tests/lib/coach-memory-safety.spec.ts](../../../tests/lib/coach-memory-safety.spec.ts) | 151 | tests |  |
 | [tests/lib/contextual-message-links.spec.ts](../../../tests/lib/contextual-message-links.spec.ts) | 22 | tests |  |
 | [tests/lib/contextual-message-selection.spec.ts](../../../tests/lib/contextual-message-selection.spec.ts) | 50 | tests |  |
+| [tests/lib/counselor-thread-assign-flag.spec.ts](../../../tests/lib/counselor-thread-assign-flag.spec.ts) | 65 | tests |  |
 | [tests/lib/counselor-thread-authorization.spec.ts](../../../tests/lib/counselor-thread-authorization.spec.ts) | 82 | tests |  |
 | [tests/lib/course-enrollment-email-copy.spec.ts](../../../tests/lib/course-enrollment-email-copy.spec.ts) | 77 | tests |  |
 | [tests/lib/course-progress-completion-lock.spec.ts](../../../tests/lib/course-progress-completion-lock.spec.ts) | 126 | tests |  |
@@ -311,7 +313,7 @@
 | [tests/lib/recommendPrograms.test.ts](../../../tests/lib/recommendPrograms.test.ts) | 38 | tests |  |
 | [tests/lib/referral-rewards.spec.ts](../../../tests/lib/referral-rewards.spec.ts) | 141 | applications-enrollment |  |
 | [tests/lib/retention-window-evidence.spec.ts](../../../tests/lib/retention-window-evidence.spec.ts) | 40 | tests |  |
-| [tests/lib/self-serve-counselor-assign.spec.ts](../../../tests/lib/self-serve-counselor-assign.spec.ts) | 167 | tests |  |
+| [tests/lib/self-serve-counselor-assign.spec.ts](../../../tests/lib/self-serve-counselor-assign.spec.ts) | 209 | tests |  |
 | [tests/lib/skill-mission-kit-tokens.spec.ts](../../../tests/lib/skill-mission-kit-tokens.spec.ts) | 17 | tests |  |
 | [tests/lib/staff-program-label-contract.spec.ts](../../../tests/lib/staff-program-label-contract.spec.ts) | 23 | tests |  |
 | [tests/lib/stale-training-completion.spec.ts](../../../tests/lib/stale-training-completion.spec.ts) | 223 | tests |  |

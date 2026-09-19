@@ -94088,6 +94088,14 @@
     "target": "lib/counselor/assignment.ts"
   },
   {
+    "from": "lib/counselor/autoAssign.ts",
+    "specifier": "@/lib/notifications/create",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/notifications/create.ts"
+  },
+  {
     "from": "lib/counselor/autoAssign.wiring.test.ts",
     "specifier": "node:assert/strict",
     "line": 1,
@@ -118360,6 +118368,38 @@
     "package": "@prisma/client"
   },
   {
+    "from": "tests/app/account-privacy-consent.spec.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/app/account-privacy-consent.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/app/account-privacy-consent.spec.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/user-event"
+  },
+  {
+    "from": "tests/app/account-privacy-consent.spec.tsx",
+    "specifier": "@/app/(portal)/account/privacy/page",
+    "line": 10,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/account/privacy/page.tsx"
+  },
+  {
     "from": "tests/app/add-member-wizard.spec.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -121376,6 +121416,22 @@
     "target": "lib/messages/contextSelection.ts"
   },
   {
+    "from": "tests/lib/counselor-thread-assign-flag.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/counselor-thread-assign-flag.spec.ts",
+    "specifier": "@/lib/messages/counselorThread",
+    "line": 35,
+    "kind": "import",
+    "external": false,
+    "target": "lib/messages/counselorThread.ts"
+  },
+  {
     "from": "tests/lib/counselor-thread-authorization.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -123162,10 +123218,18 @@
   {
     "from": "tests/lib/self-serve-counselor-assign.spec.ts",
     "specifier": "@/lib/counselor/autoAssign",
-    "line": 29,
+    "line": 40,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/autoAssign.ts"
+  },
+  {
+    "from": "tests/lib/self-serve-counselor-assign.spec.ts",
+    "specifier": "@/lib/db/prisma",
+    "line": 44,
+    "kind": "import",
+    "external": false,
+    "target": "lib/db/prisma.ts"
   },
   {
     "from": "tests/lib/skill-mission-kit-tokens.spec.ts",

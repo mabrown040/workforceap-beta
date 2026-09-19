@@ -337,8 +337,8 @@
 | [lib/counselor/ambassadorReferral.test.ts](../../../lib/counselor/ambassadorReferral.test.ts) | 55 | member-counselor |  |
 | [lib/counselor/ambassadorReferral.ts](../../../lib/counselor/ambassadorReferral.ts) | 88 | member-counselor | AmbassadorCandidate:18, AmbassadorMatch:25, pickAmbassadorReferralText:33, normalizePersonName:51, matchAmbassador:68 |
 | [lib/counselor/assignment.ts](../../../lib/counselor/assignment.ts) | 44 | member-counselor | assignMemberCounselor:8 |
-| [lib/counselor/autoAssign.ts](../../../lib/counselor/autoAssign.ts) | 103 | member-counselor | WAP_STAFF_COUNSELOR_AFFILIATION:5, EnsureSelfServeCounselorResult:7, pickLeastLoadedWapCounselor:19, ensureSelfServeCounselorAssigned:61 |
-| [lib/counselor/autoAssign.wiring.test.ts](../../../lib/counselor/autoAssign.wiring.test.ts) | 33 | member-counselor |  |
+| [lib/counselor/autoAssign.ts](../../../lib/counselor/autoAssign.ts) | 192 | member-counselor | WAP_STAFF_COUNSELOR_AFFILIATION:6, EnsureSelfServeCounselorResult:8, pickLeastLoadedWapCounselor:25, ensureSelfServeCounselorAssigned:121 |
+| [lib/counselor/autoAssign.wiring.test.ts](../../../lib/counselor/autoAssign.wiring.test.ts) | 42 | member-counselor |  |
 | [lib/counselor/commandCenter.ts](../../../lib/counselor/commandCenter.ts) | 263 | member-counselor | CommandCenterRow:22, NeedsReplyRow:28, AtRiskRow:35, InterviewingRow:40, CommandCenter:45, getCounselorCommandCenter:67 |
 | [lib/counselor/counselorLabels.ts](../../../lib/counselor/counselorLabels.ts) | 17 | member-counselor | counselorAffiliationLabel:2, counselorAffiliationDisplay:10 |
 | [lib/counselor/counselorStudentsRoster.ts](../../../lib/counselor/counselorStudentsRoster.ts) | 67 | member-counselor | CounselorRosterRiskRow:6, loadCounselorRosterRiskAndActivity:17 |
@@ -683,7 +683,7 @@
 | [lib/messages/contextSelection.ts](../../../lib/messages/contextSelection.ts) | 61 | communications | MessageQueryValue:3, normalizeMessageQueryValue:11, AuthorizedCounselorMessageContext:20, resolveAuthorizedCounselorMessageContext:29, PartnerMessageMember:48, resolveAuthorizedPartnerMessageMember:54 |
 | [lib/messages/counselorInbox.test.ts](../../../lib/messages/counselorInbox.test.ts) | 48 | communications |  |
 | [lib/messages/counselorInbox.ts](../../../lib/messages/counselorInbox.ts) | 236 | communications | CounselorInboxRow:6, buildCounselorInboxRows:38 |
-| [lib/messages/counselorThread.ts](../../../lib/messages/counselorThread.ts) | 148 | communications | ThreadMessageRow:7, compactStringIds:15, getMessageAuthorName:19, resolveAssignedCounselorUserId:23, getOrCreateMemberCounselorThread:33, assertMemberCanAccessThread:77, assertStaffCanAccessThread:84, assertMemberCanPost:125, assertStaffCanPost:129, normalizeMessageBody:133, serializeMessage:140 |
+| [lib/messages/counselorThread.ts](../../../lib/messages/counselorThread.ts) | 156 | communications | GetOrCreateMemberCounselorThreadOptions:5, ThreadMessageRow:15, compactStringIds:23, getMessageAuthorName:27, resolveAssignedCounselorUserId:31, getOrCreateMemberCounselorThread:41, assertMemberCanAccessThread:85, assertStaffCanAccessThread:92, assertMemberCanPost:133, assertStaffCanPost:137, normalizeMessageBody:141, serializeMessage:148 |
 | [lib/messages/employerInbox.ts](../../../lib/messages/employerInbox.ts) | 101 | communications | EmployerInboxTeamRow:4, EmployerInboxCandidateRow:13, buildEmployerInbox:23 |
 | [lib/messages/portalThreads.ts](../../../lib/messages/portalThreads.ts) | 41 | communications | getOrCreateEmployerMessageThread:3, getOrCreatePartnerMessageThread:16, assertEmployerCanAccessThread:29, assertPartnerCanAccessThread:36 |
 | [lib/messages/rateLimit.ts](../../../lib/messages/rateLimit.ts) | 22 | communications | checkMessageRateLimit:13 |

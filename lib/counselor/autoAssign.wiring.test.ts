@@ -6,14 +6,23 @@ import { join } from 'node:path';
 const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('self-serve counselor and assessment copy wiring', () => {
-  it('assigns on signup, enroll, and first counselor-thread open', () => {
+  it('assigns on signup, enroll, and member-initiated thread open only', () => {
     const signup = read('app/api/apply/signup/route.ts');
     const enroll = read('app/api/member/enroll/route.ts');
+    const memberMessages = read('app/api/member/messages/route.ts');
+    const memberInbox = read('app/(portal)/dashboard/messages/page.tsx');
     const thread = read('lib/messages/counselorThread.ts');
+    const adminMember = read('app/admin/members/[id]/page.tsx');
+    const counselorStudent = read('app/(portal)/counselor/students/[memberId]/page.tsx');
+
     assert.match(signup, /ensureSelfServeCounselorAssigned/);
     assert.match(signup, /autoAssignAmbassadorFromReferral/);
     assert.match(enroll, /ensureSelfServeCounselorAssigned/);
-    assert.match(thread, /ensureSelfServeCounselorAssigned/);
+    assert.match(memberMessages, /assignIfUnassigned:\s*true/);
+    assert.match(memberInbox, /assignIfUnassigned:\s*true/);
+    assert.match(thread, /assignIfUnassigned/);
+    assert.doesNotMatch(adminMember, /assignIfUnassigned/);
+    assert.doesNotMatch(counselorStudent, /assignIfUnassigned/);
   });
 
   it('keeps unassigned member messages notifying counselors then admins', () => {

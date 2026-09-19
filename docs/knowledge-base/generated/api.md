@@ -405,7 +405,7 @@
 | [app/api/member/linkedin-enrich/route.test.ts](../../../app/api/member/linkedin-enrich/route.test.ts) | 47 | member-counselor |  |
 | [app/api/member/linkedin-enrich/route.ts](../../../app/api/member/linkedin-enrich/route.ts) | 140 | member-counselor | POST:11 |
 | [app/api/member/matched-jobs/route.ts](../../../app/api/member/matched-jobs/route.ts) | 109 | member-counselor | GET:16 |
-| [app/api/member/messages/route.ts](../../../app/api/member/messages/route.ts) | 163 | communications | GET:56, POST:138, PATCH:162 |
+| [app/api/member/messages/route.ts](../../../app/api/member/messages/route.ts) | 167 | communications | GET:58, POST:142, PATCH:166 |
 | [app/api/member/nba/\[id\]/route.ts](../../../app/api/member/nba/%5Bid%5D/route.ts) | 67 | member-counselor | PATCH:8 |
 | [app/api/member/notifications/\[id\]/read/route.ts](../../../app/api/member/notifications/%5Bid%5D/read/route.ts) | 57 | communications | PUT:56, PATCH:57 |
 | [app/api/member/notifications/\[id\]/route.ts](../../../app/api/member/notifications/%5Bid%5D/route.ts) | 43 | communications | DELETE:43 |

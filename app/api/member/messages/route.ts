@@ -19,7 +19,9 @@ async function _GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const thread = await getOrCreateMemberCounselorThread(user.id);
+  const thread = await getOrCreateMemberCounselorThread(user.id, {
+    assignIfUnassigned: true,
+  });
   const threadCounselorUserId = thread.counselorUserId;
 
   const [messages, counselor] = await Promise.all([
@@ -79,7 +81,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     );
   }
 
-  const thread = await getOrCreateMemberCounselorThread(user.id);
+  const thread = await getOrCreateMemberCounselorThread(user.id, {
+    assignIfUnassigned: true,
+  });
   const ok = await assertMemberCanAccessThread(user.id, thread.id);
   if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

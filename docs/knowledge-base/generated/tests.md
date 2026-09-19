@@ -133,6 +133,7 @@
 | [tests/api/points-routes.spec.ts](../../../tests/api/points-routes.spec.ts) | 451 | tests |  |
 | [tests/api/portal-nav-badges.spec.ts](../../../tests/api/portal-nav-badges.spec.ts) | 69 | tests |  |
 | [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 409 | tests |  |
+| [tests/api/public-abuse-hardening.spec.ts](../../../tests/api/public-abuse-hardening.spec.ts) | 253 | tests |  |
 | [tests/api/public-api-hardening-batch4.spec.ts](../../../tests/api/public-api-hardening-batch4.spec.ts) | 310 | tests |  |
 | [tests/api/public-api-hardening-followups.spec.ts](../../../tests/api/public-api-hardening-followups.spec.ts) | 352 | tests |  |
 | [tests/api/public-route-error-handling.spec.ts](../../../tests/api/public-route-error-handling.spec.ts) | 286 | tests |  |

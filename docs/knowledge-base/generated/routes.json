@@ -21148,7 +21148,7 @@
     "exports": [
       {
         "name": "GET",
-        "line": 9,
+        "line": 12,
         "kind": "Variable"
       }
     ],
@@ -24506,7 +24506,7 @@
     "exports": [
       {
         "name": "GET",
-        "line": 53,
+        "line": 58,
         "kind": "Variable"
       }
     ],
@@ -27347,17 +27347,17 @@
     "exports": [
       {
         "name": "GET",
-        "line": 27,
+        "line": 35,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 69,
+        "line": 77,
         "kind": "Variable"
       },
       {
         "name": "DELETE",
-        "line": 93,
+        "line": 101,
         "kind": "Variable"
       }
     ],
@@ -29665,17 +29665,17 @@
     "exports": [
       {
         "name": "dynamic",
-        "line": 19,
+        "line": 21,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 54,
+        "line": 66,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "GET",
-        "line": 63,
+        "line": 77,
         "kind": "FunctionDeclaration"
       }
     ],
@@ -29690,6 +29690,11 @@
       {
         "specifier": "@/lib/db/withRequestGuc",
         "line": 14,
+        "kind": "import"
+      },
+      {
+        "specifier": "@/lib/rate-limit",
+        "line": 18,
         "kind": "import"
       }
     ]

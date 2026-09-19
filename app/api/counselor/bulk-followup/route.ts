@@ -8,6 +8,7 @@ import {
   getOrCreateMemberCounselorThread,
   normalizeMessageBody,
 } from '@/lib/messages/counselorThread';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import {
   getFollowUpTemplate,
   renderFollowUpTemplate,
@@ -110,6 +111,13 @@ async function handle(request: Request) {
       }
 
       try {
+        // Member-level gate first so a forbidden member id never gets a
+        // thread created as a side effect of the check below.
+        if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
+          results.push({ memberId, ok: false, error: 'Forbidden' });
+          continue;
+        }
+
         // Ensure the thread exists, then re-use the existing staff-can-post
         // check. This is the org-scope + assignment gate per the spec.
         const thread = await getOrCreateMemberCounselorThread(memberId);

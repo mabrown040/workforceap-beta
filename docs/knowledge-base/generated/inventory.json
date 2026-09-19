@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "94e4c91d02f30e2a62277944fed9f33fd8c50ee6ca9b9bd5f32a23c629eed343",
+  "inputTreeSha256": "1499bb5a097aae07a9310f9c54f8f97e1e11253be3978021508b7dbe95177fee",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -30137,36 +30137,36 @@
       "path": "app/api/counselor/bulk-followup/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6974,
-      "lines": 207,
-      "sha256": "b34f59754a5572bdef8406e07bd384b12f033e0317635f6bd013b285552a733c",
+      "bytes": 7372,
+      "lines": 215,
+      "sha256": "e3c1974e9418d2a2142990a9a327f6efdb5bdbcd63ae6832598539db0d9c1a2b",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 207,
+          "line": 215,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "MAX_BATCH",
-          "line": 39,
+          "line": 40,
           "kind": "Variable"
         },
         {
           "name": "BulkResultEntry",
-          "line": 41,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "handle",
-          "line": 48,
+          "line": 49,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 207,
+          "line": 215,
           "kind": "Variable"
         }
       ],
@@ -30493,66 +30493,66 @@
       "path": "app/api/counselor/members/[memberId]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 8956,
-      "lines": 223,
-      "sha256": "3aedf922e44d455fe531c9db6b92bf5a6802294cfdf9cb3dd60d84bb996a8f6c",
+      "bytes": 9633,
+      "lines": 236,
+      "sha256": "909007b2be81e83bae738ffb86158c00f07fdae35f5cc9342b4cf3a068390226",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 113,
+          "line": 121,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 184,
+          "line": 197,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 222,
+          "line": 235,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "Props",
-          "line": 35,
+          "line": 36,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "canUseCounselorMessaging",
-          "line": 37,
+          "line": 38,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 42,
+          "line": 43,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 113,
+          "line": 121,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 113,
+          "line": 121,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 184,
+          "line": 197,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 184,
+          "line": 197,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 222,
+          "line": 235,
           "kind": "Variable"
         }
       ],
@@ -30860,26 +30860,26 @@
       "path": "app/api/counselor/nudge/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5868,
-      "lines": 152,
-      "sha256": "be88b92412ab42ef871a4e8e6fc99dd69c6b71e84e74ff1e6f366544cdc591a5",
+      "bytes": 6245,
+      "lines": 159,
+      "sha256": "0467039772270324f59b45638e2fddffefb39be1a8284bddf2c2b7b06caf2f59",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "VALID_TEMPLATE_IDS",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         }
       ],
@@ -40853,14 +40853,14 @@
       "path": "app/apply/layout.tsx",
       "area": "pages",
       "domain": "applications-enrollment",
-      "bytes": 742,
-      "lines": 12,
-      "sha256": "508942247321d035274b19fd597ce24c67cc6d85731ed9c1987f5df31bf4edb9",
+      "bytes": 517,
+      "lines": 9,
+      "sha256": "e98f0b14b108c23ffbca36f28acda3b367fd1d8a4fddf171b4cd1bc82784bfc4",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 9,
+          "line": 6,
           "kind": "FunctionDeclaration",
           "localName": "ApplyLayout"
         }
@@ -40868,7 +40868,7 @@
       "declarations": [
         {
           "name": "ApplyLayout",
-          "line": 9,
+          "line": 6,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -84926,12 +84926,30 @@
       "directive": null
     },
     {
+      "path": "lib/admin/cronRegistry.test.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 854,
+      "lines": 25,
+      "sha256": "da0319b8632105cb103ebb09fb4c3a330057e55c364d219964bf717787437af4",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "duplicates",
+          "line": 5,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/cronRegistry.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 14897,
-      "lines": 404,
-      "sha256": "fa998a80805f7115cc89e68d8c9605dc638ab35746421e7d56e23756cd4155be",
+      "bytes": 14482,
+      "lines": 391,
+      "sha256": "6b4085bb100f2a94b61669fcf074ad7be2175e0e005ee3c47837d81addaf2472",
       "binary": false,
       "exports": [
         {
@@ -84946,7 +84964,7 @@
         },
         {
           "name": "CRON_CATEGORY_COLOR",
-          "line": 399,
+          "line": 386,
           "kind": "Variable"
         }
       ],
@@ -84963,7 +84981,7 @@
         },
         {
           "name": "CRON_CATEGORY_COLOR",
-          "line": 399,
+          "line": 386,
           "kind": "Variable"
         }
       ],
@@ -152131,9 +152149,9 @@
       "path": "tests/api/counselor-routes.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 65221,
-      "lines": 1739,
-      "sha256": "87f0107e81ebb4cb3c89eef79fd696bcc71cf458a1bf6989d89e1022823cd132",
+      "bytes": 66139,
+      "lines": 1751,
+      "sha256": "908ed655346b45a98bb46b7b245a3424737a75bf69e1fb530e35332a6b318450",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -152145,6 +152163,49 @@
         {
           "name": "makeRequest",
           "line": 261,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/counselor-thread-access-gate.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 6364,
+      "lines": 139,
+      "sha256": "97338981d2992b6a847a5e1461f26b3fbaf10e6bd35bbc95c0504b35cd894627",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "db",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "gate",
+          "line": 54,
+          "kind": "Variable"
+        },
+        {
+          "name": "MEMBER_ID",
+          "line": 74,
+          "kind": "Variable"
+        },
+        {
+          "name": "THREAD",
+          "line": 75,
+          "kind": "Variable"
+        },
+        {
+          "name": "ctx",
+          "line": 76,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonRequest",
+          "line": 78,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -154641,69 +154702,6 @@
       "binary": false,
       "exports": [],
       "declarations": [],
-      "directive": null
-    },
-    {
-      "path": "tests/app/apply-funnel-token-scope.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 5327,
-      "lines": 125,
-      "sha256": "c8f515019a9b54c7bf2b6a0cf8cf7174e0de804d4a27bac72a32636e9f99a721",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "ROOT",
-          "line": 21,
-          "kind": "Variable"
-        },
-        {
-          "name": "APPLY_DIR",
-          "line": 22,
-          "kind": "Variable"
-        },
-        {
-          "name": "FUNNEL_CSS",
-          "line": 23,
-          "kind": "Variable"
-        },
-        {
-          "name": "resolveSpecifier",
-          "line": 25,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "cssImportsOf",
-          "line": 32,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "expandCss",
-          "line": 43,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "declaredTokens",
-          "line": 55,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "tokensReadWithoutFallback",
-          "line": 64,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "applyPageFiles",
-          "line": 69,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "routeStylesheets",
-          "line": 80,
-          "kind": "FunctionDeclaration"
-        }
-      ],
       "directive": null
     },
     {

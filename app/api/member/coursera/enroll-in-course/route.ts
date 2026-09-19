@@ -1,6 +1,7 @@
 import { after, NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getB4BOrgId } from '@/lib/coursera/b4bClient';
@@ -60,13 +61,10 @@ async function _POST(request: Request) {
       );
     }
   
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
+    const o = await readJsonObjectBody(request);
+    if (!o) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-    const o = body as Record<string, unknown>;
     const courseraCourseId = normalizeCourseraCourseId(
       typeof o.courseraCourseId === 'string' ? o.courseraCourseId : '',
     );

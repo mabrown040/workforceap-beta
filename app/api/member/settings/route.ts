@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -10,14 +11,11 @@ export const PATCH = withApiGuc(async (request: Request) => {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const o = await readJsonObjectBody(request);
+  if (!o) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const o = body as Record<string, unknown>;
   const notificationsUpdates = typeof o.notificationsUpdates === 'boolean' ? o.notificationsUpdates : undefined;
   const notificationsReminders = typeof o.notificationsReminders === 'boolean' ? o.notificationsReminders : undefined;
 

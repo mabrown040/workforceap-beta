@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prisma } from '@/lib/db/prisma';
@@ -15,10 +16,8 @@ interface CheckpointBody {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    let body: CheckpointBody;
-    try {
-      body = await req.json() as CheckpointBody;
-    } catch {
+    const body = await readJsonObjectBody<CheckpointBody>(req);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   

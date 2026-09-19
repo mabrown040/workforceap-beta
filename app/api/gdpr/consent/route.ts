@@ -3,6 +3,7 @@ import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
@@ -33,7 +34,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => ({}));
+  // A body that is not a JSON object (bad JSON, `null`, an array) reads as
+  // empty and falls through to the field check below.
+  const body = (await readJsonObjectBody(request)) ?? {};
   const consentCommunications = typeof body.consentCommunications === 'boolean' ? body.consentCommunications : undefined;
 
   if (consentCommunications === undefined) {

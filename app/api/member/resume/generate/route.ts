@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
@@ -33,12 +34,9 @@ export const POST = withApiGuc(async (request: Request) => {
     }));
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
   
-    let body: { resumeBase?: string; resumeRevision?: string } = {};
-    try {
-      body = await request.json();
-    } catch {
-      // optional body
-    }
+    // The body is optional: anything that is not a JSON object (no body, bad
+    // JSON, the literal `null`) reads as an empty request, as bad JSON already did.
+    const body = (await readJsonObjectBody<{ resumeBase?: string; resumeRevision?: string }>(request)) ?? {};
   
     const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
     const profile = dbUser.profile;

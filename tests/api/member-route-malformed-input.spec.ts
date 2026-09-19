@@ -163,7 +163,8 @@ describe('member-facing routes answer malformed input with JSON 4xx bodies', () 
       expect(created.data.scheduledAt).toBeInstanceOf(Date);
       expect(Number.isNaN(created.data.scheduledAt.getTime())).toBe(false);
       expect(created.data.durationMin).toBe(30);
-      expect(created.data.notes).toBe('Resume review');
+      expect(created.data.topic).toBe('Resume review');
+      expect(created.data.notes).toBeNull();
     });
   });
 

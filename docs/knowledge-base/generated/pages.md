@@ -509,7 +509,7 @@
 | [app/apply/create-account/loading.tsx](../../../app/apply/create-account/loading.tsx) | 5 | applications-enrollment | default:3 |
 | [app/apply/create-account/page.tsx](../../../app/apply/create-account/page.tsx) | 64 | applications-enrollment | generateMetadata:14, default:24 |
 | [app/apply/error.tsx](../../../app/apply/error.tsx) | 13 | applications-enrollment | default:5 |
-| [app/apply/layout.tsx](../../../app/apply/layout.tsx) | 9 | applications-enrollment | default:6 |
+| [app/apply/layout.tsx](../../../app/apply/layout.tsx) | 12 | applications-enrollment | default:9 |
 | [app/apply/loading.tsx](../../../app/apply/loading.tsx) | 13 | applications-enrollment | default:1 |
 | [app/apply/not-found.tsx](../../../app/apply/not-found.tsx) | 46 | applications-enrollment | metadata:6, default:10 |
 | [app/apply/page.tsx](../../../app/apply/page.tsx) | 47 | applications-enrollment | generateMetadata:19, default:24 |

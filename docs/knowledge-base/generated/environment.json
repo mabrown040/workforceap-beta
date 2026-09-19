@@ -2073,7 +2073,7 @@
       "references": [
         {
           "file": "app/(portal)/partner/page.tsx",
-          "line": 535
+          "line": 536
         },
         {
           "file": "app/api/admin/coursera/reconcile/add-to-wap/route.ts",
@@ -3859,6 +3859,45 @@
         {
           "file": "app/api/partner/signup/route.ts",
           "line": 113
+        }
+      ]
+    },
+    {
+      "name": "TZ",
+      "publicPrefix": false,
+      "declaredInRootExample": false,
+      "references": [
+        {
+          "file": "tests/app/counselor-student-detail-dates.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/app/employer-application-detail-dates.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/app/employer-dashboard-dates.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/app/partner-dashboard-dates.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/app/partner-outcomes-dates.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/app/partner-settings-dates.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/components/portal-date-inputs-today.spec.tsx",
+          "line": 1
+        },
+        {
+          "file": "tests/lib/today-in-portal-timezone.spec.ts",
+          "line": 1
         }
       ]
     },

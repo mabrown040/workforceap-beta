@@ -459,6 +459,7 @@
 | [lib/csv/export.test.ts](../../../lib/csv/export.test.ts) | 85 | libraries |  |
 | [lib/csv/export.ts](../../../lib/csv/export.ts) | 60 | libraries | CsvValue:11, CsvColumn:13, dataToCsv:21, csvDownloadResponse:39, exportFilename:57 |
 | [lib/data/applications.ts](../../../lib/data/applications.ts) | 30 | libraries | getStaleApplications:4 |
+| [lib/date/todayInPortalTimezone.ts](../../../lib/date/todayInPortalTimezone.ts) | 21 | libraries | todayInPortalTimezone:12 |
 | [lib/db/advisoryLockRawQuery.test.ts](../../../lib/db/advisoryLockRawQuery.test.ts) | 48 | libraries |  |
 | [lib/db/exactEmailMatch.ts](../../../lib/db/exactEmailMatch.ts) | 41 | libraries | normalizeEmail:20, pickExactEmailMatch:28, EXACT_EMAIL_CANDIDATE_LIMIT:41 |
 | [lib/db/gucContext.test.ts](../../../lib/db/gucContext.test.ts) | 143 | identity-tenancy |  |

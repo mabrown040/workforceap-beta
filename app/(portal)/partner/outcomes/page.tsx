@@ -4,6 +4,7 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
+import { formatPortalDate } from '@/lib/formatDate';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
@@ -87,7 +88,7 @@ export default async function PartnerOutcomesPage() {
   const pendingRows: PendingReviewRow[] = pendingPlacements.map((p) => ({
     id: `${p.userId}-${p.createdAt.toISOString()}`,
     member: memberNameById.get(p.userId) ?? t('memberFallback'),
-    submittedLabel: p.createdAt.toLocaleDateString('en-US'),
+    submittedLabel: formatPortalDate(p.createdAt),
   }));
 
   const pendingColumns: Column<PendingReviewRow>[] = [

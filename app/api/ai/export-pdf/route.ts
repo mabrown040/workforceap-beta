@@ -390,7 +390,10 @@ export async function POST(req: NextRequest) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json();
+    const body: unknown = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+    }
     // Body-size cap. `text` is wrapped into PDF and `chartImage` may be a
     // base64 data URL — both can grow large. Cap at 2 MB serialized to
     // prevent giant-page DoS that ties up the PDF library + memory.

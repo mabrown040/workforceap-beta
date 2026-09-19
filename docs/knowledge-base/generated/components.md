@@ -73,6 +73,8 @@
 | [components/admin/AdminTrainingDashboardTable.tsx](../../../components/admin/AdminTrainingDashboardTable.tsx) | 246 | administration | default:42 |
 | [components/admin/AdminUsersManager.tsx](../../../components/admin/AdminUsersManager.tsx) | 528 | administration | default:33 |
 | [components/admin/AnalyticsDashboard.tsx](../../../components/admin/AnalyticsDashboard.tsx) | 352 | administration | default:113 |
+| [components/admin/ApplicantTriageChecklist.tsx](../../../components/admin/ApplicantTriageChecklist.tsx) | 79 | administration | ApplicantTriageChecklistProps:10, default:21 |
+| [components/admin/ApplicantTriageChip.tsx](../../../components/admin/ApplicantTriageChip.tsx) | 50 | administration | ApplicantTriageChipProps:10, default:24 |
 | [components/admin/AssessmentAnswersReadonly.tsx](../../../components/admin/AssessmentAnswersReadonly.tsx) | 59 | administration | default:18 |
 | [components/admin/AssessmentsTable.tsx](../../../components/admin/AssessmentsTable.tsx) | 416 | administration | default:42 |
 | [components/admin/B4BBindingsSuggestionsCard.tsx](../../../components/admin/B4BBindingsSuggestionsCard.tsx) | 229 | administration | default:56 |
@@ -117,7 +119,7 @@
 | [components/admin/MemberReviewTable.tsx](../../../components/admin/MemberReviewTable.tsx) | 271 | administration | MemberReviewTable:34 |
 | [components/admin/MemberSubgroupSection.tsx](../../../components/admin/MemberSubgroupSection.tsx) | 143 | administration | default:8 |
 | [components/admin/MembersListNav.tsx](../../../components/admin/MembersListNav.tsx) | 85 | administration | default:53 |
-| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1171 | administration | default:270 |
+| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1206 | administration | default:276 |
 | [components/admin/MentorStatusButtons.tsx](../../../components/admin/MentorStatusButtons.tsx) | 95 | administration | default:12 |
 | [components/admin/MfaStatusBanner.tsx](../../../components/admin/MfaStatusBanner.tsx) | 67 | administration | default:5 |
 | [components/admin/OutcomesDashboard.tsx](../../../components/admin/OutcomesDashboard.tsx) | 558 | administration | default:198 |

@@ -2297,6 +2297,48 @@
     "memberDashboard": "Painel do membro",
     "workforceAPHome": "Página inicial da WorkforceAP",
     "loadingCharts": "Carregando gráficos…",
+    "applicantTriage": {
+      "title": "Triagem de candidaturas",
+      "description": "Pré-ordenado a partir das respostas de admissão já registradas. É um apoio à triagem, não uma decisão: aprovar, pedir informações ou recusar continua sendo uma ação da equipe, e nada aqui muda o que esses botões fazem.",
+      "reasonsHeading": "Por que esta categoria",
+      "checklistHeading": "Lista de verificação (pré-preenchida pela admissão)",
+      "applicationPending": "Status da candidatura: aguardando análise",
+      "applicationNeedsInfo": "Status da candidatura: mais informações solicitadas",
+      "filterLabel": "Triagem de admissão",
+      "filterAll": "Todos",
+      "bucket": {
+        "ready_to_review": "Pronto para análise",
+        "needs_human": "Precisa de análise humana",
+        "missing_info": "Informações faltando",
+        "not_eligible_signal": "Ponto de atenção sinalizado"
+      },
+      "reason": {
+        "work_auth_answered_no": "O candidato respondeu \"não\" à autorização de trabalho na admissão",
+        "staff_marked_not_eligible": "A análise WIOA da equipe está marcada como não elegível",
+        "staff_requested_info": "A equipe já pediu mais informações ao candidato",
+        "staff_wioa_needs_info": "A análise WIOA da equipe aguarda mais informações",
+        "contact_incomplete": "Nome, e-mail ou telefone faltando",
+        "program_missing": "Nenhum programa escolhido",
+        "program_unrecognized": "O programa escolhido não está no catálogo",
+        "intake_screening_missing": "Nenhuma resposta do questionário de admissão registrada",
+        "work_auth_unanswered": "A autorização de trabalho não foi respondida",
+        "work_auth_conflict": "As respostas sobre autorização de trabalho divergem entre os formulários",
+        "funding_fit_not_indicated": "As respostas de admissão ainda não indicam adequação ao financiamento",
+        "wioa_signal_unclear": "O sinal da autoavaliação WIOA do portal está incerto",
+        "minor_applicant": "O candidato tem menos de 18 anos (fluxo de consentimento dos pais)",
+        "wioa_review_in_progress": "A análise WIOA da equipe ainda está em andamento",
+        "intake_complete": "Admissão completa: contato, programa, questionário e autorização de trabalho registrados"
+      },
+      "checklist": {
+        "contact": "Dados de contato registrados",
+        "program": "Programa escolhido e presente no catálogo",
+        "intake_screening": "Questionário de admissão respondido",
+        "work_authorization": "Autorização de trabalho: sim",
+        "funding_fit_signal": "A admissão indica adequação ao financiamento (não é uma decisão)",
+        "partner_referral": "Encaminhamento por parceiro ou embaixador anotado",
+        "wioa_staff_review": "Análise WIOA da equipe registrada como verificada"
+      }
+    },
     "memberCount": "{count} membro{count, plural, =1 {} other {s}}"
   },
   "employer": {

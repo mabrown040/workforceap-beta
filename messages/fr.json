@@ -2297,6 +2297,48 @@
     "memberDashboard": "Tableau de bord membre",
     "workforceAPHome": "Accueil WorkforceAP",
     "loadingCharts": "Chargement des graphiques…",
+    "applicantTriage": {
+      "title": "Triage des candidatures",
+      "description": "Pré-trié à partir des réponses d'admission déjà enregistrées. C'est une aide au triage, pas une décision : approuver, demander des informations ou refuser reste une action du personnel, et rien ici ne change le comportement de ces boutons.",
+      "reasonsHeading": "Pourquoi cette catégorie",
+      "checklistHeading": "Liste de vérification (préremplie depuis l'admission)",
+      "applicationPending": "Statut de la candidature : en attente d'examen",
+      "applicationNeedsInfo": "Statut de la candidature : informations supplémentaires demandées",
+      "filterLabel": "Triage d'admission",
+      "filterAll": "Tous",
+      "bucket": {
+        "ready_to_review": "Prêt à examiner",
+        "needs_human": "Nécessite un regard humain",
+        "missing_info": "Informations manquantes",
+        "not_eligible_signal": "Point d'attention signalé"
+      },
+      "reason": {
+        "work_auth_answered_no": "Le candidat a répondu « non » à l'autorisation de travail lors de l'admission",
+        "staff_marked_not_eligible": "L'examen WIOA du personnel est marqué non admissible",
+        "staff_requested_info": "Le personnel a déjà demandé des informations supplémentaires au candidat",
+        "staff_wioa_needs_info": "L'examen WIOA du personnel attend des informations supplémentaires",
+        "contact_incomplete": "Nom, e-mail ou téléphone manquant",
+        "program_missing": "Aucun programme choisi",
+        "program_unrecognized": "Le programme choisi n'est pas dans le catalogue",
+        "intake_screening_missing": "Aucune réponse au questionnaire d'admission enregistrée",
+        "work_auth_unanswered": "L'autorisation de travail n'a pas été renseignée",
+        "work_auth_conflict": "Les réponses sur l'autorisation de travail se contredisent entre les formulaires",
+        "funding_fit_not_indicated": "Les réponses d'admission n'indiquent pas encore d'adéquation au financement",
+        "wioa_signal_unclear": "Le signal de l'auto-évaluation WIOA du portail est incertain",
+        "minor_applicant": "Le candidat a moins de 18 ans (parcours consentement parental)",
+        "wioa_review_in_progress": "L'examen WIOA du personnel est toujours en cours",
+        "intake_complete": "Admission complète : contact, programme, questionnaire et autorisation de travail enregistrés"
+      },
+      "checklist": {
+        "contact": "Coordonnées enregistrées",
+        "program": "Programme choisi et présent au catalogue",
+        "intake_screening": "Questionnaire d'admission rempli",
+        "work_authorization": "Autorisation de travail : oui",
+        "funding_fit_signal": "L'admission indique une adéquation au financement (pas une décision)",
+        "partner_referral": "Orientation par un partenaire ou un ambassadeur notée",
+        "wioa_staff_review": "Examen WIOA du personnel enregistré comme vérifié"
+      }
+    },
     "memberCount": "{count} membre{count, plural, =1 {} other {s}}"
   },
   "employer": {

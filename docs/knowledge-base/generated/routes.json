@@ -9315,12 +9315,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 80,
+        "line": 84,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 88,
+        "line": 92,
         "kind": "FunctionDeclaration",
         "localName": "AdminMemberDetailPage"
       }
@@ -9668,12 +9668,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 29,
+        "line": 31,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 38,
+        "line": 40,
         "kind": "FunctionDeclaration",
         "localName": "AdminMembersPage"
       }

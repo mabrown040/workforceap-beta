@@ -5,7 +5,7 @@
 | File | Lines | Domain | Exported symbols |
 | --- | ---: | --- | --- |
 | [docs/A11Y-AUDIT.md](../../../docs/A11Y-AUDIT.md) | 128 | documentation |  |
-| [docs/ADMIN_PORTAL.md](../../../docs/ADMIN_PORTAL.md) | 191 | documentation |  |
+| [docs/ADMIN_PORTAL.md](../../../docs/ADMIN_PORTAL.md) | 222 | documentation |  |
 | [docs/AGENT_CHANGE_GUARDRAILS.md](../../../docs/AGENT_CHANGE_GUARDRAILS.md) | 43 | documentation |  |
 | [docs/API-REFERENCE.md](../../../docs/API-REFERENCE.md) | 525 | documentation |  |
 | [docs/API-ROUTE-ACCESS-INTENTIONS.md](../../../docs/API-ROUTE-ACCESS-INTENTIONS.md) | 41 | documentation |  |

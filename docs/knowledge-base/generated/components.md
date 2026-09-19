@@ -69,7 +69,7 @@
 | [components/admin/AdminPipelineKanban.tsx](../../../components/admin/AdminPipelineKanban.tsx) | 262 | administration | PipelineKanbanMember:14, default:46 |
 | [components/admin/AdminProgramCatalogClient.tsx](../../../components/admin/AdminProgramCatalogClient.tsx) | 323 | administration | default:28 |
 | [components/admin/AdminResumeUpload.tsx](../../../components/admin/AdminResumeUpload.tsx) | 102 | administration | default:11 |
-| [components/admin/AdminSuperMessagesClient.tsx](../../../components/admin/AdminSuperMessagesClient.tsx) | 793 | administration | default:177 |
+| [components/admin/AdminSuperMessagesClient.tsx](../../../components/admin/AdminSuperMessagesClient.tsx) | 743 | administration | default:177 |
 | [components/admin/AdminTrainingDashboardTable.tsx](../../../components/admin/AdminTrainingDashboardTable.tsx) | 246 | administration | default:42 |
 | [components/admin/AdminUsersManager.tsx](../../../components/admin/AdminUsersManager.tsx) | 528 | administration | default:33 |
 | [components/admin/AnalyticsDashboard.tsx](../../../components/admin/AnalyticsDashboard.tsx) | 352 | administration | default:113 |

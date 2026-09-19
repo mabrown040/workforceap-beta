@@ -12618,6 +12618,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/employer-outcomes.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/employer/outcomes/route.ts",
+        "line": 85
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/employer-signup.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -20891,6 +20915,10 @@
       {
         "file": "lib/partner/attentionQueue.ts",
         "line": 12
+      },
+      {
+        "file": "lib/content/programTitle.ts",
+        "line": 13
       }
     ],
     "kind": "test-candidate",

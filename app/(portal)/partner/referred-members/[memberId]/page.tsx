@@ -14,6 +14,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
@@ -37,12 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+// Pinned to PORTAL_TIMEZONE: the server renders in UTC, so an evening Central
+// instant otherwise showed as the next morning (and the next calendar day).
 function formatDate(value: Date | null | undefined) {
-  return value ? value.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  return value ? formatPortalDate(value) || '—' : '—';
 }
 
 function formatDateTime(value: Date | null | undefined) {
-  return value ? value.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+  return value ? formatPortalDateTime(value) || '—' : '—';
 }
 
 function formatSalary(value: number | null | undefined) {

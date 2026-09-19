@@ -6,6 +6,7 @@ import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import {
   deriveCourseraProvisioningState,
+  resolveLearnerLastActivity,
   summarizeProvisioningStates,
   type CourseraProvisioningRow,
   type ProvisioningSummary,
@@ -21,6 +22,17 @@ import {
  *
  * Member universe: every non-deleted member of the org with an assigned
  * program (same base as the enrollment command center, so counts line up).
+ *
+ * "Last activity" per learner (`resolveLearnerLastActivity`), newest wins:
+ *   1. `coursera_course_progress.last_activity_time` linked to the member
+ *      (what Coursera itself reports through the B4B sync)
+ *   2. `course_progress.last_activity_at` (merged portal course rows)
+ *   3. `xapi_statements.created_at` for the member's email (webhook events)
+ *   4. `users.last_login_at` — ONLY when none of 1-3 exist, and carried as
+ *      `lastActivitySource: 'sign_in'` so the UI labels it as a sign-in
+ *      rather than learning activity. It never feeds the state derivation,
+ *      so `active` / `stalled` still mean learning activity.
+ * Nothing at all → `lastActivityAt`, `lastSignInAt` and the source are null.
  */
 
 export type CourseraProvisioningQueueData = {
@@ -32,14 +44,6 @@ export type CourseraProvisioningQueueData = {
 
 const AUDIT_ACTIONS = ['coursera_invited', 'coursera_membership_created', 'coursera_course_enrolled'] as const;
 type AuditAction = (typeof AUDIT_ACTIONS)[number];
-
-function maxDate(...values: Array<Date | null | undefined>): Date | null {
-  let best: Date | null = null;
-  for (const value of values) {
-    if (value && (!best || value.getTime() > best.getTime())) best = value;
-  }
-  return best;
-}
 
 export async function loadCourseraProvisioningQueue(
   organizationId: string,
@@ -61,6 +65,7 @@ export async function loadCourseraProvisioningQueue(
       coursesCompleted: true,
       courseraEnrollmentApproved: true,
       courseraEnrollmentApprovedAt: true,
+      lastLoginAt: true,
       memberProgramProgress: {
         select: { programSlug: true, averagePercent: true, coursesCompleted: true },
       },
@@ -152,6 +157,16 @@ export async function loadCourseraProvisioningQueue(
       liveProgress: m.memberProgramProgress,
     });
 
+    // See the module comment for the precedence. Learning activity drives the
+    // state; a bare sign-in is display-only.
+    const lastActivity = resolveLearnerLastActivity({
+      courseraAt: linked?.lastActivityAt ?? null,
+      courseProgressAt: cp?._max.lastActivityAt ?? null,
+      xapiAt: xapi?.lastActivityAt ?? null,
+      lastSignInAt: m.lastLoginAt,
+    });
+    const learningActivityAt = lastActivity.source === 'sign_in' ? null : lastActivity.at;
+
     const derived = deriveCourseraProvisioningState(
       {
         approved: m.courseraEnrollmentApproved,
@@ -164,7 +179,7 @@ export async function loadCourseraProvisioningQueue(
         unmatchedCourseraRows,
         courseProgressRows: cp?._count._all ?? 0,
         xapiStatements: Number(xapi?.count ?? 0),
-        lastActivityAt: maxDate(cp?._max.lastActivityAt, xapi?.lastActivityAt, linked?.lastActivityAt),
+        lastActivityAt: learningActivityAt,
       },
       now,
     );
@@ -184,6 +199,8 @@ export async function loadCourseraProvisioningQueue(
       invitedAt: audit.coursera_invited ? audit.coursera_invited.toISOString() : null,
       enrolledAt: derived.enrolledAt ? derived.enrolledAt.toISOString() : null,
       lastActivityAt: derived.lastActivityAt ? derived.lastActivityAt.toISOString() : null,
+      lastActivitySource: lastActivity.source,
+      lastSignInAt: m.lastLoginAt ? m.lastLoginAt.toISOString() : null,
       linkedCourseraRows: Number(linked?.count ?? 0),
       unmatchedCourseraRows,
       courseProgressRows: cp?._count._all ?? 0,

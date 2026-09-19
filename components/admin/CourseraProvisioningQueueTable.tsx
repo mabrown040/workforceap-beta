@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import DataTable from '@/components/portal/ui/DataTable';
+import { isAppLocale, type AppLocale } from '@/lib/i18n/config';
+import { formatDate } from '@/lib/i18n/date';
 import StatusBadge from '@/components/portal/StatusBadge';
 import type { BadgeVariant } from '@/components/portal/StatusBadge';
 import {
@@ -12,6 +15,7 @@ import {
   PROVISIONING_STATES,
   type CourseraProvisioningRow,
   type CourseraProvisioningState,
+  type LearnerLastActivitySource,
 } from '@/lib/coursera/provisioningState';
 
 const STATE_VARIANT: Record<CourseraProvisioningState, BadgeVariant> = {
@@ -31,11 +35,12 @@ const STATE_ORDER = new Map<CourseraProvisioningState, number>(
 
 type AttentionFilter = 'all' | 'attention';
 
-function fmtDate(value: string | null): string {
-  if (!value) return '—';
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+/** i18n key (under `admin.courseraProvisioning`) explaining which store a learning timestamp came from. */
+const ACTIVITY_SOURCE_HINT_KEY: Record<Exclude<LearnerLastActivitySource, 'sign_in'>, string> = {
+  coursera: 'sourceCoursera',
+  course_progress: 'sourceCourseProgress',
+  xapi: 'sourceXapi',
+};
 
 function downloadCsv(rows: CourseraProvisioningRow[]) {
   const csv = buildProvisioningCsv(rows);
@@ -66,6 +71,12 @@ export default function CourseraProvisioningQueueTable({
   programs: Array<{ slug: string; title: string }>;
   generatedAt: string;
 }) {
+  const t = useTranslations('admin.courseraProvisioning');
+  const rawLocale = useLocale();
+  const locale: AppLocale = isAppLocale(rawLocale) ? rawLocale : 'en';
+  // Portal (Central) time for every date cell so server and browser agree on the calendar day.
+  const fmtDate = (value: string | null) => formatDate(value, locale);
+
   const [programFilter, setProgramFilter] = useState<string>('all');
   const [stateFilter, setStateFilter] = useState<'all' | CourseraProvisioningState>('all');
   const [attentionFilter, setAttentionFilter] = useState<AttentionFilter>('all');
@@ -247,15 +258,46 @@ export default function CourseraProvisioningQueueTable({
           },
           {
             key: 'activity',
-            header: 'Last activity',
-            cell: (row) => (
-              <div>
-                <div>{fmtDate(row.lastActivityAt)}</div>
+            header: t('lastActivity'),
+            cell: (row) => {
+              const counts = (
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
                   {row.courseProgressRows} course · {row.linkedCourseraRows} B4B · {row.xapiStatements} xAPI
                 </div>
-              </div>
-            ),
+              );
+              if (row.lastActivityAt && row.lastActivitySource && row.lastActivitySource !== 'sign_in') {
+                const hint = t(ACTIVITY_SOURCE_HINT_KEY[row.lastActivitySource]);
+                return (
+                  <div>
+                    <time dateTime={row.lastActivityAt} title={hint} aria-label={`${t('lastActivity')}: ${fmtDate(row.lastActivityAt)}. ${hint}`}>
+                      {fmtDate(row.lastActivityAt)}
+                    </time>
+                    {counts}
+                  </div>
+                );
+              }
+              if (row.lastSignInAt) {
+                return (
+                  <div>
+                    <time
+                      dateTime={row.lastSignInAt}
+                      title={t('lastSignInHint')}
+                      aria-label={`${t('lastSignIn')}: ${fmtDate(row.lastSignInAt)}. ${t('lastSignInHint')}`}
+                    >
+                      {fmtDate(row.lastSignInAt)}
+                    </time>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-accent)' }}>{t('lastSignIn')}</div>
+                    {counts}
+                  </div>
+                );
+              }
+              return (
+                <div>
+                  <span style={{ color: 'var(--color-on-surface-variant)' }}>{t('noActivityYet')}</span>
+                  {counts}
+                </div>
+              );
+            },
           },
           {
             key: 'actions',

@@ -201,6 +201,7 @@
 | [tests/components/board-completion-labels.test.tsx](../../../tests/components/board-completion-labels.test.tsx) | 50 | tests |  |
 | [tests/components/counselor-analytics.spec.tsx](../../../tests/components/counselor-analytics.spec.tsx) | 145 | tests |  |
 | [tests/components/counselor-note-saves.spec.tsx](../../../tests/components/counselor-note-saves.spec.tsx) | 87 | tests |  |
+| [tests/components/coursera-provisioning-queue-last-activity.spec.tsx](../../../tests/components/coursera-provisioning-queue-last-activity.spec.tsx) | 134 | learning-coursera |  |
 | [tests/components/employer-action-connection-failure.spec.tsx](../../../tests/components/employer-action-connection-failure.spec.tsx) | 154 | tests |  |
 | [tests/components/employer-outcomes-status-labels.spec.tsx](../../../tests/components/employer-outcomes-status-labels.spec.tsx) | 43 | tests |  |
 | [tests/components/employer-signup-password-toggle.spec.tsx](../../../tests/components/employer-signup-password-toggle.spec.tsx) | 51 | tests |  |
@@ -296,7 +297,7 @@
 | [tests/lib/coursera-map-identity-atomic.spec.ts](../../../tests/lib/coursera-map-identity-atomic.spec.ts) | 135 | learning-coursera |  |
 | [tests/lib/coursera-org-scoped-urls.spec.ts](../../../tests/lib/coursera-org-scoped-urls.spec.ts) | 128 | learning-coursera |  |
 | [tests/lib/coursera-progress-promotion.spec.ts](../../../tests/lib/coursera-progress-promotion.spec.ts) | 292 | learning-coursera |  |
-| [tests/lib/coursera-provisioning-state.spec.ts](../../../tests/lib/coursera-provisioning-state.spec.ts) | 204 | learning-coursera |  |
+| [tests/lib/coursera-provisioning-state.spec.ts](../../../tests/lib/coursera-provisioning-state.spec.ts) | 250 | learning-coursera |  |
 | [tests/lib/coursera-raw-insert-guard.spec.ts](../../../tests/lib/coursera-raw-insert-guard.spec.ts) | 66 | learning-coursera |  |
 | [tests/lib/coursera-raw-progress-keys.spec.ts](../../../tests/lib/coursera-raw-progress-keys.spec.ts) | 40 | learning-coursera |  |
 | [tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts](../../../tests/lib/coursera-resolve-email-mapping-tenant-ownership.spec.ts) | 76 | learning-coursera |  |

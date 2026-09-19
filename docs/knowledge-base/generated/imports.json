@@ -68945,16 +68945,40 @@
   },
   {
     "from": "components/admin/CourseraProvisioningQueueTable.tsx",
-    "specifier": "@/components/portal/ui/DataTable",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/admin/CourseraProvisioningQueueTable.tsx",
+    "specifier": "@/components/portal/ui/DataTable",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
   },
   {
     "from": "components/admin/CourseraProvisioningQueueTable.tsx",
+    "specifier": "@/lib/i18n/config",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/i18n/config.ts"
+  },
+  {
+    "from": "components/admin/CourseraProvisioningQueueTable.tsx",
+    "specifier": "@/lib/i18n/date",
+    "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/i18n/date.ts"
+  },
+  {
+    "from": "components/admin/CourseraProvisioningQueueTable.tsx",
     "specifier": "@/components/portal/StatusBadge",
-    "line": 6,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/StatusBadge.tsx"
@@ -68962,7 +68986,7 @@
   {
     "from": "components/admin/CourseraProvisioningQueueTable.tsx",
     "specifier": "@/components/portal/StatusBadge",
-    "line": 7,
+    "line": 10,
     "kind": "type",
     "external": false,
     "target": "components/portal/StatusBadge.tsx"
@@ -68970,7 +68994,7 @@
   {
     "from": "components/admin/CourseraProvisioningQueueTable.tsx",
     "specifier": "@/lib/coursera/provisioningState",
-    "line": 8,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/provisioningState.ts"
@@ -123942,6 +123966,62 @@
     "kind": "import",
     "external": false,
     "target": "lib/fetchWithTimeout.ts"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "react",
+    "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "vitest",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "@/components/admin/CourseraProvisioningQueueTable",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/CourseraProvisioningQueueTable.tsx"
+  },
+  {
+    "from": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "specifier": "@/lib/coursera/provisioningState",
+    "line": 8,
+    "kind": "type",
+    "external": false,
+    "target": "lib/coursera/provisioningState.ts"
   },
   {
     "from": "tests/components/employer-action-connection-failure.spec.tsx",

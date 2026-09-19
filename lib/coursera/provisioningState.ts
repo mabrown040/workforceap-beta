@@ -218,6 +218,63 @@ export function summarizeProvisioningStates(
   return { total: rows.length, needsAttention, byState };
 }
 
+/**
+ * Which store supplied the "last activity" date shown for a learner.
+ *
+ *   coursera         `coursera_course_progress.last_activity_time` (B4B sync)
+ *   course_progress  `course_progress.last_activity_at` (merged portal rows)
+ *   xapi             `xapi_statements.created_at` (webhook statements)
+ *   sign_in          `users.last_login_at` — a portal sign-in, not learning.
+ *                    Only used when none of the three learning sources exist,
+ *                    so the table can label it as a sign-in rather than
+ *                    calling it activity.
+ */
+export type LearnerLastActivitySource = 'coursera' | 'course_progress' | 'xapi' | 'sign_in';
+
+export type LearnerActivityTimestamps = {
+  /** MAX(`coursera_course_progress.last_activity_time`) linked to the member. */
+  courseraAt: Date | null;
+  /** MAX(`course_progress.last_activity_at`) for the member. */
+  courseProgressAt: Date | null;
+  /** MAX(`xapi_statements.created_at`) whose actor email is the member's. */
+  xapiAt: Date | null;
+  /** `users.last_login_at`; portal sign-in, never counted as learning. */
+  lastSignInAt: Date | null;
+};
+
+export type LearnerLastActivity = {
+  at: Date | null;
+  source: LearnerLastActivitySource | null;
+};
+
+/** Learning sources in tie-break order (Coursera's own report wins a tie). */
+const LEARNING_SOURCES: ReadonlyArray<[Exclude<LearnerLastActivitySource, 'sign_in'>, keyof LearnerActivityTimestamps]> = [
+  ['coursera', 'courseraAt'],
+  ['course_progress', 'courseProgressAt'],
+  ['xapi', 'xapiAt'],
+];
+
+function validDate(value: Date | null | undefined): Date | null {
+  return value && !Number.isNaN(value.getTime()) ? value : null;
+}
+
+/**
+ * Newest learning timestamp across Coursera, portal course progress and xAPI;
+ * when none exists, the last portal sign-in flagged as `sign_in`; otherwise
+ * `{ at: null, source: null }`. A sign-in never outranks learning activity,
+ * however recent it is.
+ */
+export function resolveLearnerLastActivity(timestamps: LearnerActivityTimestamps): LearnerLastActivity {
+  let best: LearnerLastActivity = { at: null, source: null };
+  for (const [source, key] of LEARNING_SOURCES) {
+    const value = validDate(timestamps[key]);
+    if (value && (!best.at || value.getTime() > best.at.getTime())) best = { at: value, source };
+  }
+  if (best.at) return best;
+  const signIn = validDate(timestamps.lastSignInAt);
+  return signIn ? { at: signIn, source: 'sign_in' } : best;
+}
+
 /** Serialisable row shape shared by the server loader, the table and the CSV. */
 export type CourseraProvisioningRow = {
   memberId: string;
@@ -233,7 +290,16 @@ export type CourseraProvisioningRow = {
   hasUnmatchedRows: boolean;
   invitedAt: string | null;
   enrolledAt: string | null;
+  /** Newest *learning* activity (Coursera, portal course rows, xAPI); never a sign-in. */
   lastActivityAt: string | null;
+  /**
+   * Store behind the "Last activity" cell. One of the learning sources when
+   * `lastActivityAt` is set; `sign_in` when only `lastSignInAt` exists; null
+   * when the member has neither.
+   */
+  lastActivitySource: LearnerLastActivitySource | null;
+  /** `users.last_login_at`, shown (labelled as a sign-in) only when there is no learning activity. */
+  lastSignInAt: string | null;
   linkedCourseraRows: number;
   unmatchedCourseraRows: number;
   courseProgressRows: number;

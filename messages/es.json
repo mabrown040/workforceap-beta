@@ -2342,7 +2342,16 @@
     "retryAdminHome": "Reintentar inicio de admin",
     "memberDashboard": "Panel del miembro",
     "workforceAPHome": "Inicio de WorkforceAP",
-    "loadingCharts": "Cargando gráficos…"
+    "loadingCharts": "Cargando gráficos…",
+    "courseraProvisioning": {
+      "lastActivity": "Última actividad",
+      "noActivityYet": "Sin actividad todavía",
+      "lastSignIn": "Último inicio de sesión",
+      "lastSignInHint": "Aún no hay actividad de aprendizaje registrada; esta es la última vez que el miembro inició sesión en el portal.",
+      "sourceCoursera": "Última actividad reportada por Coursera",
+      "sourceCourseProgress": "Última actividad en un registro de curso del portal",
+      "sourceXapi": "Última declaración xAPI recibida"
+    }
   },
   "employer": {
     "employerOverview": "Resumen del empleador",

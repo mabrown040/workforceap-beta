@@ -5,8 +5,10 @@ import {
   deriveCourseraProvisioningState,
   PROVISIONING_STATE_LABELS,
   PROVISIONING_STATES,
+  resolveLearnerLastActivity,
   summarizeProvisioningStates,
   type CourseraProvisioningSignals,
+  type LearnerActivityTimestamps,
   type CourseraProvisioningState,
 } from '@/lib/coursera/provisioningState';
 
@@ -187,6 +189,8 @@ describe('buildProvisioningCsv', () => {
         invitedAt: '2026-09-02T00:00:00.000Z',
         enrolledAt: null,
         lastActivityAt: null,
+        lastActivitySource: null,
+        lastSignInAt: null,
         linkedCourseraRows: 0,
         unmatchedCourseraRows: 0,
         courseProgressRows: 0,
@@ -200,5 +204,47 @@ describe('buildProvisioningCsv', () => {
     expect(lines[1]).toContain('"IT Support, Google"');
     expect(lines[1]).toContain('Invited');
     expect(lines[1]).toContain('2026-09-02');
+  });
+});
+
+describe('resolveLearnerLastActivity', () => {
+  function timestamps(overrides: Partial<LearnerActivityTimestamps> = {}): LearnerActivityTimestamps {
+    return { courseraAt: null, courseProgressAt: null, xapiAt: null, lastSignInAt: null, ...overrides };
+  }
+
+  it('picks the newest learning timestamp across Coursera, portal course rows and xAPI', () => {
+    const viaXapi = resolveLearnerLastActivity(
+      timestamps({ courseraAt: daysAgo(10), courseProgressAt: daysAgo(6), xapiAt: daysAgo(2) }),
+    );
+    expect(viaXapi).toEqual({ at: daysAgo(2), source: 'xapi' });
+
+    const viaCoursera = resolveLearnerLastActivity(
+      timestamps({ courseraAt: daysAgo(1), courseProgressAt: daysAgo(6), xapiAt: daysAgo(2) }),
+    );
+    expect(viaCoursera).toEqual({ at: daysAgo(1), source: 'coursera' });
+
+    const viaCourseProgress = resolveLearnerLastActivity(timestamps({ courseProgressAt: daysAgo(3), xapiAt: daysAgo(9) }));
+    expect(viaCourseProgress).toEqual({ at: daysAgo(3), source: 'course_progress' });
+  });
+
+  it('never lets a portal sign-in outrank learning activity, even when the sign-in is newer', () => {
+    const result = resolveLearnerLastActivity(timestamps({ courseraAt: daysAgo(40), lastSignInAt: daysAgo(0) }));
+    expect(result).toEqual({ at: daysAgo(40), source: 'coursera' });
+  });
+
+  it('falls back to the last sign-in, flagged as sign_in, when no learning source exists', () => {
+    const result = resolveLearnerLastActivity(timestamps({ lastSignInAt: daysAgo(7) }));
+    expect(result).toEqual({ at: daysAgo(7), source: 'sign_in' });
+  });
+
+  it('returns nothing when the member has neither learning activity nor a sign-in', () => {
+    expect(resolveLearnerLastActivity(timestamps())).toEqual({ at: null, source: null });
+  });
+
+  it('ignores invalid dates instead of surfacing them', () => {
+    const result = resolveLearnerLastActivity(
+      timestamps({ courseraAt: new Date('not-a-date'), lastSignInAt: daysAgo(1) }),
+    );
+    expect(result).toEqual({ at: daysAgo(1), source: 'sign_in' });
   });
 });

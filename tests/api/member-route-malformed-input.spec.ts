@@ -104,7 +104,7 @@ describe('member-facing routes answer malformed input with JSON 4xx bodies', () 
 
   describe('GET /api/gdpr/export', () => {
     it('reads ai_job_matches by student_id and returns the export as JSON', async () => {
-      const res = await gdprExport(new Request('http://localhost/api/gdpr/export') as any, {} as any);
+      const res = await gdprExport(new Request('http://localhost/api/gdpr/export') as any);
       expect(res.status).toBe(200);
       const body = await readJson(res);
       expect(Array.isArray(body.aiJobMatches)).toBe(true);
@@ -120,7 +120,7 @@ describe('member-facing routes answer malformed input with JSON 4xx bodies', () 
   describe('POST /api/mentors/[id]/sessions', () => {
     beforeEach(() => {
       vi.mocked(prisma.mentor.findFirst).mockResolvedValue({ id: MENTOR_ID } as any);
-      vi.mocked(prisma.mentorSession.create).mockImplementation(async ({ data }: any) => ({ id: 'session-1', ...data }));
+      vi.mocked(prisma.mentorSession.create).mockResolvedValue({ id: 'session-1' } as any);
     });
 
     it.each([

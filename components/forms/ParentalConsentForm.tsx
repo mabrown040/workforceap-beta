@@ -2,6 +2,7 @@
 
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { useState } from 'react';
+import { todayInPortalTimezone } from '@/lib/date/todayInPortalTimezone';
 import LocalizedLink from '@/components/LocalizedLink';
 
 type ParentalConsentData = {
@@ -151,7 +152,7 @@ export default function ParentalConsentForm({
             value={formData.studentDob}
             onChange={(e) => updateField('studentDob', e.target.value)}
             required
-            max={new Date().toISOString().split('T')[0]}
+            max={todayInPortalTimezone()}
           />
         </div>
 

@@ -17735,6 +17735,39 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 6
+      },
+      {
+        "file": "components/admin/CourseraProvisioningQueueTable.tsx",
+        "line": 7
+      },
+      {
+        "file": "lib/coursera/provisioningState.ts",
+        "line": 8
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/components/employer-action-connection-failure.spec.tsx",
     "area": "tests",
     "domain": "tests",
@@ -20330,6 +20363,30 @@
       {
         "file": "lib/db/prisma.ts",
         "line": 97
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/coursera-provisioning-state.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/coursera/provisioningState.ts",
+        "line": 3
       }
     ],
     "kind": "test-candidate",

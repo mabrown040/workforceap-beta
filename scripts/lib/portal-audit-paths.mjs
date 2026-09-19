@@ -90,6 +90,7 @@ export const STATIC_PATHS = {
     '/admin/coursera/csv-import',
     '/admin/coursera/enrollment',
     '/admin/coursera/health',
+    '/admin/coursera/provisioning',
     '/admin/crons',
     '/admin/dashboard',
     '/admin/data-retention',

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "e24c7a790a04a02d4c8dd05f96766d32594fa729b83d6680f0dc8968397eb34f",
+  "inputTreeSha256": "12324975c396a2a4e09a28c49909fcc07b76af3f257ab6174b98081172851e15",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -15690,9 +15690,9 @@
       "path": "app/admin/coursera/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 66536,
-      "lines": 1620,
-      "sha256": "dad55dad38afda04c5409f5144bdab25cfc382c56fd9cf2371bd92541534691b",
+      "bytes": 67800,
+      "lines": 1650,
+      "sha256": "65b58648e2fa8798f0f5bf9bcd4242b544d41c3b13b51edfc5cc34390a689873",
       "binary": false,
       "exports": [
         {
@@ -15791,6 +15791,56 @@
         {
           "name": "AdminCourseraPage",
           "line": 510,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "app/admin/coursera/provisioning/page.tsx",
+      "area": "pages",
+      "domain": "learning-coursera",
+      "bytes": 4293,
+      "lines": 102,
+      "sha256": "3ae18b81cf3e6f3eca60bc97c423937846019d97422b97b00f473aea5d8f6c9f",
+      "binary": false,
+      "exports": [
+        {
+          "name": "generateMetadata",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "dynamic",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "default",
+          "line": 37,
+          "kind": "FunctionDeclaration",
+          "localName": "AdminCourseraProvisioningPage"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "generateMetadata",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "dynamic",
+          "line": 26,
+          "kind": "Variable"
+        },
+        {
+          "name": "QUEUE_TILES",
+          "line": 28,
+          "kind": "Variable"
+        },
+        {
+          "name": "AdminCourseraProvisioningPage",
+          "line": 37,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -50365,6 +50415,61 @@
       "directive": null
     },
     {
+      "path": "components/admin/CourseraProvisioningQueueTable.tsx",
+      "area": "components",
+      "domain": "learning-coursera",
+      "bytes": 12339,
+      "lines": 329,
+      "sha256": "d53222e009eb5b58233d254a2bbf1fe934d639ff3a18afcfc23d219ecea86752",
+      "binary": false,
+      "exports": [
+        {
+          "name": "default",
+          "line": 65,
+          "kind": "FunctionDeclaration",
+          "localName": "CourseraProvisioningQueueTable"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "STATE_VARIANT",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "STATE_ORDER",
+          "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "AttentionFilter",
+          "line": 36,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ACTIVITY_SOURCE_HINT_KEY",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
+          "name": "downloadCsv",
+          "line": 45,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "controlStyle",
+          "line": 56,
+          "kind": "Variable"
+        },
+        {
+          "name": "CourseraProvisioningQueueTable",
+          "line": 65,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": "use client"
+    },
+    {
       "path": "components/admin/CourseraReconcileCard.tsx",
       "area": "components",
       "domain": "learning-coursera",
@@ -84781,6 +84886,50 @@
       "directive": null
     },
     {
+      "path": "lib/admin/courseraProvisioningQueue.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 8898,
+      "lines": 221,
+      "sha256": "6978e89b17b0296cdae52882405ea29a307b5e393f936a4e7dac8aeb05aeb1eb",
+      "binary": false,
+      "exports": [
+        {
+          "name": "CourseraProvisioningQueueData",
+          "line": 38,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "loadCourseraProvisioningQueue",
+          "line": 48,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CourseraProvisioningQueueData",
+          "line": 38,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "AUDIT_ACTIONS",
+          "line": 45,
+          "kind": "Variable"
+        },
+        {
+          "name": "AuditAction",
+          "line": 46,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "loadCourseraProvisioningQueue",
+          "line": 48,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/courseraSyncDrift.test.ts",
       "area": "libraries",
       "domain": "learning-coursera",
@@ -108512,6 +108661,215 @@
         {
           "name": "reconcileProgramProgress",
           "line": 70,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/coursera/provisioningState.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 13590,
+      "lines": 351,
+      "sha256": "b3d58f1ffd0a986ed2080ba9883a5a3ce6cf6379903cb002961c69381e23ec63",
+      "binary": false,
+      "exports": [
+        {
+          "name": "CourseraProvisioningState",
+          "line": 44,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PROVISIONING_STATES",
+          "line": 55,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_LABELS",
+          "line": 66,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_HINTS",
+          "line": 77,
+          "kind": "Variable"
+        },
+        {
+          "name": "CourseraProvisioningSignals",
+          "line": 88,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningDerived",
+          "line": 111,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ACTIVE_WINDOW_DAYS",
+          "line": 126,
+          "kind": "Variable"
+        },
+        {
+          "name": "INVITE_ATTENTION_DAYS",
+          "line": 128,
+          "kind": "Variable"
+        },
+        {
+          "name": "deriveCourseraProvisioningState",
+          "line": 134,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ProvisioningSummary",
+          "line": 200,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "summarizeProvisioningStates",
+          "line": 206,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "LearnerLastActivitySource",
+          "line": 232,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LearnerActivityTimestamps",
+          "line": 234,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LearnerLastActivity",
+          "line": 245,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolveLearnerLastActivity",
+          "line": 267,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningRow",
+          "line": 279,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "buildProvisioningCsv",
+          "line": 315,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "CourseraProvisioningState",
+          "line": 44,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "PROVISIONING_STATES",
+          "line": 55,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_LABELS",
+          "line": 66,
+          "kind": "Variable"
+        },
+        {
+          "name": "PROVISIONING_STATE_HINTS",
+          "line": 77,
+          "kind": "Variable"
+        },
+        {
+          "name": "CourseraProvisioningSignals",
+          "line": 88,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningDerived",
+          "line": 111,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DAY_MS",
+          "line": 125,
+          "kind": "Variable"
+        },
+        {
+          "name": "ACTIVE_WINDOW_DAYS",
+          "line": 126,
+          "kind": "Variable"
+        },
+        {
+          "name": "INVITE_ATTENTION_DAYS",
+          "line": 128,
+          "kind": "Variable"
+        },
+        {
+          "name": "daysBetween",
+          "line": 130,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "deriveCourseraProvisioningState",
+          "line": 134,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ProvisioningSummary",
+          "line": 200,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "summarizeProvisioningStates",
+          "line": 206,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "LearnerLastActivitySource",
+          "line": 232,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LearnerActivityTimestamps",
+          "line": 234,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LearnerLastActivity",
+          "line": 245,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "LEARNING_SOURCES",
+          "line": 251,
+          "kind": "Variable"
+        },
+        {
+          "name": "validDate",
+          "line": 257,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolveLearnerLastActivity",
+          "line": 267,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "CourseraProvisioningRow",
+          "line": 279,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "isoToCsvDate",
+          "line": 309,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "buildProvisioningCsv",
+          "line": 315,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -140107,27 +140465,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 193222,
-      "lines": 3155,
-      "sha256": "f6621bf4c08088b312fc6b0cc91fb7c507fda960f1e5758da93c2a9390d42c68",
+      "bytes": 193688,
+      "lines": 3164,
+      "sha256": "1188aa2fe96a7498222b1e19a9f67c3ec473a96bac9851f2fae45cd03b0df527",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 213745,
-      "lines": 3155,
-      "sha256": "792bcec8918ec1eaf275b7e58a5d9626200da748bc1dd3502a764578ce490ac9",
+      "bytes": 214278,
+      "lines": 3164,
+      "sha256": "a46f91e584ad41821462f419e09aa734d4989b9450bda3130bb4331583bae10d",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 213155,
-      "lines": 3094,
-      "sha256": "11609fc2eed4aa5cee9924f4100256c01cbb19fe382d0bc2ad06487e327f1713",
+      "bytes": 213700,
+      "lines": 3103,
+      "sha256": "cc11e0ac17b33b2c1af1f6cc4c5761cfc0f7d6385c96c7263d9d27f2914cbb15",
       "binary": false
     },
     {
@@ -140143,9 +140501,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204952,
-      "lines": 3094,
-      "sha256": "499e9a4a3cb89002e8b55b62d517a753a58433fa9002c6f3aba7a7e509e9b0f3",
+      "bytes": 205456,
+      "lines": 3103,
+      "sha256": "15e440bb7a62e2b5b181619dbf09ee1b284d9d5c90257fe4cb0ce5120042a9ca",
       "binary": false
     },
     {
@@ -147737,9 +148095,9 @@
       "path": "scripts/lib/portal-audit-paths.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 15089,
-      "lines": 517,
-      "sha256": "526189cb1709c82bb874a14cde922d58674d3fc34e05381746500d5aa0d9b5ac",
+      "bytes": 15125,
+      "lines": 518,
+      "sha256": "66cbec4717304efa65fe1f9e5b516f3bb13219239f7b0f7158d61f3db569b35b",
       "binary": false,
       "exports": [
         {
@@ -147749,47 +148107,47 @@
         },
         {
           "name": "DYNAMIC_PATHS",
-          "line": 201,
+          "line": 202,
           "kind": "Variable"
         },
         {
           "name": "REQUIRED_DYNAMIC_PATHS",
-          "line": 243,
+          "line": 244,
           "kind": "Variable"
         },
         {
           "name": "SAFE_ACTION_CONTRACTS",
-          "line": 256,
+          "line": 257,
           "kind": "Variable"
         },
         {
           "name": "ATTENDED_ACTION_GATES",
-          "line": 351,
+          "line": 352,
           "kind": "Variable"
         },
         {
           "name": "REDIRECT_ONLY_PATHS",
-          "line": 381,
+          "line": 382,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_PATHS",
-          "line": 474,
+          "line": 475,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_ROLES",
-          "line": 480,
+          "line": 481,
           "kind": "Variable"
         },
         {
           "name": "SECTION_LOGIN_REDIRECT",
-          "line": 484,
+          "line": 485,
           "kind": "Variable"
         },
         {
           "name": "ROLE_ACCESS_MATRIX",
-          "line": 496,
+          "line": 497,
           "kind": "Variable"
         }
       ],
@@ -147801,47 +148159,47 @@
         },
         {
           "name": "DYNAMIC_PATHS",
-          "line": 201,
+          "line": 202,
           "kind": "Variable"
         },
         {
           "name": "REQUIRED_DYNAMIC_PATHS",
-          "line": 243,
+          "line": 244,
           "kind": "Variable"
         },
         {
           "name": "SAFE_ACTION_CONTRACTS",
-          "line": 256,
+          "line": 257,
           "kind": "Variable"
         },
         {
           "name": "ATTENDED_ACTION_GATES",
-          "line": 351,
+          "line": 352,
           "kind": "Variable"
         },
         {
           "name": "REDIRECT_ONLY_PATHS",
-          "line": 381,
+          "line": 382,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_PATHS",
-          "line": 474,
+          "line": 475,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_ROLES",
-          "line": 480,
+          "line": 481,
           "kind": "Variable"
         },
         {
           "name": "SECTION_LOGIN_REDIRECT",
-          "line": 484,
+          "line": 485,
           "kind": "Variable"
         },
         {
           "name": "ROLE_ACCESS_MATRIX",
-          "line": 496,
+          "line": 497,
           "kind": "Variable"
         }
       ],
@@ -155849,6 +156207,44 @@
       "directive": null
     },
     {
+      "path": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 4761,
+      "lines": 134,
+      "sha256": "09a76ee2e1d7691e175812b770938aff9ce302fa230937d91501142dbfaa4fe8",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "render",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "row",
+          "line": 19,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "PROGRAMS",
+          "line": 43,
+          "kind": "Variable"
+        },
+        {
+          "name": "GENERATED_AT",
+          "line": 44,
+          "kind": "Variable"
+        },
+        {
+          "name": "rowFor",
+          "line": 46,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/employer-action-connection-failure.spec.tsx",
       "area": "tests",
       "domain": "tests",
@@ -158315,6 +158711,39 @@
           "name": "mocks",
           "line": 4,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/coursera-provisioning-state.spec.ts",
+      "area": "tests",
+      "domain": "learning-coursera",
+      "bytes": 9824,
+      "lines": 250,
+      "sha256": "97b60f4790cebc98515ed525a25c5217a141e3cc07648ba84c9e5e9404bd26cf",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "NOW",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "DAYS",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "daysAgo",
+          "line": 17,
+          "kind": "Variable"
+        },
+        {
+          "name": "signals",
+          "line": 19,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

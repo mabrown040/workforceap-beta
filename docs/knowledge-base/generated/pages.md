@@ -57,7 +57,7 @@
 | [app/(portal)/counselor/messages/page.tsx](../../../app/%28portal%29/counselor/messages/page.tsx) | 95 | communications | default:23 |
 | [app/(portal)/counselor/not-found.tsx](../../../app/%28portal%29/counselor/not-found.tsx) | 20 | member-counselor | default:3 |
 | [app/(portal)/counselor/notifications/page.tsx](../../../app/%28portal%29/counselor/notifications/page.tsx) | 49 | communications | default:10 |
-| [app/(portal)/counselor/page.tsx](../../../app/%28portal%29/counselor/page.tsx) | 689 | member-counselor | default:44 |
+| [app/(portal)/counselor/page.tsx](../../../app/%28portal%29/counselor/page.tsx) | 691 | member-counselor | default:45 |
 | [app/(portal)/counselor/placements/error.tsx](../../../app/%28portal%29/counselor/placements/error.tsx) | 13 | jobs-employers | default:5 |
 | [app/(portal)/counselor/placements/loading.tsx](../../../app/%28portal%29/counselor/placements/loading.tsx) | 5 | jobs-employers | default:3 |
 | [app/(portal)/counselor/placements/page.tsx](../../../app/%28portal%29/counselor/placements/page.tsx) | 422 | jobs-employers | default:72 |
@@ -75,11 +75,11 @@
 | [app/(portal)/counselor/sessions/page.tsx](../../../app/%28portal%29/counselor/sessions/page.tsx) | 37 | member-counselor | generateMetadata:9, default:25 |
 | [app/(portal)/counselor/sessions/walk-in/page.tsx](../../../app/%28portal%29/counselor/sessions/walk-in/page.tsx) | 46 | member-counselor | generateMetadata:10, default:19 |
 | [app/(portal)/counselor/students/\[memberId\]/AdvisorSessionNotesPanel.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/AdvisorSessionNotesPanel.tsx) | 256 | member-counselor | default:29 |
-| [app/(portal)/counselor/students/\[memberId\]/CounselorNotesPanel.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/CounselorNotesPanel.tsx) | 244 | member-counselor | default:17 |
+| [app/(portal)/counselor/students/\[memberId\]/CounselorNotesPanel.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/CounselorNotesPanel.tsx) | 248 | member-counselor | default:19 |
 | [app/(portal)/counselor/students/\[memberId\]/error.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/students/\[memberId\]/loading.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/counselor/students/\[memberId\]/notesPanel.module.css](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/notesPanel.module.css) | 119 | member-counselor |  |
-| [app/(portal)/counselor/students/\[memberId\]/page.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/page.tsx) | 1409 | member-counselor | default:65 |
+| [app/(portal)/counselor/students/\[memberId\]/page.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/page.tsx) | 1413 | member-counselor | default:66 |
 | [app/(portal)/counselor/students/error.tsx](../../../app/%28portal%29/counselor/students/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/students/loading.tsx](../../../app/%28portal%29/counselor/students/loading.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/counselor/students/page.tsx](../../../app/%28portal%29/counselor/students/page.tsx) | 473 | member-counselor | default:30 |
@@ -352,7 +352,7 @@
 | [app/admin/board/print/page.tsx](../../../app/admin/board/print/page.tsx) | 96 | administration | generateMetadata:13, default:31 |
 | [app/admin/career-mappings/CareerMappingsClient.tsx](../../../app/admin/career-mappings/CareerMappingsClient.tsx) | 714 | administration | AuditEntry:32, default:97 |
 | [app/admin/career-mappings/loading.tsx](../../../app/admin/career-mappings/loading.tsx) | 6 | administration | default:3 |
-| [app/admin/career-mappings/page.tsx](../../../app/admin/career-mappings/page.tsx) | 171 | administration | generateMetadata:15, default:31 |
+| [app/admin/career-mappings/page.tsx](../../../app/admin/career-mappings/page.tsx) | 172 | administration | generateMetadata:16, default:30 |
 | [app/admin/certifications/loading.tsx](../../../app/admin/certifications/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/certifications/page.tsx](../../../app/admin/certifications/page.tsx) | 237 | administration | generateMetadata:17, default:25 |
 | [app/admin/command-center/page.tsx](../../../app/admin/command-center/page.tsx) | 266 | administration | dynamic:23, generateMetadata:25, default:33 |
@@ -360,7 +360,7 @@
 | [app/admin/counselors/page.tsx](../../../app/admin/counselors/page.tsx) | 210 | administration | generateMetadata:18, default:52 |
 | [app/admin/coursera/csv-import/page.tsx](../../../app/admin/coursera/csv-import/page.tsx) | 60 | learning-coursera | metadata:11, dynamic:17, default:19 |
 | [app/admin/coursera/enrollment/page.tsx](../../../app/admin/coursera/enrollment/page.tsx) | 89 | learning-coursera | generateMetadata:13, dynamic:22, default:31 |
-| [app/admin/coursera/health/page.tsx](../../../app/admin/coursera/health/page.tsx) | 1486 | learning-coursera | generateMetadata:22, dynamic:31, default:636 |
+| [app/admin/coursera/health/page.tsx](../../../app/admin/coursera/health/page.tsx) | 1436 | learning-coursera | generateMetadata:23, dynamic:32, default:581 |
 | [app/admin/coursera/learners/\[userId\]/page.tsx](../../../app/admin/coursera/learners/%5BuserId%5D/page.tsx) | 378 | learning-coursera | metadata:26, dynamic:32, default:78 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/events/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/events/page.tsx) | 250 | learning-coursera | metadata:18, dynamic:24, default:46 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/page.tsx) | 463 | learning-coursera | metadata:26, dynamic:32, default:45 |
@@ -411,7 +411,7 @@
 | [app/admin/members/\[id\]/billing/page.tsx](../../../app/admin/members/%5Bid%5D/billing/page.tsx) | 128 | partners-funding | generateMetadata:16, default:29 |
 | [app/admin/members/\[id\]/introduceAction.ts](../../../app/admin/members/%5Bid%5D/introduceAction.ts) | 108 | administration | introduceMemberToEmployer:13 |
 | [app/admin/members/\[id\]/lifecycle/page.tsx](../../../app/admin/members/%5Bid%5D/lifecycle/page.tsx) | 225 | administration | generateMetadata:12, default:20 |
-| [app/admin/members/\[id\]/page.tsx](../../../app/admin/members/%5Bid%5D/page.tsx) | 1178 | administration | generateMetadata:79, default:87 |
+| [app/admin/members/\[id\]/page.tsx](../../../app/admin/members/%5Bid%5D/page.tsx) | 1181 | administration | generateMetadata:79, default:87 |
 | [app/admin/members/\[id\]/readiness/ReadinessCounselorClient.tsx](../../../app/admin/members/%5Bid%5D/readiness/ReadinessCounselorClient.tsx) | 216 | administration | default:25 |
 | [app/admin/members/\[id\]/readiness/page.tsx](../../../app/admin/members/%5Bid%5D/readiness/page.tsx) | 57 | administration | generateMetadata:11, default:19 |
 | [app/admin/members/\[id\]/stakeholder/page.tsx](../../../app/admin/members/%5Bid%5D/stakeholder/page.tsx) | 697 | administration | dynamic:21, generateMetadata:23, default:57 |

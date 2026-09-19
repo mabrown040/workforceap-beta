@@ -1236,7 +1236,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 44,
+        "line": 45,
         "kind": "FunctionDeclaration",
         "localName": "CounselorPortalPage"
       }
@@ -1660,7 +1660,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 65,
+        "line": 66,
         "kind": "FunctionDeclaration",
         "localName": "CounselorStudentDetailPage"
       }
@@ -7840,12 +7840,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 15,
+        "line": 16,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 31,
+        "line": 30,
         "kind": "FunctionDeclaration",
         "localName": "AdminCareerMappingsPage"
       }
@@ -8111,17 +8111,17 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 22,
+        "line": 23,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "dynamic",
-        "line": 31,
+        "line": 32,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 636,
+        "line": 581,
         "kind": "FunctionDeclaration",
         "localName": "AdminCourseraHealthPage"
       }
@@ -21555,17 +21555,17 @@
     "exports": [
       {
         "name": "GET",
-        "line": 57,
+        "line": 59,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 108,
+        "line": 110,
         "kind": "Variable"
       },
       {
         "name": "DELETE",
-        "line": 155,
+        "line": 157,
         "kind": "Variable"
       }
     ],

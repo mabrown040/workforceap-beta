@@ -1944,6 +1944,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/admin/courseraSyncDrift.test.ts",
+    "area": "libraries",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/courseraSyncDrift.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/admin/directoryEmptyState.test.ts",
     "area": "libraries",
     "domain": "administration",
@@ -4045,6 +4069,34 @@
       {
         "file": "lib/content/programSubgroup.ts",
         "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/content/programTitle.test.ts",
+    "area": "libraries",
+    "domain": "public-experience",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/programTitle.ts",
+        "line": 3
+      },
+      {
+        "file": "lib/content/programs.ts",
+        "line": 4
       }
     ],
     "kind": "test-candidate",
@@ -11407,6 +11459,46 @@
       {
         "file": "app/api/counselor/inbox-zero/dismiss/route.ts",
         "line": 55
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/counselor-notes-author-gate.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 36
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 48
+      },
+      {
+        "file": "app/api/counselor/members/[memberId]/notes/route.ts",
+        "line": 57
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 58
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 59
       }
     ],
     "kind": "test-candidate",

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "7c661768e75481d2e5cd17b7c69f7363a4d26c84b3f7e33a6639054a43a45889",
+  "inputTreeSha256": "f602c97127c4870592dff54673f9bcb4fe4bade09e4888514510601e96abc23d",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -5164,14 +5164,14 @@
       "path": "app/(portal)/counselor/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 36871,
-      "lines": 689,
-      "sha256": "fbd5c56c25c15349380ecc1bb0fc85726c6373932fce8e8e692cabe9925cdc3c",
+      "bytes": 37050,
+      "lines": 691,
+      "sha256": "f35797b1f3db81fd73fe5ab6442c2b51e667e8ce87dec9b0dc096d1ec9dc5306",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 44,
+          "line": 45,
           "kind": "FunctionDeclaration",
           "localName": "CounselorPortalPage"
         }
@@ -5179,12 +5179,12 @@
       "declarations": [
         {
           "name": "QUICK_LINK_ACCENT_COLORS",
-          "line": 36,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "CounselorPortalPage",
-          "line": 44,
+          "line": 45,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -5712,14 +5712,14 @@
       "path": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 9253,
-      "lines": 244,
-      "sha256": "d28d9c2c8eef2cf41474d0729412729923723c748d6c35444a196e3e9f5fdec5",
+      "bytes": 9420,
+      "lines": 248,
+      "sha256": "9bf7065f75a72f6df4c91d5470528eb2d8b61d5f773075d48fd58a8168b475fe",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 17,
+          "line": 19,
           "kind": "FunctionDeclaration",
           "localName": "CounselorNotesPanel"
         }
@@ -5732,7 +5732,7 @@
         },
         {
           "name": "CounselorNotesPanel",
-          "line": 17,
+          "line": 19,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -5801,14 +5801,14 @@
       "path": "app/(portal)/counselor/students/[memberId]/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 63799,
-      "lines": 1409,
-      "sha256": "96b3511c826cdd79c03d8280c5a70c97d4306433ff70f408ea671f3a5adbae2e",
+      "bytes": 64016,
+      "lines": 1413,
+      "sha256": "c658bad4d3dab2108523f989bf7927254d9c3a2565b92a55ee879dbc4b150e3d",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration",
           "localName": "CounselorStudentDetailPage"
         }
@@ -5816,52 +5816,52 @@
       "declarations": [
         {
           "name": "Props",
-          "line": 53,
+          "line": 54,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getInitials",
-          "line": 55,
+          "line": 56,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorStudentDetailPage",
-          "line": 65,
+          "line": 66,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AtRiskAlertDisplay",
-          "line": 1262,
+          "line": 1266,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "NextBestActionRow",
-          "line": 1269,
+          "line": 1273,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Counselor360Signals",
-          "line": 1279,
+          "line": 1283,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CARD_STYLE",
-          "line": 1297,
+          "line": 1301,
           "kind": "Variable"
         },
         {
           "name": "AtRiskSignalCard",
-          "line": 1299,
+          "line": 1303,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CareerQuizRecommendationCard",
-          "line": 1357,
+          "line": 1361,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NextBestActionsCard",
-          "line": 1383,
+          "line": 1387,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -14950,19 +14950,19 @@
       "path": "app/admin/career-mappings/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 6096,
-      "lines": 171,
-      "sha256": "b953615a83c17a4061457e8b7462573136c1d757c1069c6021221658035d4e13",
+      "bytes": 6185,
+      "lines": 172,
+      "sha256": "64c7d1cee3d8138c39e76c24646f5c1849cd6f8151aa49b664edb0186df11cd7",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 31,
+          "line": 30,
           "kind": "FunctionDeclaration",
           "localName": "AdminCareerMappingsPage"
         }
@@ -14970,32 +14970,27 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 15,
+          "line": 16,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "HISTORY_LIMIT",
-          "line": 24,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "MAPPING_LIMIT",
-          "line": 26,
-          "kind": "Variable"
-        },
-        {
-          "name": "PROGRAM_BY_SLUG",
-          "line": 29,
+          "line": 27,
           "kind": "Variable"
         },
         {
           "name": "AdminCareerMappingsPage",
-          "line": 31,
+          "line": 30,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "LegacyCareerMappingsView",
-          "line": 139,
+          "line": 140,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -15280,24 +15275,24 @@
       "path": "app/admin/coursera/health/page.tsx",
       "area": "pages",
       "domain": "learning-coursera",
-      "bytes": 51284,
-      "lines": 1486,
-      "sha256": "b4c66bcb76cb155896241bc480c8208316382ff4121e13fb14f53de7a41c93d7",
+      "bytes": 49876,
+      "lines": 1436,
+      "sha256": "5b8666bdea717056099dfddd1649c37354a04e328de4a7b1e063c1ef9bfdebe9",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 31,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "default",
-          "line": 636,
+          "line": 581,
           "kind": "FunctionDeclaration",
           "localName": "AdminCourseraHealthPage"
         }
@@ -15305,202 +15300,192 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "dynamic",
-          "line": 31,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "COURSERA_CRON_WORKFLOW_KEYS",
-          "line": 35,
+          "line": 36,
           "kind": "Variable"
         },
         {
           "name": "CardSeverity",
-          "line": 41,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SummaryCard",
-          "line": 43,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CronRunRow",
-          "line": 51,
+          "line": 52,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "IgnoredSlugRow",
-          "line": 60,
+          "line": 61,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "UnmatchedActorRow",
-          "line": 65,
+          "line": 66,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DriftRow",
-          "line": 70,
+          "line": 71,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "OutOfCatalogRow",
-          "line": 80,
-          "kind": "TypeAliasDeclaration"
-        },
-        {
-          "name": "SyncDriftRow",
-          "line": 87,
+          "line": 81,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WrongProgramRow",
-          "line": 96,
+          "line": 88,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "fmtDateTime",
-          "line": 105,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "relativeAge",
-          "line": 110,
+          "line": 102,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityBackground",
-          "line": 123,
+          "line": 115,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityBorder",
-          "line": 135,
+          "line": 127,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "severityAccent",
-          "line": 147,
+          "line": 139,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pluralize",
-          "line": 159,
+          "line": 151,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadCanonicalMappingCount",
-          "line": 163,
+          "line": 155,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadXapiTrafficSummary",
-          "line": 172,
+          "line": 164,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4bSummary",
-          "line": 192,
+          "line": 184,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadIgnoredRatio",
-          "line": 219,
+          "line": 211,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadRecentCronRuns",
-          "line": 243,
+          "line": 235,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadTopIgnoredSlugs",
-          "line": 272,
+          "line": 264,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadTopUnmatchedActors",
-          "line": 300,
+          "line": 292,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4BvsOursDrift",
-          "line": 335,
+          "line": 327,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadOutOfCatalogXapi",
-          "line": 383,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "loadSyncDriftPairs",
-          "line": 427,
+          "line": 375,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadWrongProgramStudying",
-          "line": 474,
+          "line": 419,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "loadB4BProgramsSafe",
-          "line": 538,
+          "line": 483,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "cardStyle",
-          "line": 549,
+          "line": 494,
           "kind": "Variable"
         },
         {
           "name": "cardTitleStyle",
-          "line": 557,
+          "line": 502,
           "kind": "Variable"
         },
         {
           "name": "cardPrimaryStyle",
-          "line": 565,
+          "line": 510,
           "kind": "Variable"
         },
         {
           "name": "cardSecondaryStyle",
-          "line": 572,
+          "line": 517,
           "kind": "Variable"
         },
         {
           "name": "cardHintStyle",
-          "line": 577,
+          "line": 522,
           "kind": "Variable"
         },
         {
           "name": "sectionHeadingStyle",
-          "line": 583,
+          "line": 528,
           "kind": "Variable"
         },
         {
           "name": "sectionStyle",
-          "line": 589,
+          "line": 534,
           "kind": "Variable"
         },
         {
           "name": "pickStatusColor",
-          "line": 594,
+          "line": 539,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "summarizeMetadataCounts",
-          "line": 603,
+          "line": 548,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AdminCourseraHealthPage",
-          "line": 636,
+          "line": 581,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -17784,9 +17769,9 @@
       "path": "app/admin/members/[id]/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 57711,
-      "lines": 1178,
-      "sha256": "75558f6858d9eb34479a5f2c17ad82666ffdad537a80ee03f17525c4cc23b51e",
+      "bytes": 57974,
+      "lines": 1181,
+      "sha256": "8843b18ee3bca0393492a1dd0632306209180c535baeaf85f5f3667d5adc5220",
       "binary": false,
       "exports": [
         {
@@ -30587,24 +30572,24 @@
       "path": "app/api/counselor/members/[memberId]/notes/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6137,
-      "lines": 156,
-      "sha256": "39d1565a808b854687a1100e2e650008c2871a516bf889cd6a718ae0e8a19cfc",
+      "bytes": 6364,
+      "lines": 158,
+      "sha256": "2aaa9b8b20576144b20b1f82964101da74a8c8b2443430827978f9bad2590752",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 57,
+          "line": 59,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 108,
+          "line": 110,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 155,
+          "line": 157,
           "kind": "Variable"
         }
       ],
@@ -30621,27 +30606,27 @@
         },
         {
           "name": "GET",
-          "line": 57,
+          "line": 59,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 57,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 108,
+          "line": 110,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 108,
+          "line": 110,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 155,
+          "line": 157,
           "kind": "Variable"
         }
       ],
@@ -69467,9 +69452,9 @@
       "path": "components/portal/kit/pages/admin-subviews/PlacementsKit.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 10566,
-      "lines": 328,
-      "sha256": "5e4e9cc3300a1e487b199e97cc9bb820a55b931c1159dfea36036109b1a25be7",
+      "bytes": 10716,
+      "lines": 330,
+      "sha256": "dbaaeb2cd8ac96a82966ece1c17d1bafdbd9db96af1802cd4f5f0f6b8ec16816",
       "binary": false,
       "exports": [
         {
@@ -70492,9 +70477,9 @@
       "path": "components/portal/kit/pages/counselor/CounselorHomeKit.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 16019,
-      "lines": 413,
-      "sha256": "f3424e13fe8bb0d35f2109b6513d85883c916409cefe4e83206f2c12bb906464",
+      "bytes": 16107,
+      "lines": 414,
+      "sha256": "2a83d614c01ccc7f80abaa96933292795de3bf7309eaf974535ad5acf3e5d01f",
       "binary": false,
       "exports": [
         {
@@ -70509,22 +70494,22 @@
         },
         {
           "name": "CounselorSessionRow",
-          "line": 73,
+          "line": 74,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CounselorHomeKitProps",
-          "line": 102,
+          "line": 103,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "CounselorHomeKit",
-          "line": 242,
+          "line": 243,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 413,
+          "line": 414,
           "kind": "ExportAssignment"
         }
       ],
@@ -70541,57 +70526,57 @@
         },
         {
           "name": "CounselorSessionRow",
-          "line": 73,
+          "line": 74,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "BUCKET_TONE",
-          "line": 84,
+          "line": 85,
           "kind": "Variable"
         },
         {
           "name": "BUCKET_ICON",
-          "line": 90,
+          "line": 91,
           "kind": "Variable"
         },
         {
           "name": "BUCKET_FLAG",
-          "line": 96,
+          "line": 97,
           "kind": "Variable"
         },
         {
           "name": "CounselorHomeKitProps",
-          "line": 102,
+          "line": 103,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "queueRowMeta",
-          "line": 144,
+          "line": 145,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatRelativeShort",
-          "line": 156,
+          "line": 157,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SideCardHead",
-          "line": 170,
+          "line": 171,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmptyQueueState",
-          "line": 178,
+          "line": 179,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SessionListRow",
-          "line": 194,
+          "line": 195,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "CounselorHomeKit",
-          "line": 242,
+          "line": 243,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -84749,6 +84734,117 @@
       "directive": null
     },
     {
+      "path": "lib/admin/courseraSyncDrift.test.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 2394,
+      "lines": 61,
+      "sha256": "6fe9219b7cbdb16328aac13112a061fee9fb23d0fd700c0a780ceedebfead9f0",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/courseraSyncDrift.ts",
+      "area": "libraries",
+      "domain": "learning-coursera",
+      "bytes": 3614,
+      "lines": 101,
+      "sha256": "8a04b1d02fd1f44c5221e12a99719a3a8ef331a4628e04b7ac4a1647e802788e",
+      "binary": false,
+      "exports": [
+        {
+          "name": "SyncDriftRawRow",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SyncDriftRow",
+          "line": 22,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SyncDriftResult",
+          "line": 31,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SYNC_DRIFT_THRESHOLD_HOURS",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "SYNC_DRIFT_LIMIT",
+          "line": 36,
+          "kind": "Variable"
+        },
+        {
+          "name": "buildSyncDriftQuery",
+          "line": 41,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mapSyncDriftRows",
+          "line": 71,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loadSyncDriftPairs",
+          "line": 87,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SyncDriftRawRow",
+          "line": 12,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SyncDriftRow",
+          "line": 22,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SyncDriftResult",
+          "line": 31,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SYNC_DRIFT_THRESHOLD_HOURS",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "SYNC_DRIFT_LIMIT",
+          "line": 36,
+          "kind": "Variable"
+        },
+        {
+          "name": "GAP",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
+          "name": "buildSyncDriftQuery",
+          "line": 41,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mapSyncDriftRows",
+          "line": 71,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "loadSyncDriftPairs",
+          "line": 87,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/admin/cronPreviewTypes.ts",
       "area": "libraries",
       "domain": "administration",
@@ -87065,9 +87161,9 @@
       "path": "lib/admin/triageDigest.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 12231,
+      "bytes": 12315,
       "lines": 326,
-      "sha256": "970c98afb451822986b585f5b2c122d3d98f34cddda865fc5de7669a7e00aef6",
+      "sha256": "f995f6e4fdf14e17653c5abb6e546ea7f9bbe40027f5cfb83b127c3a0d302816",
       "binary": false,
       "exports": [
         {
@@ -87144,9 +87240,9 @@
       "path": "lib/admin/triageDigestCopy.test.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 665,
-      "lines": 14,
-      "sha256": "2b8d282cbeeaa10650376bf902af75efd506758613e4e98239b01f8cb91fe938",
+      "bytes": 1096,
+      "lines": 22,
+      "sha256": "d0864429b3dfde2eb9fa87aefc66b7ea951b08064010fb8096a85feea682b091",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -87156,21 +87252,31 @@
       "path": "lib/admin/triageDigestCopy.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 699,
-      "lines": 14,
-      "sha256": "e9af3eb45679109c62d9dfb19505773aab6c4ecbc0d5d4ed3e8d2b4ce0f94cd4",
+      "bytes": 1170,
+      "lines": 26,
+      "sha256": "d4e81e2ee21770100f79c30d62cc4623f04669cadb066fe89b3de1df518fb2dc",
       "binary": false,
       "exports": [
         {
+          "name": "TRIAGE_BUCKET_ACCENTS",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "stalledCheckInAction",
-          "line": 11,
+          "line": 23,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "TRIAGE_BUCKET_ACCENTS",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
           "name": "stalledCheckInAction",
-          "line": 11,
+          "line": 23,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -101555,6 +101661,57 @@
         {
           "name": "orderedSubgroupIdsWithPrograms",
           "line": 152,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/content/programTitle.test.ts",
+      "area": "libraries",
+      "domain": "public-experience",
+      "bytes": 1980,
+      "lines": 38,
+      "sha256": "40432e5f4a7a0dfd82ea21db86f8a3010830ad9294160ce526e6552d20e6226a",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/content/programTitle.ts",
+      "area": "libraries",
+      "domain": "public-experience",
+      "bytes": 2295,
+      "lines": 67,
+      "sha256": "96e485144e6230de32ecdd3cf4be8fa7d9db9af4e5aa760afa115fc34cbece47",
+      "binary": false,
+      "exports": [
+        {
+          "name": "humanizeProgramSlug",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "programDisplayTitle",
+          "line": 61,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "SLUG_WORD_OVERRIDES",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "humanizeProgramSlug",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "programDisplayTitle",
+          "line": 61,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -151556,6 +151713,49 @@
           "name": "makeRequest",
           "line": 60,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/counselor-notes-author-gate.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 5255,
+      "lines": 127,
+      "sha256": "06fb3994a4a3f4d6bb8eec554d66ee4afcf2daf2375b638d589f2744cb00793b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ME",
+          "line": 61,
+          "kind": "Variable"
+        },
+        {
+          "name": "OTHER",
+          "line": 62,
+          "kind": "Variable"
+        },
+        {
+          "name": "MEMBER",
+          "line": 63,
+          "kind": "Variable"
+        },
+        {
+          "name": "params",
+          "line": 64,
+          "kind": "Variable"
+        },
+        {
+          "name": "req",
+          "line": 65,
+          "kind": "Variable"
+        },
+        {
+          "name": "note",
+          "line": 72,
+          "kind": "Variable"
         }
       ],
       "directive": null

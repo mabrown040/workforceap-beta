@@ -5,7 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getTranslations } from 'next-intl/server';
-import { PROGRAMS } from '@/lib/content/programs';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   CareerMappingsKit,
   type CareerPathCard,
@@ -25,8 +26,6 @@ const HISTORY_LIMIT = 20;
 /** Cap the active-mapping scan so first paint stays cheap. */
 const MAPPING_LIMIT = 2000;
 
-/** Program slug → catalog metadata (title, category, accent color). */
-const PROGRAM_BY_SLUG = new Map(PROGRAMS.map((p) => [p.slug, p]));
 
 export default async function AdminCareerMappingsPage({
   searchParams,
@@ -103,10 +102,12 @@ export default async function AdminCareerMappingsPage({
 
   const paths: CareerPathCard[] = [...byProgram.entries()]
     .map(([slug, agg]) => {
-      const meta = PROGRAM_BY_SLUG.get(slug);
+      // Mapping rows may still carry legacy alias slugs; resolve through the
+      // alias table so the card shows the catalog title, not the raw key.
+      const meta = getProgramBySlug(slug);
       return {
         slug,
-        program: meta?.title ?? slug,
+        program: programDisplayTitle(slug),
         role: agg.primaryRole,
         mappedRoles: agg.roles.size,
         employerPartners: partnerCount.get(slug) ?? 0,

@@ -19,6 +19,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   computeTrainingProgress,
   resolveTrainingProgressAssignment,
@@ -109,7 +110,8 @@ export default async function CounselorPortalPage({
       memberName: row.memberName,
       bucket: row.bucket,
       blockerReason: row.blockerReason,
-      enrolledProgram: row.enrolledProgram,
+      // The kit prints this verbatim in the row meta; hand it a title, not a slug.
+      enrolledProgram: row.enrolledProgram ? programDisplayTitle(row.enrolledProgram) : row.enrolledProgram,
       daysSinceLogin: row.daysSinceLogin,
       hoursWaitingReply: row.hoursWaitingReply,
     }));
@@ -383,7 +385,7 @@ export default async function CounselorPortalPage({
                 );
                 const rawProgram = assignment.programSlug ?? a.member.programInterest;
                 const prog = rawProgram
-                  ? getProgramBySlug(rawProgram)?.title ?? rawProgram
+                  ? programDisplayTitle(rawProgram)
                   : t('unknownProgram');
                 const enrolledSlug = assignment.programSlug;
                 const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
@@ -530,7 +532,7 @@ export default async function CounselorPortalPage({
                             <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {(() => {
                                 const rawProgram = assignment.member.enrolledProgram ?? assignment.member.programInterest;
-                                return rawProgram ? getProgramBySlug(rawProgram)?.title ?? rawProgram : t('noProgram');
+                                return rawProgram ? programDisplayTitle(rawProgram) : t('noProgram');
                               })()} · {assignment.member.email}
                             </p>
                           </div>

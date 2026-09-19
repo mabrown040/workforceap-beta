@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "15a21d4aba5f6b205fbbfda24404c4f385b22bca262c35cfdf048662192fa24a",
+  "inputTreeSha256": "10c74fe4fb599142e356243baba97dfa7b3b825b406a3e5995784c55e911a9f8",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -29542,14 +29542,14 @@
       "path": "app/api/apply/confirmation-email/route.ts",
       "area": "api",
       "domain": "applications-enrollment",
-      "bytes": 3457,
-      "lines": 91,
-      "sha256": "303479f1db85de77cf8542c6312b06bd620231cdb65a03e7dadd897dc2fc4e05",
+      "bytes": 3663,
+      "lines": 94,
+      "sha256": "bb36261ece752f876302db3c70dc166dc96ed3c91593c54a8689e75943cd187c",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 91,
+          "line": 94,
           "kind": "Variable"
         }
       ],
@@ -29571,7 +29571,7 @@
         },
         {
           "name": "POST",
-          "line": 91,
+          "line": 94,
           "kind": "Variable"
         }
       ],
@@ -34006,9 +34006,9 @@
       "path": "app/api/health/ready/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 4486,
-      "lines": 136,
-      "sha256": "473266267679e9ad7b031d05f0f85eaee79a474943d47f1d68f9bbd70d2c9ca8",
+      "bytes": 4660,
+      "lines": 139,
+      "sha256": "fbfd2f2daa8491b9ce41dc2fc5e6d2210447f4e285981e69546f20acf52f5791",
       "binary": false,
       "exports": [
         {
@@ -34018,12 +34018,12 @@
         },
         {
           "name": "OPTIONS",
-          "line": 74,
+          "line": 77,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 83,
+          "line": 86,
           "kind": "Variable"
         }
       ],
@@ -34060,12 +34060,12 @@
         },
         {
           "name": "OPTIONS",
-          "line": 74,
+          "line": 77,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 83,
+          "line": 86,
           "kind": "Variable"
         }
       ],
@@ -34496,9 +34496,9 @@
       "path": "app/api/invite/validate/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 5155,
-      "lines": 125,
-      "sha256": "fdc8d3b8fa3624242c6e0408dc6dd8a19b39ca8f50241622021368f5d9d980f7",
+      "bytes": 5745,
+      "lines": 138,
+      "sha256": "23d88485399317279981cc28199fdd70f29271141fd4bab99413e853cba2faf0",
       "binary": false,
       "exports": [
         {
@@ -38614,36 +38614,36 @@
       "path": "app/api/org/[slug]/outcomes/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 1929,
-      "lines": 61,
-      "sha256": "43b826dae7d9304abf408a896e48ac71ddd702cce704b83e4aa14d7f6f415e1f",
+      "bytes": 2401,
+      "lines": 70,
+      "sha256": "a7fd854d442707ec8c8f4b064923fffa6001d308e8acd2dc10646e205dd1fba4",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 61,
+          "line": 70,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "parseQuarterParam",
-          "line": 10,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseYearParam",
-          "line": 17,
+          "line": 19,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_GET",
-          "line": 24,
+          "line": 26,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 61,
+          "line": 70,
           "kind": "Variable"
         }
       ],
@@ -129372,9 +129372,9 @@
       "path": "lib/rate-limit.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 31500,
-      "lines": 696,
-      "sha256": "62a10f6eccaf93b611ba45ab9ff90b1ba9c70f85d69d679706e60adc79eb6df8",
+      "bytes": 32921,
+      "lines": 725,
+      "sha256": "09c52f41a42fdbf43bd6bde3f5bc74fc3ec1549ca81bd53989fa569f870ccf95",
       "binary": false,
       "exports": [
         {
@@ -129389,187 +129389,197 @@
         },
         {
           "name": "checkSignupRateLimit",
-          "line": 430,
+          "line": 445,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkApplySignupRateLimit",
-          "line": 434,
+          "line": 449,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAuthRateLimit",
-          "line": 438,
+          "line": 453,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAuthIpRateLimit",
-          "line": 447,
+          "line": 462,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkVoiceSessionRateLimit",
-          "line": 458,
+          "line": 473,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkSignupEmailRateLimit",
-          "line": 469,
+          "line": 484,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAIToolRateLimit",
-          "line": 475,
+          "line": 490,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkResumeUploadRateLimit",
-          "line": 481,
+          "line": 496,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkResumeDraftSaveRateLimit",
-          "line": 487,
+          "line": 502,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkContactRateLimit",
-          "line": 493,
+          "line": 508,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPartnerSignupRateLimit",
-          "line": 498,
+          "line": 513,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAdminInviteRateLimit",
-          "line": 503,
+          "line": 518,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkBulkEmailRateLimit",
-          "line": 515,
+          "line": 530,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkEmployerJobImportRateLimit",
-          "line": 520,
+          "line": 535,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkConfirmationEmailRateLimit",
-          "line": 527,
+          "line": 542,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkConfirmationEmailEmailRateLimit",
-          "line": 533,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "checkCareersRecommendRateLimit",
-          "line": 541,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "checkInterestProfilerRateLimit",
           "line": 548,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "checkCareersRecommendRateLimit",
+          "line": 556,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "checkInterestProfilerRateLimit",
+          "line": 563,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "checkForgotPasswordRateLimit",
-          "line": 555,
+          "line": 570,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkForgotPasswordEmailRateLimit",
-          "line": 561,
+          "line": 576,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicCareersGetRateLimit",
-          "line": 567,
+          "line": 582,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicVoiceSessionRateLimit",
-          "line": 574,
+          "line": 589,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkInviteAcceptRateLimit",
-          "line": 581,
+          "line": 596,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "checkPublicInviteValidateRateLimit",
+          "line": 603,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "checkPublicOrgOutcomesRateLimit",
+          "line": 610,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkVerifyMfaRateLimit",
-          "line": 588,
+          "line": 617,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicHealthRateLimit",
-          "line": 594,
+          "line": 623,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkXapiConfigGetRateLimit",
-          "line": 601,
+          "line": 630,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkXapiOAuthTokenRateLimit",
-          "line": 608,
+          "line": 637,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkXapiStatementsPostRateLimit",
-          "line": 615,
+          "line": 644,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPlacementSurveyRateLimit",
-          "line": 622,
+          "line": 651,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicWioaQualificationRateLimit",
-          "line": 629,
+          "line": 658,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkWebhookRateLimit",
-          "line": 636,
+          "line": 665,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkOrgOnboardRateLimit",
-          "line": 643,
+          "line": 672,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicInterestProfilerRateLimit",
-          "line": 650,
+          "line": 679,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAdminTokenLinksRateLimit",
-          "line": 659,
+          "line": 688,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicQuestionnaireSubmitRateLimit",
-          "line": 670,
+          "line": 699,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkCourseraIdentityRateLimit",
-          "line": 677,
+          "line": 706,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkMessageSendRateLimit",
-          "line": 690,
+          "line": 719,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -129735,288 +129745,308 @@
           "kind": "Variable"
         },
         {
-          "name": "verifyMfaRateLimiter",
+          "name": "publicInviteValidateRateLimiter",
           "line": 105,
           "kind": "Variable"
         },
         {
-          "name": "publicHealthRateLimiter",
+          "name": "publicOrgOutcomesRateLimiter",
           "line": 106,
           "kind": "Variable"
         },
         {
-          "name": "xapiConfigGetRateLimiter",
+          "name": "verifyMfaRateLimiter",
           "line": 107,
           "kind": "Variable"
         },
         {
-          "name": "xapiOAuthTokenRateLimiter",
+          "name": "publicHealthRateLimiter",
           "line": 108,
           "kind": "Variable"
         },
         {
-          "name": "xapiStatementsPostRateLimiter",
+          "name": "xapiConfigGetRateLimiter",
           "line": 109,
           "kind": "Variable"
         },
         {
-          "name": "placementSurveyRateLimiter",
+          "name": "xapiOAuthTokenRateLimiter",
           "line": 110,
           "kind": "Variable"
         },
         {
-          "name": "publicWioaQualificationRateLimiter",
+          "name": "xapiStatementsPostRateLimiter",
           "line": 111,
           "kind": "Variable"
         },
         {
-          "name": "webhookRateLimiter",
+          "name": "placementSurveyRateLimiter",
           "line": 112,
           "kind": "Variable"
         },
         {
-          "name": "orgOnboardRateLimiter",
+          "name": "publicWioaQualificationRateLimiter",
           "line": 113,
           "kind": "Variable"
         },
         {
-          "name": "publicInterestProfilerRateLimiter",
+          "name": "webhookRateLimiter",
           "line": 114,
           "kind": "Variable"
         },
         {
-          "name": "courseraIdentityRateLimiter",
+          "name": "orgOnboardRateLimiter",
           "line": 115,
           "kind": "Variable"
         },
         {
+          "name": "publicInterestProfilerRateLimiter",
+          "line": 116,
+          "kind": "Variable"
+        },
+        {
+          "name": "courseraIdentityRateLimiter",
+          "line": 117,
+          "kind": "Variable"
+        },
+        {
           "name": "publicQuestionnaireSubmitRateLimiter",
-          "line": 123,
+          "line": 125,
           "kind": "Variable"
         },
         {
           "name": "adminTokenLinksRateLimiter",
-          "line": 124,
+          "line": 126,
           "kind": "Variable"
         },
         {
           "name": "messageSendRateLimiter",
-          "line": 131,
+          "line": 133,
           "kind": "Variable"
         },
         {
           "name": "isQaBypassEnabled",
-          "line": 153,
+          "line": 155,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getQaBypassSecret",
-          "line": 157,
+          "line": 159,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isQaBypassRequest",
-          "line": 161,
+          "line": 163,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "runLimiter",
-          "line": 168,
+          "line": 170,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "failClosedLimit",
-          "line": 209,
+          "line": 211,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "failClosedApplyLimit",
-          "line": 218,
+          "line": 220,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkSignupRateLimit",
-          "line": 430,
+          "line": 445,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkApplySignupRateLimit",
-          "line": 434,
+          "line": 449,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAuthRateLimit",
-          "line": 438,
+          "line": 453,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAuthIpRateLimit",
-          "line": 447,
+          "line": 462,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkVoiceSessionRateLimit",
-          "line": 458,
+          "line": 473,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkSignupEmailRateLimit",
-          "line": 469,
+          "line": 484,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAIToolRateLimit",
-          "line": 475,
+          "line": 490,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkResumeUploadRateLimit",
-          "line": 481,
+          "line": 496,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkResumeDraftSaveRateLimit",
-          "line": 487,
+          "line": 502,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkContactRateLimit",
-          "line": 493,
+          "line": 508,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPartnerSignupRateLimit",
-          "line": 498,
+          "line": 513,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAdminInviteRateLimit",
-          "line": 503,
+          "line": 518,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkBulkEmailRateLimit",
-          "line": 515,
+          "line": 530,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkEmployerJobImportRateLimit",
-          "line": 520,
+          "line": 535,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkConfirmationEmailRateLimit",
-          "line": 527,
+          "line": 542,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkConfirmationEmailEmailRateLimit",
-          "line": 533,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "checkCareersRecommendRateLimit",
-          "line": 541,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "checkInterestProfilerRateLimit",
           "line": 548,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "checkCareersRecommendRateLimit",
+          "line": 556,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "checkInterestProfilerRateLimit",
+          "line": 563,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "checkForgotPasswordRateLimit",
-          "line": 555,
+          "line": 570,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkForgotPasswordEmailRateLimit",
-          "line": 561,
+          "line": 576,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicCareersGetRateLimit",
-          "line": 567,
+          "line": 582,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicVoiceSessionRateLimit",
-          "line": 574,
+          "line": 589,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkInviteAcceptRateLimit",
-          "line": 581,
+          "line": 596,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "checkPublicInviteValidateRateLimit",
+          "line": 603,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "checkPublicOrgOutcomesRateLimit",
+          "line": 610,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkVerifyMfaRateLimit",
-          "line": 588,
+          "line": 617,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicHealthRateLimit",
-          "line": 594,
+          "line": 623,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkXapiConfigGetRateLimit",
-          "line": 601,
+          "line": 630,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkXapiOAuthTokenRateLimit",
-          "line": 608,
+          "line": 637,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkXapiStatementsPostRateLimit",
-          "line": 615,
+          "line": 644,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPlacementSurveyRateLimit",
-          "line": 622,
+          "line": 651,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicWioaQualificationRateLimit",
-          "line": 629,
+          "line": 658,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkWebhookRateLimit",
-          "line": 636,
+          "line": 665,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkOrgOnboardRateLimit",
-          "line": 643,
+          "line": 672,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicInterestProfilerRateLimit",
-          "line": 650,
+          "line": 679,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkAdminTokenLinksRateLimit",
-          "line": 659,
+          "line": 688,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkPublicQuestionnaireSubmitRateLimit",
-          "line": 670,
+          "line": 699,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkCourseraIdentityRateLimit",
-          "line": 677,
+          "line": 706,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "checkMessageSendRateLimit",
-          "line": 690,
+          "line": 719,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -152402,9 +152432,9 @@
       "path": "tests/api/health-check.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7911,
-      "lines": 232,
-      "sha256": "41d72df9ed3592dae42ab42766042ad1ebb8f22841356e4b2812231ce07a71e8",
+      "bytes": 7980,
+      "lines": 233,
+      "sha256": "6939e55d25ce4096a4854c6ceecd129899f76994b515dd9a99878985c8fd0874",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -153500,6 +153530,39 @@
           "name": "makeGetRequest",
           "line": 104,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/public-api-hardening-batch4.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 12439,
+      "lines": 310,
+      "sha256": "6220df70da26e40abf227fb14a07c97107afd13ac4a562daa028176215796cc9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "NextRequestLike",
+          "line": 88,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "asNextRequest",
+          "line": 89,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "errorSpy",
+          "line": 94,
+          "kind": "Variable"
         }
       ],
       "directive": null

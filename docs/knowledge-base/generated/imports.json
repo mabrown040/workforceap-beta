@@ -23128,14 +23128,6 @@
     "package": "react"
   },
   {
-    "from": "app/admin/partners/[id]/PartnerInviteButton.tsx",
-    "specifier": "react",
-    "line": 3,
-    "kind": "import",
-    "external": true,
-    "package": "react"
-  },
-  {
     "from": "app/admin/partners/[id]/page.tsx",
     "specifier": "next/link",
     "line": 1,
@@ -105753,11 +105745,11 @@
   },
   {
     "from": "lib/partner/attentionQueue.ts",
-    "specifier": "@/lib/content/programs",
+    "specifier": "@/lib/content/programTitle",
     "line": 2,
     "kind": "import",
     "external": false,
-    "target": "lib/content/programs.ts"
+    "target": "lib/content/programTitle.ts"
   },
   {
     "from": "lib/partner/attentionQueue.ts",
@@ -116584,6 +116576,22 @@
     "package": "next"
   },
   {
+    "from": "tests/api/employer-outcomes.spec.ts",
+    "specifier": "vitest",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/employer-outcomes.spec.ts",
+    "specifier": "@/app/api/employer/outcomes/route",
+    "line": 85,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/outcomes/route.ts"
+  },
+  {
     "from": "tests/api/employer-signup.spec.ts",
     "specifier": "vitest",
     "line": 1,
@@ -127094,6 +127102,14 @@
     "kind": "import",
     "external": false,
     "target": "lib/partner/attentionQueue.ts"
+  },
+  {
+    "from": "tests/lib/partner-attention-queue.spec.ts",
+    "specifier": "@/lib/content/programTitle",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programTitle.ts"
   },
   {
     "from": "tests/lib/partner-notify-reliability.spec.ts",

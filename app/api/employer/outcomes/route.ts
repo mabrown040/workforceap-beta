@@ -7,6 +7,11 @@ import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
+/** Upper bound on posting rows returned to the dashboard table. */
+const JOB_ROW_LIMIT = 200;
+
+type ProgramRow = { program: string; applications: number; hired: number };
+
 /**
  * GET /api/employer/outcomes
  * Employer outcomes dashboard — shows hiring pipeline effectiveness
@@ -43,64 +48,78 @@ async function _GET(request: NextRequest) {
       return NextResponse.json({ error: 'Employer profile not found' }, { status: 404 });
     }
 
-    // Get job postings
-    const jobs = await prisma.job.findMany({
-      where: {
-        employerId: employerProfile.id,
-      },
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        applicationsCount: true,
-      },
-    });
-
-    // Get applications via curated jobs
-    const jobIds = jobs.map((j) => j.id);
-    const applications = await prisma.jobApplication.findMany({
-      where: {
-        curatedJobId: { in: jobIds },
-      },
-      select: {
-        id: true,
-        status: true,
-        createdAt: true,
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            enrolledProgram: true,
-          },
+    // The dashboard lists postings by row, so that read stays bounded; every
+    // other number on the page is an aggregate the database computes. Nothing
+    // here materialises the application rows.
+    const employerId = employerProfile.id;
+    const [jobs, jobStatusCounts, applicationStatusCounts, programRows] = await Promise.all([
+      prisma.job.findMany({
+        where: { employerId },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          applicationsCount: true,
         },
-      },
-    });
+        orderBy: { createdAt: 'desc' },
+        take: JOB_ROW_LIMIT,
+      }),
+      prisma.job.groupBy({
+        by: ['status'],
+        where: { employerId },
+        _count: { _all: true },
+      }),
+      prisma.jobApplication.groupBy({
+        by: ['status'],
+        where: { curatedJob: { employerId } },
+        _count: { _all: true },
+      }),
+      // Grouping by the applicant's program crosses a relation, which Prisma's
+      // groupBy cannot express, so this one aggregate is plain SQL. An empty or
+      // missing program is reported as 'unknown', matching the previous
+      // row-by-row fold; rows come back alphabetical so the breakdown is stable.
+      prisma.$queryRaw<ProgramRow[]>`
+        SELECT COALESCE(NULLIF(u.enrolled_program, ''), 'unknown') AS program,
+               COUNT(*)::int AS applications,
+               COUNT(*) FILTER (WHERE ja.status = 'ACCEPTED')::int AS hired
+        FROM job_applications ja
+        INNER JOIN jobs j ON j.id = ja.curated_job_id
+        INNER JOIN users u ON u.id = ja.user_id
+        WHERE j.employer_id = ${employerId}
+        GROUP BY 1
+        ORDER BY 1
+      `,
+    ]);
 
     // Calculate metrics
-    const totalJobs = jobs.length;
-    const activeJobs = jobs.filter((j) => j.status === 'live').length;
-    const totalApplications = applications.length;
-    const newApplications = applications.filter((a) => a.status === 'SAVED').length;
-    const reviewedApplications = applications.filter((a) => a.status === 'APPLIED' || a.status === 'PHONE_SCREEN').length;
-    const hiredApplications = applications.filter((a) => a.status === 'ACCEPTED').length;
-    const rejectedApplications = applications.filter((a) => a.status === 'REJECTED').length;
+    const jobCountByStatus = new Map(jobStatusCounts.map((row) => [row.status, row._count._all]));
+    const applicationCountByStatus = new Map(applicationStatusCounts.map((row) => [row.status, row._count._all]));
+    const sumCounts = (counts: Map<string, number>, statuses?: readonly string[]) => {
+      let total = 0;
+      for (const [status, count] of counts) {
+        if (!statuses || statuses.includes(status)) total += count;
+      }
+      return total;
+    };
+
+    const totalJobs = sumCounts(jobCountByStatus);
+    const activeJobs = jobCountByStatus.get('live') ?? 0;
+    const totalApplications = sumCounts(applicationCountByStatus);
+    const newApplications = applicationCountByStatus.get('SAVED') ?? 0;
+    const reviewedApplications = sumCounts(applicationCountByStatus, ['APPLIED', 'PHONE_SCREEN']);
+    const hiredApplications = applicationCountByStatus.get('ACCEPTED') ?? 0;
+    const rejectedApplications = applicationCountByStatus.get('REJECTED') ?? 0;
 
     const conversionRate = totalApplications > 0
       ? Math.round((hiredApplications / totalApplications) * 100)
       : 0;
 
     // Program breakdown
-    const programStats: Record<string, { name: string; applications: number; hired: number }> = {};
-    for (const app of applications) {
-      const program = app.user.enrolledProgram || 'unknown';
-      if (!programStats[program]) {
-        programStats[program] = { name: program, applications: 0, hired: 0 };
-      }
-      programStats[program].applications++;
-      if (app.status === 'ACCEPTED') {
-        programStats[program].hired++;
-      }
-    }
+    const programStats = programRows.map((row) => ({
+      name: row.program,
+      applications: Number(row.applications),
+      hired: Number(row.hired),
+    }));
 
     // Audit log
     await logAuditEvent({
@@ -132,7 +151,7 @@ async function _GET(request: NextRequest) {
         status: j.status,
         applications: j.applicationsCount,
       })),
-      programStats: Object.values(programStats).map((p) => ({
+      programStats: programStats.map((p) => ({
         ...p,
         conversionRate: p.applications > 0 ? Math.round((p.hired / p.applications) * 100) : 0,
       })),

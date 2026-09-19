@@ -15,9 +15,21 @@ const STAFF_PROGRAM_SURFACES = [
   'components/admin/AdminPipelineKanban.tsx',
 ] as const;
 
+/**
+ * Either resolver maps a stored program key to its catalog title.
+ * `programDisplayTitle` (lib/content/programTitle.ts) wraps `getProgramBySlug`
+ * and additionally canonicalizes aliases and humanises unknown slugs, so a
+ * surface may use either; what it must never do is print the raw key.
+ */
+const CATALOG_TITLE_RESOLVERS = ['programDisplayTitle', 'getProgramBySlug'] as const;
+
 describe('staff-facing program labels', () => {
   it.each(STAFF_PROGRAM_SURFACES)('%s resolves catalog titles instead of exposing stable slugs', (file) => {
     const source = readFileSync(path.join(root, file), 'utf8');
-    expect(source).toContain('getProgramBySlug');
+    const resolversUsed = CATALOG_TITLE_RESOLVERS.filter((name) => source.includes(name));
+    expect(
+      resolversUsed.length,
+      `${file} must resolve program labels through ${CATALOG_TITLE_RESOLVERS.join(' or ')}`,
+    ).toBeGreaterThan(0);
   });
 });

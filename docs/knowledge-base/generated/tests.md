@@ -324,7 +324,7 @@
 | [tests/lib/referral-rewards.spec.ts](../../../tests/lib/referral-rewards.spec.ts) | 141 | applications-enrollment |  |
 | [tests/lib/retention-window-evidence.spec.ts](../../../tests/lib/retention-window-evidence.spec.ts) | 40 | tests |  |
 | [tests/lib/skill-mission-kit-tokens.spec.ts](../../../tests/lib/skill-mission-kit-tokens.spec.ts) | 17 | tests |  |
-| [tests/lib/staff-program-label-contract.spec.ts](../../../tests/lib/staff-program-label-contract.spec.ts) | 23 | tests |  |
+| [tests/lib/staff-program-label-contract.spec.ts](../../../tests/lib/staff-program-label-contract.spec.ts) | 35 | tests |  |
 | [tests/lib/stale-training-completion.spec.ts](../../../tests/lib/stale-training-completion.spec.ts) | 223 | tests |  |
 | [tests/lib/start-member-agent-session.spec.ts](../../../tests/lib/start-member-agent-session.spec.ts) | 149 | tests |  |
 | [tests/lib/students-roster-enrichment.spec.ts](../../../tests/lib/students-roster-enrichment.spec.ts) | 89 | tests |  |

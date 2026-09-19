@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 
 import EmployerJobPostForm from './EmployerJobPostForm';
 import EmployerJobQuickActions from './EmployerJobQuickActions';
@@ -45,7 +47,11 @@ describe('employer UI action contracts', () => {
   });
 
   it('routes job applicant actions to the existing job-scoped applicants page', () => {
-    render(<EmployerJobQuickActions jobId="job/with space" title="Support Specialist" status="draft" />);
+    render(
+      <NextIntlClientProvider locale="en" messages={messages} timeZone="America/New_York">
+        <EmployerJobQuickActions jobId="job/with space" title="Support Specialist" status="draft" />
+      </NextIntlClientProvider>,
+    );
 
     expect(screen.getByRole('link', { name: 'Applications' })).toHaveAttribute(
       'href',

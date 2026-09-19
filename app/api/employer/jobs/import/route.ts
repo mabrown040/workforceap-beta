@@ -327,7 +327,7 @@ async function parseDirectJobUrl(url: string) {
       metadata: { code: detail.code },
     });
     return NextResponse.json(
-      { error: 'Failed to import job.', detail: detail.message, code: detail.code },
+      { error: 'Failed to import job.', code: detail.code },
       { status: 500 }
     );
   }

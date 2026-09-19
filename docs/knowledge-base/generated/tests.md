@@ -318,6 +318,7 @@
 | [tests/lib/partner-attention-queue.spec.ts](../../../tests/lib/partner-attention-queue.spec.ts) | 102 | tests |  |
 | [tests/lib/partner-notify-reliability.spec.ts](../../../tests/lib/partner-notify-reliability.spec.ts) | 63 | tests |  |
 | [tests/lib/partner-retention-window.spec.ts](../../../tests/lib/partner-retention-window.spec.ts) | 24 | tests |  |
+| [tests/lib/partner-saved-chip-contrast.spec.ts](../../../tests/lib/partner-saved-chip-contrast.spec.ts) | 61 | tests |  |
 | [tests/lib/partner-school-schema.spec.ts](../../../tests/lib/partner-school-schema.spec.ts) | 69 | tests |  |
 | [tests/lib/password-reset-self-heal.spec.ts](../../../tests/lib/password-reset-self-heal.spec.ts) | 210 | tests |  |
 | [tests/lib/placement-survey-email-provider.spec.ts](../../../tests/lib/placement-survey-email-provider.spec.ts) | 46 | tests |  |

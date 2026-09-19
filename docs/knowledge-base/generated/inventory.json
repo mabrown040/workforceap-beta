@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "a2329a20f03be2928fef2fccd449f26f33c57793f5c3098db203164e657917e8",
+  "inputTreeSha256": "d69d1ec481fa8baa733e8c8429b76393a9573bde68fb35f490ea14fb8f6e48f0",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -56753,9 +56753,9 @@
       "path": "components/partner/PartnerContactEditForm.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 3356,
+      "bytes": 3361,
       "lines": 119,
-      "sha256": "93fd81bb27fdc11a60e71f937512fff80c6e0653991f93d18619e21fc9c6a666",
+      "sha256": "738702cb9dd4bc5fed1ba6cb7e313dd81a630bd82e33596ac6db7c1d255c27b3",
       "binary": false,
       "exports": [
         {
@@ -158405,6 +158405,59 @@
           "name": "dbMocks",
           "line": 3,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/partner-saved-chip-contrast.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2602,
+      "lines": 61,
+      "sha256": "30d85a9e49c41b6f219fd7b26c757c11e8b095261531fc07b0c2cb020cae65ae",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "tokensCss",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "form",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "lightDark",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hexToRgb",
+          "line": 22,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mix",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "luminance",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 35,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

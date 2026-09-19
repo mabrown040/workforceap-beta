@@ -26657,8 +26657,16 @@
   },
   {
     "from": "app/api/admin/blog/[id]/route.ts",
-    "specifier": "@/lib/auth/server",
+    "specifier": "zod",
     "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "zod"
+  },
+  {
+    "from": "app/api/admin/blog/[id]/route.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -26666,7 +26674,7 @@
   {
     "from": "app/api/admin/blog/[id]/route.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -26674,7 +26682,7 @@
   {
     "from": "app/api/admin/blog/[id]/route.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 4,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -26682,7 +26690,7 @@
   {
     "from": "app/api/admin/blog/[id]/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -26690,7 +26698,7 @@
   {
     "from": "app/api/admin/blog/[id]/route.ts",
     "specifier": "@/lib/audit",
-    "line": 7,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -26993,8 +27001,16 @@
   },
   {
     "from": "app/api/admin/blog/route.ts",
-    "specifier": "@/lib/auth/server",
+    "specifier": "zod",
     "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "zod"
+  },
+  {
+    "from": "app/api/admin/blog/route.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 3,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -27002,7 +27018,7 @@
   {
     "from": "app/api/admin/blog/route.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 3,
+    "line": 4,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -27010,7 +27026,7 @@
   {
     "from": "app/api/admin/blog/route.ts",
     "specifier": "@/lib/db/prisma",
-    "line": 4,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/db/prisma.ts"
@@ -27018,7 +27034,7 @@
   {
     "from": "app/api/admin/blog/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -27026,7 +27042,7 @@
   {
     "from": "app/api/admin/blog/route.ts",
     "specifier": "@/lib/audit",
-    "line": 7,
+    "line": 30,
     "kind": "import",
     "external": false,
     "target": "lib/audit.ts"
@@ -27034,7 +27050,7 @@
   {
     "from": "app/api/admin/blog/route.ts",
     "specifier": "@/lib/audit/log",
-    "line": 8,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/audit/log.ts"
@@ -37441,8 +37457,16 @@
   },
   {
     "from": "app/api/admin/partners/[id]/quarterly-outcomes/route.ts",
-    "specifier": "@/lib/analytics/partnerQuarterlyOutcomes",
+    "specifier": "@/lib/tenant/withTenantScope",
     "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/tenant/withTenantScope.ts"
+  },
+  {
+    "from": "app/api/admin/partners/[id]/quarterly-outcomes/route.ts",
+    "specifier": "@/lib/analytics/partnerQuarterlyOutcomes",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/partnerQuarterlyOutcomes.ts"
@@ -37450,7 +37474,7 @@
   {
     "from": "app/api/admin/partners/[id]/quarterly-outcomes/route.ts",
     "specifier": "@/lib/db/withRequestGuc",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/db/withRequestGuc.ts"
@@ -111538,7 +111562,7 @@
   {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "@/app/api/admin/members/[id]/delete/route",
-    "line": 73,
+    "line": 74,
     "kind": "import",
     "external": false,
     "target": "app/api/admin/members/[id]/delete/route.ts"
@@ -111546,7 +111570,7 @@
   {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "@/lib/auth/server",
-    "line": 74,
+    "line": 75,
     "kind": "import",
     "external": false,
     "target": "lib/auth/server.ts"
@@ -111554,7 +111578,7 @@
   {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "@/lib/auth/roles",
-    "line": 75,
+    "line": 76,
     "kind": "import",
     "external": false,
     "target": "lib/auth/roles.ts"
@@ -111562,7 +111586,7 @@
   {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "@/lib/tenant/organization",
-    "line": 76,
+    "line": 77,
     "kind": "import",
     "external": false,
     "target": "lib/tenant/organization.ts"
@@ -111570,7 +111594,7 @@
   {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "@/lib/gdpr/deleteUserStorage",
-    "line": 77,
+    "line": 78,
     "kind": "import",
     "external": false,
     "target": "lib/gdpr/deleteUserStorage.ts"
@@ -111578,7 +111602,7 @@
   {
     "from": "tests/api/admin-member-delete.spec.ts",
     "specifier": "@/lib/supabase-admin",
-    "line": 78,
+    "line": 79,
     "kind": "import",
     "external": false,
     "target": "lib/supabase-admin.ts"
@@ -118278,6 +118302,366 @@
     "kind": "import",
     "external": false,
     "target": "lib/content/programSlug.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "vitest",
+    "line": 39,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "next/server",
+    "line": 281,
+    "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 282,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 283,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/analytics/dashboard/route",
+    "line": 284,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/analytics/dashboard/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/analytics/placements/route",
+    "line": 285,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/analytics/placements/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/dashboard/route",
+    "line": 286,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/dashboard/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/inbox-zero/route",
+    "line": 287,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/inbox-zero/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/members/[memberId]/messages/route",
+    "line": 288,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/members/[memberId]/messages/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/nudge/route",
+    "line": 289,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/nudge/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/at-risk/route",
+    "line": 290,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/at-risk/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/feature-flags/route",
+    "line": 291,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/feature-flags/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/feature-flags/[id]/route",
+    "line": 292,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/feature-flags/[id]/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/chapters/route",
+    "line": 293,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/chapters/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/certifications/review/route",
+    "line": 294,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/certifications/review/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/blog/route",
+    "line": 295,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/blog/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/blog/[id]/route",
+    "line": 296,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/blog/[id]/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/invites/route",
+    "line": 297,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/invites/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/employer-screening-packs/[id]/route",
+    "line": 298,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/employer-screening-packs/[id]/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/partners/[id]/quarterly-outcomes/route",
+    "line": 299,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/partners/[id]/quarterly-outcomes/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/billing-packets/route",
+    "line": 300,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/billing-packets/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/reset-assessment/route",
+    "line": 301,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/reset-assessment/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/erase/route",
+    "line": 302,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/erase/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/edit-profile/route",
+    "line": 303,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/edit-profile/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/create/route",
+    "line": 304,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/create/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/messages/thread/[threadId]/staff/route",
+    "line": 305,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/messages/thread/[threadId]/staff/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/messages/threads/route",
+    "line": 306,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/messages/threads/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/members/[memberId]/messages/route",
+    "line": 307,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/members/[memberId]/messages/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/members/[memberId]/award-points/route",
+    "line": 308,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/members/[memberId]/award-points/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/award-points/route",
+    "line": 309,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/award-points/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/members/[memberId]/notes/route",
+    "line": 310,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/members/[memberId]/notes/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/members/[memberId]/session-notes/route",
+    "line": 311,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/members/[memberId]/session-notes/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/bulk-followup/route",
+    "line": 312,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/bulk-followup/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/feedback/route",
+    "line": 313,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/feedback/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/placements/route",
+    "line": 314,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/placements/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/counselor/remind-member/route",
+    "line": 315,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/counselor/remind-member/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/placements/route",
+    "line": 316,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/placements/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/placement-surveys/resend/route",
+    "line": 317,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/placement-surveys/resend/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/email-crons/[id]/toggle/route",
+    "line": 318,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/email-crons/[id]/toggle/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/members/[id]/messages/route",
+    "line": 319,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/members/[id]/messages/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/checkout/route",
+    "line": 320,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/checkout/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/messages/route",
+    "line": 321,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/messages/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/partner/messages/route",
+    "line": 322,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/partner/messages/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/admin/organization/logo/route",
+    "line": 323,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/organization/logo/route.ts"
+  },
+  {
+    "from": "tests/api/staff-route-error-handling.spec.ts",
+    "specifier": "@/app/api/employer/logo/route",
+    "line": 324,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/employer/logo/route.ts"
   },
   {
     "from": "tests/api/stripe-billing-migration.spec.ts",

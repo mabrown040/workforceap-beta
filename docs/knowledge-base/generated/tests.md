@@ -16,7 +16,7 @@
 | [tests/api/admin-health-debug.spec.ts](../../../tests/api/admin-health-debug.spec.ts) | 70 | tests |  |
 | [tests/api/admin-health.spec.ts](../../../tests/api/admin-health.spec.ts) | 238 | tests |  |
 | [tests/api/admin-job-matches-tenant-boundary.spec.ts](../../../tests/api/admin-job-matches-tenant-boundary.spec.ts) | 52 | tests |  |
-| [tests/api/admin-member-delete.spec.ts](../../../tests/api/admin-member-delete.spec.ts) | 183 | tests |  |
+| [tests/api/admin-member-delete.spec.ts](../../../tests/api/admin-member-delete.spec.ts) | 185 | tests |  |
 | [tests/api/admin-member-enrollment-funding.spec.ts](../../../tests/api/admin-member-enrollment-funding.spec.ts) | 116 | tests |  |
 | [tests/api/admin-member-merge.spec.ts](../../../tests/api/admin-member-merge.spec.ts) | 247 | tests |  |
 | [tests/api/admin-member-program-route.spec.ts](../../../tests/api/admin-member-program-route.spec.ts) | 149 | tests |  |
@@ -129,6 +129,7 @@
 | [tests/api/resume-builder.spec.ts](../../../tests/api/resume-builder.spec.ts) | 767 | tests |  |
 | [tests/api/school-apply-variant.spec.ts](../../../tests/api/school-apply-variant.spec.ts) | 64 | tests |  |
 | [tests/api/skill-missions-curriculum-version.spec.ts](../../../tests/api/skill-missions-curriculum-version.spec.ts) | 289 | tests |  |
+| [tests/api/staff-route-error-handling.spec.ts](../../../tests/api/staff-route-error-handling.spec.ts) | 623 | tests |  |
 | [tests/api/stripe-billing-migration.spec.ts](../../../tests/api/stripe-billing-migration.spec.ts) | 37 | tests |  |
 | [tests/api/stripe-webhook-organization.spec.ts](../../../tests/api/stripe-webhook-organization.spec.ts) | 185 | tests |  |
 | [tests/api/testimonials.spec.ts](../../../tests/api/testimonials.spec.ts) | 502 | tests |  |

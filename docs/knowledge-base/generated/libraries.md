@@ -509,6 +509,7 @@
 | [lib/employer/employerJobsListQuery.ts](../../../lib/employer/employerJobsListQuery.ts) | 78 | jobs-employers | EMPLOYER_JOBS_PAGE_SIZE:3, EMPLOYER_JOB_FILTER_VALUES:5, EmployerJobListFilter:6, EMPLOYER_JOB_LOCATION_TYPE_VALUES:8, EmployerJobLocationType:9, parseEmployerJobsListQuery:11, prismaWhereEmployerJobList:27, employerJobsListHref:46, prismaWhereDeletableInListFilter:58, prismaWhereClosableInListFilter:69 |
 | [lib/employer/employerSettingsSchema.ts](../../../lib/employer/employerSettingsSchema.ts) | 23 | jobs-employers | employerSettingsPatchSchema:3, EmployerSettingsPatchInput:23 |
 | [lib/employer/jobCreate.ts](../../../lib/employer/jobCreate.ts) | 70 | jobs-employers | JobCreateFields:3, buildEmployerJobCreateData:27, getRouteErrorDetails:57 |
+| [lib/employer/jobExpiryInstant.ts](../../../lib/employer/jobExpiryInstant.ts) | 62 | jobs-employers | jobExpiryInstant:33, jobExpiryDateInput:50 |
 | [lib/employer/jobImportBulk.ts](../../../lib/employer/jobImportBulk.ts) | 169 | jobs-employers | ImportedDraftInput:14, ImportedDraftError:30, collectDraftInputsFromPageText:89 |
 | [lib/employer/jobPostingApplicationStatus.ts](../../../lib/employer/jobPostingApplicationStatus.ts) | 38 | jobs-employers | employerJobPostingApplicationStatusLabel:14, employerJobPostingApplicationStatusBadgeVariant:21 |
 | [lib/employer/jobReadiness.ts](../../../lib/employer/jobReadiness.ts) | 87 | jobs-employers | JobReadinessLevel:5, JobReadinessTarget:7, JobReadinessIssueKey:9, JobReadinessIssue:11, JobReadiness:18, assessJobPostingReadiness:24, readinessLabel:83 |
@@ -518,6 +519,7 @@
 | [lib/employer/rankProgramsForEmployerJob.test.ts](../../../lib/employer/rankProgramsForEmployerJob.test.ts) | 73 | jobs-employers |  |
 | [lib/employer/rankProgramsForEmployerJob.ts](../../../lib/employer/rankProgramsForEmployerJob.ts) | 510 | jobs-employers | ProgramMatchConfidence:3, RankedProgramMatch:5, rankProgramsForEmployerJob:479, __rankProgramsForEmployerJob:503 |
 | [lib/employer/service.ts](../../../lib/employer/service.ts) | 54 | jobs-employers | CreateEmployerUserOptions:7, createEmployerUser:12 |
+| [lib/employer/statusLabel.ts](../../../lib/employer/statusLabel.ts) | 11 | jobs-employers | statusLabel:7 |
 | [lib/employer/triggerEmployerJobAiMatch.ts](../../../lib/employer/triggerEmployerJobAiMatch.ts) | 38 | jobs-employers | runAiMatchForLiveJob:10 |
 | [lib/employer/workQueue.ts](../../../lib/employer/workQueue.ts) | 78 | jobs-employers | getEmployerWorkQueueSlices:11, countEmployerQueueBadges:69 |
 | [lib/enroll/enrollmentPath.ts](../../../lib/enroll/enrollmentPath.ts) | 10 | applications-enrollment | enrollmentPathSegment:4, enrollmentPathForSlug:8 |
@@ -539,7 +541,7 @@
 | [lib/feature-flags/publicApi.ts](../../../lib/feature-flags/publicApi.ts) | 29 | libraries | hashStringToBucket:1, filterVisibleFlags:11 |
 | [lib/feature-flags/useFeatureFlag.test.ts](../../../lib/feature-flags/useFeatureFlag.test.ts) | 28 | libraries |  |
 | [lib/fetchWithTimeout.ts](../../../lib/fetchWithTimeout.ts) | 60 | libraries | fetchWithTimeout:6, fetchAuth:25, getErrorMessageFromResponse:36 |
-| [lib/formatDate.ts](../../../lib/formatDate.ts) | 34 | libraries | PORTAL_TIMEZONE:10, formatPortalDate:19, formatPortalDateTime:25 |
+| [lib/formatDate.ts](../../../lib/formatDate.ts) | 46 | libraries | PORTAL_TIMEZONE:10, formatPortalDate:19, formatPortalTime:26, formatPortalDateTime:37 |
 | [lib/formatPhone.ts](../../../lib/formatPhone.ts) | 20 | libraries | formatPhone:6 |
 | [lib/gdpr/deleteAuthUser.test.ts](../../../lib/gdpr/deleteAuthUser.test.ts) | 56 | libraries |  |
 | [lib/gdpr/deleteAuthUser.ts](../../../lib/gdpr/deleteAuthUser.ts) | 15 | libraries | deleteSupabaseAuthUser:5 |
@@ -692,6 +694,7 @@
 | [lib/member/trainingWorkspace.ts](../../../lib/member/trainingWorkspace.ts) | 95 | member-counselor | assignedSyllabusBreakdown:6, TRAINING_WORKSPACE_MAX_NOTES:13, TRAINING_WORKSPACE_MAX_URL:14, isValidPlanDate:16, trainingProgramSlugSchema:22, trainingWorkspaceUpdateSchema:34, TrainingWorkspaceUpdate:52, TrainingWorkspaceCourse:53, TrainingWorkspace:59, TrainingCourseSchedule:71, buildTrainingSchedule:79 |
 | [lib/member/xapiVerbProgress.test.ts](../../../lib/member/xapiVerbProgress.test.ts) | 35 | member-counselor |  |
 | [lib/member/xapiVerbProgress.ts](../../../lib/member/xapiVerbProgress.ts) | 25 | member-counselor | inferCourseProgressStatusFromXapiVerb:9 |
+| [lib/mentor/sessionStatusLabel.ts](../../../lib/mentor/sessionStatusLabel.ts) | 16 | libraries | MENTOR_SESSION_STATUS_LABELS:7, mentorSessionStatusLabel:14 |
 | [lib/messages/contextSelection.ts](../../../lib/messages/contextSelection.ts) | 61 | communications | MessageQueryValue:3, normalizeMessageQueryValue:11, AuthorizedCounselorMessageContext:20, resolveAuthorizedCounselorMessageContext:29, PartnerMessageMember:48, resolveAuthorizedPartnerMessageMember:54 |
 | [lib/messages/counselorInbox.test.ts](../../../lib/messages/counselorInbox.test.ts) | 48 | communications |  |
 | [lib/messages/counselorInbox.ts](../../../lib/messages/counselorInbox.ts) | 236 | communications | CounselorInboxRow:6, buildCounselorInboxRows:38 |

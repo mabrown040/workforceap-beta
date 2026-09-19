@@ -40,7 +40,8 @@
 | [lib/admin/courseraSyncDrift.test.ts](../../../lib/admin/courseraSyncDrift.test.ts) | 61 | learning-coursera |  |
 | [lib/admin/courseraSyncDrift.ts](../../../lib/admin/courseraSyncDrift.ts) | 101 | learning-coursera | SyncDriftRawRow:12, SyncDriftRow:22, SyncDriftResult:31, SYNC_DRIFT_THRESHOLD_HOURS:35, SYNC_DRIFT_LIMIT:36, buildSyncDriftQuery:41, mapSyncDriftRows:71, loadSyncDriftPairs:87 |
 | [lib/admin/cronPreviewTypes.ts](../../../lib/admin/cronPreviewTypes.ts) | 10 | administration | CronPreviewRecipient:1, CronPreviewResponse:3 |
-| [lib/admin/cronRegistry.ts](../../../lib/admin/cronRegistry.ts) | 404 | administration | CronDef:8, CRON_REGISTRY:22, CRON_CATEGORY_COLOR:399 |
+| [lib/admin/cronRegistry.test.ts](../../../lib/admin/cronRegistry.test.ts) | 25 | administration |  |
+| [lib/admin/cronRegistry.ts](../../../lib/admin/cronRegistry.ts) | 391 | administration | CronDef:8, CRON_REGISTRY:22, CRON_CATEGORY_COLOR:386 |
 | [lib/admin/diagnoseMemberCoursera.ts](../../../lib/admin/diagnoseMemberCoursera.ts) | 395 | learning-coursera | CourseraDiagnoseReport:17, diagnoseMemberCoursera:91 |
 | [lib/admin/directoryEmptyState.test.ts](../../../lib/admin/directoryEmptyState.test.ts) | 71 | administration |  |
 | [lib/admin/directoryEmptyState.ts](../../../lib/admin/directoryEmptyState.ts) | 25 | administration | PARTNERS_DIRECTORY_EMPTY:6, EMPLOYERS_DIRECTORY_EMPTY:13, SUBGROUPS_DIRECTORY_EMPTY:20 |
@@ -459,6 +460,7 @@
 | [lib/csv/export.test.ts](../../../lib/csv/export.test.ts) | 85 | libraries |  |
 | [lib/csv/export.ts](../../../lib/csv/export.ts) | 60 | libraries | CsvValue:11, CsvColumn:13, dataToCsv:21, csvDownloadResponse:39, exportFilename:57 |
 | [lib/data/applications.ts](../../../lib/data/applications.ts) | 30 | libraries | getStaleApplications:4 |
+| [lib/date/todayInPortalTimezone.ts](../../../lib/date/todayInPortalTimezone.ts) | 21 | libraries | todayInPortalTimezone:12 |
 | [lib/db/advisoryLockRawQuery.test.ts](../../../lib/db/advisoryLockRawQuery.test.ts) | 48 | libraries |  |
 | [lib/db/exactEmailMatch.ts](../../../lib/db/exactEmailMatch.ts) | 41 | libraries | normalizeEmail:20, pickExactEmailMatch:28, EXACT_EMAIL_CANDIDATE_LIMIT:41 |
 | [lib/db/gucContext.test.ts](../../../lib/db/gucContext.test.ts) | 143 | identity-tenancy |  |
@@ -509,6 +511,7 @@
 | [lib/employer/employerJobsListQuery.ts](../../../lib/employer/employerJobsListQuery.ts) | 78 | jobs-employers | EMPLOYER_JOBS_PAGE_SIZE:3, EMPLOYER_JOB_FILTER_VALUES:5, EmployerJobListFilter:6, EMPLOYER_JOB_LOCATION_TYPE_VALUES:8, EmployerJobLocationType:9, parseEmployerJobsListQuery:11, prismaWhereEmployerJobList:27, employerJobsListHref:46, prismaWhereDeletableInListFilter:58, prismaWhereClosableInListFilter:69 |
 | [lib/employer/employerSettingsSchema.ts](../../../lib/employer/employerSettingsSchema.ts) | 23 | jobs-employers | employerSettingsPatchSchema:3, EmployerSettingsPatchInput:23 |
 | [lib/employer/jobCreate.ts](../../../lib/employer/jobCreate.ts) | 70 | jobs-employers | JobCreateFields:3, buildEmployerJobCreateData:27, getRouteErrorDetails:57 |
+| [lib/employer/jobExpiryInstant.ts](../../../lib/employer/jobExpiryInstant.ts) | 62 | jobs-employers | jobExpiryInstant:33, jobExpiryDateInput:50 |
 | [lib/employer/jobImportBulk.ts](../../../lib/employer/jobImportBulk.ts) | 169 | jobs-employers | ImportedDraftInput:14, ImportedDraftError:30, collectDraftInputsFromPageText:89 |
 | [lib/employer/jobPostingApplicationStatus.ts](../../../lib/employer/jobPostingApplicationStatus.ts) | 38 | jobs-employers | employerJobPostingApplicationStatusLabel:14, employerJobPostingApplicationStatusBadgeVariant:21 |
 | [lib/employer/jobReadiness.ts](../../../lib/employer/jobReadiness.ts) | 87 | jobs-employers | JobReadinessLevel:5, JobReadinessTarget:7, JobReadinessIssueKey:9, JobReadinessIssue:11, JobReadiness:18, assessJobPostingReadiness:24, readinessLabel:83 |
@@ -518,6 +521,7 @@
 | [lib/employer/rankProgramsForEmployerJob.test.ts](../../../lib/employer/rankProgramsForEmployerJob.test.ts) | 73 | jobs-employers |  |
 | [lib/employer/rankProgramsForEmployerJob.ts](../../../lib/employer/rankProgramsForEmployerJob.ts) | 510 | jobs-employers | ProgramMatchConfidence:3, RankedProgramMatch:5, rankProgramsForEmployerJob:479, __rankProgramsForEmployerJob:503 |
 | [lib/employer/service.ts](../../../lib/employer/service.ts) | 54 | jobs-employers | CreateEmployerUserOptions:7, createEmployerUser:12 |
+| [lib/employer/statusLabel.ts](../../../lib/employer/statusLabel.ts) | 11 | jobs-employers | statusLabel:7 |
 | [lib/employer/triggerEmployerJobAiMatch.ts](../../../lib/employer/triggerEmployerJobAiMatch.ts) | 38 | jobs-employers | runAiMatchForLiveJob:10 |
 | [lib/employer/workQueue.ts](../../../lib/employer/workQueue.ts) | 78 | jobs-employers | getEmployerWorkQueueSlices:11, countEmployerQueueBadges:69 |
 | [lib/enroll/enrollmentPath.ts](../../../lib/enroll/enrollmentPath.ts) | 10 | applications-enrollment | enrollmentPathSegment:4, enrollmentPathForSlug:8 |
@@ -539,7 +543,7 @@
 | [lib/feature-flags/publicApi.ts](../../../lib/feature-flags/publicApi.ts) | 29 | libraries | hashStringToBucket:1, filterVisibleFlags:11 |
 | [lib/feature-flags/useFeatureFlag.test.ts](../../../lib/feature-flags/useFeatureFlag.test.ts) | 28 | libraries |  |
 | [lib/fetchWithTimeout.ts](../../../lib/fetchWithTimeout.ts) | 60 | libraries | fetchWithTimeout:6, fetchAuth:25, getErrorMessageFromResponse:36 |
-| [lib/formatDate.ts](../../../lib/formatDate.ts) | 34 | libraries | PORTAL_TIMEZONE:10, formatPortalDate:19, formatPortalDateTime:25 |
+| [lib/formatDate.ts](../../../lib/formatDate.ts) | 46 | libraries | PORTAL_TIMEZONE:10, formatPortalDate:19, formatPortalTime:26, formatPortalDateTime:37 |
 | [lib/formatPhone.ts](../../../lib/formatPhone.ts) | 20 | libraries | formatPhone:6 |
 | [lib/gdpr/deleteAuthUser.test.ts](../../../lib/gdpr/deleteAuthUser.test.ts) | 56 | libraries |  |
 | [lib/gdpr/deleteAuthUser.ts](../../../lib/gdpr/deleteAuthUser.ts) | 15 | libraries | deleteSupabaseAuthUser:5 |
@@ -692,6 +696,7 @@
 | [lib/member/trainingWorkspace.ts](../../../lib/member/trainingWorkspace.ts) | 95 | member-counselor | assignedSyllabusBreakdown:6, TRAINING_WORKSPACE_MAX_NOTES:13, TRAINING_WORKSPACE_MAX_URL:14, isValidPlanDate:16, trainingProgramSlugSchema:22, trainingWorkspaceUpdateSchema:34, TrainingWorkspaceUpdate:52, TrainingWorkspaceCourse:53, TrainingWorkspace:59, TrainingCourseSchedule:71, buildTrainingSchedule:79 |
 | [lib/member/xapiVerbProgress.test.ts](../../../lib/member/xapiVerbProgress.test.ts) | 35 | member-counselor |  |
 | [lib/member/xapiVerbProgress.ts](../../../lib/member/xapiVerbProgress.ts) | 25 | member-counselor | inferCourseProgressStatusFromXapiVerb:9 |
+| [lib/mentor/sessionStatusLabel.ts](../../../lib/mentor/sessionStatusLabel.ts) | 16 | libraries | MENTOR_SESSION_STATUS_LABELS:7, mentorSessionStatusLabel:14 |
 | [lib/messages/contextSelection.ts](../../../lib/messages/contextSelection.ts) | 61 | communications | MessageQueryValue:3, normalizeMessageQueryValue:11, AuthorizedCounselorMessageContext:20, resolveAuthorizedCounselorMessageContext:29, PartnerMessageMember:48, resolveAuthorizedPartnerMessageMember:54 |
 | [lib/messages/counselorInbox.test.ts](../../../lib/messages/counselorInbox.test.ts) | 48 | communications |  |
 | [lib/messages/counselorInbox.ts](../../../lib/messages/counselorInbox.ts) | 236 | communications | CounselorInboxRow:6, buildCounselorInboxRows:38 |
@@ -764,7 +769,7 @@
 | [lib/outcomes/socialProof.ts](../../../lib/outcomes/socialProof.ts) | 141 | libraries | OutcomesSocialProofRate:5, PlacementStoryCard:7, PartnerOutcomeSnapshot:17, PartnerReferralBadge:24, OutcomesSocialProofBundle:26, isOutcomesSocialProofEnabled:55, formatSuppressedRate:59, buildPartnerReferralBadge:66, getOutcomesSocialProof:91 |
 | [lib/partner/adminSchoolPartner.test.ts](../../../lib/partner/adminSchoolPartner.test.ts) | 111 | partners-funding |  |
 | [lib/partner/adminSchoolPartner.ts](../../../lib/partner/adminSchoolPartner.ts) | 76 | partners-funding | sponsorshipWindowFromTerm:6, validateAdminProgramSlugs:17, sponsorshipStampFields:32, partnerDirectoryMeta:51, isSchoolManagedPartner:66 |
-| [lib/partner/attentionQueue.ts](../../../lib/partner/attentionQueue.ts) | 169 | partners-funding | RiskTier:7, staleDaysSince:9, computeRiskTier:13, nextBestAction:20, PartnerAttentionRow:37, buildPartnerAttentionQueue:51, countActionablePartnerAttention:167 |
+| [lib/partner/attentionQueue.ts](../../../lib/partner/attentionQueue.ts) | 168 | partners-funding | RiskTier:7, staleDaysSince:9, computeRiskTier:13, nextBestAction:20, PartnerAttentionRow:37, buildPartnerAttentionQueue:51, countActionablePartnerAttention:166 |
 | [lib/partner/memberProgress.test.ts](../../../lib/partner/memberProgress.test.ts) | 127 | partners-funding |  |
 | [lib/partner/memberProgress.ts](../../../lib/partner/memberProgress.ts) | 17 | partners-funding | memberProgramProgressPct:6, memberProgramCompleted:12 |
 | [lib/partner/partnerPayout.ts](../../../lib/partner/partnerPayout.ts) | 15 | partners-funding | getPartnerPlacementPayoutUsd:5, buildPartnerPayoutIdempotencyKey:13 |
@@ -819,7 +824,7 @@
 | [lib/push/sendWebPush.ts](../../../lib/push/sendWebPush.ts) | 87 | communications | isWebPushConfigured:17, WebPushPayload:37, sendWebPushToUser:50 |
 | [lib/rate-limit-policy.test.ts](../../../lib/rate-limit-policy.test.ts) | 133 | libraries |  |
 | [lib/rate-limit-policy.ts](../../../lib/rate-limit-policy.ts) | 82 | libraries | ALLOW_MISSING_UPSTASH_ENV:21, APPLY_FAIL_CLOSED_ENV:22, MissingLimiterMode:24, MissingLimiterReason:26, MissingLimiterDecision:33, isAllowMissingUpstashEnabled:39, isApplyFailClosedEnvEnabled:45, decideMissingLimiter:51 |
-| [lib/rate-limit.ts](../../../lib/rate-limit.ts) | 725 | libraries | VOICE_SESSION_STARTS_PER_HOUR:101, VOICE_SESSION_LIMIT_MESSAGE:102, checkSignupRateLimit:445, checkApplySignupRateLimit:449, checkAuthRateLimit:453, checkAuthIpRateLimit:462, checkVoiceSessionRateLimit:473, checkSignupEmailRateLimit:484, checkAIToolRateLimit:490, checkResumeUploadRateLimit:496, checkResumeDraftSaveRateLimit:502, checkContactRateLimit:508, checkPartnerSignupRateLimit:513, checkAdminInviteRateLimit:518, checkBulkEmailRateLimit:530, checkEmployerJobImportRateLimit:535, checkConfirmationEmailRateLimit:542, checkConfirmationEmailEmailRateLimit:548, checkCareersRecommendRateLimit:556, checkInterestProfilerRateLimit:563, checkForgotPasswordRateLimit:570, checkForgotPasswordEmailRateLimit:576, checkPublicCareersGetRateLimit:582, checkPublicVoiceSessionRateLimit:589, checkInviteAcceptRateLimit:596, checkPublicInviteValidateRateLimit:603, checkPublicOrgOutcomesRateLimit:610, checkVerifyMfaRateLimit:617, checkPublicHealthRateLimit:623, checkXapiConfigGetRateLimit:630, checkXapiOAuthTokenRateLimit:637, checkXapiStatementsPostRateLimit:644, checkPlacementSurveyRateLimit:651, checkPublicWioaQualificationRateLimit:658, checkWebhookRateLimit:665, checkOrgOnboardRateLimit:672, checkPublicInterestProfilerRateLimit:679, checkAdminTokenLinksRateLimit:688, checkPublicQuestionnaireSubmitRateLimit:699, checkCourseraIdentityRateLimit:706, checkMessageSendRateLimit:719 |
+| [lib/rate-limit.ts](../../../lib/rate-limit.ts) | 742 | libraries | VOICE_SESSION_STARTS_PER_HOUR:101, VOICE_SESSION_LIMIT_MESSAGE:102, checkSignupRateLimit:455, checkApplySignupRateLimit:459, checkAuthRateLimit:463, checkAuthIpRateLimit:472, checkVoiceSessionRateLimit:483, checkSignupEmailRateLimit:494, checkAIToolRateLimit:500, checkResumeUploadRateLimit:506, checkResumeDraftSaveRateLimit:512, checkContactRateLimit:518, checkPartnerSignupRateLimit:523, checkAdminInviteRateLimit:528, checkBulkEmailRateLimit:540, checkEmployerJobImportRateLimit:545, checkConfirmationEmailRateLimit:552, checkConfirmationEmailEmailRateLimit:558, checkCareersRecommendRateLimit:566, checkInterestProfilerRateLimit:573, checkForgotPasswordRateLimit:580, checkForgotPasswordEmailRateLimit:586, checkPublicCareersGetRateLimit:592, checkPublicVoiceSessionRateLimit:599, checkInviteAcceptRateLimit:606, checkPublicInviteValidateRateLimit:613, checkPublicOrgOutcomesRateLimit:620, checkPublicUnsubscribeRateLimit:627, checkVerifyMfaRateLimit:634, checkPublicHealthRateLimit:640, checkXapiConfigGetRateLimit:647, checkXapiOAuthTokenRateLimit:654, checkXapiStatementsPostRateLimit:661, checkPlacementSurveyRateLimit:668, checkPublicWioaQualificationRateLimit:675, checkWebhookRateLimit:682, checkOrgOnboardRateLimit:689, checkPublicInterestProfilerRateLimit:696, checkAdminTokenLinksRateLimit:705, checkPublicQuestionnaireSubmitRateLimit:716, checkCourseraIdentityRateLimit:723, checkMessageSendRateLimit:736 |
 | [lib/rate-limit.wrappers.test.ts](../../../lib/rate-limit.wrappers.test.ts) | 24 | libraries |  |
 | [lib/readiness/index.ts](../../../lib/readiness/index.ts) | 12 | libraries | READINESS_SECTIONS:6, getCheckboxItemKeys:7, getJobSiteItemKey:8, getAllItemKeys:9, ReadinessItem:10, ReadinessSection:11 |
 | [lib/readiness/memberReadinessSections.ts](../../../lib/readiness/memberReadinessSections.ts) | 62 | libraries | MemberReadinessItem:4, MemberReadinessSection:13, getMemberReadinessSections:24 |

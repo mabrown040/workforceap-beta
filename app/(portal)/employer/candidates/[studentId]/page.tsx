@@ -9,6 +9,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
+import { formatPortalDateTime } from '@/lib/formatDate';
 import { EMPLOYER_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
@@ -44,15 +45,11 @@ export async function generateMetadata({
   });
 }
 
+// Pinned to PORTAL_TIMEZONE so the server-rendered time matches what a
+// Central-time employer expects instead of the UTC wall clock.
 function formatDateTime(value: Date | null | undefined) {
   if (!value) return '—';
-  return value.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  return formatPortalDateTime(value) || '—';
 }
 
 export default async function EmployerCandidateProfilePage({

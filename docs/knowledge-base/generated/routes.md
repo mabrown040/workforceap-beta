@@ -269,7 +269,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /partner | not-found |  | [app/(portal)/partner/not-found.tsx](../../../app/%28portal%29/partner/not-found.tsx) |  |
 | /partner/outcomes | loading |  | [app/(portal)/partner/outcomes/loading.tsx](../../../app/%28portal%29/partner/outcomes/loading.tsx) |  |
 | /partner/outcomes | page |  | [app/(portal)/partner/outcomes/page.tsx](../../../app/%28portal%29/partner/outcomes/page.tsx) | @/lib/auth/portalGuards:3, @/lib/auth/server:5, @/lib/auth/roles:6 |
-| /partner | page |  | [app/(portal)/partner/page.tsx](../../../app/%28portal%29/partner/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/auth/portalGuards:8, @/lib/auth/roles:21 |
+| /partner | page |  | [app/(portal)/partner/page.tsx](../../../app/%28portal%29/partner/page.tsx) | @/lib/auth/server:6, @/lib/auth/roles:7, @/lib/auth/portalGuards:8, @/lib/auth/roles:23 |
 | /partner/referred-members/\[memberId\] | page |  | [app/(portal)/partner/referred-members/\[memberId\]/page.tsx](../../../app/%28portal%29/partner/referred-members/%5BmemberId%5D/page.tsx) | @/lib/auth/roles:10, @/lib/auth/portalGuards:11, @/lib/auth/server:12 |
 | /partner/referred-members | loading |  | [app/(portal)/partner/referred-members/loading.tsx](../../../app/%28portal%29/partner/referred-members/loading.tsx) |  |
 | /partner/referred-members | page |  | [app/(portal)/partner/referred-members/page.tsx](../../../app/%28portal%29/partner/referred-members/page.tsx) | @/lib/auth/portalGuards:3, @/lib/auth/roles:8, @/lib/auth/server:9 |
@@ -898,7 +898,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/subgroup/members/\[id\] | route | GET | [app/api/subgroup/members/\[id\]/route.ts](../../../app/api/subgroup/members/%5Bid%5D/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:12 |
 | /api/subgroup/members | route | GET | [app/api/subgroup/members/route.ts](../../../app/api/subgroup/members/route.ts) | @/lib/auth/server:2, @/lib/auth/roles:3, @/lib/db/withRequestGuc:11 |
 | /api/test/xapi-access-token | route | GET | [app/api/test/xapi-access-token/route.ts](../../../app/api/test/xapi-access-token/route.ts) |  |
-| /api/unsubscribe | route | POST, GET | [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | @/lib/db/withRequestGuc:14 |
+| /api/unsubscribe | route | POST, GET | [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | @/lib/db/withRequestGuc:14, @/lib/rate-limit:18 |
 | /api/waitlist | route | POST, GET | [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) |  |
 | /api/webhooks/coursera | route | POST | [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | @/lib/rate-limit:4, @/lib/coursera/webhookAuth:9, @/lib/db/withRequestGuc:19, @/lib/tenant/resolveOrgFromRequest:20 |
 | /api/webhooks/learning-completion | route | POST | [app/api/webhooks/learning-completion/route.ts](../../../app/api/webhooks/learning-completion/route.ts) | @/lib/rate-limit:2, @/lib/db/withRequestGuc:9 |

@@ -15,8 +15,20 @@ import { withSystemGuc } from '@/lib/db/withRequestGuc';
 import { EXACT_EMAIL_CANDIDATE_LIMIT, pickExactEmailMatch } from '@/lib/db/exactEmailMatch';
 import { verifyUnsubscribeToken } from '@/lib/email/unsubscribeToken';
 import { logger } from '@/lib/observability/logger';
+import { checkPublicUnsubscribeRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Per-IP cap. The HMAC token is the only authorization on this route, so
+ * without a limiter one valid token can be replayed to drive unbounded
+ * user lookups + updates. Checked before the token is even parsed.
+ */
+async function tooManyRequests(req: NextRequest): Promise<NextResponse | null> {
+  const { success } = await checkPublicUnsubscribeRateLimit(getClientIpFromRequest(req));
+  return success ? null : NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+}
 
 async function unsubscribe(req: NextRequest): Promise<{ ok: boolean }> {
   const token = req.nextUrl.searchParams.get('token') ?? '';
@@ -52,6 +64,8 @@ async function unsubscribe(req: NextRequest): Promise<{ ok: boolean }> {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await tooManyRequests(req);
+  if (limited) return limited;
   const { ok } = await unsubscribe(req);
   // RFC 8058: reply 2xx when processed. Invalid tokens get 400 so mailbox
   // providers don't treat a broken link as a working unsubscribe.
@@ -61,6 +75,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await tooManyRequests(req);
+  if (limited) return limited;
   const { ok } = await unsubscribe(req);
   const body = ok
     ? `<h1>You're unsubscribed</h1><p>You'll no longer receive updates or reminder emails from Workforce Advancement Project. You can turn them back on any time in <a href="/dashboard/settings">your notification settings</a>.</p>`

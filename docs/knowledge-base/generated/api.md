@@ -251,8 +251,8 @@
 | [app/api/consent/\[token\]/route.ts](../../../app/api/consent/%5Btoken%5D/route.ts) | 116 | learning-coursera | POST:35 |
 | [app/api/contact/route.ts](../../../app/api/contact/route.ts) | 161 | api | POST:18 |
 | [app/api/counselor/analytics/route.ts](../../../app/api/counselor/analytics/route.ts) | 219 | member-counselor | GET:8 |
-| [app/api/counselor/bulk-followup/route.ts](../../../app/api/counselor/bulk-followup/route.ts) | 207 | member-counselor | POST:207 |
-| [app/api/counselor/counselors/route.ts](../../../app/api/counselor/counselors/route.ts) | 45 | member-counselor | GET:9 |
+| [app/api/counselor/bulk-followup/route.ts](../../../app/api/counselor/bulk-followup/route.ts) | 215 | member-counselor | POST:215 |
+| [app/api/counselor/counselors/route.ts](../../../app/api/counselor/counselors/route.ts) | 49 | member-counselor | GET:12 |
 | [app/api/counselor/dashboard/route.ts](../../../app/api/counselor/dashboard/route.ts) | 143 | member-counselor | GET:8 |
 | [app/api/counselor/feedback/route.ts](../../../app/api/counselor/feedback/route.ts) | 192 | member-counselor | POST:85 |
 | [app/api/counselor/inactive-members/_inactiveMembersQuery.ts](../../../app/api/counselor/inactive-members/_inactiveMembersQuery.ts) | 37 | member-counselor | buildInactiveMembersQuery:3 |
@@ -263,7 +263,7 @@
 | [app/api/counselor/inbox-zero/route.ts](../../../app/api/counselor/inbox-zero/route.ts) | 24 | member-counselor | GET:7 |
 | [app/api/counselor/members/\[memberId\]/activity-timeline/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/activity-timeline/route.ts) | 56 | member-counselor | GET:8 |
 | [app/api/counselor/members/\[memberId\]/award-points/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/award-points/route.ts) | 69 | member-counselor | POST:68 |
-| [app/api/counselor/members/\[memberId\]/messages/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/messages/route.ts) | 223 | communications | GET:113, POST:184, PATCH:222 |
+| [app/api/counselor/members/\[memberId\]/messages/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/messages/route.ts) | 236 | communications | GET:121, POST:197, PATCH:235 |
 | [app/api/counselor/members/\[memberId\]/notes/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/notes/route.ts) | 158 | member-counselor | GET:59, POST:110, DELETE:157 |
 | [app/api/counselor/members/\[memberId\]/resume/docx-html/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/resume/docx-html/route.ts) | 71 | member-counselor | POST:15 |
 | [app/api/counselor/members/\[memberId\]/resume/preview/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/resume/preview/route.ts) | 70 | member-counselor | GET:13 |
@@ -271,7 +271,7 @@
 | [app/api/counselor/members/\[memberId\]/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/route.ts) | 256 | member-counselor | GET:16 |
 | [app/api/counselor/members/\[memberId\]/session-notes/route.ts](../../../app/api/counselor/members/%5BmemberId%5D/session-notes/route.ts) | 145 | member-counselor | GET:45, POST:97, DELETE:145 |
 | [app/api/counselor/notifications/route.ts](../../../app/api/counselor/notifications/route.ts) | 59 | communications | GET:59 |
-| [app/api/counselor/nudge/route.ts](../../../app/api/counselor/nudge/route.ts) | 152 | member-counselor | POST:35 |
+| [app/api/counselor/nudge/route.ts](../../../app/api/counselor/nudge/route.ts) | 159 | member-counselor | POST:36 |
 | [app/api/counselor/placements/route.ts](../../../app/api/counselor/placements/route.ts) | 300 | jobs-employers | GET:186, POST:300 |
 | [app/api/counselor/profile/route.ts](../../../app/api/counselor/profile/route.ts) | 120 | member-counselor | GET:38, PATCH:64 |
 | [app/api/counselor/remind-member/route.ts](../../../app/api/counselor/remind-member/route.ts) | 97 | member-counselor | POST:12 |
@@ -331,7 +331,7 @@
 | [app/api/employer/loi/route.ts](../../../app/api/employer/loi/route.ts) | 153 | jobs-employers | POST:152, GET:153 |
 | [app/api/employer/messages/route.ts](../../../app/api/employer/messages/route.ts) | 143 | communications | GET:47, POST:117, PATCH:142 |
 | [app/api/employer/onboarding-profile/route.ts](../../../app/api/employer/onboarding-profile/route.ts) | 70 | jobs-employers | PATCH:16 |
-| [app/api/employer/outcomes/route.ts](../../../app/api/employer/outcomes/route.ts) | 145 | jobs-employers | GET:145 |
+| [app/api/employer/outcomes/route.ts](../../../app/api/employer/outcomes/route.ts) | 164 | jobs-employers | GET:164 |
 | [app/api/employer/settings/route.ts](../../../app/api/employer/settings/route.ts) | 69 | jobs-employers | PATCH:11 |
 | [app/api/employer/signup/_signupCleanup.ts](../../../app/api/employer/signup/_signupCleanup.ts) | 15 | applications-enrollment | cleanupCreatedEmployerSignupAuthUser:3 |
 | [app/api/employer/signup/route.test.ts](../../../app/api/employer/signup/route.test.ts) | 50 | applications-enrollment |  |
@@ -355,7 +355,7 @@
 | [app/api/invite/accept/route.ts](../../../app/api/invite/accept/route.ts) | 813 | api | POST:316 |
 | [app/api/invite/validate/route.ts](../../../app/api/invite/validate/route.ts) | 138 | api | GET:10 |
 | [app/api/leader/chapters/\[id\]/route.ts](../../../app/api/leader/chapters/%5Bid%5D/route.ts) | 59 | api | GET:59 |
-| [app/api/leader/chapters/route.ts](../../../app/api/leader/chapters/route.ts) | 53 | api | GET:53 |
+| [app/api/leader/chapters/route.ts](../../../app/api/leader/chapters/route.ts) | 58 | api | GET:58 |
 | [app/api/leads/careers/route.ts](../../../app/api/leads/careers/route.ts) | 159 | api | POST:19 |
 | [app/api/leads/employer/route.ts](../../../app/api/leads/employer/route.ts) | 17 | jobs-employers | GET:4 |
 | [app/api/member/ai-history/route.ts](../../../app/api/member/ai-history/route.ts) | 67 | member-counselor | GET:22 |
@@ -442,7 +442,7 @@
 | [app/api/member/resume/preview/route.ts](../../../app/api/member/resume/preview/route.ts) | 72 | member-counselor | GET:18 |
 | [app/api/member/resume/route.ts](../../../app/api/member/resume/route.ts) | 157 | member-counselor | GET:38 |
 | [app/api/member/resume/upload/route.ts](../../../app/api/member/resume/upload/route.ts) | 115 | member-counselor | POST:25 |
-| [app/api/member/saved-jobs/route.ts](../../../app/api/member/saved-jobs/route.ts) | 93 | member-counselor | GET:27, POST:69, DELETE:93 |
+| [app/api/member/saved-jobs/route.ts](../../../app/api/member/saved-jobs/route.ts) | 101 | member-counselor | GET:35, POST:77, DELETE:101 |
 | [app/api/member/settings/route.ts](../../../app/api/member/settings/route.ts) | 44 | member-counselor | PATCH:9 |
 | [app/api/member/signup/route.ts](../../../app/api/member/signup/route.ts) | 284 | applications-enrollment | POST:24 |
 | [app/api/member/skill-assessment/route.ts](../../../app/api/member/skill-assessment/route.ts) | 72 | member-counselor | POST:13 |
@@ -512,7 +512,7 @@
 | [app/api/subgroup/members/\[id\]/route.ts](../../../app/api/subgroup/members/%5Bid%5D/route.ts) | 131 | api | GET:13 |
 | [app/api/subgroup/members/route.ts](../../../app/api/subgroup/members/route.ts) | 113 | api | GET:12 |
 | [app/api/test/xapi-access-token/route.ts](../../../app/api/test/xapi-access-token/route.ts) | 37 | api | GET:12 |
-| [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | 72 | api | dynamic:19, POST:54, GET:63 |
+| [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | 88 | api | dynamic:21, POST:66, GET:77 |
 | [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) | 73 | api | POST:28, GET:52 |
 | [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | 396 | learning-coursera | POST:88 |
 | [app/api/webhooks/learning-completion/_webhook.ts](../../../app/api/webhooks/learning-completion/_webhook.ts) | 82 | api | webhookSchema:5, verifyWebhookSecret:11, buildDedupeKey:27, checkIdempotency:33 |

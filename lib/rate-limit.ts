@@ -102,6 +102,8 @@ export const VOICE_SESSION_STARTS_PER_HOUR = 10;
 export const VOICE_SESSION_LIMIT_MESSAGE =
   `The limit is ${VOICE_SESSION_STARTS_PER_HOUR} voice session starts per hour. Please try again later.`;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
+let publicInviteValidateRateLimiter: Ratelimit | null = null;
+let publicOrgOutcomesRateLimiter: Ratelimit | null = null;
 let verifyMfaRateLimiter: Ratelimit | null = null;
 let publicHealthRateLimiter: Ratelimit | null = null;
 let xapiConfigGetRateLimiter: Ratelimit | null = null;
@@ -351,6 +353,19 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:invite-accept',
   });
+  publicInviteValidateRateLimiter = new Ratelimit({
+    redis,
+    // Unauthenticated token lookup; the invite page calls it once per load,
+    // so this only needs to stop token brute-force, not legitimate refreshes.
+    limiter: Ratelimit.slidingWindow(60, '1 h'),
+    prefix: 'ratelimit:public-invite-validate',
+  });
+  publicOrgOutcomesRateLimiter = new Ratelimit({
+    redis,
+    // Public partner outcomes page re-fetches on each quarter/year change.
+    limiter: Ratelimit.slidingWindow(120, '1 h'),
+    prefix: 'ratelimit:public-org-outcomes',
+  });
   verifyMfaRateLimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(10, '15 m'),
@@ -581,6 +596,20 @@ export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ su
 export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!inviteAcceptRateLimiter) return { success: true };
   const result = await inviteAcceptRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** GET /api/invite/validate?token= — public token lookup; per IP, fail-open without Redis. */
+export async function checkPublicInviteValidateRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicInviteValidateRateLimiter) return { success: true };
+  const result = await publicInviteValidateRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** GET /api/org/[slug]/outcomes — public partner outcomes read; per IP, fail-open without Redis. */
+export async function checkPublicOrgOutcomesRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicOrgOutcomesRateLimiter) return { success: true };
+  const result = await publicOrgOutcomesRateLimiter.limit(ip);
   return { success: result.success };
 }
 

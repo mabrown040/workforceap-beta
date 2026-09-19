@@ -199,7 +199,8 @@ describe('GET /api/health/ready', () => {
     expect(body.probe).toBe('ready');
     expect(body.checks.database.status).toBe('fail');
     expect(body.checks.organization.status).toBe('fail');
-    expect(body.checks.organization.reason).toMatch(/Connection refused/);
+    expect(body.checks.organization.reason).toBe('Database unavailable');
+    expect(JSON.stringify(body)).not.toContain('Connection refused');
   });
 
   it('returns 503 when the default org row is missing', async () => {

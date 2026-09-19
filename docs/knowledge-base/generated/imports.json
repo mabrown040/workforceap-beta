@@ -57601,8 +57601,24 @@
   },
   {
     "from": "app/api/org/[slug]/outcomes/route.ts",
-    "specifier": "@/lib/analytics/partnerQuarterlyOutcomes",
+    "specifier": "@/lib/http/clientIp",
     "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/clientIp.ts"
+  },
+  {
+    "from": "app/api/org/[slug]/outcomes/route.ts",
+    "specifier": "@/lib/rate-limit",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/rate-limit.ts"
+  },
+  {
+    "from": "app/api/org/[slug]/outcomes/route.ts",
+    "specifier": "@/lib/analytics/partnerQuarterlyOutcomes",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/partnerQuarterlyOutcomes.ts"
@@ -119228,6 +119244,62 @@
     "specifier": "next/server",
     "line": 86,
     "kind": "import",
+    "external": true,
+    "package": "next"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "vitest",
+    "line": 8,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "@/app/api/health/ready/route",
+    "line": 82,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/health/ready/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "@/app/api/health/ready/_readyCache",
+    "line": 83,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/health/ready/_readyCache.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "@/app/api/invite/validate/route",
+    "line": 84,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/invite/validate/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "@/app/api/org/[slug]/outcomes/route",
+    "line": 85,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/org/[slug]/outcomes/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "@/app/api/apply/confirmation-email/route",
+    "line": 86,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/apply/confirmation-email/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-batch4.spec.ts",
+    "specifier": "next/server",
+    "line": 88,
+    "kind": "type",
     "external": true,
     "package": "next"
   },

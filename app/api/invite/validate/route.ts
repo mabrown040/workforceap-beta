@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sanitizePublicPartnerLabel, sanitizePublicSubgroupLabel } from '@/lib/public/publicDataFilters';
 import { normalizeLoginCode } from '@/lib/invitations/loginCode';
-import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
+import { checkInviteAcceptRateLimit, checkPublicInviteValidateRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -46,6 +46,19 @@ export const GET = withApiGuc(async (request: NextRequest) => {
       }
       token = match.token;
       resolvedByCode = true;
+    }
+
+    // Direct `?token=` lookups are unauthenticated too: cap them per IP so the
+    // token space cannot be probed at wire speed. The code path above has
+    // already spent its own (stricter) limiter, so do not charge it twice.
+    if (!resolvedByCode) {
+      const { success } = await checkPublicInviteValidateRateLimit(getClientIpFromRequest(request));
+      if (!success) {
+        return NextResponse.json(
+          { valid: false, error: 'Too many attempts. Please try again in an hour.' },
+          { status: 429 },
+        );
+      }
     }
   
     if (!token || token.length < 32) {

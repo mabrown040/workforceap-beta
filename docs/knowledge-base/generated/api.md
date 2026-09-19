@@ -232,7 +232,7 @@
 | [app/api/ai/resume-strength/route.ts](../../../app/api/ai/resume-strength/route.ts) | 128 | ai-voice | POST:15 |
 | [app/api/ai/salary-negotiation/route.ts](../../../app/api/ai/salary-negotiation/route.ts) | 112 | ai-voice | POST:16 |
 | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | 207 | ai-voice | GET:24 |
-| [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 91 | applications-enrollment | POST:91 |
+| [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 94 | applications-enrollment | POST:94 |
 | [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1304 | applications-enrollment |  |
 | [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1031 | applications-enrollment | POST:180 |
 | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | 55 | applications-enrollment | POST:28 |
@@ -345,7 +345,7 @@
 | [app/api/gdpr/delete/route.ts](../../../app/api/gdpr/delete/route.ts) | 160 | api | POST:18 |
 | [app/api/gdpr/export/route.ts](../../../app/api/gdpr/export/route.ts) | 81 | api | GET:6 |
 | [app/api/health/ready/_readyCache.ts](../../../app/api/health/ready/_readyCache.ts) | 20 | api | CACHE_TTL_MS:6, ReadyCacheEntry:8, readyCache:15, __resetReadyCache:18 |
-| [app/api/health/ready/route.ts](../../../app/api/health/ready/route.ts) | 136 | api | dynamic:12, OPTIONS:74, GET:83 |
+| [app/api/health/ready/route.ts](../../../app/api/health/ready/route.ts) | 139 | api | dynamic:12, OPTIONS:77, GET:86 |
 | [app/api/health/route.ts](../../../app/api/health/route.ts) | 95 | api | dynamic:8, OPTIONS:55, GET:64 |
 | [app/api/health/slo/route.ts](../../../app/api/health/slo/route.ts) | 388 | api | dynamic:40, GET:388 |
 | [app/api/interview/history/route.ts](../../../app/api/interview/history/route.ts) | 242 | jobs-employers | GET:104, POST:242 |
@@ -353,7 +353,7 @@
 | [app/api/invite/accept/_invitationClaim.ts](../../../app/api/invite/accept/_invitationClaim.ts) | 32 | api | InvitationClaimError:5, claimPendingInvitationForAccept:11 |
 | [app/api/invite/accept/route.test.ts](../../../app/api/invite/accept/route.test.ts) | 39 | api |  |
 | [app/api/invite/accept/route.ts](../../../app/api/invite/accept/route.ts) | 813 | api | POST:316 |
-| [app/api/invite/validate/route.ts](../../../app/api/invite/validate/route.ts) | 125 | api | GET:10 |
+| [app/api/invite/validate/route.ts](../../../app/api/invite/validate/route.ts) | 138 | api | GET:10 |
 | [app/api/leader/chapters/\[id\]/route.ts](../../../app/api/leader/chapters/%5Bid%5D/route.ts) | 59 | api | GET:59 |
 | [app/api/leader/chapters/route.ts](../../../app/api/leader/chapters/route.ts) | 53 | api | GET:53 |
 | [app/api/leads/careers/route.ts](../../../app/api/leads/careers/route.ts) | 159 | api | POST:19 |
@@ -468,7 +468,7 @@
 | [app/api/onboarding/reset/route.ts](../../../app/api/onboarding/reset/route.ts) | 63 | applications-enrollment | POST:11 |
 | [app/api/onboarding/step/route.ts](../../../app/api/onboarding/step/route.ts) | 61 | applications-enrollment | POST:13 |
 | [app/api/onboarding/tour-complete/route.ts](../../../app/api/onboarding/tour-complete/route.ts) | 59 | applications-enrollment | POST:11 |
-| [app/api/org/\[slug\]/outcomes/route.ts](../../../app/api/org/%5Bslug%5D/outcomes/route.ts) | 61 | api | GET:61 |
+| [app/api/org/\[slug\]/outcomes/route.ts](../../../app/api/org/%5Bslug%5D/outcomes/route.ts) | 70 | api | GET:70 |
 | [app/api/org/\[slug\]/settings/route.ts](../../../app/api/org/%5Bslug%5D/settings/route.ts) | 144 | api | GET:68, PUT:144 |
 | [app/api/org/onboard/route.ts](../../../app/api/org/onboard/route.ts) | 12 | api | POST:4 |
 | [app/api/partner/connect/route.ts](../../../app/api/partner/connect/route.ts) | 70 | partners-funding | POST:11 |

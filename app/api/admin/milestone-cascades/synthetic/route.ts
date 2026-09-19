@@ -85,9 +85,11 @@ async function _POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err) {
+    // The Prisma/detector text stays in the server log; the client gets one
+    // stable sentence.
     console.error('[milestone-cascade synthetic] unhandled:', err);
     return NextResponse.json(
-      { error: 'Synthetic insert failed', detail: err instanceof Error ? err.message : 'unknown' },
+      { error: 'Unable to create the synthetic cascade. Please try again in a few minutes.' },
       { status: 500 },
     );
   }

@@ -183,9 +183,11 @@ async function _POST(
     });
   } catch (err) {
     if (err instanceof CascadeDispatchError) return NextResponse.json({ ok: false, error: err.message, code: err.code, retryable: err.retryable }, { status: err.status });
+    // The Prisma/dispatcher text stays in the server log; the client gets one
+    // stable sentence.
     console.error('[milestone-cascade approve] unhandled:', err);
     return NextResponse.json(
-      { error: 'Approve failed', detail: err instanceof Error ? err.message : 'unknown' },
+      { error: 'Unable to approve this cascade. Please try again in a few minutes.' },
       { status: 500 },
     );
   }

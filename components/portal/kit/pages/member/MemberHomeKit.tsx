@@ -119,6 +119,8 @@ export interface MemberHomeKitProps {
   noProgram?: boolean;
   nextLesson?: string;
   nextLessonDue?: string;
+  /** Deep link for `nextLesson` when it names a program module; the cert-path card links the title. */
+  nextLessonHref?: string;
   /** Next badge progress (0–100). */
   nextBadgePercent?: number;
   nextBadgeName?: string;
@@ -554,6 +556,7 @@ export function MemberHomeKit({
   noProgram = false,
   nextLesson,
   nextLessonDue,
+  nextLessonHref,
   nextBadgePercent = 0,
   nextBadgeName,
   nextBadgeRemaining,
@@ -680,7 +683,18 @@ export function MemberHomeKit({
                 </h3>
                 {nextLesson ? (
                   <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
-                    Next: {nextLesson}
+                    Next:{' '}
+                    {nextLessonHref ? (
+                      <Link
+                        href={nextLessonHref}
+                        className="wa-kit-focus"
+                        style={{ color: 'inherit', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 2 }}
+                      >
+                        {nextLesson}
+                      </Link>
+                    ) : (
+                      nextLesson
+                    )}
                     {nextLessonDue ? (
                       <>
                         {' '}

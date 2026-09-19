@@ -35,8 +35,12 @@ export const POST = withApiGuc(async () => {
         coursesWithProgress: progress.size,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to refresh from Coursera';
-      return NextResponse.json({ error: message }, { status: 502 });
+      // Keep the B4B error text (URL, status, token hints) in the server log.
+      console.error('[member/coursera/refresh-progress] B4B refresh failed:', error);
+      return NextResponse.json(
+        { error: 'Unable to refresh your progress from Coursera right now. Please try again in a few minutes.' },
+        { status: 502 },
+      );
     }
   } catch (error) {
     console.error('/member/coursera/refresh-progress:', error);

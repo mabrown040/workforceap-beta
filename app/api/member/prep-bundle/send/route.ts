@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { isJsonObject } from '@/lib/api/readJsonBody';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
 import { sendInterviewPrepBundleEmail } from '@/lib/email';
 import { checkContactRateLimit } from '@/lib/rate-limit';
@@ -23,8 +24,22 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
   }
 
+  // No body is fine (send everything); a body that is present must be a JSON
+  // object, or `body.selectedToolTypes` throws on `null` and the route 500s.
   let body: { selectedToolTypes?: string[] } = {};
-  try { body = await request.json(); } catch { /* no body ok */ }
+  const rawBody = (await request.text()).trim();
+  if (rawBody.length > 0) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    if (!isJsonObject(parsed)) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    body = parsed as { selectedToolTypes?: string[] };
+  }
 
   const bundle = await fetchInterviewPrepBundle(user.id);
   if (bundle.empty) {
@@ -59,7 +74,12 @@ export const POST = withApiGuc(async (request: NextRequest) => {
   });
 
   if (!result.ok) {
-    return NextResponse.json({ error: result.error || 'Email failed' }, { status: 502 });
+    // Keep the email provider's text (API key / network detail) in the server log.
+    console.error('[member/prep-bundle/send] email send failed:', result.error);
+    return NextResponse.json(
+      { error: 'Unable to send your prep bundle right now. Please try again in a few minutes.' },
+      { status: 502 },
+    );
   }
 
   return NextResponse.json({ ok: true, sentTo: email, itemCount: itemsToSend.length });

@@ -1518,12 +1518,8 @@
     ],
     "localReferences": [
       {
-        "file": "messages/en.json",
-        "line": 4
-      },
-      {
         "file": "components/portal/tools/InterviewCoach.tsx",
-        "line": 5
+        "line": 3
       }
     ],
     "kind": "test-candidate",
@@ -10876,7 +10872,7 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
-    "file": "tests/api/api-error-echo-followups.spec.ts",
+    "file": "tests/api/api-error-echo-sweep.spec.ts",
     "area": "tests",
     "domain": "tests",
     "frameworkImports": [
@@ -10884,20 +10880,76 @@
     ],
     "localReferences": [
       {
-        "file": "app/api/admin/milestone-cascades/synthetic/route.ts",
-        "line": 109
+        "file": "app/api/member/coursera/refresh-progress/route.ts",
+        "line": 177
       },
       {
-        "file": "app/api/admin/milestone-cascades/[id]/approve/route.ts",
-        "line": 110
+        "file": "app/api/member/interest-profiler/questions/route.ts",
+        "line": 178
       },
       {
-        "file": "app/api/admin/milestone-cascades/[id]/dismiss/route.ts",
-        "line": 111
+        "file": "app/api/member/interest-profiler/score/route.ts",
+        "line": 179
       },
       {
-        "file": "app/api/admin/coursera/csv-import/route.ts",
-        "line": 112
+        "file": "app/api/member/prep-bundle/send/route.ts",
+        "line": 180
+      },
+      {
+        "file": "app/api/admin/users/[id]/reset-password/route.ts",
+        "line": 181
+      },
+      {
+        "file": "app/api/admin/members/[id]/reset-password/route.ts",
+        "line": 182
+      },
+      {
+        "file": "app/api/admin/onet/search/route.ts",
+        "line": 183
+      },
+      {
+        "file": "app/api/admin/outcomes/snapshot/route.ts",
+        "line": 184
+      },
+      {
+        "file": "app/api/admin/members/[id]/partner/route.ts",
+        "line": 185
+      },
+      {
+        "file": "app/api/admin/email-crons/[id]/dry-run/route.ts",
+        "line": 186
+      },
+      {
+        "file": "app/api/admin/email-crons/[id]/preview/route.ts",
+        "line": 187
+      },
+      {
+        "file": "app/api/admin/coursera/backfill-orphans/route.ts",
+        "line": 188
+      },
+      {
+        "file": "app/api/admin/coursera/link-health/route.ts",
+        "line": 189
+      },
+      {
+        "file": "app/api/admin/coursera/sync-b4b/route.ts",
+        "line": 190
+      },
+      {
+        "file": "app/api/admin/coursera/auto-heal/route.ts",
+        "line": 191
+      },
+      {
+        "file": "app/api/admin/coursera/mappings/route.ts",
+        "line": 192
+      },
+      {
+        "file": "app/api/admin/coursera/map-unmatched/route.ts",
+        "line": 193
+      },
+      {
+        "file": "app/api/admin/coursera/backfill-xapi/route.ts",
+        "line": 194
       }
     ],
     "kind": "test-candidate",

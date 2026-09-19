@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "e3eb9b0b011a95248f08bb2e5255e0577990623cc087ca1b31d55f28d909b7d9",
+  "inputTreeSha256": "42ff5bda5ed75bf1aa3f429d2823b50b9fe24ebaae53c053e8c692ebc98181b5",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -10,8 +10,8 @@
   "counts": {
     "files": 4651,
     "sourceModules": 3325,
-    "importReferences": 15978,
-    "resolvedLocalReferences": 10644,
+    "importReferences": 15989,
+    "resolvedLocalReferences": 10658,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1052,
     "nextRouteFiles": 1019,
@@ -219,12 +219,12 @@
       "references": 50
     },
     {
-      "file": "lib/http/requestFailureCopy.ts",
-      "references": 50
-    },
-    {
       "file": "lib/member/curriculumAssignment.ts",
       "references": 49
+    },
+    {
+      "file": "lib/http/requestFailureCopy.ts",
+      "references": 47
     },
     {
       "file": "components/LocalizedLink.tsx",

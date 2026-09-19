@@ -77,15 +77,9 @@ const patchSchema = z.object({
       void auditLog({ actorUserId: user.id, action: 'member_partner_assign', targetType: 'user', targetId: memberId, metadata: { partnerId } }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (e) {
+      // The Prisma text stays in the server log; the client gets one sentence.
       console.error('[admin] PATCH member partner:', e);
-      const detail = e instanceof Error ? e.message : 'Unknown error';
-      return NextResponse.json(
-        {
-          error: 'Could not update partner assignment.',
-          detail,
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Could not update partner assignment.' }, { status: 500 });
     }
   } catch (error) {
     console.error('/admin/members/[id]/partner:', error);

@@ -684,6 +684,12 @@ export default async function AdminCourseraPage({
                 Enrollment pipeline →
               </Link>
               <Link
+                href="/admin/coursera/provisioning"
+                style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-info)' }}
+              >
+                Provisioning queue →
+              </Link>
+              <Link
                 href="/admin/coursera/health"
                 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-info)' }}
               >
@@ -914,6 +920,30 @@ export default async function AdminCourseraPage({
             <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
               Every member with an assigned program: approved / approved-but-not-started / active / stalled / completed,
               plus one-click approve and enroll.
+            </span>
+          </div>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>Open</span>
+        </Link>
+
+        <Link
+          href="/admin/coursera/provisioning"
+          className="content-card"
+          style={{
+            padding: '1rem 1.2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            textDecoration: 'none',
+            color: 'inherit',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>Coursera provisioning queue →</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              One place to see where each member stands on Coursera: not provisioned / invited / unmatched /
+              enrolled / active / stalled / completed, with filters and CSV export. Read-only.
             </span>
           </div>
           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>Open</span>

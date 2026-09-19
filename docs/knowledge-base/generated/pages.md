@@ -364,7 +364,8 @@
 | [app/admin/coursera/learners/\[userId\]/page.tsx](../../../app/admin/coursera/learners/%5BuserId%5D/page.tsx) | 379 | learning-coursera | metadata:27, dynamic:33, default:79 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/events/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/events/page.tsx) | 250 | learning-coursera | metadata:18, dynamic:24, default:46 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/page.tsx) | 463 | learning-coursera | metadata:26, dynamic:32, default:45 |
-| [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | 1620 | learning-coursera | generateMetadata:487, dynamic:495, default:510 |
+| [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | 1650 | learning-coursera | generateMetadata:487, dynamic:495, default:510 |
+| [app/admin/coursera/provisioning/page.tsx](../../../app/admin/coursera/provisioning/page.tsx) | 102 | learning-coursera | generateMetadata:17, dynamic:26, default:37 |
 | [app/admin/crons/loading.tsx](../../../app/admin/crons/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/crons/page.tsx](../../../app/admin/crons/page.tsx) | 269 | administration | generateMetadata:16, default:91 |
 | [app/admin/dashboard/page.tsx](../../../app/admin/dashboard/page.tsx) | 415 | member-counselor | default:82 |
@@ -508,7 +509,7 @@
 | [app/apply/create-account/loading.tsx](../../../app/apply/create-account/loading.tsx) | 5 | applications-enrollment | default:3 |
 | [app/apply/create-account/page.tsx](../../../app/apply/create-account/page.tsx) | 64 | applications-enrollment | generateMetadata:14, default:24 |
 | [app/apply/error.tsx](../../../app/apply/error.tsx) | 13 | applications-enrollment | default:5 |
-| [app/apply/layout.tsx](../../../app/apply/layout.tsx) | 9 | applications-enrollment | default:6 |
+| [app/apply/layout.tsx](../../../app/apply/layout.tsx) | 12 | applications-enrollment | default:9 |
 | [app/apply/loading.tsx](../../../app/apply/loading.tsx) | 13 | applications-enrollment | default:1 |
 | [app/apply/not-found.tsx](../../../app/apply/not-found.tsx) | 46 | applications-enrollment | metadata:6, default:10 |
 | [app/apply/page.tsx](../../../app/apply/page.tsx) | 47 | applications-enrollment | generateMetadata:19, default:24 |

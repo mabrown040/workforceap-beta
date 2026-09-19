@@ -6296,6 +6296,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/i18n/esCopyDeckParity.test.ts",
+    "area": "libraries",
+    "domain": "public-experience",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/i18n/pickRootClientMessages.test.ts",
     "area": "libraries",
     "domain": "public-experience",
@@ -16447,6 +16466,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/app/apply-funnel-token-scope.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/app/counselor-contextual-messages.spec.tsx",
     "area": "tests",
     "domain": "tests",
@@ -17710,6 +17748,39 @@
       },
       {
         "file": "lib/fetchWithTimeout.ts",
+        "line": 8
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/coursera-provisioning-queue-last-activity.spec.tsx",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 6
+      },
+      {
+        "file": "components/admin/CourseraProvisioningQueueTable.tsx",
+        "line": 7
+      },
+      {
+        "file": "lib/coursera/provisioningState.ts",
         "line": 8
       }
     ],
@@ -20350,6 +20421,30 @@
       {
         "file": "lib/db/prisma.ts",
         "line": 97
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/coursera-provisioning-state.spec.ts",
+    "area": "tests",
+    "domain": "learning-coursera",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/coursera/provisioningState.ts",
+        "line": 3
       }
     ],
     "kind": "test-candidate",

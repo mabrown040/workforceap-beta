@@ -8290,7 +8290,7 @@
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 18
+        "line": 27
       }
     ],
     "kind": "test-candidate",
@@ -12164,23 +12164,23 @@
       },
       {
         "file": "app/api/gdpr/delete/route.ts",
-        "line": 68
-      },
-      {
-        "file": "lib/auth/server.ts",
         "line": 69
       },
       {
-        "file": "lib/db/prisma.ts",
+        "file": "lib/auth/server.ts",
         "line": 70
       },
       {
-        "file": "lib/gdpr/deleteAuthUser.ts",
+        "file": "lib/db/prisma.ts",
         "line": 71
       },
       {
-        "file": "lib/gdpr/deleteUserStorage.ts",
+        "file": "lib/gdpr/deleteAuthUser.ts",
         "line": 72
+      },
+      {
+        "file": "lib/gdpr/deleteUserStorage.ts",
+        "line": 73
       }
     ],
     "kind": "test-candidate",
@@ -14853,6 +14853,31 @@
       {
         "file": "app/(portal)/account/privacy/page.tsx",
         "line": 10
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/app/account-privacy-delete.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/(portal)/account/privacy/page.tsx",
+        "line": 16
       }
     ],
     "kind": "test-candidate",

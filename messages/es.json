@@ -233,6 +233,7 @@
       "deleteBody": "Elimina permanentemente tu cuenta y anonimiza tus datos personales. Esta acción no se puede deshacer. Tus datos de actividad anónimos pueden conservarse para mejorar el programa.",
       "deleteButton": "Eliminar mi cuenta",
       "deleteConfirmPrompt": "¿Estás seguro? Esto eliminará permanentemente tu cuenta.",
+      "deletePasswordLabel": "Introduce tu contraseña para confirmar",
       "deleteConfirmYes": "Sí, eliminar",
       "deleteDeleting": "Eliminando…",
       "deleteCancel": "Cancelar",

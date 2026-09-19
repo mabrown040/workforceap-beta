@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "1499bb5a097aae07a9310f9c54f8f97e1e11253be3978021508b7dbe95177fee",
+  "inputTreeSha256": "ddc0c62b35ef3186492e12c6bb22a3dd4e663cd3bebbc9fc948d14a8d52a6a11",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -115903,6 +115903,44 @@
       "directive": null
     },
     {
+      "path": "lib/i18n/esCopyDeckParity.test.ts",
+      "area": "libraries",
+      "domain": "public-experience",
+      "bytes": 5048,
+      "lines": 136,
+      "sha256": "58928efd9ae9a20ce0e4b054ace4a62e0d5d1f3b22d8b75d72664db6e6821329",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "Messages",
+          "line": 6,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "loadJson",
+          "line": 8,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "at",
+          "line": 12,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "CATALOGUES",
+          "line": 23,
+          "kind": "Variable"
+        },
+        {
+          "name": "CTA_PARITY",
+          "line": 25,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/i18n/getT.ts",
       "area": "libraries",
       "domain": "public-experience",
@@ -139450,9 +139488,9 @@
       "path": "marketing/src/i18n/es.json",
       "area": "astro-marketing",
       "domain": "public-experience",
-      "bytes": 189389,
+      "bytes": 189040,
       "lines": 2803,
-      "sha256": "9c14a8ab0d3fc1ba097bf500c14a1c7e3be3e66a6d38d49d0a6da783652bf226",
+      "sha256": "cbf72ae5c9bc253fe865775bc2334b2940fb511ffbeaa243493478e64dca989e",
       "binary": false
     },
     {
@@ -139942,9 +139980,9 @@
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211487,
-      "lines": 3133,
-      "sha256": "51e01b00a7be23ca6fdcbfb054ec413b035f6c93a6c25f7a8cb9400d196afd4c",
+      "bytes": 213745,
+      "lines": 3155,
+      "sha256": "792bcec8918ec1eaf275b7e58a5d9626200da748bc1dd3502a764578ce490ac9",
       "binary": false
     },
     {

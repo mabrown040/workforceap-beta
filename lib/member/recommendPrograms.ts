@@ -1,4 +1,5 @@
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import type { CareerMatchResult } from '@/lib/onet/types';
 
 /** Default program slugs when no personalized recommendation exists. */
@@ -45,7 +46,7 @@ export function resolveRecommendedProgramSummaries(
     const match = matchBySlug.get(programSlug);
     return {
       programSlug,
-      title: program?.title ?? programSlug,
+      title: program?.title ?? programDisplayTitle(programSlug),
       whyRecommended: match?.whyRecommended,
       recommendationType: match?.recommendationType,
     };

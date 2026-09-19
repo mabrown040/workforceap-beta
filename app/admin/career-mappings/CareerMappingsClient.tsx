@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PROGRAMS } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type MappingRow = {
   id: string;
@@ -510,7 +511,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                               <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                                {prog?.title ?? m.programSlug}
+                                {prog?.title ?? programDisplayTitle(m.programSlug)}
                               </p>
                               <span style={{ fontSize: '0.6rem', fontWeight: 800, padding: '0.1rem 0.35rem', borderRadius: '9999px', background: `${REC_TYPE_COLOR[m.recommendationType] ?? 'var(--color-accent)'}22`, color: REC_TYPE_COLOR[m.recommendationType] ?? 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                                 {m.recommendationType}

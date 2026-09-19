@@ -51,3 +51,25 @@ describe('getFunderProgramSummaryRows', () => {
     expect(cnaRow?.placementPct).toBe(33);
   });
 });
+
+describe('getFunderProgramSummaryRows — program titles', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('prints a humanised title for an unknown slug and the catalog title for the IBM alias', async () => {
+    const { getProgramBySlug } = await import('@/lib/content/programs');
+    const aws = getProgramBySlug('ai-practitioner-professional-certificate-aws');
+    expect(aws).toBeTruthy();
+    mockUserFindMany.mockResolvedValue([
+      { ...mockUser({ id: 'u1', hasPlacement: false }), enrolledProgram: 'cybersecurity-google' },
+      { ...mockUser({ id: 'u2', hasPlacement: false }), enrolledProgram: 'ai-professional-developer-certificate-ibm' },
+    ]);
+
+    const { rows } = await getFunderProgramSummaryRows('org-1');
+    const titles = rows.map((r) => r.programTitle);
+    expect(titles).toContain('Cybersecurity Google');
+    expect(titles).toContain(aws!.title);
+    for (const title of titles) expect(title).not.toMatch(/-[a-z]/);
+  });
+});

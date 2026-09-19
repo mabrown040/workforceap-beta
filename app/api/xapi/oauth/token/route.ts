@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { checkXapiOAuthTokenRateLimit } from '@/lib/rate-limit';
-import { issueXapiAccessToken, parseBasicAuth } from '@/lib/xapi/token';
+import { issueXapiAccessToken, parseBasicAuth, secureCredentialEqual } from '@/lib/xapi/token';
 
 export async function GET() {
   try {
@@ -50,7 +50,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'unsupported_grant_type' }, { status: 400 });
   }
 
-  if (clientId !== config.clientId || clientSecret !== config.clientSecret) {
+  // Evaluate both comparisons (no short-circuit) so a wrong client_id and a
+  // wrong client_secret take the same path; the response is identical either way.
+  const clientIdMatches = secureCredentialEqual(clientId, config.clientId);
+  const clientSecretMatches = secureCredentialEqual(clientSecret, config.clientSecret);
+  if (!clientIdMatches || !clientSecretMatches) {
     return NextResponse.json({ error: 'invalid_client' }, { status: 401 });
   }
 

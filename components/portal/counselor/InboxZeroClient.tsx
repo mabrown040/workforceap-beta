@@ -19,7 +19,7 @@ import {
   type FollowUpTemplateId,
 } from '@/lib/counselor/templates';
 import { COUNSELOR_INBOX_ZERO_EMPTY } from '@/lib/counselor/inboxEmptyState';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { SectionHeader, QueueRow, StatusTag, FormField, KitEmptyState, type QueueTone } from '@/components/portal/kit';
 
 type Props = { initialQueue: InboxZeroQueue };
@@ -469,7 +469,7 @@ function InboxZeroRowCard({
 }) {
   const t = useTranslations('counselor');
   const programLabel = row.enrolledProgram
-    ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram
+    ? programDisplayTitle(row.enrolledProgram)
     : t('notEnrolled');
   const rankIndex = Math.min(row.priorityRank, RANK_TONE.length - 1);
   const tone = RANK_TONE[rankIndex];

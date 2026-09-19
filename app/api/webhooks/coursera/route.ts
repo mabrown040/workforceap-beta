@@ -382,7 +382,11 @@ export async function POST(request: Request) {
       }
   
       // Leave `processed` false so Coursera retries can replay after a transient failure (5xx).
-      return NextResponse.json({ error: message, dedupeKey }, { status: 500 });
+      // The underlying reason is already persisted on the xapi event row above and
+      // logged here; the response body stays generic (same shape as
+      // /api/employer/webhook) so DB/driver internals are not echoed to the caller.
+      console.error('[webhooks/coursera] processing failed:', { dedupeKey, message });
+      return NextResponse.json({ error: 'Unable to process Coursera webhook', dedupeKey }, { status: 500 });
     }
   } catch (error) {
     console.error('/webhooks/coursera:', error);

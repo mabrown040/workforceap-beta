@@ -695,6 +695,35 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "components/admin/RecentSignupsTable.test.tsx",
+    "area": "components",
+    "domain": "administration",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/programs.ts",
+        "line": 3
+      },
+      {
+        "file": "components/admin/RecentSignupsTable.tsx",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "components/employer/EmployerUiActions.test.tsx",
     "area": "components",
     "domain": "jobs-employers",
@@ -1174,6 +1203,35 @@
       {
         "file": "components/portal/WorkforceApModuleCompleteButton.tsx",
         "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "components/portal/counselor/AtRiskMemberList.test.tsx",
+    "area": "components",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/programs.ts",
+        "line": 3
+      },
+      {
+        "file": "components/portal/counselor/AtRiskMemberList.tsx",
+        "line": 4
       }
     ],
     "kind": "test-candidate",
@@ -2062,6 +2120,10 @@
       {
         "file": "lib/admin/funderProgramMetrics.ts",
         "line": 18
+      },
+      {
+        "file": "lib/content/programs.ts",
+        "line": 61
       }
     ],
     "kind": "test-candidate",
@@ -4097,6 +4159,10 @@
       {
         "file": "lib/content/programs.ts",
         "line": 4
+      },
+      {
+        "file": "lib/content/programSlug.ts",
+        "line": 5
       }
     ],
     "kind": "test-candidate",
@@ -11169,6 +11235,38 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/careers-occupation-program-title.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/careers/occupation/[onetCode]/route.ts",
+        "line": 31
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 32
+      },
+      {
+        "file": "lib/content/programs.ts",
+        "line": 33
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/concordia-enroll-page.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -14627,7 +14725,7 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
-    "file": "tests/api/public-api-hardening-batch4.spec.ts",
+    "file": "tests/api/public-api-hardening-followups.spec.ts",
     "area": "tests",
     "domain": "tests",
     "frameworkImports": [
@@ -14635,24 +14733,80 @@
     ],
     "localReferences": [
       {
-        "file": "app/api/health/ready/route.ts",
-        "line": 82
+        "file": "lib/xapi/token.ts",
+        "line": 51
       },
       {
-        "file": "app/api/health/ready/_readyCache.ts",
-        "line": 83
+        "file": "app/api/xapi/oauth/token/route.ts",
+        "line": 95
       },
       {
-        "file": "app/api/invite/validate/route.ts",
-        "line": 84
+        "file": "lib/xapi/token.ts",
+        "line": 96
       },
       {
-        "file": "app/api/org/[slug]/outcomes/route.ts",
-        "line": 85
+        "file": "app/api/webhooks/coursera/route.ts",
+        "line": 97
+      },
+      {
+        "file": "app/api/waitlist/route.ts",
+        "line": 98
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/public-route-error-handling.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 57
+      },
+      {
+        "file": "app/api/placement-survey/route.ts",
+        "line": 130
+      },
+      {
+        "file": "app/api/auth/setup-mfa/route.ts",
+        "line": 131
+      },
+      {
+        "file": "app/api/auth/verify-mfa/route.ts",
+        "line": 132
+      },
+      {
+        "file": "app/api/employer/webhook/route.ts",
+        "line": 133
       },
       {
         "file": "app/api/apply/confirmation-email/route.ts",
-        "line": 86
+        "line": 134
+      },
+      {
+        "file": "app/api/public/interest-profiler/questions/route.ts",
+        "line": 135
+      },
+      {
+        "file": "app/api/public/interest-profiler/score/route.ts",
+        "line": 136
+      },
+      {
+        "file": "app/api/public/career-quiz/score/route.ts",
+        "line": 137
       }
     ],
     "kind": "test-candidate",

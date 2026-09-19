@@ -6,6 +6,7 @@ import BillingPacketList from '@/components/billing/BillingPacketList';
 import type { BillingPacketSummary } from '@/lib/billing/packetAccess';
 import type { PacketLineItem } from '@/lib/billing/packetSchema';
 import { defaultCoverLetterBody, formatMoney, isoDatePlusDays, totalContactHours } from '@/lib/billing/packetText';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export type BillingProgramOption = {
   slug: string;
@@ -71,7 +72,7 @@ export default function BillingPacketClient(props: BillingPacketClientProps) {
     const program = props.programs.find((p) => p.slug === programSlug);
     return defaultCoverLetterBody({
       memberName: props.memberName,
-      programTitle: program?.title ?? programSlug,
+      programTitle: program?.title ?? programDisplayTitle(programSlug),
       billToName: billToName || 'the funding partner',
       lineItems,
       providerName: props.providerName,

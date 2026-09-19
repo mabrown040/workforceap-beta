@@ -18,6 +18,6 @@ const STAFF_PROGRAM_SURFACES = [
 describe('staff-facing program labels', () => {
   it.each(STAFF_PROGRAM_SURFACES)('%s resolves catalog titles instead of exposing stable slugs', (file) => {
     const source = readFileSync(path.join(root, file), 'utf8');
-    expect(source).toContain('getProgramBySlug');
+    expect(source).toContain('programDisplayTitle');
   });
 });

@@ -9,7 +9,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import type { BadgeVariant } from '@/components/portal/StatusBadge';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   DesignSurface,
   SectionHeader,
@@ -135,7 +135,7 @@ function getInitials(name: string): string {
 function getProgramLabel(enrolledProgram: string | null, programInterest: string | null): string {
   const value = enrolledProgram ?? programInterest;
   if (!value) return '—';
-  return getProgramBySlug(value)?.title ?? value;
+  return programDisplayTitle(value);
 }
 
 type Props = {

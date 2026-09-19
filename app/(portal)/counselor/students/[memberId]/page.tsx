@@ -1012,7 +1012,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 Other programs this student is in
               </h2>
               <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                Secondary enrollments outside the primary program ({programMeta?.title ?? activeProgramSlug ?? '—'}).
+                Secondary enrollments outside the primary program ({activeProgramSlug ? programDisplayTitle(activeProgramSlug) : '—'}).
               </p>
               <div className="portal-card portal-card--flat" style={{ padding: '1rem', border: '1px solid var(--outline-variant)' }}>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

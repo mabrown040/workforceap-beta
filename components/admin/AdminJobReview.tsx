@@ -13,6 +13,7 @@ import {
   type Column,
   type KitTone,
 } from '@/components/portal/kit';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type Job = {
   id: string;
@@ -234,7 +235,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   const matchColumns: Column<MatchRow>[] = [
     { key: 'name', header: 'Member', render: (m) => <span style={{ fontWeight: 700 }}>{m.student.fullName}</span> },
-    { key: 'program', header: 'Program', render: (m) => m.student.enrolledProgram ?? '—' },
+    { key: 'program', header: 'Program', render: (m) => (m.student.enrolledProgram ? programDisplayTitle(m.student.enrolledProgram) : '—') },
     {
       key: 'score',
       header: 'Match',

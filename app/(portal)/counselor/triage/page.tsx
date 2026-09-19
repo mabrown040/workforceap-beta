@@ -16,7 +16,7 @@ import {
 } from '@/lib/counselor/triageFlags';
 import { listTemplates, NUDGE_TEMPLATES, renderNudge } from '@/lib/counselor/nudgeTemplates';
 import TriageNudgePanel from '@/components/portal/counselor/TriageNudgePanel';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   DesignSurface,
   SectionHeader,
@@ -226,7 +226,7 @@ function PriorityBucket({ priority, rows }: { priority: Priority; rows: TriageRo
 
 function TriageRowCard({ row, priority }: { row: TriageRow; priority: Priority }) {
   const programLabelText = row.enrolledProgram
-    ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram
+    ? programDisplayTitle(row.enrolledProgram)
     : 'Not enrolled';
 
   const milestoneText =
@@ -240,7 +240,7 @@ function TriageRowCard({ row, priority }: { row: TriageRow; priority: Priority }
   // each template body so the client component doesn't need to import the
   // template logic.
   const programLabelForRender = row.enrolledProgram
-    ? `your ${getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram} track`
+    ? `your ${programDisplayTitle(row.enrolledProgram)} track`
     : 'your training';
   const templates = listTemplates()
     .filter((t) => t.appliesTo.includes(priority))

@@ -25,7 +25,7 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
@@ -448,7 +448,7 @@ export default async function AdminOverviewPage() {
           {recentUsers.slice(0, 6).map((u, index) => {
             const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
             const track = u.enrolledProgram
-              ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
+              ? (programDisplayTitle(u.enrolledProgram))
               : 'Pending enrollment';
 
             return (
@@ -526,7 +526,7 @@ export default async function AdminOverviewPage() {
                     header: 'Program',
                     render: (p) =>
                       p.user.enrolledProgram
-                        ? getProgramBySlug(p.user.enrolledProgram)?.title ?? p.user.enrolledProgram
+                        ? programDisplayTitle(p.user.enrolledProgram)
                         : '—',
                   },
                   {
@@ -578,7 +578,7 @@ export default async function AdminOverviewPage() {
                       </Link>
                       <div style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 3 }}>
                         {placement.employerName} · {placement.jobTitle}
-                        {placement.user.enrolledProgram ? ` · ${getProgramBySlug(placement.user.enrolledProgram)?.title ?? placement.user.enrolledProgram}` : ''}
+                        {placement.user.enrolledProgram ? ` · ${programDisplayTitle(placement.user.enrolledProgram)}` : ''}
                       </div>
                     </div>
                     <Link href={`/admin/members/${placement.user.id}`} className="btn btn-outline">

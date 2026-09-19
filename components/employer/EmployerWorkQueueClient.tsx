@@ -3,6 +3,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Briefcase, UserRound, TriangleAlert, Clock, CalendarClock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { QueueRow, WorkQueueItem, StatusTag, type QueueTone, type KitTone } from '@/components/portal/kit';
 
 export type WqApp = {
@@ -23,6 +25,8 @@ export type WqJob = {
 };
 
 type Focus = 'all' | 'review' | 'stale' | 'interview';
+
+const APPLICATION_UPDATE_FAILED = 'Could not update this application. Please try again.';
 type SectionId = 'review' | 'stale' | 'interview';
 
 const SECTION_TONE: Record<SectionId, QueueTone> = {
@@ -131,6 +135,8 @@ export default function EmployerWorkQueueClient({
   const [focus, setFocus] = useState<Focus>(initialFocus);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
+  const connectionCopy = tCommon('connectionError');
 
   const patchApp = useCallback(async (appId: string, status: string) => {
     setBusy(appId);
@@ -142,16 +148,22 @@ export default function EmployerWorkQueueClient({
         credentials: 'include',
         body: JSON.stringify({ status }),
       });
-      const data = await r.json().catch(() => ({}));
+      // A server rejection is JSON `{ error }`; a non-JSON answer falls
+      // through to the stable sentence.
+      const data = (await r.json().catch(() => ({}))) as { error?: unknown };
       if (!r.ok) {
-        setMsg(typeof data.error === 'string' ? data.error : 'Update failed');
+        setMsg(typeof data.error === 'string' && data.error.trim() ? data.error : APPLICATION_UPDATE_FAILED);
         return;
       }
       window.location.reload();
+    } catch (err) {
+      // Before this catch a dropped connection escaped as an unhandled
+      // rejection: the pill re-enabled and the employer read nothing.
+      setMsg(requestFailureMessage(err, { connection: connectionCopy, fallback: APPLICATION_UPDATE_FAILED }, 'employer-work-queue-status'));
     } finally {
       setBusy(null);
     }
-  }, []);
+  }, [connectionCopy]);
 
   const sections = useMemo(
     () => [

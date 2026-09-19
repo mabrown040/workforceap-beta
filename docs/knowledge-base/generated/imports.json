@@ -71201,8 +71201,24 @@
   },
   {
     "from": "components/employer/EmployerMatchHistoryClient.tsx",
-    "specifier": "@/lib/employer/aiMatchPipelineLabels",
+    "specifier": "next-intl",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerMatchHistoryClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerMatchHistoryClient.tsx",
+    "specifier": "@/lib/employer/aiMatchPipelineLabels",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/employer/aiMatchPipelineLabels.ts"
@@ -71210,7 +71226,7 @@
   {
     "from": "components/employer/EmployerMatchHistoryClient.tsx",
     "specifier": "@/lib/employer/matchScoreDisplay",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/employer/matchScoreDisplay.ts"
@@ -71218,7 +71234,7 @@
   {
     "from": "components/employer/EmployerMatchHistoryClient.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -71441,8 +71457,24 @@
   },
   {
     "from": "components/employer/EmployerWorkQueueClient.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "next-intl",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerWorkQueueClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerWorkQueueClient.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -85329,8 +85361,24 @@
   },
   {
     "from": "components/portal/tools/InterviewCoach.test.tsx",
-    "specifier": "./InterviewCoach",
+    "specifier": "next-intl",
     "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/tools/InterviewCoach.test.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "components/portal/tools/InterviewCoach.test.tsx",
+    "specifier": "./InterviewCoach",
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "components/portal/tools/InterviewCoach.tsx"
@@ -85361,8 +85409,24 @@
   },
   {
     "from": "components/portal/tools/InterviewCoach.tsx",
-    "specifier": "@/lib/interview/voiceTranscript",
+    "specifier": "next-intl",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/tools/InterviewCoach.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/tools/InterviewCoach.tsx",
+    "specifier": "@/lib/interview/voiceTranscript",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/interview/voiceTranscript.ts"
@@ -85370,7 +85434,7 @@
   {
     "from": "components/portal/tools/InterviewCoach.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 12,
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -85378,7 +85442,7 @@
   {
     "from": "components/portal/tools/InterviewCoach.tsx",
     "specifier": "./ToolFollowThrough",
-    "line": 13,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "components/portal/tools/ToolFollowThrough.tsx"
@@ -85386,7 +85450,7 @@
   {
     "from": "components/portal/tools/InterviewCoach.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 220,
+    "line": 246,
     "kind": "dynamic-import",
     "external": true,
     "package": "@elevenlabs/client"
@@ -114030,6 +114094,46 @@
     "kind": "import",
     "external": false,
     "target": "lib/ai/groq.ts"
+  },
+  {
+    "from": "tests/api/api-error-echo-followups.spec.ts",
+    "specifier": "vitest",
+    "line": 17,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/api-error-echo-followups.spec.ts",
+    "specifier": "@/app/api/admin/milestone-cascades/synthetic/route",
+    "line": 109,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/milestone-cascades/synthetic/route.ts"
+  },
+  {
+    "from": "tests/api/api-error-echo-followups.spec.ts",
+    "specifier": "@/app/api/admin/milestone-cascades/[id]/approve/route",
+    "line": 110,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/milestone-cascades/[id]/approve/route.ts"
+  },
+  {
+    "from": "tests/api/api-error-echo-followups.spec.ts",
+    "specifier": "@/app/api/admin/milestone-cascades/[id]/dismiss/route",
+    "line": 111,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/milestone-cascades/[id]/dismiss/route.ts"
+  },
+  {
+    "from": "tests/api/api-error-echo-followups.spec.ts",
+    "specifier": "@/app/api/admin/coursera/csv-import/route",
+    "line": 112,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/coursera/csv-import/route.ts"
   },
   {
     "from": "tests/api/apply-confirmation-clarity.spec.ts",

@@ -1518,8 +1518,12 @@
     ],
     "localReferences": [
       {
+        "file": "messages/en.json",
+        "line": 4
+      },
+      {
         "file": "components/portal/tools/InterviewCoach.tsx",
-        "line": 3
+        "line": 5
       }
     ],
     "kind": "test-candidate",
@@ -10858,6 +10862,42 @@
       {
         "file": "lib/ai/groq.ts",
         "line": 65
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/api-error-echo-followups.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/milestone-cascades/synthetic/route.ts",
+        "line": 109
+      },
+      {
+        "file": "app/api/admin/milestone-cascades/[id]/approve/route.ts",
+        "line": 110
+      },
+      {
+        "file": "app/api/admin/milestone-cascades/[id]/dismiss/route.ts",
+        "line": 111
+      },
+      {
+        "file": "app/api/admin/coursera/csv-import/route.ts",
+        "line": 112
       }
     ],
     "kind": "test-candidate",

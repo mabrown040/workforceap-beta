@@ -104,9 +104,11 @@ async function _POST(
 
     return NextResponse.json({ ok: true, cascadeId: id });
   } catch (err) {
+    // The Prisma text stays in the server log; the client gets one stable
+    // sentence.
     console.error('[milestone-cascade dismiss] unhandled:', err);
     return NextResponse.json(
-      { error: 'Dismiss failed', detail: err instanceof Error ? err.message : 'unknown' },
+      { error: 'Unable to dismiss this cascade. Please try again in a few minutes.' },
       { status: 500 },
     );
   }

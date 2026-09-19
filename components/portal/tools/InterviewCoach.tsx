@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import type { Conversation } from '@elevenlabs/client';
 import { AlertTriangle, Calendar, ChevronDown, ChevronUp, Mic } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import {
   appendVoiceTranscriptTurn,
   buildInterviewQaFromVoiceTurns,
@@ -29,6 +31,16 @@ interface InterviewSession {
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
 const MAX_QUESTIONS = 5;
+
+const START_FAILED = 'Could not start the interview. Please try again.';
+const NEXT_QUESTION_FAILED = 'Could not load the next question. Your answer is still here \u2014 please try again.';
+const FEEDBACK_FAILED = 'Could not generate feedback. Please try again.';
+
+/** Server rejections arrive as JSON `{ error }`; anything else falls back to `fallback`. */
+function serverErrorText(data: unknown, fallback: string): string {
+  const error = (data as { error?: unknown } | null)?.error;
+  return typeof error === 'string' && error.trim() ? error : fallback;
+}
 
 const KIT_BTN =
   'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
@@ -122,6 +134,12 @@ export default function InterviewCoach({
   const [micDenied, setMicDenied] = useState(false);
   const [micStatus, setMicStatus] = useState<'idle' | 'requesting' | 'granted' | 'denied'>('idle');
   const [voiceError, setVoiceError] = useState('');
+  // Text-mode request failures (start, next question, feedback). Before this
+  // slot existed those handlers had no `.ok` check and no catch: a dropped
+  // connection escaped as an unhandled rejection while the button re-enabled
+  // and the member read nothing.
+  const [textError, setTextError] = useState('');
+  const tCommon = useTranslations('common');
   const [sessions, setSessions] = useState<InterviewSession[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
@@ -170,6 +188,7 @@ export default function InterviewCoach({
       return;
     }
     setLoading(true);
+    setTextError('');
     try {
       let micGranted = false;
       setMicStatus('requesting');
@@ -194,7 +213,12 @@ export default function InterviewCoach({
         dynamicVariables?: Record<string, string | number | boolean>;
         firstQuestion?: string;
         sessionId: string;
+        error?: string;
       };
+      if (!res.ok) {
+        setTextError(serverErrorText(data, START_FAILED));
+        return;
+      }
 
       setMode(data.mode);
       setSessionId(data.sessionId);
@@ -208,6 +232,8 @@ export default function InterviewCoach({
         setCurrentQuestion(data.firstQuestion ?? previewQuestionFor(role, 0));
         setPhase('interview');
       }
+    } catch (err) {
+      setTextError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: START_FAILED }, 'interview-coach-start'));
     } finally {
       setLoading(false);
     }
@@ -294,15 +320,26 @@ export default function InterviewCoach({
       setPhase('interview');
       return;
     }
-    const res = await fetch('/api/interview/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role, interviewType: interviewType.toLowerCase(), forceText: true }),
-    });
-    const data = (await res.json()) as { firstQuestion?: string; sessionId?: string };
-    if (data.sessionId) setSessionId(data.sessionId);
-    setCurrentQuestion(data.firstQuestion ?? previewQuestionFor(role, 0));
-    setPhase('interview');
+    setTextError('');
+    try {
+      const res = await fetch('/api/interview/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role, interviewType: interviewType.toLowerCase(), forceText: true }),
+      });
+      const data = (await res.json()) as { firstQuestion?: string; sessionId?: string; error?: string };
+      if (!res.ok) {
+        setVoiceError(serverErrorText(data, START_FAILED));
+        return;
+      }
+      if (data.sessionId) setSessionId(data.sessionId);
+      setCurrentQuestion(data.firstQuestion ?? previewQuestionFor(role, 0));
+      setPhase('interview');
+    } catch (err) {
+      // Still on the voice screen, so reuse its error slot (with its
+      // "Switch to text" retry button).
+      setVoiceError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: START_FAILED }, 'interview-coach-text-fallback'));
+    }
   }
 
   async function submitAnswer() {
@@ -323,6 +360,7 @@ export default function InterviewCoach({
     }
 
     setLoading(true);
+    setTextError('');
     try {
       const res = await fetch('/api/interview/session', {
         method: 'POST',
@@ -334,11 +372,25 @@ export default function InterviewCoach({
           nextQuestion: true,
         }),
       });
-      const data = (await res.json()) as { firstQuestion: string };
+      const data = (await res.json()) as { firstQuestion?: string; error?: string };
+      if (!res.ok || typeof data.firstQuestion !== 'string') {
+        restoreAnswer(newEntry);
+        setTextError(serverErrorText(data, NEXT_QUESTION_FAILED));
+        return;
+      }
       setCurrentQuestion(data.firstQuestion);
+    } catch (err) {
+      restoreAnswer(newEntry);
+      setTextError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: NEXT_QUESTION_FAILED }, 'interview-coach-next-question'));
     } finally {
       setLoading(false);
     }
+  }
+
+  /** Put an answer back in the box when the request that recorded it failed, so nothing typed is lost. */
+  function restoreAnswer(entry: TranscriptEntry) {
+    setTranscript((prev) => (prev.at(-1) === entry ? prev.slice(0, -1) : prev));
+    setCurrentAnswer(entry.answer);
   }
 
   async function getFeedback(t: TranscriptEntry[]) {
@@ -348,6 +400,7 @@ export default function InterviewCoach({
       return;
     }
     setLoading(true);
+    setTextError('');
     try {
       const sid = sessionId || `fallback-${Date.now()}`;
       const res = await fetch('/api/interview/history', {
@@ -362,9 +415,16 @@ export default function InterviewCoach({
         }),
       });
       const data = (await res.json()) as { feedback?: string; error?: string };
-      setFeedback(data.feedback ?? data.error ?? 'Unable to generate feedback.');
+      if (!res.ok || typeof data.feedback !== 'string') {
+        // Stay on the interview so the transcript is kept for a retry.
+        setTextError(serverErrorText(data, FEEDBACK_FAILED));
+        return;
+      }
+      setFeedback(data.feedback);
       setPhase('feedback');
       refreshSessions();
+    } catch (err) {
+      setTextError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: FEEDBACK_FAILED }, 'interview-coach-feedback'));
     } finally {
       setLoading(false);
     }
@@ -387,9 +447,32 @@ export default function InterviewCoach({
     setSignedUrl('');
     setWsStatus('idle');
     setMode('text');
+    setTextError('');
+    setVoiceError('');
     voiceTranscriptRef.current = [];
     if (convRef.current) convRef.current.endSession();
   }
+
+  const textErrorAlert = textError ? (
+    <p
+      role="alert"
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 8,
+        margin: '0 0 12px',
+        padding: 12,
+        background: 'var(--wa-danger-soft)',
+        color: 'var(--wa-text)',
+        borderRadius: 'var(--wa-radius-sm)',
+        fontSize: 'var(--wa-type-meta)',
+        lineHeight: 1.45,
+      }}
+    >
+      <AlertTriangle size={16} aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }} />
+      <span>{textError}</span>
+    </p>
+  ) : null;
 
   const pastSessionsSection =
     !preview && (sessions.length > 0 || sessionsLoading) ? (
@@ -603,6 +686,7 @@ export default function InterviewCoach({
             })}
           </div>
         </div>
+        {textErrorAlert}
         <button
           type="button"
           onClick={startInterview}
@@ -740,7 +824,7 @@ export default function InterviewCoach({
               alignItems: 'center',
             }}
           >
-            {interviewType} · Question {transcript.length + 1} of {MAX_QUESTIONS}
+            {interviewType} · Question {Math.min(transcript.length + 1, MAX_QUESTIONS)} of {MAX_QUESTIONS}
           </span>
         </div>
         {transcript.map((entry, i) => (
@@ -790,6 +874,7 @@ export default function InterviewCoach({
           rows={4}
           style={{ ...FIELD_CONTROL, minHeight: 88, resize: 'vertical', marginBottom: 12 }}
         />
+        {textErrorAlert}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <button
             type="button"

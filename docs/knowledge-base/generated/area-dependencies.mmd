@@ -10,14 +10,14 @@ flowchart LR
   database["database: 201 files"]
   delivery["delivery: 9 files"]
   documentation["documentation: 356 files"]
-  libraries["libraries: 979 files"]
+  libraries["libraries: 981 files"]
   localization["localization: 6 files"]
   operations["operations: 122 files"]
   pages["pages: 634 files"]
   root["root: 54 files"]
   styles["styles: 16 files"]
   supporting_files["supporting-files: 72 files"]
-  tests["tests: 401 files"]
+  tests["tests: 402 files"]
   api -->|"8 static references"| communications
   api -->|"1 static references"| content
   api -->|"3521 static references"| libraries
@@ -32,7 +32,7 @@ flowchart LR
   components -->|"1 static references"| root
   components -->|"3 static references"| supporting_files
   database -->|"1 static references"| communications
-  database -->|"5 static references"| libraries
+  database -->|"8 static references"| libraries
   libraries -->|"1 static references"| astro_marketing
   libraries -->|"2 static references"| communications
   libraries -->|"10 static references"| components

@@ -971,7 +971,7 @@ html.dark .training-course-card__title {
     word-break: normal;
     hyphens: auto;
 }
-@media (max-width: 720px) {
+@media (max-width: 1100px) {
     .training-course-card {
         padding: 1rem !important;
     }

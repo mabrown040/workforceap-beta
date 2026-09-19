@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "fcb9fbcdb68101d844859ce628ae0344c423b6595994fc2e949522f0ac988cbd",
+  "inputTreeSha256": "58d7167ed4f3a000692d38505b5922911eebaa1b8c7c016a63c7fff6d3ce6ed2",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4705,
-    "sourceModules": 3379,
-    "importReferences": 16275,
-    "resolvedLocalReferences": 10853,
+    "files": 4708,
+    "sourceModules": 3382,
+    "importReferences": 16287,
+    "resolvedLocalReferences": 10862,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1053,
     "nextRouteFiles": 1020,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 759,
-    "testCandidates": 752,
+    "testFiles": 761,
+    "testCandidates": 754,
     "testHelpers": 7,
-    "staticallySelectedTests": 749,
+    "staticallySelectedTests": 751,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 979
+      "files": 981
     },
     {
       "area": "localization",
@@ -106,7 +106,7 @@
     },
     {
       "area": "tests",
-      "files": 401
+      "files": 402
     }
   ],
   "mostReferenced": [
@@ -132,7 +132,7 @@
     },
     {
       "file": "lib/content/programs.ts",
-      "references": 238
+      "references": 239
     },
     {
       "file": "lib/audit.ts",
@@ -188,7 +188,7 @@
     },
     {
       "file": "lib/content/programSlug.ts",
-      "references": 64
+      "references": 66
     },
     {
       "file": "lib/email/escapeHtml.ts",
@@ -212,7 +212,7 @@
     },
     {
       "file": "lib/content/programCurriculumManifest.ts",
-      "references": 50
+      "references": 51
     },
     {
       "file": "lib/events/track.ts",

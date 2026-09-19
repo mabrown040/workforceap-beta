@@ -234,7 +234,7 @@
 | [app/api/ai/skill-mapper/route.ts](../../../app/api/ai/skill-mapper/route.ts) | 207 | ai-voice | GET:24 |
 | [app/api/apply/confirmation-email/route.ts](../../../app/api/apply/confirmation-email/route.ts) | 94 | applications-enrollment | POST:94 |
 | [app/api/apply/signup/route.test.ts](../../../app/api/apply/signup/route.test.ts) | 1304 | applications-enrollment |  |
-| [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1031 | applications-enrollment | POST:180 |
+| [app/api/apply/signup/route.ts](../../../app/api/apply/signup/route.ts) | 1042 | applications-enrollment | POST:181 |
 | [app/api/apply/status-lookup/route.ts](../../../app/api/apply/status-lookup/route.ts) | 55 | applications-enrollment | POST:28 |
 | [app/api/auth/check-mfa-required/route.ts](../../../app/api/auth/check-mfa-required/route.ts) | 120 | identity-tenancy | GET:14 |
 | [app/api/auth/forgot-password/route.ts](../../../app/api/auth/forgot-password/route.ts) | 78 | identity-tenancy | POST:10 |
@@ -382,7 +382,7 @@
 | [app/api/member/dashboard-profile/route.ts](../../../app/api/member/dashboard-profile/route.ts) | 142 | member-counselor | PATCH:56 |
 | [app/api/member/delete-account/route.ts](../../../app/api/member/delete-account/route.ts) | 76 | member-counselor | POST:15 |
 | [app/api/member/eligibility/route.ts](../../../app/api/member/eligibility/route.ts) | 312 | member-counselor | GET:127, PATCH:312 |
-| [app/api/member/enroll/route.ts](../../../app/api/member/enroll/route.ts) | 212 | applications-enrollment | POST:27 |
+| [app/api/member/enroll/route.ts](../../../app/api/member/enroll/route.ts) | 226 | applications-enrollment | POST:28 |
 | [app/api/member/enrollments/\[id\]/route.ts](../../../app/api/member/enrollments/%5Bid%5D/route.ts) | 51 | member-counselor | GET:6 |
 | [app/api/member/enrollments/\[id\]/set-primary/route.ts](../../../app/api/member/enrollments/%5Bid%5D/set-primary/route.ts) | 81 | member-counselor | POST:9 |
 | [app/api/member/enrollments/route.ts](../../../app/api/member/enrollments/route.ts) | 79 | member-counselor | GET:17 |
@@ -405,7 +405,7 @@
 | [app/api/member/linkedin-enrich/route.test.ts](../../../app/api/member/linkedin-enrich/route.test.ts) | 47 | member-counselor |  |
 | [app/api/member/linkedin-enrich/route.ts](../../../app/api/member/linkedin-enrich/route.ts) | 141 | member-counselor | POST:12 |
 | [app/api/member/matched-jobs/route.ts](../../../app/api/member/matched-jobs/route.ts) | 109 | member-counselor | GET:16 |
-| [app/api/member/messages/route.ts](../../../app/api/member/messages/route.ts) | 190 | communications | GET:56, POST:165, PATCH:189 |
+| [app/api/member/messages/route.ts](../../../app/api/member/messages/route.ts) | 166 | communications | GET:59, POST:141, PATCH:165 |
 | [app/api/member/nba/\[id\]/route.ts](../../../app/api/member/nba/%5Bid%5D/route.ts) | 67 | member-counselor | PATCH:8 |
 | [app/api/member/notifications/\[id\]/read/route.ts](../../../app/api/member/notifications/%5Bid%5D/read/route.ts) | 57 | communications | PUT:56, PATCH:57 |
 | [app/api/member/notifications/\[id\]/route.ts](../../../app/api/member/notifications/%5Bid%5D/route.ts) | 43 | communications | DELETE:43 |

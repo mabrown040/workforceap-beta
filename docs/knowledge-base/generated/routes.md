@@ -792,7 +792,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/learning-progress | route | GET, POST | [app/api/member/learning-progress/route.ts](../../../app/api/member/learning-progress/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:6 |
 | /api/member/linkedin-enrich | route | POST | [app/api/member/linkedin-enrich/route.ts](../../../app/api/member/linkedin-enrich/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:7 |
 | /api/member/matched-jobs | route | GET | [app/api/member/matched-jobs/route.ts](../../../app/api/member/matched-jobs/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:15 |
-| /api/member/messages | route | GET, POST, PATCH | [app/api/member/messages/route.ts](../../../app/api/member/messages/route.ts) | @/lib/auth/server:2, @/lib/messages/rateLimit:11, @/lib/db/withRequestGuc:14 |
+| /api/member/messages | route | GET, POST, PATCH | [app/api/member/messages/route.ts](../../../app/api/member/messages/route.ts) | @/lib/auth/server:2, @/lib/messages/rateLimit:11, @/lib/db/withRequestGuc:15 |
 | /api/member/nba/\[id\] | route | PATCH | [app/api/member/nba/\[id\]/route.ts](../../../app/api/member/nba/%5Bid%5D/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
 | /api/member/notifications/\[id\]/read | route | PUT, PATCH | [app/api/member/notifications/\[id\]/read/route.ts](../../../app/api/member/notifications/%5Bid%5D/read/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |
 | /api/member/notifications/\[id\] | route | DELETE | [app/api/member/notifications/\[id\]/route.ts](../../../app/api/member/notifications/%5Bid%5D/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:4 |

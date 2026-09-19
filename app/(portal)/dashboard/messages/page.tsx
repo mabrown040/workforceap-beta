@@ -69,7 +69,7 @@ export default async function MemberMessagesPage({
 
   const thread = readOnlyAudit
     ? await prisma.messageThread.findUnique({ where: { memberId: user.id } })
-    : await getOrCreateMemberCounselorThread(user.id);
+    : await getOrCreateMemberCounselorThread(user.id, { assignIfUnassigned: true });
   if (!thread) {
     return (
       <MemberMessagesEmpty

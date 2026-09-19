@@ -20,6 +20,7 @@ import {
   badgeTotalForItem,
   getActiveTab,
 } from '@/lib/nav/portalNav';
+import { withContextualToolRow } from '@/lib/nav/memberToolRoutes';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import SuperAdminViewSwitcher, { useIsSuperAdmin } from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
@@ -127,20 +128,28 @@ export default function WorkspaceShell({
       : rawPathname.startsWith(`/${locale}/`)
         ? rawPathname.slice(locale.length + 1)
         : rawPathname;
-  const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
-  const hasTabs = navItems.some((i) => i.tab);
-  const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
+  // Career Studio has ~22 tool routes and no rail row of its own, which used to
+  // leave the rail highlighting the hub (or nothing) on every one of them.
+  // Rather than 22 permanent rows, the rail grows exactly ONE contextual row —
+  // the tool you are actually in — nested under Career Studio, and drops it
+  // again the moment you leave. `withContextualToolRow` is a no-op on the hub
+  // itself and on every non-toolkit route.
+  const { items: railNavItems, toolItem: contextualToolItem } =
+    portalRole === 'member' ? withContextualToolRow(navItems, pathname) : { items: navItems, toolItem: null };
+  const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(railNavItems));
+  const hasTabs = railNavItems.some((i) => i.tab);
+  const activeTab = hasTabs ? getActiveTab(pathname, railNavItems) : null;
   // Members: left command-rail always visible from 769px up (laptops included —
   // ops asked that the side menu never hide behind a hamburger on a laptop),
   // MemberPortalTopNav on small screens (<=768). Do not also paint the
   // overflowing flat tab bar (FINDING-023). Other roles still get tab-filtered rails.
   const desktopNavItems =
     portalRole === 'member'
-      ? navItems
+      ? railNavItems
       : hasTabs && activeTab
-        ? navItems.filter((i) => i.tab === activeTab)
-        : navItems;
-  const mobileDrawerNavItems = navItems;
+        ? railNavItems.filter((i) => i.tab === activeTab)
+        : railNavItems;
+  const mobileDrawerNavItems = railNavItems;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -188,6 +197,7 @@ export default function WorkspaceShell({
       'Resume': tNav('resume'),
       'My progress': tNav('myProgress'),
       'Career Toolkit': tNav('careerToolkit'),
+      'Career Studio': tNav('careerToolkit'),
       'AI Counselor': tNav('aiCounselor'),
       'Learning Hub': tNav('learningHub'),
       'Find your career': tNav('findYourCareer'),
@@ -206,6 +216,13 @@ export default function WorkspaceShell({
     if (label in navMap) return navMap[label];
     return label;
   };
+  /**
+   * Name of the page the member is on. Fills the otherwise-empty mobile header
+   * band (the tagline is hidden below 769px), so a phone finally says where you
+   * are — including inside a Career Studio tool.
+   */
+  const currentPageItem = railNavItems.find((item) => item.href === activeHref);
+  const currentPageLabel = currentPageItem ? translateLabel(currentPageItem.label) : null;
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(isMobileDrawer, closeDrawer);
@@ -416,6 +433,11 @@ export default function WorkspaceShell({
             </Link>
             <div className="workspace-shell-brand-meta">
               <span className="workspace-shell-tagline">{translateLabel(workspaceLabel)}</span>
+              {currentPageLabel ? (
+                <span className="workspace-shell-current-page" title={currentPageLabel}>
+                  {currentPageLabel}
+                </span>
+              ) : null}
               {marketingSiteHref ? (
                 <Link
                   href={marketingSiteHref}
@@ -544,6 +566,7 @@ export default function WorkspaceShell({
           aria-modal={isMobileDrawer ? true : undefined}
           aria-label={isMobileDrawer ? `${translateLabel(workspaceLabel)} navigation` : undefined}
           className={`workspace-sidebar ${drawerOpen ? 'open' : ''} ${isCollapsedDesktop ? 'workspace-sidebar--collapsed' : ''}`}
+          data-contextual-tool={contextualToolItem?.href ?? undefined}
         >
           <div className="workspace-sidebar-inner">
             <div className="workspace-sidebar-toolbar">
@@ -614,8 +637,9 @@ export default function WorkspaceShell({
                               <Link
                                 href={item.href}
                                 prefetch={false}
-                                className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
+                                className={`workspace-sidebar-link${isActive ? ' active' : ''}${item.nestedUnder ? ' workspace-sidebar-link--nested' : ''}`}
                                 aria-current={isActive ? 'page' : undefined}
+                                data-nested-under={item.nestedUnder}
                                 onClick={closeDrawer}
                                 title={isCollapsedDesktop ? translateLabel(item.label) : undefined}
                                 {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}

@@ -19569,47 +19569,47 @@
       {
         "level": 2,
         "title": "1. Member nav — what ships today",
-        "line": 16
+        "line": 22
       },
       {
         "level": 3,
         "title": "Desktop (≥769px)",
-        "line": 18
+        "line": 24
       },
       {
         "level": 3,
         "title": "Mobile (≤768px)",
-        "line": 28
+        "line": 63
       },
       {
         "level": 3,
         "title": "Historical flat-nav target (not live)",
-        "line": 46
+        "line": 98
       },
       {
         "level": 2,
         "title": "2. Reachability requirement (do NOT orphan)",
-        "line": 55
+        "line": 107
       },
       {
         "level": 2,
         "title": "3. Staff nav — dense sidebar (unchanged)",
-        "line": 66
+        "line": 118
       },
       {
         "level": 3,
         "title": "Staff mobile bottom tabs (subset of the rail)",
-        "line": 71
+        "line": 123
       },
       {
         "level": 2,
         "title": "4. Implementation notes",
-        "line": 85
+        "line": 137
       },
       {
         "level": 2,
         "title": "5. Out of scope here",
-        "line": 97
+        "line": 149
       }
     ],
     "datedFilename": false,

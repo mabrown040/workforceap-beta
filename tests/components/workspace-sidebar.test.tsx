@@ -8,6 +8,7 @@ import WorkspaceShell from '@/components/portal/WorkspaceShell';
 import DashboardFooter from '@/components/portal/DashboardFooter';
 import { MEMBER_PORTAL_NAV_ITEMS, EMPLOYER_PORTAL_NAV_ITEMS, ADMIN_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { getBestActiveHref } from '@/lib/nav/activeRoute';
+import { MEMBER_TOOLKIT_HUB_HREF } from '@/lib/nav/memberToolRoutes';
 import { pickAdminClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import messages from '@/messages/en.json';
 import spanishMessages from '@/messages/es.json';
@@ -140,14 +141,14 @@ describe('workspace navigation', () => {
     expect(container.querySelectorAll('.workspace-sidebar [aria-current="page"]')).toHaveLength(1);
   });
 
-  it('keeps Jobs, Training progress, and AI Career Tools visible without opening a group', () => {
+  it('keeps Jobs, Training progress, and Career Studio visible without opening a group', () => {
     const { container } = show();
     const primary = container.querySelector('.workspace-sidebar-list--root > .workspace-sidebar-group');
     expect(primary).not.toBeNull();
     expect(primary?.querySelector('details')).toBeNull();
     expect(within(primary as HTMLElement).getByRole('link', { name: 'Job board' })).toHaveAttribute('href', '/dashboard/jobs');
     expect(within(primary as HTMLElement).getByRole('link', { name: 'My progress' })).toHaveAttribute('href', '/dashboard/readiness');
-    expect(within(primary as HTMLElement).getByRole('link', { name: 'AI Career Tools' })).toHaveAttribute('href', '/dashboard/ai-tools');
+    expect(within(primary as HTMLElement).getByRole('link', { name: 'Career Studio' })).toHaveAttribute('href', '/dashboard/ai-tools');
     expect(within(primary as HTMLElement).getByRole('link', { name: 'Messages' })).toHaveAttribute('href', '/dashboard/messages');
     const groupedHrefs = [...container.querySelectorAll('.workspace-sidebar details a')].map((link) => link.getAttribute('href'));
     expect(groupedHrefs).not.toContain('/dashboard/jobs');
@@ -296,5 +297,171 @@ describe('admin workspace with the production translation slice', () => {
     expect(onError).not.toHaveBeenCalled();
     expect(container.querySelector('.workspace-shell-tagline')).toHaveTextContent(spanishMessages.workspace.admin);
     expect(container.querySelector('.workspace-sidebar [aria-current="page"]')).toHaveAttribute('href', '/admin/students');
+  });
+});
+
+describe('Career Studio contextual tool row', () => {
+  /** Every rail destination the member can actually see and click. */
+  const railRows = (container: HTMLElement) =>
+    [...container.querySelectorAll('.workspace-sidebar-nav a.workspace-sidebar-link')];
+  const nestedRows = (container: HTMLElement) =>
+    [...container.querySelectorAll('.workspace-sidebar-nav a.workspace-sidebar-link--nested')];
+
+  it('marks the tool as current on a tool route instead of highlighting the hub', () => {
+    location.pathname = '/dashboard/ai-tools/resume-studio';
+    const { container } = show();
+    const current = container.querySelectorAll('.workspace-sidebar [aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveAttribute('href', '/dashboard/ai-tools/resume-studio');
+    expect(current[0]).toHaveTextContent('Resume studio');
+    expect(container.querySelector('.workspace-sidebar')).toHaveAttribute(
+      'data-contextual-tool',
+      '/dashboard/ai-tools/resume-studio',
+    );
+  });
+
+  it('marks the tool as current on every Career Studio tool route', () => {
+    const slugs = [
+      ['resume-studio', 'Resume studio'],
+      ['cover-letter', 'Cover letter'],
+      ['interview-practice', 'Interview practice'],
+      ['interview-coach', 'Interview coach'],
+      ['job-match-scorer', 'Job match scorer'],
+      ['skill-mapper', 'Skill mapper'],
+      ['training-bridge', 'Training bridge'],
+      ['linkedin-headline', 'LinkedIn headline'],
+      ['linkedin-about', 'LinkedIn About'],
+      ['gap-analyzer', 'Gap analyzer'],
+      ['salary-negotiation', 'Salary negotiation'],
+      ['benefits-cliff', 'Benefits cliff'],
+      ['skill-checkpoints', 'Skill checkpoints'],
+      ['elevator-pitch', 'Elevator pitch'],
+      ['career-business-coach', 'Career & business coach'],
+      ['readiness-coach', 'Readiness coach'],
+      ['resume-rewriter', 'Resume rewriter'],
+      ['voice-interview', 'Voice interview'],
+    ] as const;
+    for (const [slug, label] of slugs) {
+      location.pathname = `/dashboard/ai-tools/${slug}`;
+      const { container } = show();
+      const current = container.querySelectorAll('.workspace-sidebar [aria-current="page"]');
+      expect(current, slug).toHaveLength(1);
+      expect(current[0], slug).toHaveAttribute('href', `/dashboard/ai-tools/${slug}`);
+      expect(current[0], slug).toHaveTextContent(label);
+      cleanup();
+    }
+  });
+
+  it('nests exactly one tool row directly under Career Studio and never more', () => {
+    location.pathname = '/dashboard/ai-tools/interview-practice';
+    const { container } = show();
+    const nested = nestedRows(container);
+    expect(nested).toHaveLength(1);
+    expect(nested[0]).toHaveAttribute('href', '/dashboard/ai-tools/interview-practice');
+    expect(nested[0]).toHaveAttribute('data-nested-under', MEMBER_TOOLKIT_HUB_HREF);
+
+    const rows = railRows(container);
+    const hubIndex = rows.findIndex((row) => row.getAttribute('href') === MEMBER_TOOLKIT_HUB_HREF);
+    expect(hubIndex).toBeGreaterThanOrEqual(0);
+    expect(rows[hubIndex + 1]).toBe(nested[0]);
+    // No other tool route leaked into the rail.
+    const toolHrefs = rows
+      .map((row) => row.getAttribute('href') ?? '')
+      .filter((href) => href.startsWith('/dashboard/ai-tools/'));
+    expect(toolHrefs).toEqual(['/dashboard/ai-tools/interview-practice']);
+  });
+
+  it('shows zero tool rows on the hub itself', () => {
+    location.pathname = MEMBER_TOOLKIT_HUB_HREF;
+    const { container } = show();
+    expect(nestedRows(container)).toHaveLength(0);
+    expect(container.querySelector('.workspace-sidebar')).not.toHaveAttribute('data-contextual-tool');
+    const current = container.querySelectorAll('.workspace-sidebar [aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveAttribute('href', MEMBER_TOOLKIT_HUB_HREF);
+  });
+
+  it('leaves the application tracker highlighting its own permanent row', () => {
+    location.pathname = '/dashboard/ai-tools/application-tracker';
+    const { container } = show();
+    expect(nestedRows(container)).toHaveLength(0);
+    const current = container.querySelectorAll('.workspace-sidebar [aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveAttribute('href', '/dashboard/job-applications');
+  });
+
+  it('keeps the PR #2322 primary ordering byte-for-byte on a tool page', () => {
+    const expected = [
+      '/dashboard',
+      '/dashboard/program',
+      '/dashboard/jobs',
+      '/dashboard/readiness',
+      '/dashboard/ai-tools',
+      '/dashboard/missions',
+      '/dashboard/messages',
+    ];
+    const primaryHrefs = (container: HTMLElement) =>
+      [...(container.querySelector('.workspace-sidebar-list--root > .workspace-sidebar-group')
+        ?.querySelectorAll('a.workspace-sidebar-link') ?? [])].map((link) => link.getAttribute('href'));
+
+    location.pathname = '/dashboard';
+    const hub = show();
+    expect(primaryHrefs(hub.container)).toEqual(expected);
+    cleanup();
+
+    location.pathname = '/dashboard/ai-tools/gap-analyzer';
+    const tool = show();
+    expect(primaryHrefs(tool.container)).toEqual([
+      '/dashboard',
+      '/dashboard/program',
+      '/dashboard/jobs',
+      '/dashboard/readiness',
+      '/dashboard/ai-tools',
+      '/dashboard/ai-tools/gap-analyzer',
+      '/dashboard/missions',
+      '/dashboard/messages',
+    ]);
+  });
+
+  it('measures the visible rail row count on a tool page, the hub and /dashboard', () => {
+    const counts: Record<string, number> = {};
+    const totals: Record<string, number> = {};
+    for (const [name, pathname] of [
+      ['tool', '/dashboard/ai-tools/resume-studio'],
+      ['hub', '/dashboard/ai-tools'],
+      ['dashboard', '/dashboard'],
+    ] as const) {
+      location.pathname = pathname;
+      const { container } = show();
+      // Rows the member sees without opening a disclosure.
+      counts[name] = [
+        ...container.querySelectorAll(
+          '.workspace-sidebar-list--root > .workspace-sidebar-group > .workspace-sidebar-list > li > a.workspace-sidebar-link',
+        ),
+      ].length;
+      totals[name] = railRows(container).length;
+      cleanup();
+    }
+    console.log(
+      '[rail rows] visible-without-disclosure:',
+      JSON.stringify(counts),
+      '| all rows incl. collapsed groups:',
+      JSON.stringify(totals),
+    );
+    expect(counts.hub).toBe(7);
+    expect(counts.dashboard).toBe(7);
+    // One extra row on a tool page — not 18.
+    expect(counts.tool).toBe(8);
+  });
+
+  it('names the current page in the mobile header band', () => {
+    location.pathname = '/dashboard/ai-tools/salary-negotiation';
+    const { container } = show();
+    expect(container.querySelector('.workspace-shell-current-page')).toHaveTextContent('Salary negotiation');
+    cleanup();
+
+    location.pathname = '/dashboard/jobs';
+    const board = show();
+    expect(board.container.querySelector('.workspace-shell-current-page')).toHaveTextContent('Job board');
   });
 });

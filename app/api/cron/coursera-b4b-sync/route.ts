@@ -63,6 +63,10 @@ async function handle(_req: NextRequest) {
       learningPathRows: result.learningPathRows,
       skippedNoEmail: result.skippedNoEmail,
       errors: result.errors,
+      nextStart: result.nextStart,
+      capped: result.capped,
+      continuationScope: result.continuationScope,
+      coverage: result.errors > 0 ? 'retry_required' : result.capped ? 'partial' : 'complete',
       byUserCount: Object.keys(result.byUser).length,
       canonicalSeed,
     };

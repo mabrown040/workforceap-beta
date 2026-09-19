@@ -30,6 +30,7 @@ export function buildCourseraRestSyntheticStatement(
     courseName: data.courseName?.trim(),
     courseSlug: data.courseSlug?.trim(),
     courseraCourseId: (data.courseraCourseId ?? data.contentId)?.trim(),
+    activityType: 'course',
     verbId: shouldComplete
       ? 'http://adlnet.gov/expapi/verbs/completed'
       : 'http://adlnet.gov/expapi/verbs/progressed',

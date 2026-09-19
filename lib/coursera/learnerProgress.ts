@@ -20,14 +20,36 @@
 
 import {
   getEnrollmentReports,
+  getB4BOrgId,
   listPrograms,
   type B4BEnrollmentReport,
   type B4BProgram,
 } from './b4bClient';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
+import { enrollmentActivityMilliseconds, nextEnrollmentReportStart } from './enrollmentReportFields';
 
 const PROGRAM_LIST_TTL_SECONDS = 60 * 60; // 1 hour
 const LEARNER_PROGRESS_TTL_SECONDS = 30 * 60; // 30 minutes
+const MAX_PROVIDER_PAGES = 10;
+const LEARNER_REQUEST_BUDGET_MS = 8_000;
+
+class LearnerProgressDeadline extends Error {}
+
+async function withinLearnerDeadline<T>(operation: () => Promise<T>, deadline: number): Promise<T> {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) throw new LearnerProgressDeadline('Coursera learner read reached its time limit');
+  let timer: ReturnType<typeof setTimeout>;
+  try {
+    return await Promise.race([
+      operation(),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new LearnerProgressDeadline('Coursera learner read reached its time limit')), remaining);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer!);
+  }
+}
 
 export type LearnerProgressEntry = {
   contentId: string;
@@ -39,24 +61,38 @@ export type LearnerProgressEntry = {
   lastActivityAt: Date | null;
 };
 
-export type LearnerProgressByContent = Map<string, LearnerProgressEntry>;
+export type LearnerProgressByContent = Map<string, LearnerProgressEntry> & {
+  /** Partial reads can display individual facts, but cannot supply a program average. */
+  coverage?: 'complete' | 'capped' | 'unavailable';
+};
+
+function markLearnerCoverageCapped(result: LearnerProgressByContent): void {
+  // A limit reached after an earlier program failed must not erase that failure.
+  if (result.coverage !== 'unavailable') result.coverage = 'capped';
+}
 
 /** Serialize a LearnerProgressByContent Map for Redis JSON storage. */
-function serializeProgress(map: LearnerProgressByContent): Array<[string, LearnerProgressEntry]> {
-  return Array.from(map.entries());
+function serializeProgress(map: LearnerProgressByContent) {
+  return { entries: Array.from(map.entries()), coverage: map.coverage ?? 'unavailable' };
 }
 
 /** Deserialize Redis JSON back to a LearnerProgressByContent Map. */
 function deserializeProgress(data: unknown): LearnerProgressByContent {
-  if (!Array.isArray(data)) return new Map();
-  const map = new Map<string, LearnerProgressEntry>();
-  for (const item of data) {
+  const map: LearnerProgressByContent = new Map();
+  const payload = data && typeof data === 'object' && !Array.isArray(data)
+    ? data as { entries?: unknown; coverage?: unknown } : null;
+  const entries = payload?.entries ?? data;
+  map.coverage = payload?.coverage === 'complete' || payload?.coverage === 'capped'
+    ? payload.coverage : 'unavailable';
+  if (!Array.isArray(entries)) return map;
+  for (const item of entries) {
     if (Array.isArray(item) && item.length === 2) {
       const [key, entry] = item as [string, LearnerProgressEntry];
-      if (entry.lastActivityAt && typeof entry.lastActivityAt === 'string') {
-        entry.lastActivityAt = new Date(entry.lastActivityAt);
-      }
-      map.set(key, entry);
+      const activity = entry.lastActivityAt ? new Date(entry.lastActivityAt) : null;
+      map.set(key, {
+        ...entry,
+        lastActivityAt: activity && Number.isFinite(activity.getTime()) ? activity : null,
+      });
     }
   }
   return map;
@@ -120,10 +156,10 @@ function reportToEntry(report: B4BEnrollmentReport): LearnerProgressEntry {
     programId: report.programId,
     isCompleted: report.isCompleted === true,
     overallProgress: clampPercent(report.overallProgress),
-    lastActivityAt:
-      typeof report.lastActivity === 'number' && Number.isFinite(report.lastActivity)
-        ? new Date(report.lastActivity)
-        : null,
+    lastActivityAt: (() => {
+      const milliseconds = enrollmentActivityMilliseconds(report);
+      return milliseconds == null ? null : new Date(milliseconds);
+    })(),
   };
 }
 
@@ -133,16 +169,26 @@ function reportToEntry(report: B4BEnrollmentReport): LearnerProgressEntry {
  * because the unfiltered call returns the entire org's roster — wasteful
  * and a quota risk for what is effectively a per-learner lookup.
  */
-async function resolveProgramIds(opts: { programId?: string }): Promise<string[]> {
-  if (opts.programId) return [opts.programId];
+async function resolveProgramIds(opts: { programId?: string; deadline: number }): Promise<{ ids: string[]; capped: boolean }> {
+  if (opts.programId) return { ids: [opts.programId], capped: false };
 
   return getCacheOrFetch(
-    'coursera:program-ids',
+    `coursera:program-ids:v2:${getB4BOrgId()}`,
     async () => {
-      const page = await listPrograms({ limit: 100, excludeContent: true });
-      return page.elements
-        .map((p: B4BProgram) => p.id)
-        .filter((id): id is string => typeof id === 'string' && id.length > 0);
+      const ids = new Set<string>();
+      let start = 0;
+      for (let pageNumber = 0; pageNumber < MAX_PROVIDER_PAGES; pageNumber++) {
+        const page = await withinLearnerDeadline(
+          () => listPrograms({ start, limit: 100, excludeContent: true }), opts.deadline,
+        );
+        page.elements.forEach((p: B4BProgram) => { if (p.id) ids.add(p.id); });
+        const next = nextEnrollmentReportStart({
+          start, batchLength: page.elements.length, limit: 100, ...page.paging,
+        });
+        if (next === null) return { ids: [...ids], capped: false };
+        start = next;
+      }
+      return { ids: [...ids], capped: true };
     },
     PROGRAM_LIST_TTL_SECONDS,
   );
@@ -174,9 +220,11 @@ export async function fetchLearnerProgressFromB4B(
 ): Promise<LearnerProgressByContent> {
   if (!email || typeof email !== 'string' || opts.readOnlyAudit) return new Map();
 
-  const cacheKey = `coursera:learner:${learnerCacheKey(email, opts.programId)}`;
+  // New envelope carries coverage; never reuse an older first-page-only cache.
+  const cacheKey = `coursera:learner:${learnerCacheKey(email, opts.programId)}:v2:${getB4BOrgId()}`;
 
   if (opts.skipCache) {
+    await invalidateCache(cacheKey);
     return _fetchLearnerProgressFromB4BUncached(email, opts);
   }
 
@@ -197,49 +245,65 @@ async function _fetchLearnerProgressFromB4BUncached(
   opts: { programId?: string } = {},
 ): Promise<LearnerProgressByContent> {
   const result: LearnerProgressByContent = new Map();
+  result.coverage = 'complete';
+  const deadline = Date.now() + LEARNER_REQUEST_BUDGET_MS;
 
   try {
-    const programIds = await resolveProgramIds({ programId: opts.programId });
-    if (programIds.length === 0) {
+    const programs = await withinLearnerDeadline(
+      () => resolveProgramIds({ programId: opts.programId, deadline }), deadline,
+    );
+    if (programs.capped) result.coverage = 'capped';
+    if (programs.ids.length === 0) {
       return result;
     }
 
-    // Query each program in parallel — typical org has 1-3 programs.
-    const pages = await Promise.all(
-      programIds.map((programId) =>
-        getEnrollmentReports({
-          byUserProgramId: true,
-          programId,
-          externalId: email,
-          limit: 200,
-        }).catch((err: unknown) => {
-          // Per-program failure shouldn't poison the whole result; log and
-          // continue. The caller still gets the rows from any program that
-          // did succeed.
-          console.warn(
-            `[learnerProgress] enrollmentReports failed for program=${programId} email=${email}:`,
-            err instanceof Error ? err.message : err,
-          );
-          return null;
-        }),
-      ),
-    );
-
-    for (const page of pages) {
-      if (!page) continue;
-      for (const report of page.elements) {
-        if (!report?.contentId) continue;
-        // If a learner appears in multiple programs with the same contentId
-        // (rare), prefer the row with the higher progress. Coursera sometimes
-        // emits a stale row when a course has been re-platformed.
-        const incoming = reportToEntry(report);
-        const existing = result.get(incoming.contentId);
-        if (!existing || incoming.overallProgress > existing.overallProgress) {
-          result.set(incoming.contentId, incoming);
+    // Drain each program independently with a bounded quota. A later-page
+    // failure retains observed facts, but the coverage flag blocks averages.
+    let pagesRead = 0;
+    for (const programId of programs.ids) {
+      if (pagesRead >= MAX_PROVIDER_PAGES) {
+        markLearnerCoverageCapped(result);
+        break;
+      }
+      let start = 0;
+      try {
+        while (pagesRead < MAX_PROVIDER_PAGES) {
+          pagesRead++;
+          const page = await withinLearnerDeadline(() => getEnrollmentReports({
+            byUserProgramId: true, programId, externalId: email, start, limit: 200,
+          }), deadline);
+          for (const report of page.elements) {
+            if (!report?.contentId) continue;
+            // Preserve explicit completion when duplicate provider rows disagree,
+            // then prefer higher progress within the same completion state.
+            const incoming = reportToEntry(report);
+            const existing = result.get(incoming.contentId);
+            const preferred = !existing || (incoming.isCompleted && !existing.isCompleted)
+              || (incoming.isCompleted === existing.isCompleted && incoming.overallProgress > existing.overallProgress)
+              ? incoming : existing;
+            const latestActivity = Math.max(existing?.lastActivityAt?.getTime() ?? 0, incoming.lastActivityAt?.getTime() ?? 0);
+            result.set(incoming.contentId, {
+              ...preferred,
+              lastActivityAt: latestActivity > 0 ? new Date(latestActivity) : null,
+            });
+          }
+          const next = nextEnrollmentReportStart({
+            start, batchLength: page.elements.length, limit: 200, ...page.paging,
+          });
+          if (next === null) break;
+          start = next;
+          if (pagesRead === MAX_PROVIDER_PAGES) markLearnerCoverageCapped(result);
         }
+      } catch (err) {
+        if (err instanceof LearnerProgressDeadline) markLearnerCoverageCapped(result);
+        else result.coverage = 'unavailable';
+        console.warn(`[learnerProgress] enrollmentReports failed for program=${programId}:`,
+          err instanceof Error ? err.message : err);
+        if (err instanceof LearnerProgressDeadline) break;
       }
     }
   } catch (err) {
+    result.coverage = err instanceof LearnerProgressDeadline ? 'capped' : 'unavailable';
     console.warn(
       `[learnerProgress] B4B unavailable for email=${email}:`,
       err instanceof Error ? err.message : err,
@@ -293,6 +357,7 @@ export function averageProgramProgressFromB4B(args: {
   progress: LearnerProgressByContent;
   courseraCourseIds: string[];
 }): number | null {
+  if (args.progress.coverage && args.progress.coverage !== 'complete') return null;
   const ids = filterRecognizedCourseraCourseIds(args.courseraCourseIds);
   if (ids.length === 0) return null;
 

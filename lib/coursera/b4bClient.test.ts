@@ -65,6 +65,24 @@ function teardownTestEnv() {
   restoreEnv();
 }
 
+test('normalizes documented decimal-string paging offsets without widening the client contract', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+  _setFetchForTesting(async (url) => jsonResponse(url.includes('/oauth2/')
+    ? { access_token: 'fixture-token', expires_in: 1799 }
+    : { elements: [], paging: { next: '200', total: 450 } }));
+  assert.deepEqual((await listPrograms()).paging, { next: 200, total: 450 });
+});
+
+test('rejects opaque paging cursors instead of silently truncating the response', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+  _setFetchForTesting(async (url) => jsonResponse(url.includes('/oauth2/')
+    ? { access_token: 'fixture-token', expires_in: 1799 }
+    : { elements: [], paging: { next: 'opaque:200' } }));
+  await assert.rejects(() => listPrograms(), /unsupported pagination cursor/);
+});
+
 test('first call fetches token then makes the API request', async (t) => {
   setupTestEnv();
   t.after(teardownTestEnv);

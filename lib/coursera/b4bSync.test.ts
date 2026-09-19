@@ -14,7 +14,7 @@ import {
   type ExistingCourseProgress,
 } from './b4bSync';
 
-test('normalizes Coursera lastActivity and externalId before persistence', () => {
+test('prefers documented lastActivityAt and normalizes externalId before persistence', () => {
   const normalized = normalizeB4BEnrollmentReport({
     id: 'report-1',
     programId: 'program-1',
@@ -37,7 +37,7 @@ test('normalizes Coursera lastActivity and externalId before persistence', () =>
   });
 
   assert.equal(normalized.email, 'learner@example.com');
-  assert.equal(normalized.lastActivityAt, 1_725_000_000_000);
+  assert.equal(normalized.lastActivityAt, 1_700_000_000_000);
   assert.equal(normalized.overallProgress, 93);
 });
 
@@ -83,6 +83,21 @@ test('plans a raw row for every identified learner but canonical progress only f
     programSlug: 'comptia-a-professional-certificate',
     courseSlug: 'course-one',
   });
+});
+
+test('supports legacy activity milliseconds and rejects seconds/invalid timestamps', () => {
+  assert.equal(normalizeB4BEnrollmentReport({ lastActivity: 1_700_000_000_000 }).lastActivityAt, 1_700_000_000_000);
+  assert.equal(normalizeB4BEnrollmentReport({ lastActivityAt: 1_700_000_000 }).lastActivityAt, 0);
+  assert.equal(normalizeB4BEnrollmentReport({ lastActivityAt: Infinity, lastActivity: -1 }).lastActivityAt, 0);
+});
+
+test('provider next cursor wins on a short page and a repeated cursor fails closed', () => {
+  assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 1, limit: 200, next: 200 }), 200);
+  assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 1, limit: 200, next: '200' }), 200);
+  assert.throws(() => nextEnrollmentReportStart({ start: 200, batchLength: 1, limit: 200, next: 200 }));
+  assert.throws(() => nextEnrollmentReportStart({ start: 0, batchLength: 1, limit: 200, next: 'opaque:cursor' }));
+  assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 0, limit: 200, next: '200' }), 200);
+  assert.throws(() => nextEnrollmentReportStart({ start: 0, batchLength: 0, limit: 200, total: 450 }));
 });
 
 test('requires a unique static course-id mapping while allowing a DB override', () => {

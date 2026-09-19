@@ -29,10 +29,23 @@ export const POST = withApiGuc(async () => {
         programId: courseraProgramId,
         skipCache: true,
       });
+      const coverage = progress.coverage ?? 'unavailable';
+      if (coverage === 'unavailable' && progress.size === 0) {
+        return NextResponse.json({
+          coverage,
+          coursesWithProgress: 0,
+          error: 'Unable to refresh your progress from Coursera right now. Please try again in a few minutes.',
+        }, { status: 502 });
+      }
   
       return NextResponse.json({
         refreshedAt: new Date().toISOString(),
         coursesWithProgress: progress.size,
+        coverage,
+        complete: coverage === 'complete',
+        ...(coverage !== 'complete' ? {
+          message: 'Some Coursera progress could not be refreshed. Existing course records remain available.',
+        } : {}),
       });
     } catch (error) {
       // Keep the B4B error text (URL, status, token hints) in the server log.

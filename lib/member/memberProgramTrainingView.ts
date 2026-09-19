@@ -19,6 +19,9 @@ export type MemberProgramTrainingView = {
   totalCourses: number;
   /** Blended 0–100: mean of per-course % — prefers B4B `overallProgress` when present, else local/xAPI `CourseProgress`. */
   progressPercentDisplay: number;
+  /** Coverage is separate from the blended display estimate. */
+  providerCoverage?: 'complete' | 'capped' | 'unavailable' | 'unknown';
+  authoritativeProviderPercent?: number | null;
   allCoursesComplete: boolean;
   nextIncompleteCourseSlug: string | null;
   nextIncompleteCourseName: string | null;
@@ -190,6 +193,8 @@ export async function loadMemberProgramTrainingView(args: {
     completedCount: reconciliation.completedCount,
     totalCourses: reconciliation.totalCourses,
     progressPercentDisplay: reconciliation.programPercent,
+    providerCoverage: reconciliation.providerCoverage,
+    authoritativeProviderPercent: reconciliation.authoritativeProviderPercent,
     allCoursesComplete: reconciliation.allComplete,
     nextIncompleteCourseSlug,
     nextIncompleteCourseName,

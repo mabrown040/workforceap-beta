@@ -42,6 +42,8 @@
  * rotated without a process restart. Throws if either credential is missing.
  */
 
+import { normalizeCourseraPageOffset } from './enrollmentReportFields';
+
 const DEFAULT_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const DEFAULT_API_BASE = 'https://api.coursera.com/ent';
 const DEFAULT_ORG_ID = '8R2W4McwOMWJp9cCBV1kvw';
@@ -60,6 +62,7 @@ let injectedFetch: FetchLike | null = null;
 
 /** Coursera-style paging envelope. Both fields are optional in practice. */
 export type B4BPaging = {
+  /** Numeric offset normalized from Coursera's decimal-string wire value. */
   next?: number;
   total?: number;
 };
@@ -102,6 +105,9 @@ export type B4BEnrollmentReport = {
   contentId: string;
   contentType?: string;
   isCompleted: boolean;
+  /** Documented epoch-millisecond activity field. */
+  lastActivityAt?: number;
+  /** Legacy response field, also epoch milliseconds. */
   lastActivity?: number;
   enrolledAt?: number;
   overallProgress?: number;
@@ -480,8 +486,13 @@ function envelopeFrom<T>(payload: unknown): B4BPageEnvelope<T> {
   const obj =
     payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : {};
   const elements = Array.isArray(obj.elements) ? (obj.elements as T[]) : [];
-  const paging =
-    obj.paging && typeof obj.paging === 'object' ? (obj.paging as B4BPaging) : {};
+  const rawPaging = obj.paging && typeof obj.paging === 'object'
+    ? obj.paging as Record<string, unknown> : {};
+  const paging: B4BPaging = {
+    ...(rawPaging.next != null ? { next: normalizeCourseraPageOffset(rawPaging.next) } : {}),
+    ...(typeof rawPaging.total === 'number' && Number.isFinite(rawPaging.total) && rawPaging.total >= 0
+      ? { total: rawPaging.total } : {}),
+  };
   const linked =
     obj.linked && typeof obj.linked === 'object'
       ? (obj.linked as Record<string, unknown>)

@@ -36,6 +36,9 @@ export type ProgramProgressReconciliation = {
   totalCourses: number;
   programPercent: number;
   allComplete: boolean;
+  providerCoverage: 'complete' | 'capped' | 'unavailable' | 'unknown';
+  /** A provider-only average exists only after a complete read covering the syllabus. */
+  authoritativeProviderPercent: number | null;
 };
 
 const LOCAL_STATUS_RANK: Record<LocalCourseProgressFact['status'], number> = {
@@ -69,7 +72,9 @@ function mergeLocalFacts(
 
 export function reconcileProgramProgress(args: {
   validatedCourses: readonly ProgramCourse[];
-  b4bProgress?: ReadonlyMap<string, B4BCourseProgressFact>;
+  b4bProgress?: ReadonlyMap<string, B4BCourseProgressFact> & {
+    coverage?: 'complete' | 'capped' | 'unavailable';
+  };
   localRows: readonly LocalCourseProgressFact[];
 }): ProgramProgressReconciliation {
   const localBySlug = new Map<string, LocalCourseProgressFact>();
@@ -140,6 +145,11 @@ export function reconcileProgramProgress(args: {
   const programPercent = totalCourses > 0
     ? Math.round(rows.reduce((sum, row) => sum + row.displayPercent, 0) / totalCourses)
     : 0;
+  const providerCoverage = args.b4bProgress?.coverage ?? 'unknown';
+  const authoritativeProviderPercent = providerCoverage === 'complete' && totalCourses > 0
+    && rows.every((row) => row.b4bPercent !== null)
+    ? Math.round(rows.reduce((sum, row) => sum + (row.b4bCompleted ? 100 : row.b4bPercent!), 0) / totalCourses)
+    : null;
 
   return {
     rows,
@@ -147,5 +157,7 @@ export function reconcileProgramProgress(args: {
     totalCourses,
     programPercent,
     allComplete: totalCourses > 0 && completedCount === totalCourses,
+    providerCoverage,
+    authoritativeProviderPercent,
   };
 }

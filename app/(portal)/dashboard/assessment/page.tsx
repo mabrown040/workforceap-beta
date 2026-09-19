@@ -58,7 +58,7 @@ export default async function AssessmentPage({
           lede={
             dbUser.assessmentCompleted
               ? 'On file for you and your counselor.'
-              : '35 questions. Then Coursera courses unlock.'
+              : '35 questions. This is a placement check for you and your counselor. It does not unlock Coursera.'
           }
           icon={<ClipboardCheck size={13} aria-hidden="true" />}
         />

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "8ad84026a75f63ac96e41478ce2b729f47fc81c264bdf7532466df15d805ca0c",
+  "inputTreeSha256": "25f9a521e056c5c6be3c2adb91b55e087426ed44494dd9f5367538cabc4a39f3",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -14130,9 +14130,9 @@
       "path": "app/admin/analytics/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 9864,
+      "bytes": 9793,
       "lines": 251,
-      "sha256": "68fb9b278da3aeb57aabb35abeb85504750059951b91eb94f5c9bf3c4f161f17",
+      "sha256": "0dbde9c459ed8006e48b4d42c066693bf46145e3be30570d532ffd2e5e29192a",
       "binary": false,
       "exports": [
         {
@@ -44947,9 +44947,9 @@
       "path": "app/employer/outcomes/page.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 1870,
+      "bytes": 1809,
       "lines": 54,
-      "sha256": "d55ee7494f8b92387e426460ef710277e616ac08b8f44343262032dc84608910",
+      "sha256": "a54a7eefb1f7e4f5b4bd4f7457365e6cf6fac783eb86aacb8cb1294297524d9c",
       "binary": false,
       "exports": [
         {
@@ -139908,9 +139908,9 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192760,
-      "lines": 3146,
-      "sha256": "c52b91898e17a2d4bae7fa1ffc8257a3fcb3e343b513c8faeab032a623160338",
+      "bytes": 193222,
+      "lines": 3155,
+      "sha256": "f6621bf4c08088b312fc6b0cc91fb7c507fda960f1e5758da93c2a9390d42c68",
       "binary": false
     },
     {
@@ -139926,9 +139926,9 @@
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212765,
-      "lines": 3086,
-      "sha256": "a47219f594744ccf5adbec0a451671e3c4e17d703fcc85494f6637fb961b31f3",
+      "bytes": 213155,
+      "lines": 3094,
+      "sha256": "11609fc2eed4aa5cee9924f4100256c01cbb19fe382d0bc2ad06487e327f1713",
       "binary": false
     },
     {
@@ -139944,9 +139944,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204562,
-      "lines": 3086,
-      "sha256": "a13f6206c4697cafb3060e5ce3595e695f7d93bc4ef6fa11c8715e97a674035f",
+      "bytes": 204952,
+      "lines": 3094,
+      "sha256": "499e9a4a3cb89002e8b55b62d517a753a58433fa9002c6f3aba7a7e509e9b0f3",
       "binary": false
     },
     {
@@ -155009,6 +155009,24 @@
       "directive": null
     },
     {
+      "path": "tests/components/admin-pipeline-member-count.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2040,
+      "lines": 53,
+      "sha256": "189d5e3647efbb34c270cbb8c7e88bf66601fe5920d4d80b9b67bbc06882672a",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "jsonResponse",
+          "line": 11,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/components/admin-subgroup-members-table.test.tsx",
       "area": "tests",
       "domain": "tests",
@@ -157965,6 +157983,29 @@
       "binary": false,
       "exports": [],
       "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/i18n-page-message-keys.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 1944,
+      "lines": 45,
+      "sha256": "fd00d07989b04675fbca9d61878b0897ee78dcf39c861cec2e9f697fea7fa3ab",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "PAGE_MESSAGE_KEYS",
+          "line": 12,
+          "kind": "Variable"
+        },
+        {
+          "name": "resolve",
+          "line": 22,
+          "kind": "FunctionDeclaration"
+        }
+      ],
       "directive": null
     },
     {

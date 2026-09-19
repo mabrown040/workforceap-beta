@@ -2257,6 +2257,8 @@
     "adminAnalytics": "Análises de admin",
     "engagementAndActivity": "Métricas de engajamento e atividade.",
     "analytics": "Análises",
+    "analyticsPageTitle": "Analytics Overview",
+    "analyticsPageDescription": "Enrollment, progress, and outcomes at a glance.",
     "platformEngagement": "Engajamento da plataforma, inscrições e resultados de colocação.",
     "exportFunderCsv": "Exportar CSV do financiador",
     "exportFunderCsvTitle": "Resumo de programas para financiadores",
@@ -2301,6 +2303,12 @@
     "employerOverview": "Visão geral do empregador",
     "manageJobPostings": "Gerencie suas vagas e visualize as candidaturas.",
     "employerPortal": "Portal do empregador",
+    "loiTitle": "Employer Partnership",
+    "loiDescription": "Join our employer network and hire pre-trained, certified talent at no cost.",
+    "outcomes": {
+      "title": "Hiring Outcomes",
+      "description": "Your hiring pipeline effectiveness"
+    },
     "totalCandidates": "Total de candidatos",
     "noRecentApplicants": "Nenhum candidato recente",
     "activeTracks": "Vagas ativas",

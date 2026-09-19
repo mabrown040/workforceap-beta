@@ -513,13 +513,13 @@
 | [app/api/subgroup/members/route.ts](../../../app/api/subgroup/members/route.ts) | 112 | api | GET:11 |
 | [app/api/test/xapi-access-token/route.ts](../../../app/api/test/xapi-access-token/route.ts) | 37 | api | GET:12 |
 | [app/api/unsubscribe/route.ts](../../../app/api/unsubscribe/route.ts) | 72 | api | dynamic:19, POST:54, GET:63 |
-| [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) | 76 | api | POST:17, GET:48 |
-| [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | 392 | learning-coursera | POST:88 |
+| [app/api/waitlist/route.ts](../../../app/api/waitlist/route.ts) | 73 | api | POST:28, GET:52 |
+| [app/api/webhooks/coursera/route.ts](../../../app/api/webhooks/coursera/route.ts) | 396 | learning-coursera | POST:88 |
 | [app/api/webhooks/learning-completion/_webhook.ts](../../../app/api/webhooks/learning-completion/_webhook.ts) | 82 | api | webhookSchema:5, verifyWebhookSecret:11, buildDedupeKey:27, checkIdempotency:33 |
 | [app/api/webhooks/learning-completion/route.test.ts](../../../app/api/webhooks/learning-completion/route.test.ts) | 236 | api |  |
 | [app/api/webhooks/learning-completion/route.ts](../../../app/api/webhooks/learning-completion/route.ts) | 182 | api | POST:22 |
 | [app/api/xapi/about/route.ts](../../../app/api/xapi/about/route.ts) | 14 | learning-coursera | GET:3 |
 | [app/api/xapi/config/route.ts](../../../app/api/xapi/config/route.ts) | 43 | learning-coursera | GET:6, POST:31 |
-| [app/api/xapi/oauth/token/route.ts](../../../app/api/xapi/oauth/token/route.ts) | 70 | learning-coursera | GET:7, POST:21 |
+| [app/api/xapi/oauth/token/route.ts](../../../app/api/xapi/oauth/token/route.ts) | 74 | learning-coursera | GET:7, POST:21 |
 | [app/api/xapi/route.ts](../../../app/api/xapi/route.ts) | 4 | learning-coursera | POST:4 |
 | [app/api/xapi/statements/route.ts](../../../app/api/xapi/statements/route.ts) | 256 | learning-coursera | POST:92, GET:243 |

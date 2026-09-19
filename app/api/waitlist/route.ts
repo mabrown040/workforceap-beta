@@ -11,8 +11,19 @@ import { NextRequest, NextResponse } from 'next/server';
  *     @@unique([email, programSlug])
  *   }
  *
- * Currently returns a graceful message directing members to contact support.
+ * Until then both handlers validate input exactly as the enabled route will,
+ * log the unavailability server-side, and return a stable 503. The
+ * migration-status note lives here and in the server log only; it is not
+ * part of the public response body.
  */
+
+const WAITLIST_UNAVAILABLE =
+  'Program waitlist is temporarily unavailable. Please email contact@workforceap.org or call (512) 777-1808 to reserve your spot.';
+
+function waitlistUnavailable(method: 'GET' | 'POST', programSlug: string) {
+  console.warn(`[waitlist] ${method} unavailable: ProgramWaitlist schema migration required`, { programSlug });
+  return NextResponse.json({ error: WAITLIST_UNAVAILABLE }, { status: 503 });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,14 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // TODO: Re-enable after Prisma schema migration
-    return NextResponse.json(
-      {
-        message:
-          'Thank you for your interest. Program waitlist enrollment is coming soon. Please email contact@workforceap.org or call (512) 777-1808 to reserve your spot.',
-        _note: 'Waitlist schema migration required',
-      },
-      { status: 200 }
-    );
+    return waitlistUnavailable('POST', String(programSlug));
   } catch (error) {
     console.error('[waitlist] POST error:', error);
     return NextResponse.json(
@@ -58,14 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // TODO: Re-enable after Prisma schema migration
-    return NextResponse.json(
-      {
-        count: 0,
-        programSlug,
-        _note: 'Waitlist schema migration required',
-      },
-      { status: 200 }
-    );
+    return waitlistUnavailable('GET', programSlug);
   } catch (error) {
     console.error('[waitlist] GET error:', error);
     return NextResponse.json(

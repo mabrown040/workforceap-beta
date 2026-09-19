@@ -14627,6 +14627,46 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/public-api-hardening-followups.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/xapi/token.ts",
+        "line": 51
+      },
+      {
+        "file": "app/api/xapi/oauth/token/route.ts",
+        "line": 95
+      },
+      {
+        "file": "lib/xapi/token.ts",
+        "line": 96
+      },
+      {
+        "file": "app/api/webhooks/coursera/route.ts",
+        "line": 97
+      },
+      {
+        "file": "app/api/waitlist/route.ts",
+        "line": 98
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/public-wioa-qualification.spec.ts",
     "area": "tests",
     "domain": "tests",

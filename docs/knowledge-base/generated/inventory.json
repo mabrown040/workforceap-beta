@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "bb2f4f1ed6e48223a6ae2292d26584feb3bcf5b4382469e9597487db80744260",
+  "inputTreeSha256": "923cd6f80dbcbe59100da389fa2705d3513e2fa9f050c4583b65a830d21a7d13",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -40082,31 +40082,41 @@
       "path": "app/api/waitlist/route.ts",
       "area": "api",
       "domain": "api",
-      "bytes": 2136,
-      "lines": 76,
-      "sha256": "c1bb784356d8a16ef8c6041944f89176bd12b5d04f52983167dec0daaab6c3fd",
+      "bytes": 2377,
+      "lines": 73,
+      "sha256": "d48c743c49296b7a6a5716e7c975c4528f9d1204c534bd37c84cb3ef8d4f7be6",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 17,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 48,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
+          "name": "WAITLIST_UNAVAILABLE",
+          "line": 20,
+          "kind": "Variable"
+        },
+        {
+          "name": "waitlistUnavailable",
+          "line": 23,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "POST",
-          "line": 17,
+          "line": 28,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 48,
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -40116,9 +40126,9 @@
       "path": "app/api/webhooks/coursera/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 14649,
-      "lines": 392,
-      "sha256": "ea57fc4d343564af53a027d76271702fe394bf2398f6ea68f564598df6c8fc5c",
+      "bytes": 15003,
+      "lines": 396,
+      "sha256": "1919a694bfae23722a5edc67b0b96f7209e1195d7a9c7348efd744b148454c21",
       "binary": false,
       "exports": [
         {
@@ -40303,9 +40313,9 @@
       "path": "app/api/xapi/oauth/token/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 2308,
-      "lines": 70,
-      "sha256": "0f8506c4f5a65c01450c6bf5c6cb76fad2f5696f3ef40239eb8fac8024fc2081",
+      "bytes": 2627,
+      "lines": 74,
+      "sha256": "75c84fdb6e6a49e95541649dfb470f4c5cdee683b02fe493d4284509a85d7f1b",
       "binary": false,
       "exports": [
         {
@@ -137685,9 +137695,9 @@
       "path": "lib/xapi/token.ts",
       "area": "libraries",
       "domain": "learning-coursera",
-      "bytes": 3089,
-      "lines": 100,
-      "sha256": "a16fd42ccba7530a8983fa401c33d82567e8100be7ee22ec5ddbe01deb0ce732",
+      "bytes": 3857,
+      "lines": 115,
+      "sha256": "6b45688bffd78a20b3d73edaff69373620de097c01d477dee67bbdd69b06a5e8",
       "binary": false,
       "exports": [
         {
@@ -137706,8 +137716,13 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "secureCredentialEqual",
+          "line": 93,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "parseBasicAuth",
-          "line": 85,
+          "line": 100,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -137748,8 +137763,13 @@
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "secureCredentialEqual",
+          "line": 93,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "parseBasicAuth",
-          "line": 85,
+          "line": 100,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -153411,6 +153431,39 @@
         {
           "name": "makeGetRequest",
           "line": 104,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/public-api-hardening-followups.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 13536,
+      "lines": 352,
+      "sha256": "518c3a284cbc883bf0c87fa41531112028f23b04cc585435d2fed8e31ff06e5f",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "CLIENT_ID",
+          "line": 100,
+          "kind": "Variable"
+        },
+        {
+          "name": "CLIENT_SECRET",
+          "line": 101,
+          "kind": "Variable"
+        },
+        {
+          "name": "tokenRequest",
+          "line": 103,
           "kind": "FunctionDeclaration"
         }
       ],

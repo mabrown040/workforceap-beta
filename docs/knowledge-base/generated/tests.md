@@ -128,6 +128,7 @@
 | [tests/api/points-routes.spec.ts](../../../tests/api/points-routes.spec.ts) | 451 | tests |  |
 | [tests/api/portal-nav-badges.spec.ts](../../../tests/api/portal-nav-badges.spec.ts) | 69 | tests |  |
 | [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 409 | tests |  |
+| [tests/api/public-api-hardening-followups.spec.ts](../../../tests/api/public-api-hardening-followups.spec.ts) | 352 | tests |  |
 | [tests/api/public-wioa-qualification.spec.ts](../../../tests/api/public-wioa-qualification.spec.ts) | 180 | tests |  |
 | [tests/api/quarterly-outcomes.spec.ts](../../../tests/api/quarterly-outcomes.spec.ts) | 207 | tests |  |
 | [tests/api/resume-builder.spec.ts](../../../tests/api/resume-builder.spec.ts) | 767 | tests |  |

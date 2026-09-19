@@ -118616,6 +118616,62 @@
     "package": "next"
   },
   {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "vitest",
+    "line": 7,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "@/lib/xapi/token",
+    "line": 51,
+    "kind": "type",
+    "external": false,
+    "target": "lib/xapi/token.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "@/app/api/xapi/oauth/token/route",
+    "line": 95,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/xapi/oauth/token/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "@/lib/xapi/token",
+    "line": 96,
+    "kind": "import",
+    "external": false,
+    "target": "lib/xapi/token.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "@/app/api/webhooks/coursera/route",
+    "line": 97,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/webhooks/coursera/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "@/app/api/waitlist/route",
+    "line": 98,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/waitlist/route.ts"
+  },
+  {
+    "from": "tests/api/public-api-hardening-followups.spec.ts",
+    "specifier": "next/server",
+    "line": 294,
+    "kind": "type",
+    "external": true,
+    "package": "next"
+  },
+  {
     "from": "tests/api/public-wioa-qualification.spec.ts",
     "specifier": "vitest",
     "line": 1,

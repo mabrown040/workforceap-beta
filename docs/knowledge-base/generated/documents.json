@@ -14279,6 +14279,11 @@
         "level": 2,
         "title": "9. Status (as of this branch)",
         "line": 183
+      },
+      {
+        "level": 2,
+        "title": "10. Applicant intake triage (auto-review aid)",
+        "line": 195
       }
     ],
     "datedFilename": false,

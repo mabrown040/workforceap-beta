@@ -21185,8 +21185,40 @@
   },
   {
     "from": "app/admin/members/[id]/page.tsx",
-    "specifier": "@/lib/wioa/reviewSnapshot",
+    "specifier": "@/components/admin/ApplicantTriageChecklist",
     "line": 44,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChecklist.tsx"
+  },
+  {
+    "from": "app/admin/members/[id]/page.tsx",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 45,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "app/admin/members/[id]/page.tsx",
+    "specifier": "@/lib/admin/applicantTriageLoad",
+    "line": 46,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriageLoad.ts"
+  },
+  {
+    "from": "app/admin/members/[id]/page.tsx",
+    "specifier": "next-intl/server",
+    "line": 47,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/admin/members/[id]/page.tsx",
+    "specifier": "@/lib/wioa/reviewSnapshot",
+    "line": 48,
     "kind": "import",
     "external": false,
     "target": "lib/wioa/reviewSnapshot.ts"
@@ -21194,7 +21226,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 45,
+    "line": 49,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -21202,7 +21234,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "./AdminMemberAiMatches",
-    "line": 46,
+    "line": 50,
     "kind": "import",
     "external": false,
     "target": "app/admin/members/[id]/AdminMemberAiMatches.tsx"
@@ -21210,7 +21242,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/components/portal/MemberProgressStrip",
-    "line": 47,
+    "line": 51,
     "kind": "import",
     "external": false,
     "target": "components/portal/MemberProgressStrip.tsx"
@@ -21218,7 +21250,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/lib/coursera/progressQueries",
-    "line": 48,
+    "line": 52,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressQueries.ts"
@@ -21226,7 +21258,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/lib/admin/boardOutcomes",
-    "line": 49,
+    "line": 53,
     "kind": "import",
     "external": false,
     "target": "lib/admin/boardOutcomes.ts"
@@ -21234,7 +21266,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/components/admin/MemberCourseraDiagnoseButton",
-    "line": 50,
+    "line": 54,
     "kind": "import",
     "external": false,
     "target": "components/admin/MemberCourseraDiagnoseButton.tsx"
@@ -21242,7 +21274,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/components/admin/AdminMemberSkillCheckpointPanel",
-    "line": 51,
+    "line": 55,
     "kind": "import",
     "external": false,
     "target": "components/admin/AdminMemberSkillCheckpointPanel.tsx"
@@ -21250,7 +21282,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/lib/member/skillMissions",
-    "line": 52,
+    "line": 56,
     "kind": "import",
     "external": false,
     "target": "lib/member/skillMissions.ts"
@@ -21258,7 +21290,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/lib/admin/careerPlanSignal",
-    "line": 53,
+    "line": 57,
     "kind": "import",
     "external": false,
     "target": "lib/admin/careerPlanSignal.ts"
@@ -21266,7 +21298,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/lib/member/curriculumAssignment",
-    "line": 54,
+    "line": 58,
     "kind": "import",
     "external": false,
     "target": "lib/member/curriculumAssignment.ts"
@@ -21274,7 +21306,7 @@
   {
     "from": "app/admin/members/[id]/page.tsx",
     "specifier": "@/lib/coursera/progressReconciliation",
-    "line": 55,
+    "line": 59,
     "kind": "import",
     "external": false,
     "target": "lib/coursera/progressReconciliation.ts"
@@ -22233,8 +22265,24 @@
   },
   {
     "from": "app/admin/members/page.tsx",
-    "specifier": "@/components/admin/MembersTable",
+    "specifier": "@/lib/admin/applicantTriage",
     "line": 20,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "app/admin/members/page.tsx",
+    "specifier": "@/lib/admin/applicantTriageLoad",
+    "line": 21,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriageLoad.ts"
+  },
+  {
+    "from": "app/admin/members/page.tsx",
+    "specifier": "@/components/admin/MembersTable",
+    "line": 22,
     "kind": "import",
     "external": false,
     "target": "components/admin/MembersTable.tsx"
@@ -22242,7 +22290,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "@/components/admin/MembersListNav",
-    "line": 21,
+    "line": 23,
     "kind": "import",
     "external": false,
     "target": "components/admin/MembersListNav.tsx"
@@ -22250,7 +22298,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "@/components/admin/AdminDataLoadError",
-    "line": 22,
+    "line": 24,
     "kind": "import",
     "external": false,
     "target": "components/admin/AdminDataLoadError.tsx"
@@ -22258,7 +22306,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 23,
+    "line": 25,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -22266,7 +22314,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "@/components/portal/PortalPageFrame",
-    "line": 24,
+    "line": 26,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -22274,7 +22322,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "next-intl/server",
-    "line": 25,
+    "line": 27,
     "kind": "import",
     "external": true,
     "package": "next-intl"
@@ -22282,7 +22330,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "@/lib/admin/memberOnlyWhere",
-    "line": 26,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "lib/admin/memberOnlyWhere.ts"
@@ -22290,7 +22338,7 @@
   {
     "from": "app/admin/members/page.tsx",
     "specifier": "@/lib/admin/directorySearch",
-    "line": 27,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/admin/directorySearch.ts"
@@ -26425,8 +26473,32 @@
   },
   {
     "from": "app/admin/wioa-screening/page.tsx",
-    "specifier": "@/components/portal/kit/pages/admin-subviews/WioaScreeningKit",
+    "specifier": "@/components/admin/ApplicantTriageChip",
     "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChip.tsx"
+  },
+  {
+    "from": "app/admin/wioa-screening/page.tsx",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 17,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "app/admin/wioa-screening/page.tsx",
+    "specifier": "@/lib/admin/applicantTriageLoad",
+    "line": 18,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriageLoad.ts"
+  },
+  {
+    "from": "app/admin/wioa-screening/page.tsx",
+    "specifier": "@/components/portal/kit/pages/admin-subviews/WioaScreeningKit",
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/WioaScreeningKit.tsx"
@@ -67737,8 +67809,16 @@
   },
   {
     "from": "components/admin/AdminCommandCenterClient.tsx",
-    "specifier": "@/lib/admin/commandCenter",
+    "specifier": "@/components/admin/ApplicantTriageChip",
     "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChip.tsx"
+  },
+  {
+    "from": "components/admin/AdminCommandCenterClient.tsx",
+    "specifier": "@/lib/admin/commandCenter",
+    "line": 10,
     "kind": "type",
     "external": false,
     "target": "lib/admin/commandCenter.ts"
@@ -67746,7 +67826,7 @@
   {
     "from": "components/admin/AdminCommandCenterClient.tsx",
     "specifier": "@/lib/content/programTitle",
-    "line": 16,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "lib/content/programTitle.ts"
@@ -68582,6 +68662,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/content/programTitle.ts"
+  },
+  {
+    "from": "components/admin/ApplicantTriageChecklist.tsx",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "components/admin/ApplicantTriageChecklist.tsx",
+    "specifier": "@/components/admin/ApplicantTriageChip",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChip.tsx"
+  },
+  {
+    "from": "components/admin/ApplicantTriageChip.tsx",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
   },
   {
     "from": "components/admin/AssessmentAnswersReadonly.tsx",
@@ -69841,8 +69945,24 @@
   },
   {
     "from": "components/admin/MembersTable.tsx",
-    "specifier": "@/components/portal/ui/DataTable",
+    "specifier": "@/lib/admin/applicantTriage",
     "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "components/admin/MembersTable.tsx",
+    "specifier": "./ApplicantTriageChip",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "components/admin/ApplicantTriageChip.tsx"
+  },
+  {
+    "from": "components/admin/MembersTable.tsx",
+    "specifier": "@/components/portal/ui/DataTable",
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -69850,7 +69970,7 @@
   {
     "from": "components/admin/MembersTable.tsx",
     "specifier": "./ConfirmDialog",
-    "line": 14,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "components/admin/ConfirmDialog.tsx"
@@ -69858,7 +69978,7 @@
   {
     "from": "components/admin/MembersTable.tsx",
     "specifier": "@/components/portal/PortalPagination",
-    "line": 15,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPagination.tsx"
@@ -69866,7 +69986,7 @@
   {
     "from": "components/admin/MembersTable.tsx",
     "specifier": "./useDirectoryNavigation",
-    "line": 16,
+    "line": 18,
     "kind": "import",
     "external": false,
     "target": "components/admin/useDirectoryNavigation.ts"
@@ -89424,6 +89544,54 @@
     "target": "lib/tenant/adminPageScope.ts"
   },
   {
+    "from": "lib/admin/applicantTriage.ts",
+    "specifier": "@/lib/wioa/wioaQualification",
+    "line": 17,
+    "kind": "type",
+    "external": false,
+    "target": "lib/wioa/wioaQualification.ts"
+  },
+  {
+    "from": "lib/admin/applicantTriageLoad.ts",
+    "specifier": "server-only",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "server-only"
+  },
+  {
+    "from": "lib/admin/applicantTriageLoad.ts",
+    "specifier": "@prisma/client",
+    "line": 3,
+    "kind": "type",
+    "external": true,
+    "package": "@prisma/client"
+  },
+  {
+    "from": "lib/admin/applicantTriageLoad.ts",
+    "specifier": "@/lib/content/programs",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/content/programs.ts"
+  },
+  {
+    "from": "lib/admin/applicantTriageLoad.ts",
+    "specifier": "@/lib/wioa/wioaQualification",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/wioa/wioaQualification.ts"
+  },
+  {
+    "from": "lib/admin/applicantTriageLoad.ts",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
     "from": "lib/admin/applicationReview.ts",
     "specifier": "server-only",
     "line": 1,
@@ -89785,8 +89953,24 @@
   },
   {
     "from": "lib/admin/commandCenter.ts",
-    "specifier": "@/lib/admin/commandCenterHelpers",
+    "specifier": "@/lib/admin/applicantTriage",
     "line": 8,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "lib/admin/commandCenter.ts",
+    "specifier": "@/lib/admin/applicantTriageLoad",
+    "line": 9,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriageLoad.ts"
+  },
+  {
+    "from": "lib/admin/commandCenter.ts",
+    "specifier": "@/lib/admin/commandCenterHelpers",
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/admin/commandCenterHelpers.ts"
@@ -89794,7 +89978,7 @@
   {
     "from": "lib/admin/commandCenter.ts",
     "specifier": "@/lib/admin/commandCenterHelpers",
-    "line": 20,
+    "line": 22,
     "kind": "re-export",
     "external": false,
     "target": "lib/admin/commandCenterHelpers.ts"
@@ -89802,10 +89986,18 @@
   {
     "from": "lib/admin/commandCenter.ts",
     "specifier": "@/lib/admin/commandCenterHelpers",
-    "line": 21,
+    "line": 23,
     "kind": "re-export",
     "external": false,
     "target": "lib/admin/commandCenterHelpers.ts"
+  },
+  {
+    "from": "lib/admin/commandCenterHelpers.ts",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 1,
+    "kind": "type",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
   },
   {
     "from": "lib/admin/counselorRosterAggregates.test.ts",
@@ -126390,6 +126582,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/email.ts"
+  },
+  {
+    "from": "tests/lib/applicant-triage.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/applicant-triage.spec.ts",
+    "specifier": "@/lib/admin/applicantTriage",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/applicantTriage.ts"
+  },
+  {
+    "from": "tests/lib/applicant-triage.spec.ts",
+    "specifier": "@/lib/wioa/wioaQualification",
+    "line": 11,
+    "kind": "type",
+    "external": false,
+    "target": "lib/wioa/wioaQualification.ts"
   },
   {
     "from": "tests/lib/apply-metadata-image.spec.ts",

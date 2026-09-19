@@ -2359,6 +2359,48 @@
     "memberDashboard": "Member dashboard",
     "workforceAPHome": "WorkforceAP home",
     "loadingCharts": "Loading charts…",
+    "applicantTriage": {
+      "title": "Applicant intake triage",
+      "description": "Pre-sorted from the intake answers already on file. This is a triage aid, not a decision: approve, request info or decline stays a staff action, and nothing here changes what those buttons do.",
+      "reasonsHeading": "Why this bucket",
+      "checklistHeading": "Review checklist (pre-filled from intake)",
+      "applicationPending": "Application status: waiting for review",
+      "applicationNeedsInfo": "Application status: more information requested",
+      "filterLabel": "Intake triage",
+      "filterAll": "All",
+      "bucket": {
+        "ready_to_review": "Ready to review",
+        "needs_human": "Needs a human look",
+        "missing_info": "Missing information",
+        "not_eligible_signal": "Concern flagged"
+      },
+      "reason": {
+        "work_auth_answered_no": "Applicant answered \"no\" to work authorization at intake",
+        "staff_marked_not_eligible": "Staff WIOA review is marked not eligible",
+        "staff_requested_info": "Staff already asked the applicant for more information",
+        "staff_wioa_needs_info": "Staff WIOA review is waiting on more information",
+        "contact_incomplete": "Name, email or phone is missing",
+        "program_missing": "No program chosen",
+        "program_unrecognized": "Chosen program is not in the catalog",
+        "intake_screening_missing": "No intake screening answers on file",
+        "work_auth_unanswered": "Work authorization was not answered",
+        "work_auth_conflict": "Work authorization answers conflict across intake forms",
+        "funding_fit_not_indicated": "Intake answers do not indicate a funding fit yet",
+        "wioa_signal_unclear": "Portal WIOA self-screening signal is unclear",
+        "minor_applicant": "Applicant is under 18 (parental consent path)",
+        "wioa_review_in_progress": "Staff WIOA review is still in progress",
+        "intake_complete": "Intake complete: contact, program, screening and work authorization on file"
+      },
+      "checklist": {
+        "contact": "Contact details on file",
+        "program": "Program chosen and in catalog",
+        "intake_screening": "Intake screening answered",
+        "work_authorization": "Work authorization answered yes",
+        "funding_fit_signal": "Intake indicates a funding fit (not a determination)",
+        "partner_referral": "Partner or ambassador referral noted",
+        "wioa_staff_review": "Staff WIOA review recorded as verified"
+      }
+    },
     "courseraProvisioning": {
       "lastActivity": "Last activity",
       "noActivityYet": "No activity yet",

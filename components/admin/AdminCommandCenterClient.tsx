@@ -6,6 +6,7 @@ import { useMemo, useState, useTransition } from 'react';
 import { Pagination } from '@astryxdesign/core/Pagination';
 import { adminQueueHref, type AdminQueueKey } from '@/lib/admin/commandCenterHelpers';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ApplicantTriageChip from '@/components/admin/ApplicantTriageChip';
 import type {
   AdminApplicationPendingRow,
   AdminAtRiskRow,
@@ -390,6 +391,11 @@ function ApplicationCard({
             <p style={{ margin: '0.2rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.82rem' }}>
               {row.programLabel} · {row.statusLabel}
             </p>
+            {row.triage ? (
+              <p style={{ margin: '0.3rem 0 0' }}>
+                <ApplicantTriageChip bucket={row.triage.bucket} label={row.triage.label} reasons={row.triage.reasons} />
+              </p>
+            ) : null}
             <p style={{ margin: '0.2rem 0 0', color: row.submittedDaysAgo != null && row.submittedDaysAgo >= 7 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', fontSize: '0.82rem', fontWeight: row.submittedDaysAgo != null && row.submittedDaysAgo >= 7 ? 700 : 500 }}>
               {row.submittedDaysAgo == null ? 'Submitted recently' : row.submittedDaysAgo === 0 ? 'Submitted today' : `Submitted ${row.submittedDaysAgo}d ago`}
             </p>

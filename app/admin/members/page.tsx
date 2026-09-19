@@ -17,6 +17,8 @@ import { buildAssignableProgramOptions } from '@/lib/admin/assignableProgramOpti
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { buildStatusWhere, type StudentStatus } from '@/lib/admin/studentStatus';
+import { APPLICANT_TRIAGE_BUCKETS, type ApplicantTriageBucket } from '@/lib/admin/applicantTriage';
+import { loadApplicantTriageByUserIds, localizeApplicantTriageMap } from '@/lib/admin/applicantTriageLoad';
 import MembersTable from '@/components/admin/MembersTable';
 import MembersListNav from '@/components/admin/MembersListNav';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
@@ -206,6 +208,7 @@ export default async function AdminMembersPage({
     canonicalCompletionsResult,
     programProgressResult,
     activeCourseProgressResult,
+    applicantTriageResult,
   ] = await Promise.allSettled([
     // PERF: Bound last-event scan to 30 days. Users absent from this map
     // are treated as inactive by calculateHealthStatus (correct behavior).
@@ -240,6 +243,9 @@ export default async function AdminMembersPage({
       where: { userId: { in: pageMemberIds }, status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
       _count: { _all: true },
     }),
+    // Applicant intake triage for members on this page with an open application.
+    // Read-only pre-sort; the approve/deny buttons and who may press them are untouched.
+    withAdminPageScope(scope, (db) => loadApplicantTriageByUserIds(db, pageMemberIds)),
   ]);
 
   const lastEventMap: Map<string, Date | null> = new Map();
@@ -292,6 +298,21 @@ export default async function AdminMembersPage({
   } else {
     console.error('[admin/members] member_program_progress load failed', programProgressResult.reason);
   }
+
+  const applicantTriageById =
+    applicantTriageResult.status === 'fulfilled'
+      ? localizeApplicantTriageMap(applicantTriageResult.value, (key) => t(key))
+      : {};
+  if (applicantTriageResult.status === 'rejected') {
+    console.error('[admin/members] applicant triage load failed', applicantTriageResult.reason);
+  }
+  const applicantTriageCopy = {
+    filterLabel: t('applicantTriage.filterLabel'),
+    filterAll: t('applicantTriage.filterAll'),
+    buckets: Object.fromEntries(
+      APPLICANT_TRIAGE_BUCKETS.map((bucket) => [bucket, t(`applicantTriage.bucket.${bucket}`)]),
+    ) as Record<ApplicantTriageBucket, string>,
+  };
 
   const activeCourseCountMap: Map<string, number> = new Map();
   if (activeCourseProgressResult.status === 'fulfilled') {
@@ -379,6 +400,7 @@ export default async function AdminMembersPage({
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,
       fitScore,
       healthStatus,
+      applicantTriage: applicantTriageById[m.id] ?? null,
       enrollmentProgramSlugs,
       enrollmentProgramTitleBySlug,
     };
@@ -421,6 +443,7 @@ export default async function AdminMembersPage({
         endDateFilter={endDateFilter}
         allPartnerOptions={partnerOptionsResult.status === 'fulfilled' ? partnerOptionsResult.value : []}
         allAssignablePrograms={assignableProgramOptions}
+        applicantTriageCopy={applicantTriageCopy}
       />
     </PortalPageFrame>
   );

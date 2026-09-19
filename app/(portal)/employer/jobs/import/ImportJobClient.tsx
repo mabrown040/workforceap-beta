@@ -7,6 +7,8 @@ import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import JobForm from '@/components/employer/JobForm';
 import { trackEmployerImport, trackFunnelEvent } from '@/lib/analytics/events';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type ImportJobClientProps = {
   companyName: string;
@@ -15,6 +17,7 @@ type ImportJobClientProps = {
 
 export default function ImportJobClient({ companyName, programSlugs }: ImportJobClientProps) {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [step, setStep] = useState<'input' | 'review'>('input');
   const [url, setUrl] = useState('');
   const [rawText, setRawText] = useState('');
@@ -93,6 +96,15 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       trackFunnelEvent('employer_import', 'review_opened', { provider: data.provider });
       setExtracted(data.extracted);
       setStep('review');
+    } catch (err) {
+      trackEmployerImport('errored', { mode: rawText.trim() ? 'paste' : 'url', has_url: !!url });
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Failed to parse' },
+          'employer-job-import',
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -151,6 +163,15 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         setPasteSectionOpen(true);
       }
       router.refresh();
+    } catch (err) {
+      trackEmployerImport('errored', { mode: 'bulk' });
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Bulk import failed' },
+          'employer-job-import-bulk',
+        ),
+      );
     } finally {
       setBulkLoading(false);
     }

@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 export default function EmployerJobQuickActions({
   jobId,
@@ -14,38 +16,45 @@ export default function EmployerJobQuickActions({
   status: string;
 }) {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [busy, setBusy] = useState<'pause' | 'close' | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const showPause = status === 'live';
   const showClose = status === 'live' || status === 'approved';
 
-  async function pause() {
-    setBusy('pause');
+  async function updateStatus(action: 'pause' | 'close', status: 'approved' | 'closed', fallback: string) {
+    setBusy(action);
+    setError(null);
     try {
       const res = await fetch(`/api/employer/jobs/${jobId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'approved' }),
+        body: JSON.stringify({ status }),
       });
-      if (res.ok) router.refresh();
+      if (res.ok) {
+        router.refresh();
+        return;
+      }
+      // A server rejection is JSON `{ error }`; a non-JSON answer falls through
+      // to the generic sentence below.
+      const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+      setError(typeof data.error === 'string' && data.error.trim() ? data.error : fallback);
+    } catch (err) {
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback },
+          `employer-job-${action}`,
+        ),
+      );
     } finally {
       setBusy(null);
     }
   }
 
-  async function closeJob() {
-    setBusy('close');
-    try {
-      const res = await fetch(`/api/employer/jobs/${jobId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'closed' }),
-      });
-      if (res.ok) router.refresh();
-    } finally {
-      setBusy(null);
-    }
-  }
+  const pause = () => updateStatus('pause', 'approved', 'Could not pause this job. Please try again.');
+  const closeJob = () => updateStatus('close', 'closed', 'Could not close this job. Please try again.');
 
   const btnStyle: React.CSSProperties = {
     flex: 1,
@@ -105,6 +114,11 @@ export default function EmployerJobQuickActions({
           </button>
         )}
       </div>
+      {error ? (
+        <p role="alert" className="form-error" style={{ margin: 0, fontSize: '0.8rem' }}>
+          {error}
+        </p>
+      ) : null}
       <Link
         href={`/employer/jobs/${encodeURIComponent(jobId)}/applicants`}
         style={{

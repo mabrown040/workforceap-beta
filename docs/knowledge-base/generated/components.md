@@ -172,7 +172,7 @@
 | [components/employer/EmployerApplicationsPager.tsx](../../../components/employer/EmployerApplicationsPager.tsx) | 40 | jobs-employers | default:14 |
 | [components/employer/EmployerHiringIntentPanel.tsx](../../../components/employer/EmployerHiringIntentPanel.tsx) | 123 | jobs-employers | default:9 |
 | [components/employer/EmployerJobPostForm.tsx](../../../components/employer/EmployerJobPostForm.tsx) | 258 | jobs-employers | default:8 |
-| [components/employer/EmployerJobQuickActions.tsx](../../../components/employer/EmployerJobQuickActions.tsx) | 124 | jobs-employers | default:7 |
+| [components/employer/EmployerJobQuickActions.tsx](../../../components/employer/EmployerJobQuickActions.tsx) | 138 | jobs-employers | default:9 |
 | [components/employer/EmployerJobsBoard.tsx](../../../components/employer/EmployerJobsBoard.tsx) | 1204 | jobs-employers | EmployerJobBoardItem:37, default:221 |
 | [components/employer/EmployerKanban.tsx](../../../components/employer/EmployerKanban.tsx) | 284 | jobs-employers | default:60 |
 | [components/employer/EmployerLoiForm.tsx](../../../components/employer/EmployerLoiForm.tsx) | 224 | jobs-employers | default:11 |
@@ -181,7 +181,7 @@
 | [components/employer/EmployerOutcomesDashboard.tsx](../../../components/employer/EmployerOutcomesDashboard.tsx) | 230 | jobs-employers | default:45 |
 | [components/employer/EmployerPipelineClient.tsx](../../../components/employer/EmployerPipelineClient.tsx) | 157 | jobs-employers | default:45 |
 | [components/employer/EmployerSettingsForm.tsx](../../../components/employer/EmployerSettingsForm.tsx) | 296 | jobs-employers | EmployerSettingsInitial:29, default:41 |
-| [components/employer/EmployerUiActions.test.tsx](../../../components/employer/EmployerUiActions.test.tsx) | 136 | jobs-employers |  |
+| [components/employer/EmployerUiActions.test.tsx](../../../components/employer/EmployerUiActions.test.tsx) | 142 | jobs-employers |  |
 | [components/employer/EmployerWorkQueueClient.tsx](../../../components/employer/EmployerWorkQueueClient.tsx) | 314 | jobs-employers | WqApp:8, WqJob:18, default:118 |
 | [components/employer/EmployerWorkflowTimeline.tsx](../../../components/employer/EmployerWorkflowTimeline.tsx) | 41 | jobs-employers | default:10 |
 | [components/employer/InterviewScheduler.tsx](../../../components/employer/InterviewScheduler.tsx) | 161 | jobs-employers | default:13 |

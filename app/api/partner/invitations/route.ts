@@ -74,8 +74,11 @@ const schema = z.object({
     });
 
     if (!emailResult.ok) {
+      // `emailResult.error` is the provider's text (Resend / network); log it,
+      // answer the partner with one plain sentence.
+      console.error('[partner/invitations] invite email failed:', emailResult.error ?? 'unknown');
       return NextResponse.json(
-        { error: emailResult.error ?? 'Invite email failed to send.' },
+        { error: 'Invite email failed to send. Please try again in a few minutes.' },
         { status: 500 }
       );
     }

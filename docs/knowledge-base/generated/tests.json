@@ -733,20 +733,24 @@
     ],
     "localReferences": [
       {
-        "file": "components/employer/EmployerJobPostForm.tsx",
+        "file": "messages/en.json",
         "line": 6
       },
       {
-        "file": "components/employer/EmployerJobQuickActions.tsx",
-        "line": 7
-      },
-      {
-        "file": "components/employer/EmployerMatchHistoryClient.tsx",
+        "file": "components/employer/EmployerJobPostForm.tsx",
         "line": 8
       },
       {
-        "file": "components/employer/EmployerWorkQueueClient.tsx",
+        "file": "components/employer/EmployerJobQuickActions.tsx",
         "line": 9
+      },
+      {
+        "file": "components/employer/EmployerMatchHistoryClient.tsx",
+        "line": 10
+      },
+      {
+        "file": "components/employer/EmployerWorkQueueClient.tsx",
+        "line": 11
       }
     ],
     "kind": "test-candidate",
@@ -14221,6 +14225,42 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/partner-employer-route-error-handling.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/employer/jobs/route.ts",
+        "line": 101
+      },
+      {
+        "file": "app/api/employer/jobs/import/route.ts",
+        "line": 102
+      },
+      {
+        "file": "app/api/employer/jobs/import-bulk/route.ts",
+        "line": 103
+      },
+      {
+        "file": "app/api/partner/invitations/route.ts",
+        "line": 104
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/partner-message-history.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -16987,6 +17027,43 @@
       {
         "file": "lib/fetchWithTimeout.ts",
         "line": 8
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/employer-action-connection-failure.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 16
+      },
+      {
+        "file": "app/(portal)/employer/billing/TierCheckoutForm.tsx",
+        "line": 17
+      },
+      {
+        "file": "app/(portal)/employer/jobs/import/ImportJobClient.tsx",
+        "line": 18
+      },
+      {
+        "file": "components/employer/EmployerJobQuickActions.tsx",
+        "line": 19
       }
     ],
     "kind": "test-candidate",
@@ -20554,6 +20631,25 @@
         "line": 10
       }
     ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/partner-saved-chip-contrast.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
     "kind": "test-candidate",
     "declaredRunners": [
       {

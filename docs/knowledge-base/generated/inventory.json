@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "b762678820a4591d35938c3a998348c07a2e8e532e2e979d296d497526a97e06",
+  "inputTreeSha256": "76f73b5c8dbf9366ef461906ad75f001ecbc47c5bf9ac23aa5e54a775a26d24a",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -11318,14 +11318,14 @@
       "path": "app/(portal)/employer/billing/TierCheckoutForm.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 1609,
-      "lines": 63,
-      "sha256": "d854da41bd95e9f23c79faf181b9dadc62dce8f07e095e8bd34536038c7eb598",
+      "bytes": 1996,
+      "lines": 74,
+      "sha256": "cfc8fc1111d9a3d563399487b6abacb29416bd9e5830fb7c29394b76c0888f1f",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 13,
+          "line": 15,
           "kind": "FunctionDeclaration",
           "localName": "TierCheckoutForm"
         }
@@ -11333,12 +11333,12 @@
       "declarations": [
         {
           "name": "TierCheckoutFormProps",
-          "line": 5,
+          "line": 7,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "TierCheckoutForm",
-          "line": 13,
+          "line": 15,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -11803,14 +11803,14 @@
       "path": "app/(portal)/employer/jobs/import/ImportJobClient.tsx",
       "area": "pages",
       "domain": "jobs-employers",
-      "bytes": 16775,
-      "lines": 407,
-      "sha256": "8606daad7e1d1679f443fcdf1b90015a23b15570e983b4ce4634b392442a8763",
+      "bytes": 17534,
+      "lines": 428,
+      "sha256": "381162a9615372489268d936f16a4afe081a03f1bdb28f1d4cd6730fe7b02a9d",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 16,
+          "line": 18,
           "kind": "FunctionDeclaration",
           "localName": "ImportJobClient"
         }
@@ -11818,12 +11818,12 @@
       "declarations": [
         {
           "name": "ImportJobClientProps",
-          "line": 11,
+          "line": 13,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "ImportJobClient",
-          "line": 16,
+          "line": 18,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -33299,9 +33299,9 @@
       "path": "app/api/employer/jobs/import-bulk/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 13232,
+      "bytes": 13208,
       "lines": 337,
-      "sha256": "eea11eee3c4f014b0c4c7c5c1088ee6e15e77a1cf9e629f3521186a71b92def0",
+      "sha256": "00f8cf6a194720eca42d97837db3567ff6f0b38664341e5e59a433aa9b9d63a7",
       "binary": false,
       "exports": [
         {
@@ -33343,9 +33343,9 @@
       "path": "app/api/employer/jobs/import/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 17538,
+      "bytes": 17514,
       "lines": 334,
-      "sha256": "8e6d9ee9da12e0c79b3a318878d571c1415663c281f047fc0829ccd148a6166e",
+      "sha256": "84d3d0b9d671b8a62c349e654d465f43c022f705c1b07135205ca6f28aa9ffc7",
       "binary": false,
       "exports": [
         {
@@ -33377,9 +33377,9 @@
       "path": "app/api/employer/jobs/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 7321,
+      "bytes": 7297,
       "lines": 189,
-      "sha256": "c58233b685deca3d6f23dad831e54c95eb71536c5ff24016958baff2db19fe7f",
+      "sha256": "4a3dc3ab5876624f9b73d6a78f155710816475a67714152ee8ca991b912d3166",
       "binary": false,
       "exports": [
         {
@@ -38837,9 +38837,9 @@
       "path": "app/api/partner/invitations/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 4328,
-      "lines": 119,
-      "sha256": "149267ad6cf45d018e0bb898f9356669f638d43f4f1472e2fcf9a099ff60e7a8",
+      "bytes": 4574,
+      "lines": 122,
+      "sha256": "b7f3be1e29e09bac2ee74cd0ec066d4952737a9ebfe5d640e110267c5db54b5f",
       "binary": false,
       "exports": [
         {
@@ -53906,14 +53906,14 @@
       "path": "components/employer/EmployerJobQuickActions.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 3255,
-      "lines": 124,
-      "sha256": "0f89172cbcacd91f5c0cf2da57bc47283f3538638512118a3b1036250ab11bd4",
+      "bytes": 4104,
+      "lines": 138,
+      "sha256": "94dccf8babc0401e9b23d786c6f7d44745db455be036e5ee366cf73d4191fcc8",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 7,
+          "line": 9,
           "kind": "FunctionDeclaration",
           "localName": "EmployerJobQuickActions"
         }
@@ -53921,7 +53921,7 @@
       "declarations": [
         {
           "name": "EmployerJobQuickActions",
-          "line": 7,
+          "line": 9,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54356,25 +54356,25 @@
       "path": "components/employer/EmployerUiActions.test.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 4912,
-      "lines": 136,
-      "sha256": "a27927506558a20c974ede40cf87a119e2cec8f9a7a776155dc9c9715395a710",
+      "bytes": 5145,
+      "lines": 142,
+      "sha256": "fa943f3fedf857a9b5cde83570080a75f6894e1028d4575564c5173fa7c4177e",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "refresh",
-          "line": 11,
+          "line": 13,
           "kind": "Variable"
         },
         {
           "name": "matchRow",
-          "line": 17,
+          "line": 19,
           "kind": "Variable"
         },
         {
           "name": "fillRequiredQuickPostFields",
-          "line": 30,
+          "line": 32,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -56763,9 +56763,9 @@
       "path": "components/partner/PartnerContactEditForm.tsx",
       "area": "components",
       "domain": "partners-funding",
-      "bytes": 3356,
+      "bytes": 3361,
       "lines": 119,
-      "sha256": "93fd81bb27fdc11a60e71f937512fff80c6e0653991f93d18619e21fc9c6a666",
+      "sha256": "738702cb9dd4bc5fed1ba6cb7e313dd81a630bd82e33596ac6db7c1d255c27b3",
       "binary": false,
       "exports": [
         {
@@ -153398,6 +153398,44 @@
       "directive": null
     },
     {
+      "path": "tests/api/partner-employer-route-error-handling.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 8325,
+      "lines": 186,
+      "sha256": "94ff4d302941a0b3234fc2ff6a2185787f202759eb019eaeb8c48ed742db5267",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "h",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "PRISMA_TEXT",
+          "line": 107,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonPost",
+          "line": 110,
+          "kind": "Variable"
+        },
+        {
+          "name": "consoleError",
+          "line": 117,
+          "kind": "Variable"
+        },
+        {
+          "name": "expectGenericServerError",
+          "line": 125,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/partner-message-history.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -155047,6 +155085,69 @@
           "name": "note",
           "line": 21,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/employer-action-connection-failure.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 6891,
+      "lines": 154,
+      "sha256": "57cdc6aae23cea661bbcd82723fafb1af7f3ffca55b549e1d4a29c5761cc9ba9",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "refresh",
+          "line": 21,
+          "kind": "Variable"
+        },
+        {
+          "name": "CONNECTION_COPY",
+          "line": 38,
+          "kind": "Variable"
+        },
+        {
+          "name": "RAW_BROWSER_TEXT",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 41,
+          "kind": "Variable"
+        },
+        {
+          "name": "consoleError",
+          "line": 42,
+          "kind": "Variable"
+        },
+        {
+          "name": "droppedConnection",
+          "line": 44,
+          "kind": "Variable"
+        },
+        {
+          "name": "htmlErrorPage",
+          "line": 45,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonError",
+          "line": 50,
+          "kind": "Variable"
+        },
+        {
+          "name": "withMessages",
+          "line": 53,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "expectAlert",
+          "line": 61,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null
@@ -158402,6 +158503,59 @@
           "name": "dbMocks",
           "line": 3,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/lib/partner-saved-chip-contrast.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 2602,
+      "lines": 61,
+      "sha256": "30d85a9e49c41b6f219fd7b26c757c11e8b095261531fc07b0c2cb020cae65ae",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "root",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "tokensCss",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "form",
+          "line": 15,
+          "kind": "Variable"
+        },
+        {
+          "name": "lightDark",
+          "line": 17,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hexToRgb",
+          "line": 22,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mix",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "luminance",
+          "line": 28,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 35,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

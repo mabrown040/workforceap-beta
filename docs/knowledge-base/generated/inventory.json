@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "a15b7e435973e9c47b59565bcb6b89e0ad9facbc51d931d5486f18fb19607740",
+  "inputTreeSha256": "0047f6def6701ae9bdd4826d011bc0bdb7e560f5b3a6e26b5bc1c6e7e240b9be",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -152297,6 +152297,44 @@
           "name": "makeReq",
           "line": 65,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/member-route-malformed-input.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 11103,
+      "lines": 230,
+      "sha256": "7d656b9cb6377307d9850f404cefd86eb31472b60f6581144248b5c4389dd1d1",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "MEMBER",
+          "line": 85,
+          "kind": "Variable"
+        },
+        {
+          "name": "MENTOR_ID",
+          "line": 86,
+          "kind": "Variable"
+        },
+        {
+          "name": "jsonRequest",
+          "line": 88,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "readJson",
+          "line": 92,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mentorParams",
+          "line": 97,
+          "kind": "Variable"
         }
       ],
       "directive": null

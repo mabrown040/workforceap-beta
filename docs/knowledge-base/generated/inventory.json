@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "c4df96521e46e5f6dd5db971893295ae32f0a35c21545277a016e2e877cdf3f9",
+  "inputTreeSha256": "2cf8e70ff900d631a520e7401d0e83ed39de5741123248a8a7a4f98f683d1ea3",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -141092,9 +141092,9 @@
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 214278,
-      "lines": 3164,
-      "sha256": "a46f91e584ad41821462f419e09aa734d4989b9450bda3130bb4331583bae10d",
+      "bytes": 217345,
+      "lines": 3206,
+      "sha256": "5a2f58c5c7548a4a924529c714de7d29214b892c615e1fc4c86815dbb3feeb28",
       "binary": false
     },
     {

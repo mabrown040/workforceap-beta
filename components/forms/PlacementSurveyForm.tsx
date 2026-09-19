@@ -67,6 +67,7 @@ function RatingRow({
   return (
     <div
       role="radiogroup"
+      aria-labelledby={`${name}-label`}
       aria-invalid={!!error}
       aria-describedby={error ? errorId : undefined}
       style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}
@@ -159,21 +160,21 @@ export default function PlacementSurveyForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div style={blockStyle}>
-        <label style={labelStyle}>
+        <span id="jobSatisfaction-label" style={labelStyle}>
           How satisfied are you with your job? (1 = not at all, 5 = very)
-        </label>
+        </span>
         <RatingRow name="jobSatisfaction" register={register} error={errors.jobSatisfaction?.message} />
       </div>
 
       <div style={blockStyle}>
-        <label style={labelStyle}>
+        <span id="trainingRelevance-label" style={labelStyle}>
           How relevant was your training{programName ? ` (${programName})` : ''} to the work you&apos;re doing now?
-        </label>
+        </span>
         <RatingRow name="trainingRelevance" register={register} error={errors.trainingRelevance?.message} />
       </div>
 
       <div style={blockStyle}>
-        <label style={labelStyle}>How was the counselor support during the program?</label>
+        <span id="supportQuality-label" style={labelStyle}>How was the counselor support during the program?</span>
         <RatingRow name="supportQuality" register={register} error={errors.supportQuality?.message} />
       </div>
 
@@ -204,8 +205,8 @@ export default function PlacementSurveyForm({
       </div>
 
       <div style={blockStyle}>
-        <label style={labelStyle}>Are you still employed in this role?</label>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <span id="stillEmployed-label" style={labelStyle}>Are you still employed in this role?</span>
+        <div role="radiogroup" aria-labelledby="stillEmployed-label" style={{ display: 'flex', gap: '1rem' }}>
           <label style={{ cursor: 'pointer' }}>
             <input type="radio" value="yes" {...register('stillEmployed')} /> Yes
           </label>

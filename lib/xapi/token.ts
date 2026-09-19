@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { getXapiConfig } from '@/lib/xapi/config';
 
 type TokenPayload = {
@@ -80,6 +80,21 @@ export function parseBearerToken(authHeader: string | null) {
   if (!authHeader) return null;
   const match = authHeader.match(/^Bearer\s+(.+)$/i);
   return match?.[1]?.trim() || null;
+}
+
+/**
+ * Constant-time comparison for client credentials (client_id / client_secret).
+ * Both sides are hashed to a fixed 32-byte digest first so `timingSafeEqual`
+ * never throws on a length mismatch and the comparison cost does not depend on
+ * where (or whether) the supplied value diverges from the configured one. Same
+ * helper shape as `lib/coursera/webhookAuth.ts` and the learning-completion
+ * webhook. Empty values on either side fail closed.
+ */
+export function secureCredentialEqual(provided: string, expected: string): boolean {
+  if (!provided || !expected) return false;
+  const a = createHash('sha256').update(provided, 'utf8').digest();
+  const b = createHash('sha256').update(expected, 'utf8').digest();
+  return timingSafeEqual(a, b);
 }
 
 export function parseBasicAuth(authHeader: string | null) {

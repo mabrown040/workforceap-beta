@@ -8,6 +8,12 @@
    ============================================================ */
 
 .signup-depth {
+  /* Same light lock as css/auth-depth.css: this page hard-codes a light
+     surface and near-black text, so without `color-scheme: light` a browser
+     in dark mode paints autofilled fields, the checkbox and the <select>
+     dropdown list with dark chrome behind that dark text. */
+  color-scheme: light;
+
   --sd-crimson: #ad2c4d;
   --sd-accent-dark: #8c0f37;
   --sd-plum: #6d1437;

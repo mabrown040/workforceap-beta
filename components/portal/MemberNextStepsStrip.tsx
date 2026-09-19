@@ -29,9 +29,22 @@ export default function MemberNextStepsStrip({
 
   const dismiss = useCallback((id: string) => {
     setDismissed((prev) => new Set([...prev, id]));
-    if (UUID_RE.test(id)) {
-      fetch(`/api/member/nba/${id}`, { method: 'PATCH' }).catch(() => {});
-    }
+    if (!UUID_RE.test(id)) return;
+    // Optimistic: hide the card now, but put it back if the server did not
+    // record the dismissal — otherwise it silently reappears on the next load.
+    const restore = (reason: unknown) => {
+      console.error('[member-next-steps] dismiss failed', reason);
+      setDismissed((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+    fetch(`/api/member/nba/${id}`, { method: 'PATCH' })
+      .then((res) => {
+        if (!res.ok) restore(`HTTP ${res.status}`);
+      })
+      .catch(restore);
   }, []);
 
   const trackClick = useCallback((id: string, href: string, label: string) => {

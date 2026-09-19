@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import {
   generatePartnerQuarterlyOutcomes,
   getDefaultQuarter,
@@ -35,6 +36,15 @@ export const GET = withApiGuc(async (req: NextRequest, { params }: { params: Pro
 
     const { id: partnerId } = await params;
     const orgId = await getActorOrganizationId(user.id);
+
+    // Same tenant-scoped lookup the sibling partner routes use: an unknown or
+    // foreign partner id is a 404, not a thrown "Partner not found" 500.
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({ where: { id: partnerId }, select: { id: true } }),
+    );
+    if (!partner) {
+      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    }
 
     const { searchParams } = new URL(req.url);
     const quarterParam = parseQuarterParam(searchParams.get('quarter'));

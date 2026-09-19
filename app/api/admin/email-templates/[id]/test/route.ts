@@ -36,7 +36,7 @@ export const POST = withApiGuc(async (
     if (!template) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     let body: { to?: string; variables?: Record<string, string> } = {};
-    try { body = await req.json(); } catch { /* no body is fine */ }
+    body = (await req.json().catch(() => ({}))) ?? {}; // no body is fine
 
     const to = body.to?.trim() || user.email;
     if (!to) {

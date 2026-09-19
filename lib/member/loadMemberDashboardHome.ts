@@ -11,7 +11,11 @@ import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/poin
 import { MEMBER_PROGRAM_HREF, resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 import { buildNextBestActions, type NextBestAction } from '@/lib/member/nextBestActions';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
-import { digitalLiteracyFirstModuleHref } from '@/lib/content/courseDelivery';
+import {
+  digitalLiteracyFirstModuleHref,
+  isWorkforceApCourse,
+  workforceApCourseHref,
+} from '@/lib/content/courseDelivery';
 
 /**
  * Kit-default `/dashboard` home loader (SCALE Phase 2).
@@ -71,9 +75,17 @@ export type MemberDashboardHomeView = {
   currentStreak: number;
   longestStreak: number;
   goals: DashboardGoalSummary[];
-  /** Real next step title. Omit rather than invent "Continue your training". */
+  /**
+   * Real next step title. For an enrolled member this is the program's next
+   * incomplete module (first module when there is no progress yet), so the
+   * certification-path card names a module even when the top next-best action
+   * is the preassessment. Falls back to the top action title. Omit rather than
+   * invent "Continue your training".
+   */
   nextLesson?: string;
   nextLessonDue?: string;
+  /** Deep link for `nextLesson` when it names a program module. */
+  nextLessonHref?: string;
   /** Honest enrollment status. Omit when no program is on file. */
   programStatus?: string;
   nextBadgeName?: string;
@@ -491,6 +503,17 @@ function shapeHome(args: {
       .map((row) => row.courseSlug),
   );
   const nextIncompleteCourse = validatedCourses.find((course) => !completedSlugs.has(course.slug));
+  // The cert-path card must name a module, not the hero action: when the top
+  // next-best action is the preassessment (or a guide), the program still has a
+  // first / next incomplete module to show. `doThisNext` keeps the hero as is.
+  const nextModule = program && slug && nextIncompleteCourse
+    ? {
+        title: nextIncompleteCourse.name,
+        href: isWorkforceApCourse(nextIncompleteCourse)
+          ? workforceApCourseHref(nextIncompleteCourse.slug, slug)
+          : `${MEMBER_PROGRAM_HREF}?course=${encodeURIComponent(nextIncompleteCourse.slug)}`,
+      }
+    : null;
 
   const programHref = MEMBER_PROGRAM_HREF;
   // /dashboard/training only redirects back to /dashboard, so enrolled members
@@ -531,7 +554,8 @@ function shapeHome(args: {
     currentStreak: args.row.memberPoints?.currentStreak ?? 0,
     longestStreak: args.row.memberPoints?.longestStreak ?? 0,
     goals: mapGoalSummaries(args.row.goals),
-    nextLesson: doThisNext.title,
+    nextLesson: nextModule?.title ?? doThisNext.title,
+    nextLessonHref: nextModule?.href,
     nextBadgeName: badge.nextBadgeName,
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,

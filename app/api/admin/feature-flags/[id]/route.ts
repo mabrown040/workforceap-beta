@@ -17,22 +17,25 @@ import { logAuditEvent } from '@/lib/audit/log';async function _PATCH(
     }
 
     const { id } = await params;
-    const body = await request.json();
-    const { name, description, enabled, rolloutPercentage, allowedRoles } = body;
+    const body: unknown = await request.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const { name, description, enabled, rolloutPercentage, allowedRoles } = body as Record<string, unknown>;
 
     const existing = await prisma.$transaction((tx) => tx.featureFlag.findUnique({ where: { id } }));
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const update: Record<string, unknown> = {};
-    if (name !== undefined) update.name = name?.trim() ?? existing.name;
-    if (description !== undefined) update.description = description?.trim() || null;
+    if (name !== undefined) update.name = typeof name === 'string' && name.trim() ? name.trim() : existing.name;
+    if (description !== undefined) update.description = typeof description === 'string' ? description.trim() || null : null;
     if (enabled !== undefined) update.enabled = !!enabled;
     if (rolloutPercentage !== undefined) {
       update.rolloutPercentage = Math.max(0, Math.min(100, Number(rolloutPercentage) || 0));
     }
     if (allowedRoles !== undefined) {
       update.allowedRoles = Array.isArray(allowedRoles)
-        ? allowedRoles.filter((r: string) => typeof r === 'string')
+        ? allowedRoles.filter((r: unknown): r is string => typeof r === 'string')
         : existing.allowedRoles;
     }
 
@@ -62,6 +65,8 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
     }
 
     const { id } = await params;
+    const existing = await prisma.$transaction((tx) => tx.featureFlag.findUnique({ where: { id }, select: { id: true } }));
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     await prisma.$transaction((tx) => tx.featureFlag.delete({ where: { id } }));
     void auditLog({ actorUserId: user.id, action: 'admin_feature_flag_delete', targetType: 'featureFlag', targetId: id, metadata: {} }).catch(() => {});
     logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'FeatureFlag', id }, result: { success: true } }).catch(() => {});

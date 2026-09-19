@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import { Avatar, DesignSurface, StatusTag, type KitTone } from '@/components/portal/kit';
@@ -33,6 +35,8 @@ function scoreColor(score: number): string {
   return 'var(--wa-muted)';
 }
 
+const UPDATE_FAILED = 'Could not update this match. Please try again.';
+
 function getInitials(name: string): string {
   const parts = (name || '?').split(' ').filter(Boolean);
   return parts.map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
@@ -47,12 +51,15 @@ export default function EmployerPipelineClient({
   jobTitle: string;
   initialMatches: MatchRow[];
 }) {
+  const tCommon = useTranslations('common');
   const [matches, setMatches] = useState(initialMatches);
   const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const setStatus = useCallback(
     async (studentId: string, status: string) => {
       setBusy(studentId);
+      setError(null);
       try {
         const r = await fetch(`/api/employer/jobs/${jobId}/matches/${studentId}`, {
           method: 'PATCH',
@@ -60,15 +67,24 @@ export default function EmployerPipelineClient({
           body: JSON.stringify({ status }),
         });
         const data = await r.json().catch(() => ({}));
-        if (!r.ok) return;
+        if (!r.ok) {
+          // The select already snapped back to the server value on re-render;
+          // say why so the change does not look like it silently took.
+          setError(typeof data.error === 'string' && data.error.trim() ? data.error : UPDATE_FAILED);
+          return;
+        }
         setMatches((prev) =>
           prev.map((m) => (m.student.id === studentId ? { ...m, status: data.status ?? status } : m))
+        );
+      } catch (err) {
+        setError(
+          requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: UPDATE_FAILED }, 'employer-pipeline-status'),
         );
       } finally {
         setBusy(null);
       }
     },
-    [jobId]
+    [jobId, tCommon]
   );
 
   if (matches.length === 0) {
@@ -82,6 +98,11 @@ export default function EmployerPipelineClient({
   return (
     <DesignSurface surface="dense" className="wa-kit-card">
       <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', margin: '0 0 12px' }}>{jobTitle}</h3>
+      {error ? (
+        <p role="alert" style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-danger)', margin: '0 0 12px' }}>
+          {error}
+        </p>
+      ) : null}
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
         {matches.map((m) => {
           const score = matchScoreAsPercent(m.matchScore);

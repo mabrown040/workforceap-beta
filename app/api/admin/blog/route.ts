@@ -1,9 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+const optionalText = z.string().nullable().optional();
+
+/**
+ * Body sent by app/admin/blog/BlogPostEditor and components/admin/BlogPostActions.
+ * A body that is not JSON, not an object, or carries non-string fields used to
+ * reach `.trim()` / Prisma and surface as a 500.
+ */
+const blogPostBodySchema = z.object({
+  slug: optionalText,
+  title: optionalText,
+  excerpt: optionalText,
+  content: optionalText,
+  coverImage: optionalText,
+  authorName: optionalText,
+  category: optionalText,
+  published: z.unknown().optional(),
+  scheduledAt: optionalText.refine(
+    (value) => !value || !Number.isNaN(new Date(value).getTime()),
+    'scheduledAt must be a valid date',
+  ),
+});
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: NextRequest) => {
@@ -13,7 +36,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     if (!(await isAdmin(user.id)))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const body = await request.json();
+    const parsed = blogPostBodySchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.errors[0]?.message ?? 'Invalid blog post body' },
+        { status: 400 },
+      );
+    }
     const {
       slug,
       title,
@@ -24,7 +53,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       category,
       published,
       scheduledAt,
-    } = body;
+    } = parsed.data;
 
     if (!slug?.trim() || !title?.trim() || !content?.trim()) {
       return NextResponse.json(

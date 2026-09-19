@@ -3,6 +3,7 @@ import 'server-only';
 import { CourseProgressStatus } from '@prisma/client';
 
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   canonicalizeProgramSlug,
   programSlugsEquivalent,
@@ -316,7 +317,7 @@ export async function loadMemberProgressAuditByEmail(
     if (stored) {
       return {
         programSlug,
-        programTitle: program?.title ?? programSlug,
+        programTitle: program?.title ?? programDisplayTitle(programSlug),
         curriculumVersion,
         catalogCourseCount: computed.catalogCourseCount,
         coursesCompleted: stored.coursesCompleted,
@@ -326,7 +327,7 @@ export async function loadMemberProgressAuditByEmail(
     }
     return {
       programSlug,
-      programTitle: program?.title ?? programSlug,
+      programTitle: program?.title ?? programDisplayTitle(programSlug),
       curriculumVersion,
       catalogCourseCount: computed.catalogCourseCount,
       coursesCompleted: computed.coursesCompleted,

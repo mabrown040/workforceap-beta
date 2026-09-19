@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import type { EmployerHiringIntent } from '@prisma/client';
 import { PROGRAMS } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export default function EmployerHiringIntentPanel({ initialIntents }: { initialIntents: EmployerHiringIntent[] }) {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function EmployerHiringIntentPanel({ initialIntents }: { initialI
           <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.5rem' }}>
             {initialIntents.map((row) => (
               <li key={row.id} style={{ padding: '0.65rem 0.75rem', borderRadius: '0.65rem', background: 'var(--surface-container-low)' }}>
-                <strong>{row.programSlug}</strong> · {row.seatCount} seats
+                <strong>{programDisplayTitle(row.programSlug)}</strong> · {row.seatCount} seats
                 {row.startBy ? <span style={{ color: 'var(--color-on-surface-variant)' }}> · start by {row.startBy.toLocaleDateString()}</span> : null}
                 {row.mouUrl ? (
                   <div style={{ marginTop: '0.25rem' }}>

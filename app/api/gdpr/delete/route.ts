@@ -115,18 +115,17 @@ export const POST = withApiGuc(async (request: Request) => {
     WHERE user_id = ${userId}
   `;
 
-  // Mark as deleted
-  await prisma.$executeRaw`
-    INSERT INTO member_events (id, user_id, event_name, entity_type, metadata, created_at)
-    VALUES (
-      gen_random_uuid(),
-      ${userId},
-      'account_deleted',
-      'gdpr',
-      ${JSON.stringify({ deletedAt: new Date().toISOString(), reason: 'user_requested' })},
-      NOW()
-    )
-  `;
+  // Mark as deleted. (This used to be a raw INSERT that bound the metadata
+  // as text into the jsonb column, which PostgreSQL rejects with 42804 — so
+  // every deletion 500'd here, after the rows above were already anonymized.)
+  await prisma.memberEvent.create({
+    data: {
+      userId,
+      eventName: 'account_deleted',
+      entityType: 'gdpr',
+      metadata: { deletedAt: new Date().toISOString(), reason: 'user_requested' },
+    },
+  });
 
   // Delete Supabase auth user (irreversible — prevents re-login with old credentials)
   let deleteAuthError: unknown = null;

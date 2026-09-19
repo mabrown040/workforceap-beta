@@ -5,7 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { ADMIN_SSR_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import PageHeader from '@/components/portal/PageHeader';
 import { DesignSurface } from '@/components/portal/kit';
 import {
@@ -37,7 +37,7 @@ const DISPLAY_STATUS: Record<string, ProgramChangeDisplayStatus> = {
 /** Slug → friendly program title (static lookup); falls back to the slug. */
 function programLabel(slug: string | null): string {
   if (!slug) return '—';
-  return getProgramBySlug(slug)?.title ?? slug;
+  return programDisplayTitle(slug);
 }
 
 export default async function AdminProgramChangeRequestsPage({

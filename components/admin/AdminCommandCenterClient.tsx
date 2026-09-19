@@ -13,7 +13,7 @@ import type {
   AdminInterviewingRow,
   AdminNeedsReplyRow,
 } from '@/lib/admin/commandCenter';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type ReviewStatus = 'APPROVED' | 'NEEDS_INFO' | 'DENIED';
 
@@ -342,7 +342,7 @@ function AtRiskCard({ row }: { row: AdminAtRiskRow }) {
       name={row.memberName}
       meta={`${row.daysInactive} days since portal activity or enrollment`}
       detail={row.enrolledProgram
-        ? `${row.reason ?? "Check-in needed"} · Program: ${getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram}`
+        ? `${row.reason ?? "Check-in needed"} · Program: ${programDisplayTitle(row.enrolledProgram)}`
         : 'Enrolled, no program label'}
       href={`/admin/members/${row.memberId}`}
       action="Check in"

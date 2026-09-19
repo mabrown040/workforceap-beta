@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 import { completeCareerOsInterviewActions } from '@/lib/workflows/completeCareerOsActions';
@@ -32,21 +33,13 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    let body: {
+    const body = await readJsonObjectBody<{
       transcript?: unknown;
       sessionId?: string;
       role?: string;
       interviewType?: string;
-    };
-  
-    try {
-      body = await req.json() as {
-        transcript?: unknown;
-        sessionId?: string;
-        role?: string;
-        interviewType?: string;
-      };
-    } catch {
+    }>(req);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   

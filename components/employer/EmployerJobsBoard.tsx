@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { flushSync } from 'react-dom';
 import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { Briefcase, ListFilter, Users, TriangleAlert, Info, CheckCircle2 } from 'lucide-react';
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
@@ -240,6 +242,7 @@ export default function EmployerJobsBoard({
   locationType?: EmployerJobLocationType;
 }) {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const modalTitleId = useId();
   const modalDescId = useId();
   const modalPendingNoteId = useId();
@@ -425,6 +428,10 @@ export default function EmployerJobsBoard({
         return;
       }
       router.refresh();
+    } catch (err) {
+      setReviewActionError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not submit for review.' }, 'employer-job-submit-review'),
+      );
     } finally {
       setBusyId(null);
     }
@@ -446,6 +453,10 @@ export default function EmployerJobsBoard({
         return;
       }
       router.refresh();
+    } catch (err) {
+      setReviewActionError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not publish job.' }, 'employer-job-publish'),
+      );
     } finally {
       setPublishingId(null);
     }
@@ -467,6 +478,10 @@ export default function EmployerJobsBoard({
         return;
       }
       router.refresh();
+    } catch (err) {
+      setReviewActionError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not pause job.' }, 'employer-job-pause'),
+      );
     } finally {
       setPausingId(null);
     }
@@ -488,8 +503,13 @@ export default function EmployerJobsBoard({
         setCloseModal(null);
         router.refresh();
       } else {
-        setReviewActionError('Could not close this posting. Try again.');
+        const data = await res.json().catch(() => ({}));
+        setReviewActionError(typeof data.error === 'string' ? data.error : 'Could not close this posting. Try again.');
       }
+    } catch (err) {
+      setReviewActionError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not close this posting. Try again.' }, 'employer-job-close'),
+      );
     } finally {
       setClosingId(null);
     }

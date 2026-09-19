@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import styles from './notesPanel.module.css';
 
@@ -10,9 +12,12 @@ interface Note {
   content: string;
   createdAt: string;
   author: { fullName: string | null; email: string };
+  /** Server-side author gate: DELETE 404s for anyone else's note. */
+  canDelete?: boolean;
 }
 
 export default function CounselorNotesPanel({ memberId }: { memberId: string }) {
+  const tCommon = useTranslations('common');
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -84,7 +89,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
         setSaveStatus('Note saved. Your newer edits are still unsaved.');
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error saving note');
+      setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Error saving note' }, 'counselor-note'));
     } finally {
       saveInFlight.current = false;
       setSubmitting(false);
@@ -210,14 +215,16 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                 {new Date(note.createdAt).toLocaleDateString('en-US')} · {note.author.fullName ?? note.author.email}
               </p>
-              <button type="button"
-                onClick={() => setConfirmDeleteId(note.id)}
-                className={styles.deleteButton}
-                title="Delete note"
-                aria-label="Delete note"
-              >
-                ×
-              </button>
+              {note.canDelete ? (
+                <button type="button"
+                  onClick={() => setConfirmDeleteId(note.id)}
+                  className={styles.deleteButton}
+                  title="Delete note"
+                  aria-label="Delete note"
+                >
+                  ×
+                </button>
+              ) : null}
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0, whiteSpace: 'pre-wrap' }}>
               {note.content}

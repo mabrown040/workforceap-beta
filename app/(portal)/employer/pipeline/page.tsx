@@ -12,7 +12,7 @@ import EmployerKanban from '@/components/employer/EmployerKanban';
 import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatusSelect';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import { getTranslations } from 'next-intl/server';
@@ -82,11 +82,11 @@ export default async function EmployerPipelinePage() {
   // For single-program candidates this collapses to today's display.
   function programDisplayFor(student: { enrolledProgram: string | null; courseEnrollments: { programSlug: string }[] }): string {
     const titles = student.courseEnrollments.map(
-      (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+      (row) => programDisplayTitle(row.programSlug),
     );
     if (titles.length > 0) return Array.from(new Set(titles)).join(' · ');
     if (student.enrolledProgram) {
-      return getProgramBySlug(student.enrolledProgram)?.title ?? student.enrolledProgram;
+      return programDisplayTitle(student.enrolledProgram);
     }
     return t('noProgram');
   }

@@ -3,6 +3,7 @@ import 'server-only';
 import { ApplicationStatus, JobApplicationStatus, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   buildApplicationEmailPacket,
@@ -255,7 +256,7 @@ async function loadProgramHealth(orgId: string): Promise<AdminProgramHealthRow[]
       if (!slug) return null;
       return {
         programSlug: slug,
-        label: getProgramBySlug(slug)?.title ?? slug,
+        label: programDisplayTitle(slug),
         count: group._count,
       };
     })

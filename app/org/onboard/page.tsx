@@ -25,7 +25,7 @@ export default function OrgOnboardPage() {
           <p
             style={{
               margin: '0 0 0.75rem',
-              color: 'var(--color-accent, #d4a017)',
+              color: 'var(--color-marketing-rose-on-light)',
               fontSize: '0.82rem',
               fontWeight: 800,
               letterSpacing: '0.08em',
@@ -39,7 +39,7 @@ export default function OrgOnboardPage() {
           </h1>
           <p
             style={{
-              color: 'var(--color-on-surface-muted, rgba(242,242,245,0.72))',
+              color: 'var(--color-on-surface-variant)',
               margin: '1rem auto 0',
               maxWidth: 720,
               lineHeight: 1.7,
@@ -68,7 +68,7 @@ export default function OrgOnboardPage() {
             }}
           >
             <h2 style={{ marginTop: 0, fontSize: '1.3rem' }}>Request access</h2>
-            <p style={{ color: 'var(--color-on-surface-muted, rgba(242,242,245,0.72))', lineHeight: 1.7 }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
               Email us with your organization name, the audience you serve, and what kind of training or workforce support you want to offer.
               We will review the request and follow up with the right next step.
             </p>
@@ -88,7 +88,7 @@ export default function OrgOnboardPage() {
                 Contact the team
               </LocalizedLink>
             </div>
-            <p style={{ margin: '1rem 0 0', fontSize: '0.92rem', color: 'var(--color-on-surface-muted, rgba(242,242,245,0.6))' }}>
+            <p style={{ margin: '1rem 0 0', fontSize: '0.92rem', color: 'var(--color-on-surface-variant)' }}>
               No instant launch. No self-serve checkout. We will confirm readiness before any onboarding moves forward.
             </p>
           </section>
@@ -102,7 +102,7 @@ export default function OrgOnboardPage() {
             }}
           >
             <h2 style={{ marginTop: 0, fontSize: '1.3rem' }}>What we review first</h2>
-            <ul style={{ margin: '1rem 0 0', paddingLeft: '1.1rem', lineHeight: 1.75, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.78))' }}>
+            <ul style={{ margin: '1rem 0 0', paddingLeft: '1.1rem', lineHeight: 1.75, color: 'var(--color-on-surface-variant)' }}>
               {onboardingChecks.map((item) => (
                 <li key={item}>{item}</li>
               ))}

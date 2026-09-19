@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 import {
   getOrCreateMemberCounselorThread,
@@ -57,14 +58,12 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const body = await readJsonObjectBody(request);
+  if (!body) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const text = typeof (body as { body?: unknown }).body === 'string' ? (body as { body: string }).body : '';
+  const text = typeof body.body === 'string' ? body.body : '';
   const normalized = normalizeMessageBody(text);
   if (!normalized.ok) {
     return NextResponse.json({ error: normalized.error }, { status: 400 });

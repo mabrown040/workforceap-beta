@@ -37,7 +37,8 @@ const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'mile
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await request.json().catch(() => ({}));
+  const raw: unknown = await request.json().catch(() => null);
+  const body = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}) as Record<string, unknown>;
   const memberId = typeof body.memberId === 'string' ? body.memberId : '';
   const templateId = typeof body.templateId === 'string' ? (body.templateId as NudgeTemplateId) : null;
   const overrideBody = typeof body.overrideBody === 'string' ? body.overrideBody : null;
@@ -54,7 +55,8 @@ const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'mile
   // Ensure the member exists in the actor's tenant and the staff user is
   // allowed to message them. Lookup goes through withTenantScope so a
   // cross-tenant memberId is treated as not-found.
-  const orgId = await getSubjectOrganizationId(memberId);
+  const orgId = await getSubjectOrganizationId(memberId).catch(() => null);
+  if (!orgId) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id: memberId },

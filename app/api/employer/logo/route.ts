@@ -18,7 +18,10 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const formData = await request.formData();
+  const formData = await request.formData().catch(() => null);
+  if (!formData) {
+    return NextResponse.json({ error: 'Expected a multipart form upload with a `file` field' }, { status: 400 });
+  }
   const file = formData.get('file') as File | null;
   if (!file || file.size === 0) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });

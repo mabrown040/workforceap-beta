@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
 
@@ -22,6 +24,7 @@ type StaffMemberResumePanelProps = {
 };
 
 export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePanelProps) {
+  const tCommon = useTranslations('common');
   const [data, setData] = useState<ResumeMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,8 +46,8 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
       .then((d: ResumeMeta) => {
         if (!cancelled) setData(d);
       })
-      .catch((e: Error) => {
-        if (!cancelled) setError(e.message);
+      .catch((e: unknown) => {
+        if (!cancelled) setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Could not load resume.' }, 'staff-member-resume'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -52,7 +55,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
     return () => {
       cancelled = true;
     };
-  }, [apiBase, memberId]);
+  }, [apiBase, memberId, tCommon]);
 
   useEffect(() => {
     const ext = data?.originalExt;

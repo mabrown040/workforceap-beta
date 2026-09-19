@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import styles from './InterestProfilerClient.module.css';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
@@ -31,6 +33,7 @@ const LIKERT = [
 ] as const;
 
 export default function InterestProfilerClient() {
+  const tCommon = useTranslations('common');
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
@@ -106,11 +109,11 @@ export default function InterestProfilerClient() {
       link.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setExportError(err instanceof Error ? err.message : 'Could not generate PDF');
+      setExportError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not generate PDF' }, 'interest-profiler-export'));
     } finally {
       setExportingPdf(false);
     }
-  }, []);
+  }, [tCommon]);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,7 +132,7 @@ export default function InterestProfilerClient() {
           });
         }
       } catch (e) {
-        if (!cancelled) setLoadError(e instanceof Error ? e.message : 'Failed to load');
+        if (!cancelled) setLoadError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Failed to load' }, 'interest-profiler-questions'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -137,7 +140,7 @@ export default function InterestProfilerClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [tCommon]);
 
   const total = questions.length || 30;
   const answerString = digits.slice(0, total).join('');
@@ -172,7 +175,7 @@ export default function InterestProfilerClient() {
       setScore(data);
       persistRiasec(data, answerString);
     } catch (e) {
-      setScoreError(e instanceof Error ? e.message : 'Scoring failed');
+      setScoreError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Scoring failed' }, 'interest-profiler-score'));
     } finally {
       setSubmitting(false);
     }

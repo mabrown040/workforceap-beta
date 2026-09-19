@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
@@ -208,7 +209,7 @@ export async function loadPartnerReferralBundle(partnerId: string, tenantOrganiz
       for (const enrollment of sortedEnrollments) {
         if (seen.has(enrollment.programSlug)) continue;
         seen.add(enrollment.programSlug);
-        titles.push(getProgramBySlug(enrollment.programSlug)?.title ?? enrollment.programSlug);
+        titles.push(programDisplayTitle(enrollment.programSlug));
       }
       // Fallback to legacy enrolledProgram for unmigrated members.
       if (titles.length === 0 && program) titles.push(program.title);

@@ -1,8 +1,13 @@
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render as renderBare, screen, waitFor, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemberLabWorkspace } from '@/components/portal/MemberLabWorkspace';
 import type { LabWorkspace, LabEvidenceSubmission } from '@/lib/member/labWorkspaceTypes';
+
+const render = (ui: ReactElement) => renderBare(<NextIntlClientProvider locale="en" messages={messages}>{ui}</NextIntlClientProvider>);
 
 const lab: LabWorkspace['lab'] = {
   id: 'ticket-triage', contentVersion: '2026-09-09.v1', rubricVersion: '2026-09-09.v1', title: 'Investigate a supplied ticket', summary: 'Explain a support decision using fictional evidence.', estimatedMinutes: 60,

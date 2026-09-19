@@ -29,7 +29,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'Employer pricing is not available' }, { status: 503 });
     }
 
-    const body = await request.json().catch(() => ({}));
+    const body = (await request.json().catch(() => ({}))) ?? {};
     const tier = body.tier;
     if (!isValidTier(tier)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });

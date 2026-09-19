@@ -171,4 +171,40 @@ describe('buildNextBestActions', () => {
     });
     expect(actions[0]?.id).toBe('skills_assessment');
   });
+
+  test('skills_assessment copy does not tell an enrolled member to choose a program first', () => {
+    const actions = buildNextBestActions({
+      state: 'C',
+      noApplicationOnFile: false,
+      enrolledProgram: 'comptia-a-plus',
+      assessmentCompleted: false,
+      starterProfileReviewRequired: false,
+      hasResume: false,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 40,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+    const body = actions.find((a) => a.id === 'skills_assessment')?.body ?? '';
+    expect(body).not.toMatch(/choose a program/i);
+    expect(body).toMatch(/preassessment helps personalize your training plan/i);
+  });
+
+  test('skills_assessment copy keeps the choose-a-program lead-in while no program is enrolled', () => {
+    const actions = buildNextBestActions({
+      state: 'B',
+      noApplicationOnFile: false,
+      enrolledProgram: null,
+      assessmentCompleted: false,
+      starterProfileReviewRequired: false,
+      hasResume: false,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 40,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+    expect(actions.find((a) => a.id === 'skills_assessment')?.body).toMatch(/^After you choose a program, /);
+  });
 });

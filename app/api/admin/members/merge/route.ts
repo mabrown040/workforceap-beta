@@ -73,7 +73,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await req.json().catch(() => ({})) as { primaryId?: string; secondaryId?: string };
+    const body = ((await req.json().catch(() => ({}))) ?? {}) as { primaryId?: string; secondaryId?: string };
     const { primaryId, secondaryId } = body;
     if (!primaryId || !secondaryId || primaryId === secondaryId) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });

@@ -12,6 +12,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import ApplicationStatusUpdater from '@/components/employer/ApplicationStatusUpdater';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -154,7 +155,7 @@ export default async function EmployerApplicationPage({
             {application.student.enrolledProgram && (
               <div>
                 <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Program</span>
-                <p style={{ margin: '0.125rem 0 0' }}>{application.student.enrolledProgram}</p>
+                <p style={{ margin: '0.125rem 0 0' }}>{programDisplayTitle(application.student.enrolledProgram)}</p>
               </div>
             )}
             {application.student.profile?.profileLinkedin && (

@@ -16,7 +16,8 @@ export const POST = withApiGuc(async (request: Request) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => ({}));
+  const raw: unknown = await request.json().catch(() => null);
+  const body = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}) as Record<string, unknown>;
   const memberId = typeof body.userId === 'string' ? body.userId : '';
   const daysInactive = typeof body.daysInactive === 'number' ? body.daysInactive : 0;
 

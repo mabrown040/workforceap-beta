@@ -147,7 +147,7 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
       {message ? (
         <p
           className={message.type === 'ok' ? 'employer-settings-form__success' : 'employer-settings-form__error'}
-          role="status"
+          role={message.type === 'ok' ? 'status' : 'alert'}
         >
           {message.text}
         </p>

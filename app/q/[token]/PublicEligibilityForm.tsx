@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
@@ -91,6 +93,7 @@ export default function PublicEligibilityForm({
   token: string;
   prefill: PublicEligibilityPrefill;
 }) {
+  const tCommon = useTranslations('common');
   const [firstName, setFirstName] = useState(prefill.firstName);
   const [lastName, setLastName] = useState(prefill.lastName);
   const [phone, setPhone] = useState(prefill.phone);
@@ -194,7 +197,7 @@ export default function PublicEligibilityForm({
       setStatus('done');
     } catch (err) {
       setStatus('error');
-      setErrorMsg(err instanceof Error ? err.message : 'We could not save your answers. Please try again.');
+      setErrorMsg(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'We could not save your answers. Please try again.' }, 'public-eligibility'));
     }
   };
 

@@ -120,8 +120,15 @@ export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
     const patchOrgId = superAdmin ? null : await getActorOrganizationId(auth.userId).catch(() => null);
 
     try {
-      const { alertId, status } = await req.json();
-      if (!alertId || !['acknowledged', 'resolved', 'escalated'].includes(status)) {
+      const body: unknown = await req.json().catch(() => null);
+      if (!body || typeof body !== 'object' || Array.isArray(body)) {
+        return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+      }
+      const { alertId, status } = body as { alertId?: unknown; status?: unknown };
+      if (
+        typeof alertId !== 'string' || !alertId ||
+        typeof status !== 'string' || !['acknowledged', 'resolved', 'escalated'].includes(status)
+      ) {
         return NextResponse.json({ error: 'Invalid alertId or status' }, { status: 400 });
       }
   

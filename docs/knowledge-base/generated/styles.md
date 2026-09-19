@@ -5,7 +5,7 @@
 | File | Lines | Domain | Exported symbols |
 | --- | ---: | --- | --- |
 | [css/astryx-brand-bridge.css](../../../css/astryx-brand-bridge.css) | 56 | styles |  |
-| [css/auth-depth.css](../../../css/auth-depth.css) | 206 | styles |  |
+| [css/auth-depth.css](../../../css/auth-depth.css) | 217 | styles |  |
 | [css/counselor.css](../../../css/counselor.css) | 513 | styles |  |
 | [css/enroll-school.css](../../../css/enroll-school.css) | 228 | styles |  |
 | [css/language-toggle.css](../../../css/language-toggle.css) | 128 | styles |  |
@@ -16,7 +16,7 @@
 | [css/mobile-dashboard-fixes.css](../../../css/mobile-dashboard-fixes.css) | 160 | styles |  |
 | [css/portal-a11y.css](../../../css/portal-a11y.css) | 33 | styles |  |
 | [css/portal-kit.css](../../../css/portal-kit.css) | 1180 | styles |  |
-| [css/portal-main-extracted.css](../../../css/portal-main-extracted.css) | 9999 | styles |  |
-| [css/portal-tokens.css](../../../css/portal-tokens.css) | 248 | styles |  |
+| [css/portal-main-extracted.css](../../../css/portal-main-extracted.css) | 10043 | styles |  |
+| [css/portal-tokens.css](../../../css/portal-tokens.css) | 253 | styles |  |
 | [css/portal-ui-kit.css](../../../css/portal-ui-kit.css) | 268 | styles |  |
 | [css/portal.css](../../../css/portal.css) | 3397 | styles |  |

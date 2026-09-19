@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import {
@@ -47,9 +48,11 @@ function buildHistoryOutput(transcript: ResumeTranscriptTurn[], suggestions: Arr
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    const { transcript: rawTranscript } = (await req.json()) as {
-      transcript: Array<{ speaker: string; text: string }>;
-    };
+    const body = await readJsonObjectBody<{ transcript?: Array<{ speaker: string; text: string }> }>(req);
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+    const { transcript: rawTranscript } = body;
   
     const transcript = normalizeResumeCoachTranscript(rawTranscript ?? []);
     if (!transcript?.length) {

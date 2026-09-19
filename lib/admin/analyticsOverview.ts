@@ -4,7 +4,7 @@ import { FundingSource } from '@prisma/client';
 
 import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_SAMPLE_CAP } from '@/lib/db/scanCaps';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { calculateHealthStatus, type HealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -238,7 +238,7 @@ export async function loadAnalyticsOverview(
     for (const row of programResult.value) {
       programs.push({
         slug: row.programSlug,
-        title: getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+        title: programDisplayTitle(row.programSlug),
         count: row._count._all,
       });
     }

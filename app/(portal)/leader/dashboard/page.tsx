@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { requestFailureMessage } from "@/lib/http/requestFailureCopy";
 import PortalPageFrame from "@/components/portal/PortalPageFrame";
 import PageHeader from "@/components/portal/PageHeader";
 import DataTable, { type DataTableColumn } from "@/components/portal/ui/DataTable";
 import { statusColor, type StatusTone } from "@/lib/ui/statusColors";
+import { programDisplayTitle } from "@/lib/content/programTitle";
 
 interface Member {
   id: string;
@@ -83,6 +86,7 @@ function memberStatusTone(m: Member): { tone: StatusTone; label: string } {
 }
 
 export default function LeaderDashboardPage() {
+  const tCommon = useTranslations("common");
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -99,9 +103,9 @@ export default function LeaderDashboardPage() {
         if (!ch) throw new Error("No chapter found");
         setChapter(ch);
       })
-      .catch((e) => setError(e.message))
+      .catch((e: unknown) => setError(requestFailureMessage(e, { connection: tCommon("connectionError"), fallback: "Could not load your chapter." }, "leader-dashboard")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [tCommon]);
 
   const stats = chapter ? {
     total: chapter.members.length,
@@ -117,7 +121,7 @@ export default function LeaderDashboardPage() {
       header: "Name",
       cell: (m) => <span style={{ fontWeight: 600 }}>{m.user.fullName}</span>,
     },
-    { key: "program", header: "Program", cell: (m) => m.user.enrolledProgram || "—" },
+    { key: "program", header: "Program", cell: (m) => (m.user.enrolledProgram ? programDisplayTitle(m.user.enrolledProgram) : "—") },
     {
       key: "status",
       header: "Status",
@@ -350,7 +354,7 @@ export default function LeaderDashboardPage() {
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{item.course.name}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)" }}>
-                          {item.course.programSlug}
+                          {programDisplayTitle(item.course.programSlug)}
                         </div>
                       </div>
                       {item.notes && (

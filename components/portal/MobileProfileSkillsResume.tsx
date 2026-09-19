@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import {
   RESUME_UPLOAD_ACCEPT,
   RESUME_UPLOAD_FORMAT_LABEL,
@@ -51,6 +53,7 @@ export default function MobileProfileSkillsResume({
   resumeOriginalPath: string | null;
 }) {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const fileRef = useRef<HTMLInputElement>(null);
   const uploadInFlightRef = useRef(false);
   const previewRequestRef = useRef(0);
@@ -133,7 +136,7 @@ export default function MobileProfileSkillsResume({
       setPreview({ kind: 'download', extension, downloadUrl: data.originalUrl });
     } catch (caught) {
       if (requestId !== previewRequestRef.current) return;
-      setPreviewError(caught instanceof Error ? caught.message : 'Could not load your resume preview.');
+      setPreviewError(requestFailureMessage(caught, { connection: tCommon('connectionError'), fallback: 'Could not load your resume preview.' }, 'member-resume-preview'));
     } finally {
       if (requestId === previewRequestRef.current) setLoadingPreview(false);
     }

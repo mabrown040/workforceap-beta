@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { isUngatedDigitalLiteracyProgram } from '@/shared/digitalLiteracyPathway';
@@ -13,14 +14,11 @@ async function _POST(request: Request) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
+    const o = await readJsonObjectBody(request);
+    if (!o) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   
-    const o = body as Record<string, unknown>;
     const courseSlug = typeof o.courseSlug === 'string' ? o.courseSlug.trim() : '';
     const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
   

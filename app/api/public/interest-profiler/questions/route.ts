@@ -4,6 +4,8 @@ import { fetchAllMiniIpQuestions } from '@/lib/onet/interestProfiler';
 import { checkPublicInterestProfilerRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
+const ONET_UNAVAILABLE = 'Career matching is temporarily unavailable. Please try again in a few minutes.';
+
 export async function GET(request: NextRequest) {
   try {
     const ip = getClientIpFromRequest(request);
@@ -29,8 +31,10 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.json({ questions });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to load questions';
-      return NextResponse.json({ error: msg }, { status: 502 });
+      // O*NET failures carry the upstream status and a slice of its response
+      // body; keep that in the server log and answer with a stable message.
+      console.error('[public/interest-profiler/questions]', e instanceof Error ? e.message : 'Failed to load questions');
+      return NextResponse.json({ error: ONET_UNAVAILABLE }, { status: 502 });
     }
   } catch (error) {
     console.error('/api/public/interest-profiler/questions:', error);

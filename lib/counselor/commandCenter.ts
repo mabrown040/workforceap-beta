@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+import { resolveMemberLastActivity } from '@/lib/counselor/lastActivity';
 
 import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
@@ -33,7 +34,8 @@ export type NeedsReplyRow = CommandCenterRow & {
 };
 
 export type AtRiskRow = CommandCenterRow & {
-  daysInactive: number;
+  /** Whole days since the last MemberEvent; `null` when none was ever recorded. */
+  daysInactive: number | null;
   enrolledProgram: string | null;
 };
 
@@ -169,11 +171,13 @@ export async function getCounselorCommandCenter(
       deletedAt: null,
       enrolledProgram: { not: null },
     },
-    select: { id: true, fullName: true, email: true, enrolledProgram: true, enrolledAt: true },
+    select: { id: true, fullName: true, email: true, enrolledProgram: true },
   });
   // Find each at-risk user's actual last MemberEvent timestamp in a single
   // grouped query (no N+1) so the "X days inactive" count reflects real
-  // last activity, not just time since enrollment.
+  // last activity. Members with no event at all get `daysInactive: null`
+  // ("No activity recorded") — the same derivation the students roster uses
+  // (`lib/counselor/lastActivity.ts`), so the two pages cannot disagree.
   const atRiskCandidateIds = enrolledRows.filter((u) => !activeIds.has(u.id)).map((u) => u.id);
   const lastEventByUser = new Map<string, Date>();
   if (atRiskCandidateIds.length > 0) {
@@ -191,13 +195,7 @@ export async function getCounselorCommandCenter(
   const atRisk: AtRiskRow[] = enrolledRows
     .filter((u) => !activeIds.has(u.id))
     .map((u) => {
-      // Prefer the last real MemberEvent; fall back to enrolledAt only when
-      // a user has never logged any event at all (e.g. brand-new account
-      // that never signed in).
-      const lastActive = lastEventByUser.get(u.id) ?? u.enrolledAt ?? null;
-      const daysInactive = lastActive
-        ? Math.max(7, Math.floor((now.getTime() - lastActive.getTime()) / DAY_MS))
-        : 7;
+      const { daysInactive } = resolveMemberLastActivity(lastEventByUser.get(u.id) ?? null, now);
       return {
         memberId: u.id,
         memberName: u.fullName ?? u.email,
@@ -206,7 +204,9 @@ export async function getCounselorCommandCenter(
         enrolledProgram: u.enrolledProgram ?? null,
       };
     })
-    .sort((a, b) => b.daysInactive - a.daysInactive);
+    // Longest known inactivity first; "No activity recorded" rows last, since
+    // an unknown recency is not evidence of a long absence.
+    .sort((a, b) => (b.daysInactive ?? -1) - (a.daysInactive ?? -1));
 
   // ── 3. Interviewing this week: interview_practice AI tool runs in the last 7 days.
   const interviewRuns = await prisma.aIToolResult.findMany({

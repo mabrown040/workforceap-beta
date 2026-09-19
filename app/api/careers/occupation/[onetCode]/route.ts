@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { translateOccupationDescription, translateSkillName, translateTaskLine } from '@/lib/onet/copy';
 import { ONET_CODE_PATTERN, resolveOccupationTitle } from '@/lib/onet/occupationTitles';
 import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
@@ -44,7 +45,7 @@ type Params = { params: Promise<{ onetCode: string }> };export const GET = withA
         const p = getProgramBySlug(m.programSlug);
         return {
           programSlug: m.programSlug,
-          programTitle: p?.title ?? m.programSlug,
+          programTitle: p?.title ?? programDisplayTitle(m.programSlug),
           priority: m.priority,
           experienceBand: m.experienceBand,
           recommendationType: m.recommendationType,

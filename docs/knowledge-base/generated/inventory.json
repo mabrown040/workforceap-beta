@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "a776e864d61278fcd0149a3c4e10ee0d281486152f6073af5fe02bc2fbe13e29",
+  "inputTreeSha256": "380ca4d01188f0597e5d9ee4e9dde21fe582306e06a468ccbc0216be95b8eaf8",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -3505,14 +3505,14 @@
       "path": "app/(auth)/forgot-password/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 6011,
-      "lines": 161,
-      "sha256": "77d00b3fc23c94639ef4da3cceedd9bdd405b717a5cfe39c560d5f865ce8aa61",
+      "bytes": 6200,
+      "lines": 166,
+      "sha256": "64207b4759dacd37a0c3f9b6c34efdabc28857faad33b7e35ba2765323850198",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 155,
+          "line": 160,
           "kind": "FunctionDeclaration",
           "localName": "ForgotPasswordPage"
         }
@@ -3520,17 +3520,17 @@
       "declarations": [
         {
           "name": "ForgotPasswordForm",
-          "line": 10,
+          "line": 11,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ForgotPasswordLoadingFallback",
-          "line": 146,
+          "line": 151,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ForgotPasswordPage",
-          "line": 155,
+          "line": 160,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -3765,14 +3765,14 @@
       "path": "app/(auth)/reset-password/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 13107,
-      "lines": 326,
-      "sha256": "eabec3c63194941975d8148ecd4f3699df8878d046953bf02c9efa0c13fd250d",
+      "bytes": 13614,
+      "lines": 334,
+      "sha256": "50bb2a25d9cb261ccafadf544a1cb27313f896dfe584bc84a018bbad4d44d4ab",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 320,
+          "line": 328,
           "kind": "FunctionDeclaration",
           "localName": "ResetPasswordPage"
         }
@@ -3790,12 +3790,12 @@
         },
         {
           "name": "ResetPasswordLoadingFallback",
-          "line": 311,
+          "line": 319,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ResetPasswordPage",
-          "line": 320,
+          "line": 328,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -3865,14 +3865,14 @@
       "path": "app/(auth)/setup-mfa/page.tsx",
       "area": "pages",
       "domain": "pages",
-      "bytes": 12636,
-      "lines": 313,
-      "sha256": "02dbf5a8059d1c5a70d1243c252634f9184e90af1dd1eb1ddcb756273d077277",
+      "bytes": 13096,
+      "lines": 323,
+      "sha256": "c11179a52741ec591143ebdb4e1c05d7f4d316d7df3abbddc36d954207ec93d5",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration",
           "localName": "SetupMfaPage"
         }
@@ -3880,12 +3880,12 @@
       "declarations": [
         {
           "name": "getMfaSetupNextPath",
-          "line": 11,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SetupMfaPage",
-          "line": 16,
+          "line": 17,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -42547,9 +42547,9 @@
       "path": "app/dev/member/assessment/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 4938,
+      "bytes": 4989,
       "lines": 123,
-      "sha256": "c83e807a681d4f1a434c2fa2d54186843a31f194176f5a421de17f9def89e45f",
+      "sha256": "ed2919dfbc51c67d76c58637c0049cebbe3a011b150fd6edfce1a2d5f3e47d42",
       "binary": false,
       "exports": [
         {
@@ -120113,9 +120113,9 @@
       "path": "lib/member/nextBestActions.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 5718,
-      "lines": 174,
-      "sha256": "41e9413cfd9cb9c0c6dad60fa923ec477a65505014e684ef60f6ad3171b5f260",
+      "bytes": 7083,
+      "lines": 210,
+      "sha256": "b7c773dc5749b853bab0ec3ae34d2d63e9943bb4d32e9c741420d8c178cfcfa1",
       "binary": false,
       "exports": [],
       "declarations": [],
@@ -120125,9 +120125,9 @@
       "path": "lib/member/nextBestActions.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 10837,
-      "lines": 324,
-      "sha256": "79197f294dde1f6c20ab8f0f2e0951131c3bf8cc2a3cce1018d84f8e1204067d",
+      "bytes": 11151,
+      "lines": 328,
+      "sha256": "4e9b332da7395e5c8bf393d4ce1c36dc79413aa52cc820471d2b9652c828cdaf",
       "binary": false,
       "exports": [
         {
@@ -134353,12 +134353,65 @@
       "directive": null
     },
     {
+      "path": "lib/ui/statusColors.test.ts",
+      "area": "libraries",
+      "domain": "libraries",
+      "bytes": 3108,
+      "lines": 78,
+      "sha256": "98466f226d25902e70e90351af957d4630789d0f3e986cdba1bfb0e481f2b205",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "ROOT",
+          "line": 13,
+          "kind": "Variable"
+        },
+        {
+          "name": "LIGHT_SURFACE",
+          "line": 14,
+          "kind": "Variable"
+        },
+        {
+          "name": "lightTokens",
+          "line": 16,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "hexToRgb",
+          "line": 25,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "mixOver",
+          "line": 29,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "resolve",
+          "line": 35,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "luminance",
+          "line": 51,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "contrast",
+          "line": 59,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "lib/ui/statusColors.ts",
       "area": "libraries",
       "domain": "libraries",
-      "bytes": 2842,
-      "lines": 68,
-      "sha256": "4e40cf8ac69c32a6a4fe6d338f0079b38bfb51acbac4c3456f7b5eac110296cc",
+      "bytes": 3120,
+      "lines": 72,
+      "sha256": "47244401b5a94cb54b94d21c140b6924c1be79471242443c1cfc2ca9dfeea82b",
       "binary": false,
       "exports": [
         {
@@ -134378,7 +134431,7 @@
         },
         {
           "name": "statusColor",
-          "line": 66,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -134400,7 +134453,7 @@
         },
         {
           "name": "statusColor",
-          "line": 66,
+          "line": 70,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -139154,27 +139207,27 @@
       "path": "messages/en.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 192735,
+      "bytes": 192760,
       "lines": 3146,
-      "sha256": "df8985f0fb11cb68a42ed9f4815b5345c538f2ab452e10fac415d99d8923be7b",
+      "sha256": "c52b91898e17a2d4bae7fa1ffc8257a3fcb3e343b513c8faeab032a623160338",
       "binary": false
     },
     {
       "path": "messages/es.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 211474,
+      "bytes": 211487,
       "lines": 3133,
-      "sha256": "a3a98c6f042023335b7ac34268cdbebb53b3b2c7d12c6d4e8257eb913443e08b",
+      "sha256": "51e01b00a7be23ca6fdcbfb054ec413b035f6c93a6c25f7a8cb9400d196afd4c",
       "binary": false
     },
     {
       "path": "messages/fr.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 212742,
+      "bytes": 212765,
       "lines": 3086,
-      "sha256": "21dce60bd2cc2fb223c3095068736b573c94effc6c4f5322da35335d1690086f",
+      "sha256": "a47219f594744ccf5adbec0a451671e3c4e17d703fcc85494f6637fb961b31f3",
       "binary": false
     },
     {
@@ -139190,9 +139243,9 @@
       "path": "messages/pt.json",
       "area": "localization",
       "domain": "localization",
-      "bytes": 204538,
+      "bytes": 204562,
       "lines": 3086,
-      "sha256": "34f6110d91c8bce803b666c620f4a4e44d15f1a868b9b16300be48dfcb7d2421",
+      "sha256": "a13f6206c4697cafb3060e5ce3595e695f7d93bc4ef6fa11c8715e97a674035f",
       "binary": false
     },
     {
@@ -153802,6 +153855,54 @@
           "name": "retrySummary",
           "line": 21,
           "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/components/auth-connection-failure.spec.tsx",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 7090,
+      "lines": 145,
+      "sha256": "f6c6a4effe6907858253a25c2cc9c6ced8b3194ff74f791dc46bbcf6ac7a7385",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "navigation",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "auth",
+          "line": 11,
+          "kind": "Variable"
+        },
+        {
+          "name": "fetchMock",
+          "line": 37,
+          "kind": "Variable"
+        },
+        {
+          "name": "connectionCopy",
+          "line": 38,
+          "kind": "Variable"
+        },
+        {
+          "name": "forgotConnectionCopy",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
+          "name": "mount",
+          "line": 41,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "htmlErrorPage",
+          "line": 45,
+          "kind": "FunctionDeclaration"
         }
       ],
       "directive": null

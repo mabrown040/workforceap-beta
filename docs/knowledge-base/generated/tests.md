@@ -62,6 +62,7 @@
 | [tests/api/counselor-inbox-zero.spec.ts](../../../tests/api/counselor-inbox-zero.spec.ts) | 148 | tests |  |
 | [tests/api/counselor-notes-author-gate.spec.ts](../../../tests/api/counselor-notes-author-gate.spec.ts) | 127 | tests |  |
 | [tests/api/counselor-routes.spec.ts](../../../tests/api/counselor-routes.spec.ts) | 1739 | tests |  |
+| [tests/api/counselor-thread-access-gate.spec.ts](../../../tests/api/counselor-thread-access-gate.spec.ts) | 139 | tests |  |
 | [tests/api/coursera-replay-email-pacing.spec.ts](../../../tests/api/coursera-replay-email-pacing.spec.ts) | 62 | learning-coursera |  |
 | [tests/api/coursera-rest-webhook.spec.ts](../../../tests/api/coursera-rest-webhook.spec.ts) | 280 | learning-coursera |  |
 | [tests/api/cover-letter.spec.ts](../../../tests/api/cover-letter.spec.ts) | 167 | tests |  |

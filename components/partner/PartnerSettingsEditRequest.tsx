@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 type Props = {
   currentName: string;
@@ -17,6 +17,7 @@ export default function PartnerSettingsEditRequest({
   currentContactPhone,
   currentOrgType,
 }: Props) {
+  const idPrefix = useId();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(currentName);
   const [contactName, setContactName] = useState(currentContactName);
@@ -95,10 +96,11 @@ export default function PartnerSettingsEditRequest({
         { label: 'Organization type', value: orgType, set: setOrgType, type: 'text' },
       ].map(({ label, value, set, type }) => (
         <div key={label}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+          <label htmlFor={`${idPrefix}-${label.toLowerCase().replace(/\s+/g, '-')}`} style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
             {label}
           </label>
           <input
+            id={`${idPrefix}-${label.toLowerCase().replace(/\s+/g, '-')}`}
             type={type}
             value={value}
             onChange={(e) => set(e.target.value)}
@@ -118,7 +120,7 @@ export default function PartnerSettingsEditRequest({
           style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', resize: 'vertical', boxSizing: 'border-box' }}
         />
       </div>
-      {error && <p style={{ fontSize: '0.875rem', color: 'var(--color-accent)', margin: 0 }}>{error}</p>}
+      {error && <p role="alert" style={{ fontSize: '0.875rem', color: 'var(--color-accent)', margin: 0 }}>{error}</p>}
       <div style={{ display: 'flex', gap: '0.625rem' }}>
         <button
           type="submit"

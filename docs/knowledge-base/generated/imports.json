@@ -76896,6 +76896,46 @@
     "package": "lucide-react"
   },
   {
+    "from": "components/portal/StatusBadge.test.tsx",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "components/portal/StatusBadge.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "components/portal/StatusBadge.test.tsx",
+    "specifier": "node:fs",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "node:fs"
+  },
+  {
+    "from": "components/portal/StatusBadge.test.tsx",
+    "specifier": "node:path",
+    "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "node:path"
+  },
+  {
+    "from": "components/portal/StatusBadge.test.tsx",
+    "specifier": "./StatusBadge",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "components/portal/StatusBadge.tsx"
+  },
+  {
     "from": "components/portal/StatusCard.tsx",
     "specifier": "@prisma/client",
     "line": 1,

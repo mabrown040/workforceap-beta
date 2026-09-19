@@ -251,13 +251,14 @@ const s = {
     letterSpacing: '0.08em',
     textTransform: 'uppercase' as const,
     color: 'var(--color-white)',
-    /* Gold primary CTA — matches marketing .mdx-btn--primary energy on the light auth surface. */
-    background: 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
+    /* Crimson primary CTA — the kit's primary-action treatment (.btn-primary / .mdx-btn--primary).
+       --ad-grad is the auth-depth crimson gradient; white on its lightest stop is 6.5:1. */
+    background: 'var(--ad-grad, var(--color-accent))',
     border: 'none',
     borderRadius: 'var(--radius-md)',
     cursor: 'pointer',
     transition: 'opacity 0.2s, box-shadow 0.2s',
-    boxShadow: '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
+    boxShadow: '0 12px 30px -12px rgba(173, 44, 77, 0.5)',
   } as React.CSSProperties,
 
   footer: {

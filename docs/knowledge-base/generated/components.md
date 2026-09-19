@@ -426,7 +426,8 @@
 | [components/portal/SkillsetProgressList.tsx](../../../components/portal/SkillsetProgressList.tsx) | 134 | components | default:22 |
 | [components/portal/StaffViewBanner.tsx](../../../components/portal/StaffViewBanner.tsx) | 82 | components | default:19 |
 | [components/portal/StartHereCard.tsx](../../../components/portal/StartHereCard.tsx) | 58 | components | default:25 |
-| [components/portal/StatusBadge.tsx](../../../components/portal/StatusBadge.tsx) | 43 | components | BadgeVariant:13, default:24 |
+| [components/portal/StatusBadge.test.tsx](../../../components/portal/StatusBadge.test.tsx) | 130 | components |  |
+| [components/portal/StatusBadge.tsx](../../../components/portal/StatusBadge.tsx) | 46 | components | BadgeVariant:13, default:27 |
 | [components/portal/StatusCard.tsx](../../../components/portal/StatusCard.tsx) | 54 | components | StatusCard:27 |
 | [components/portal/TodayHero.module.css](../../../components/portal/TodayHero.module.css) | 197 | components |  |
 | [components/portal/TodayHero.tsx](../../../components/portal/TodayHero.tsx) | 89 | components | TodayHeroProps:7, default:34 |

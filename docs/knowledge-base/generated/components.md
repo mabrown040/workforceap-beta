@@ -176,13 +176,13 @@
 | [components/employer/EmployerJobsBoard.tsx](../../../components/employer/EmployerJobsBoard.tsx) | 1204 | jobs-employers | EmployerJobBoardItem:37, default:221 |
 | [components/employer/EmployerKanban.tsx](../../../components/employer/EmployerKanban.tsx) | 284 | jobs-employers | default:60 |
 | [components/employer/EmployerLoiForm.tsx](../../../components/employer/EmployerLoiForm.tsx) | 229 | jobs-employers | default:11 |
-| [components/employer/EmployerMatchHistoryClient.tsx](../../../components/employer/EmployerMatchHistoryClient.tsx) | 291 | jobs-employers | EmployerMatchHistoryRow:10, default:100 |
+| [components/employer/EmployerMatchHistoryClient.tsx](../../../components/employer/EmployerMatchHistoryClient.tsx) | 303 | jobs-employers | EmployerMatchHistoryRow:12, default:104 |
 | [components/employer/EmployerMatchStatusSelect.tsx](../../../components/employer/EmployerMatchStatusSelect.tsx) | 96 | jobs-employers | default:15 |
 | [components/employer/EmployerOutcomesDashboard.tsx](../../../components/employer/EmployerOutcomesDashboard.tsx) | 230 | jobs-employers | default:45 |
 | [components/employer/EmployerPipelineClient.tsx](../../../components/employer/EmployerPipelineClient.tsx) | 157 | jobs-employers | default:45 |
 | [components/employer/EmployerSettingsForm.tsx](../../../components/employer/EmployerSettingsForm.tsx) | 296 | jobs-employers | EmployerSettingsInitial:29, default:41 |
-| [components/employer/EmployerUiActions.test.tsx](../../../components/employer/EmployerUiActions.test.tsx) | 142 | jobs-employers |  |
-| [components/employer/EmployerWorkQueueClient.tsx](../../../components/employer/EmployerWorkQueueClient.tsx) | 314 | jobs-employers | WqApp:8, WqJob:18, default:118 |
+| [components/employer/EmployerUiActions.test.tsx](../../../components/employer/EmployerUiActions.test.tsx) | 229 | jobs-employers |  |
+| [components/employer/EmployerWorkQueueClient.tsx](../../../components/employer/EmployerWorkQueueClient.tsx) | 326 | jobs-employers | WqApp:10, WqJob:20, default:122 |
 | [components/employer/EmployerWorkflowTimeline.tsx](../../../components/employer/EmployerWorkflowTimeline.tsx) | 41 | jobs-employers | default:10 |
 | [components/employer/InterviewScheduler.tsx](../../../components/employer/InterviewScheduler.tsx) | 161 | jobs-employers | default:13 |
 | [components/employer/JobApplicantsClient.tsx](../../../components/employer/JobApplicantsClient.tsx) | 237 | jobs-employers | default:29 |
@@ -617,8 +617,8 @@
 | [components/portal/tools/ElevatorPitchDeploymentLogger.tsx](../../../components/portal/tools/ElevatorPitchDeploymentLogger.tsx) | 325 | components | default:26 |
 | [components/portal/tools/ExportPdfButton.tsx](../../../components/portal/tools/ExportPdfButton.tsx) | 104 | components | default:28 |
 | [components/portal/tools/GapAnalyzerForm.tsx](../../../components/portal/tools/GapAnalyzerForm.tsx) | 255 | components | default:30 |
-| [components/portal/tools/InterviewCoach.test.tsx](../../../components/portal/tools/InterviewCoach.test.tsx) | 58 | components |  |
-| [components/portal/tools/InterviewCoach.tsx](../../../components/portal/tools/InterviewCoach.tsx) | 855 | components | default:92 |
+| [components/portal/tools/InterviewCoach.test.tsx](../../../components/portal/tools/InterviewCoach.test.tsx) | 134 | components |  |
+| [components/portal/tools/InterviewCoach.tsx](../../../components/portal/tools/InterviewCoach.tsx) | 940 | components | default:104 |
 | [components/portal/tools/InterviewCoachingPanel.tsx](../../../components/portal/tools/InterviewCoachingPanel.tsx) | 176 | components | CoachingMetrics:7, default:51 |
 | [components/portal/tools/InterviewPracticeForm.tsx](../../../components/portal/tools/InterviewPracticeForm.tsx) | 489 | components | default:86 |
 | [components/portal/tools/InterviewPracticeSaved.tsx](../../../components/portal/tools/InterviewPracticeSaved.tsx) | 89 | components | default:22 |

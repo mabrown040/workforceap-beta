@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "2980c60c7e0fd273fc2c61aece953053595dffa5c0e76448a2231153cd08b224",
+  "inputTreeSha256": "446b75cb8b7d503ce972c8afac41233a008d3f48ca2d8b7861be8efda0241b97",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -22102,19 +22102,19 @@
       "path": "app/api/admin/coursera/csv-import/route.ts",
       "area": "api",
       "domain": "learning-coursera",
-      "bytes": 5504,
-      "lines": 160,
-      "sha256": "566ebaf6c6009bed7de7e1e87cddc3232a6e5144a4900ecdd8b2d6ca815003a7",
+      "bytes": 5724,
+      "lines": 163,
+      "sha256": "b1556b4b532e4ead6ed73a699b396901214ff307e8008327559f78d25fe9fd6f",
       "binary": false,
       "exports": [
         {
           "name": "runtime",
-          "line": 18,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 160,
+          "line": 163,
           "kind": "Variable"
         }
       ],
@@ -22125,28 +22125,33 @@
           "kind": "Variable"
         },
         {
+          "name": "INGEST_FAILED",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
           "name": "runtime",
-          "line": 18,
+          "line": 21,
           "kind": "Variable"
         },
         {
           "name": "requireAdminUser",
-          "line": 20,
+          "line": 23,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "readCsvFromRequest",
-          "line": 26,
+          "line": 29,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "_POST",
-          "line": 63,
+          "line": 66,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 160,
+          "line": 163,
           "kind": "Variable"
         }
       ],
@@ -26578,14 +26583,14 @@
       "path": "app/api/admin/milestone-cascades/[id]/approve/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 8374,
-      "lines": 193,
-      "sha256": "90779a1fc2bc70b6f667d59ba0be7cc5ec01c41928a05a733cc49edd7d53a7ce",
+      "bytes": 8473,
+      "lines": 195,
+      "sha256": "d204d6ec9a69889087c15a0b2a9334ce2d9a7d401b1de872bd6d747d3e221027",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 193,
+          "line": 195,
           "kind": "Variable"
         }
       ],
@@ -26612,7 +26617,7 @@
         },
         {
           "name": "POST",
-          "line": 193,
+          "line": 195,
           "kind": "Variable"
         }
       ],
@@ -26622,14 +26627,14 @@
       "path": "app/api/admin/milestone-cascades/[id]/dismiss/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3984,
-      "lines": 114,
-      "sha256": "df59307b455c9259e7499d8e2d188fe25801002f32205e1bb873d0b1e281c145",
+      "bytes": 4072,
+      "lines": 116,
+      "sha256": "8b5836049a5eb6a2c19dc3a80075ceeeac9c5e57888fa0adb4a42a384ae51ab5",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 114,
+          "line": 116,
           "kind": "Variable"
         }
       ],
@@ -26651,7 +26656,7 @@
         },
         {
           "name": "POST",
-          "line": 114,
+          "line": 116,
           "kind": "Variable"
         }
       ],
@@ -26661,14 +26666,14 @@
       "path": "app/api/admin/milestone-cascades/synthetic/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3619,
-      "lines": 95,
-      "sha256": "51f4c2b4f36e3a63925120fa500c8770fbb9b10a2425bb4ae9d59ac90fa7d12e",
+      "bytes": 3715,
+      "lines": 97,
+      "sha256": "78822201ea1191afe747fe7c0e406690ada84373123accf4cdbd31137560262f",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 95,
+          "line": 97,
           "kind": "Variable"
         }
       ],
@@ -26685,7 +26690,7 @@
         },
         {
           "name": "POST",
-          "line": 95,
+          "line": 97,
           "kind": "Variable"
         }
       ],
@@ -54121,19 +54126,19 @@
       "path": "components/employer/EmployerMatchHistoryClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 9586,
-      "lines": 291,
-      "sha256": "c4c67382cfc2575430d50f6198d35a434068b9d28b456904cb83df061d789c2c",
+      "bytes": 10418,
+      "lines": 303,
+      "sha256": "7a5482c015372156dd2981d879c2e58e7b5efce97310aa7552126e37b3d4d8cb",
       "binary": false,
       "exports": [
         {
           "name": "EmployerMatchHistoryRow",
-          "line": 10,
+          "line": 12,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 100,
+          "line": 104,
           "kind": "FunctionDeclaration",
           "localName": "EmployerMatchHistoryClient"
         }
@@ -54141,37 +54146,42 @@
       "declarations": [
         {
           "name": "EmployerMatchHistoryRow",
-          "line": 10,
+          "line": 12,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "STATUSES",
-          "line": 23,
+          "line": 25,
           "kind": "Variable"
         },
         {
           "name": "initialsFor",
-          "line": 33,
+          "line": 35,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "fitScoreColor",
-          "line": 44,
+          "line": 46,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FitBadge",
-          "line": 51,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "STATUS_UPDATE_FAILED",
+          "line": 65,
+          "kind": "Variable"
+        },
+        {
           "name": "StatusSelect",
-          "line": 63,
+          "line": 67,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerMatchHistoryClient",
-          "line": 100,
+          "line": 104,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54356,9 +54366,9 @@
       "path": "components/employer/EmployerUiActions.test.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 5145,
-      "lines": 142,
-      "sha256": "fa943f3fedf857a9b5cde83570080a75f6894e1028d4575564c5173fa7c4177e",
+      "bytes": 8234,
+      "lines": 229,
+      "sha256": "2286f7945ced4e105709f53dcb18db23e3a9d703e1d47ca63a03e0c10a6ca0c1",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -54373,8 +54383,23 @@
           "kind": "Variable"
         },
         {
-          "name": "fillRequiredQuickPostFields",
+          "name": "CONNECTION_COPY",
           "line": 32,
+          "kind": "Variable"
+        },
+        {
+          "name": "withIntl",
+          "line": 34,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "workQueueApp",
+          "line": 42,
+          "kind": "Variable"
+        },
+        {
+          "name": "fillRequiredQuickPostFields",
+          "line": 52,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -54384,24 +54409,24 @@
       "path": "components/employer/EmployerWorkQueueClient.tsx",
       "area": "components",
       "domain": "jobs-employers",
-      "bytes": 9998,
-      "lines": 314,
-      "sha256": "328cd79efaf7d095edb6de443733e9fbb0db9732d5b363d5f01ed3bc487b67d5",
+      "bytes": 10791,
+      "lines": 326,
+      "sha256": "e38ed4d67c7a688cf0dd732bb302a538a51e0ba0005d1b6692be56f302ac52a7",
       "binary": false,
       "exports": [
         {
           "name": "WqApp",
-          "line": 8,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WqJob",
-          "line": 18,
+          "line": 20,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 118,
+          "line": 122,
           "kind": "FunctionDeclaration",
           "localName": "EmployerWorkQueueClient"
         }
@@ -54409,52 +54434,57 @@
       "declarations": [
         {
           "name": "WqApp",
-          "line": 8,
+          "line": 10,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "WqJob",
-          "line": 18,
+          "line": 20,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Focus",
-          "line": 25,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
+          "name": "APPLICATION_UPDATE_FAILED",
+          "line": 29,
+          "kind": "Variable"
+        },
+        {
           "name": "SectionId",
-          "line": 26,
+          "line": 30,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SECTION_TONE",
-          "line": 28,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "SECTION_STATUS_TONE",
-          "line": 34,
+          "line": 38,
           "kind": "Variable"
         },
         {
           "name": "statusLabel",
-          "line": 40,
+          "line": 44,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pillButton",
-          "line": 47,
+          "line": 51,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pillLink",
-          "line": 85,
+          "line": 89,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "EmployerWorkQueueClient",
-          "line": 118,
+          "line": 122,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -72849,15 +72879,25 @@
       "path": "components/portal/tools/InterviewCoach.test.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 3213,
-      "lines": 58,
-      "sha256": "4c092a9d5f46b5861dde0f130302eb2ef2fceccbd714fd1a3d5de52e4c2bbb82",
+      "bytes": 6838,
+      "lines": 134,
+      "sha256": "d3fa99c3a53c3464b4869c2460f96297ec81fee735fcf3eebfc9ca806a02d5e8",
       "binary": false,
       "exports": [],
       "declarations": [
         {
+          "name": "CONNECTION_COPY",
+          "line": 7,
+          "kind": "Variable"
+        },
+        {
+          "name": "renderCoach",
+          "line": 9,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "voice",
-          "line": 5,
+          "line": 17,
           "kind": "Variable"
         }
       ],
@@ -72867,14 +72907,14 @@
       "path": "components/portal/tools/InterviewCoach.tsx",
       "area": "components",
       "domain": "components",
-      "bytes": 29858,
-      "lines": 855,
-      "sha256": "1f46d5a7327ddfab2e020bdc5fd586da197d1e143b251925f7fef44adb9915dd",
+      "bytes": 33411,
+      "lines": 940,
+      "sha256": "9f8ae0984c21089d6f2d3d3331962781feca7dd182e0f3a8b03c28407eaa0845",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 92,
+          "line": 104,
           "kind": "FunctionDeclaration",
           "localName": "InterviewCoach"
         }
@@ -72882,67 +72922,87 @@
       "declarations": [
         {
           "name": "TranscriptEntry",
-          "line": 15,
+          "line": 17,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "Phase",
-          "line": 16,
+          "line": 18,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "InterviewSession",
-          "line": 18,
+          "line": 20,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "INTERVIEW_TYPES",
-          "line": 30,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "MAX_QUESTIONS",
-          "line": 31,
-          "kind": "Variable"
-        },
-        {
-          "name": "KIT_BTN",
           "line": 33,
           "kind": "Variable"
         },
         {
-          "name": "kitBtnSolid",
+          "name": "START_FAILED",
+          "line": 35,
+          "kind": "Variable"
+        },
+        {
+          "name": "NEXT_QUESTION_FAILED",
           "line": 36,
           "kind": "Variable"
         },
         {
+          "name": "FEEDBACK_FAILED",
+          "line": 37,
+          "kind": "Variable"
+        },
+        {
+          "name": "serverErrorText",
+          "line": 40,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "KIT_BTN",
+          "line": 45,
+          "kind": "Variable"
+        },
+        {
+          "name": "kitBtnSolid",
+          "line": 48,
+          "kind": "Variable"
+        },
+        {
           "name": "kitBtnOutline",
-          "line": 52,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "FIELD_CONTROL",
-          "line": 59,
+          "line": 71,
           "kind": "Variable"
         },
         {
           "name": "PREVIEW_QUESTIONS",
-          "line": 74,
+          "line": 86,
           "kind": "Variable"
         },
         {
           "name": "PREVIEW_FEEDBACK",
-          "line": 82,
+          "line": 94,
           "kind": "Variable"
         },
         {
           "name": "previewQuestionFor",
-          "line": 85,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "InterviewCoach",
-          "line": 92,
+          "line": 104,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -151458,6 +151518,59 @@
           "name": "makeGetRequest",
           "line": 81,
           "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "tests/api/api-error-echo-followups.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 10342,
+      "lines": 219,
+      "sha256": "2ffa739b762860dfe8202b68cb05c68cca44b0c3c274e72380a3809862f9fe45",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "h",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
+          "name": "UPSTREAM",
+          "line": 114,
+          "kind": "Variable"
+        },
+        {
+          "name": "req",
+          "line": 116,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "params",
+          "line": 123,
+          "kind": "Variable"
+        },
+        {
+          "name": "expectGeneric",
+          "line": 125,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "draft",
+          "line": 138,
+          "kind": "Variable"
+        },
+        {
+          "name": "cascadeRow",
+          "line": 139,
+          "kind": "Variable"
+        },
+        {
+          "name": "consoleError",
+          "line": 147,
+          "kind": "Variable"
         }
       ],
       "directive": null

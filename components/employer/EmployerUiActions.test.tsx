@@ -29,6 +29,26 @@ const matchRow: EmployerMatchHistoryRow = {
   applicationId: 'application-1',
 };
 
+const CONNECTION_COPY = messages.common.connectionError;
+
+function withIntl(ui: React.ReactElement) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages} timeZone="America/New_York">
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
+const workQueueApp = {
+  id: 'application-1',
+  jobId: 'job-1',
+  status: 'pending',
+  appliedAt: '2026-08-29T12:00:00.000Z',
+  jobTitle: 'Support Specialist',
+  studentName: 'Ada Member',
+  studentId: 'student-1',
+};
+
 function fillRequiredQuickPostFields() {
   fireEvent.change(screen.getByLabelText(/job title/i), { target: { value: 'Support Specialist' } });
   fireEvent.change(screen.getByLabelText(/description/i), {
@@ -96,7 +116,7 @@ describe('employer UI action contracts', () => {
   });
 
   it('opens match-history applications through their detail route', () => {
-    render(<EmployerMatchHistoryClient initialRows={[matchRow]} />);
+    render(withIntl(<EmployerMatchHistoryClient initialRows={[matchRow]} />));
 
     const applicationLinks = screen.getAllByRole('link', { name: /open( application)?/i });
     expect(applicationLinks).not.toHaveLength(0);
@@ -107,29 +127,21 @@ describe('employer UI action contracts', () => {
 
   it('renders work-queue navigation as links without nested buttons', () => {
     render(
-      <EmployerWorkQueueClient
-        needsReviewTodayApps={[
-          {
-            id: 'application-1',
-            jobId: 'job-1',
-            status: 'pending',
-            appliedAt: '2026-08-29T12:00:00.000Z',
-            jobTitle: 'Support Specialist',
-            studentName: 'Ada Member',
-            studentId: 'student-1',
-          },
-        ]}
-        jobsAwaitingPublish={[
-          {
-            id: 'job-1',
-            title: 'Support Specialist',
-            status: 'pending',
-            updatedAt: '2026-08-29T12:00:00.000Z',
-          },
-        ]}
-        staleApps={[]}
-        interviewPending={[]}
-      />,
+      withIntl(
+        <EmployerWorkQueueClient
+          needsReviewTodayApps={[workQueueApp]}
+          jobsAwaitingPublish={[
+            {
+              id: 'job-1',
+              title: 'Support Specialist',
+              status: 'pending',
+              updatedAt: '2026-08-29T12:00:00.000Z',
+            },
+          ]}
+          staleApps={[]}
+          interviewPending={[]}
+        />,
+      ),
     );
 
     const openJob = screen.getByRole('link', { name: 'Open job' });
@@ -138,5 +150,80 @@ describe('employer UI action contracts', () => {
     expect(tableView).toHaveAttribute('href', '/employer/applications');
     expect(openJob.querySelector('button')).toBeNull();
     expect(tableView.querySelector('button')).toBeNull();
+  });
+
+  it('keeps a dropped connection visible when a match status change fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(fetch).mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    render(withIntl(<EmployerMatchHistoryClient initialRows={[matchRow]} />));
+    const select = screen.getAllByRole('combobox', { name: 'Status for Ada Member' })[0];
+    fireEvent.change(select, { target: { value: 'contacted' } });
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(CONNECTION_COPY);
+    expect(alert).not.toHaveTextContent('Failed to fetch');
+    await waitFor(() => expect(select).toBeEnabled());
+  });
+
+  it('shows the server rejection when a match status change is refused', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'This candidate withdrew.' }), {
+        status: 409,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+
+    render(withIntl(<EmployerMatchHistoryClient initialRows={[matchRow]} />));
+    fireEvent.change(screen.getAllByRole('combobox', { name: 'Status for Ada Member' })[0], {
+      target: { value: 'contacted' },
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('This candidate withdrew.');
+  });
+
+  it('keeps a dropped connection visible when a work-queue action fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(fetch).mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    render(
+      withIntl(
+        <EmployerWorkQueueClient
+          needsReviewTodayApps={[workQueueApp]}
+          jobsAwaitingPublish={[]}
+          staleApps={[]}
+          interviewPending={[]}
+        />,
+      ),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Start review' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(CONNECTION_COPY);
+    expect(alert).not.toHaveTextContent('Failed to fetch');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Start review' })).toBeEnabled());
+  });
+
+  it('shows the server rejection when a work-queue action is refused', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'This application was withdrawn.' }), {
+        status: 409,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+
+    render(
+      withIntl(
+        <EmployerWorkQueueClient
+          needsReviewTodayApps={[workQueueApp]}
+          jobsAwaitingPublish={[]}
+          staleApps={[]}
+          interviewPending={[]}
+        />,
+      ),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Start review' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('This application was withdrawn.');
   });
 });

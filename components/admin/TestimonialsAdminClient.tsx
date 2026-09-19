@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MessageSquare, CheckCircle, XCircle, Eye, Trash2, Star, Clock, AlertCircle } from 'lucide-react';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type Testimonial = {
   id: string;
@@ -265,7 +266,7 @@ export default function TestimonialsAdminClient() {
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t.member.email}</div>
                     {t.member.enrolledProgram && (
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>
-                        {t.member.enrolledProgram}
+                        {programDisplayTitle(t.member.enrolledProgram)}
                       </div>
                     )}
                   </td>

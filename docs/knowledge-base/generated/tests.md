@@ -50,6 +50,7 @@
 | [tests/api/auth-routes.spec.ts](../../../tests/api/auth-routes.spec.ts) | 1694 | tests |  |
 | [tests/api/billing-packets.spec.ts](../../../tests/api/billing-packets.spec.ts) | 279 | tests |  |
 | [tests/api/bulk-email-fixture-accounting.spec.ts](../../../tests/api/bulk-email-fixture-accounting.spec.ts) | 89 | tests |  |
+| [tests/api/careers-occupation-program-title.spec.ts](../../../tests/api/careers-occupation-program-title.spec.ts) | 86 | tests |  |
 | [tests/api/concordia-enroll-page.spec.ts](../../../tests/api/concordia-enroll-page.spec.ts) | 86 | tests |  |
 | [tests/api/counselor-analytics.spec.ts](../../../tests/api/counselor-analytics.spec.ts) | 232 | tests |  |
 | [tests/api/counselor-dashboard.spec.ts](../../../tests/api/counselor-dashboard.spec.ts) | 609 | tests |  |
@@ -128,6 +129,7 @@
 | [tests/api/points-routes.spec.ts](../../../tests/api/points-routes.spec.ts) | 451 | tests |  |
 | [tests/api/portal-nav-badges.spec.ts](../../../tests/api/portal-nav-badges.spec.ts) | 69 | tests |  |
 | [tests/api/program-enrollment.spec.ts](../../../tests/api/program-enrollment.spec.ts) | 409 | tests |  |
+| [tests/api/public-api-hardening-followups.spec.ts](../../../tests/api/public-api-hardening-followups.spec.ts) | 352 | tests |  |
 | [tests/api/public-route-error-handling.spec.ts](../../../tests/api/public-route-error-handling.spec.ts) | 286 | tests |  |
 | [tests/api/public-wioa-qualification.spec.ts](../../../tests/api/public-wioa-qualification.spec.ts) | 180 | tests |  |
 | [tests/api/quarterly-outcomes.spec.ts](../../../tests/api/quarterly-outcomes.spec.ts) | 207 | tests |  |

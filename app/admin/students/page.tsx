@@ -9,7 +9,7 @@ import {
   resolveAdminPageTenant,
   withAdminPageScope,
 } from '@/lib/tenant/adminPageScope';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -256,7 +256,7 @@ export default async function AdminStudentsPage({
     const inferredProgramSlug = inferredProgramByUserId.get(m.id) ?? null;
     const displayProgramSlug = storedProgramSlug ?? inferredProgramSlug;
     const programTitle = displayProgramSlug
-      ? getProgramBySlug(displayProgramSlug)?.title ?? displayProgramSlug
+      ? programDisplayTitle(displayProgramSlug)
       : 'Unassigned';
 
     const progress = displayProgramSlug

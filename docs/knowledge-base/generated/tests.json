@@ -695,6 +695,35 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "components/admin/RecentSignupsTable.test.tsx",
+    "area": "components",
+    "domain": "administration",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/programs.ts",
+        "line": 3
+      },
+      {
+        "file": "components/admin/RecentSignupsTable.tsx",
+        "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "components/employer/EmployerUiActions.test.tsx",
     "area": "components",
     "domain": "jobs-employers",
@@ -1234,6 +1263,35 @@
       {
         "file": "components/portal/WorkforceApModuleCompleteButton.tsx",
         "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "components/portal/counselor/AtRiskMemberList.test.tsx",
+    "area": "components",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/content/programs.ts",
+        "line": 3
+      },
+      {
+        "file": "components/portal/counselor/AtRiskMemberList.tsx",
+        "line": 4
       }
     ],
     "kind": "test-candidate",
@@ -2122,6 +2180,10 @@
       {
         "file": "lib/admin/funderProgramMetrics.ts",
         "line": 18
+      },
+      {
+        "file": "lib/content/programs.ts",
+        "line": 61
       }
     ],
     "kind": "test-candidate",
@@ -4157,6 +4219,10 @@
       {
         "file": "lib/content/programs.ts",
         "line": 4
+      },
+      {
+        "file": "lib/content/programSlug.ts",
+        "line": 5
       }
     ],
     "kind": "test-candidate",
@@ -11229,6 +11295,38 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/careers-occupation-program-title.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/careers/occupation/[onetCode]/route.ts",
+        "line": 31
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 32
+      },
+      {
+        "file": "lib/content/programs.ts",
+        "line": 33
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/concordia-enroll-page.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -14673,6 +14771,46 @@
       {
         "file": "lib/platform/trainingEnrollmentGate.ts",
         "line": 85
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/public-api-hardening-followups.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/xapi/token.ts",
+        "line": 51
+      },
+      {
+        "file": "app/api/xapi/oauth/token/route.ts",
+        "line": 95
+      },
+      {
+        "file": "lib/xapi/token.ts",
+        "line": 96
+      },
+      {
+        "file": "app/api/webhooks/coursera/route.ts",
+        "line": 97
+      },
+      {
+        "file": "app/api/waitlist/route.ts",
+        "line": 98
       }
     ],
     "kind": "test-candidate",

@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 const MUTED = 'var(--color-on-surface-variant)';
 const ACCENT = 'var(--color-accent)';
@@ -423,7 +424,7 @@ export default function OutcomesDashboard() {
                     return (
                       <div key={p.programSlug}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem', gap: '0.75rem' }}>
-                          <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{p.programSlug}</span>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{programDisplayTitle(p.programSlug)}</span>
                           <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>
                             {rateSuppressed ? `N=${p.enrolled}` : `${p.placementRate}% placed`}
                           </span>
@@ -496,7 +497,7 @@ export default function OutcomesDashboard() {
                   <DataTable
                     columns={[
                       { key: 'jobTitle', header: 'Job title', cell: (p) => p.jobTitle },
-                      { key: 'program', header: 'Program', cell: (p) => p.enrolledProgram ?? '—' },
+                      { key: 'program', header: 'Program', cell: (p) => (p.enrolledProgram ? programDisplayTitle(p.enrolledProgram) : '—') },
                       { key: 'salary', header: 'Salary', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(p.annualSalary)}</span> },
                       { key: 'weeks', header: 'Weeks', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.weeksFromEnrollmentToPlacement ?? '—'}</span> },
                       { key: 'placed', header: 'Placed', cell: (p) => new Date(p.placedAt).toLocaleDateString('en-US') },

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { TrainingDashboardRow } from '@/lib/admin/trainingDashboard';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import DataTable from '@/components/portal/ui/DataTable';
 
 function formatDate(value: string | Date | null): string {
@@ -55,7 +55,7 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
       for (const slug of row.programSlugsAll) slugs.add(slug);
     }
     return [...slugs]
-      .map((slug) => [slug, titleByPrimary.get(slug) ?? getProgramBySlug(slug)?.title ?? slug] as const)
+      .map((slug) => [slug, titleByPrimary.get(slug) ?? programDisplayTitle(slug)] as const)
       .sort((a, b) => a[1].localeCompare(b[1]));
   }, [rows]);
 

@@ -9,7 +9,7 @@ import {
   PIPELINE_STAGES_ORDERED,
   type PipelineStage,
 } from '@/lib/pipeline/stage';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export type PipelineKanbanMember = {
   id: string;
@@ -217,7 +217,7 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
                             marginTop: '0.12rem',
                           }}
                         >
-                          {getProgramBySlug(s.enrolledProgram)?.title ?? s.enrolledProgram.replace(/-/g, ' ')}
+                          {programDisplayTitle(s.enrolledProgram)}
                         </div>
                       )}
                       {stage === 'placed' && s.placementRecord && (

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { buildMemberApplicationStatusView, type MemberApplicationStatusView } from './memberApplicationStatus';
 import { loadMemberProgramTrainingView, type MemberProgramTrainingView } from './memberProgramTrainingView';
 import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
@@ -224,8 +224,7 @@ function inferTargetRole(
     return programInterest;
   }
   if (enrolledProgram) {
-    const program = getProgramBySlug(enrolledProgram);
-    return program?.title ?? enrolledProgram;
+    return programDisplayTitle(enrolledProgram);
   }
   return null;
 }
@@ -404,7 +403,7 @@ async function _getMemberStateUncached(
     fullName: user.fullName,
     application,
     enrolledProgram: surfacedProgram,
-    programName: surfacedProgram ? getProgramBySlug(surfacedProgram)?.title ?? surfacedProgram : null,
+    programName: surfacedProgram ? programDisplayTitle(surfacedProgram) : null,
     trainingView,
     assessmentCompleted: user.assessmentCompleted,
     profileCompletenessPct,

@@ -27,6 +27,7 @@ import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import {
   loadValidatedProgramCatalog,
   type ValidatedProgramCatalogEntry,
@@ -796,7 +797,7 @@ export default async function AdminCourseraPage({
     id: member.id,
     fullName: member.fullName,
     email: member.email,
-    programTitle: member.enrolledProgram ? getProgramBySlug(member.enrolledProgram)?.title ?? member.enrolledProgram : null,
+    programTitle: member.enrolledProgram ? programDisplayTitle(member.enrolledProgram) : null,
     workspaceEmail: member.courseEnrollments[0]?.workspaceEmail ?? member.workspaceEmail,
     workspaceEmailProvisioned:
       member.courseEnrollments[0]?.workspaceEmailProvisioned ?? member.workspaceEmailProvisioned,

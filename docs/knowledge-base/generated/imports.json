@@ -122570,7 +122570,7 @@
   {
     "from": "tests/app/counselor-student-detail-dates.spec.tsx",
     "specifier": "@/app/(portal)/counselor/students/[memberId]/page",
-    "line": 61,
+    "line": 64,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/counselor/students/[memberId]/page.tsx"

@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "dd5d6bf8df68f074ae4185ed5ee125b83f0b8103ec6f3f66a5d12b2799b6b57a",
+  "inputTreeSha256": "676c52a83aedf987ea34a23a9f9651137ce51f1dcf73d7b0fd19d3766c82b9ba",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -147871,9 +147871,9 @@
       "path": "scripts/lib/portal-audit-paths.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 15089,
-      "lines": 517,
-      "sha256": "526189cb1709c82bb874a14cde922d58674d3fc34e05381746500d5aa0d9b5ac",
+      "bytes": 15125,
+      "lines": 518,
+      "sha256": "66cbec4717304efa65fe1f9e5b516f3bb13219239f7b0f7158d61f3db569b35b",
       "binary": false,
       "exports": [
         {
@@ -147883,47 +147883,47 @@
         },
         {
           "name": "DYNAMIC_PATHS",
-          "line": 201,
+          "line": 202,
           "kind": "Variable"
         },
         {
           "name": "REQUIRED_DYNAMIC_PATHS",
-          "line": 243,
+          "line": 244,
           "kind": "Variable"
         },
         {
           "name": "SAFE_ACTION_CONTRACTS",
-          "line": 256,
+          "line": 257,
           "kind": "Variable"
         },
         {
           "name": "ATTENDED_ACTION_GATES",
-          "line": 351,
+          "line": 352,
           "kind": "Variable"
         },
         {
           "name": "REDIRECT_ONLY_PATHS",
-          "line": 381,
+          "line": 382,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_PATHS",
-          "line": 474,
+          "line": 475,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_ROLES",
-          "line": 480,
+          "line": 481,
           "kind": "Variable"
         },
         {
           "name": "SECTION_LOGIN_REDIRECT",
-          "line": 484,
+          "line": 485,
           "kind": "Variable"
         },
         {
           "name": "ROLE_ACCESS_MATRIX",
-          "line": 496,
+          "line": 497,
           "kind": "Variable"
         }
       ],
@@ -147935,47 +147935,47 @@
         },
         {
           "name": "DYNAMIC_PATHS",
-          "line": 201,
+          "line": 202,
           "kind": "Variable"
         },
         {
           "name": "REQUIRED_DYNAMIC_PATHS",
-          "line": 243,
+          "line": 244,
           "kind": "Variable"
         },
         {
           "name": "SAFE_ACTION_CONTRACTS",
-          "line": 256,
+          "line": 257,
           "kind": "Variable"
         },
         {
           "name": "ATTENDED_ACTION_GATES",
-          "line": 351,
+          "line": 352,
           "kind": "Variable"
         },
         {
           "name": "REDIRECT_ONLY_PATHS",
-          "line": 381,
+          "line": 382,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_PATHS",
-          "line": 474,
+          "line": 475,
           "kind": "Variable"
         },
         {
           "name": "PRODUCTION_CANARY_ROLES",
-          "line": 480,
+          "line": 481,
           "kind": "Variable"
         },
         {
           "name": "SECTION_LOGIN_REDIRECT",
-          "line": 484,
+          "line": 485,
           "kind": "Variable"
         },
         {
           "name": "ROLE_ACCESS_MATRIX",
-          "line": 496,
+          "line": 497,
           "kind": "Variable"
         }
       ],

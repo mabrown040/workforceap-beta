@@ -14841,6 +14841,32 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/app/account-privacy-consent.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "@testing-library/user-event",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/(portal)/account/privacy/page.tsx",
+        "line": 10
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/app/add-member-wizard.spec.tsx",
     "area": "tests",
     "domain": "tests",

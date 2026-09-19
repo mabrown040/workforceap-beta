@@ -96,7 +96,7 @@
 | [tests/api/member-export-data.spec.ts](../../../tests/api/member-export-data.spec.ts) | 288 | tests |  |
 | [tests/api/member-feedback.spec.ts](../../../tests/api/member-feedback.spec.ts) | 346 | tests |  |
 | [tests/api/member-goals.spec.ts](../../../tests/api/member-goals.spec.ts) | 416 | tests |  |
-| [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 501 | tests |  |
+| [tests/api/member-messages.spec.ts](../../../tests/api/member-messages.spec.ts) | 503 | tests |  |
 | [tests/api/member-onboard.spec.ts](../../../tests/api/member-onboard.spec.ts) | 523 | tests |  |
 | [tests/api/member-profile.spec.ts](../../../tests/api/member-profile.spec.ts) | 469 | tests |  |
 | [tests/api/member-readiness-summary.spec.ts](../../../tests/api/member-readiness-summary.spec.ts) | 123 | tests |  |
@@ -311,6 +311,7 @@
 | [tests/lib/recommendPrograms.test.ts](../../../tests/lib/recommendPrograms.test.ts) | 38 | tests |  |
 | [tests/lib/referral-rewards.spec.ts](../../../tests/lib/referral-rewards.spec.ts) | 141 | applications-enrollment |  |
 | [tests/lib/retention-window-evidence.spec.ts](../../../tests/lib/retention-window-evidence.spec.ts) | 40 | tests |  |
+| [tests/lib/self-serve-counselor-assign.spec.ts](../../../tests/lib/self-serve-counselor-assign.spec.ts) | 167 | tests |  |
 | [tests/lib/skill-mission-kit-tokens.spec.ts](../../../tests/lib/skill-mission-kit-tokens.spec.ts) | 17 | tests |  |
 | [tests/lib/staff-program-label-contract.spec.ts](../../../tests/lib/staff-program-label-contract.spec.ts) | 23 | tests |  |
 | [tests/lib/stale-training-completion.spec.ts](../../../tests/lib/stale-training-completion.spec.ts) | 223 | tests |  |
@@ -323,6 +324,7 @@
 | [tests/lib/training-progress-roster.spec.ts](../../../tests/lib/training-progress-roster.spec.ts) | 575 | tests |  |
 | [tests/lib/training-workspace-schedule.spec.ts](../../../tests/lib/training-workspace-schedule.spec.ts) | 47 | tests |  |
 | [tests/lib/twc-syllabus-accuracy.spec.ts](../../../tests/lib/twc-syllabus-accuracy.spec.ts) | 283 | tests |  |
+| [tests/lib/unassigned-notify.spec.ts](../../../tests/lib/unassigned-notify.spec.ts) | 99 | tests |  |
 | [tests/lib/voice-studio-card-contrast.spec.ts](../../../tests/lib/voice-studio-card-contrast.spec.ts) | 52 | tests |  |
 | [tests/lib/with-cron-logging.spec.ts](../../../tests/lib/with-cron-logging.spec.ts) | 60 | tests |  |
 | [tests/lib/xapi-exact-email-match.spec.ts](../../../tests/lib/xapi-exact-email-match.spec.ts) | 318 | tests |  |

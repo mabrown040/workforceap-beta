@@ -1908,7 +1908,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 261
+          "line": 262
         },
         {
           "file": "app/api/contact/route.ts",
@@ -2344,7 +2344,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 433
+          "line": 434
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2415,7 +2415,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 432
+          "line": 433
         },
         {
           "file": "app/api/employer/signup/route.ts",
@@ -2526,7 +2526,7 @@
         },
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 274
+          "line": 275
         },
         {
           "file": "app/api/contact/route.ts",
@@ -3838,7 +3838,7 @@
       "references": [
         {
           "file": "app/api/apply/signup/route.ts",
-          "line": 263
+          "line": 264
         },
         {
           "file": "app/api/contact/route.ts",

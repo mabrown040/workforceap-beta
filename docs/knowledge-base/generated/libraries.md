@@ -337,6 +337,8 @@
 | [lib/counselor/ambassadorReferral.test.ts](../../../lib/counselor/ambassadorReferral.test.ts) | 55 | member-counselor |  |
 | [lib/counselor/ambassadorReferral.ts](../../../lib/counselor/ambassadorReferral.ts) | 88 | member-counselor | AmbassadorCandidate:18, AmbassadorMatch:25, pickAmbassadorReferralText:33, normalizePersonName:51, matchAmbassador:68 |
 | [lib/counselor/assignment.ts](../../../lib/counselor/assignment.ts) | 44 | member-counselor | assignMemberCounselor:8 |
+| [lib/counselor/autoAssign.ts](../../../lib/counselor/autoAssign.ts) | 103 | member-counselor | WAP_STAFF_COUNSELOR_AFFILIATION:5, EnsureSelfServeCounselorResult:7, pickLeastLoadedWapCounselor:19, ensureSelfServeCounselorAssigned:61 |
+| [lib/counselor/autoAssign.wiring.test.ts](../../../lib/counselor/autoAssign.wiring.test.ts) | 33 | member-counselor |  |
 | [lib/counselor/commandCenter.ts](../../../lib/counselor/commandCenter.ts) | 263 | member-counselor | CommandCenterRow:22, NeedsReplyRow:28, AtRiskRow:35, InterviewingRow:40, CommandCenter:45, getCounselorCommandCenter:67 |
 | [lib/counselor/counselorLabels.ts](../../../lib/counselor/counselorLabels.ts) | 17 | member-counselor | counselorAffiliationLabel:2, counselorAffiliationDisplay:10 |
 | [lib/counselor/counselorStudentsRoster.ts](../../../lib/counselor/counselorStudentsRoster.ts) | 67 | member-counselor | CounselorRosterRiskRow:6, loadCounselorRosterRiskAndActivity:17 |
@@ -681,12 +683,13 @@
 | [lib/messages/contextSelection.ts](../../../lib/messages/contextSelection.ts) | 61 | communications | MessageQueryValue:3, normalizeMessageQueryValue:11, AuthorizedCounselorMessageContext:20, resolveAuthorizedCounselorMessageContext:29, PartnerMessageMember:48, resolveAuthorizedPartnerMessageMember:54 |
 | [lib/messages/counselorInbox.test.ts](../../../lib/messages/counselorInbox.test.ts) | 48 | communications |  |
 | [lib/messages/counselorInbox.ts](../../../lib/messages/counselorInbox.ts) | 236 | communications | CounselorInboxRow:6, buildCounselorInboxRows:38 |
-| [lib/messages/counselorThread.ts](../../../lib/messages/counselorThread.ts) | 131 | communications | ThreadMessageRow:6, compactStringIds:14, getMessageAuthorName:18, resolveAssignedCounselorUserId:22, getOrCreateMemberCounselorThread:32, assertMemberCanAccessThread:60, assertStaffCanAccessThread:67, assertMemberCanPost:108, assertStaffCanPost:112, normalizeMessageBody:116, serializeMessage:123 |
+| [lib/messages/counselorThread.ts](../../../lib/messages/counselorThread.ts) | 148 | communications | ThreadMessageRow:7, compactStringIds:15, getMessageAuthorName:19, resolveAssignedCounselorUserId:23, getOrCreateMemberCounselorThread:33, assertMemberCanAccessThread:77, assertStaffCanAccessThread:84, assertMemberCanPost:125, assertStaffCanPost:129, normalizeMessageBody:133, serializeMessage:140 |
 | [lib/messages/employerInbox.ts](../../../lib/messages/employerInbox.ts) | 101 | communications | EmployerInboxTeamRow:4, EmployerInboxCandidateRow:13, buildEmployerInbox:23 |
 | [lib/messages/portalThreads.ts](../../../lib/messages/portalThreads.ts) | 41 | communications | getOrCreateEmployerMessageThread:3, getOrCreatePartnerMessageThread:16, assertEmployerCanAccessThread:29, assertPartnerCanAccessThread:36 |
 | [lib/messages/rateLimit.ts](../../../lib/messages/rateLimit.ts) | 22 | communications | checkMessageRateLimit:13 |
 | [lib/messages/readCursor.ts](../../../lib/messages/readCursor.ts) | 52 | communications | readCursorInputSchema:4, advanceThreadReadCursor:14 |
 | [lib/messages/superAdminMessageQueries.ts](../../../lib/messages/superAdminMessageQueries.ts) | 147 | communications | ThreadSlaRow:6, getSlaStatusForThreads:20, countThreadsWithSlaBreach:69, countMessageThreadsWithActivity:107, getThreadIdsBreachingSla:114 |
+| [lib/messages/unassignedNotify.ts](../../../lib/messages/unassignedNotify.ts) | 101 | communications | UnassignedNotifyResult:5, notifyUnassignedMemberMessage:15 |
 | [lib/milestoneCascade/buildCascadeFromCompletion.test.ts](../../../lib/milestoneCascade/buildCascadeFromCompletion.test.ts) | 201 | member-counselor |  |
 | [lib/milestoneCascade/buildCascadeFromCompletion.ts](../../../lib/milestoneCascade/buildCascadeFromCompletion.ts) | 142 | member-counselor | CompletionMilestoneInput:11, TrainingMilestoneInput:28, CascadeRowDraft:49, buildCascadeFromMilestone:59, buildCascadeFromCompletion:124 |
 | [lib/milestoneCascade/buildDraftPrompt.test.ts](../../../lib/milestoneCascade/buildDraftPrompt.test.ts) | 94 | member-counselor |  |

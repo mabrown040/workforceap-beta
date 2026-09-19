@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { isAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
+import { ensureSelfServeCounselorAssigned } from '@/lib/counselor/autoAssign';
 
 const MAX_BODY = 8000;
 
@@ -33,17 +34,33 @@ export async function getOrCreateMemberCounselorThread(memberId: string) {
   const existing = await prisma.messageThread.findUnique({
     where: { memberId },
   });
-  if (existing) {
-    if (!existing.counselorUserId) {
+  if (existing?.counselorUserId) return existing;
+
+  const member = await prisma.user.findFirst({
+    where: { id: memberId, deletedAt: null },
+    select: { organizationId: true },
+  });
+  if (member?.organizationId) {
+    await ensureSelfServeCounselorAssigned({
+      memberId,
+      organizationId: member.organizationId,
+    });
+  }
+
+  const thread = existing ?? await prisma.messageThread.findUnique({
+    where: { memberId },
+  });
+  if (thread) {
+    if (!thread.counselorUserId) {
       const cid = await resolveAssignedCounselorUserId(memberId);
       if (cid) {
         return prisma.messageThread.update({
-          where: { id: existing.id },
+          where: { id: thread.id },
           data: { counselorUserId: cid },
         });
       }
     }
-    return existing;
+    return thread;
   }
 
   const counselorUserId = await resolveAssignedCounselorUserId(memberId);

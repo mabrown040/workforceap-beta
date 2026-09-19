@@ -4111,6 +4111,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/counselor/autoAssign.wiring.test.ts",
+    "area": "libraries",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/counselor/inboxEmptyState.test.ts",
     "area": "libraries",
     "domain": "member-counselor",
@@ -12880,27 +12899,31 @@
     "localReferences": [
       {
         "file": "app/api/member/messages/route.ts",
-        "line": 116
+        "line": 126
       },
       {
         "file": "lib/auth/server.ts",
-        "line": 117
+        "line": 127
       },
       {
         "file": "lib/db/prisma.ts",
-        "line": 118
+        "line": 128
       },
       {
         "file": "lib/messages/counselorThread.ts",
-        "line": 119
+        "line": 129
       },
       {
         "file": "lib/messages/rateLimit.ts",
-        "line": 123
+        "line": 133
       },
       {
         "file": "lib/notifications/create.ts",
-        "line": 124
+        "line": 134
+      },
+      {
+        "file": "lib/messages/unassignedNotify.ts",
+        "line": 135
       }
     ],
     "kind": "test-candidate",
@@ -19574,6 +19597,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/lib/self-serve-counselor-assign.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/counselor/autoAssign.ts",
+        "line": 29
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/lib/skill-mission-kit-tokens.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -19909,6 +19956,30 @@
       {
         "file": "marketing/src/data/programComparison.ts",
         "line": 19
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/unassigned-notify.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/messages/unassignedNotify.ts",
+        "line": 30
       }
     ],
     "kind": "test-candidate",

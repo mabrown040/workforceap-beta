@@ -122232,6 +122232,54 @@
     "package": "path"
   },
   {
+    "from": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "specifier": "next-intl",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "specifier": "vitest",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "specifier": "@/app/admin/pipeline/PipelineLegacyView",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "app/admin/pipeline/PipelineLegacyView.tsx"
+  },
+  {
+    "from": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "specifier": "@/lib/i18n/pickRootClientMessages",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/i18n/pickRootClientMessages.ts"
+  },
+  {
+    "from": "tests/components/admin-pipeline-member-count.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
     "from": "tests/components/admin-subgroup-members-table.test.tsx",
     "specifier": "@testing-library/react",
     "line": 1,
@@ -125374,6 +125422,38 @@
     "kind": "import",
     "external": false,
     "target": "lib/marketing/googleItSupportLanding.ts"
+  },
+  {
+    "from": "tests/lib/i18n-page-message-keys.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/lib/i18n-page-message-keys.spec.ts",
+    "specifier": "@/messages/en.json",
+    "line": 2,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/lib/i18n-page-message-keys.spec.ts",
+    "specifier": "@/messages/fr.json",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "messages/fr.json"
+  },
+  {
+    "from": "tests/lib/i18n-page-message-keys.spec.ts",
+    "specifier": "@/messages/pt.json",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "messages/pt.json"
   },
   {
     "from": "tests/lib/lab-workspace-access.spec.ts",

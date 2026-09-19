@@ -7,6 +7,7 @@ import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { apiError } from '@/lib/http/errorResponse';
 import { getSupabaseEnv } from '@/lib/supabase/env';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 
 /**
  * POST /api/auth/setup-mfa
@@ -99,7 +100,9 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }
 
-  const body: { factorId?: string; code?: string } = await request.json().catch(() => ({}));
+  // A body that is not a JSON object (bad JSON, `null`, an array) reads as
+  // empty and falls through to the required-field check below.
+  const body = (await readJsonObjectBody<{ factorId?: unknown; code?: unknown }>(request)) ?? {};
   const factorId = typeof body.factorId === 'string' ? body.factorId : '';
   const code = typeof body.code === 'string' ? body.code.trim() : '';
 

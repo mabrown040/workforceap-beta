@@ -10,7 +10,7 @@ import PageHeader from '@/components/portal/PageHeader';
 const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
 const GREEN = '#4a9b4f';
-const GOLD = '#FFBB00';
+const GOLD = '#a47f38';
 const MUTED = '#584144';
 
 interface AIEfficacyReport {
@@ -98,7 +98,12 @@ function objectsToCsv(rows: Record<string, string | number>[]): string {
   return lines.join('\n');
 }
 
-export default function AIEfficacyDashboard() {
+type AIEfficacyDashboardProps = {
+  /** Super-admin organization override forwarded to the API as `?orgId=`. */
+  orgId?: string | null;
+};
+
+export default function AIEfficacyDashboard({ orgId = null }: AIEfficacyDashboardProps) {
   const today = useMemo(() => new Date(), []);
   const ninetyDaysAgo = useMemo(() => {
     const d = new Date();
@@ -116,7 +121,8 @@ export default function AIEfficacyDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/analytics/ai-efficacy?startDate=${startDate}&endDate=${endDate}`);
+      const orgQuery = orgId ? `&orgId=${encodeURIComponent(orgId)}` : '';
+      const res = await fetch(`/api/admin/analytics/ai-efficacy?startDate=${startDate}&endDate=${endDate}${orgQuery}`);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `HTTP ${res.status}`);
@@ -128,7 +134,7 @@ export default function AIEfficacyDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, orgId]);
 
   useEffect(() => {
     fetchData();
@@ -288,15 +294,16 @@ export default function AIEfficacyDashboard() {
       </div>
 
       {error && /organization context required/i.test(error) ? (
-        /* Superadmins have no single org in context — guide them to pick one
-           rather than dumping a raw error string. */
+        /* No organization could be resolved for this account. There is no org
+           switcher in the admin shell, so name the one real lever. */
         <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
           <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
             Select an organization to view AI efficacy
           </p>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-            This report compares placement outcomes within a single organization. Use the workspace
-            context switcher in the top bar to choose an organization, then reload this page.
+            This report compares placement outcomes within a single organization, and none is linked to
+            your account. Super admins can add <code>?orgId=&lt;organization id&gt;</code> to this page&apos;s
+            URL to choose one.
           </p>
         </div>
       ) : error ? (

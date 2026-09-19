@@ -58,7 +58,7 @@ async function _POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const body = await req.json().catch(() => ({}));
+  const body = (await req.json().catch(() => ({}))) ?? {};
   const { userId, employerName, jobTitle, salaryOffered, placedAt } = body;
   if (!userId || !employerName || !jobTitle) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -127,7 +127,7 @@ async function _PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const body = await req.json().catch(() => ({}));
+  const body = (await req.json().catch(() => ({}))) ?? {};
   const parsed = z.object({
     id: z.string().min(1),
     placedAt: z.string().datetime().optional(),

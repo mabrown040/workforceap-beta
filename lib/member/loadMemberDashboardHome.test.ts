@@ -14,12 +14,25 @@ import {
   pointsLedgerColor,
 } from './loadMemberDashboardHome';
 
+import { getProgramBySlug } from '@/lib/content/programs';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+
+const FIXTURE_PROGRAM_SLUG = 'it-support-professional-certificate-ibm';
+
+/** Module names in program order for the fixture program (what /dashboard/program lists). */
+function fixtureModuleNames(): string[] {
+  const program = getProgramBySlug(canonicalizeProgramSlug(FIXTURE_PROGRAM_SLUG));
+  assert.ok(program, 'fixture program must exist in the catalog');
+  return program.courses.map((course) => course.name);
+}
 
 function makeRow(overrides: Record<string, unknown> = {}) {
   return {
     fullName: 'Alex Rivera',
     enrolledProgram: null,
+    assessmentCompleted: false,
     organization: { courses: [] },
     courseEnrollments: [{ programSlug: 'it-support-professional-certificate-ibm' }],
     courseProgress: [],
@@ -205,7 +218,11 @@ test('loadMemberDashboardHome combines enrollment + progress into kit props', as
   assert.equal(view.doThisNext?.href, '/dashboard/program');
   assert.notEqual(view.doThisNext?.href, '/dashboard/training');
   assert.equal(view.doThisNext?.variant, 'urgent');
-  assert.equal(view.nextLesson, 'Finish Hardware module');
+  assert.equal(view.doThisNext?.title, 'Finish Hardware module');
+  // Cert-path card names the next incomplete module, not the hero action title.
+  const modules = fixtureModuleNames();
+  assert.ok(modules.length > 2);
+  assert.equal(view.nextLesson, modules[2]);
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
 });
 
@@ -302,13 +319,33 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   );
   assert.equal(view.firstName, 'Jamie');
   assert.equal(view.points, 0);
-  assert.equal(view.doThisNext, null);
+  assert.equal(view.doThisNext?.id, 'choose_program');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
   assert.equal(view.programHref, '/dashboard/program');
   assert.equal(view.coursesHref, '/dashboard/learning');
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
-  assert.equal(view.nextLesson, undefined);
+  assert.equal(view.nextLesson, 'Choose your program');
   assert.equal(view.programTitle, undefined);
   assert.equal(view.programStatus, undefined);
+});
+
+test('loadMemberDashboardHome falls back to buildNextBestActions when no persisted rows exist', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      enrolledProgram: null,
+      courseEnrollments: [],
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'fresh-1', fallbackDisplayName: 'fresh@example.com' },
+    db,
+  );
+  assert.equal(view.doThisNext?.id, 'choose_program');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
+  assert.equal(view.doThisNext?.cta, 'Choose program');
+  assert.match(view.ungatedDigitalBasicsHref, /digital-literacy-empowerment-class-course-1/);
 });
 
 test('loader module imports only pure Coursera reconciliation, never providers or member-state fanout', () => {
@@ -317,12 +354,175 @@ test('loader module imports only pure Coursera reconciliation, never providers o
   assert.doesNotMatch(imports, /b4b|programCourseList|learnerProgress/i);
   assert.doesNotMatch(imports, /b4b/i);
   assert.doesNotMatch(imports, /getMemberState/);
+  assert.match(src, /buildNextBestActions/);
+  assert.match(src, /assessmentCompleted: true/);
   assert.doesNotMatch(imports, /maybeAutoSync/);
   assert.doesNotMatch(imports, /getCache/);
   assert.match(src, /from '@\/lib\/coursera\/progressReconciliation/);
   assert.doesNotMatch(src, /nextLesson: 'Continue your training'/);
   assert.doesNotMatch(src, /'Up next'/);
   assert.doesNotMatch(src, /\?\? 'there'/);
+});
+
+test('loadMemberDashboardHome falls back to buildNextBestActions when NBA rows are empty', async () => {
+  const { db, counts } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      courseEnrollments: [],
+      enrolledProgram: null,
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'fresh-member', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.equal(counts().findUniqueCalls, 1);
+  assert.equal(view.doThisNext?.id, 'choose_program');
+  assert.equal(view.doThisNext?.href, '/dashboard/program');
+  assert.equal(view.doThisNext?.cta, 'Choose program');
+  assert.equal(view.nextLesson, 'Choose your program');
+  assert.notEqual(view.nextLesson, undefined);
+});
+
+test('loadMemberDashboardHome surfaces preassessment when enrolled and NBA rows are empty', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      assessmentCompleted: false,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'enrolled-unassessed', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.equal(view.doThisNext?.id, 'skills_assessment');
+  assert.equal(view.doThisNext?.href, '/dashboard/assessment');
+  assert.equal(view.doThisNext?.title, 'Complete your Training Preassessment');
+  // The preassessment stays the hero CTA; the cert-path card still names module 1.
+  assert.equal(view.nextLesson, fixtureModuleNames()[0]);
+});
+
+test('loadMemberDashboardHome keeps a persisted NBA ahead of the heuristic fallback', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      assessmentCompleted: false,
+      nextBestActions: [{
+        id: 'nba-persisted',
+        title: 'Finish Hardware module',
+        description: 'Resume where you left off',
+        ctaHref: '/dashboard/program',
+        ctaLabel: 'Continue',
+        priority: 5,
+      }],
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'persisted-nba', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.doThisNext?.id, 'nba-persisted');
+  assert.equal(view.doThisNext?.title, 'Finish Hardware module');
+  assert.equal(view.nextLesson, fixtureModuleNames()[0]);
+});
+
+test('cert-path next module: enrolled, unassessed member with no progress sees the program first module (title + link)', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      assessmentCompleted: false,
+      courseProgress: [],
+      memberProgramProgress: [],
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'enrolled-no-progress', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  const modules = fixtureModuleNames();
+  const program = getProgramBySlug(canonicalizeProgramSlug(FIXTURE_PROGRAM_SLUG));
+  const firstSlug = program?.courses[0]?.slug ?? '';
+  // Hero CTA unchanged: preassessment first.
+  assert.equal(view.doThisNext?.id, 'skills_assessment');
+  // Card: first module, never "No next module on file" / the preassessment title.
+  assert.equal(view.programTitle, program?.title);
+  assert.equal(view.nextLesson, modules[0]);
+  assert.notEqual(view.nextLesson, 'Complete your Training Preassessment');
+  assert.ok(view.nextLessonHref, 'first module must carry a link');
+  assert.ok(
+    view.nextLessonHref.includes(encodeURIComponent(firstSlug)),
+    `link ${view.nextLessonHref} must target module ${firstSlug}`,
+  );
+  assert.equal(view.certModulesDone, 0);
+  assert.equal(view.certModulesTotal, modules.length);
+});
+
+test('cert-path next module: a member with progress sees the next incomplete module, and none once complete', async () => {
+  const program = getProgramBySlug(canonicalizeProgramSlug(FIXTURE_PROGRAM_SLUG));
+  assert.ok(program);
+  const done = (slug: string) => ({
+    programSlug: FIXTURE_PROGRAM_SLUG,
+    courseSlug: slug,
+    courseId: null,
+    percentComplete: 100,
+    status: 'COMPLETED' as const,
+  });
+  const partial = await loadMemberDashboardHome(
+    { userId: 'partial', fallbackDisplayName: 'Sam' },
+    mockDb({
+      row: makeRow({
+        nextBestActions: [],
+        assessmentCompleted: true,
+        courseProgress: [done(program.courses[0]!.slug)],
+      }),
+    }).db,
+  );
+  assert.equal(partial.certModulesDone, 1);
+  assert.equal(partial.nextLesson, program.courses[1]!.name);
+  assert.ok(partial.nextLessonHref?.includes(encodeURIComponent(program.courses[1]!.slug)));
+
+  const complete = await loadMemberDashboardHome(
+    { userId: 'complete', fallbackDisplayName: 'Sam' },
+    mockDb({
+      row: makeRow({
+        nextBestActions: [],
+        assessmentCompleted: true,
+        courseProgress: program.courses.map((course) => done(course.slug)),
+      }),
+    }).db,
+  );
+  assert.equal(complete.programStatus, 'Complete');
+  assert.equal(complete.nextLessonHref, undefined);
+  // Progress semantics untouched: completion still comes from course_progress rows.
+  assert.equal(complete.certModulesDone, program.courses.length);
+});
+
+test('loadMemberDashboardHome names the next incomplete course when NBA rows are empty', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      nextBestActions: [],
+      assessmentCompleted: true,
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'in-training', fallbackDisplayName: 'Sam' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.ok(view.doThisNext);
+  assert.ok(
+    view.doThisNext.id === 'continue_training' || view.doThisNext.id === 'launch_first_course',
+    `expected a training next step, got ${view.doThisNext.id}`,
+  );
+  assert.notEqual(view.doThisNext.href, '/dashboard');
+  assert.ok(view.nextLesson && view.nextLesson.length > 0);
 });
 
 test('kit-default dashboard page calls the loader and has no prisma. on that branch', () => {

@@ -13,6 +13,7 @@ import {
   renderFollowUpTemplate,
 } from '@/lib/counselor/followUpTemplates';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
@@ -56,7 +57,8 @@ async function handle(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const json = (await request.json().catch(() => ({}))) as {
+    const raw: unknown = await request.json().catch(() => null);
+    const json = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}) as {
       memberIds?: unknown;
       templateId?: unknown;
     };
@@ -120,7 +122,7 @@ async function handle(request: Request) {
         const program = member.enrolledProgram
           ? getProgramBySlug(member.enrolledProgram)
           : null;
-        const programName = program?.title ?? member.enrolledProgram ?? null;
+        const programName = member.enrolledProgram ? programDisplayTitle(member.enrolledProgram) : null;
 
         const composed = renderFollowUpTemplate(template, {
           memberName: member.fullName,

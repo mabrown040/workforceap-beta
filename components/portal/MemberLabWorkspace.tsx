@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { ArrowLeft, Clock3, FlaskConical, LockKeyhole } from 'lucide-react';
 import { Button } from '@astryxdesign/core/Button';
 import { TextArea } from '@astryxdesign/core/TextArea';
@@ -63,6 +65,7 @@ export function MemberLabWorkspace({ workspace: initialWorkspace, scopeNote, ret
   const [share, setShare] = useState(false);
   const requestInFlight = useRef(false);
   const announce = useAnnounce();
+  const tCommon = useTranslations('common');
   const { lab } = workspace;
   const hasUnsaved = !sameDraft(draft, asDraft(workspace));
   const completedCount = lab.deliverables.filter((item) => Boolean(draft.answers[item.id]?.trim())).length;
@@ -133,7 +136,7 @@ export function MemberLabWorkspace({ workspace: initialWorkspace, scopeNote, ret
       if (!response.ok || !result.workspace) throw new Error('The saved draft could not be loaded. Your text is still here; please retry.');
       setWorkspace(result.workspace); setDraft(asDraft(result.workspace)); setConflict(false); setShare(false);
       setMessage('Latest saved draft loaded.');
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'The saved draft could not be loaded.'); }
+    } catch (cause) { setError(requestFailureMessage(cause, { connection: tCommon('connectionError'), fallback: 'The saved draft could not be loaded.' }, 'member-lab-reload')); }
     finally { requestInFlight.current = false; setSaving(null); }
   }
 

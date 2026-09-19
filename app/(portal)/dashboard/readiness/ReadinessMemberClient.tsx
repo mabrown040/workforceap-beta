@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { ChevronDown, ChevronRight, CheckCircle } from 'lucide-react';
 import { ReadinessSkeleton } from '@/components/ui/Skeleton';
 
@@ -34,6 +36,7 @@ export default function ReadinessMemberClient({
   initialSections = [],
   loadError = null,
 }: ReadinessMemberClientProps) {
+  const tCommon = useTranslations('common');
   const [sections, setSections] = useState<Section[]>(initialSections);
   const [error, setError] = useState<string | null>(loadError);
   const [loading, setLoading] = useState(
@@ -63,7 +66,7 @@ export default function ReadinessMemberClient({
         setExpandedMap(buildExpanded(next));
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load readiness checklist');
+        if (!cancelled) setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Failed to load readiness checklist' }, 'readiness-checklist'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -72,7 +75,7 @@ export default function ReadinessMemberClient({
     return () => {
       cancelled = true;
     };
-  }, [initialSections.length, loadError]);
+  }, [initialSections.length, loadError, tCommon]);
 
   const totalItems = sections.reduce((acc, s) => acc + s.items.length, 0);
   const completedItems = sections.reduce((acc, s) => acc + s.items.filter((i) => i.completed).length, 0);

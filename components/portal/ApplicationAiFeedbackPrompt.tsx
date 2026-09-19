@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import type { ApplicationAiFeedbackHowUsed } from '@prisma/client';
 import { formatFeedbackPromptDate } from '@/lib/member/applicationAiFeedback';
 
@@ -16,6 +18,7 @@ type Props = {
 export default function ApplicationAiFeedbackPrompt({ jobApplicationId, recentTools, onDone, onSkip }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
   const [primaryId, setPrimaryId] = useState<string | null>(recentTools[0]?.id ?? null);
 
   const submit = async (howUsed: ApplicationAiFeedbackHowUsed) => {
@@ -35,7 +38,13 @@ export default function ApplicationAiFeedbackPrompt({ jobApplicationId, recentTo
       if (!res.ok) throw new Error(data.error ?? 'Could not save');
       onDone();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(
+        requestFailureMessage(
+          e,
+          { connection: tCommon('connectionError'), fallback: 'Something went wrong' },
+          'application-ai-feedback',
+        ),
+      );
     } finally {
       setSubmitting(false);
     }

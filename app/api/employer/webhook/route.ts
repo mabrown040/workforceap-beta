@@ -32,8 +32,10 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       event = getStripe().webhooks.constructEvent(payload, sig, getStripeWebhookSecret());
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
+      // Keep Stripe's reason (and a missing STRIPE_WEBHOOK_SECRET) in the server
+      // log only; this endpoint is unauthenticated. Same shape as /api/stripe/webhook.
       console.error('[employer/webhook] signature verification failed:', msg);
-      return NextResponse.json({ error: `Webhook signature verification failed: ${msg}` }, { status: 400 });
+      return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
     }
 
     try {

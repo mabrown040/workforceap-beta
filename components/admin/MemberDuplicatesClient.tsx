@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type Member = {
   id: string;
@@ -188,7 +189,7 @@ export default function MemberDuplicatesClient() {
                       <div><strong>Created:</strong> {new Date(m.createdAt).toLocaleDateString()}</div>
                       <div><strong>Updated:</strong> {new Date(m.updatedAt).toLocaleDateString()}</div>
                       <div><strong>Phone:</strong> {m.phone ?? m.profile?.profilePhone ?? '—'}</div>
-                      <div><strong>Program:</strong> {m.enrolledProgram ?? '—'}</div>
+                      <div><strong>Program:</strong> {m.enrolledProgram ? programDisplayTitle(m.enrolledProgram) : '—'}</div>
                       <div><strong>Assessment:</strong> {m.assessmentCompleted ? '✓' : '—'}</div>
                       <div><strong>Courses:</strong> {m.enrolledProgram ? (m.memberProgramProgress.find((row) => row.programSlug === m.enrolledProgram)?.coursesCompleted ?? m.courseProgress.filter((row) => row.programSlug === m.enrolledProgram).length) : m.courseProgress.length}</div>
                       <div><strong>Applications:</strong> {m._count.applications}</div>

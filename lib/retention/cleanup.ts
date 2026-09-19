@@ -22,6 +22,8 @@ export type DataCleanupReport = {
   results: CleanupResult[];
   totalDeleted: number;
   deletedAccounts?: number;
+  /** Soft-deleted accounts past retention that a foreign key still holds. */
+  blockedAccounts?: BlockedAccount[];
 };
 
 /**
@@ -112,49 +114,106 @@ export async function cleanupTable(cfg: RetentionTableConfig): Promise<CleanupRe
   };
 }
 
+/** A soft-deleted account the purge could not remove, and the constraint that stopped it. */
+export type BlockedAccount = {
+  id: string;
+  constraint: string;
+};
+
+export type DeletedAccountsResult = {
+  deleted: number;
+  blocked: BlockedAccount[];
+};
+
+/**
+ * `audit_events.actor_role` written by the member self-service routes
+ * (`logAuditEvent({ user: { id, role: 'member' } })`). Rows a member wrote
+ * about their own account are the account's data; rows written by staff
+ * actors are the admin audit trail and are never touched here.
+ */
+const SELF_SERVICE_AUDIT_ACTOR_ROLE = 'member';
+
+/**
+ * Extract the constraint name from a Prisma P2003 (foreign key violated)
+ * error, e.g. `audit_events_actor_user_id_fkey (index)` → `audit_events_actor_user_id_fkey`.
+ * Returns null for any other error.
+ */
+export function foreignKeyConstraintName(err: unknown): string | null {
+  if (!err || typeof err !== 'object') return null;
+  const { code, meta } = err as { code?: unknown; meta?: { field_name?: unknown; constraint?: unknown } };
+  if (code !== 'P2003') return null;
+  const raw = meta?.field_name ?? meta?.constraint;
+  if (typeof raw === 'string' && raw.trim()) return raw.replace(/\s*\(index\)\s*$/, '').trim();
+  if (Array.isArray(raw) && raw.length > 0) return raw.map(String).join(',');
+  return 'unknown';
+}
+
 /**
  * Hard-delete users that have been soft-deleted for longer than
  * DELETED_ACCOUNT_RETENTION_DAYS.
  *
  * This is a GDPR compliance measure: after the legal hold period,
  * the account and all cascading relations are permanently removed.
+ *
+ * Most member tables cascade from `users`, but `audit_events.actor_user_id`
+ * is `ON DELETE RESTRICT` with a required actor, and every member who used
+ * the portal (or the self-delete button itself) has rows there. Deleting the
+ * user row alone therefore fails with `audit_events_actor_user_id_fkey`, so
+ * the member's own self-service rows are removed first, inside the same
+ * transaction as the user row.
+ *
+ * Each account is purged in its own transaction. An account that is still
+ * held by a foreign key (a former staff member's admin audit trail, a
+ * chapter membership, a subgroup they created) is reported by constraint
+ * name and skipped, so one held account can no longer stop every other
+ * account in the batch from being purged.
  */
-export async function cleanupDeletedAccounts(): Promise<number> {
+export async function cleanupDeletedAccounts(): Promise<DeletedAccountsResult> {
   const cutoff = getCutoffDate(DELETED_ACCOUNT_RETENTION_DAYS);
 
-  let totalDeleted = 0;
+  let deleted = 0;
+  const blocked: BlockedAccount[] = [];
 
   while (true) {
-    // Find-then-delete-by-id logical unit — run in one transaction so the
-    // delete targets exactly the row set the read just selected, under a
-    // consistent GUC-tagged context.
-    const batchResult: { deletedCount: number; batchSize: number } | null = await prisma.$transaction(
-      async (tx) => {
-        const rows: { id: string }[] = await tx.user.findMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-          select: { id: true },
-          take: RETENTION_BATCH_SIZE,
-          orderBy: { deletedAt: 'asc' },
-        });
+    const where: Record<string, unknown> = { deletedAt: { not: null, lt: cutoff } };
+    if (blocked.length > 0) where.id = { notIn: blocked.map((b) => b.id) };
 
-        if (rows.length === 0) return null;
-
-        // deleteMany cascades via Prisma relations where configured
-        const result = await tx.user.deleteMany({
-          where: { id: { in: rows.map((r) => r.id) } },
-        });
-
-        return { deletedCount: result.count, batchSize: rows.length };
-      },
+    // Read inside a transaction so the query runs under the same GUC-tagged
+    // context the rest of the cron uses.
+    const rows: { id: string }[] = await prisma.$transaction((tx) =>
+      tx.user.findMany({
+        where,
+        select: { id: true },
+        take: RETENTION_BATCH_SIZE,
+        orderBy: { deletedAt: 'asc' },
+      }),
     );
 
-    if (batchResult === null) break;
+    if (rows.length === 0) break;
 
-    totalDeleted += batchResult.deletedCount;
-    if (batchResult.batchSize < RETENTION_BATCH_SIZE) break;
+    for (const { id } of rows) {
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.auditEvent.deleteMany({
+            where: { actorUserId: id, actorRole: SELF_SERVICE_AUDIT_ACTOR_ROLE },
+          });
+          // deleteMany (not delete) so a row removed concurrently is a no-op,
+          // not a P2025. Cascades run at the database level from here.
+          await tx.user.deleteMany({ where: { id } });
+        });
+        deleted += 1;
+      } catch (err) {
+        const constraint = foreignKeyConstraintName(err);
+        if (!constraint) throw err;
+        console.error(`[data-cleanup] Soft-deleted account ${id} is still referenced by ${constraint}; skipped.`);
+        blocked.push({ id, constraint });
+      }
+    }
+
+    if (rows.length < RETENTION_BATCH_SIZE) break;
   }
 
-  return totalDeleted;
+  return { deleted, blocked };
 }
 
 /**
@@ -187,9 +246,20 @@ export async function runDataCleanup(): Promise<DataCleanupReport> {
   }
 
   let deletedAccounts = 0;
+  let blockedAccounts: BlockedAccount[] = [];
   try {
-    deletedAccounts = await cleanupDeletedAccounts();
+    const accounts = await cleanupDeletedAccounts();
+    deletedAccounts = accounts.deleted;
+    blockedAccounts = accounts.blocked;
     totalDeleted += deletedAccounts;
+    if (blockedAccounts.length > 0) {
+      results.push({
+        model: 'user (deleted accounts)',
+        deleted: deletedAccounts,
+        batchCount: 0,
+        error: `${blockedAccounts.length} account(s) still referenced by: ${[...new Set(blockedAccounts.map((b) => b.constraint))].join(', ')}`,
+      });
+    }
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     console.error('[data-cleanup] Failed for deleted accounts:', error);
@@ -209,5 +279,6 @@ export async function runDataCleanup(): Promise<DataCleanupReport> {
     results,
     totalDeleted,
     deletedAccounts,
+    blockedAccounts,
   };
 }

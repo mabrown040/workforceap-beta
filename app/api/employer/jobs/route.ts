@@ -181,7 +181,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     const detail = getRouteErrorDetails(error);
     captureApiError(error, { route: 'employer/jobs POST', extra: detail });
     return NextResponse.json(
-      { error: 'Failed to create job draft.', detail: detail.message, code: detail.code },
+      { error: 'Failed to create job draft.', code: detail.code },
       { status: 500 }
     );
   }

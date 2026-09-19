@@ -54,7 +54,7 @@ const createApplicationSchema = z.object({
 
     await ensureUserInDb(user);
 
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
     const parsed = createApplicationSchema.safeParse(body);
 
     if (!parsed.success) {

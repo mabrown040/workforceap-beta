@@ -18,7 +18,9 @@
  */
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import remarkGfm from 'remark-gfm';
 import SkillMapperRadar from '@/components/portal/tools/SkillMapperRadar';
 
@@ -443,22 +445,32 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
   );
 }
 
+const PDF_FAILED = 'Could not create the PDF. Please try again.';
+
 function DownloadPdfButton({ text, title, toolName }: { text: string; title?: string; toolName?: string }) {
+  const tCommon = useTranslations('common');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
+    <>
     <button
       type="button"
       disabled={loading}
       aria-busy={loading}
       onClick={async () => {
         setLoading(true);
+        setError(null);
         try {
           const res = await fetch('/api/ai/export-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text, title, toolName }),
           });
-          if (!res.ok) return;
+          if (!res.ok) {
+            const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+            setError(typeof data.error === 'string' && data.error.trim() ? data.error : PDF_FAILED);
+            return;
+          }
           const blob = await res.blob();
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -466,6 +478,8 @@ function DownloadPdfButton({ text, title, toolName }: { text: string; title?: st
           a.download = `${(title ?? toolName ?? 'workforceap-result').replace(/\s+/g, '-').toLowerCase()}.pdf`;
           a.click();
           URL.revokeObjectURL(url);
+        } catch (err) {
+          setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: PDF_FAILED }, 'ai-export-pdf'));
         } finally {
           setLoading(false);
         }
@@ -479,6 +493,12 @@ function DownloadPdfButton({ text, title, toolName }: { text: string; title?: st
         {loading ? 'Saving…' : 'Download PDF'}
       </span>
     </button>
+    {error ? (
+      <p role="alert" style={{ flexBasis: '100%', margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--wa-danger, #dc2626)' }}>
+        {error}
+      </p>
+    ) : null}
+    </>
   );
 }
 

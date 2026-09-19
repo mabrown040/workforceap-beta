@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import DataTable from '@/components/portal/ui/DataTable';
 
 const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
 const GREEN = '#4a9b4f';
-const GOLD = '#FFBB00';
+const GOLD = '#a47f38';
 
 interface PublicPartnerReport {
   quarter: string;
@@ -76,6 +78,7 @@ export default function OrgOutcomesClient({
   partnerLogo: string | null;
   partnerBrandColor: string | null;
 }) {
+  const tCommon = useTranslations('common');
   const [quarter, setQuarter] = useState('Q1');
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState<PublicPartnerReport | null>(null);
@@ -96,11 +99,11 @@ export default function OrgOutcomesClient({
       const json = await res.json();
       setData(json);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load data');
+      setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Failed to load data' }, 'org-outcomes'));
     } finally {
       setLoading(false);
     }
-  }, [partnerSlug, quarter, year]);
+  }, [partnerSlug, quarter, year, tCommon]);
 
   useEffect(() => {
     fetchData();

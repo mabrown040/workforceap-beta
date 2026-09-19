@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type Props = {
   compact?: boolean;
@@ -81,7 +82,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
       setEmail('');
       setPersonalMessage('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not send invite.');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not send invite.' }, 'partner-invite'));
     } finally {
       setSubmitting(false);
     }

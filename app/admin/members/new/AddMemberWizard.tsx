@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { formatPhone } from '@/lib/formatPhone';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
@@ -238,7 +239,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       const res = await fetch('/api/admin/members/enhance-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume: sourceResume, programTitle: program?.title ?? sourceProgramSlug }),
+        body: JSON.stringify({ resume: sourceResume, programTitle: program?.title ?? programDisplayTitle(sourceProgramSlug) }),
       });
       const data = await res.json().catch(() => ({}));
       if (requestGeneration !== enhancementGenerationRef.current) return;
@@ -755,7 +756,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
           <div className="wizard-summary-card">
             <p><strong>Personal:</strong> {form.firstName} {form.lastName}, {form.email}, {formatPhone(form.phone)}</p>
             <p><strong>WIOA:</strong> Citizen {form.usCitizen ? 'Yes' : 'No'}, Authorized {form.authorizedToWork ? 'Yes' : 'No'}, Disability {form.hasDisability ? 'Yes' : 'No'}, Ethnicity: {form.ethnicity || '—'}</p>
-            <p><strong>Program:</strong> {programs.find((p) => p.slug === form.programSlug)?.title ?? form.programSlug}</p>
+            <p><strong>Program:</strong> {programs.find((p) => p.slug === form.programSlug)?.title ?? programDisplayTitle(form.programSlug)}</p>
             <p>
               <strong>Partner referral:</strong>{' '}
               {form.partnerId ? partners.find((p) => p.id === form.partnerId)?.name ?? form.partnerId : 'None'}

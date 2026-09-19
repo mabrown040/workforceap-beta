@@ -27,7 +27,7 @@ export async function fetchPlacementAnalytics(orgId: string) {
         MIN(pr.salary_offered)::float as min,
         MAX(pr.salary_offered)::float as max
       FROM placement_records pr
-      INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid AND u.deleted_at IS NULL
+      INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId} AND u.deleted_at IS NULL
       WHERE pr.salary_offered IS NOT NULL
     `,
   ]);

@@ -3,6 +3,7 @@
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 type Suggestion = { id: string; fullName: string; email: string };
 
@@ -258,7 +259,7 @@ export default function MemberMergeClient() {
               <div style={{ fontWeight: 700, fontSize: '1rem' }}>{preview.primary.fullName}</div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{preview.primary.email}</div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-                {preview.primary.phone ?? 'No phone'} · {preview.primary.enrolledProgram ?? 'No program'} · Assessment: {preview.primary.assessmentCompleted ? '✓' : '—'}
+                {preview.primary.phone ?? 'No phone'} · {preview.primary.enrolledProgram ? programDisplayTitle(preview.primary.enrolledProgram) : 'No program'} · Assessment: {preview.primary.assessmentCompleted ? '✓' : '—'}
               </div>
             </div>
             <div style={cardStyle}>
@@ -266,7 +267,7 @@ export default function MemberMergeClient() {
               <div style={{ fontWeight: 700, fontSize: '1rem' }}>{preview.secondary.fullName}</div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{preview.secondary.email}</div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-                {preview.secondary.phone ?? 'No phone'} · {preview.secondary.enrolledProgram ?? 'No program'} · Assessment: {preview.secondary.assessmentCompleted ? '✓' : '—'}
+                {preview.secondary.phone ?? 'No phone'} · {preview.secondary.enrolledProgram ? programDisplayTitle(preview.secondary.enrolledProgram) : 'No program'} · Assessment: {preview.secondary.assessmentCompleted ? '✓' : '—'}
               </div>
             </div>
           </div>

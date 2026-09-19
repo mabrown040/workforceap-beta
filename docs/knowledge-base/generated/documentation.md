@@ -28,7 +28,7 @@
 | [docs/CROSS-PORTAL-PAGES-AUDIT.md](../../../docs/CROSS-PORTAL-PAGES-AUDIT.md) | 54 | documentation |  |
 | [docs/DAILY-OPERATING-PLAN.md](../../../docs/DAILY-OPERATING-PLAN.md) | 250 | documentation |  |
 | [docs/DATABASE-PERFORMANCE-AUDIT.md](../../../docs/DATABASE-PERFORMANCE-AUDIT.md) | 671 | documentation |  |
-| [docs/DATABASE-RECOVERY.md](../../../docs/DATABASE-RECOVERY.md) | 155 | documentation |  |
+| [docs/DATABASE-RECOVERY.md](../../../docs/DATABASE-RECOVERY.md) | 199 | documentation |  |
 | [docs/DEEP-TECH-AUDIT-2026-05-12.md](../../../docs/DEEP-TECH-AUDIT-2026-05-12.md) | 231 | documentation |  |
 | [docs/DEMO-PATH-AUDIT.md](../../../docs/DEMO-PATH-AUDIT.md) | 128 | documentation |  |
 | [docs/DEPLOYMENT-CHECKLIST.md](../../../docs/DEPLOYMENT-CHECKLIST.md) | 176 | documentation |  |
@@ -47,7 +47,7 @@
 | [docs/I18N-LOCALE-ROUTING.md](../../../docs/I18N-LOCALE-ROUTING.md) | 520 | documentation |  |
 | [docs/INCIDENT-RESPONSE-PLAN.md](../../../docs/INCIDENT-RESPONSE-PLAN.md) | 340 | documentation |  |
 | [docs/JOB-CREATE-FIX.md](../../../docs/JOB-CREATE-FIX.md) | 33 | documentation |  |
-| [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 395 | documentation |  |
+| [docs/KIT_GUIDE.md](../../../docs/KIT_GUIDE.md) | 397 | documentation |  |
 | [docs/LAUNCH-PREP-AUDIT.md](../../../docs/LAUNCH-PREP-AUDIT.md) | 146 | documentation |  |
 | [docs/LIVE-PORTAL-AUDIT-2026-04-26.md](../../../docs/LIVE-PORTAL-AUDIT-2026-04-26.md) | 707 | documentation |  |
 | [docs/MEMBER-FUNNEL-BRIEF-2026-09-18.md](../../../docs/MEMBER-FUNNEL-BRIEF-2026-09-18.md) | 318 | documentation |  |
@@ -67,7 +67,7 @@
 | [docs/PORTAL-UI-UX-ENHANCEMENTS.md](../../../docs/PORTAL-UI-UX-ENHANCEMENTS.md) | 166 | documentation |  |
 | [docs/PORTALS.md](../../../docs/PORTALS.md) | 367 | documentation |  |
 | [docs/PORTAL_DESIGN_KIT.md](../../../docs/PORTAL_DESIGN_KIT.md) | 139 | documentation |  |
-| [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 101 | documentation |  |
+| [docs/PORTAL_NAV_SPEC.md](../../../docs/PORTAL_NAV_SPEC.md) | 156 | documentation |  |
 | [docs/PORTAL_REDESIGN_PLAN.md](../../../docs/PORTAL_REDESIGN_PLAN.md) | 189 | documentation |  |
 | [docs/PORTAL_UI_DECISION_MOCKUP.md](../../../docs/PORTAL_UI_DECISION_MOCKUP.md) | 120 | documentation |  |
 | [docs/PORTING_GUIDE.md](../../../docs/PORTING_GUIDE.md) | 108 | documentation |  |

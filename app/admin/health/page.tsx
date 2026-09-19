@@ -57,7 +57,7 @@ function statusColor(status: HealthStatus | 'ok' | 'degraded' | 'fail'): string 
     case 'ok':
       return 'var(--color-green, #4a9b4f)';
     case 'degraded':
-      return 'var(--color-gold, #ffbb00)';
+      return 'var(--color-gold, #a47f38)';
     case 'unhealthy':
     case 'fail':
       return 'var(--color-accent, #ad2c4d)';

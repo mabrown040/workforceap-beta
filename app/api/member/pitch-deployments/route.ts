@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -29,10 +30,8 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: { employer?: string; usedAt?: string; outcome?: string };
-  try {
-    body = await req.json();
-  } catch {
+  const body = await readJsonObjectBody<{ employer?: string; usedAt?: string; outcome?: string }>(req);
+  if (!body) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 

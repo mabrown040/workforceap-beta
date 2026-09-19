@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { claudeChat } from '@/lib/ai/anthropicChat';
 import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
@@ -109,10 +110,8 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
     if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
 
-    let body: HistoryBody;
-    try {
-      body = (await req.json()) as HistoryBody;
-    } catch {
+    const body = await readJsonObjectBody<HistoryBody>(req);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
   

@@ -46,7 +46,8 @@ async function _GET(request: NextRequest, { params }: Props) {
   if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  const orgId = await getSubjectOrganizationId(memberId);
+  const orgId = await getSubjectOrganizationId(memberId).catch(() => null);
+  if (!orgId) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
@@ -123,6 +124,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
 
   const text = typeof (body as { body?: unknown }).body === 'string' ? (body as { body: string }).body : '';
   const normalized = normalizeMessageBody(text);
@@ -130,7 +134,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return NextResponse.json({ error: normalized.error }, { status: 400 });
   }
 
-  const orgId = await getSubjectOrganizationId(memberId);
+  const orgId = await getSubjectOrganizationId(memberId).catch(() => null);
+  if (!orgId) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id: memberId, deletedAt: null },
@@ -183,7 +188,8 @@ export const POST = withApiGuc(_POST);async function _PATCH(request: NextRequest
   if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  const orgId = await getSubjectOrganizationId(memberId);
+  const orgId = await getSubjectOrganizationId(memberId).catch(() => null);
+  if (!orgId) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({

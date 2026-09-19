@@ -3,6 +3,7 @@ import 'server-only';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { resolveStaffTrainingPreviewProgramSlug } from '@/lib/member/staffTrainingProgramFallback';
 import {
@@ -124,7 +125,7 @@ export async function getActiveProgramForDashboard(args: {
   }
 
   const programTitle = activeProgramSlug
-    ? getProgramBySlug(activeProgramSlug)?.title ?? activeProgramSlug
+    ? programDisplayTitle(activeProgramSlug)
     : null;
 
   return {

@@ -9994,3 +9994,50 @@ html[data-portal-role='admin'] .workspace-sidebar-brand-sub {
 .workspace-shell-root[data-workspace-role] .marketing-bottom-nav__label {
     color: inherit;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Contextual Career Studio tool row (member rail)
+   The rail grows exactly one extra row — the tool the member is currently
+   inside — nested under the Career Studio entry. It is never more than one
+   row, and it disappears on the hub itself, so the rail stays 8 rows on a
+   tool page instead of the 25 a permanent row-per-tool would cost.
+   ────────────────────────────────────────────────────────────────────────── */
+.workspace-sidebar-link--nested {
+    margin-left: 1.15rem;
+    padding-left: 0.6rem;
+    font-size: 0.845rem;
+    border-left: 2px solid var(--color-accent);
+    border-top-left-radius: 0.35rem;
+    border-bottom-left-radius: 0.35rem;
+}
+.workspace-sidebar-link--nested .workspace-sidebar-icon {
+    opacity: 0.75;
+}
+.workspace-sidebar--collapsed .workspace-sidebar-link--nested {
+    margin-left: 0;
+    padding-left: 0.82rem;
+    border-left-color: transparent;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Mobile header band: current page name
+   The member tagline is hidden below 769px, which left the band empty. Name
+   the page there instead — including the Career Studio tool you are in.
+   ────────────────────────────────────────────────────────────────────────── */
+.workspace-shell-current-page {
+    display: none;
+}
+@media (max-width: 768px) {
+    .workspace-shell-current-page {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        color: var(--color-on-surface-variant);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 14rem;
+        min-width: 0;
+    }
+}

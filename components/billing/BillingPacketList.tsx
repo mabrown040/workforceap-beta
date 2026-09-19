@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import type { BillingPacketSummary } from '@/lib/billing/packetAccess';
 import { formatLongDate, formatMoney } from '@/lib/billing/packetText';
 
@@ -36,6 +38,7 @@ export default function BillingPacketList({
   emptyText = 'No invoice packets yet.',
 }: BillingPacketListProps) {
   const [send, setSend] = useState<SendState>(null);
+  const tCommon = useTranslations('common');
 
   if (packets.length === 0) {
     return <p style={{ margin: 0, color: 'var(--color-muted, #64748b)', fontSize: '0.95rem' }}>{emptyText}</p>;
@@ -59,7 +62,7 @@ export default function BillingPacketList({
       setSend({ id: packet.id, busy: false, ok: true, message: `Sent to ${to}.${warn}${extra}` });
       if (data.packet && onPacketUpdated) onPacketUpdated(data.packet);
     } catch (err) {
-      setSend({ id: packet.id, busy: false, ok: false, message: err instanceof Error ? err.message : 'Could not send the documents right now.' });
+      setSend({ id: packet.id, busy: false, ok: false, message: requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not send the documents right now.' }, 'billing-packet-send') });
     }
   };
 

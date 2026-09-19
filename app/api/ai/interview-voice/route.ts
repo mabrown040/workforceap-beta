@@ -27,8 +27,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const { text, voiceId } = body as { text: string; voiceId?: string };
+    const body: unknown = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const { text, voiceId } = body as { text?: unknown; voiceId?: unknown };
 
     if (!text || typeof text !== 'string' || text.length > 2000) {
       return NextResponse.json(
@@ -44,7 +47,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const audioBuffer = await generateSpeech(text, { voiceId });
+    const audioBuffer = await generateSpeech(text, {
+      voiceId: typeof voiceId === 'string' ? voiceId : undefined,
+    });
 
     return new NextResponse(audioBuffer, {
       headers: {

@@ -22,7 +22,7 @@ type Props = {
 
 const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
-const GOLD = '#FFBB00';
+const GOLD = '#a47f38';
 const GREEN = '#4a9b4f';
 const MUTED = '#584144';
 

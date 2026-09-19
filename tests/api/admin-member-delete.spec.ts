@@ -21,6 +21,7 @@ vi.mock('@/lib/auth/server', () => ({
 
 vi.mock('@/lib/auth/roles', () => ({
   requireAdmin: vi.fn(),
+  isAdmin: vi.fn(),
   getProfileRole: vi.fn(),
 }));
 
@@ -72,7 +73,7 @@ vi.mock('@/lib/gdpr/deleteUserStorage', () => ({
 
 import { POST } from '@/app/api/admin/members/[id]/delete/route';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { isAdmin, requireAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { deleteUserStorageObjects } from '@/lib/gdpr/deleteUserStorage';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
@@ -90,6 +91,7 @@ describe('POST /api/admin/members/[id]/delete', () => {
     vi.clearAllMocks();
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as never);
     vi.mocked(requireAdmin).mockResolvedValue(undefined as never);
+    vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
     findFirst.mockResolvedValue({
       email: 'member@example.com',

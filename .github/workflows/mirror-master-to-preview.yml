@@ -12,8 +12,6 @@ name: Mirror master to preview
 # it to master's SHA. Nothing else may push to it.
 
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
 
 permissions:

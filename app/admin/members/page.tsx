@@ -8,6 +8,7 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
@@ -357,7 +358,7 @@ export default async function AdminMembersPage({
     );
     const enrollmentProgramTitleBySlug: Record<string, string> = {};
     for (const slug of enrollmentProgramSlugs) {
-      enrollmentProgramTitleBySlug[slug] = getProgramBySlug(slug)?.title ?? slug;
+      enrollmentProgramTitleBySlug[slug] = programDisplayTitle(slug);
     }
 
     return {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { useState, useEffect } from 'react';
 import { Briefcase } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
@@ -70,6 +71,7 @@ const textAreaStyle: React.CSSProperties = {
 
 export default function PlacementsPage() {
   const t = useTranslations('counselor');
+  const tCommon = useTranslations('common');
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [memberOptions, setMemberOptions] = useState<MemberOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +139,7 @@ export default function PlacementsPage() {
       resetForm();
       loadPlacements();
     } catch (e: unknown) {
-      setMessage(e instanceof Error ? e.message : t('failedToRecordPlacement'));
+      setMessage(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: t('failedToRecordPlacement') }, 'counselor-placement'));
       setMessageIsSuccess(false);
     } finally {
       setSubmitting(false);

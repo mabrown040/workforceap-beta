@@ -16,7 +16,7 @@
 | [CEO-REVIEW-2026-06-09.md](../../../CEO-REVIEW-2026-06-09.md) | 47 | root |  |
 | [CEO-REVIEW-2026-06-10.md](../../../CEO-REVIEW-2026-06-10.md) | 182 | root |  |
 | [Caddyfile](../../../Caddyfile) | 18 | root |  |
-| [DEMO_SETUP.md](../../../DEMO_SETUP.md) | 136 | root |  |
+| [DEMO_SETUP.md](../../../DEMO_SETUP.md) | 167 | root |  |
 | [DEPLOY.md](../../../DEPLOY.md) | 153 | root |  |
 | [DESIGN.md](../../../DESIGN.md) | 292 | root |  |
 | [EMAIL-SETUP.md](../../../EMAIL-SETUP.md) | 150 | root |  |

@@ -8,9 +8,14 @@ import {
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
-import type { NextBestAction } from '@/lib/member/nextBestActions';
 import { MEMBER_PROGRAM_HREF, resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
+import { buildNextBestActions, type NextBestAction } from '@/lib/member/nextBestActions';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import {
+  digitalLiteracyFirstModuleHref,
+  isWorkforceApCourse,
+  workforceApCourseHref,
+} from '@/lib/content/courseDelivery';
 
 /**
  * Kit-default `/dashboard` home loader (SCALE Phase 2).
@@ -70,9 +75,17 @@ export type MemberDashboardHomeView = {
   currentStreak: number;
   longestStreak: number;
   goals: DashboardGoalSummary[];
-  /** Real next step title. Omit rather than invent "Continue your training". */
+  /**
+   * Real next step title. For an enrolled member this is the program's next
+   * incomplete module (first module when there is no progress yet), so the
+   * certification-path card names a module even when the top next-best action
+   * is the preassessment. Falls back to the top action title. Omit rather than
+   * invent "Continue your training".
+   */
   nextLesson?: string;
   nextLessonDue?: string;
+  /** Deep link for `nextLesson` when it names a program module. */
+  nextLessonHref?: string;
   /** Honest enrollment status. Omit when no program is on file. */
   programStatus?: string;
   nextBadgeName?: string;
@@ -89,6 +102,8 @@ export type MemberDashboardHomeView = {
   toolkitHref: string;
   jobsHref: string;
   doThisNext: NextBestAction | null;
+  /** Always the Digital Literacy lesson-1 URL; the kit shows it when no program is enrolled. */
+  ungatedDigitalBasicsHref: string;
   /** Prisma client operations issued by this call (happy path ≤ budget). */
   prismaOpCount: number;
 };
@@ -113,6 +128,7 @@ type DashboardHomeDb = {
 type DashboardUserRow = {
   fullName: string | null;
   enrolledProgram: string | null;
+  assessmentCompleted: boolean;
   organization: {
     courses: Array<{
       programSlug: string;
@@ -284,9 +300,87 @@ function displayFirstName(
   return pick(fullName) || pick(fallback);
 }
 
+function dashboardHomeStateLetter(args: {
+  enrolledProgram: string | null;
+  assessmentCompleted: boolean;
+  allCoursesComplete: boolean;
+}): 'A' | 'B' | 'C' | 'D' {
+  if (!args.enrolledProgram) return 'A';
+  if (!args.assessmentCompleted) return 'B';
+  if (args.allCoursesComplete) return 'D';
+  return 'C';
+}
+
+function fallbackDashboardHomeAction(args: {
+  enrolledProgram: string | null;
+  assessmentCompleted: boolean;
+  courseEnrollmentActive: boolean;
+  completedCourseCount: number;
+  jobApplicationCount: number;
+  trainingCoursesIncomplete: boolean;
+  nextIncompleteCourseName: string | null;
+  allCoursesComplete: boolean;
+}): NextBestAction {
+  const actions = buildNextBestActions({
+    state: dashboardHomeStateLetter(args),
+    // Applications are not in this loader's select. Do not send members to
+    // /apply without that fact — choose_program / counselor still fire.
+    noApplicationOnFile: false,
+    enrolledProgram: args.enrolledProgram,
+    assessmentCompleted: args.assessmentCompleted,
+    completedCourseCount: args.completedCourseCount,
+    starterProfileReviewRequired: false,
+    hasResume: true,
+    profileCompletenessPct: 100,
+    jobApplicationCount: args.jobApplicationCount,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+    courseEnrollmentActive: args.courseEnrollmentActive,
+    trainingCoursesIncomplete: args.trainingCoursesIncomplete,
+    nextIncompleteCourseName: args.nextIncompleteCourseName,
+  });
+  return actions[0]!;
+}
+
+function resolveDashboardHomeNextAction(args: {
+  persisted: DashboardUserRow['nextBestActions'];
+  enrolledProgram: string | null;
+  assessmentCompleted: boolean;
+  courseEnrollmentActive: boolean;
+  completedCourseCount: number;
+  jobApplicationCount: number;
+  trainingCoursesIncomplete: boolean;
+  nextIncompleteCourseName: string | null;
+  allCoursesComplete: boolean;
+}): NextBestAction {
+  const persisted = args.persisted[0];
+  if (persisted) {
+    return {
+      id: persisted.id,
+      title: persisted.title,
+      body: persisted.description,
+      href: resolveMemberProgramHref(persisted.ctaHref),
+      cta: persisted.ctaLabel,
+      variant: 'urgent',
+      weight: persisted.priority + 100,
+    };
+  }
+  return fallbackDashboardHomeAction(args);
+}
+
 function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashboardHomeView {
   const firstName = displayFirstName(null, fallbackDisplayName);
   const badge = deriveNextBadge({ totalPoints: 0, certCount: 0 });
+  const doThisNext = fallbackDashboardHomeAction({
+    enrolledProgram: null,
+    assessmentCompleted: false,
+    courseEnrollmentActive: false,
+    completedCourseCount: 0,
+    jobApplicationCount: 0,
+    trainingCoursesIncomplete: false,
+    nextIncompleteCourseName: null,
+    allCoursesComplete: false,
+  });
   return {
     firstName,
     coursePercent: 0,
@@ -296,6 +390,7 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     currentStreak: 0,
     longestStreak: 0,
     goals: [],
+    nextLesson: doThisNext.title,
     nextBadgeName: badge.nextBadgeName,
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,
@@ -308,7 +403,8 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     coursesHref: '/dashboard/learning',
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
-    doThisNext: null,
+    doThisNext,
+    ungatedDigitalBasicsHref: digitalLiteracyFirstModuleHref(),
     prismaOpCount: 1,
   };
 }
@@ -364,23 +460,39 @@ function shapeHome(args: {
   const pct = reconciliation.programPercent;
   const allCoursesComplete = reconciliation.allComplete;
   const firstName = displayFirstName(args.row.fullName, args.fallbackDisplayName);
+  const completedSlugs = new Set(
+    matchingCourseProgress
+      .filter((row) => row.status === 'COMPLETED')
+      .map((row) => row.courseSlug),
+  );
+  const nextIncompleteCourse = validatedCourses.find((course) => !completedSlugs.has(course.slug));
+  // The cert-path card must name a module, not the hero action: when the top
+  // next-best action is the preassessment (or a guide), the program still has a
+  // first / next incomplete module to show. `doThisNext` keeps the hero as is.
+  const nextModule = program && slug && nextIncompleteCourse
+    ? {
+        title: nextIncompleteCourse.name,
+        href: isWorkforceApCourse(nextIncompleteCourse)
+          ? workforceApCourseHref(nextIncompleteCourse.slug, slug)
+          : `${MEMBER_PROGRAM_HREF}?course=${encodeURIComponent(nextIncompleteCourse.slug)}`,
+      }
+    : null;
 
-  const topAction = args.row.nextBestActions[0] ?? null;
   const programHref = MEMBER_PROGRAM_HREF;
   // /dashboard/training only redirects back to /dashboard, so enrolled members
   // must resume on My Program — otherwise Continue/Resume is a do-loop.
   const resumeHref = programHref;
-  const doThisNext: NextBestAction | null = topAction
-    ? {
-        id: topAction.id,
-        title: topAction.title,
-        body: topAction.description,
-        href: resolveMemberProgramHref(topAction.ctaHref),
-        cta: topAction.ctaLabel,
-        variant: 'urgent',
-        weight: topAction.priority + 100,
-      }
-    : null;
+  const doThisNext = resolveDashboardHomeNextAction({
+    persisted: args.row.nextBestActions,
+    enrolledProgram: assignedSlug,
+    assessmentCompleted: args.row.assessmentCompleted,
+    courseEnrollmentActive: args.row.courseEnrollments.length > 0,
+    completedCourseCount: completedCount,
+    jobApplicationCount: args.row._count.jobApplications,
+    trainingCoursesIncomplete: Boolean(program) && !allCoursesComplete,
+    nextIncompleteCourseName: nextIncompleteCourse?.name ?? null,
+    allCoursesComplete,
+  });
 
   const weekAgo = Date.now() - WEEK_MS;
   const pointsThisWeek = args.row.pointsTransactions
@@ -405,7 +517,8 @@ function shapeHome(args: {
     currentStreak: args.row.memberPoints?.currentStreak ?? 0,
     longestStreak: args.row.memberPoints?.longestStreak ?? 0,
     goals: mapGoalSummaries(args.row.goals),
-    nextLesson: topAction?.title,
+    nextLesson: nextModule?.title ?? doThisNext.title,
+    nextLessonHref: nextModule?.href,
     nextBadgeName: badge.nextBadgeName,
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,
@@ -420,6 +533,7 @@ function shapeHome(args: {
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext,
+    ungatedDigitalBasicsHref: digitalLiteracyFirstModuleHref(),
     prismaOpCount: args.prismaOpCount,
   };
 }
@@ -428,6 +542,7 @@ function userSelect() {
   return {
     fullName: true,
     enrolledProgram: true,
+    assessmentCompleted: true,
     organization: {
       select: {
         courses: {

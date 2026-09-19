@@ -6,6 +6,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
+import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
+import { programStartAccessFromDashboardView } from '@/lib/member/programStartEnrollment';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
@@ -20,17 +22,22 @@ export default async function ProgramStartPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/program/start');
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      enrolledProgram: true,
-      fullName: true,
-      workspaceEmail: true,
-      workspaceEmailProvisioned: true,
-    },
-  });
+  const [dbUser, activeProgramView] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        fullName: true,
+        workspaceEmail: true,
+        workspaceEmailProvisioned: true,
+      },
+    }),
+    getActiveProgramForDashboard({ userId: user.id }),
+  ]);
 
-  const enrolledSlug = dbUser?.enrolledProgram ?? null;
+  // Same live source as /dashboard/program. Do not gate on User.enrolledProgram
+  // and do not write that leftover column back from this page.
+  const access = programStartAccessFromDashboardView(activeProgramView);
+  const enrolledSlug = access.enrolledSlug;
   if (!enrolledSlug) {
     redirect('/dashboard/program');
   }
@@ -39,7 +46,7 @@ export default async function ProgramStartPage() {
   // Multi-program: this page shows the user's primary enrollment workspace
   // info. /dashboard is the unified training home with program switching.
   const enrollment = await prisma.courseEnrollment.findFirst({
-    where: { userId: user.id, isPrimary: true },
+    where: { userId: user.id, programSlug: enrolledSlug },
     select: {
       workspaceEmail: true,
       workspaceEmailProvisioned: true,

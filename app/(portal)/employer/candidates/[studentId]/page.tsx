@@ -13,6 +13,7 @@ import { EMPLOYER_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/
 import PageHeader from '@/components/portal/PageHeader';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
@@ -153,10 +154,10 @@ export default async function EmployerCandidateProfilePage({
 
   // Multi-program-aware program label + training progress
   const enrollmentTitles = student.courseEnrollments.map(
-    (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+    (row) => programDisplayTitle(row.programSlug),
   );
   const enrolledProgramTitle = student.enrolledProgram
-    ? getProgramBySlug(student.enrolledProgram)?.title ?? student.enrolledProgram
+    ? programDisplayTitle(student.enrolledProgram)
     : null;
   const programDisplay = enrollmentTitles.length > 0
     ? Array.from(new Set(enrollmentTitles)).join(' · ')
@@ -323,7 +324,7 @@ export default async function EmployerCandidateProfilePage({
                 <div style={{ marginTop: '0.75rem' }}>
                   <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Program rollup</p>
                   <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
-                    {trainingRollupPct}% · {trainingProgram?.title ?? trainingProgramSlug}
+                    {trainingRollupPct}% · {trainingProgramSlug ? programDisplayTitle(trainingProgramSlug) : null}
                   </p>
                 </div>
                 {trainingProgram ? (
@@ -572,7 +573,7 @@ export default async function EmployerCandidateProfilePage({
                     <div style={{ marginTop: '0.85rem' }}>
                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Program rollup</p>
                       <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
-                        {trainingRollupPct}% · {trainingProgram?.title ?? trainingProgramSlug}
+                        {trainingRollupPct}% · {trainingProgramSlug ? programDisplayTitle(trainingProgramSlug) : null}
                       </p>
                     </div>
                     {trainingProgram ? (

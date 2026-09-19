@@ -80,12 +80,16 @@ export default async function CounselorStudentsPage({
 
   const activityRiskByMember = await loadCounselorRosterRiskAndActivity(memberIds);
 
-  /** Oldest platform activity first — prioritize follow-up for dormant members. */
-  const rosterAssignments = [...assignments].sort((a, b) => {
-    const ta = activityRiskByMember.get(a.memberId)?.lastActivityAt.getTime() ?? 0;
-    const tb = activityRiskByMember.get(b.memberId)?.lastActivityAt.getTime() ?? 0;
-    return ta - tb;
-  });
+  /**
+   * Oldest platform activity first — prioritize follow-up for dormant members.
+   * Members with no recorded activity sort last: an unknown recency is not
+   * evidence that they have gone quiet.
+   */
+  const activitySortKey = (memberId: string): number =>
+    activityRiskByMember.get(memberId)?.lastActivityAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  const rosterAssignments = [...assignments].sort(
+    (a, b) => activitySortKey(a.memberId) - activitySortKey(b.memberId),
+  );
 
   const rosterRows = rosterAssignments.map((a) => {
     const meta = activityRiskByMember.get(a.memberId);
@@ -106,7 +110,7 @@ export default async function CounselorStudentsPage({
       memberProgramProgress: a.member.memberProgramProgress,
       riskScore: meta?.riskScore ?? null,
       riskLevel: meta?.riskLevel ?? 'LOW',
-      lastActivityAt: (meta?.lastActivityAt ?? a.member.createdAt).toISOString(),
+      lastActivityAt: meta?.lastActivityAt?.toISOString() ?? null,
     };
   });
   const hotQueueCutoff = new Date(Date.now() - HOT_QUEUE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);

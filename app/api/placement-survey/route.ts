@@ -4,6 +4,7 @@ import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken'
 import { checkPlacementSurveyRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { apiError } from '@/lib/http/errorResponse';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { escalateToCounselor } from '@/lib/member/counselorEscalation';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -29,10 +30,10 @@ async function _POST(req: Request) {
       );
     }
 
-    let body: Record<string, unknown>;
-    try {
-      body = await req.json();
-    } catch {
+    // Malformed JSON and non-object JSON (`null`, `[]`, `"text"`) are the same
+    // client error; `null` used to pass `req.json()` and throw on `body.token`.
+    const body = await readJsonObjectBody(req);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 

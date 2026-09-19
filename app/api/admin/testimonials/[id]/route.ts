@@ -35,6 +35,7 @@ async function _PATCH(
     let body: Record<string, unknown>;
     try {
       body = await request.json();
+      if (!body || typeof body !== 'object') throw new Error('Body must be a JSON object');
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }

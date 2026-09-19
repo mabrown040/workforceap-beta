@@ -23,9 +23,6 @@ export const GET = withApiGuc(async () => {
     return NextResponse.json({ ok: true, health });
   } catch (error) {
     console.error('/api/admin/coursera/link-health error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Unable to load Coursera link health.' }, { status: 500 });
   }
 });

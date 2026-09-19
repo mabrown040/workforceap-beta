@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { readJsonObjectBody } from '@/lib/api/readJsonBody';
 import { isAdmin } from '@/lib/auth/roles';
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -25,10 +26,13 @@ async function _POST(request: Request) {
     }
     const organizationId = await getActorOrganizationId(user.id);
 
-    let body: { userId?: string; courseraEmail?: string; actorIdentifier?: string; actorHomePage?: string };
-    try {
-      body = await request.json();
-    } catch {
+    const body = await readJsonObjectBody<{
+      userId?: string;
+      courseraEmail?: string;
+      actorIdentifier?: string;
+      actorHomePage?: string;
+    }>(request);
+    if (!body) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 

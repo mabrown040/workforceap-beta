@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { ADMIN_SSR_LIST_CAP, showingFirstLabel } from '@/lib/db/queryCaps';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
 import { parseCourseGradeString, scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
@@ -568,7 +569,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
         .map((e) => ({
           programSlug: e.programSlug,
           curriculumVersion: e.curriculumVersion,
-          programTitle: getProgramBySlug(e.programSlug)?.title ?? e.programSlug,
+          programTitle: programDisplayTitle(e.programSlug),
         }))
         .sort((a, b) => a.programTitle.localeCompare(b.programTitle));
 

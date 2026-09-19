@@ -135,7 +135,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json().catch(() => ({}));
+    const body = (await request.json().catch(() => ({}))) ?? {};
 
     if (body.action === 'run_cleanup') {
       const report = await runDataCleanup();

@@ -100,8 +100,7 @@ function WioaErrorMessage({
       {error.code === 'WIOA_PENDING' ? (
         <>
           <p style={{ margin: '0 0 8px', fontSize: 14, lineHeight: 1.5, color: 'var(--wa-text)' }}>
-            {submittedLabel ? `Submitted ${submittedLabel} — r` : 'R'}eview is typically completed within a few business
-            days. You don&apos;t need to do anything else while it&apos;s in progress.
+            {submittedLabel ? `Submitted ${submittedLabel}. ` : ''}Your counselor will review this screening. There is no set wait time — message them if you have questions.
           </p>
           <Link
             href="/dashboard/messages"

@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, useCallback, type ReactNode } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import {
   BookOpen,
   Check,
@@ -24,7 +26,7 @@ import {
   type KitColor,
   type KitTone} from '@/components/portal/kit';
 import AtRiskDetailModal from './AtRiskDetailModal';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 /**
  * Counselor "At-risk members" — Command Center redesign.
@@ -199,6 +201,7 @@ export function AtRiskDashboardView({
   onRetry,
   onUpdateStatus,
   onBulkAcknowledge}: AtRiskDashboardViewProps) {
+  const tCommon = useTranslations('common');
   // Local mirror of `members` so the detail modal's status-change callback
   // (which — matching the legacy behavior — only syncs local UI state, it
   // does not itself call the PATCH endpoint) can update the list instantly.
@@ -322,7 +325,7 @@ export function AtRiskDashboardView({
         return next;
       });
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Failed to update status');
+      setActionError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Failed to update status' }, 'at-risk-status'));
     } finally {
       setActingIds((prev) => {
         const next = new Set(prev);
@@ -350,7 +353,7 @@ export function AtRiskDashboardView({
       }
       setSelectedIds(new Set());
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Bulk update failed');
+      setActionError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Bulk update failed' }, 'at-risk-bulk-acknowledge'));
     } finally {
       setBulkActionLoading(false);
     }
@@ -719,6 +722,7 @@ export function AtRiskDashboardView({
 // ─── Data-fetching container (the real /counselor/at-risk route) ──────────
 
 export default function AtRiskDashboard() {
+  const tCommon = useTranslations('common');
   const [members, setMembers] = useState<AtRiskMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -740,11 +744,11 @@ export default function AtRiskDashboard() {
       const data: ApiResponse = await res.json();
       setMembers(data.results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Unknown error' }, 'at-risk-dashboard'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tCommon]);
 
   useEffect(() => {
     fetchData();
@@ -834,14 +838,17 @@ function FilterChip({
 }) {
   // Severity chips carry an explicit KitColor; status chips reuse the
   // StatusTag tone→color mapping so "Open" reads the same everywhere.
+  // `ok` reads the text-on-success-tint token: --wa-success itself is a fill
+  // colour (3.1:1 on its own tint), not a text colour.
   const TONE_COLOR: Record<KitTone, string> = {
-    ok: 'var(--wa-success)',
+    ok: 'var(--wa-success-dark)',
     warn: 'var(--wa-gold)',
     alert: 'var(--wa-accent)',
     danger: '#b91c1c',
     info: 'var(--wa-info)',
     muted: 'var(--wa-muted)'};
   const c = color ? colorVar(color) : tone ? TONE_COLOR[tone] : 'var(--wa-text)';
+  const activeBg = tone === 'ok' ? 'var(--wa-success-soft)' : `color-mix(in srgb, ${c} 14%, transparent)`;
   return (
     <button
       type="button"
@@ -859,7 +866,7 @@ function FilterChip({
         fontWeight: 700,
         cursor: 'pointer',
         border: `1.5px solid ${active ? c : 'transparent'}`,
-        background: active ? `color-mix(in srgb, ${c} 14%, transparent)` : 'var(--wa-bg)',
+        background: active ? activeBg : 'var(--wa-bg)',
         color: c}}
     >
       {Icon ? <Icon size={13} /> : null}
@@ -990,7 +997,7 @@ function RiskRow({
             {row.phone ? ` · ${row.phone}` : ''}
           </div>
           <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 4 }}>
-            {row.enrolledProgram ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram : 'Not enrolled'} · last activity {formatDate(row.lastActivityAt ?? row.memberSince)}
+            {row.enrolledProgram ? programDisplayTitle(row.enrolledProgram) : 'Not enrolled'} · last activity {formatDate(row.lastActivityAt ?? row.memberSince)}
           </div>
           <FactorChips factors={row.factors} />
         </div>

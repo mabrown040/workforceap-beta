@@ -29,7 +29,8 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
 
     let body: { notes?: string } = {};
     try {
-      body = await request.json();
+      const parsed: unknown = await request.json();
+      body = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
     } catch {
       // notes are optional
     }

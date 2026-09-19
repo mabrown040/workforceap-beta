@@ -1,6 +1,8 @@
 'use client';
 
+import { useState, type MouseEvent } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 
@@ -8,6 +10,9 @@ import type { NextBestAction } from '@/lib/member/nextBestActions';
 import { resolveMemberProgramHref } from '@/lib/member/memberProgramHref';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
+
+/** Persisted MemberNextBestAction rows have UUID ids; synthetic ones don't and can't be PATCHed. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type MemberDoThisNextCardProps = {
   action: NextBestAction | null;
@@ -23,15 +28,36 @@ type MemberDoThisNextCardProps = {
 
 /**
  * Single dominant dashboard CTA — one "Today" action above secondary next-step strips.
- * Visual hierarchy only; does not change completion / progress semantics.
+ *
+ * Acting on the CTA marks the action `COMPLETED`, mirroring the featured card in
+ * `MemberNextStepsStrip` (which has no dismiss affordance either — the CTA is the
+ * clearing gesture). Without this the banner is permanent on the kit dashboard,
+ * where the strip isn't mounted and nothing else clears a non-CareerOS action.
  */
 export default function MemberDoThisNextCard({ action, paddingX = '2rem', variant = 'legacy' }: MemberDoThisNextCardProps) {
   const t = useTranslations('dashboard');
-  if (!action) return null;
+  const router = useRouter();
+  const [completed, setCompleted] = useState(false);
+  if (!action || completed) return null;
 
+  const actionId = action.id;
   const actionHref = resolveMemberProgramHref(action.href);
 
-  const handleCtaClick = () => {
+  const completeAndOpen = async () => {
+    try {
+      await fetch(`/api/member/nba/${actionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'COMPLETED' }),
+        keepalive: true,
+      });
+    } catch {
+      // Navigate anyway — clearing the card should never block the member.
+    }
+    router.push(actionHref);
+  };
+
+  const handleCtaClick = (event: MouseEvent<HTMLAnchorElement>) => {
     trackFunnelEvent('member_dashboard', 'dashboard_primary_cta_clicked', {
       action_id: action.id,
       action_label: action.cta,
@@ -41,6 +67,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
     void postMemberEvent({
       eventName: 'member_dashboard_action_clicked',
       entityType: 'next_best_action',
+      entityId: UUID_RE.test(actionId) ? actionId : undefined,
       sourcePage: '/dashboard',
       metadata: {
         action: 'dashboard_primary_cta_clicked',
@@ -49,6 +76,11 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
         href: actionHref,
       },
     });
+
+    if (!UUID_RE.test(actionId)) return;
+    event.preventDefault();
+    setCompleted(true);
+    void completeAndOpen();
   };
 
   if (variant === 'kit') {

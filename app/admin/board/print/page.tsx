@@ -6,7 +6,7 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getBoardOutcomes, type BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 import BoardOutcomesView from '@/components/admin/BoardOutcomesView';
 import PrintButton from '@/components/admin/PrintButton';
 
@@ -49,7 +49,7 @@ export default async function FunderReportPrintPage({
   const outcomes = await getBoardOutcomes(period, superUser ? undefined : orgId);
   const programsWithTitles = outcomes.programs.map((p) => ({
     ...p,
-    title: getProgramBySlug(p.programSlug)?.title ?? p.programSlug,
+    title: programDisplayTitle(p.programSlug),
   }));
   const boardName = sp.org ? prettifyOrgSlug(sp.org) : 'Workforce Advancement Project';
 

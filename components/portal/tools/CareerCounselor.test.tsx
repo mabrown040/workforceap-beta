@@ -1,7 +1,12 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { act, fireEvent, render as renderBare, screen, waitFor } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import CareerCounselor from './CareerCounselor';
+
+const render = (ui: ReactElement) => renderBare(<NextIntlClientProvider locale="en" messages={messages}>{ui}</NextIntlClientProvider>);
 
 type SessionCallbacks = {
   onConnect?: () => void;

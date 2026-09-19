@@ -13,6 +13,7 @@ import {
   PlacementSurveysKit,
   type PlacementSurveyRow,
 } from '@/components/portal/kit/pages/admin-subviews/PlacementSurveysKit';
+import { programDisplayTitle } from '@/lib/content/programTitle';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -203,7 +204,7 @@ export default async function PlacementSurveysPage({
                         <div className="wa-font-medium">{s.user?.fullName ?? '—'}</div>
                         <div className="wa-text-gray-500 wa-text-xs">{s.user?.email ?? '—'}</div>
                       </td>
-                      <td className="wa-px-4 wa-py-3 wa-text-gray-600">{s.user?.enrolledProgram ?? '—'}</td>
+                      <td className="wa-px-4 wa-py-3 wa-text-gray-600">{s.user?.enrolledProgram ? programDisplayTitle(s.user.enrolledProgram) : '—'}</td>
                       <td className="wa-px-4 wa-py-3 wa-text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {s.jobSatisfaction ? (
                           <span className="wa-inline-flex wa-items-center wa-gap-1">

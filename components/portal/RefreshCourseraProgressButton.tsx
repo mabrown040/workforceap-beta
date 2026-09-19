@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 /**
  * Manual "Refresh from Coursera" button. Bypasses the 60s server cache
@@ -12,6 +14,7 @@ import { useRouter } from 'next/navigation';
  */
 export default function RefreshCourseraProgressButton() {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -30,7 +33,7 @@ export default function RefreshCourseraProgressButton() {
       }
       startTransition(() => router.refresh());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Refresh failed');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Refresh failed' }, 'coursera-refresh-progress'));
     } finally {
       setBusy(false);
     }

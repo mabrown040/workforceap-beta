@@ -12,8 +12,8 @@ import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: t('outcomes.title') || 'Hiring Outcomes',
-    description: t('outcomes.description') || 'Your hiring pipeline effectiveness',
+    title: t('outcomes.title'),
+    description: t('outcomes.description'),
     path: '/employer/outcomes',
   });
 }

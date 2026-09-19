@@ -47,7 +47,9 @@ const noteSchema = z.object({
     take: 20,
     include: { author: { select: { fullName: true, email: true } } },
   }));
-  return NextResponse.json(notes);
+  // DELETE only accepts the author's own notes; tell the client up front so it
+  // does not offer a delete control that can only 404.
+  return NextResponse.json(notes.map((note) => ({ ...note, canDelete: note.authorId === user.id })));
 
   } catch (error) {
     console.error('/counselor/members/[memberId]/notes error:', error);
@@ -98,7 +100,7 @@ export const GET = withApiGuc(_GET);async function _POST(
     result: { success: true },
   }).catch(() => {});
 
-  return NextResponse.json(note, { status: 201 });
+  return NextResponse.json({ ...note, canDelete: true }, { status: 201 });
 
   } catch (error) {
     console.error('/counselor/members/[memberId]/notes error:', error);
@@ -120,8 +122,9 @@ export const POST = withApiGuc(_POST);async function _DELETE(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { noteId } = await request.json().catch(() => ({}));
-  if (!noteId) return NextResponse.json({ error: 'noteId required' }, { status: 400 });
+  const raw: unknown = await request.json().catch(() => null);
+  const noteId = (raw && typeof raw === 'object' ? (raw as { noteId?: unknown }).noteId : undefined);
+  if (typeof noteId !== 'string' || !noteId) return NextResponse.json({ error: 'noteId required' }, { status: 400 });
 
   const note = await prisma.$transaction((tx) => tx.counselorNote.findFirst({
     where: { id: noteId, memberId, authorId: user.id },

@@ -531,7 +531,7 @@
       "writeIn": "Por favor especifique"
     },
     "heroLabel": "Candidatura de Membro",
-    "heroHeading": "Inicie Sua Candidatura",
+    "heroHeading": "Formação profissional sem custo para membros que se qualificam.",
     "heroDesc": "Informe como podemos entrar em contato e responda a três perguntas rápidas de elegibilidade — situação de trabalho, renda familiar e autorização de trabalho. Depois você escolhe programas e cria sua conta. Um consultor entra em contato em 1–2 dias úteis.",
     "heroDescHighlight": "Os programas são oferecidos sem custo para membros elegíveis, financiados por subsídios e parcerias.",
     "heroDescSuffix": "Nenhuma experiência prévia necessária. Ajudaremos você a confirmar a adequação e elegibilidade para os próximos passos.",
@@ -553,7 +553,7 @@
     "programIntroReadOverview": "Ler a visão geral completa do programa",
     "programIntroOr": "ou",
     "programIntroCompareAll": "comparar todos os programas",
-    "applySocialProof": "Junte-se a membros construindo suas carreiras",
+    "applySocialProof": "Financiado por bolsas e parceiros. Certificados reconhecidos pela indústria e apoio à colocação.",
     "eligibilityPhoneHint": "Número dos EUA de 10 dígitos — seu conselheiro usa para acompanhamento e atualizações de inscrição.",
     "phoneValidationError": "Insira um número de telefone de 10 dígitos.",
     "applyConsentLine": "Ao continuar, você concorda com nossa",

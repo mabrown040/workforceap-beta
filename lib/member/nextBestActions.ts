@@ -84,7 +84,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     });
   }
 
-  if (ctx.state === 'B') {
+  if ((ctx.state === 'B' || ctx.state === 'C') && !ctx.assessmentCompleted) {
     if (ctx.starterProfileReviewRequired) {
       const missing = ctx.starterProfileMissingFields?.slice(0, 3) ?? [];
       const missingNote = missing.length > 0 ? ` Missing: ${missing.join(', ')}.` : '';
@@ -101,7 +101,11 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       out.push({
         id: 'skills_assessment',
         title: 'Complete your Training Preassessment',
-        body: 'After you choose a program, this short preassessment helps personalize your training plan and identify roles that may be a good fit.',
+        // A member with an enrolled program has already chosen it — do not tell
+        // them to pick one first (rendered 2026-09-18 for an enrolled member).
+        body: ctx.enrolledProgram
+          ? 'This short preassessment helps personalize your training plan and identify roles that may be a good fit.'
+          : 'After you choose a program, this short preassessment helps personalize your training plan and identify roles that may be a good fit.',
         href: '/dashboard/assessment',
         cta: 'Start preassessment',
         variant: 'urgent',

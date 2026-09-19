@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+    const body = ((await req.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
     const period =
       body.periodStart && body.periodEnd
         ? {

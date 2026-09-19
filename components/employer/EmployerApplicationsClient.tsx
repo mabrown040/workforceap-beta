@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import type { JobPostingApplicationStatus } from '@prisma/client';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -48,6 +50,7 @@ export default function EmployerApplicationsClient({
   activeStatusFilter: JobPostingApplicationStatus | null;
   activeSort: EmployerApplicationsSort;
 }) {
+  const tCommon = useTranslations('common');
   const [rows, setRows] = useState(initialRows);
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -109,10 +112,15 @@ export default function EmployerApplicationsClient({
         )
       );
       return true;
+    } catch (err) {
+      setError(
+        requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Update failed' }, 'employer-application-status'),
+      );
+      return false;
     } finally {
       setBusyId(null);
     }
-  }, []);
+  }, [tCommon]);
 
   const applyBulkStatus = useCallback(async () => {
     const ids = [...selected];

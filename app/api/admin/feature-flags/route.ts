@@ -31,8 +31,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await request.json();
-    const validation = validateCreateBody(body);
+    const body: unknown = await request.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const validation = validateCreateBody(body as Record<string, unknown>);
     if (validation.error) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }

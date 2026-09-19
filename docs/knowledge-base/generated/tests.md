@@ -55,6 +55,7 @@
 | [tests/api/careers-occupation-program-title.spec.ts](../../../tests/api/careers-occupation-program-title.spec.ts) | 86 | tests |  |
 | [tests/api/concordia-enroll-page.spec.ts](../../../tests/api/concordia-enroll-page.spec.ts) | 86 | tests |  |
 | [tests/api/counselor-analytics.spec.ts](../../../tests/api/counselor-analytics.spec.ts) | 232 | tests |  |
+| [tests/api/counselor-application-review.spec.ts](../../../tests/api/counselor-application-review.spec.ts) | 227 | tests |  |
 | [tests/api/counselor-dashboard.spec.ts](../../../tests/api/counselor-dashboard.spec.ts) | 609 | tests |  |
 | [tests/api/counselor-feedback.spec.ts](../../../tests/api/counselor-feedback.spec.ts) | 127 | tests |  |
 | [tests/api/counselor-handoff-atomicity.spec.ts](../../../tests/api/counselor-handoff-atomicity.spec.ts) | 56 | tests |  |
@@ -63,6 +64,7 @@
 | [tests/api/counselor-notes-author-gate.spec.ts](../../../tests/api/counselor-notes-author-gate.spec.ts) | 127 | tests |  |
 | [tests/api/counselor-routes.spec.ts](../../../tests/api/counselor-routes.spec.ts) | 1751 | tests |  |
 | [tests/api/counselor-thread-access-gate.spec.ts](../../../tests/api/counselor-thread-access-gate.spec.ts) | 139 | tests |  |
+| [tests/api/counselor-wioa-intake-review.spec.ts](../../../tests/api/counselor-wioa-intake-review.spec.ts) | 173 | tests |  |
 | [tests/api/coursera-replay-email-pacing.spec.ts](../../../tests/api/coursera-replay-email-pacing.spec.ts) | 62 | learning-coursera |  |
 | [tests/api/coursera-rest-webhook.spec.ts](../../../tests/api/coursera-rest-webhook.spec.ts) | 280 | learning-coursera |  |
 | [tests/api/cover-letter.spec.ts](../../../tests/api/cover-letter.spec.ts) | 167 | tests |  |
@@ -165,7 +167,7 @@
 | [tests/app/counselor-contextual-messages.spec.tsx](../../../tests/app/counselor-contextual-messages.spec.tsx) | 97 | tests |  |
 | [tests/app/counselor-handoff-access.spec.tsx](../../../tests/app/counselor-handoff-access.spec.tsx) | 74 | tests |  |
 | [tests/app/counselor-member-pageheader.spec.ts](../../../tests/app/counselor-member-pageheader.spec.ts) | 30 | tests |  |
-| [tests/app/counselor-student-detail-dates.spec.tsx](../../../tests/app/counselor-student-detail-dates.spec.tsx) | 114 | tests |  |
+| [tests/app/counselor-student-detail-dates.spec.tsx](../../../tests/app/counselor-student-detail-dates.spec.tsx) | 117 | tests |  |
 | [tests/app/dashboard-training-redirect.spec.ts](../../../tests/app/dashboard-training-redirect.spec.ts) | 69 | tests |  |
 | [tests/app/diagnostics-read-reliability.spec.tsx](../../../tests/app/diagnostics-read-reliability.spec.tsx) | 57 | tests |  |
 | [tests/app/employer-application-detail-dates.spec.tsx](../../../tests/app/employer-application-detail-dates.spec.tsx) | 54 | tests |  |
@@ -277,6 +279,7 @@
 | [tests/lib/ai-coach-memory-read.spec.ts](../../../tests/lib/ai-coach-memory-read.spec.ts) | 65 | tests |  |
 | [tests/lib/ai-job-match-cache-scope.spec.ts](../../../tests/lib/ai-job-match-cache-scope.spec.ts) | 42 | tests |  |
 | [tests/lib/ambassador-auto-assign.spec.ts](../../../tests/lib/ambassador-auto-assign.spec.ts) | 144 | tests |  |
+| [tests/lib/applicant-followup-email.spec.ts](../../../tests/lib/applicant-followup-email.spec.ts) | 84 | tests |  |
 | [tests/lib/applicant-triage.spec.ts](../../../tests/lib/applicant-triage.spec.ts) | 295 | tests |  |
 | [tests/lib/apply-metadata-image.spec.ts](../../../tests/lib/apply-metadata-image.spec.ts) | 24 | tests |  |
 | [tests/lib/at-risk-curriculum-assignment.spec.ts](../../../tests/lib/at-risk-curriculum-assignment.spec.ts) | 89 | tests |  |

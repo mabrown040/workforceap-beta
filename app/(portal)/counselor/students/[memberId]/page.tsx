@@ -27,6 +27,7 @@ import CounselorTrainingHandoff from '@/components/portal/counselor/CounselorTra
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import AdvisorSessionNotesPanel from './AdvisorSessionNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
+import CounselorIntakeReviewPanel from '@/components/counselor/CounselorIntakeReviewPanel';
 import BillingPacketList from '@/components/billing/BillingPacketList';
 import { listPacketsForMember } from '@/lib/billing/packetAccess';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
@@ -471,6 +472,34 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const billingPackets = await listPacketsForMember(member.id);
 
+  // Counselor approvals (Mike, 2026-09-19): counselors approve/deny the
+  // member's program application(s) and record WIOA intake verification
+  // from this page. The routes behind the panel scope counselors to their
+  // assigned members (lib/counselor/applicationReviewAccess.ts).
+  const programApplications = await prisma.application.findMany({
+    where: { userId: member.id },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, status: true, programInterest: true, submittedAt: true },
+  });
+  const intakeReviewPanel = (
+    <CounselorIntakeReviewPanel
+      key={member.id}
+      memberId={member.id}
+      applications={programApplications.map((row) => ({
+        id: row.id,
+        status: row.status,
+        programTitle: programDisplayTitle(row.programInterest) || row.programInterest,
+        submittedAt: row.submittedAt?.toISOString() ?? null,
+      }))}
+      wioa={{
+        hasScreening: wioaSnap != null,
+        reviewStatus: member.wioaReviewStatus,
+        reviewedAt: member.wioaReviewedAt?.toISOString() ?? null,
+        reviewNotes: member.wioaReviewNotes,
+      }}
+    />
+  );
+
   const memberTitle = member.fullName ?? t('member');
   const messageHref = `/counselor/messages?memberId=${encodeURIComponent(member.id)}`;
   const sessionHref = `/counselor/sessions/${memberId}/run`;
@@ -815,6 +844,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             />
           </div>
         ) : null}
+        <div style={{ padding: '0 1rem 1rem' }}>{intakeReviewPanel}</div>
         {assessmentRows ? (
           <div style={{ padding: '0 1rem 1rem' }}>
             <AssessmentAnswersReadonly
@@ -992,6 +1022,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               />
             </section>
           ) : null}
+          <section style={{ marginTop: '1.5rem' }}>{intakeReviewPanel}</section>
           {assessmentRows ? (
             <section style={{ marginTop: '1.5rem' }}>
               <AssessmentAnswersReadonly

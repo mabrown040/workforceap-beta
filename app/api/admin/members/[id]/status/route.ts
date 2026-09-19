@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditRequestMeta } from '@/lib/audit/log';
 import { changeApplicationStatus } from '@/lib/admin/applicationReview';
+import { canReviewActorActOnApplication, resolveReviewActor } from '@/lib/counselor/applicationReviewAccess';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -38,9 +38,10 @@ export const PATCH = withApiGuc(async (
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  try {
-    await requireAdmin(user.id);
-  } catch {
+  // Admins (org-scoped, as before) and active counselors may review.
+  // Counselors are further limited below to members assigned to them.
+  const actor = await resolveReviewActor(user.id);
+  if (!actor) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -60,7 +61,11 @@ export const PATCH = withApiGuc(async (
 
   const { status, notes } = parsed.data;
   const orgId = await getActorOrganizationId(user.id);
-  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  if (!(await canReviewActorActOnApplication(actor, id, orgId))) {
+    // Same shape as the not-in-org case so the response never confirms
+    // that an application outside the counselor's caseload exists.
+    return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+  }
 
   const result = await changeApplicationStatus({
     applicationId: id,
@@ -68,7 +73,7 @@ export const PATCH = withApiGuc(async (
     notes,
     orgId,
     actorUserId: user.id,
-    actorRole,
+    actorRole: actor.role,
     requestMeta: auditRequestMeta(request),
   });
 

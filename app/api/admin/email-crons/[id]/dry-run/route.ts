@@ -181,7 +181,7 @@ async function simulateCron(id: string, orgId: string | null): Promise<DryRunRes
       }));
       const sample = staleApps[0]?.user ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Taylor';
-      const body = applicantFollowupHtml({ firstName, expectedDate: 'May 9, 2026' });
+      const body = applicantFollowupHtml({ firstName });
       const html = brandedEmailLayout({ title: 'Application Update', bodyHtml: body, ctaText: 'Check Application Status', ctaUrl: '/dashboard' });
       const totalCount = await prisma.$transaction((tx) => tx.application.count({ where: appWhere }));
       return {

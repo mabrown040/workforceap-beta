@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "3c14fb0bae5377156bd560bf9c2f36ba8a11f4084afdc642068c48ac3d344b4d",
+  "inputTreeSha256": "c4df96521e46e5f6dd5db971893295ae32f0a35c21545277a016e2e877cdf3f9",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4697,
-    "sourceModules": 3371,
-    "importReferences": 16252,
-    "resolvedLocalReferences": 10840,
+    "files": 4702,
+    "sourceModules": 3376,
+    "importReferences": 16283,
+    "resolvedLocalReferences": 10866,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1053,
     "nextRouteFiles": 1020,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 753,
-    "testCandidates": 746,
+    "testFiles": 756,
+    "testCandidates": 749,
     "testHelpers": 7,
-    "staticallySelectedTests": 743,
+    "staticallySelectedTests": 746,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -58,7 +58,7 @@
     },
     {
       "area": "components",
-      "files": 670
+      "files": 671
     },
     {
       "area": "content",
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 975
+      "files": 976
     },
     {
       "area": "localization",
@@ -106,17 +106,17 @@
     },
     {
       "area": "tests",
-      "files": 396
+      "files": 399
     }
   ],
   "mostReferenced": [
     {
       "file": "lib/db/prisma.ts",
-      "references": 877
+      "references": 882
     },
     {
       "file": "lib/auth/server.ts",
-      "references": 718
+      "references": 720
     },
     {
       "file": "lib/db/withRequestGuc.ts",
@@ -148,7 +148,7 @@
     },
     {
       "file": "lib/audit/log.ts",
-      "references": 188
+      "references": 189
     },
     {
       "file": "components/portal/PageHeader.tsx",
@@ -176,7 +176,7 @@
     },
     {
       "file": "lib/email.ts",
-      "references": 90
+      "references": 91
     },
     {
       "file": "lib/content/programTitle.ts",
@@ -258,7 +258,7 @@
     },
     {
       "file": "lib/email.ts",
-      "lines": 2882
+      "lines": 2881
     },
     {
       "file": "lib/content/courseSkillMap.ts",
@@ -301,12 +301,12 @@
       "lines": 1552
     },
     {
-      "file": "app/admin/coursera/health/page.tsx",
-      "lines": 1436
+      "file": "app/(portal)/counselor/students/[memberId]/page.tsx",
+      "lines": 1458
     },
     {
-      "file": "app/(portal)/counselor/students/[memberId]/page.tsx",
-      "lines": 1427
+      "file": "app/admin/coursera/health/page.tsx",
+      "lines": 1436
     },
     {
       "file": "tests/api/placement-survey.spec.ts",

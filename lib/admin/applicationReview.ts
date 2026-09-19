@@ -33,7 +33,7 @@ export async function changeApplicationStatus(args: {
   notes?: string;
   orgId: string;
   actorUserId: string;
-  actorRole: 'admin' | 'super_admin';
+  actorRole: 'admin' | 'super_admin' | 'counselor';
   requestMeta: ReturnType<typeof auditRequestMeta>;
 }): Promise<ApplicationReviewResult> {
   const { applicationId: id, status, notes, orgId, actorUserId, actorRole, requestMeta } = args;

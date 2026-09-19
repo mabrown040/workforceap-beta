@@ -28650,42 +28650,42 @@
       {
         "level": 2,
         "title": "Training and progress flow",
-        "line": 93
+        "line": 95
       },
       {
         "level": 2,
         "title": "What is redundant, breaking, or due for replacement",
-        "line": 112
+        "line": 114
       },
       {
         "level": 3,
         "title": "Redundant (two or more live sources for one concept)",
-        "line": 116
+        "line": 118
       },
       {
         "level": 3,
         "title": "Breaking (failure paths that exist in source today)",
-        "line": 127
+        "line": 129
       },
       {
         "level": 3,
         "title": "Replacement order (do not skip steps)",
-        "line": 136
+        "line": 138
       },
       {
         "level": 2,
         "title": "Communication and asynchronous work",
-        "line": 147
+        "line": 149
       },
       {
         "level": 2,
         "title": "Delivery and developer orchestration",
-        "line": 167
+        "line": 169
       },
       {
         "level": 2,
         "title": "Complete machine diagrams",
-        "line": 187
+        "line": 189
       }
     ],
     "datedFilename": false,

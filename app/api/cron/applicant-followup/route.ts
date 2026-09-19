@@ -43,17 +43,9 @@ async function handle(_request: Request) {
     },
   });
 
-  // Calculate expected response date (5 business days from submission)
-  function addBusinessDays(date: Date, days: number): Date {
-    const result = new Date(date);
-    let added = 0;
-    while (added < days) {
-      result.setDate(result.getDate() + 1);
-      const dow = result.getDay();
-      if (dow !== 0 && dow !== 6) added++;
-    }
-    return result;
-  }
+  // No response-date promise in this email (2026-09-19): the queue does
+  // not clear in five business days, so the copy only says a counselor
+  // will email once the application is reviewed.
 
   let applicantEmailsSent = 0;
 
@@ -63,16 +55,10 @@ async function handle(_request: Request) {
     if (seenUsers.has(app.user.id)) continue;
     seenUsers.add(app.user.id);
 
-    const expectedDate = addBusinessDays(
-      app.submittedAt ?? app.createdAt,
-      5
-    ).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
     try {
       const result = await emailPacer.run(() => sendApplicantFollowupEmail({
         to: app.user.email,
         fullName: app.user.fullName,
-        expectedDate,
       }));
       if (result.ok) applicantEmailsSent++;
     } catch (err) {

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import styles from './notesPanel.module.css';
 
@@ -13,6 +15,7 @@ interface Note {
 }
 
 export default function CounselorNotesPanel({ memberId }: { memberId: string }) {
+  const tCommon = useTranslations('common');
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -84,7 +87,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
         setSaveStatus('Note saved. Your newer edits are still unsaved.');
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error saving note');
+      setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Error saving note' }, 'counselor-note'));
     } finally {
       saveInFlight.current = false;
       setSubmitting(false);

@@ -1367,8 +1367,12 @@
     ],
     "localReferences": [
       {
-        "file": "components/portal/tools/CareerCounselor.tsx",
+        "file": "messages/en.json",
         "line": 4
+      },
+      {
+        "file": "components/portal/tools/CareerCounselor.tsx",
+        "line": 7
       }
     ],
     "kind": "test-candidate",
@@ -16051,16 +16055,20 @@
     ],
     "localReferences": [
       {
-        "file": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
-        "line": 3
-      },
-      {
-        "file": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx",
+        "file": "messages/en.json",
         "line": 4
       },
       {
+        "file": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
+        "line": 6
+      },
+      {
+        "file": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx",
+        "line": 7
+      },
+      {
         "file": "lib/fetchWithTimeout.ts",
-        "line": 5
+        "line": 8
       }
     ],
     "kind": "test-candidate",
@@ -16140,20 +16148,24 @@
     ],
     "localReferences": [
       {
-        "file": "components/portal/counselor/LabEvidenceReview.tsx",
+        "file": "messages/en.json",
         "line": 4
       },
       {
+        "file": "components/portal/counselor/LabEvidenceReview.tsx",
+        "line": 7
+      },
+      {
         "file": "components/portal/counselor/LabReviewQueue.tsx",
-        "line": 5
+        "line": 8
       },
       {
         "file": "lib/content/itSupportLabs.ts",
-        "line": 6
+        "line": 9
       },
       {
         "file": "lib/member/labWorkspaceTypes.ts",
-        "line": 7
+        "line": 10
       }
     ],
     "kind": "test-candidate",
@@ -16219,12 +16231,16 @@
     ],
     "localReferences": [
       {
-        "file": "components/portal/MemberLabWorkspace.tsx",
+        "file": "messages/en.json",
         "line": 4
       },
       {
+        "file": "components/portal/MemberLabWorkspace.tsx",
+        "line": 7
+      },
+      {
         "file": "lib/member/labWorkspaceTypes.ts",
-        "line": 5
+        "line": 8
       }
     ],
     "kind": "test-candidate",
@@ -16454,6 +16470,51 @@
       {
         "file": "components/portal/PortalTeamChatClient.tsx",
         "line": 19
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "@testing-library/react",
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "messages/en.json",
+        "line": 12
+      },
+      {
+        "file": "app/invite/page.tsx",
+        "line": 13
+      },
+      {
+        "file": "app/(portal)/counselor/profile/CounselorProfileForm.tsx",
+        "line": 14
+      },
+      {
+        "file": "components/employer/EmployerLoiForm.tsx",
+        "line": 15
+      },
+      {
+        "file": "components/billing/BillingPacketList.tsx",
+        "line": 16
+      },
+      {
+        "file": "lib/billing/packetAccess.ts",
+        "line": 17
       }
     ],
     "kind": "test-candidate",

@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -41,15 +43,12 @@ interface EmployerOutcomesData {
 }
 
 export default function EmployerOutcomesDashboard() {
+  const tCommon = useTranslations('common');
   const [data, setData] = useState<EmployerOutcomesData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const res = await fetch('/api/employer/outcomes');
       if (!res.ok) {
@@ -58,11 +57,15 @@ export default function EmployerOutcomesDashboard() {
       const json = await res.json();
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load outcomes');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Failed to load outcomes' }, 'employer-outcomes'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [tCommon]);
+
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
 
   if (loading) {
     return (

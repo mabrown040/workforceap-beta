@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { requestFailureMessage } from "@/lib/http/requestFailureCopy";
 import PortalPageFrame from "@/components/portal/PortalPageFrame";
 import PageHeader from "@/components/portal/PageHeader";
 import DataTable, { type DataTableColumn } from "@/components/portal/ui/DataTable";
@@ -66,6 +68,7 @@ export default function AdminChaptersPage() {
     meetingLocation: "",
   });
   const router = useRouter();
+  const tCommon = useTranslations("common");
 
   useEffect(() => {
     fetch("/api/admin/chapters")
@@ -74,9 +77,9 @@ export default function AdminChaptersPage() {
         if (data.error) throw new Error(data.error);
         setChapters(data);
       })
-      .catch((e) => setError(e.message))
+      .catch((e: unknown) => setError(requestFailureMessage(e, { connection: tCommon("connectionError"), fallback: "Could not load chapters." }, "admin-chapters")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [tCommon]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

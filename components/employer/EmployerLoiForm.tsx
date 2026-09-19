@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { Button } from '@/components/ui/Button';
 import { PROGRAMS } from '@/lib/content/programs';
 import { getProgramDisplayTitle } from '@/lib/content/programs';
 
 export default function EmployerLoiForm() {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -51,7 +54,7 @@ export default function EmployerLoiForm() {
 
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Something went wrong' }, 'employer-loi'));
     } finally {
       setLoading(false);
     }

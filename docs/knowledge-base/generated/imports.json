@@ -1081,8 +1081,24 @@
   },
   {
     "from": "app/(portal)/admin/chapters/page.tsx",
-    "specifier": "@/components/portal/PortalPageFrame",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/admin/chapters/page.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/admin/chapters/page.tsx",
+    "specifier": "@/components/portal/PortalPageFrame",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -1090,7 +1106,7 @@
   {
     "from": "app/(portal)/admin/chapters/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -1098,7 +1114,7 @@
   {
     "from": "app/(portal)/admin/chapters/page.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -1106,7 +1122,7 @@
   {
     "from": "app/(portal)/admin/chapters/page.tsx",
     "specifier": "@/lib/ui/statusColors",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/ui/statusColors.ts"
@@ -2169,8 +2185,16 @@
   },
   {
     "from": "app/(portal)/counselor/placements/page.tsx",
-    "specifier": "react",
+    "specifier": "@/lib/http/requestFailureCopy",
     "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/counselor/placements/page.tsx",
+    "specifier": "react",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "react"
@@ -2178,7 +2202,7 @@
   {
     "from": "app/(portal)/counselor/placements/page.tsx",
     "specifier": "lucide-react",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -2186,7 +2210,7 @@
   {
     "from": "app/(portal)/counselor/placements/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -2194,7 +2218,7 @@
   {
     "from": "app/(portal)/counselor/placements/page.tsx",
     "specifier": "@/components/portal/PortalEmptyState",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalEmptyState.tsx"
@@ -2202,7 +2226,7 @@
   {
     "from": "app/(portal)/counselor/placements/page.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 8,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -2222,6 +2246,22 @@
     "kind": "import",
     "external": true,
     "package": "next"
+  },
+  {
+    "from": "app/(portal)/counselor/profile/CounselorProfileForm.tsx",
+    "specifier": "next-intl",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/counselor/profile/CounselorProfileForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "app/(portal)/counselor/profile/page.tsx",
@@ -2753,8 +2793,24 @@
   },
   {
     "from": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx",
-    "specifier": "@/components/admin/ConfirmDialog",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx",
+    "specifier": "@/components/admin/ConfirmDialog",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/admin/ConfirmDialog.tsx"
@@ -2762,7 +2818,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx",
     "specifier": "./notesPanel.module.css",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/counselor/students/[memberId]/notesPanel.module.css"
@@ -2785,8 +2841,24 @@
   },
   {
     "from": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
-    "specifier": "@/components/admin/ConfirmDialog",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
+    "specifier": "@/components/admin/ConfirmDialog",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/admin/ConfirmDialog.tsx"
@@ -2794,7 +2866,7 @@
   {
     "from": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx",
     "specifier": "./notesPanel.module.css",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/counselor/students/[memberId]/notesPanel.module.css"
@@ -9913,8 +9985,24 @@
   },
   {
     "from": "app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx",
+    "specifier": "lucide-react",
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -9922,7 +10010,7 @@
   {
     "from": "app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx",
     "specifier": "@/components/ui/Skeleton",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/ui/Skeleton.tsx"
@@ -13425,8 +13513,24 @@
   },
   {
     "from": "app/(portal)/leader/dashboard/page.tsx",
-    "specifier": "@/components/portal/PortalPageFrame",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/(portal)/leader/dashboard/page.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/(portal)/leader/dashboard/page.tsx",
+    "specifier": "@/components/portal/PortalPageFrame",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalPageFrame.tsx"
@@ -13434,7 +13538,7 @@
   {
     "from": "app/(portal)/leader/dashboard/page.tsx",
     "specifier": "@/components/portal/PageHeader",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/PageHeader.tsx"
@@ -13442,7 +13546,7 @@
   {
     "from": "app/(portal)/leader/dashboard/page.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -13450,7 +13554,7 @@
   {
     "from": "app/(portal)/leader/dashboard/page.tsx",
     "specifier": "@/lib/ui/statusColors",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/ui/statusColors.ts"
@@ -65009,8 +65113,24 @@
   },
   {
     "from": "app/invite/page.tsx",
-    "specifier": "@/lib/http/safeFetchJson",
+    "specifier": "next-intl",
     "line": 6,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/invite/page.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 7,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/invite/page.tsx",
+    "specifier": "@/lib/http/safeFetchJson",
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/http/safeFetchJson.ts"
@@ -65441,8 +65561,24 @@
   },
   {
     "from": "app/org/[slug]/outcomes/OrgOutcomesClient.tsx",
-    "specifier": "@/components/portal/ui/DataTable",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/org/[slug]/outcomes/OrgOutcomesClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/org/[slug]/outcomes/OrgOutcomesClient.tsx",
+    "specifier": "@/components/portal/ui/DataTable",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -65633,8 +65769,24 @@
   },
   {
     "from": "app/q/[token]/PublicEligibilityForm.tsx",
-    "specifier": "@/lib/apply/primaryBarrierOptions",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "app/q/[token]/PublicEligibilityForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "app/q/[token]/PublicEligibilityForm.tsx",
+    "specifier": "@/lib/apply/primaryBarrierOptions",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "lib/apply/primaryBarrierOptions.ts"
@@ -65642,7 +65794,7 @@
   {
     "from": "app/q/[token]/PublicEligibilityForm.tsx",
     "specifier": "@/components/apply/HearAboutSelect",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/apply/HearAboutSelect.tsx"
@@ -65650,7 +65802,7 @@
   {
     "from": "app/q/[token]/PublicEligibilityForm.tsx",
     "specifier": "@/lib/apply/eligibilityExtendedFields",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/apply/eligibilityExtendedFields.ts"
@@ -65658,7 +65810,7 @@
   {
     "from": "app/q/[token]/PublicEligibilityForm.tsx",
     "specifier": "@/lib/validation/postalCode",
-    "line": 11,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "lib/validation/postalCode.ts"
@@ -69865,8 +70017,24 @@
   },
   {
     "from": "components/billing/BillingPacketList.tsx",
-    "specifier": "@/lib/billing/packetAccess",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/billing/BillingPacketList.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/billing/BillingPacketList.tsx",
+    "specifier": "@/lib/billing/packetAccess",
+    "line": 6,
     "kind": "type",
     "external": false,
     "target": "lib/billing/packetAccess.ts"
@@ -69874,7 +70042,7 @@
   {
     "from": "components/billing/BillingPacketList.tsx",
     "specifier": "@/lib/billing/packetText",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/billing/packetText.ts"
@@ -69897,8 +70065,24 @@
   },
   {
     "from": "components/counselor/StaffMemberResumePanel.tsx",
-    "specifier": "@/components/MarkdownPreview",
+    "specifier": "next-intl",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/counselor/StaffMemberResumePanel.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
     "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/counselor/StaffMemberResumePanel.tsx",
+    "specifier": "@/components/MarkdownPreview",
+    "line": 8,
     "kind": "dynamic-import",
     "external": false,
     "target": "components/MarkdownPreview.tsx"
@@ -70265,8 +70449,24 @@
   },
   {
     "from": "components/employer/EmployerLoiForm.tsx",
-    "specifier": "@/components/ui/Button",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerLoiForm.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerLoiForm.tsx",
+    "specifier": "@/components/ui/Button",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/ui/Button.tsx"
@@ -70274,7 +70474,7 @@
   {
     "from": "components/employer/EmployerLoiForm.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -70282,7 +70482,7 @@
   {
     "from": "components/employer/EmployerLoiForm.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -70353,8 +70553,24 @@
   },
   {
     "from": "components/employer/EmployerOutcomesDashboard.tsx",
-    "specifier": "@/components/ui/Card",
+    "specifier": "next-intl",
     "line": 4,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/employer/EmployerOutcomesDashboard.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/employer/EmployerOutcomesDashboard.tsx",
+    "specifier": "@/components/ui/Card",
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "components/ui/Card.tsx"
@@ -70362,7 +70578,7 @@
   {
     "from": "components/employer/EmployerOutcomesDashboard.tsx",
     "specifier": "@/components/ui/Button",
-    "line": 5,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/ui/Button.tsx"
@@ -70370,7 +70586,7 @@
   {
     "from": "components/employer/EmployerOutcomesDashboard.tsx",
     "specifier": "@/components/portal/ui/DataTable",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/ui/DataTable.tsx"
@@ -73849,8 +74065,24 @@
   },
   {
     "from": "components/portal/InterestProfilerClient.tsx",
-    "specifier": "./InterestProfilerClient.module.css",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/InterestProfilerClient.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/InterestProfilerClient.tsx",
+    "specifier": "./InterestProfilerClient.module.css",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/InterestProfilerClient.module.css"
@@ -73858,7 +74090,7 @@
   {
     "from": "components/portal/InterestProfilerClient.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -73866,7 +74098,7 @@
   {
     "from": "components/portal/InterestProfilerClient.tsx",
     "specifier": "@/lib/content/quizIpMerge",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/content/quizIpMerge.ts"
@@ -74801,8 +75033,24 @@
   },
   {
     "from": "components/portal/MemberLabWorkspace.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/MemberLabWorkspace.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/MemberLabWorkspace.tsx",
+    "specifier": "lucide-react",
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -74810,22 +75058,6 @@
   {
     "from": "components/portal/MemberLabWorkspace.tsx",
     "specifier": "@astryxdesign/core/Button",
-    "line": 6,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/MemberLabWorkspace.tsx",
-    "specifier": "@astryxdesign/core/TextArea",
-    "line": 7,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/MemberLabWorkspace.tsx",
-    "specifier": "@astryxdesign/core/TextInput",
     "line": 8,
     "kind": "import",
     "external": true,
@@ -74833,8 +75065,24 @@
   },
   {
     "from": "components/portal/MemberLabWorkspace.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/TextArea",
     "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/MemberLabWorkspace.tsx",
+    "specifier": "@astryxdesign/core/TextInput",
+    "line": 10,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/MemberLabWorkspace.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -74842,7 +75090,7 @@
   {
     "from": "components/portal/MemberLabWorkspace.tsx",
     "specifier": "@/lib/member/labWorkspaceTypes",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/member/labWorkspaceTypes.ts"
@@ -74850,7 +75098,7 @@
   {
     "from": "components/portal/MemberLabWorkspace.tsx",
     "specifier": "./MemberLabWorkspace.module.css",
-    "line": 11,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/MemberLabWorkspace.module.css"
@@ -75209,8 +75457,24 @@
   },
   {
     "from": "components/portal/MobileProfileSkillsResume.tsx",
-    "specifier": "@/lib/portal/memberResumeUpload",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/MobileProfileSkillsResume.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/MobileProfileSkillsResume.tsx",
+    "specifier": "@/lib/portal/memberResumeUpload",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "lib/portal/memberResumeUpload.ts"
@@ -75350,6 +75614,14 @@
     "kind": "import",
     "external": true,
     "package": "next-intl"
+  },
+  {
+    "from": "components/portal/PartnerInviteMemberButton.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "components/portal/PartnerMembersList.tsx",
@@ -76326,6 +76598,22 @@
     "kind": "import",
     "external": true,
     "package": "next"
+  },
+  {
+    "from": "components/portal/RefreshCourseraProgressButton.tsx",
+    "specifier": "next-intl",
+    "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/RefreshCourseraProgressButton.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
   },
   {
     "from": "components/portal/RequestHelpButton.tsx",
@@ -77809,8 +78097,24 @@
   },
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/counselor/AtRiskDashboard.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/counselor/AtRiskDashboard.tsx",
+    "specifier": "lucide-react",
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -77818,7 +78122,7 @@
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
     "specifier": "@/components/portal/PortalInlineSpinner",
-    "line": 15,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalInlineSpinner.tsx"
@@ -77826,7 +78130,7 @@
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
     "specifier": "lucide-react",
-    "line": 16,
+    "line": 18,
     "kind": "type",
     "external": true,
     "package": "lucide-react"
@@ -77834,7 +78138,7 @@
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
     "specifier": "@/components/portal/PortalEmptyState",
-    "line": 17,
+    "line": 19,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalEmptyState.tsx"
@@ -77842,7 +78146,7 @@
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 18,
+    "line": 20,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -77850,7 +78154,7 @@
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
     "specifier": "./AtRiskDetailModal",
-    "line": 26,
+    "line": 28,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/AtRiskDetailModal.tsx"
@@ -77858,7 +78162,7 @@
   {
     "from": "components/portal/counselor/AtRiskDashboard.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 27,
+    "line": 29,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -77881,8 +78185,24 @@
   },
   {
     "from": "components/portal/counselor/AtRiskDetailModal.tsx",
-    "specifier": "@/components/portal/kit/hooks/useFocusTrap",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/counselor/AtRiskDetailModal.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/counselor/AtRiskDetailModal.tsx",
+    "specifier": "@/components/portal/kit/hooks/useFocusTrap",
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/hooks/useFocusTrap.ts"
@@ -77890,7 +78210,7 @@
   {
     "from": "components/portal/counselor/AtRiskDetailModal.tsx",
     "specifier": "lucide-react",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -77898,7 +78218,7 @@
   {
     "from": "components/portal/counselor/AtRiskDetailModal.tsx",
     "specifier": "@/components/portal/PortalInlineSpinner",
-    "line": 19,
+    "line": 21,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalInlineSpinner.tsx"
@@ -78329,8 +78649,24 @@
   },
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/counselor/LabEvidenceReview.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/counselor/LabEvidenceReview.tsx",
+    "specifier": "lucide-react",
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -78338,22 +78674,6 @@
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
     "specifier": "@astryxdesign/core/Button",
-    "line": 6,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "@astryxdesign/core/TextArea",
-    "line": 7,
-    "kind": "import",
-    "external": true,
-    "package": "@astryxdesign/core"
-  },
-  {
-    "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "@astryxdesign/core/RadioList",
     "line": 8,
     "kind": "import",
     "external": true,
@@ -78361,7 +78681,7 @@
   },
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "@astryxdesign/core/VStack",
+    "specifier": "@astryxdesign/core/TextArea",
     "line": 9,
     "kind": "import",
     "external": true,
@@ -78369,7 +78689,7 @@
   },
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "@astryxdesign/core/HStack",
+    "specifier": "@astryxdesign/core/RadioList",
     "line": 10,
     "kind": "import",
     "external": true,
@@ -78377,7 +78697,7 @@
   },
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "@astryxdesign/core/FormLayout",
+    "specifier": "@astryxdesign/core/VStack",
     "line": 11,
     "kind": "import",
     "external": true,
@@ -78385,8 +78705,24 @@
   },
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
-    "specifier": "@/components/portal/kit",
+    "specifier": "@astryxdesign/core/HStack",
     "line": 12,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/counselor/LabEvidenceReview.tsx",
+    "specifier": "@astryxdesign/core/FormLayout",
+    "line": 13,
+    "kind": "import",
+    "external": true,
+    "package": "@astryxdesign/core"
+  },
+  {
+    "from": "components/portal/counselor/LabEvidenceReview.tsx",
+    "specifier": "@/components/portal/kit",
+    "line": 14,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -78394,7 +78730,7 @@
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
     "specifier": "@/lib/member/labWorkspaceTypes",
-    "line": 13,
+    "line": 15,
     "kind": "import",
     "external": false,
     "target": "lib/member/labWorkspaceTypes.ts"
@@ -78402,7 +78738,7 @@
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
     "specifier": "./LabReviewQueue",
-    "line": 14,
+    "line": 16,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/LabReviewQueue.tsx"
@@ -78410,7 +78746,7 @@
   {
     "from": "components/portal/counselor/LabEvidenceReview.tsx",
     "specifier": "./labReviews.module.css",
-    "line": 15,
+    "line": 17,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/labReviews.module.css"
@@ -78433,8 +78769,24 @@
   },
   {
     "from": "components/portal/counselor/LabReviewQueue.tsx",
-    "specifier": "lucide-react",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/counselor/LabReviewQueue.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/counselor/LabReviewQueue.tsx",
+    "specifier": "lucide-react",
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -78442,7 +78794,7 @@
   {
     "from": "components/portal/counselor/LabReviewQueue.tsx",
     "specifier": "@astryxdesign/core/Button",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": true,
     "package": "@astryxdesign/core"
@@ -78450,7 +78802,7 @@
   {
     "from": "components/portal/counselor/LabReviewQueue.tsx",
     "specifier": "@astryxdesign/core/VStack",
-    "line": 7,
+    "line": 9,
     "kind": "import",
     "external": true,
     "package": "@astryxdesign/core"
@@ -78458,7 +78810,7 @@
   {
     "from": "components/portal/counselor/LabReviewQueue.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 8,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -78466,7 +78818,7 @@
   {
     "from": "components/portal/counselor/LabReviewQueue.tsx",
     "specifier": "@/lib/member/labWorkspaceTypes",
-    "line": 9,
+    "line": 11,
     "kind": "type",
     "external": false,
     "target": "lib/member/labWorkspaceTypes.ts"
@@ -78474,7 +78826,7 @@
   {
     "from": "components/portal/counselor/LabReviewQueue.tsx",
     "specifier": "./labReviews.module.css",
-    "line": 10,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/labReviews.module.css"
@@ -78537,8 +78889,24 @@
   },
   {
     "from": "components/portal/counselor/TriageNudgePanel.tsx",
-    "specifier": "@/lib/counselor/nudgeTemplates",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/counselor/TriageNudgePanel.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/counselor/TriageNudgePanel.tsx",
+    "specifier": "@/lib/counselor/nudgeTemplates",
+    "line": 7,
     "kind": "type",
     "external": false,
     "target": "lib/counselor/nudgeTemplates.ts"
@@ -83649,16 +84017,40 @@
   },
   {
     "from": "components/portal/tools/CareerCounselor.test.tsx",
-    "specifier": "@testing-library/react",
+    "specifier": "react",
     "line": 1,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "components/portal/tools/CareerCounselor.test.tsx",
+    "specifier": "@testing-library/react",
+    "line": 2,
     "kind": "import",
     "external": true,
     "package": "@testing-library/react"
   },
   {
     "from": "components/portal/tools/CareerCounselor.test.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/tools/CareerCounselor.test.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "components/portal/tools/CareerCounselor.test.tsx",
     "specifier": "vitest",
-    "line": 2,
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "vitest"
@@ -83666,7 +84058,7 @@
   {
     "from": "components/portal/tools/CareerCounselor.test.tsx",
     "specifier": "./CareerCounselor",
-    "line": 4,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/tools/CareerCounselor.tsx"
@@ -83689,8 +84081,24 @@
   },
   {
     "from": "components/portal/tools/CareerCounselor.tsx",
-    "specifier": "@elevenlabs/client",
+    "specifier": "next-intl",
     "line": 5,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "components/portal/tools/CareerCounselor.tsx",
+    "specifier": "@/lib/http/requestFailureCopy",
+    "line": 6,
+    "kind": "import",
+    "external": false,
+    "target": "lib/http/requestFailureCopy.ts"
+  },
+  {
+    "from": "components/portal/tools/CareerCounselor.tsx",
+    "specifier": "@elevenlabs/client",
+    "line": 7,
     "kind": "type",
     "external": true,
     "package": "@elevenlabs/client"
@@ -83698,7 +84106,7 @@
   {
     "from": "components/portal/tools/CareerCounselor.tsx",
     "specifier": "@/lib/interview/voiceTranscript",
-    "line": 6,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/interview/voiceTranscript.ts"
@@ -83706,7 +84114,7 @@
   {
     "from": "components/portal/tools/CareerCounselor.tsx",
     "specifier": "./ToolFollowThrough",
-    "line": 11,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/tools/ToolFollowThrough.tsx"
@@ -83714,7 +84122,7 @@
   {
     "from": "components/portal/tools/CareerCounselor.tsx",
     "specifier": "@elevenlabs/client",
-    "line": 114,
+    "line": 117,
     "kind": "dynamic-import",
     "external": true,
     "package": "@elevenlabs/client"
@@ -119945,8 +120353,32 @@
   },
   {
     "from": "tests/components/counselor-note-saves.spec.tsx",
-    "specifier": "vitest",
+    "specifier": "react",
     "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/counselor-note-saves.spec.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/counselor-note-saves.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/counselor-note-saves.spec.tsx",
+    "specifier": "vitest",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "vitest"
@@ -119954,7 +120386,7 @@
   {
     "from": "tests/components/counselor-note-saves.spec.tsx",
     "specifier": "@/app/(portal)/counselor/students/[memberId]/CounselorNotesPanel",
-    "line": 3,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/counselor/students/[memberId]/CounselorNotesPanel.tsx"
@@ -119962,7 +120394,7 @@
   {
     "from": "tests/components/counselor-note-saves.spec.tsx",
     "specifier": "@/app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel",
-    "line": 4,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel.tsx"
@@ -119970,7 +120402,7 @@
   {
     "from": "tests/components/counselor-note-saves.spec.tsx",
     "specifier": "@/lib/fetchWithTimeout",
-    "line": 5,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "lib/fetchWithTimeout.ts"
@@ -120057,8 +120489,32 @@
   },
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
-    "specifier": "@testing-library/user-event",
+    "specifier": "react",
     "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/lab-evidence-review.test.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/lab-evidence-review.test.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/lab-evidence-review.test.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "@testing-library/user-event"
@@ -120066,7 +120522,7 @@
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
     "specifier": "vitest",
-    "line": 3,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "vitest"
@@ -120074,7 +120530,7 @@
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
     "specifier": "@/components/portal/counselor/LabEvidenceReview",
-    "line": 4,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/LabEvidenceReview.tsx"
@@ -120082,7 +120538,7 @@
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
     "specifier": "@/components/portal/counselor/LabReviewQueue",
-    "line": 5,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/counselor/LabReviewQueue.tsx"
@@ -120090,7 +120546,7 @@
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
     "specifier": "@/lib/content/itSupportLabs",
-    "line": 6,
+    "line": 9,
     "kind": "import",
     "external": false,
     "target": "lib/content/itSupportLabs.ts"
@@ -120098,7 +120554,7 @@
   {
     "from": "tests/components/lab-evidence-review.test.tsx",
     "specifier": "@/lib/member/labWorkspaceTypes",
-    "line": 7,
+    "line": 10,
     "kind": "type",
     "external": false,
     "target": "lib/member/labWorkspaceTypes.ts"
@@ -120177,8 +120633,32 @@
   },
   {
     "from": "tests/components/member-lab-workspace.test.tsx",
-    "specifier": "@testing-library/user-event",
+    "specifier": "react",
     "line": 2,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/member-lab-workspace.test.tsx",
+    "specifier": "next-intl",
+    "line": 3,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/member-lab-workspace.test.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/member-lab-workspace.test.tsx",
+    "specifier": "@testing-library/user-event",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "@testing-library/user-event"
@@ -120186,7 +120666,7 @@
   {
     "from": "tests/components/member-lab-workspace.test.tsx",
     "specifier": "vitest",
-    "line": 3,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "vitest"
@@ -120194,7 +120674,7 @@
   {
     "from": "tests/components/member-lab-workspace.test.tsx",
     "specifier": "@/components/portal/MemberLabWorkspace",
-    "line": 4,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/MemberLabWorkspace.tsx"
@@ -120202,7 +120682,7 @@
   {
     "from": "tests/components/member-lab-workspace.test.tsx",
     "specifier": "@/lib/member/labWorkspaceTypes",
-    "line": 5,
+    "line": 8,
     "kind": "type",
     "external": false,
     "target": "lib/member/labWorkspaceTypes.ts"
@@ -120478,6 +120958,86 @@
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalTeamChatClient.tsx"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "react",
+    "line": 8,
+    "kind": "type",
+    "external": true,
+    "package": "react"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@testing-library/react",
+    "line": 9,
+    "kind": "import",
+    "external": true,
+    "package": "@testing-library/react"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "next-intl",
+    "line": 10,
+    "kind": "import",
+    "external": true,
+    "package": "next-intl"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "vitest",
+    "line": 11,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@/messages/en.json",
+    "line": 12,
+    "kind": "import",
+    "external": false,
+    "target": "messages/en.json"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@/app/invite/page",
+    "line": 13,
+    "kind": "import",
+    "external": false,
+    "target": "app/invite/page.tsx"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@/app/(portal)/counselor/profile/CounselorProfileForm",
+    "line": 14,
+    "kind": "import",
+    "external": false,
+    "target": "app/(portal)/counselor/profile/CounselorProfileForm.tsx"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@/components/employer/EmployerLoiForm",
+    "line": 15,
+    "kind": "import",
+    "external": false,
+    "target": "components/employer/EmployerLoiForm.tsx"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@/components/billing/BillingPacketList",
+    "line": 16,
+    "kind": "import",
+    "external": false,
+    "target": "components/billing/BillingPacketList.tsx"
+  },
+  {
+    "from": "tests/components/public-staff-form-connection-failure.spec.tsx",
+    "specifier": "@/lib/billing/packetAccess",
+    "line": 17,
+    "kind": "type",
+    "external": false,
+    "target": "lib/billing/packetAccess.ts"
   },
   {
     "from": "tests/components/referral-share-toolkit.spec.tsx",

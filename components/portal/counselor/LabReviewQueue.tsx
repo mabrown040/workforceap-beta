@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { ArrowRight, ClipboardCheck } from 'lucide-react';
 import { Button } from '@astryxdesign/core/Button';
 import { VStack } from '@astryxdesign/core/VStack';
@@ -22,6 +24,7 @@ export default function LabReviewQueue({ status }: { status: LabReviewStatus }) 
   const [loading, setLoading] = useState(false);
   const generation = useRef(0);
   const announce = useAnnounce();
+  const tCommon = useTranslations('common');
 
   async function load(cursor?: string | null) {
     const current = ++generation.current;
@@ -36,7 +39,7 @@ export default function LabReviewQueue({ status }: { status: LabReviewStatus }) 
       setQueue((previous) => ({ items: cursor ? [...(previous?.items ?? []), ...result.items].filter((item, index, all) => all.findIndex((other) => other.submissionId === item.submissionId) === index) : result.items, nextCursor: result.nextCursor }));
     } catch (failure) {
       if (generation.current !== current) return;
-      const message = failure instanceof Error ? failure.message : 'The review queue could not be loaded. Try again.';
+      const message = requestFailureMessage(failure, { connection: tCommon('connectionError'), fallback: 'The review queue could not be loaded. Try again.' }, 'lab-review-queue');
       setError(message); announce(message, 'assertive');
     } finally { if (generation.current === current) setLoading(false); }
   }

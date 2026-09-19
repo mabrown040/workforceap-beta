@@ -6268,6 +6268,25 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/i18n/esCopyDeckParity.test.ts",
+    "area": "libraries",
+    "domain": "public-experience",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/i18n/pickRootClientMessages.test.ts",
     "area": "libraries",
     "domain": "public-experience",
@@ -16407,6 +16426,25 @@
         "line": 65
       }
     ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/app/apply-funnel-token-scope.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [],
     "kind": "test-candidate",
     "declaredRunners": [
       {

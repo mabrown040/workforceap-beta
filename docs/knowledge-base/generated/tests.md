@@ -161,6 +161,7 @@
 | [tests/app/admin-directory-search.spec.tsx](../../../tests/app/admin-directory-search.spec.tsx) | 212 | tests |  |
 | [tests/app/admin-partners-page.spec.tsx](../../../tests/app/admin-partners-page.spec.tsx) | 108 | tests |  |
 | [tests/app/admin-weekly-recap-page.spec.tsx](../../../tests/app/admin-weekly-recap-page.spec.tsx) | 109 | tests |  |
+| [tests/app/apply-funnel-token-scope.spec.ts](../../../tests/app/apply-funnel-token-scope.spec.ts) | 125 | tests |  |
 | [tests/app/counselor-contextual-messages.spec.tsx](../../../tests/app/counselor-contextual-messages.spec.tsx) | 97 | tests |  |
 | [tests/app/counselor-handoff-access.spec.tsx](../../../tests/app/counselor-handoff-access.spec.tsx) | 74 | tests |  |
 | [tests/app/counselor-member-pageheader.spec.ts](../../../tests/app/counselor-member-pageheader.spec.ts) | 30 | tests |  |

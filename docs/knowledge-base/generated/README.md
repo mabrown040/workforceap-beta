@@ -19,11 +19,11 @@ Start with [the human guide](../README.md), [summary](summary.json), [routes](ro
 | database | 201 | [Open](database.md) |
 | delivery | 9 | [Open](delivery.md) |
 | documentation | 356 | [Open](documentation.md) |
-| libraries | 970 | [Open](libraries.md) |
+| libraries | 971 | [Open](libraries.md) |
 | localization | 6 | [Open](localization.md) |
 | operations | 122 | [Open](operations.md) |
 | pages | 634 | [Open](pages.md) |
 | root | 54 | [Open](root.md) |
 | styles | 16 | [Open](styles.md) |
 | supporting-files | 72 | [Open](supporting-files.md) |
-| tests | 393 | [Open](tests.md) |
+| tests | 394 | [Open](tests.md) |

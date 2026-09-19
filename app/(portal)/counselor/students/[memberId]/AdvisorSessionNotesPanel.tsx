@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import styles from './notesPanel.module.css';
 
@@ -25,6 +27,7 @@ function formatDateTime(iso: string): string {
 }
 
 export default function AdvisorSessionNotesPanel({ memberId }: { memberId: string }) {
+  const tCommon = useTranslations('common');
   const [notes, setNotes] = useState<SessionNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -96,7 +99,7 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
         setSaveStatus('Note saved. Your newer edits are still unsaved.');
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error saving note');
+      setError(requestFailureMessage(e, { connection: tCommon('connectionError'), fallback: 'Error saving note' }, 'advisor-session-note'));
     } finally {
       saveInFlight.current = false;
       setSubmitting(false);

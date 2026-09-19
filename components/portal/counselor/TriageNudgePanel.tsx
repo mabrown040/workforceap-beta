@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import type { NudgeTemplateId } from '@/lib/counselor/nudgeTemplates';
 
 type TemplateOption = {
@@ -28,6 +30,7 @@ type Props = {
  */
 export default function TriageNudgePanel({ memberId, memberName, templates, milestone }: Props) {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<NudgeTemplateId | null>(
     templates[0]?.id ?? null,
@@ -66,7 +69,7 @@ export default function TriageNudgePanel({ memberId, memberName, templates, mile
       setBodyOverride('');
       startTransition(() => router.refresh());
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to send nudge';
+      const message = requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Unable to send nudge' }, 'triage-nudge');
       setError(message);
     }
   }

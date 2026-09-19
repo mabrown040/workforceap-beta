@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Mic, Volume2, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import type { Conversation } from '@elevenlabs/client';
 import {
   appendVoiceTranscriptTurn,
@@ -43,6 +45,7 @@ const PULSE_STYLE = `
 `;
 
 export default function CareerCounselor({ firstName }: { firstName?: string }) {
+  const tCommon = useTranslations('common');
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
   const [steps, setSteps] = useState<string[]>([]);
@@ -103,7 +106,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       signedUrl = data.signedUrl;
       dynamicVariables = data.dynamicVariables;
     } catch (err) {
-      setVoiceError(err instanceof Error ? err.message : 'Could not connect. Please try again.');
+      setVoiceError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not connect. Please try again.' }, 'career-counselor-session'));
       setPhase('pre');
       return;
     }
@@ -181,7 +184,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       setChecked(actionSteps.map(() => false));
       setPhase('plan');
     } catch (error) {
-      setVoiceError(error instanceof Error && error.message ? error.message : FEEDBACK_SAVE_WARNING);
+      setVoiceError(requestFailureMessage(error, { connection: FEEDBACK_SAVE_WARNING, fallback: FEEDBACK_SAVE_WARNING }, 'career-counselor-feedback'));
       setPhase('pre');
     }
   }

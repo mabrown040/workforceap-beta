@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type Props = {
   initial: { fullName: string; phone: string; title: string };
@@ -11,6 +13,7 @@ type Props = {
 
 export default function CounselorProfileForm({ initial, isNew }: Props) {
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [fullName, setFullName] = useState(initial.fullName);
   const [phone, setPhone] = useState(initial.phone);
   const [title, setTitle] = useState(initial.title);
@@ -34,7 +37,7 @@ export default function CounselorProfileForm({ initial, isNew }: Props) {
       setSaved(true);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save your profile.');
+      setError(requestFailureMessage(err, { connection: tCommon('connectionError'), fallback: 'Could not save your profile.' }, 'counselor-profile'));
     } finally {
       setSaving(false);
     }

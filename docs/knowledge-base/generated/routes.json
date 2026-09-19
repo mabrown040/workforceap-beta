@@ -55,7 +55,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 155,
+        "line": 160,
         "kind": "FunctionDeclaration",
         "localName": "ForgotPasswordPage"
       }
@@ -233,7 +233,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 320,
+        "line": 328,
         "kind": "FunctionDeclaration",
         "localName": "ResetPasswordPage"
       }
@@ -309,7 +309,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 16,
+        "line": 17,
         "kind": "FunctionDeclaration",
         "localName": "SetupMfaPage"
       }
@@ -597,7 +597,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 54,
+        "line": 56,
         "kind": "FunctionDeclaration",
         "localName": "AdminChaptersPage"
       }
@@ -1307,7 +1307,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 71,
+        "line": 72,
         "kind": "FunctionDeclaration",
         "localName": "PlacementsPage"
       }
@@ -6335,7 +6335,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 85,
+        "line": 87,
         "kind": "FunctionDeclaration",
         "localName": "LeaderDashboardPage"
       }
@@ -7351,12 +7351,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 12,
+        "line": 10,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 42,
+        "line": 40,
         "kind": "FunctionDeclaration",
         "localName": "AIEfficacyPage"
       }
@@ -7372,16 +7372,6 @@
       {
         "specifier": "@/lib/tenant/adminPageScope",
         "line": 4,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/auth/roles",
-        "line": 5,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/tenant/organization",
-        "line": 6,
         "kind": "import"
       }
     ]
@@ -11595,7 +11585,7 @@
     "exports": [
       {
         "name": "GET",
-        "line": 64,
+        "line": 71,
         "kind": "Variable"
       }
     ],
@@ -22490,12 +22480,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 32,
+        "line": 33,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 33,
+        "line": 34,
         "kind": "Variable"
       }
     ],
@@ -27873,12 +27863,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 24,
+        "line": 25,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 49,
+        "line": 86,
         "kind": "Variable"
       }
     ],
@@ -27890,12 +27880,12 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/auth/server",
-        "line": 3,
+        "line": 4,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 5,
+        "line": 6,
         "kind": "import"
       }
     ]
@@ -27909,7 +27899,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 6,
+        "line": 25,
         "kind": "Variable"
       }
     ],
@@ -27920,12 +27910,12 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/auth/server",
-        "line": 3,
+        "line": 4,
         "kind": "import"
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 5,
+        "line": 6,
         "kind": "import"
       }
     ]
@@ -32255,7 +32245,7 @@
     "exports": [
       {
         "name": "default",
-        "line": 403,
+        "line": 406,
         "kind": "FunctionDeclaration",
         "localName": "InvitePage"
       }

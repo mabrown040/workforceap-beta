@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 import { ArrowLeft, ClipboardCheck, ExternalLink } from 'lucide-react';
 import { Button } from '@astryxdesign/core/Button';
 import { TextArea } from '@astryxdesign/core/TextArea';
@@ -55,6 +57,7 @@ export default function LabEvidenceReview({ submissionId }: { submissionId: stri
   const [decision, setDecision] = useState<LabReviewInput['decision'] | ''>('');
   const alive = useRef(true);
   const announce = useAnnounce();
+  const tCommon = useTranslations('common');
   const hasLocalDraft = Boolean(feedback || decision || Object.keys(criteria).length);
   const dirty = hasLocalDraft;
   const submission = workspace?.submission;
@@ -71,7 +74,7 @@ export default function LabEvidenceReview({ submissionId }: { submissionId: stri
       if (!response.ok || !result.review) throw new Error(result.error ?? 'This submission is unavailable or outside your assigned members.');
       if (alive.current) setWorkspace(result.review);
     } catch (failure) {
-      if (alive.current) setError(failure instanceof Error ? failure.message : 'The submission could not be loaded. Try again.');
+      if (alive.current) setError(requestFailureMessage(failure, { connection: tCommon('connectionError'), fallback: 'The submission could not be loaded. Try again.' }, 'lab-evidence-review-load'));
     } finally { if (alive.current) setLoading(false); }
   }
   useEffect(() => { alive.current = true; void load(); return () => { alive.current = false; }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -97,7 +100,7 @@ export default function LabEvidenceReview({ submissionId }: { submissionId: stri
       if (!response.ok || !result.review) throw new Error(result.error ?? 'Your feedback was not saved. Your draft is still here; try again.');
       if (alive.current) { setWorkspace(result.review); setFeedback(''); setCriteria({}); setDecision(''); setMessage('Feedback saved. The member can now read it in their lab workspace.'); announce('Feedback saved.'); }
     } catch (failure) {
-      const detail = failure instanceof Error ? failure.message : 'Your feedback was not saved. Your draft is still here; try again.';
+      const detail = requestFailureMessage(failure, { connection: tCommon('connectionError'), fallback: 'Your feedback was not saved. Your draft is still here; try again.' }, 'lab-evidence-review-save');
       if (alive.current) { setError(detail); announce(detail, 'assertive'); }
     } finally { if (alive.current) setSaving(false); }
   }

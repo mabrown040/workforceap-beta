@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
-import { isSuperAdmin } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 import { analyzeAIEfficacy } from '@/lib/analytics/aiToolEfficacy';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { AiEfficacyKit } from '@/components/portal/kit/pages/admin-subviews/AiEfficacyKit';
@@ -52,20 +50,21 @@ export default async function AIEfficacyPage({
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
+  // Super admins may pick any organization with `?orgId=`; without it the
+  // report covers their own tenant (the admin shell has no org switcher).
+  // Other admins always see their own organization.
+  const requestedOrgId =
+    scope.superAdmin && typeof params.orgId === 'string' && params.orgId.trim()
+      ? params.orgId.trim()
+      : null;
+  const orgId = requestedOrgId ?? scope.orgId;
+
   // Legacy → the original recharts dashboard with the date-range picker.
   if (requestedUi === 'legacy') {
-    return <AIEfficacyDashboard />;
+    return <AIEfficacyDashboard orgId={requestedOrgId} />;
   }
 
   // --- DEFAULT: real (lean) cohort lift summary (design kit) ---
-
-  const superAdmin = await isSuperAdmin(user.id);
-  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
-  if (!orgId) {
-    // No tenant context → fall back to the proven legacy dashboard rather than
-    // render an empty kit.
-    return <AIEfficacyDashboard />;
-  }
 
   // Default window mirrors the legacy dashboard: trailing 90 days.
   const end = new Date();
@@ -79,7 +78,7 @@ export default async function AIEfficacyPage({
   });
 
   if (!report) {
-    return <AIEfficacyDashboard />;
+    return <AIEfficacyDashboard orgId={requestedOrgId} />;
   }
 
   const any = report.overall.anyTool;

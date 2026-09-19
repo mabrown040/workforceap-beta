@@ -14,7 +14,10 @@ export type BadgeVariant = 'success' | 'warning' | 'error' | 'neutral' | 'info' 
 
 const VARIANT_STYLES: Record<BadgeVariant, { background: string; color: string }> = {
   success: { background: 'color-mix(in srgb, var(--color-green) 15%, transparent)', color: 'var(--color-green)' },
-  warning: { background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)', color: 'var(--color-gold)' },
+  // Gold text on a gold tint fails AA in both modes (3.0:1 light / 3.9:1 dark on
+  // --wa-surface). --wa-gold-dark is the token layer's text-on-gold-tint colour and
+  // --wa-gold-soft its tint — the same pair the kit's .wa-kit-tag--warn uses.
+  warning: { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold-dark)' },
   error:   { background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)', color: 'var(--color-accent)' },
   neutral: { background: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)' },
   info:    { background: 'color-mix(in srgb, var(--color-blue) 15%, transparent)', color: 'var(--color-blue)' },

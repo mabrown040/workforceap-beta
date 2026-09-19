@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useId } from 'react';
+import { useTranslations } from 'next-intl';
+import { requestFailureMessage } from '@/lib/http/requestFailureCopy';
 
 type SurveyClientProps = {
   userId: string;
@@ -238,6 +240,7 @@ export default function SurveyClient({ userId, placementId }: SurveyClientProps)
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tCommon = useTranslations('common');
 
   const update = <K extends keyof SurveyForm>(key: K, value: SurveyForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -284,7 +287,13 @@ export default function SurveyClient({ userId, placementId }: SurveyClientProps)
 
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(
+        requestFailureMessage(
+          err,
+          { connection: tCommon('connectionError'), fallback: 'Something went wrong. Please try again.' },
+          'placement-survey',
+        ),
+      );
     } finally {
       setSubmitting(false);
     }

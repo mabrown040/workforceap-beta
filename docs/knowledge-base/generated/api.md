@@ -7,7 +7,7 @@
 | [app/api/(portal)/dashboard/jobs/\[id\]/apply/route.ts](../../../app/api/%28portal%29/dashboard/jobs/%5Bid%5D/apply/route.ts) | 211 | applications-enrollment | POST:211 |
 | [app/api/(portal)/dashboard/jobs/\[id\]/route.ts](../../../app/api/%28portal%29/dashboard/jobs/%5Bid%5D/route.ts) | 25 | jobs-employers | GET:25 |
 | [app/api/(portal)/dashboard/jobs/route.ts](../../../app/api/%28portal%29/dashboard/jobs/route.ts) | 151 | jobs-employers | GET:151 |
-| [app/api/admin/analytics/ai-efficacy/route.ts](../../../app/api/admin/analytics/ai-efficacy/route.ts) | 64 | administration | GET:64 |
+| [app/api/admin/analytics/ai-efficacy/route.ts](../../../app/api/admin/analytics/ai-efficacy/route.ts) | 71 | administration | GET:71 |
 | [app/api/admin/analytics/dashboard/route.ts](../../../app/api/admin/analytics/dashboard/route.ts) | 76 | member-counselor | GET:13 |
 | [app/api/admin/analytics/members/route.ts](../../../app/api/admin/analytics/members/route.ts) | 71 | administration | GET:8 |
 | [app/api/admin/analytics/placements/_placementsAnalytics.ts](../../../app/api/admin/analytics/placements/_placementsAnalytics.ts) | 44 | jobs-employers | fetchPlacementAnalytics:3 |
@@ -214,12 +214,12 @@
 | [app/api/agent-tools/v1/\[tool\]/route.ts](../../../app/api/agent-tools/v1/%5Btool%5D/route.ts) | 114 | api | runtime:15, dynamic:16, POST:67 |
 | [app/api/ai/cover-letter/route.ts](../../../app/api/ai/cover-letter/route.ts) | 162 | ai-voice | POST:15 |
 | [app/api/ai/elevator-pitch/route.ts](../../../app/api/ai/elevator-pitch/route.ts) | 228 | ai-voice | POST:28 |
-| [app/api/ai/export-pdf/route.ts](../../../app/api/ai/export-pdf/route.ts) | 595 | ai-voice | POST:388 |
+| [app/api/ai/export-pdf/route.ts](../../../app/api/ai/export-pdf/route.ts) | 598 | ai-voice | POST:388 |
 | [app/api/ai/extract-resume-skills/route.ts](../../../app/api/ai/extract-resume-skills/route.ts) | 219 | ai-voice | POST:79 |
 | [app/api/ai/extract-resume-text/route.ts](../../../app/api/ai/extract-resume-text/route.ts) | 50 | ai-voice | POST:9 |
 | [app/api/ai/gap-analyzer/route.ts](../../../app/api/ai/gap-analyzer/route.ts) | 121 | ai-voice | POST:15 |
 | [app/api/ai/interview-practice/route.ts](../../../app/api/ai/interview-practice/route.ts) | 184 | ai-voice | POST:21 |
-| [app/api/ai/interview-voice/route.ts](../../../app/api/ai/interview-voice/route.ts) | 62 | ai-voice | POST:15 |
+| [app/api/ai/interview-voice/route.ts](../../../app/api/ai/interview-voice/route.ts) | 67 | ai-voice | POST:15 |
 | [app/api/ai/interview/_sessionStore.ts](../../../app/api/ai/interview/_sessionStore.ts) | 11 | ai-voice | interviewSessions:2 |
 | [app/api/ai/interview/response/route.ts](../../../app/api/ai/interview/response/route.ts) | 135 | ai-voice | POST:135 |
 | [app/api/ai/interview/results/route.ts](../../../app/api/ai/interview/results/route.ts) | 136 | ai-voice | GET:136 |
@@ -289,7 +289,7 @@
 | [app/api/cron/coursera-b4b-sync/route.ts](../../../app/api/cron/coursera-b4b-sync/route.ts) | 84 | learning-coursera | GET:83, POST:84 |
 | [app/api/cron/coursera-sync/route.ts](../../../app/api/cron/coursera-sync/route.ts) | 171 | learning-coursera | GET:170, POST:171 |
 | [app/api/cron/coursera-training-sync/route.ts](../../../app/api/cron/coursera-training-sync/route.ts) | 38 | learning-coursera | maxDuration:10, GET:38 |
-| [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 33 | communications | GET:32, POST:33 |
+| [app/api/cron/data-cleanup/route.ts](../../../app/api/cron/data-cleanup/route.ts) | 34 | communications | GET:33, POST:34 |
 | [app/api/cron/deploy-health/route.ts](../../../app/api/cron/deploy-health/route.ts) | 77 | communications | GET:76, POST:77 |
 | [app/api/cron/employer-pending-applicants/route.ts](../../../app/api/cron/employer-pending-applicants/route.ts) | 172 | communications | maxDuration:12, GET:171, POST:172 |
 | [app/api/cron/inactive-nudge/route.ts](../../../app/api/cron/inactive-nudge/route.ts) | 105 | communications | maxDuration:14, GET:104, POST:105 |
@@ -342,7 +342,7 @@
 | [app/api/events/route.ts](../../../app/api/events/route.ts) | 49 | api | POST:15 |
 | [app/api/feature-flags/route.ts](../../../app/api/feature-flags/route.ts) | 45 | api | GET:10 |
 | [app/api/gdpr/consent/route.ts](../../../app/api/gdpr/consent/route.ts) | 71 | learning-coursera | GET:29, PATCH:70 |
-| [app/api/gdpr/delete/route.ts](../../../app/api/gdpr/delete/route.ts) | 161 | api | POST:18 |
+| [app/api/gdpr/delete/route.ts](../../../app/api/gdpr/delete/route.ts) | 160 | api | POST:18 |
 | [app/api/gdpr/export/route.ts](../../../app/api/gdpr/export/route.ts) | 81 | api | GET:6 |
 | [app/api/health/ready/_readyCache.ts](../../../app/api/health/ready/_readyCache.ts) | 20 | api | CACHE_TTL_MS:6, ReadyCacheEntry:8, readyCache:15, __resetReadyCache:18 |
 | [app/api/health/ready/route.ts](../../../app/api/health/ready/route.ts) | 136 | api | dynamic:12, OPTIONS:74, GET:83 |
@@ -457,8 +457,8 @@
 | [app/api/member/wioa-qualification/route.ts](../../../app/api/member/wioa-qualification/route.ts) | 102 | partners-funding | GET:28, POST:101 |
 | [app/api/member/wioa-qualification/voice-session/route.ts](../../../app/api/member/wioa-qualification/voice-session/route.ts) | 75 | partners-funding | POST:10 |
 | [app/api/mentor/letter/route.ts](../../../app/api/mentor/letter/route.ts) | 114 | api | GET:24 |
-| [app/api/mentors/\[id\]/sessions/route.ts](../../../app/api/mentors/%5Bid%5D/sessions/route.ts) | 50 | api | GET:24, POST:49 |
-| [app/api/mentors/apply/route.ts](../../../app/api/mentors/apply/route.ts) | 56 | applications-enrollment | POST:6 |
+| [app/api/mentors/\[id\]/sessions/route.ts](../../../app/api/mentors/%5Bid%5D/sessions/route.ts) | 87 | api | GET:25, POST:86 |
+| [app/api/mentors/apply/route.ts](../../../app/api/mentors/apply/route.ts) | 68 | applications-enrollment | POST:25 |
 | [app/api/mentors/route.ts](../../../app/api/mentors/route.ts) | 37 | api | GET:5 |
 | [app/api/og/career-quiz/route.tsx](../../../app/api/og/career-quiz/route.tsx) | 63 | api | runtime:4, GET:13 |
 | [app/api/og/dynamic-card/route.tsx](../../../app/api/og/dynamic-card/route.tsx) | 134 | api | runtime:4, GET:126 |

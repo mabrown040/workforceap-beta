@@ -95,7 +95,9 @@ export default function TriageDigestSection({ digest }: { digest: TriageDigest }
                     width: '2.5rem',
                     height: '2.5rem',
                     borderRadius: '0.5rem',
-                    background: `${bucket.accent}1a`,
+                    // color-mix accepts hex literals and CSS variables alike,
+                    // so bucket accents can be design tokens.
+                    background: `color-mix(in srgb, ${bucket.accent} 10%, transparent)`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

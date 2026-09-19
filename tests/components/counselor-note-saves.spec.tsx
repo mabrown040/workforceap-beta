@@ -1,8 +1,13 @@
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render as renderBare, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CounselorNotesPanel from '@/app/(portal)/counselor/students/[memberId]/CounselorNotesPanel';
 import AdvisorSessionNotesPanel from '@/app/(portal)/counselor/students/[memberId]/AdvisorSessionNotesPanel';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+
+const render = (ui: ReactElement) => renderBare(<NextIntlClientProvider locale="en" messages={messages}>{ui}</NextIntlClientProvider>);
 
 vi.mock('@/lib/fetchWithTimeout', () => ({ fetchWithTimeout: vi.fn() }));
 vi.mock('@/components/admin/ConfirmDialog', () => ({ default: () => null }));

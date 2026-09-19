@@ -284,7 +284,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/agent-inbox | page |  | [app/admin/agent-inbox/page.tsx](../../../app/admin/agent-inbox/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5, @/lib/auth/roles:6 |
 | /admin/ai-tools | loading |  | [app/admin/ai-tools/loading.tsx](../../../app/admin/ai-tools/loading.tsx) |  |
 | /admin/ai-tools | page |  | [app/admin/ai-tools/page.tsx](../../../app/admin/ai-tools/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
-| /admin/analytics/ai-efficacy | page |  | [app/admin/analytics/ai-efficacy/page.tsx](../../../app/admin/analytics/ai-efficacy/page.tsx) | @/lib/auth/server:3, @/lib/tenant/adminPageScope:4, @/lib/auth/roles:5, @/lib/tenant/organization:6 |
+| /admin/analytics/ai-efficacy | page |  | [app/admin/analytics/ai-efficacy/page.tsx](../../../app/admin/analytics/ai-efficacy/page.tsx) | @/lib/auth/server:3, @/lib/tenant/adminPageScope:4 |
 | /admin/analytics | loading |  | [app/admin/analytics/loading.tsx](../../../app/admin/analytics/loading.tsx) |  |
 | /admin/analytics | page |  | [app/admin/analytics/page.tsx](../../../app/admin/analytics/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5, @/lib/tenant/organization:10 |
 | /admin/assessments | loading |  | [app/admin/assessments/loading.tsx](../../../app/admin/assessments/loading.tsx) |  |
@@ -844,8 +844,8 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /api/member/wioa-qualification | route | GET, POST | [app/api/member/wioa-qualification/route.ts](../../../app/api/member/wioa-qualification/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:8 |
 | /api/member/wioa-qualification/voice-session | route | POST | [app/api/member/wioa-qualification/voice-session/route.ts](../../../app/api/member/wioa-qualification/voice-session/route.ts) | @/lib/auth/server:2, @/lib/rate-limit:4, @/lib/db/withRequestGuc:9 |
 | /api/mentor/letter | route | GET | [app/api/mentor/letter/route.ts](../../../app/api/mentor/letter/route.ts) | @/lib/auth/server:2, @/lib/db/withRequestGuc:5 |
-| /api/mentors/\[id\]/sessions | route | GET, POST | [app/api/mentors/\[id\]/sessions/route.ts](../../../app/api/mentors/%5Bid%5D/sessions/route.ts) | @/lib/auth/server:3, @/lib/db/withRequestGuc:5 |
-| /api/mentors/apply | route | POST | [app/api/mentors/apply/route.ts](../../../app/api/mentors/apply/route.ts) | @/lib/auth/server:3, @/lib/db/withRequestGuc:5 |
+| /api/mentors/\[id\]/sessions | route | GET, POST | [app/api/mentors/\[id\]/sessions/route.ts](../../../app/api/mentors/%5Bid%5D/sessions/route.ts) | @/lib/auth/server:4, @/lib/db/withRequestGuc:6 |
+| /api/mentors/apply | route | POST | [app/api/mentors/apply/route.ts](../../../app/api/mentors/apply/route.ts) | @/lib/auth/server:4, @/lib/db/withRequestGuc:6 |
 | /api/mentors | route | GET | [app/api/mentors/route.ts](../../../app/api/mentors/route.ts) | @/lib/db/withRequestGuc:4 |
 | /api/og/career-quiz | route | GET | [app/api/og/career-quiz/route.tsx](../../../app/api/og/career-quiz/route.tsx) |  |
 | /api/og/dynamic-card | route | GET | [app/api/og/dynamic-card/route.tsx](../../../app/api/og/dynamic-card/route.tsx) |  |

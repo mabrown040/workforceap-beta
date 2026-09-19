@@ -1,10 +1,15 @@
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render as renderBare, screen, waitFor, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LabEvidenceReview from '@/components/portal/counselor/LabEvidenceReview';
 import LabReviewQueue from '@/components/portal/counselor/LabReviewQueue';
 import { getPracticeLab } from '@/lib/content/itSupportLabs';
 import type { LabStaffReviewWorkspace } from '@/lib/member/labWorkspaceTypes';
+
+const render = (ui: ReactElement) => renderBare(<NextIntlClientProvider locale="en" messages={messages}>{ui}</NextIntlClientProvider>);
 
 const lab = getPracticeLab('ticket-triage')!;
 function fixture(): LabStaffReviewWorkspace {

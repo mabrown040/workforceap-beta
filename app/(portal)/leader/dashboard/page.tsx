@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { requestFailureMessage } from "@/lib/http/requestFailureCopy";
 import PortalPageFrame from "@/components/portal/PortalPageFrame";
 import PageHeader from "@/components/portal/PageHeader";
 import DataTable, { type DataTableColumn } from "@/components/portal/ui/DataTable";
@@ -83,6 +85,7 @@ function memberStatusTone(m: Member): { tone: StatusTone; label: string } {
 }
 
 export default function LeaderDashboardPage() {
+  const tCommon = useTranslations("common");
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -99,9 +102,9 @@ export default function LeaderDashboardPage() {
         if (!ch) throw new Error("No chapter found");
         setChapter(ch);
       })
-      .catch((e) => setError(e.message))
+      .catch((e: unknown) => setError(requestFailureMessage(e, { connection: tCommon("connectionError"), fallback: "Could not load your chapter." }, "leader-dashboard")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [tCommon]);
 
   const stats = chapter ? {
     total: chapter.members.length,

@@ -11531,6 +11531,54 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/counselor-application-review.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/members/[id]/status/route.ts",
+        "line": 50
+      },
+      {
+        "file": "app/api/admin/applications/bulk-review/route.ts",
+        "line": 51
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 52
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 53
+      },
+      {
+        "file": "lib/counselor/staffMemberAccess.ts",
+        "line": 54
+      },
+      {
+        "file": "lib/admin/applicationReview.ts",
+        "line": 55
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 56
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/counselor-dashboard.spec.ts",
     "area": "tests",
     "domain": "tests",
@@ -11905,6 +11953,58 @@
       {
         "file": "lib/content/programs.ts",
         "line": 247
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/counselor-wioa-intake-review.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 38
+      },
+      {
+        "file": "app/api/admin/members/[id]/wioa-review/route.ts",
+        "line": 59
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 60
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 61
+      },
+      {
+        "file": "lib/counselor/staffMemberAccess.ts",
+        "line": 62
+      },
+      {
+        "file": "lib/audit/log.ts",
+        "line": 63
+      },
+      {
+        "file": "lib/wioa/reviewSnapshot.ts",
+        "line": 64
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 65
       }
     ],
     "kind": "test-candidate",
@@ -19169,6 +19269,42 @@
       {
         "file": "lib/email.ts",
         "line": 49
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/lib/applicant-followup-email.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "emails/applicant-followup.ts",
+        "line": 38
+      },
+      {
+        "file": "app/api/cron/applicant-followup/route.ts",
+        "line": 39
+      },
+      {
+        "file": "lib/email.ts",
+        "line": 40
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 41
       }
     ],
     "kind": "test-candidate",

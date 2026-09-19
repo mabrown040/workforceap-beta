@@ -22,7 +22,7 @@
 | [emails/admin-stale-applicants-digest.ts](../../../emails/admin-stale-applicants-digest.ts) | 23 | communications | adminStaleApplicantsDigestHtml:8 |
 | [emails/admin-weekly-recap.ts](../../../emails/admin-weekly-recap.ts) | 40 | communications | adminWeeklyRecapHtml:11 |
 | [emails/ai-match-suggestion.ts](../../../emails/ai-match-suggestion.ts) | 29 | communications | aiMatchSuggestionHtml:7 |
-| [emails/applicant-followup.ts](../../../emails/applicant-followup.ts) | 21 | communications | applicantFollowupHtml:7 |
+| [emails/applicant-followup.ts](../../../emails/applicant-followup.ts) | 27 | communications | applicantFollowupHtml:13 |
 | [emails/application-accepted.ts](../../../emails/application-accepted.ts) | 25 | communications | applicationAcceptedHtml:13 |
 | [emails/application-confirmation.ts](../../../emails/application-confirmation.ts) | 33 | communications | applicationConfirmationHtml:12 |
 | [emails/application-rejected.ts](../../../emails/application-rejected.ts) | 15 | communications | applicationRejectedHtml:7 |

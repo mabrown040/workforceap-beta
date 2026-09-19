@@ -4555,12 +4555,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 34,
+        "line": 35,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 43,
+        "line": 44,
         "kind": "FunctionDeclaration",
         "localName": "ProgramPage"
       }
@@ -8111,17 +8111,17 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 23,
+        "line": 24,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "dynamic",
-        "line": 32,
+        "line": 33,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 581,
+        "line": 549,
         "kind": "FunctionDeclaration",
         "localName": "AdminCourseraHealthPage"
       }
@@ -8300,17 +8300,17 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 487,
+        "line": 493,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "dynamic",
-        "line": 495,
+        "line": 501,
         "kind": "Variable"
       },
       {
         "name": "default",
-        "line": 510,
+        "line": 516,
         "kind": "FunctionDeclaration",
         "localName": "AdminCourseraPage"
       }
@@ -8332,7 +8332,7 @@
       },
       {
         "specifier": "@/lib/tenant/organization",
-        "line": 28,
+        "line": 29,
         "kind": "import"
       }
     ]
@@ -22455,12 +22455,12 @@
     "exports": [
       {
         "name": "GET",
-        "line": 83,
+        "line": 87,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 84,
+        "line": 88,
         "kind": "Variable"
       }
     ],
@@ -29949,12 +29949,12 @@
     "exports": [
       {
         "name": "POST",
-        "line": 92,
+        "line": 93,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "GET",
-        "line": 243,
+        "line": 248,
         "kind": "FunctionDeclaration"
       }
     ],
@@ -29971,12 +29971,12 @@
       },
       {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 26,
+        "line": 27,
         "kind": "import"
       },
       {
         "specifier": "@/lib/tenant/resolveOrgFromRequest",
-        "line": 27,
+        "line": 28,
         "kind": "import"
       }
     ]

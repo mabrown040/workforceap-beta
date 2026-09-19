@@ -218,7 +218,7 @@
 | [app/(portal)/dashboard/program/change/page.tsx](../../../app/%28portal%29/dashboard/program/change/page.tsx) | 5 | member-counselor | default:3 |
 | [app/(portal)/dashboard/program/employer-screening/page.tsx](../../../app/%28portal%29/dashboard/program/employer-screening/page.tsx) | 140 | member-counselor | metadata:13, default:21 |
 | [app/(portal)/dashboard/program/loading.tsx](../../../app/%28portal%29/dashboard/program/loading.tsx) | 6 | member-counselor | default:3 |
-| [app/(portal)/dashboard/program/page.tsx](../../../app/%28portal%29/dashboard/program/page.tsx) | 424 | member-counselor | generateMetadata:34, default:43 |
+| [app/(portal)/dashboard/program/page.tsx](../../../app/%28portal%29/dashboard/program/page.tsx) | 427 | member-counselor | generateMetadata:35, default:44 |
 | [app/(portal)/dashboard/program/start/page.tsx](../../../app/%28portal%29/dashboard/program/start/page.tsx) | 181 | member-counselor | metadata:15, default:21 |
 | [app/(portal)/dashboard/readiness/ReadinessMemberClient.tsx](../../../app/%28portal%29/dashboard/readiness/ReadinessMemberClient.tsx) | 152 | member-counselor | default:35 |
 | [app/(portal)/dashboard/readiness/loading.tsx](../../../app/%28portal%29/dashboard/readiness/loading.tsx) | 5 | member-counselor | default:3 |
@@ -359,12 +359,12 @@
 | [app/admin/counselors/loading.tsx](../../../app/admin/counselors/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/counselors/page.tsx](../../../app/admin/counselors/page.tsx) | 210 | administration | generateMetadata:18, default:52 |
 | [app/admin/coursera/csv-import/page.tsx](../../../app/admin/coursera/csv-import/page.tsx) | 60 | learning-coursera | metadata:11, dynamic:17, default:19 |
-| [app/admin/coursera/enrollment/page.tsx](../../../app/admin/coursera/enrollment/page.tsx) | 89 | learning-coursera | generateMetadata:13, dynamic:22, default:31 |
-| [app/admin/coursera/health/page.tsx](../../../app/admin/coursera/health/page.tsx) | 1436 | learning-coursera | generateMetadata:23, dynamic:32, default:581 |
+| [app/admin/coursera/enrollment/page.tsx](../../../app/admin/coursera/enrollment/page.tsx) | 90 | learning-coursera | generateMetadata:13, dynamic:22, default:31 |
+| [app/admin/coursera/health/page.tsx](../../../app/admin/coursera/health/page.tsx) | 1386 | learning-coursera | generateMetadata:24, dynamic:33, default:549 |
 | [app/admin/coursera/learners/\[userId\]/page.tsx](../../../app/admin/coursera/learners/%5BuserId%5D/page.tsx) | 379 | learning-coursera | metadata:27, dynamic:33, default:79 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/events/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/events/page.tsx) | 250 | learning-coursera | metadata:18, dynamic:24, default:46 |
 | [app/admin/coursera/learners/unmatched/\[externalEmail\]/page.tsx](../../../app/admin/coursera/learners/unmatched/%5BexternalEmail%5D/page.tsx) | 463 | learning-coursera | metadata:26, dynamic:32, default:45 |
-| [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | 1650 | learning-coursera | generateMetadata:487, dynamic:495, default:510 |
+| [app/admin/coursera/page.tsx](../../../app/admin/coursera/page.tsx) | 1636 | learning-coursera | generateMetadata:493, dynamic:501, default:516 |
 | [app/admin/coursera/provisioning/page.tsx](../../../app/admin/coursera/provisioning/page.tsx) | 102 | learning-coursera | generateMetadata:17, dynamic:26, default:37 |
 | [app/admin/crons/loading.tsx](../../../app/admin/crons/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/crons/page.tsx](../../../app/admin/crons/page.tsx) | 269 | administration | generateMetadata:16, default:91 |
@@ -474,7 +474,7 @@
 | [app/admin/sessions/walk-in/page.tsx](../../../app/admin/sessions/walk-in/page.tsx) | 40 | administration | generateMetadata:9, default:17 |
 | [app/admin/settings/loading.tsx](../../../app/admin/settings/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/settings/page.tsx](../../../app/admin/settings/page.tsx) | 44 | administration | generateMetadata:13, default:21 |
-| [app/admin/students/page.tsx](../../../app/admin/students/page.tsx) | 348 | administration | generateMetadata:28, default:89 |
+| [app/admin/students/page.tsx](../../../app/admin/students/page.tsx) | 336 | administration | generateMetadata:28, default:89 |
 | [app/admin/subgroups/\[id\]/edit/page.tsx](../../../app/admin/subgroups/%5Bid%5D/edit/page.tsx) | 59 | administration | generateMetadata:12, default:22 |
 | [app/admin/subgroups/\[id\]/page.tsx](../../../app/admin/subgroups/%5Bid%5D/page.tsx) | 170 | administration | default:16 |
 | [app/admin/subgroups/legacy.tsx](../../../app/admin/subgroups/legacy.tsx) | 170 | administration | default:14 |

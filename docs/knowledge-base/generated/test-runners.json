@@ -7,7 +7,7 @@
     },
     {
       "file": "scripts/vitest-library-specs.mjs",
-      "sha256": "51cfda59cbdce94e3d969cf85737aa5e6069543436fc5aaa30d39f843715d5e7"
+      "sha256": "43c4cb0bc1b1af1f3fae20323d0e012622a29a51ed00caef0a12a5d5076db5f2"
     },
     {
       "file": "vitest.config.ts",
@@ -52,6 +52,7 @@
       }
     ],
     "delegatedVitestFiles": [
+      "lib/admin/courseraDiagnosticsLoaders.test.ts",
       "lib/admin/funderProgramMetrics.test.ts",
       "lib/admin/memberMerge.test.ts",
       "lib/admin/metrics.test.ts",
@@ -100,6 +101,7 @@
       "tests/**/*.test.ts",
       "tests/**/*.spec.tsx",
       "tests/**/*.test.tsx",
+      "lib/admin/courseraDiagnosticsLoaders.test.ts",
       "lib/admin/funderProgramMetrics.test.ts",
       "lib/admin/memberMerge.test.ts",
       "lib/admin/metrics.test.ts",

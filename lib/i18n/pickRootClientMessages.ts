@@ -31,6 +31,24 @@ export const PORTAL_CLIENT_NAMESPACES = [
   'first90',
 ] as const;
 
+/**
+ * `dashboard.*` keys read by `components/portal/MemberProgressStrip`, which the
+ * admin member pages (`/admin/members/[id]`, `/stakeholder`) render under the
+ * admin layout. The full `dashboard` namespace is ~22KB, so the admin slice
+ * ships only these keys instead of the whole catalog.
+ */
+export const ADMIN_DASHBOARD_CLIENT_KEYS = [
+  'memberJourneyProgress',
+  'progressIntake',
+  'progressAssessment',
+  'progressTraining',
+  'progressCerts',
+  'progressEmployed',
+  'stepComplete',
+  'stepInProgress',
+  'stepUpcoming',
+] as const;
+
 export type ClientMessageSlice = 'root' | 'portal' | 'admin' | 'apply' | 'auth';
 
 function pickNamespaces(messages: MsgRecord, keys: readonly string[]): MsgRecord {
@@ -41,6 +59,13 @@ function pickNamespaces(messages: MsgRecord, keys: readonly string[]): MsgRecord
     }
   }
   return out;
+}
+
+function pickAdminDashboardClientSlice(messages: MsgRecord): MsgRecord | undefined {
+  const dashboard = messages.dashboard as MsgRecord | undefined;
+  if (!dashboard) return undefined;
+  const slice = pickNamespaces(dashboard, ADMIN_DASHBOARD_CLIENT_KEYS);
+  return Object.keys(slice).length > 0 ? slice : undefined;
 }
 
 function pickMarketingClientSlice(messages: MsgRecord): MsgRecord | undefined {
@@ -100,6 +125,10 @@ export function pickClientMessageSlice(
     case 'admin':
       // AdminPortalShell uses the shared WorkspaceShell label namespaces too.
       Object.assign(out, pickNamespaces(m, ['admin', 'courseraProgress', 'workspace', 'group']));
+      {
+        const dashboard = pickAdminDashboardClientSlice(m);
+        if (dashboard) out.dashboard = dashboard;
+      }
       break;
     case 'apply':
       Object.assign(out, pickNamespaces(m, ['apply']));

@@ -7351,12 +7351,12 @@
     "exports": [
       {
         "name": "generateMetadata",
-        "line": 12,
+        "line": 10,
         "kind": "FunctionDeclaration"
       },
       {
         "name": "default",
-        "line": 42,
+        "line": 40,
         "kind": "FunctionDeclaration",
         "localName": "AIEfficacyPage"
       }
@@ -7372,16 +7372,6 @@
       {
         "specifier": "@/lib/tenant/adminPageScope",
         "line": 4,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/auth/roles",
-        "line": 5,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/tenant/organization",
-        "line": 6,
         "kind": "import"
       }
     ]
@@ -11595,7 +11585,7 @@
     "exports": [
       {
         "name": "GET",
-        "line": 64,
+        "line": 71,
         "kind": "Variable"
       }
     ],

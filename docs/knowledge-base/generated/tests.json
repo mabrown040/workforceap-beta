@@ -2245,6 +2245,30 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/admin/triageDigestCopy.test.ts",
+    "area": "libraries",
+    "domain": "administration",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/admin/triageDigestCopy.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/admin/userDeleteResponse.test.ts",
     "area": "libraries",
     "domain": "administration",
@@ -4193,6 +4217,36 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "lib/counselor/inboxZero.query.test.ts",
+    "area": "libraries",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/counselor/inboxZero.ts",
+        "line": 34
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "delegated",
+        "reason": "owned by npm run test:vitest (shared manifest; collection guarded)"
+      },
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "lib/counselor/inboxZero.test.ts",
     "area": "libraries",
     "domain": "member-counselor",
@@ -4202,6 +4256,30 @@
     "localReferences": [
       {
         "file": "lib/counselor/inboxZero.ts",
+        "line": 3
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "node-unit",
+        "source": "scripts/test-unit.mjs",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "lib/counselor/lastActivity.test.ts",
+    "area": "libraries",
+    "domain": "member-counselor",
+    "frameworkImports": [
+      "node:test"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/counselor/lastActivity.ts",
         "line": 3
       }
     ],
@@ -9168,6 +9246,46 @@
       {
         "file": "app/admin/health/page.tsx",
         "line": 4
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
+    "file": "tests/api/admin-ai-efficacy.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "app/api/admin/analytics/ai-efficacy/route.ts",
+        "line": 28
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 29
+      },
+      {
+        "file": "lib/auth/roles.ts",
+        "line": 30
+      },
+      {
+        "file": "lib/tenant/organization.ts",
+        "line": 31
+      },
+      {
+        "file": "lib/analytics/aiToolEfficacy.ts",
+        "line": 32
       }
     ],
     "kind": "test-candidate",

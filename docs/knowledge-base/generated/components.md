@@ -117,7 +117,7 @@
 | [components/admin/MemberReviewTable.tsx](../../../components/admin/MemberReviewTable.tsx) | 271 | administration | MemberReviewTable:34 |
 | [components/admin/MemberSubgroupSection.tsx](../../../components/admin/MemberSubgroupSection.tsx) | 143 | administration | default:8 |
 | [components/admin/MembersListNav.tsx](../../../components/admin/MembersListNav.tsx) | 85 | administration | default:53 |
-| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1166 | administration | default:266 |
+| [components/admin/MembersTable.tsx](../../../components/admin/MembersTable.tsx) | 1169 | administration | default:269 |
 | [components/admin/MentorStatusButtons.tsx](../../../components/admin/MentorStatusButtons.tsx) | 95 | administration | default:12 |
 | [components/admin/MfaStatusBanner.tsx](../../../components/admin/MfaStatusBanner.tsx) | 67 | administration | default:5 |
 | [components/admin/OutcomesDashboard.tsx](../../../components/admin/OutcomesDashboard.tsx) | 557 | administration | default:197 |
@@ -142,7 +142,7 @@
 | [components/admin/TestimonialsAdminClient.tsx](../../../components/admin/TestimonialsAdminClient.tsx) | 398 | administration | default:36 |
 | [components/admin/TrainingProgressClient.tsx](../../../components/admin/TrainingProgressClient.tsx) | 818 | administration | CanonicalCatalog:25, CurriculumRow:35, RawCourseraRow:64, default:418 |
 | [components/admin/TrainingProgressRoster.tsx](../../../components/admin/TrainingProgressRoster.tsx) | 272 | administration | TrainingProgressRosterProps:82, default:94 |
-| [components/admin/TriageDigestSection.tsx](../../../components/admin/TriageDigestSection.tsx) | 228 | administration | default:12 |
+| [components/admin/TriageDigestSection.tsx](../../../components/admin/TriageDigestSection.tsx) | 230 | administration | default:12 |
 | [components/admin/WioaReviewFilterBar.tsx](../../../components/admin/WioaReviewFilterBar.tsx) | 28 | partners-funding | default:4 |
 | [components/admin/WioaScreeningReadonly.tsx](../../../components/admin/WioaScreeningReadonly.tsx) | 65 | partners-funding | default:20 |
 | [components/admin/coursera/MapToUserActions.tsx](../../../components/admin/coursera/MapToUserActions.tsx) | 265 | learning-coursera | default:66 |
@@ -458,10 +458,10 @@
 | [components/portal/counselor/AtRiskMemberList.tsx](../../../components/portal/counselor/AtRiskMemberList.tsx) | 113 | member-counselor | default:40 |
 | [components/portal/counselor/AtRiskSummaryWidget.tsx](../../../components/portal/counselor/AtRiskSummaryWidget.tsx) | 185 | member-counselor | default:23 |
 | [components/portal/counselor/CounselorAnalyticsCards.tsx](../../../components/portal/counselor/CounselorAnalyticsCards.tsx) | 224 | member-counselor | CounselorAnalytics:5, default:18, CounselorAnalyticsCardsDesktop:122 |
-| [components/portal/counselor/CounselorCommandCenter.tsx](../../../components/portal/counselor/CounselorCommandCenter.tsx) | 242 | member-counselor | default:19 |
+| [components/portal/counselor/CounselorCommandCenter.tsx](../../../components/portal/counselor/CounselorCommandCenter.tsx) | 243 | member-counselor | default:20 |
 | [components/portal/counselor/CounselorNotificationCenter.tsx](../../../components/portal/counselor/CounselorNotificationCenter.tsx) | 332 | communications | default:103 |
 | [components/portal/counselor/CounselorPriorityQueue.tsx](../../../components/portal/counselor/CounselorPriorityQueue.tsx) | 408 | member-counselor | CounselorPriorityQueueProps:58, default:68 |
-| [components/portal/counselor/CounselorStudentsRosterClient.tsx](../../../components/portal/counselor/CounselorStudentsRosterClient.tsx) | 433 | member-counselor | CounselorRosterClientRow:40, CounselorRosterFilterMeta:56, default:144 |
+| [components/portal/counselor/CounselorStudentsRosterClient.tsx](../../../components/portal/counselor/CounselorStudentsRosterClient.tsx) | 437 | member-counselor | CounselorRosterClientRow:41, CounselorRosterFilterMeta:58, default:147 |
 | [components/portal/counselor/CounselorTrainingHandoff.test.tsx](../../../components/portal/counselor/CounselorTrainingHandoff.test.tsx) | 40 | member-counselor |  |
 | [components/portal/counselor/CounselorTrainingHandoff.tsx](../../../components/portal/counselor/CounselorTrainingHandoff.tsx) | 64 | member-counselor | CounselorTrainingEnrollment:12, default:21 |
 | [components/portal/counselor/InboxZeroClient.tsx](../../../components/portal/counselor/InboxZeroClient.tsx) | 539 | member-counselor | default:56 |

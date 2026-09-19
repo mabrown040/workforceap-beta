@@ -2,17 +2,24 @@ import { prisma } from '@/lib/db/prisma';
 import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
 
 import { getRiskLevel } from '@/lib/member/atRiskScoring';
+import { resolveMemberLastActivity } from '@/lib/counselor/lastActivity';
 
 export type CounselorRosterRiskRow = {
   memberId: string;
   riskScore: number | null;
   riskLevel: ReturnType<typeof getRiskLevel>;
-  lastActivityAt: Date;
+  /** Last MemberEvent timestamp; `null` when the member never logged one. */
+  lastActivityAt: Date | null;
 };
 
 /**
  * Open/acknowledged at-risk alerts (nightly cron) plus last MemberEvent activity
  * for counselor roster sorting and badges.
+ *
+ * Activity comes only from `member_events` (shared derivation with the
+ * counselor overview — `lib/counselor/lastActivity.ts`). A member with no
+ * events is reported as `lastActivityAt: null`, never as "active" at their
+ * account-creation time.
  */
 export async function loadCounselorRosterRiskAndActivity(
   memberIds: string[],
@@ -20,7 +27,7 @@ export async function loadCounselorRosterRiskAndActivity(
   const result = new Map<string, CounselorRosterRiskRow>();
   if (memberIds.length === 0) return result;
 
-  const [alerts, lastEvents, users] = await Promise.all([
+  const [alerts, lastEvents] = await Promise.all([
     prisma.atRiskAlert.findMany({
       take: COUNSELOR_ROSTER_CAP,
       where: {
@@ -37,11 +44,6 @@ export async function loadCounselorRosterRiskAndActivity(
        GROUP BY user_id`,
       memberIds,
     ),
-    prisma.user.findMany({
-      take: COUNSELOR_ROSTER_CAP,
-      where: { id: { in: memberIds } },
-      select: { id: true, createdAt: true },
-    }),
   ]);
 
   const scoreByUser = new Map<string, number>();
@@ -54,12 +56,10 @@ export async function loadCounselorRosterRiskAndActivity(
     if (row.last_at) lastEventByUser.set(row.user_id, row.last_at);
   }
 
-  const createdByUser = new Map(users.map((u) => [u.id, u.createdAt]));
-
   for (const id of memberIds) {
     const riskScore = scoreByUser.get(id) ?? null;
     const riskLevel = riskScore != null ? getRiskLevel(riskScore) : 'LOW';
-    const lastActivityAt = lastEventByUser.get(id) ?? createdByUser.get(id) ?? new Date();
+    const { lastActivityAt } = resolveMemberLastActivity(lastEventByUser.get(id) ?? null);
     result.set(id, { memberId: id, riskScore, riskLevel, lastActivityAt });
   }
 

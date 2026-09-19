@@ -80,7 +80,9 @@
 | [lib/admin/trainingProgressGrades.ts](../../../lib/admin/trainingProgressGrades.ts) | 56 | administration | CourseGradeFact:21, latestCompletedGradeByUser:31 |
 | [lib/admin/trainingProgressPrograms.ts](../../../lib/admin/trainingProgressPrograms.ts) | 76 | administration | TrainingPace:10, STALLED_IDLE_DAYS:13, TrainingLearnerRef:15, programSlugsForLearner:28, deriveTrainingPace:64 |
 | [lib/admin/trainingProgressRoster.ts](../../../lib/admin/trainingProgressRoster.ts) | 311 | administration | RosterRow:14, PACE_FILTERS:33, PaceFilter:34, LINK_FILTERS:36, LinkFilter:37, SORT_KEYS:39, SortKey:48, SortDirection:50, RosterFilters:52, DEFAULT_ROSTER_FILTERS:61, DEFAULT_SORT_KEY:68, DEFAULT_SORT_DIRECTION:69, filterTrainingRows:106, latestActivityMs:172, relativeLastActiveCaption:186, sortTrainingRows:207, RosterSummary:243, summarizeTrainingRows:257, countMembersWithTraining:286, rosterProgramOptions:297, isPaceFilter:301, isLinkFilter:305, isSortKey:309 |
-| [lib/admin/triageDigest.ts](../../../lib/admin/triageDigest.ts) | 323 | administration | TriageMember:26, TriageBucketKey:41, TriageBucket:43, TriageDigest:61, getTriageDigest:79 |
+| [lib/admin/triageDigest.ts](../../../lib/admin/triageDigest.ts) | 326 | administration | TriageMember:27, TriageBucketKey:42, TriageBucket:44, TriageDigest:62, getTriageDigest:80 |
+| [lib/admin/triageDigestCopy.test.ts](../../../lib/admin/triageDigestCopy.test.ts) | 14 | administration |  |
+| [lib/admin/triageDigestCopy.ts](../../../lib/admin/triageDigestCopy.ts) | 14 | administration | stalledCheckInAction:11 |
 | [lib/admin/userDeleteResponse.test.ts](../../../lib/admin/userDeleteResponse.test.ts) | 16 | administration |  |
 | [lib/admin/userDeleteResponse.ts](../../../lib/admin/userDeleteResponse.ts) | 13 | administration | userAuthDeleteFailedResponse:3 |
 | [lib/agents/gateway/core.test.ts](../../../lib/agents/gateway/core.test.ts) | 252 | libraries |  |
@@ -337,15 +339,18 @@
 | [lib/counselor/ambassadorReferral.test.ts](../../../lib/counselor/ambassadorReferral.test.ts) | 55 | member-counselor |  |
 | [lib/counselor/ambassadorReferral.ts](../../../lib/counselor/ambassadorReferral.ts) | 88 | member-counselor | AmbassadorCandidate:18, AmbassadorMatch:25, pickAmbassadorReferralText:33, normalizePersonName:51, matchAmbassador:68 |
 | [lib/counselor/assignment.ts](../../../lib/counselor/assignment.ts) | 44 | member-counselor | assignMemberCounselor:8 |
-| [lib/counselor/commandCenter.ts](../../../lib/counselor/commandCenter.ts) | 263 | member-counselor | CommandCenterRow:22, NeedsReplyRow:28, AtRiskRow:35, InterviewingRow:40, CommandCenter:45, getCounselorCommandCenter:67 |
+| [lib/counselor/commandCenter.ts](../../../lib/counselor/commandCenter.ts) | 263 | member-counselor | CommandCenterRow:23, NeedsReplyRow:29, AtRiskRow:36, InterviewingRow:42, CommandCenter:47, getCounselorCommandCenter:69 |
 | [lib/counselor/counselorLabels.ts](../../../lib/counselor/counselorLabels.ts) | 17 | member-counselor | counselorAffiliationLabel:2, counselorAffiliationDisplay:10 |
-| [lib/counselor/counselorStudentsRoster.ts](../../../lib/counselor/counselorStudentsRoster.ts) | 67 | member-counselor | CounselorRosterRiskRow:6, loadCounselorRosterRiskAndActivity:17 |
+| [lib/counselor/counselorStudentsRoster.ts](../../../lib/counselor/counselorStudentsRoster.ts) | 67 | member-counselor | CounselorRosterRiskRow:7, loadCounselorRosterRiskAndActivity:24 |
 | [lib/counselor/followUpTemplates.ts](../../../lib/counselor/followUpTemplates.ts) | 116 | member-counselor | FollowUpAudience:24, FollowUpTemplateId:26, FollowUpTemplate:28, FOLLOW_UP_TEMPLATES:45, listFollowUpTemplates:69, getFollowUpTemplate:73, FollowUpRenderContext:80, renderFollowUpTemplate:91, templateMatchesPriorities:110 |
 | [lib/counselor/inboxEmptyState.test.ts](../../../lib/counselor/inboxEmptyState.test.ts) | 30 | member-counselor |  |
 | [lib/counselor/inboxEmptyState.ts](../../../lib/counselor/inboxEmptyState.ts) | 29 | member-counselor | COUNSELOR_INBOX_ZERO_EMPTY:6, COUNSELOR_MESSAGES_NO_MEMBERS_EMPTY:16, COUNSELOR_MESSAGES_FILTER_EMPTY:25 |
+| [lib/counselor/inboxZero.query.test.ts](../../../lib/counselor/inboxZero.query.test.ts) | 88 | member-counselor |  |
 | [lib/counselor/inboxZero.test.ts](../../../lib/counselor/inboxZero.test.ts) | 90 | member-counselor |  |
 | [lib/counselor/inboxZero.ts](../../../lib/counselor/inboxZero.ts) | 437 | member-counselor | DOC_MISSING_DAYS:28, APPLICATION_STALLED_DAYS:29, LAST_CONTACT_DAYS:30, INBOX_ZERO_DISMISS_ACTION:34, INBOX_ZERO_CONTACTED_ACTION:35, INBOX_ZERO_REASSIGN_ACTION:36, INBOX_ZERO_FOLLOW_UP_ACTION:37, InboxZeroFlagType:41, INBOX_FLAG_LABELS:47, FLAG_PRIORITY_RANK:55, InboxZeroContext:62, InboxZeroRow:70, InboxZeroQueue:82, isDocMissing:93, isApplicationStalled:104, isAtRiskFlag:116, isLastContactOverdue:120, pickPrimaryInboxFlag:129, inboxRowSeverity:139, sortInboxRows:157, getInboxZeroQueue:247 |
 | [lib/counselor/inboxZeroAudit.ts](../../../lib/counselor/inboxZeroAudit.ts) | 48 | member-counselor | InboxZeroBulkAuditVerb:9, logInboxZeroBulkAuditEvent:18 |
+| [lib/counselor/lastActivity.test.ts](../../../lib/counselor/lastActivity.test.ts) | 40 | member-counselor |  |
+| [lib/counselor/lastActivity.ts](../../../lib/counselor/lastActivity.ts) | 45 | member-counselor | NO_ACTIVITY_RECORDED_LABEL:16, MemberLastActivity:18, resolveMemberLastActivity:27, describeInactivity:37, isUrgentInactivity:43 |
 | [lib/counselor/memberStatus.ts](../../../lib/counselor/memberStatus.ts) | 48 | member-counselor | counselorEnrollmentStatusBadge:6, counselorStudentStatusBadge:19, counselorStudentStatusBadgeVariant:38 |
 | [lib/counselor/nudgeTemplates.test.ts](../../../lib/counselor/nudgeTemplates.test.ts) | 69 | member-counselor |  |
 | [lib/counselor/nudgeTemplates.ts](../../../lib/counselor/nudgeTemplates.ts) | 132 | member-counselor | NudgeTemplateId:20, NudgeTemplate:22, NUDGE_TEMPLATES:30, listTemplates:54, getTemplate:58, NudgeRenderContext:62, barrierAwareNudgeLine:99, renderNudge:115 |
@@ -355,8 +360,8 @@
 | [lib/counselor/staffMemberAccess.ts](../../../lib/counselor/staffMemberAccess.ts) | 39 | member-counselor | assertStaffCanAccessMemberRecord:14 |
 | [lib/counselor/templates.test.ts](../../../lib/counselor/templates.test.ts) | 26 | member-counselor |  |
 | [lib/counselor/templates.ts](../../../lib/counselor/templates.ts) | 92 | member-counselor | FollowUpTemplateId:9, FollowUpTemplate:15, FOLLOW_UP_TEMPLATES:23, listFollowUpTemplates:54, getFollowUpTemplate:58, FollowUpRenderContext:62, renderFollowUpTemplate:68, templateMatchesFlags:86 |
-| [lib/counselor/triageFlags.test.ts](../../../lib/counselor/triageFlags.test.ts) | 179 | member-counselor |  |
-| [lib/counselor/triageFlags.ts](../../../lib/counselor/triageFlags.ts) | 546 | member-counselor | NO_ACTIVITY_DAYS:34, SLA_BREACH_HOURS:35, SLA_WARNING_HOURS:36, STALE_TRAINING_WINDOW_DAYS:37, MILESTONE_WINDOW_DAYS:38, TriagePriority:45, TriageFlagType:47, FLAG_LABELS:55, FLAG_PRIORITY:64, TriageContext:75, TriageRow:85, TriageQueue:96, isInactive:116, slaPriority:132, isStaleTraining:148, needsComputerSupportFollowUp:163, isMilestoneRecent:176, pickPrimaryFlag:193, getTriageQueue:229 |
+| [lib/counselor/triageFlags.test.ts](../../../lib/counselor/triageFlags.test.ts) | 189 | member-counselor |  |
+| [lib/counselor/triageFlags.ts](../../../lib/counselor/triageFlags.ts) | 556 | member-counselor | NO_ACTIVITY_DAYS:35, SLA_BREACH_HOURS:36, SLA_WARNING_HOURS:37, STALE_TRAINING_WINDOW_DAYS:38, MILESTONE_WINDOW_DAYS:39, TriagePriority:46, TriageFlagType:48, FLAG_LABELS:56, FLAG_PRIORITY:65, TriageContext:76, TriageRow:86, TriageQueue:97, isInactive:119, slaPriority:139, isStaleTraining:155, needsComputerSupportFollowUp:170, isMilestoneRecent:183, pickPrimaryFlag:200, getTriageQueue:236 |
 | [lib/counselor/workQueue.ts](../../../lib/counselor/workQueue.ts) | 163 | member-counselor | WorkQueueRow:18, getCounselorWorkQueue:39, formatTimeWaiting:149, previewMessageBody:159 |
 | [lib/coursera/approvedCurriculumMigration.test.ts](../../../lib/coursera/approvedCurriculumMigration.test.ts) | 106 | learning-coursera |  |
 | [lib/coursera/b4bBindingSuggestions.server.ts](../../../lib/coursera/b4bBindingSuggestions.server.ts) | 19 | learning-coursera | getBindingSuggestions:13 |
@@ -549,8 +554,8 @@
 | [lib/i18n/date.ts](../../../lib/i18n/date.ts) | 83 | public-experience | formatDate:37, formatDateTime:47, formatLocalizedDate:71 |
 | [lib/i18n/getT.ts](../../../lib/i18n/getT.ts) | 4 | public-experience | getTranslations:4 |
 | [lib/i18n/localizeHref.ts](../../../lib/i18n/localizeHref.ts) | 31 | public-experience | LocalizedHrefResolution:4, localizeHref:10, resolveLocalizedHref:22 |
-| [lib/i18n/pickRootClientMessages.test.ts](../../../lib/i18n/pickRootClientMessages.test.ts) | 85 | public-experience |  |
-| [lib/i18n/pickRootClientMessages.ts](../../../lib/i18n/pickRootClientMessages.ts) | 160 | public-experience | ROOT_CHROME_NAMESPACES:6, ROOT_MARKETING_CLIENT_KEYS:12, PORTAL_CLIENT_NAMESPACES:15, ClientMessageSlice:34, pickRootClientMessages:63, pickPortalClientMessages:67, pickAdminClientMessages:71, pickApplyClientMessages:75, pickAuthClientMessages:79, pickClientMessageSlice:83, clientMessagesBytes:120, pickLegacyFatRootClientMessages:125 |
+| [lib/i18n/pickRootClientMessages.test.ts](../../../lib/i18n/pickRootClientMessages.test.ts) | 115 | public-experience |  |
+| [lib/i18n/pickRootClientMessages.ts](../../../lib/i18n/pickRootClientMessages.ts) | 189 | public-experience | ROOT_CHROME_NAMESPACES:6, ROOT_MARKETING_CLIENT_KEYS:12, PORTAL_CLIENT_NAMESPACES:15, ADMIN_DASHBOARD_CLIENT_KEYS:40, ClientMessageSlice:52, pickRootClientMessages:88, pickPortalClientMessages:92, pickAdminClientMessages:96, pickApplyClientMessages:100, pickAuthClientMessages:104, pickClientMessageSlice:108, clientMessagesBytes:149, pickLegacyFatRootClientMessages:154 |
 | [lib/i18n/server.ts](../../../lib/i18n/server.ts) | 10 | public-experience | getRequestLocale:5 |
 | [lib/i18n/serverLocale.ts](../../../lib/i18n/serverLocale.ts) | 13 | public-experience | WAPLocale:5, LOCALE_COOKIE:7, getLocale:9 |
 | [lib/interview/voiceTranscript.test.ts](../../../lib/interview/voiceTranscript.test.ts) | 67 | jobs-employers |  |

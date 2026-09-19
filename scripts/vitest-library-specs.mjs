@@ -11,6 +11,7 @@ export const VITEST_LIBRARY_SPECS = Object.freeze([
   'lib/auth/roles.read-only-audit.test.ts',
   'lib/cache.test.ts',
   'lib/content/programs.test.ts',
+  'lib/counselor/inboxZero.query.test.ts',
   'lib/counselor/templates.test.ts',
   'lib/coursera/learnerProgress.test.ts',
   'lib/cron/wioa-report.test.ts',

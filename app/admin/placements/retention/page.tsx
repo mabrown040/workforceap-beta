@@ -158,7 +158,7 @@ export default async function RetentionDecisionsQueuePage() {
         const signal = latestStillEmployed.has(r.id) ? latestStillEmployed.get(r.id) : undefined;
         if (signal === true) return <span className="wa-text-green-600 wa-font-medium">Employed</span>;
         if (signal === false) return <span className="wa-text-red-600">Not employed</span>;
-        return <span className="wa-text-gray-400">No survey</span>;
+        return <span className="wa-text-gray-500">No survey</span>;
       },
     },
     {
@@ -221,7 +221,7 @@ function StatCard({ label, value, hint }: { label: string; value: number; hint: 
       <div className="wa-text-2xl wa-font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
         {value.toLocaleString()}
       </div>
-      <div className="wa-text-xs wa-text-gray-400 wa-mt-1">{hint}</div>
+      <div className="wa-text-xs wa-text-gray-500 wa-mt-1">{hint}</div>
     </div>
   );
 }

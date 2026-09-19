@@ -46,7 +46,7 @@ async function _PATCH(
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     let body: Record<string, unknown>;
-    try { body = await request.json(); } catch {
+    try { body = await request.json(); if (!body || typeof body !== 'object') throw new Error('Body must be a JSON object'); } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 

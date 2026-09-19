@@ -11830,17 +11830,17 @@
     "exports": [
       {
         "name": "GET",
-        "line": 28,
+        "line": 51,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 99,
+        "line": 128,
         "kind": "Variable"
       },
       {
         "name": "DELETE",
-        "line": 130,
+        "line": 159,
         "kind": "Variable"
       }
     ],
@@ -11853,17 +11853,17 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/auth/server",
-        "line": 2,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/auth/roles",
         "line": 3,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/auth/roles",
+        "line": 4,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 6,
+        "line": 7,
         "kind": "import"
       }
     ]
@@ -11957,7 +11957,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 89,
+        "line": 90,
         "kind": "Variable"
       }
     ],
@@ -12037,7 +12037,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 70,
+        "line": 71,
         "kind": "Variable"
       }
     ],
@@ -12077,7 +12077,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 9,
+        "line": 32,
         "kind": "Variable"
       }
     ],
@@ -12088,17 +12088,17 @@
     "boundaryReferences": [
       {
         "specifier": "@/lib/auth/server",
-        "line": 2,
-        "kind": "import"
-      },
-      {
-        "specifier": "@/lib/auth/roles",
         "line": 3,
         "kind": "import"
       },
       {
+        "specifier": "@/lib/auth/roles",
+        "line": 4,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 6,
+        "line": 7,
         "kind": "import"
       }
     ]
@@ -13923,12 +13923,12 @@
     "exports": [
       {
         "name": "PATCH",
-        "line": 42,
+        "line": 45,
         "kind": "Variable"
       },
       {
         "name": "DELETE",
-        "line": 57,
+        "line": 62,
         "kind": "Variable"
       }
     ],
@@ -14416,12 +14416,12 @@
     "exports": [
       {
         "name": "PATCH",
-        "line": 53,
+        "line": 56,
         "kind": "Variable"
       },
       {
         "name": "DELETE",
-        "line": 74,
+        "line": 79,
         "kind": "Variable"
       }
     ],
@@ -14462,7 +14462,7 @@
       },
       {
         "name": "POST",
-        "line": 65,
+        "line": 68,
         "kind": "Variable"
       }
     ],
@@ -14820,7 +14820,7 @@
       },
       {
         "name": "POST",
-        "line": 315,
+        "line": 318,
         "kind": "Variable"
       }
     ],
@@ -15216,7 +15216,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 71,
+        "line": 74,
         "kind": "Variable"
       }
     ],
@@ -15722,12 +15722,12 @@
       },
       {
         "name": "POST",
-        "line": 131,
+        "line": 132,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 166,
+        "line": 167,
         "kind": "Variable"
       }
     ],
@@ -15995,7 +15995,7 @@
       },
       {
         "name": "PATCH",
-        "line": 212,
+        "line": 213,
         "kind": "Variable"
       }
     ],
@@ -16563,7 +16563,7 @@
       },
       {
         "name": "PATCH",
-        "line": 161,
+        "line": 168,
         "kind": "Variable"
       }
     ],
@@ -16829,7 +16829,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 102,
+        "line": 103,
         "kind": "Variable"
       }
     ],
@@ -16955,7 +16955,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 90,
+        "line": 91,
         "kind": "Variable"
       }
     ],
@@ -17190,12 +17190,12 @@
     "exports": [
       {
         "name": "POST",
-        "line": 76,
+        "line": 79,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 103,
+        "line": 106,
         "kind": "Variable"
       }
     ],
@@ -17236,7 +17236,7 @@
       },
       {
         "name": "POST",
-        "line": 332,
+        "line": 335,
         "kind": "Variable"
       }
     ],
@@ -17970,7 +17970,7 @@
     "exports": [
       {
         "name": "GET",
-        "line": 26,
+        "line": 27,
         "kind": "Variable"
       }
     ],
@@ -17995,8 +17995,13 @@
         "kind": "import"
       },
       {
+        "specifier": "@/lib/tenant/withTenantScope",
+        "line": 5,
+        "kind": "import"
+      },
+      {
         "specifier": "@/lib/db/withRequestGuc",
-        "line": 10,
+        "line": 11,
         "kind": "import"
       }
     ]
@@ -19094,12 +19099,12 @@
     "exports": [
       {
         "name": "PATCH",
-        "line": 150,
+        "line": 151,
         "kind": "Variable"
       },
       {
         "name": "DELETE",
-        "line": 184,
+        "line": 185,
         "kind": "Variable"
       }
     ],
@@ -21108,7 +21113,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 205,
+        "line": 206,
         "kind": "Variable"
       }
     ],
@@ -21458,7 +21463,7 @@
     "exports": [
       {
         "name": "POST",
-        "line": 65,
+        "line": 68,
         "kind": "Variable"
       }
     ],
@@ -21493,17 +21498,17 @@
     "exports": [
       {
         "name": "GET",
-        "line": 112,
+        "line": 113,
         "kind": "Variable"
       },
       {
         "name": "POST",
-        "line": 179,
+        "line": 184,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 216,
+        "line": 222,
         "kind": "Variable"
       }
     ],
@@ -21560,7 +21565,7 @@
       },
       {
         "name": "DELETE",
-        "line": 154,
+        "line": 155,
         "kind": "Variable"
       }
     ],
@@ -21742,7 +21747,7 @@
       },
       {
         "name": "DELETE",
-        "line": 144,
+        "line": 145,
         "kind": "Variable"
       }
     ],
@@ -21869,7 +21874,7 @@
       },
       {
         "name": "POST",
-        "line": 299,
+        "line": 300,
         "kind": "Variable"
       }
     ],
@@ -23729,12 +23734,12 @@
       },
       {
         "name": "POST",
-        "line": 116,
+        "line": 117,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 141,
+        "line": 142,
         "kind": "Variable"
       }
     ],
@@ -28554,12 +28559,12 @@
       },
       {
         "name": "POST",
-        "line": 118,
+        "line": 119,
         "kind": "Variable"
       },
       {
         "name": "PATCH",
-        "line": 159,
+        "line": 160,
         "kind": "Variable"
       }
     ],

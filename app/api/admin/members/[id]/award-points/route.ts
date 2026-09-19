@@ -33,6 +33,9 @@ async function _POST(request: Request, { params }: Props) {
   try { body = await request.json(); } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
 
   const o = body as Record<string, unknown>;
   const points = typeof o.points === 'number' ? Math.round(o.points) : 0;

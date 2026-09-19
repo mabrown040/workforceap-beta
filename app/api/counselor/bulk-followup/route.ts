@@ -56,7 +56,8 @@ async function handle(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const json = (await request.json().catch(() => ({}))) as {
+    const raw: unknown = await request.json().catch(() => null);
+    const json = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}) as {
       memberIds?: unknown;
       templateId?: unknown;
     };

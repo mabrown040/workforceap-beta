@@ -13237,6 +13237,66 @@
     "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
   },
   {
+    "file": "tests/api/member-route-malformed-input.spec.ts",
+    "area": "tests",
+    "domain": "tests",
+    "frameworkImports": [
+      "vitest"
+    ],
+    "localReferences": [
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 52
+      },
+      {
+        "file": "app/api/gdpr/export/route.ts",
+        "line": 75
+      },
+      {
+        "file": "app/api/mentors/[id]/sessions/route.ts",
+        "line": 76
+      },
+      {
+        "file": "app/api/mentors/apply/route.ts",
+        "line": 77
+      },
+      {
+        "file": "app/api/member/job-applications/route.ts",
+        "line": 78
+      },
+      {
+        "file": "app/api/ai/export-pdf/route.ts",
+        "line": 79
+      },
+      {
+        "file": "app/api/ai/interview-voice/route.ts",
+        "line": 80
+      },
+      {
+        "file": "lib/auth/server.ts",
+        "line": 81
+      },
+      {
+        "file": "lib/db/prisma.ts",
+        "line": 82
+      },
+      {
+        "file": "lib/ai/elevenlabs.ts",
+        "line": 83
+      }
+    ],
+    "kind": "test-candidate",
+    "declaredRunners": [
+      {
+        "runner": "vitest",
+        "source": "vitest.config.ts",
+        "status": "selected"
+      }
+    ],
+    "collectionStatus": "statically-selected",
+    "coverageNote": "Selection metadata is not proof of collection, passing assertions, execution, or test coverage."
+  },
+  {
     "file": "tests/api/member-settings.spec.ts",
     "area": "tests",
     "domain": "tests",

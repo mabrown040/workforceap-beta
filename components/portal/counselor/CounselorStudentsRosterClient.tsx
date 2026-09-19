@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { NO_ACTIVITY_RECORDED_LABEL } from '@/lib/counselor/lastActivity';
 import { useMemo, useState, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { MessageSquare } from 'lucide-react';
@@ -50,7 +51,8 @@ export type CounselorRosterClientRow = {
   memberProgramProgress: LiveTrainingProgressSummary[];
   riskScore: number | null;
   riskLevel: RiskLevel;
-  lastActivityAt: string;
+  /** ISO timestamp of the last MemberEvent; `null` when none was recorded. */
+  lastActivityAt: string | null;
 };
 
 export type CounselorRosterFilterMeta = {
@@ -92,7 +94,8 @@ function variantToTone(variant: BadgeVariant): KitTone {
   }
 }
 
-function formatLastActivity(iso: string): string {
+function formatLastActivity(iso: string | null): string {
+  if (!iso) return NO_ACTIVITY_RECORDED_LABEL;
   const d = new Date(iso);
   const diffMs = Date.now() - d.getTime();
   if (diffMs < 0) return 'Just now';
@@ -417,7 +420,8 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
                 ) : null}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
                   <div style={{ fontSize: 10, color: 'var(--wa-muted)' }}>
-                    {pct !== null ? `${pct}% complete · ` : ''}last active {formatLastActivity(row.lastActivityAt)}
+                    {pct !== null ? `${pct}% complete · ` : ''}
+                    {row.lastActivityAt ? `last active ${formatLastActivity(row.lastActivityAt)}` : NO_ACTIVITY_RECORDED_LABEL}
                   </div>
                   <ActionsCell row={row} />
                 </div>

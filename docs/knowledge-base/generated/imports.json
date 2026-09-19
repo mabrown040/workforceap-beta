@@ -15689,24 +15689,8 @@
   },
   {
     "from": "app/admin/analytics/ai-efficacy/page.tsx",
-    "specifier": "@/lib/auth/roles",
-    "line": 5,
-    "kind": "import",
-    "external": false,
-    "target": "lib/auth/roles.ts"
-  },
-  {
-    "from": "app/admin/analytics/ai-efficacy/page.tsx",
-    "specifier": "@/lib/tenant/organization",
-    "line": 6,
-    "kind": "import",
-    "external": false,
-    "target": "lib/tenant/organization.ts"
-  },
-  {
-    "from": "app/admin/analytics/ai-efficacy/page.tsx",
     "specifier": "@/lib/analytics/aiToolEfficacy",
-    "line": 7,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/analytics/aiToolEfficacy.ts"
@@ -15714,7 +15698,7 @@
   {
     "from": "app/admin/analytics/ai-efficacy/page.tsx",
     "specifier": "@/app/seo",
-    "line": 8,
+    "line": 6,
     "kind": "import",
     "external": false,
     "target": "app/seo.ts"
@@ -15722,7 +15706,7 @@
   {
     "from": "app/admin/analytics/ai-efficacy/page.tsx",
     "specifier": "@/components/portal/kit/pages/admin-subviews/AiEfficacyKit",
-    "line": 9,
+    "line": 7,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/pages/admin-subviews/AiEfficacyKit.tsx"
@@ -15730,7 +15714,7 @@
   {
     "from": "app/admin/analytics/ai-efficacy/page.tsx",
     "specifier": "./AIEfficacyDashboardLazy",
-    "line": 10,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "app/admin/analytics/ai-efficacy/AIEfficacyDashboardLazy.tsx"
@@ -78352,6 +78336,14 @@
     "target": "lib/content/programs.ts"
   },
   {
+    "from": "components/portal/counselor/CounselorCommandCenter.tsx",
+    "specifier": "@/lib/counselor/lastActivity",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/lastActivity.ts"
+  },
+  {
     "from": "components/portal/counselor/CounselorNotificationCenter.tsx",
     "specifier": "react",
     "line": 3,
@@ -78473,8 +78465,16 @@
   },
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
-    "specifier": "react",
+    "specifier": "@/lib/counselor/lastActivity",
     "line": 4,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/lastActivity.ts"
+  },
+  {
+    "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
+    "specifier": "react",
+    "line": 5,
     "kind": "import",
     "external": true,
     "package": "react"
@@ -78482,7 +78482,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "next/navigation",
-    "line": 5,
+    "line": 6,
     "kind": "import",
     "external": true,
     "package": "next"
@@ -78490,7 +78490,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "lucide-react",
-    "line": 6,
+    "line": 7,
     "kind": "import",
     "external": true,
     "package": "lucide-react"
@@ -78498,7 +78498,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "@/components/portal/PortalEmptyState",
-    "line": 7,
+    "line": 8,
     "kind": "import",
     "external": false,
     "target": "components/portal/PortalEmptyState.tsx"
@@ -78506,7 +78506,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "@/components/portal/StatusBadge",
-    "line": 8,
+    "line": 9,
     "kind": "type",
     "external": false,
     "target": "components/portal/StatusBadge.tsx"
@@ -78514,7 +78514,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "@/lib/counselor/memberStatus",
-    "line": 9,
+    "line": 10,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/memberStatus.ts"
@@ -78522,7 +78522,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "@/lib/member/trainingProgress",
-    "line": 10,
+    "line": 11,
     "kind": "import",
     "external": false,
     "target": "lib/member/trainingProgress.ts"
@@ -78530,7 +78530,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "@/lib/content/programs",
-    "line": 11,
+    "line": 12,
     "kind": "import",
     "external": false,
     "target": "lib/content/programs.ts"
@@ -78538,7 +78538,7 @@
   {
     "from": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
     "specifier": "@/components/portal/kit",
-    "line": 12,
+    "line": 13,
     "kind": "import",
     "external": false,
     "target": "components/portal/kit/index.ts"
@@ -89665,11 +89665,43 @@
   },
   {
     "from": "lib/admin/triageDigest.ts",
-    "specifier": "@/lib/tenant/adminPageScope",
+    "specifier": "@/lib/admin/triageDigestCopy",
     "line": 6,
     "kind": "import",
     "external": false,
+    "target": "lib/admin/triageDigestCopy.ts"
+  },
+  {
+    "from": "lib/admin/triageDigest.ts",
+    "specifier": "@/lib/tenant/adminPageScope",
+    "line": 7,
+    "kind": "import",
+    "external": false,
     "target": "lib/tenant/adminPageScope.ts"
+  },
+  {
+    "from": "lib/admin/triageDigestCopy.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/admin/triageDigestCopy.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/admin/triageDigestCopy.test.ts",
+    "specifier": "./triageDigestCopy",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/admin/triageDigestCopy.ts"
   },
   {
     "from": "lib/admin/userDeleteResponse.test.ts",
@@ -94721,8 +94753,16 @@
   },
   {
     "from": "lib/counselor/commandCenter.ts",
+    "specifier": "@/lib/counselor/lastActivity",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/lastActivity.ts"
+  },
+  {
+    "from": "lib/counselor/commandCenter.ts",
     "specifier": "@/lib/counselor/adminMemberScope",
-    "line": 4,
+    "line": 5,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/adminMemberScope.ts"
@@ -94752,6 +94792,14 @@
     "target": "lib/member/atRiskScoring.ts"
   },
   {
+    "from": "lib/counselor/counselorStudentsRoster.ts",
+    "specifier": "@/lib/counselor/lastActivity",
+    "line": 5,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/lastActivity.ts"
+  },
+  {
     "from": "lib/counselor/inboxEmptyState.test.ts",
     "specifier": "node:test",
     "line": 1,
@@ -94774,6 +94822,22 @@
     "kind": "import",
     "external": false,
     "target": "lib/counselor/inboxEmptyState.ts"
+  },
+  {
+    "from": "lib/counselor/inboxZero.query.test.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "lib/counselor/inboxZero.query.test.ts",
+    "specifier": "./inboxZero",
+    "line": 34,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/inboxZero.ts"
   },
   {
     "from": "lib/counselor/inboxZero.test.ts",
@@ -94870,6 +94934,30 @@
     "kind": "import",
     "external": false,
     "target": "lib/db/withDbRetry.ts"
+  },
+  {
+    "from": "lib/counselor/lastActivity.test.ts",
+    "specifier": "node:test",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "node:test"
+  },
+  {
+    "from": "lib/counselor/lastActivity.test.ts",
+    "specifier": "node:assert/strict",
+    "line": 2,
+    "kind": "import",
+    "external": true,
+    "package": "node:assert"
+  },
+  {
+    "from": "lib/counselor/lastActivity.test.ts",
+    "specifier": "./lastActivity",
+    "line": 3,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/lastActivity.ts"
   },
   {
     "from": "lib/counselor/memberStatus.ts",
@@ -95041,8 +95129,16 @@
   },
   {
     "from": "lib/counselor/triageFlags.ts",
+    "specifier": "@/lib/counselor/lastActivity",
+    "line": 29,
+    "kind": "import",
+    "external": false,
+    "target": "lib/counselor/lastActivity.ts"
+  },
+  {
+    "from": "lib/counselor/triageFlags.ts",
     "specifier": "@/lib/counselor/adminMemberScope",
-    "line": 30,
+    "line": 31,
     "kind": "import",
     "external": false,
     "target": "lib/counselor/adminMemberScope.ts"
@@ -111062,6 +111158,54 @@
     "kind": "import",
     "external": false,
     "target": "app/admin/health/page.tsx"
+  },
+  {
+    "from": "tests/api/admin-ai-efficacy.spec.ts",
+    "specifier": "vitest",
+    "line": 1,
+    "kind": "import",
+    "external": true,
+    "package": "vitest"
+  },
+  {
+    "from": "tests/api/admin-ai-efficacy.spec.ts",
+    "specifier": "@/app/api/admin/analytics/ai-efficacy/route",
+    "line": 28,
+    "kind": "import",
+    "external": false,
+    "target": "app/api/admin/analytics/ai-efficacy/route.ts"
+  },
+  {
+    "from": "tests/api/admin-ai-efficacy.spec.ts",
+    "specifier": "@/lib/auth/server",
+    "line": 29,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/server.ts"
+  },
+  {
+    "from": "tests/api/admin-ai-efficacy.spec.ts",
+    "specifier": "@/lib/auth/roles",
+    "line": 30,
+    "kind": "import",
+    "external": false,
+    "target": "lib/auth/roles.ts"
+  },
+  {
+    "from": "tests/api/admin-ai-efficacy.spec.ts",
+    "specifier": "@/lib/tenant/organization",
+    "line": 31,
+    "kind": "import",
+    "external": false,
+    "target": "lib/tenant/organization.ts"
+  },
+  {
+    "from": "tests/api/admin-ai-efficacy.spec.ts",
+    "specifier": "@/lib/analytics/aiToolEfficacy",
+    "line": 32,
+    "kind": "import",
+    "external": false,
+    "target": "lib/analytics/aiToolEfficacy.ts"
   },
   {
     "from": "tests/api/admin-analytics.spec.ts",

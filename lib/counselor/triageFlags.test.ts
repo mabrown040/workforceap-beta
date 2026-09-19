@@ -30,6 +30,16 @@ test('isInactive: true for enrolled member with no activity ever', () => {
   assert.equal(isInactive(null, true, NOW), true);
 });
 
+test(`isInactive: no events but account older than ${NO_ACTIVITY_DAYS} days → inactive`, () => {
+  const createdAt = new Date(NOW.getTime() - (NO_ACTIVITY_DAYS + 1) * DAY);
+  assert.equal(isInactive(null, true, NOW, createdAt), true);
+});
+
+test('isInactive: no events on a brand-new account is not "gone quiet"', () => {
+  const createdAt = new Date(NOW.getTime() - 4 * 60 * 60 * 1000); // joined 4h ago
+  assert.equal(isInactive(null, true, NOW, createdAt), false);
+});
+
 test(`isInactive: true for enrolled member inactive longer than ${NO_ACTIVITY_DAYS} days`, () => {
   const past = new Date(NOW.getTime() - (NO_ACTIVITY_DAYS + 1) * DAY);
   assert.equal(isInactive(past, true, NOW), true);

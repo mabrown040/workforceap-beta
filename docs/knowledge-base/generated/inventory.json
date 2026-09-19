@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "816cbb78957f96ee0ee064e534e20f7006f0e22d1f052df4399d0fa327e5245e",
+  "inputTreeSha256": "ae9ec24e88efcc3c390a27c9b02c0675f3f78ef11b245c86f9c362df28a32896",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -4889,9 +4889,9 @@
       "path": "app/(portal)/counselor/inbox/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 2882,
-      "lines": 87,
-      "sha256": "0708ed89331796bd8aaf155d6cfed8fa3780ee43264c51fa74cc4dfb02f938da",
+      "bytes": 2805,
+      "lines": 76,
+      "sha256": "367d0323243249dc9f94cf5fc4d09a36ac6c4b76f22b3891424bef910ff749e7",
       "binary": false,
       "exports": [
         {
@@ -5921,9 +5921,9 @@
       "path": "app/(portal)/counselor/students/page.tsx",
       "area": "pages",
       "domain": "member-counselor",
-      "bytes": 20224,
-      "lines": 469,
-      "sha256": "3b62225a752d902125d9876c6fe29a2dafba5e97e60f314d35e95e013f92b1e0",
+      "bytes": 20357,
+      "lines": 473,
+      "sha256": "743b1b1fdeb43d22e442fd5d32d0a2ad17de35684847125311d1d80eec94ddbf",
       "binary": false,
       "exports": [
         {
@@ -13961,14 +13961,14 @@
       "path": "app/admin/analytics/ai-efficacy/AIEfficacyDashboard.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 20341,
-      "lines": 443,
-      "sha256": "281ae655fd7af04c66b3a49bd2b1b9311c744420bad7efa4ed80eb8b34374998",
+      "bytes": 20685,
+      "lines": 450,
+      "sha256": "bb81367a63e8bbbfac9936a6d14970f80ca49312d61e8856b5343f7276272786",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 101,
+          "line": 106,
           "kind": "FunctionDeclaration",
           "localName": "AIEfficacyDashboard"
         }
@@ -14025,8 +14025,13 @@
           "kind": "FunctionDeclaration"
         },
         {
-          "name": "AIEfficacyDashboard",
+          "name": "AIEfficacyDashboardProps",
           "line": 101,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "AIEfficacyDashboard",
+          "line": 106,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -14060,19 +14065,19 @@
       "path": "app/admin/analytics/ai-efficacy/page.tsx",
       "area": "pages",
       "domain": "administration",
-      "bytes": 4070,
-      "lines": 109,
-      "sha256": "c7adf85ef337488452ffdc0eb83208ddedf65df44da93892e17c3719c611d61d",
+      "bytes": 3994,
+      "lines": 108,
+      "sha256": "69482fddef516073da35d2de1fdbcdbfce977cacdcfde85632b4d1ea5bd4dc70",
       "binary": false,
       "exports": [
         {
           "name": "generateMetadata",
-          "line": 12,
+          "line": 10,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "default",
-          "line": 42,
+          "line": 40,
           "kind": "FunctionDeclaration",
           "localName": "AIEfficacyPage"
         }
@@ -14080,17 +14085,17 @@
       "declarations": [
         {
           "name": "generateMetadata",
-          "line": 12,
+          "line": 10,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "deriveConfidence",
-          "line": 27,
+          "line": 25,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AIEfficacyPage",
-          "line": 42,
+          "line": 40,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -19689,7 +19694,7 @@
       "domain": "jobs-employers",
       "bytes": 9068,
       "lines": 227,
-      "sha256": "530e38ee49acbcb44e29b993f0fc433a239b1390129164061dfd2855466d3fee",
+      "sha256": "c9b3747074f2ac91118dad3e354c57cd92a60ebd2af95043177fdcffb0e29a8d",
       "binary": false,
       "exports": [
         {
@@ -21229,14 +21234,14 @@
       "path": "app/api/admin/analytics/ai-efficacy/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2350,
-      "lines": 64,
-      "sha256": "988fa9114d1a7ef970d82b54cbb516951859ec6d57630cefcd5cf242b1dd0bcd",
+      "bytes": 2723,
+      "lines": 71,
+      "sha256": "62090d82ba6b91fd69915b954a91d6bf335213ef519245b7a87cd49e4802c961",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 64,
+          "line": 71,
           "kind": "Variable"
         }
       ],
@@ -21258,7 +21263,7 @@
         },
         {
           "name": "GET",
-          "line": 64,
+          "line": 71,
           "kind": "Variable"
         }
       ],
@@ -21268,9 +21273,9 @@
       "path": "app/api/admin/analytics/dashboard/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2677,
+      "bytes": 2683,
       "lines": 76,
-      "sha256": "17364f7227b41f339d10da347d3e963be74344080f16031a75f7780b105f64df",
+      "sha256": "96285d5af005c7e3006357b13233d39f33894dc9b55c9830a6f804a0b5d610c3",
       "binary": false,
       "exports": [
         {
@@ -21321,9 +21326,9 @@
       "path": "app/api/admin/analytics/placements/_placementsAnalytics.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 1434,
+      "bytes": 1440,
       "lines": 44,
-      "sha256": "4407dcd2b9ee426e40493fa73c9dc01d53d8cf04dff1d9857680ffef9cd8ba42",
+      "sha256": "98b5fb46bb720d454dcd2ee95efa0beeb02d0db313f35448c67d1deb77556935",
       "binary": false,
       "exports": [
         {
@@ -21381,9 +21386,9 @@
       "path": "app/api/admin/analytics/programs/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2348,
+      "bytes": 2360,
       "lines": 64,
-      "sha256": "8b10aae132971c0ecd4350375510b7db3e080b415d6b571da3d557822d63094e",
+      "sha256": "8dca6818621046f11e3a3c9679a9e7f24607083ff45035f98fe9a5f65bed1611",
       "binary": false,
       "exports": [
         {
@@ -21449,66 +21454,56 @@
       "path": "app/api/admin/blog/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 5821,
-      "lines": 159,
-      "sha256": "86f1d157950d41299c3ca9bef54a07cdfeec7ffc6e4c1ea84113065e4bd9a93e",
+      "bytes": 4877,
+      "lines": 130,
+      "sha256": "b4e19d6ab12c6cb144cca8b213bf395714d07a3be3d57faaf3a1c30249bac2ee",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 51,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 128,
+          "line": 99,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 159,
+          "line": 130,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
-          "name": "optionalText",
-          "line": 9,
-          "kind": "Variable"
-        },
-        {
-          "name": "blogPostBodySchema",
-          "line": 16,
-          "kind": "Variable"
-        },
-        {
           "name": "_GET",
-          "line": 32,
+          "line": 9,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 51,
+          "line": 28,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 53,
+          "line": 30,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 128,
+          "line": 99,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 130,
+          "line": 101,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 159,
+          "line": 130,
           "kind": "Variable"
         }
       ],
@@ -21518,9 +21513,9 @@
       "path": "app/api/admin/blog/ai/draft/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 4916,
-      "lines": 126,
-      "sha256": "dbb46c29a18a74dfd725c53eb62123c72e0645a947cf1e0a86d472e0bf092762",
+      "bytes": 4824,
+      "lines": 125,
+      "sha256": "a997099ff1f9cf514931f2830694944a5e9df67e970dc4a3001e728ab92a1771",
       "binary": false,
       "exports": [
         {
@@ -21537,7 +21532,7 @@
         },
         {
           "name": "parseBody",
-          "line": 110,
+          "line": 109,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -21547,9 +21542,9 @@
       "path": "app/api/admin/blog/ai/from-ideas/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 5716,
-      "lines": 147,
-      "sha256": "1bd010f615cfd13e631b8b9fd55170ea15801a146b8783e113cf6d06620c7c02",
+      "bytes": 5624,
+      "lines": 146,
+      "sha256": "224def379568a70d2cbb56d6ed6e42dad5e2765a1b8f9dfba1b69341c97c9141",
       "binary": false,
       "exports": [
         {
@@ -21566,7 +21561,7 @@
         },
         {
           "name": "uniqueSlug",
-          "line": 143,
+          "line": 142,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -21576,14 +21571,14 @@
       "path": "app/api/admin/blog/ai/review/route.ts",
       "area": "api",
       "domain": "ai-voice",
-      "bytes": 3584,
-      "lines": 100,
-      "sha256": "24a74e04232b45726cbca7dcd58b37d666a327aad887adebea4b27fca0af2eff",
+      "bytes": 3492,
+      "lines": 99,
+      "sha256": "a51a081c54c0fd9266c88730b646a2034d851993ba5fab8f64ca3b110510dd39",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 90,
+          "line": 89,
           "kind": "Variable"
         }
       ],
@@ -21595,12 +21590,12 @@
         },
         {
           "name": "POST",
-          "line": 90,
+          "line": 89,
           "kind": "Variable"
         },
         {
           "name": "parseBody",
-          "line": 92,
+          "line": 91,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -21634,14 +21629,14 @@
       "path": "app/api/admin/blog/generate/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3891,
-      "lines": 87,
-      "sha256": "cbafafb972ac19d61e15c1c3866c7993d93e9c7b98b1b30a60cfda33466be1e8",
+      "bytes": 3799,
+      "lines": 86,
+      "sha256": "c86c1a39f32f9efad8992e29acc823a7672f9749ea5dbf22cc6916e30487a88b",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 71,
+          "line": 70,
           "kind": "Variable"
         }
       ],
@@ -21653,12 +21648,12 @@
         },
         {
           "name": "POST",
-          "line": 71,
+          "line": 70,
           "kind": "Variable"
         },
         {
           "name": "parseBody",
-          "line": 73,
+          "line": 72,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -21668,31 +21663,21 @@
       "path": "app/api/admin/blog/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3325,
-      "lines": 92,
-      "sha256": "5a81202de0b73e5fad750b3f0a5bb18318c215b3564bb7107ff587ffd6157cd2",
+      "bytes": 2381,
+      "lines": 63,
+      "sha256": "df2399a866031c86e492e6f4424401f9a4fff8c12edce5c06570d1b0240de4b4",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 32,
+          "line": 9,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
-          "name": "optionalText",
-          "line": 9,
-          "kind": "Variable"
-        },
-        {
-          "name": "blogPostBodySchema",
-          "line": 16,
-          "kind": "Variable"
-        },
-        {
           "name": "POST",
-          "line": 32,
+          "line": 9,
           "kind": "Variable"
         }
       ],
@@ -21702,9 +21687,9 @@
       "path": "app/api/admin/certifications/review/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3283,
-      "lines": 87,
-      "sha256": "2a0f1a0beef7bca3ef3ae58d0b9b7d4887873776f843668031b5407fb95d58e9",
+      "bytes": 3151,
+      "lines": 84,
+      "sha256": "15f94434eb010c00fedc98800f775c564ed6e36d5fca2a4b7fb50289f5e910cf",
       "binary": false,
       "exports": [
         {
@@ -21726,9 +21711,9 @@
       "path": "app/api/admin/chapters/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3124,
+      "bytes": 3106,
       "lines": 89,
-      "sha256": "9055aff85e3db3ce8d0e75c18506d5fd6af606eff386e74937496389133c2004",
+      "sha256": "8bc8a6deb4109e8ff8dbb455cd101b79c8ca4c984e81e5d692624e6e2656fbaa",
       "binary": false,
       "exports": [
         {
@@ -23059,9 +23044,9 @@
       "path": "app/api/admin/data-retention/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 5194,
+      "bytes": 5186,
       "lines": 163,
-      "sha256": "ccfcd33c322e352ca980f6f1782b7646174f9640223c28b270593a5d747ffa7d",
+      "sha256": "5e51e9302f27424d453941babb1e5c1dfcabc9109dd77aab1e488c776caa9a66",
       "binary": false,
       "exports": [
         {
@@ -23260,9 +23245,9 @@
       "path": "app/api/admin/email-crons/[id]/toggle/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 2451,
+      "bytes": 2365,
       "lines": 69,
-      "sha256": "42b0cc96e3c2cc57473fc7c0407c53c84070413550fbf0ca8c1b8166bd063b08",
+      "sha256": "6136233c17ddc5ef063af7b998c39bb9fe0f509b2e869d0dec7b52c64bb037fb",
       "binary": false,
       "exports": [
         {
@@ -23368,9 +23353,9 @@
       "path": "app/api/admin/email-templates/[id]/preview/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 1616,
+      "bytes": 1611,
       "lines": 43,
-      "sha256": "81b5a6fa3253277c75795655cffc846fcf660ec22a4b51e02757051eda2dd48d",
+      "sha256": "28d9a41ed76638dae89fadbe35a8b168cac66a51fd4b8186068dc126abb9837c",
       "binary": false,
       "exports": [
         {
@@ -23404,9 +23389,9 @@
       "path": "app/api/admin/email-templates/[id]/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3833,
+      "bytes": 3747,
       "lines": 95,
-      "sha256": "efac93b35fdd9b6abd0926fbb485b672e89013fb9d78b1c44112171542624d24",
+      "sha256": "493d1bd5ca28de6e66d5970cece3ec50745dfccbcd27553da9f5c3041790c043",
       "binary": false,
       "exports": [
         {
@@ -23460,9 +23445,9 @@
       "path": "app/api/admin/email-templates/[id]/test/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 2991,
+      "bytes": 2986,
       "lines": 76,
-      "sha256": "d0fc0bdf2e6b457182cdf4cc665445e25689ca11b79bc976821164f93d3306d3",
+      "sha256": "d793570e6bb01d1605048814b7750b2edde0da9815f00d27f137d03b92a0512c",
       "binary": false,
       "exports": [
         {
@@ -23584,19 +23569,19 @@
       "path": "app/api/admin/employer-screening-packs/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2645,
-      "lines": 63,
-      "sha256": "f1d3e14de2ee1e1936da068ab983a2ad1862a555b0cc4cf9fe38fa0bfcf3fadf",
+      "bytes": 2182,
+      "lines": 58,
+      "sha256": "5557dfd4d98a53251dff0594f309d055c21dace534bf1260d7b7445e462cecad",
       "binary": false,
       "exports": [
         {
           "name": "PATCH",
-          "line": 45,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 62,
+          "line": 57,
           "kind": "Variable"
         }
       ],
@@ -23618,17 +23603,17 @@
         },
         {
           "name": "PATCH",
-          "line": 45,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 45,
+          "line": 42,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 62,
+          "line": 57,
           "kind": "Variable"
         }
       ],
@@ -23692,9 +23677,9 @@
       "path": "app/api/admin/employers/[id]/approve/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4289,
-      "lines": 115,
-      "sha256": "6c68eaebd79119e8e54bb4344e38c8294cd1544f33a0628c779350e85b5be473",
+      "bytes": 4181,
+      "lines": 114,
+      "sha256": "137e31ac3de1fd5231c0dd7fc6515b236af54962edcccb1358c1025d2d69992b",
       "binary": false,
       "exports": [
         {
@@ -23764,9 +23749,9 @@
       "path": "app/api/admin/employers/[id]/reject/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3638,
-      "lines": 99,
-      "sha256": "99dbfb1080bedc62e1711d0dd94547892db3d84c80ef693b78008d78f9cd92ba",
+      "bytes": 3530,
+      "lines": 98,
+      "sha256": "87bd3e71bc76fe6935c6903769cc12a67aa50b64345bf538c7ae65250a56fc32",
       "binary": false,
       "exports": [
         {
@@ -24050,19 +24035,19 @@
       "path": "app/api/admin/feature-flags/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3940,
-      "lines": 79,
-      "sha256": "9cefa7ec7d1037c52eaeb92f8e78ccef061b8304efbb342acb154e27ac10de07",
+      "bytes": 3427,
+      "lines": 74,
+      "sha256": "37cf0ef7a651fe3e80e33869653c0e28f72cbb44994e10d9698e2abe2095025c",
       "binary": false,
       "exports": [
         {
           "name": "PATCH",
-          "line": 56,
+          "line": 53,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 79,
+          "line": 74,
           "kind": "Variable"
         }
       ],
@@ -24074,17 +24059,17 @@
         },
         {
           "name": "PATCH",
-          "line": 56,
+          "line": 53,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 56,
+          "line": 53,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 79,
+          "line": 74,
           "kind": "Variable"
         }
       ],
@@ -24094,9 +24079,9 @@
       "path": "app/api/admin/feature-flags/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2781,
-      "lines": 68,
-      "sha256": "550137227b165550323c8547a1bf9ffddead8e9edb5103d89390c456a80d8f67",
+      "bytes": 2572,
+      "lines": 65,
+      "sha256": "28a388cbb5a292816590a9f25cc63f7cfe5f99a33f5f378c048169a269423fd5",
       "binary": false,
       "exports": [
         {
@@ -24106,7 +24091,7 @@
         },
         {
           "name": "POST",
-          "line": 68,
+          "line": 65,
           "kind": "Variable"
         }
       ],
@@ -24128,7 +24113,7 @@
         },
         {
           "name": "POST",
-          "line": 68,
+          "line": 65,
           "kind": "Variable"
         }
       ],
@@ -24530,9 +24515,9 @@
       "path": "app/api/admin/invites/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 11516,
-      "lines": 319,
-      "sha256": "1f42f95aa79dadcb828c97de4621b89fb465a96d90042ea3151b50cfbee79a58",
+      "bytes": 11392,
+      "lines": 316,
+      "sha256": "a79c33ce450abc502c9d79ea1fcc90e456f5b947ae4e92db7fe0f1db29412fbb",
       "binary": false,
       "exports": [
         {
@@ -24542,7 +24527,7 @@
         },
         {
           "name": "POST",
-          "line": 318,
+          "line": 315,
           "kind": "Variable"
         }
       ],
@@ -24579,7 +24564,7 @@
         },
         {
           "name": "POST",
-          "line": 318,
+          "line": 315,
           "kind": "Variable"
         }
       ],
@@ -24816,14 +24801,14 @@
       "path": "app/api/admin/members/[id]/award-points/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2880,
-      "lines": 74,
-      "sha256": "c23389bf98ad538e96936c6474e5268652083cdee187b47ef00603f7cc842db0",
+      "bytes": 2736,
+      "lines": 71,
+      "sha256": "9d9db192f2ac7f823cf7edf2519970bf64c879f7f93b9878bfbcfa9b917b8507",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 74,
+          "line": 71,
           "kind": "Variable"
         }
       ],
@@ -24840,7 +24825,7 @@
         },
         {
           "name": "POST",
-          "line": 74,
+          "line": 71,
           "kind": "Variable"
         }
       ],
@@ -24850,9 +24835,9 @@
       "path": "app/api/admin/members/[id]/billing-packets/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 6624,
+      "bytes": 6445,
       "lines": 142,
-      "sha256": "773f6745fc36c0cc58dbbde1d4acf2df7e9e2980f3e6e6a05ee6afedf5896c9e",
+      "sha256": "b25804ac9b38c53f748ab1ebb26524acbedf5baa146a1d96c8989e489a1ff750",
       "binary": false,
       "exports": [
         {
@@ -24991,9 +24976,9 @@
       "path": "app/api/admin/members/[id]/delete/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 6924,
+      "bytes": 6837,
       "lines": 139,
-      "sha256": "c21480527ef65ddb379f3be82b262c5c1e184019924afb5821c64b24b788bbfd",
+      "sha256": "dd28d1004b30d12f40b04d2d8ad135372ba417fbfb45ae2bfbc0f38944ef0605",
       "binary": false,
       "exports": [
         {
@@ -25015,9 +25000,9 @@
       "path": "app/api/admin/members/[id]/edit-profile/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4364,
-      "lines": 104,
-      "sha256": "cb45c348b8f2d4a2a2ff01a4c8c504b5cd8d413f4b977a43d29bfea2cbbeed39",
+      "bytes": 3974,
+      "lines": 97,
+      "sha256": "94444742927e5086b25f50b3271a7fcf7a63ca2d2f05ed6a15f7d37cdb090c7c",
       "binary": false,
       "exports": [
         {
@@ -25078,9 +25063,9 @@
       "path": "app/api/admin/members/[id]/erase/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7389,
+      "bytes": 7230,
       "lines": 189,
-      "sha256": "31fb0c1482a286a930845c91066280fcf445a2f3585915678bbb6a6b7b2536b3",
+      "sha256": "e75e19b7a81cc35cfc9226166352a351ad3facac6067ec5309afbb2ebae22499",
       "binary": false,
       "exports": [
         {
@@ -25160,9 +25145,9 @@
       "path": "app/api/admin/members/[id]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 6528,
-      "lines": 168,
-      "sha256": "8f2da0583ed410e66043c3642e53e6d8b99113c67bf2f7c9aa14490ab46e3a76",
+      "bytes": 6438,
+      "lines": 167,
+      "sha256": "ffd1a90b20f39bb6891d7eb804fde5d15dedfd3876bde4150e22b9d1bcb3ae8e",
       "binary": false,
       "exports": [
         {
@@ -25172,12 +25157,12 @@
         },
         {
           "name": "POST",
-          "line": 132,
+          "line": 131,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 167,
+          "line": 166,
           "kind": "Variable"
         }
       ],
@@ -25204,17 +25189,17 @@
         },
         {
           "name": "POST",
-          "line": 132,
+          "line": 131,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 132,
+          "line": 131,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 167,
+          "line": 166,
           "kind": "Variable"
         }
       ],
@@ -25399,9 +25384,9 @@
       "path": "app/api/admin/members/[id]/readiness/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 7395,
-      "lines": 214,
-      "sha256": "0c8ac955322c870b9232d3801fc101fcb05c12cc3e8a8c411928b4ca5d4972ab",
+      "bytes": 7305,
+      "lines": 213,
+      "sha256": "4f864f49cda75abdc24a3295448f7dcaf0cb0c98334d6a2817ea0bce8ff59e71",
       "binary": false,
       "exports": [
         {
@@ -25411,7 +25396,7 @@
         },
         {
           "name": "PATCH",
-          "line": 213,
+          "line": 212,
           "kind": "Variable"
         }
       ],
@@ -25433,7 +25418,7 @@
         },
         {
           "name": "PATCH",
-          "line": 213,
+          "line": 212,
           "kind": "Variable"
         }
       ],
@@ -25443,9 +25428,9 @@
       "path": "app/api/admin/members/[id]/reset-assessment/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 2479,
+      "bytes": 2392,
       "lines": 62,
-      "sha256": "2f33e91efdaaf6f49b4bb4bc8ecbfa96b753715674991409bf52f1781575ab54",
+      "sha256": "2b6fd0a2a4cf05e0fb6d9327ee7dcb44164fedc4f390da862fcfb14abd7cb417",
       "binary": false,
       "exports": [
         {
@@ -25861,9 +25846,9 @@
       "path": "app/api/admin/members/at-risk/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 6715,
-      "lines": 168,
-      "sha256": "c79cd3a8be54b7a96d2bc653f21880d29d4e9272bc7df5736a380b98abc00f32",
+      "bytes": 6374,
+      "lines": 161,
+      "sha256": "26286912c4389ad9c0525e361754e7fea8dbfd7fab17add2856a1c57f387b558",
       "binary": false,
       "exports": [
         {
@@ -25873,7 +25858,7 @@
         },
         {
           "name": "PATCH",
-          "line": 168,
+          "line": 161,
           "kind": "Variable"
         }
       ],
@@ -25895,7 +25880,7 @@
         },
         {
           "name": "PATCH",
-          "line": 168,
+          "line": 161,
           "kind": "Variable"
         }
       ],
@@ -26057,9 +26042,9 @@
       "path": "app/api/admin/members/create/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 14574,
-      "lines": 337,
-      "sha256": "3aec79f3432ef035b68333adc85b50d1f1859f5627e6b7d6ba344ff272662e7b",
+      "bytes": 14424,
+      "lines": 334,
+      "sha256": "cda5c280c381331fdfcc1c53c300ed145d6341e2ff61db0ffb55b71f4890709c",
       "binary": false,
       "exports": [
         {
@@ -26135,14 +26120,14 @@
       "path": "app/api/admin/members/enhance-resume/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4733,
-      "lines": 103,
-      "sha256": "c74011c1132a0b0dfec5b2afd7c341071d6224f182876b6acf05ffb18aa7be2f",
+      "bytes": 4641,
+      "lines": 102,
+      "sha256": "43f73c634c3788ea81bb7d6ea516485af931bc1ac16cd92e2164b7c3178b54fb",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 103,
+          "line": 102,
           "kind": "Variable"
         }
       ],
@@ -26154,7 +26139,7 @@
         },
         {
           "name": "POST",
-          "line": 103,
+          "line": 102,
           "kind": "Variable"
         }
       ],
@@ -26208,9 +26193,9 @@
       "path": "app/api/admin/members/merge/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4961,
+      "bytes": 4951,
       "lines": 114,
-      "sha256": "483dbfe31cacfe6bbc62aa4b025a1f170788ea7d0ef67422231e6bb7c2162e02",
+      "sha256": "cf47d733fca7b603466ab860be0586a1898bd364269595d990d099f812154e00",
       "binary": false,
       "exports": [
         {
@@ -26257,14 +26242,14 @@
       "path": "app/api/admin/members/parse-resume/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 4228,
-      "lines": 91,
-      "sha256": "048da7c88098e060df50d0748f063cbcb7b0d8b77916fb692a454d2a328e3abf",
+      "bytes": 4136,
+      "lines": 90,
+      "sha256": "14b183280d4bf4e97f7e426c39eedd01487f1b1fb387e0a21c7d54aca4bb8d4a",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 91,
+          "line": 90,
           "kind": "Variable"
         }
       ],
@@ -26281,7 +26266,7 @@
         },
         {
           "name": "POST",
-          "line": 91,
+          "line": 90,
           "kind": "Variable"
         }
       ],
@@ -26441,19 +26426,19 @@
       "path": "app/api/admin/messages/thread/[threadId]/staff/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 3803,
-      "lines": 107,
-      "sha256": "578528724d008cf11b37cc35076a8d317325f61b42ce721eb4e66aef89122d1c",
+      "bytes": 3682,
+      "lines": 104,
+      "sha256": "6517e1c0a75a3e229534c9378742a004a415e5988c252958b18977a14d9ee113",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 79,
+          "line": 76,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 106,
+          "line": 103,
           "kind": "Variable"
         }
       ],
@@ -26470,17 +26455,17 @@
         },
         {
           "name": "POST",
-          "line": 79,
+          "line": 76,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 79,
+          "line": 76,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 106,
+          "line": 103,
           "kind": "Variable"
         }
       ],
@@ -26490,9 +26475,9 @@
       "path": "app/api/admin/messages/threads/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 11681,
-      "lines": 335,
-      "sha256": "9822c8322b0bac4828e242c08cef9a05ef88fc849266a90045ceb6d2f4e0757b",
+      "bytes": 11554,
+      "lines": 332,
+      "sha256": "f7ec5d16faf35f2b213d5f7dc461461e88495015167a00bf072ba8c05ecc0c72",
       "binary": false,
       "exports": [
         {
@@ -26502,7 +26487,7 @@
         },
         {
           "name": "POST",
-          "line": 335,
+          "line": 332,
           "kind": "Variable"
         }
       ],
@@ -26554,7 +26539,7 @@
         },
         {
           "name": "POST",
-          "line": 335,
+          "line": 332,
           "kind": "Variable"
         }
       ],
@@ -26876,9 +26861,9 @@
       "path": "app/api/admin/organization/logo/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 3101,
-      "lines": 73,
-      "sha256": "6edb0ab8264bcff218addf04eae28c8c993bc96f4c034424731ff380e645f356",
+      "bytes": 2940,
+      "lines": 70,
+      "sha256": "636703bbea3f1d414784ff04bdc66b9092bd89bbafe32d035129e0164da532e0",
       "binary": false,
       "exports": [
         {
@@ -27242,31 +27227,31 @@
       "path": "app/api/admin/partners/[id]/quarterly-outcomes/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 2429,
-      "lines": 68,
-      "sha256": "cde45eb88f7e17b0386559cc4018475825a21484df51fb30942fd6811db60c38",
+      "bytes": 1960,
+      "lines": 58,
+      "sha256": "0c9ae739a5cd963abc6dc5de74f44425ce3f7a1cf0429202f82f0c24c43f4c49",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 27,
+          "line": 26,
           "kind": "Variable"
         }
       ],
       "declarations": [
         {
           "name": "parseQuarterParam",
-          "line": 13,
+          "line": 12,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "parseYearParam",
-          "line": 20,
+          "line": 19,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "GET",
-          "line": 27,
+          "line": 26,
           "kind": "Variable"
         }
       ],
@@ -27581,9 +27566,9 @@
       "path": "app/api/admin/placement-surveys/resend/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 6310,
+      "bytes": 6302,
       "lines": 165,
-      "sha256": "6db4a0fe3d66722f1d930673f89ad5792fefd5c612268f69b37c0c71481c8cf9",
+      "sha256": "7545db7c8785c995e0c3489ba1c6440d9b456ab6ff8025300b8e50091da36dd5",
       "binary": false,
       "exports": [
         {
@@ -27639,9 +27624,9 @@
       "path": "app/api/admin/placements/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 6844,
+      "bytes": 6828,
       "lines": 198,
-      "sha256": "aebd38bcfc185c4ccf4ec6068ec4fb0da60452128c42e3106d05583d68238a5b",
+      "sha256": "17455c6efae315d2cf37ccaa285f2c629cc538646a0e686ec9de28a36c0ebdc2",
       "binary": false,
       "exports": [
         {
@@ -27898,9 +27883,9 @@
       "path": "app/api/admin/reports/wioa/generate/route.ts",
       "area": "api",
       "domain": "partners-funding",
-      "bytes": 1839,
+      "bytes": 1831,
       "lines": 56,
-      "sha256": "82d5bda41bd4d987f6a49e93d675b2427f48563d9a6cf9824bdc2c6adaa603bb",
+      "sha256": "14ed93d4dfd5eb71a661a4aa1fe2947a3b4f406c1be15fdfebaec2e43255b816",
       "binary": false,
       "exports": [
         {
@@ -28186,19 +28171,19 @@
       "path": "app/api/admin/testimonials/[id]/route.ts",
       "area": "api",
       "domain": "administration",
-      "bytes": 6258,
-      "lines": 185,
-      "sha256": "c962148d80021b576889a7d39dfe7b897ac19368e064b85e0a250b4e6d271a99",
+      "bytes": 6166,
+      "lines": 184,
+      "sha256": "4385a4427ea849cdf92ab46de33ce4bb7393adb0a21138a786aded6dcc5b8f9e",
       "binary": false,
       "exports": [
         {
           "name": "PATCH",
-          "line": 151,
+          "line": 150,
           "kind": "Variable"
         },
         {
           "name": "DELETE",
-          "line": 185,
+          "line": 184,
           "kind": "Variable"
         }
       ],
@@ -28220,17 +28205,17 @@
         },
         {
           "name": "PATCH",
-          "line": 151,
+          "line": 150,
           "kind": "Variable"
         },
         {
           "name": "_DELETE",
-          "line": 153,
+          "line": 152,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DELETE",
-          "line": 185,
+          "line": 184,
           "kind": "Variable"
         }
       ],
@@ -30162,14 +30147,14 @@
       "path": "app/api/counselor/bulk-followup/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6881,
-      "lines": 206,
-      "sha256": "88a16d83916ab89d89b5d9cab72d25b5568842eb0e947f6f1d9f27d2523d6b38",
+      "bytes": 6790,
+      "lines": 205,
+      "sha256": "322cf406e469c07b605ca7727411be9f70ac4d8712ff388cabf8a24e8765270e",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 206,
+          "line": 205,
           "kind": "Variable"
         }
       ],
@@ -30191,7 +30176,7 @@
         },
         {
           "name": "POST",
-          "line": 206,
+          "line": 205,
           "kind": "Variable"
         }
       ],
@@ -30227,7 +30212,7 @@
       "domain": "member-counselor",
       "bytes": 4419,
       "lines": 143,
-      "sha256": "e951cc9264201a83cca56d1941c5f08b367a8d3a9867afe3678725475f5293b3",
+      "sha256": "50eab57fe02d5b66c02b34aa6b5d506560e05983cc957f279b63d44c2ee58989",
       "binary": false,
       "exports": [
         {
@@ -30249,9 +30234,9 @@
       "path": "app/api/counselor/feedback/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 7119,
-      "lines": 192,
-      "sha256": "e68777e0b08b85bbace1df6a6664e033e37ff31f79dfba2abbc8a1447893a9ef",
+      "bytes": 6978,
+      "lines": 189,
+      "sha256": "563d01cd73361b4479007c5c02acf52a8a3778d5de218b784c58cf27b1c9c4fd",
       "binary": false,
       "exports": [
         {
@@ -30479,14 +30464,14 @@
       "path": "app/api/counselor/members/[memberId]/award-points/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 2559,
-      "lines": 69,
-      "sha256": "7422ae88a88d4e1b28eaf680ca516f1feac9dc4e582a8c488aa0a90c41b74d57",
+      "bytes": 2415,
+      "lines": 66,
+      "sha256": "cda20ec8cd1e996e84f7dcac67b8efdcdb3415010a7ba92f1c43a1285a6d984c",
       "binary": false,
       "exports": [
         {
           "name": "POST",
-          "line": 68,
+          "line": 65,
           "kind": "Variable"
         }
       ],
@@ -30503,7 +30488,7 @@
         },
         {
           "name": "POST",
-          "line": 68,
+          "line": 65,
           "kind": "Variable"
         }
       ],
@@ -30513,24 +30498,24 @@
       "path": "app/api/counselor/members/[memberId]/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 8956,
-      "lines": 223,
-      "sha256": "3aedf922e44d455fe531c9db6b92bf5a6802294cfdf9cb3dd60d84bb996a8f6c",
+      "bytes": 8494,
+      "lines": 217,
+      "sha256": "90891c43268877c7d6bbcec2b7cdd10ed70ed3ef04b6ac71f03c426ad4fd7c2f",
       "binary": false,
       "exports": [
         {
           "name": "GET",
-          "line": 113,
+          "line": 112,
           "kind": "Variable"
         },
         {
           "name": "POST",
-          "line": 184,
+          "line": 179,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 222,
+          "line": 216,
           "kind": "Variable"
         }
       ],
@@ -30552,27 +30537,27 @@
         },
         {
           "name": "GET",
-          "line": 113,
+          "line": 112,
           "kind": "Variable"
         },
         {
           "name": "_POST",
-          "line": 113,
+          "line": 112,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "POST",
-          "line": 184,
+          "line": 179,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 184,
+          "line": 179,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 222,
+          "line": 216,
           "kind": "Variable"
         }
       ],
@@ -30582,9 +30567,9 @@
       "path": "app/api/counselor/members/[memberId]/notes/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 6137,
-      "lines": 156,
-      "sha256": "39d1565a808b854687a1100e2e650008c2871a516bf889cd6a718ae0e8a19cfc",
+      "bytes": 6003,
+      "lines": 155,
+      "sha256": "6f02fa5a42109600b73af6a2045ecd242bde9d10e55281c38841ebf67e90460e",
       "binary": false,
       "exports": [
         {
@@ -30599,7 +30584,7 @@
         },
         {
           "name": "DELETE",
-          "line": 155,
+          "line": 154,
           "kind": "Variable"
         }
       ],
@@ -30636,7 +30621,7 @@
         },
         {
           "name": "DELETE",
-          "line": 155,
+          "line": 154,
           "kind": "Variable"
         }
       ],
@@ -30787,9 +30772,9 @@
       "path": "app/api/counselor/members/[memberId]/session-notes/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5767,
-      "lines": 145,
-      "sha256": "2d3c6335cf5371464642382ee56c4940fec29392f50a6a900e9b7c22dfc71465",
+      "bytes": 5631,
+      "lines": 144,
+      "sha256": "cc3eb3550185aa9b6547f381ab024991ba4666efc221a4b144b35a1e8d976d76",
       "binary": false,
       "exports": [
         {
@@ -30804,7 +30789,7 @@
         },
         {
           "name": "DELETE",
-          "line": 145,
+          "line": 144,
           "kind": "Variable"
         }
       ],
@@ -30841,7 +30826,7 @@
         },
         {
           "name": "DELETE",
-          "line": 145,
+          "line": 144,
           "kind": "Variable"
         }
       ],
@@ -30880,9 +30865,9 @@
       "path": "app/api/counselor/nudge/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 5868,
-      "lines": 152,
-      "sha256": "be88b92412ab42ef871a4e8e6fc99dd69c6b71e84e74ff1e6f366544cdc591a5",
+      "bytes": 5644,
+      "lines": 150,
+      "sha256": "4337bd48814475bd34f71977db2161bee38c4953ce913ac6f73c68f19557b9b6",
       "binary": false,
       "exports": [
         {
@@ -30909,9 +30894,9 @@
       "path": "app/api/counselor/placements/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 9794,
-      "lines": 300,
-      "sha256": "18312cde4f7ca224b6838eb6083471f4fad6e4839536771901acd395c450fe56",
+      "bytes": 9674,
+      "lines": 299,
+      "sha256": "c0ef10cef38244fb50518acd1a72d5683798e5dd826efb1c316c35a43beedf4f",
       "binary": false,
       "exports": [
         {
@@ -30921,7 +30906,7 @@
         },
         {
           "name": "POST",
-          "line": 300,
+          "line": 299,
           "kind": "Variable"
         }
       ],
@@ -30978,7 +30963,7 @@
         },
         {
           "name": "POST",
-          "line": 300,
+          "line": 299,
           "kind": "Variable"
         }
       ],
@@ -31032,9 +31017,9 @@
       "path": "app/api/counselor/remind-member/route.ts",
       "area": "api",
       "domain": "member-counselor",
-      "bytes": 3206,
-      "lines": 97,
-      "sha256": "fd94e3a59dd842a2ff2d4669eb5d0687d03ae07d956d0a4abb7f6ef5b16ed4f8",
+      "bytes": 3088,
+      "lines": 96,
+      "sha256": "e04caa624f4127515ae5e781529761098e6f8e5256a57c69fb1b0c1f268d2fb1",
       "binary": false,
       "exports": [
         {
@@ -32992,9 +32977,9 @@
       "path": "app/api/employer/checkout/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 3942,
+      "bytes": 3934,
       "lines": 107,
-      "sha256": "72d8076e1864f910b373fa5848bd5ee04fdd8bf2ad003a714abfa273e6fee378",
+      "sha256": "f6cc5fcc723c2b1d80f5aae61e812971bbddece28571650767b7924764977926",
       "binary": false,
       "exports": [
         {
@@ -33441,9 +33426,9 @@
       "path": "app/api/employer/logo/route.ts",
       "area": "api",
       "domain": "jobs-employers",
-      "bytes": 2925,
-      "lines": 72,
-      "sha256": "8f5892e6a49117c6364b9ff771ecff42403361630e8506ba1448658e0b9c0f54",
+      "bytes": 2770,
+      "lines": 69,
+      "sha256": "563c862187c3295a6ee038eb1c5f3cca6f42a3c131299443533b0407e83dbdde",
       "binary": false,
       "exports": [
         {
@@ -33524,9 +33509,9 @@
       "path": "app/api/employer/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 5026,
-      "lines": 143,
-      "sha256": "f4066315ce7a47f3193b0b2845e4ca452ec109e9f4d8854db82a3c9de654a715",
+      "bytes": 4936,
+      "lines": 142,
+      "sha256": "193fe2743d603a4f32dbf485400950f0d71701dbad93ee54c72c92ab4ddb490f",
       "binary": false,
       "exports": [
         {
@@ -33536,12 +33521,12 @@
         },
         {
           "name": "POST",
-          "line": 117,
+          "line": 116,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 142,
+          "line": 141,
           "kind": "Variable"
         }
       ],
@@ -33563,17 +33548,17 @@
         },
         {
           "name": "POST",
-          "line": 117,
+          "line": 116,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 117,
+          "line": 116,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 142,
+          "line": 141,
           "kind": "Variable"
         }
       ],
@@ -38939,9 +38924,9 @@
       "path": "app/api/partner/messages/route.ts",
       "area": "api",
       "domain": "communications",
-      "bytes": 6111,
-      "lines": 160,
-      "sha256": "ffeff0de5268c4154589745d36abae75bc1243f4c3db321bba6df33c9630941a",
+      "bytes": 6021,
+      "lines": 159,
+      "sha256": "5677bf7a9829251a0e77c052d292861226fd9cfb2b98eacb02fa6936e074c2fe",
       "binary": false,
       "exports": [
         {
@@ -38951,12 +38936,12 @@
         },
         {
           "name": "POST",
-          "line": 119,
+          "line": 118,
           "kind": "Variable"
         },
         {
           "name": "PATCH",
-          "line": 160,
+          "line": 159,
           "kind": "Variable"
         }
       ],
@@ -38978,17 +38963,17 @@
         },
         {
           "name": "POST",
-          "line": 119,
+          "line": 118,
           "kind": "Variable"
         },
         {
           "name": "_PATCH",
-          "line": 119,
+          "line": 118,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PATCH",
-          "line": 160,
+          "line": 159,
           "kind": "Variable"
         }
       ],
@@ -51629,14 +51614,14 @@
       "path": "components/admin/MembersTable.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 49259,
-      "lines": 1166,
-      "sha256": "c8124454fd8eaa0761bb0af9f36983c2eb621c1738077629b7be6527f36e777f",
+      "bytes": 49521,
+      "lines": 1169,
+      "sha256": "944784222d1bd659cee28bd4e97a5d80d2f555611b230b3919bf99b335b5db2c",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 266,
+          "line": 269,
           "kind": "FunctionDeclaration",
           "localName": "MembersTable"
         }
@@ -51664,82 +51649,82 @@
         },
         {
           "name": "HealthDot",
-          "line": 80,
+          "line": 83,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatTraining",
-          "line": 90,
+          "line": 93,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "NEW_MEMBER_WINDOW_MS",
-          "line": 104,
+          "line": 107,
           "kind": "Variable"
         },
         {
           "name": "toTime",
-          "line": 106,
+          "line": 109,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isNotInCourse",
-          "line": 114,
+          "line": 117,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isNewMember",
-          "line": 118,
+          "line": 121,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "attentionReasons",
-          "line": 128,
+          "line": 131,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "needsAttention",
-          "line": 137,
+          "line": 140,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "AttentionBadge",
-          "line": 141,
+          "line": 144,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SortKey",
-          "line": 169,
+          "line": 172,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "SortDir",
-          "line": 170,
+          "line": 173,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "HEALTH_RANK",
-          "line": 172,
+          "line": 175,
           "kind": "Variable"
         },
         {
           "name": "compareMembers",
-          "line": 174,
+          "line": 177,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "SortHeader",
-          "line": 195,
+          "line": 198,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "HeaderSelectAll",
-          "line": 235,
+          "line": 238,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MembersTable",
-          "line": 266,
+          "line": 269,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -52909,9 +52894,9 @@
       "path": "components/admin/TriageDigestSection.tsx",
       "area": "components",
       "domain": "administration",
-      "bytes": 7582,
-      "lines": 228,
-      "sha256": "f5d113193ca39766f159167e723bd66c0ea0ae2986d5a703b464c02cbce732c8",
+      "bytes": 7759,
+      "lines": 230,
+      "sha256": "daee46e901b275748b4af5a386cf1a31d32392d630a068952100f10c96031157",
       "binary": false,
       "exports": [
         {
@@ -64451,14 +64436,14 @@
       "path": "components/portal/counselor/CounselorCommandCenter.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 8887,
-      "lines": 242,
-      "sha256": "fd8eb17090394839d5bb09b0c7f554eb0398d77595fd3256e773b1455a698a12",
+      "bytes": 8993,
+      "lines": 243,
+      "sha256": "10c81108745f8d9e60e129f1209cf4d7ad75760e0f5b702b9fdb9a725569562d",
       "binary": false,
       "exports": [
         {
           "name": "default",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration",
           "localName": "CounselorCommandCenter"
         }
@@ -64466,27 +64451,27 @@
       "declarations": [
         {
           "name": "CounselorCommandCenter",
-          "line": 19,
+          "line": 20,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PrioritySection",
-          "line": 129,
+          "line": 130,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PriorityRow",
-          "line": 178,
+          "line": 179,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatHours",
-          "line": 231,
+          "line": 232,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatRelativeShort",
-          "line": 237,
+          "line": 238,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -64641,24 +64626,24 @@
       "path": "components/portal/counselor/CounselorStudentsRosterClient.tsx",
       "area": "components",
       "domain": "member-counselor",
-      "bytes": 17097,
-      "lines": 433,
-      "sha256": "166bf46afae9a90ec461c3c2692828118fda26fcdc7819cbf1b72506c10c6ebc",
+      "bytes": 17388,
+      "lines": 437,
+      "sha256": "df8f3b06026f61fe9bbcdb6602fca149e5600eb1fbabda09b6464bff4ea0708f",
       "binary": false,
       "exports": [
         {
           "name": "CounselorRosterClientRow",
-          "line": 40,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CounselorRosterFilterMeta",
-          "line": 56,
+          "line": 58,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "default",
-          "line": 144,
+          "line": 147,
           "kind": "FunctionDeclaration",
           "localName": "CounselorStudentsRosterClient"
         }
@@ -64666,72 +64651,72 @@
       "declarations": [
         {
           "name": "RISK_MEDIUM_OR_ABOVE",
-          "line": 36,
+          "line": 37,
           "kind": "Variable"
         },
         {
           "name": "RiskLevel",
-          "line": 38,
+          "line": 39,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CounselorRosterClientRow",
-          "line": 40,
+          "line": 41,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CounselorRosterFilterMeta",
-          "line": 56,
+          "line": 58,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "FilterKey",
-          "line": 63,
+          "line": 65,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "FILTER_CHIPS",
-          "line": 65,
+          "line": 67,
           "kind": "Variable"
         },
         {
           "name": "RISK_TAG",
-          "line": 72,
+          "line": 74,
           "kind": "Variable"
         },
         {
           "name": "variantToTone",
-          "line": 79,
+          "line": 81,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "formatLastActivity",
-          "line": 95,
+          "line": 97,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "wioaBadgeProps",
-          "line": 107,
+          "line": 110,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getInitials",
-          "line": 122,
+          "line": 125,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramLabel",
-          "line": 132,
+          "line": 135,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "Props",
-          "line": 138,
+          "line": 141,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CounselorStudentsRosterClient",
-          "line": 144,
+          "line": 147,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -87040,76 +87025,112 @@
       "path": "lib/admin/triageDigest.ts",
       "area": "libraries",
       "domain": "administration",
-      "bytes": 12025,
-      "lines": 323,
-      "sha256": "3b1c9508bc614338992423f434f63addeb9dc7b15d3adb3358da83050859ec53",
+      "bytes": 12231,
+      "lines": 326,
+      "sha256": "970c98afb451822986b585f5b2c122d3d98f34cddda865fc5de7669a7e00aef6",
       "binary": false,
       "exports": [
         {
           "name": "TriageMember",
-          "line": 26,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageBucketKey",
-          "line": 41,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageBucket",
-          "line": 43,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageDigest",
-          "line": 61,
+          "line": 62,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getTriageDigest",
-          "line": 79,
+          "line": 80,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "TriageMember",
-          "line": 26,
+          "line": 27,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageBucketKey",
-          "line": 41,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageBucket",
-          "line": 43,
+          "line": 44,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageDigest",
-          "line": 61,
+          "line": 62,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TOP_N",
-          "line": 68,
+          "line": 69,
           "kind": "Variable"
         },
         {
           "name": "pluralPeople",
-          "line": 70,
+          "line": 71,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "daysSince",
-          "line": 74,
+          "line": 75,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getTriageDigest",
-          "line": 79,
+          "line": 80,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/triageDigestCopy.test.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 665,
+      "lines": 14,
+      "sha256": "2b8d282cbeeaa10650376bf902af75efd506758613e4e98239b01f8cb91fe938",
+      "binary": false,
+      "exports": [],
+      "declarations": [],
+      "directive": null
+    },
+    {
+      "path": "lib/admin/triageDigestCopy.ts",
+      "area": "libraries",
+      "domain": "administration",
+      "bytes": 699,
+      "lines": 14,
+      "sha256": "e9af3eb45679109c62d9dfb19505773aab6c4ecbc0d5d4ed3e8d2b4ce0f94cd4",
+      "binary": false,
+      "exports": [
+        {
+          "name": "stalledCheckInAction",
+          "line": 11,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "stalledCheckInAction",
+          "line": 11,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -102668,76 +102689,76 @@
       "path": "lib/counselor/commandCenter.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 8950,
+      "bytes": 9133,
       "lines": 263,
-      "sha256": "ffae1be68bc6f792ac08442c9d08aa358f5fc5878bf2037c3e2e0ac3645c71d5",
+      "sha256": "b9a17242fc8375045ce30acc32cc7987123673f98750245eae70a06b71b5ef9b",
       "binary": false,
       "exports": [
         {
           "name": "CommandCenterRow",
-          "line": 22,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "NeedsReplyRow",
-          "line": 28,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AtRiskRow",
-          "line": 35,
+          "line": 36,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "InterviewingRow",
-          "line": 40,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CommandCenter",
-          "line": 45,
+          "line": 47,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getCounselorCommandCenter",
-          "line": 67,
+          "line": 69,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "CommandCenterRow",
-          "line": 22,
+          "line": 23,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "NeedsReplyRow",
-          "line": 28,
+          "line": 29,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "AtRiskRow",
-          "line": 35,
+          "line": 36,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "InterviewingRow",
-          "line": 40,
+          "line": 42,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "CommandCenter",
-          "line": 45,
+          "line": 47,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "DAY_MS",
-          "line": 58,
+          "line": 60,
           "kind": "Variable"
         },
         {
           "name": "getCounselorCommandCenter",
-          "line": 67,
+          "line": 69,
           "kind": "FunctionDeclaration"
         },
         {
@@ -102786,31 +102807,31 @@
       "path": "lib/counselor/counselorStudentsRoster.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 2158,
+      "bytes": 2337,
       "lines": 67,
-      "sha256": "2ae8e6a02569e449458a883cb63408f99d5395a5de58428b24dbbb95169e27b9",
+      "sha256": "bd6658a233584e3e7c93161afc612ea98eac4392e60e3f1b94d30312b2538f56",
       "binary": false,
       "exports": [
         {
           "name": "CounselorRosterRiskRow",
-          "line": 6,
+          "line": 7,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadCounselorRosterRiskAndActivity",
-          "line": 17,
+          "line": 24,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "CounselorRosterRiskRow",
-          "line": 6,
+          "line": 7,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "loadCounselorRosterRiskAndActivity",
-          "line": 17,
+          "line": 24,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -102971,6 +102992,29 @@
         {
           "name": "COUNSELOR_MESSAGES_FILTER_EMPTY",
           "line": 25,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/counselor/inboxZero.query.test.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 3374,
+      "lines": 88,
+      "sha256": "7f2c7375e7361355dacf21504b7457f4a03883c8b28b79b63ec5338ea302a03b",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "mocks",
+          "line": 9,
+          "kind": "Variable"
+        },
+        {
+          "name": "MEMBER_IDS",
+          "line": 36,
           "kind": "Variable"
         }
       ],
@@ -103292,6 +103336,98 @@
         {
           "name": "logInboxZeroBulkAuditEvent",
           "line": 18,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/counselor/lastActivity.test.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 1725,
+      "lines": 40,
+      "sha256": "a62dbab305f035c52d191b335a560707064ac5813c792a832bba41c7979d2149",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "NOW",
+          "line": 10,
+          "kind": "Variable"
+        },
+        {
+          "name": "DAY",
+          "line": 11,
+          "kind": "Variable"
+        }
+      ],
+      "directive": null
+    },
+    {
+      "path": "lib/counselor/lastActivity.ts",
+      "area": "libraries",
+      "domain": "member-counselor",
+      "bytes": 2002,
+      "lines": 45,
+      "sha256": "5c43482d329a07f36065b5de19b251d39828a1ee53cf4bbf461b7bbfe4e148fb",
+      "binary": false,
+      "exports": [
+        {
+          "name": "NO_ACTIVITY_RECORDED_LABEL",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "MemberLastActivity",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "resolveMemberLastActivity",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "describeInactivity",
+          "line": 37,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isUrgentInactivity",
+          "line": 43,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "NO_ACTIVITY_RECORDED_LABEL",
+          "line": 16,
+          "kind": "Variable"
+        },
+        {
+          "name": "MemberLastActivity",
+          "line": 18,
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "DAY_MS",
+          "line": 25,
+          "kind": "Variable"
+        },
+        {
+          "name": "resolveMemberLastActivity",
+          "line": 27,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "describeInactivity",
+          "line": 37,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "isUrgentInactivity",
+          "line": 43,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -103706,9 +103842,9 @@
       "path": "lib/counselor/triageFlags.test.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 7672,
-      "lines": 179,
-      "sha256": "4d19edf3b8e4fa723fa5dd67fd5b20d159dfc4570385d2c6acdd7311a913c2df",
+      "bytes": 8146,
+      "lines": 189,
+      "sha256": "dba3ae1c93bb32d6593424f193f3998acd7de2e6aa600dffd9105497790eb77e",
       "binary": false,
       "exports": [],
       "declarations": [
@@ -103734,236 +103870,236 @@
       "path": "lib/counselor/triageFlags.ts",
       "area": "libraries",
       "domain": "member-counselor",
-      "bytes": 18511,
-      "lines": 546,
-      "sha256": "49f0a6d919fd560939aa967b1cd7052d46e860e1f7e129b6495a519cef0b3ab3",
+      "bytes": 19128,
+      "lines": 556,
+      "sha256": "5748c7c576610c8bf8d52540c30eccff67ca76370518e92b252f847b6e1574b1",
       "binary": false,
       "exports": [
         {
           "name": "NO_ACTIVITY_DAYS",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "SLA_BREACH_HOURS",
           "line": 35,
           "kind": "Variable"
         },
         {
-          "name": "SLA_WARNING_HOURS",
+          "name": "SLA_BREACH_HOURS",
           "line": 36,
           "kind": "Variable"
         },
         {
-          "name": "STALE_TRAINING_WINDOW_DAYS",
+          "name": "SLA_WARNING_HOURS",
           "line": 37,
           "kind": "Variable"
         },
         {
-          "name": "MILESTONE_WINDOW_DAYS",
+          "name": "STALE_TRAINING_WINDOW_DAYS",
           "line": 38,
           "kind": "Variable"
         },
         {
+          "name": "MILESTONE_WINDOW_DAYS",
+          "line": 39,
+          "kind": "Variable"
+        },
+        {
           "name": "TriagePriority",
-          "line": 45,
+          "line": 46,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageFlagType",
-          "line": 47,
+          "line": 48,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "FLAG_LABELS",
-          "line": 55,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "FLAG_PRIORITY",
-          "line": 64,
+          "line": 65,
           "kind": "Variable"
         },
         {
           "name": "TriageContext",
-          "line": 75,
+          "line": 76,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageRow",
-          "line": 85,
+          "line": 86,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageQueue",
-          "line": 96,
+          "line": 97,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "isInactive",
-          "line": 116,
+          "line": 119,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "slaPriority",
-          "line": 132,
+          "line": 139,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isStaleTraining",
-          "line": 148,
+          "line": 155,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "needsComputerSupportFollowUp",
-          "line": 163,
+          "line": 170,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isMilestoneRecent",
-          "line": 176,
+          "line": 183,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickPrimaryFlag",
-          "line": 193,
+          "line": 200,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getTriageQueue",
-          "line": 229,
+          "line": 236,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "NO_ACTIVITY_DAYS",
-          "line": 34,
-          "kind": "Variable"
-        },
-        {
-          "name": "SLA_BREACH_HOURS",
           "line": 35,
           "kind": "Variable"
         },
         {
-          "name": "SLA_WARNING_HOURS",
+          "name": "SLA_BREACH_HOURS",
           "line": 36,
           "kind": "Variable"
         },
         {
-          "name": "STALE_TRAINING_WINDOW_DAYS",
+          "name": "SLA_WARNING_HOURS",
           "line": 37,
           "kind": "Variable"
         },
         {
-          "name": "MILESTONE_WINDOW_DAYS",
+          "name": "STALE_TRAINING_WINDOW_DAYS",
           "line": 38,
           "kind": "Variable"
         },
         {
-          "name": "HOUR_MS",
-          "line": 40,
+          "name": "MILESTONE_WINDOW_DAYS",
+          "line": 39,
           "kind": "Variable"
         },
         {
-          "name": "DAY_MS",
+          "name": "HOUR_MS",
           "line": 41,
           "kind": "Variable"
         },
         {
+          "name": "DAY_MS",
+          "line": 42,
+          "kind": "Variable"
+        },
+        {
           "name": "TriagePriority",
-          "line": 45,
+          "line": 46,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageFlagType",
-          "line": 47,
+          "line": 48,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "FLAG_LABELS",
-          "line": 55,
+          "line": 56,
           "kind": "Variable"
         },
         {
           "name": "FLAG_PRIORITY",
-          "line": 64,
+          "line": 65,
           "kind": "Variable"
         },
         {
           "name": "PRIORITY_RANK",
-          "line": 73,
+          "line": 74,
           "kind": "Variable"
         },
         {
           "name": "TriageContext",
-          "line": 75,
+          "line": 76,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageRow",
-          "line": 85,
+          "line": 86,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "TriageQueue",
-          "line": 96,
+          "line": 97,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "isInactive",
-          "line": 116,
+          "line": 119,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "slaPriority",
-          "line": 132,
+          "line": 139,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isStaleTraining",
-          "line": 148,
+          "line": 155,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "needsComputerSupportFollowUp",
-          "line": 163,
+          "line": 170,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "isMilestoneRecent",
-          "line": 176,
+          "line": 183,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickPrimaryFlag",
-          "line": 193,
+          "line": 200,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "MemberLite",
-          "line": 210,
+          "line": 217,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "getTriageQueue",
-          "line": 229,
+          "line": 236,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "emptyQueue",
-          "line": 510,
+          "line": 520,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "previewBody",
-          "line": 532,
+          "line": 542,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "triageRowSeverity",
-          "line": 540,
+          "line": 550,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -115424,25 +115560,25 @@
       "path": "lib/i18n/pickRootClientMessages.test.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 3977,
-      "lines": 85,
-      "sha256": "86d9446bc1838d07eccb8f6d39d1bac58c63f2ba1f47114a610eb149c91216b6",
+      "bytes": 5490,
+      "lines": 115,
+      "sha256": "66de3fe25b35b16102a6db472b208691d6df3e73e2d2ee4c86bd56f2b239a6e2",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "root",
-          "line": 17,
-          "kind": "Variable"
-        },
-        {
-          "name": "catalog",
           "line": 18,
           "kind": "Variable"
         },
         {
+          "name": "catalog",
+          "line": 19,
+          "kind": "Variable"
+        },
+        {
           "name": "ns",
-          "line": 22,
+          "line": 23,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -115452,9 +115588,9 @@
       "path": "lib/i18n/pickRootClientMessages.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 4864,
-      "lines": 160,
-      "sha256": "a7a3aec6a45e5659a015284f3ce30a763b793f304d5a153b0a303ae04b685ac1",
+      "bytes": 5859,
+      "lines": 189,
+      "sha256": "241666d16b8314a8aea049918e9338be76006f2ff3792e77c0beeb27227eec0d",
       "binary": false,
       "exports": [
         {
@@ -115473,48 +115609,53 @@
           "kind": "Variable"
         },
         {
+          "name": "ADMIN_DASHBOARD_CLIENT_KEYS",
+          "line": 40,
+          "kind": "Variable"
+        },
+        {
           "name": "ClientMessageSlice",
-          "line": 34,
+          "line": 52,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "pickRootClientMessages",
-          "line": 63,
+          "line": 88,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickPortalClientMessages",
-          "line": 67,
+          "line": 92,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickAdminClientMessages",
-          "line": 71,
+          "line": 96,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickApplyClientMessages",
-          "line": 75,
+          "line": 100,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickAuthClientMessages",
-          "line": 79,
+          "line": 104,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickClientMessageSlice",
-          "line": 83,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clientMessagesBytes",
-          "line": 120,
+          "line": 149,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickLegacyFatRootClientMessages",
-          "line": 125,
+          "line": 154,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -115540,58 +115681,68 @@
           "kind": "Variable"
         },
         {
+          "name": "ADMIN_DASHBOARD_CLIENT_KEYS",
+          "line": 40,
+          "kind": "Variable"
+        },
+        {
           "name": "ClientMessageSlice",
-          "line": 34,
+          "line": 52,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "pickNamespaces",
-          "line": 36,
+          "line": 54,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "pickAdminDashboardClientSlice",
+          "line": 64,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickMarketingClientSlice",
-          "line": 46,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "pickRootClientMessages",
-          "line": 63,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "pickPortalClientMessages",
-          "line": 67,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "pickAdminClientMessages",
           "line": 71,
           "kind": "FunctionDeclaration"
         },
         {
+          "name": "pickRootClientMessages",
+          "line": 88,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "pickPortalClientMessages",
+          "line": 92,
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "pickAdminClientMessages",
+          "line": 96,
+          "kind": "FunctionDeclaration"
+        },
+        {
           "name": "pickApplyClientMessages",
-          "line": 75,
+          "line": 100,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickAuthClientMessages",
-          "line": 79,
+          "line": 104,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickClientMessageSlice",
-          "line": 83,
+          "line": 108,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "clientMessagesBytes",
-          "line": 120,
+          "line": 149,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "pickLegacyFatRootClientMessages",
-          "line": 125,
+          "line": 154,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -148953,9 +149104,9 @@
       "path": "scripts/vitest-library-specs.mjs",
       "area": "operations",
       "domain": "operations",
-      "bytes": 1222,
-      "lines": 31,
-      "sha256": "81163e6ed3c8a0f35c579e5e131596bdcba21f2412d6c7c1c39f3dcc644fbc65",
+      "bytes": 1265,
+      "lines": 32,
+      "sha256": "51cfda59cbdce94e3d969cf85737aa5e6069543436fc5aaa30d39f843715d5e7",
       "binary": false,
       "exports": [
         {
@@ -149828,6 +149979,34 @@
       "directive": null
     },
     {
+      "path": "tests/api/admin-ai-efficacy.spec.ts",
+      "area": "tests",
+      "domain": "tests",
+      "bytes": 3796,
+      "lines": 99,
+      "sha256": "c51efebefbd2ed1e5513cb35246458516071a584df8931cf5b897b8b2bcdcfa2",
+      "binary": false,
+      "exports": [],
+      "declarations": [
+        {
+          "name": "REPORT",
+          "line": 34,
+          "kind": "Variable"
+        },
+        {
+          "name": "URL_BASE",
+          "line": 42,
+          "kind": "Variable"
+        },
+        {
+          "name": "request",
+          "line": 44,
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "directive": null
+    },
+    {
       "path": "tests/api/admin-analytics.spec.ts",
       "area": "tests",
       "domain": "tests",
@@ -150052,45 +150231,45 @@
       "path": "tests/api/admin-member-delete.spec.ts",
       "area": "tests",
       "domain": "tests",
-      "bytes": 7419,
-      "lines": 185,
-      "sha256": "59a1f015cd53078829bcb3259255dedfa0bca023f0edeeae59252ac02f2075f8",
+      "bytes": 7342,
+      "lines": 183,
+      "sha256": "971938f8e424a63751a8170bc43378a9e1c07ca643f5b19b7664a7fde2ba02de",
       "binary": false,
       "exports": [],
       "declarations": [
         {
           "name": "findFirst",
-          "line": 32,
+          "line": 31,
           "kind": "Variable"
         },
         {
           "name": "update",
-          "line": 33,
+          "line": 32,
           "kind": "Variable"
         },
         {
           "name": "supabaseUpdateUserById",
-          "line": 43,
+          "line": 42,
           "kind": "Variable"
         },
         {
           "name": "supabaseDeleteUser",
-          "line": 44,
+          "line": 43,
           "kind": "Variable"
         },
         {
           "name": "supabaseGetUserById",
-          "line": 45,
+          "line": 44,
           "kind": "Variable"
         },
         {
           "name": "MEMBER_ID",
-          "line": 81,
+          "line": 80,
           "kind": "Variable"
         },
         {
           "name": "deleteReq",
-          "line": 83,
+          "line": 82,
           "kind": "FunctionDeclaration"
         }
       ],
@@ -153025,54 +153204,6 @@
         {
           "name": "assignment",
           "line": 76,
-          "kind": "FunctionDeclaration"
-        }
-      ],
-      "directive": null
-    },
-    {
-      "path": "tests/api/staff-route-error-handling.spec.ts",
-      "area": "tests",
-      "domain": "tests",
-      "bytes": 32783,
-      "lines": 623,
-      "sha256": "a638ad32e71b79a7aa553ba27f5c9ad122c2a9712e7d6e004ffc1ba903c5cb5b",
-      "binary": false,
-      "exports": [],
-      "declarations": [
-        {
-          "name": "h",
-          "line": 41,
-          "kind": "Variable"
-        },
-        {
-          "name": "ADMIN",
-          "line": 326,
-          "kind": "Variable"
-        },
-        {
-          "name": "UNKNOWN_ID",
-          "line": 327,
-          "kind": "Variable"
-        },
-        {
-          "name": "params",
-          "line": 328,
-          "kind": "Variable"
-        },
-        {
-          "name": "req",
-          "line": 330,
-          "kind": "FunctionDeclaration"
-        },
-        {
-          "name": "MALFORMED",
-          "line": 339,
-          "kind": "Variable"
-        },
-        {
-          "name": "expectJsonError",
-          "line": 345,
           "kind": "FunctionDeclaration"
         }
       ],

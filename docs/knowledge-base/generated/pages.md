@@ -47,7 +47,7 @@
 | [app/(portal)/counselor/inactive-members/page.tsx](../../../app/%28portal%29/counselor/inactive-members/page.tsx) | 361 | member-counselor | default:47 |
 | [app/(portal)/counselor/inbox/error.tsx](../../../app/%28portal%29/counselor/inbox/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/inbox/loading.tsx](../../../app/%28portal%29/counselor/inbox/loading.tsx) | 5 | member-counselor | default:3 |
-| [app/(portal)/counselor/inbox/page.tsx](../../../app/%28portal%29/counselor/inbox/page.tsx) | 87 | member-counselor | dynamic:12, default:14 |
+| [app/(portal)/counselor/inbox/page.tsx](../../../app/%28portal%29/counselor/inbox/page.tsx) | 76 | member-counselor | dynamic:12, default:14 |
 | [app/(portal)/counselor/lab-reviews/\[submissionId\]/page.tsx](../../../app/%28portal%29/counselor/lab-reviews/%5BsubmissionId%5D/page.tsx) | 6 | member-counselor | default:3 |
 | [app/(portal)/counselor/lab-reviews/page.tsx](../../../app/%28portal%29/counselor/lab-reviews/page.tsx) | 8 | member-counselor | default:4 |
 | [app/(portal)/counselor/layout.tsx](../../../app/%28portal%29/counselor/layout.tsx) | 70 | member-counselor | generateMetadata:14, default:25 |
@@ -82,7 +82,7 @@
 | [app/(portal)/counselor/students/\[memberId\]/page.tsx](../../../app/%28portal%29/counselor/students/%5BmemberId%5D/page.tsx) | 1409 | member-counselor | default:65 |
 | [app/(portal)/counselor/students/error.tsx](../../../app/%28portal%29/counselor/students/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/students/loading.tsx](../../../app/%28portal%29/counselor/students/loading.tsx) | 5 | member-counselor | default:3 |
-| [app/(portal)/counselor/students/page.tsx](../../../app/%28portal%29/counselor/students/page.tsx) | 469 | member-counselor | default:30 |
+| [app/(portal)/counselor/students/page.tsx](../../../app/%28portal%29/counselor/students/page.tsx) | 473 | member-counselor | default:30 |
 | [app/(portal)/counselor/students/students.module.css](../../../app/%28portal%29/counselor/students/students.module.css) | 42 | member-counselor |  |
 | [app/(portal)/counselor/triage/error.tsx](../../../app/%28portal%29/counselor/triage/error.tsx) | 13 | member-counselor | default:5 |
 | [app/(portal)/counselor/triage/loading.tsx](../../../app/%28portal%29/counselor/triage/loading.tsx) | 5 | member-counselor | default:3 |
@@ -327,9 +327,9 @@
 | [app/admin/agent-inbox/page.tsx](../../../app/admin/agent-inbox/page.tsx) | 146 | administration | dynamic:26, metadata:28, default:91 |
 | [app/admin/ai-tools/loading.tsx](../../../app/admin/ai-tools/loading.tsx) | 6 | administration | default:3 |
 | [app/admin/ai-tools/page.tsx](../../../app/admin/ai-tools/page.tsx) | 167 | administration | generateMetadata:12, default:20 |
-| [app/admin/analytics/ai-efficacy/AIEfficacyDashboard.tsx](../../../app/admin/analytics/ai-efficacy/AIEfficacyDashboard.tsx) | 443 | administration | default:101 |
+| [app/admin/analytics/ai-efficacy/AIEfficacyDashboard.tsx](../../../app/admin/analytics/ai-efficacy/AIEfficacyDashboard.tsx) | 450 | administration | default:106 |
 | [app/admin/analytics/ai-efficacy/AIEfficacyDashboardLazy.tsx](../../../app/admin/analytics/ai-efficacy/AIEfficacyDashboardLazy.tsx) | 17 | administration | default:17 |
-| [app/admin/analytics/ai-efficacy/page.tsx](../../../app/admin/analytics/ai-efficacy/page.tsx) | 109 | administration | generateMetadata:12, default:42 |
+| [app/admin/analytics/ai-efficacy/page.tsx](../../../app/admin/analytics/ai-efficacy/page.tsx) | 108 | administration | generateMetadata:10, default:40 |
 | [app/admin/analytics/loading.tsx](../../../app/admin/analytics/loading.tsx) | 5 | administration | default:3 |
 | [app/admin/analytics/page.tsx](../../../app/admin/analytics/page.tsx) | 251 | administration | generateMetadata:17, default:209 |
 | [app/admin/assessments/loading.tsx](../../../app/admin/assessments/loading.tsx) | 6 | administration | default:3 |

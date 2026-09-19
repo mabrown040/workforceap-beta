@@ -284,7 +284,7 @@ Next groups are removed from URL patterns; bracketed parameters remain. Intercep
 | /admin/agent-inbox | page |  | [app/admin/agent-inbox/page.tsx](../../../app/admin/agent-inbox/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5, @/lib/auth/roles:6 |
 | /admin/ai-tools | loading |  | [app/admin/ai-tools/loading.tsx](../../../app/admin/ai-tools/loading.tsx) |  |
 | /admin/ai-tools | page |  | [app/admin/ai-tools/page.tsx](../../../app/admin/ai-tools/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5 |
-| /admin/analytics/ai-efficacy | page |  | [app/admin/analytics/ai-efficacy/page.tsx](../../../app/admin/analytics/ai-efficacy/page.tsx) | @/lib/auth/server:3, @/lib/tenant/adminPageScope:4, @/lib/auth/roles:5, @/lib/tenant/organization:6 |
+| /admin/analytics/ai-efficacy | page |  | [app/admin/analytics/ai-efficacy/page.tsx](../../../app/admin/analytics/ai-efficacy/page.tsx) | @/lib/auth/server:3, @/lib/tenant/adminPageScope:4 |
 | /admin/analytics | loading |  | [app/admin/analytics/loading.tsx](../../../app/admin/analytics/loading.tsx) |  |
 | /admin/analytics | page |  | [app/admin/analytics/page.tsx](../../../app/admin/analytics/page.tsx) | @/lib/auth/server:4, @/lib/tenant/adminPageScope:5, @/lib/tenant/organization:10 |
 | /admin/assessments | loading |  | [app/admin/assessments/loading.tsx](../../../app/admin/assessments/loading.tsx) |  |

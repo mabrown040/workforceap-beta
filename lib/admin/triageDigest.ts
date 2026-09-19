@@ -3,6 +3,7 @@ import 'server-only';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateHealthStatus, type HealthStatus, getHealthLabel, getHealthColor } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { stalledCheckInAction } from '@/lib/admin/triageDigestCopy';
 import {
   inheritMemberOrg,
   inheritUserOrg,
@@ -299,7 +300,9 @@ export async function getTriageDigest(scope: AdminPageTenantOk): Promise<TriageD
         count: stalledRows.length,
         label: `${stalledRows.length} ${pluralPeople(stalledRows.length, 'student', 'students')} stalled — no activity 30+ days`,
         icon: 'pause_circle',
-        accent: '#d97706',
+        // Token, not a hex literal: #d97706 measured 2.82:1 on the card
+        // surface. --wa-gold-dark is the text-on-tint gold (5.4:1 light).
+        accent: 'var(--wa-gold-dark)',
         members: stalledRows.slice(0, TOP_N).map(({ m, daysInactive }) => {
           const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
           const d = daysInactive;
@@ -309,7 +312,7 @@ export async function getTriageDigest(scope: AdminPageTenantOk): Promise<TriageD
             program,
             daysSinceActivity: d,
             health: null,
-            action: `Check in with ${m.fullName ?? m.email} — stalled ${d ?? '?'} days`,
+            action: stalledCheckInAction(m.fullName ?? m.email, d),
             href: `/admin/members/${m.id}`,
           };
         }),

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { AlertTriangle, MessageSquare, Sparkles } from 'lucide-react';
 import type { CommandCenter } from '@/lib/counselor/commandCenter';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { describeInactivity, isUrgentInactivity } from '@/lib/counselor/lastActivity';
 
 /**
  * Counselor Command Center — Today's priorities.
@@ -94,11 +95,11 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
             <PriorityRow
               key={row.memberId}
               name={row.memberName}
-              meta={`${row.daysInactive} days inactive`}
+              meta={describeInactivity(row.daysInactive)}
               preview={row.enrolledProgram ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram : null}
               actionLabel="Check in"
               actionHref={`/counselor/students/${row.memberId}`}
-              urgent={row.daysInactive >= 14}
+              urgent={isUrgentInactivity(row.daysInactive, 14)}
             />
           ))}
         </PrioritySection>

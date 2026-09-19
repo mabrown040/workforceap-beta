@@ -21,26 +21,14 @@ export default async function CounselorInboxZeroPage() {
 
   const t = await getTranslations('counselor');
 
-  let queue: InboxZeroQueue;
-  let loadError = false;
+  // `null` means the queue failed to load. The page then shows only the
+  // error card — never the "No assigned members need attention" empty state,
+  // which would contradict it.
+  let queue: InboxZeroQueue | null = null;
   try {
     queue = await getInboxZeroQueue(user.id, { isAdmin: admin });
   } catch (err) {
     console.error('[counselor/inbox] getInboxZeroQueue failed:', err);
-    loadError = true;
-    queue = {
-      rows: [],
-      totals: {
-        total: 0,
-        dismissedToday: 0,
-        byFlag: {
-          doc_missing: 0,
-          application_stalled: 0,
-          at_risk: 0,
-          last_contact: 0,
-        },
-      },
-    };
   }
 
   return (
@@ -56,7 +44,7 @@ export default async function CounselorInboxZeroPage() {
 
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
         <DesignSurface surface="dense">
-          {loadError ? (
+          {queue === null ? (
             <div
               className="wa-kit-card"
               data-portal-error-state="counselor-inbox-queue-load"
@@ -78,8 +66,9 @@ export default async function CounselorInboxZeroPage() {
                 </p>
               </div>
             </div>
-          ) : null}
-          <InboxZeroClient initialQueue={queue} />
+          ) : (
+            <InboxZeroClient initialQueue={queue} />
+          )}
         </DesignSurface>
       </section>
     </PortalPageFrame>

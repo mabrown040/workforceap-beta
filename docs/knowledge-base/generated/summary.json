@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "inputTreeSha256": "816cbb78957f96ee0ee064e534e20f7006f0e22d1f052df4399d0fa327e5245e",
+  "inputTreeSha256": "ae9ec24e88efcc3c390a27c9b02c0675f3f78ef11b245c86f9c362df28a32896",
   "auditBaseline": {
     "repository": "mabrown040/workforceap-beta",
     "reviewedCommit": "36eed25a8c7d58d629f8bac2319e0ad5b039cce4",
@@ -8,10 +8,10 @@
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
   "counts": {
-    "files": 4620,
-    "sourceModules": 3294,
-    "importReferences": 15713,
-    "resolvedLocalReferences": 10450,
+    "files": 4625,
+    "sourceModules": 3299,
+    "importReferences": 15683,
+    "resolvedLocalReferences": 10418,
     "unresolvedLocalReferences": 0,
     "routeFiles": 1052,
     "nextRouteFiles": 1019,
@@ -22,10 +22,10 @@
     "prismaModels": 111,
     "prismaEnums": 33,
     "relationFields": 304,
-    "testFiles": 692,
-    "testCandidates": 685,
+    "testFiles": 695,
+    "testCandidates": 688,
     "testHelpers": 7,
-    "staticallySelectedTests": 682,
+    "staticallySelectedTests": 685,
     "unselectedTestCandidates": 3,
     "metadataOnlyFiles": 0,
     "documentFiles": 414,
@@ -78,7 +78,7 @@
     },
     {
       "area": "libraries",
-      "files": 950
+      "files": 955
     },
     {
       "area": "localization",
@@ -124,7 +124,7 @@
     },
     {
       "file": "lib/auth/roles.ts",
-      "references": 415
+      "references": 414
     },
     {
       "file": "lib/content/programs.ts",
@@ -164,7 +164,7 @@
     },
     {
       "file": "lib/tenant/withTenantScope.ts",
-      "references": 101
+      "references": 100
     },
     {
       "file": "lib/tenant/adminPageScope.ts",
@@ -370,7 +370,7 @@
     },
     {
       "file": "components/admin/MembersTable.tsx",
-      "lines": 1166
+      "lines": 1169
     },
     {
       "file": "app/apply/create-account/ApplyCreateAccountForm.tsx",
